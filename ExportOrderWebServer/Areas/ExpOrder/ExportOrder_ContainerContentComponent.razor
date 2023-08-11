@@ -1,0 +1,145 @@
+﻿
+<style>
+    .AddContainerContent {
+        display: flex;
+        padding-bottom: 25px;
+    }
+
+    .fieldWt {
+        width: 160px;
+    }
+
+    .Cntr{
+        width: 155px;
+    }
+
+    .Seal
+    {
+        width: 160px;
+    }
+</style>
+
+<div class="item-container">
+
+    <div class="container-head">DOCUMENTS</div>
+
+    <div class="container-content">
+        <MudAutocomplete Class="wrapper-input Cntr" T="CntrEntity" Label="CONTAINER" @bind-Value="@Item.Cntr" SearchFunc="@SearchCntr" Variant="Variant.Outlined" MaxHeight="11"/>
+        <MudTextField Class="wrapper-input Seal" Label="SEALS" Variant="Variant.Outlined" @bind-Value="@Item.Seal"></MudTextField>
+        <MudButton Variant="Variant.Filled">SAVE</MudButton>
+    </div>
+</div>
+
+<div class="item-container">
+
+    <div class="container-head">DOCUMENTS</div>
+
+    <div class="container-content column">
+
+        @if (containerContent_Disable)
+        {
+            <div class="AddContainerContent">
+
+                <MudSelect Class="wrapper-input" T="DocumentEntity" Label="DOCUMENT" @bind-Value="SelectedDocument" Variant="Variant.Outlined">
+                    @foreach (var document in Documents)
+                    {
+                        <MudSelectItem T="DocumentEntity" Value="@document">@document.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect Class="wrapper-input" T="DocumentRecord" Label="COMMODITY" @bind-Value="SelectedDocumentRecord" Variant="Variant.Outlined">
+                    @if (SelectedDocument is not null)
+                        @foreach (var record in SelectedDocument.Records)
+                        {
+                            <MudSelectItem T="DocumentRecord" Value="@record">@record.CommodityName (@record.CommodityHSCode)</MudSelectItem>
+                        }
+                </MudSelect>
+
+                <MudNumericField Class="wrapper-input fieldWt" HideSpinButtons="true" @bind-Value="ContainerContentItem!.NetWt" Label="NET" Variant="Variant.Outlined" Format="N3" MaxLength="9" />
+                <MudNumericField Class="wrapper-input fieldWt" HideSpinButtons="true" @bind-Value="ContainerContentItem!.GrossWt" Label="GROSS" Variant="Variant.Outlined" Format="N3" MaxLength="9" />
+                <MudNumericField Class="wrapper-input fieldWt" HideSpinButtons="true" @bind-Value="ContainerContentItem!.Volume" Label="VOLUME" Variant="Variant.Outlined" Format="N3" MaxLength="6" />
+                <MudButton Variant="Variant.Filled" OnClick="AddContainerContent_Click">ADD</MudButton>
+                <MudButton Variant="Variant.Filled" OnClick="@(()=>{containerContent_Disable=false;})" Color="Color.Error">CANCEL</MudButton>
+            </div>
+        }
+        else
+        {
+            <div>
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="containerContent_Disable" OnClick="DisableContainerContent_Click">ADD</MudIconButton>
+            </div>
+
+        }
+
+
+        <MudTable Items="Item.Contents">
+            <HeaderContent>
+                <MudTh></MudTh>
+                <MudTh>Document</MudTh>
+                <MudTh>CommodityName</MudTh>
+                <MudTh>HSCode</MudTh>
+                <MudTh>Net</MudTh>
+                <MudTh>Gross</MudTh>
+                <MudTh>Volume</MudTh>
+
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd><MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(()=>{})"></MudIconButton></MudTd>
+                <MudTd DataLabel="Nr">@context.DocumentRecord.Document.Name</MudTd>
+                <MudTd DataLabel="Nr">@context.DocumentRecord.CommodityName</MudTd>
+                <MudTd DataLabel="Nr">@context.DocumentRecord.CommodityHSCode</MudTd>
+                <MudTd DataLabel="Nr"><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.DocumentRecord.NetWt" Variant="Variant.Outlined"></MudTextField></MudTd>
+                <MudTd DataLabel="Nr"><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.DocumentRecord.GrossWt" Variant="Variant.Outlined"></MudTextField></MudTd>
+                <MudTd DataLabel="Nr"><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.DocumentRecord.Volume" Variant="Variant.Outlined"></MudTextField></MudTd>
+
+            </RowTemplate>
+        </MudTable>
+    </div>
+</div>
+
+@code {
+    bool containerContent_Disable = false;
+
+    [Parameter]
+    public ExportOrderRecord? Item { get; set; }
+
+    [Parameter]
+    public IEnumerable<DocumentEntity>? Documents { get; set; }
+
+    private DocumentEntity? SelectedDocument { get; set; }
+
+    private DocumentRecord? SelectedDocumentRecord { get; set; }
+
+    private ContainerContent? ContainerContentItem { get; set; } = new();
+
+
+    protected override void OnInitialized()
+    {
+        if (Item is null)
+            Item = new() { Contents = new List<ContainerContent>()};
+    }
+
+
+    private void AddContainerContent_Click()
+    {
+
+
+
+
+    }
+
+    private void DisableContainerContent_Click()
+    {
+
+        containerContent_Disable = true;
+    }
+
+    private async Task<IEnumerable<CntrEntity>> SearchCntr(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+        return Enumerable.Empty<CntrEntity>();
+        // if text is null or empty, show complete list
+        //if (string.IsNullOrEmpty(value))
+        //    return states;
+        //return states.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+}

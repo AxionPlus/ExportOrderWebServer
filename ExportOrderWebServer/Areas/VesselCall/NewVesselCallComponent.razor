@@ -1,0 +1,224 @@
+﻿@using static System.Net.WebRequestMethods;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject HttpClient HttpClient
+@inject IHttpClientFactory httpClient
+
+
+@inject AuthenticationStateProvider authenticationStateProvider;
+<style>
+    .mud-dialog {
+        background-color: var(--grey-08);
+    }
+</style>
+@if (VesselCallItem is not null)
+{
+    <MudContainer>
+        <MudForm @ref="form">
+            <MudAutocomplete Class="wrapper-input Vessel_filter pt-2" Label="Vessel"
+                         T="VesselEntity" @bind-Value="@VesselCallItem.Vessel"
+                         ToStringFunc="@(s=>s.Name)"
+                         SearchFunc="@VesselSearch"
+                         CloseIcon="" OpenIcon=""
+                         MaxItems="5"
+                         Variant="Variant.Outlined"
+                         ResetValueOnEmptyText="true"
+                                  Required RequiredError=""
+                                  Clearable IconSize=Size.Small>
+            </MudAutocomplete>
+            <MudTextField Class="wrapper-input Voyage_filter pt-2"
+                      @bind-Value="VesselCallItem.VoyageCarrier"
+                      Label="Voyage Carrier"
+                      Variant="Variant.Outlined"
+                            Required RequiredError=""
+                            Clearable></MudTextField>
+            <MudTextField Class="wrapper-input Voyage_filter pt-2"
+                      @bind-Value="VesselCallItem.VoyageTerminal"
+                      Label="Voyage Terminal" Variant="Variant.Outlined"
+                            Required RequiredError=""
+                            Clearable></MudTextField>
+            <MudAutocomplete Class="wrapper-input Terminal_filter pt-2" T="TerminalCatalog"
+                         Label="Terminal" @bind-Value="@VesselCallItem.LoadingTerminal" SearchFunc="@TerminalSearch"
+                         ToStringFunc="@(s=>s.Name)"
+                         CloseIcon="" OpenIcon=""
+                         MaxItems="5"
+                         Variant="Variant.Outlined"
+                         ResetValueOnEmptyText="true"
+                                  Required RequiredError=""
+                                  Clearable IconSize=Size.Small>
+            </MudAutocomplete>
+            <MudAutocomplete Class="wrapper-input POD_filter pt-2" T="LocationCatalog" Label="POD" @bind-Value="@VesselCallItem.POD" SearchFunc="@PortSearch"
+                         ToStringFunc="@(s=>s.Name)"
+                         CloseIcon="" OpenIcon=""
+                         MaxItems="5"
+                         Variant="Variant.Outlined"
+                         ResetValueOnEmptyText="true"
+                                  Required RequiredError=""
+                                  Clearable IconSize=Size.Small>
+            </MudAutocomplete>
+            <MudDatePicker Class="wrapper-input-date pt-2" Label="ETA" ShowWeekNumbers="true" @bind-Date="@VesselCallItem.ETA" Variant="Variant.Outlined" />
+            <MudDatePicker Class="wrapper-input-date pt-2" Label="ETS" ShowWeekNumbers="true" @bind-Date="@VesselCallItem.ETS" Variant="Variant.Outlined" />
+            </MudForm>
+
+            <div class="pt-3">
+                <MudButton FullWidth Class="wrapper-button " Variant="Variant.Filled" Color="Color.Secondary"
+                   OnClick="@(async()=>{ addBtnDisable = false;
+                        await AddItem_Click();
+                        await Task.Delay(1000);
+                        addBtnDisable = true;
+        })">Add</MudButton>
+        </div>
+        </MudContainer>
+    <br />
+}
+
+@code {
+    MudForm? form;
+    bool addBtnDisable = false;
+    [Parameter]
+    public VesselCallEntity? VesselCallItem { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        // if (authState is not null)
+        //  User = await userManager.GetUserAsync(authState.User);
+
+
+        //, 
+
+        //var url = $"{Navigation.BaseUri}api/DictionaryData/Vessel2";
+
+        //var forecasts = await Http.GetFromJsonAsync<IEnumerable<VesselEntity>>("api/DictionaryData");
+
+        //var result = await HttpClient.GetAsync("api/DictionaryData/uploadBase");
+
+
+        // //var token = httpContext.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
+        // HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
+        // httpRequestMessage.Method = new HttpMethod("GET");
+        // httpRequestMessage.RequestUri = new Uri($"{Navigation.BaseUri}api/DictionaryData/uploadBase"); // mention link of
+        //// httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+        //// httpRequestMessage.Headers.Add("Cookie", $".AspNetCore.Identity.Application={token}");
+        // var response = await httpClient.CreateClient().SendAsync(httpRequestMessage);
+        //if (result.IsSuccessStatusCode)
+        //{
+        //    try
+        //    {
+        //        var Shops = await result.Content.ReadFromJsonAsync<string>();
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        var es = ex;
+        //    }
+
+        //}
+        //try
+        //{
+        //    var forecasts = await Http.GetFromJsonAsync<IEnumerable<VesselEntity>>("DictionaryData\\Vessel");
+        //    var forecast = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+
+        //    var get = await Http.GetAsync(url);
+
+        //}
+        //catch (AccessTokenNotAvailableException exception)
+        //{
+        //    exception.Redirect();
+        //}
+    }
+
+
+    private async Task AddItem_Click()
+    {
+        await form!.Validate();
+        if (form.IsValid)
+        {
+            //  var result = await HttpClient.PostAsJsonAsync<VesselCallEntity>($"{Navigation.BaseUri}api/VesselCall/NewItem", VesselCallItem!);
+
+           // var token = httpContext.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
+        //    var json = .Json.JsonConvert.SerializeObject(VesselCallItem);
+
+          
+        //httpRequestMessage.Headers.Add("Cookie", $".AspNetCore.Identity.Application={token}");
+        //    var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+         //   var result_ = await Http.PostAsync($"{Navigation.BaseUri}api/VesselCall/NewItem", stringContent).ConfigureAwait(false);
+   
+
+            //HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
+            //httpRequestMessage.Method = new HttpMethod(HttpMethod.Post.Method);
+            //httpRequestMessage.RequestUri = new Uri($"{Navigation.BaseUri}api/VesselCall");
+            // httpRequestMessage.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            //  //httpRequestMessage.Headers.Add("Cookie", $".AspNetCore.Identity.Application={token}");
+            //var response = await httpClient.CreateClient().SendAsync(httpRequestMessage);
+
+
+
+       
+
+           
+
+            ////var  response = await Http.SendJsonAsync<VesselCallEntity>(HttpMethod.Post, $"{Navigation.BaseUri}api/VesselCall", request);
+
+          
+        }
+
+
+    }
+    #region Searchers
+
+    private async Task<IEnumerable<LocationCatalog>> PortSearch(string value)
+    {
+        IEnumerable<LocationCatalog>? Terminals;
+        try
+        {
+            Terminals = await Http.GetFromJsonAsync<IEnumerable<LocationCatalog>>("api/DictionaryData/Locations");
+        }
+        catch (Exception)
+        {
+            return Enumerable.Empty<LocationCatalog>();
+        }
+        //// if text is null or empty, don't return values (drop-down will not open)
+        if (string.IsNullOrEmpty(value))
+            return Enumerable.Empty<LocationCatalog>();
+        return Terminals!.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Take(5);
+    }
+
+    private async Task<IEnumerable<TerminalCatalog>> TerminalSearch(string value)
+    {
+        IEnumerable<TerminalCatalog>? Terminals = new List<TerminalCatalog>();
+        try
+        {
+    //        Terminals = await Http.GetFromJsonAsync<IEnumerable<TerminalEntity>>("api/DictionaryData/Terminals");
+        }
+        catch (Exception)
+        {
+            return Enumerable.Empty<TerminalCatalog>();
+        }
+        //// if text is null or empty, don't return values (drop-down will not open)
+        if (string.IsNullOrEmpty(value))
+            return Enumerable.Empty<TerminalCatalog>();
+        return Terminals!.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Take(5);
+    }
+
+    private async Task<IEnumerable<VesselEntity>> VesselSearch(string value)
+    {
+        IEnumerable<VesselEntity>? Vessels;
+        try
+        {
+            Vessels = await Http.GetFromJsonAsync<IEnumerable<VesselEntity>>("api/DictionaryData/Vessels");
+        }
+        catch (Exception)
+        {
+            return Enumerable.Empty<VesselEntity>();
+        }
+        //// if text is null or empty, don't return values (drop-down will not open)
+        if (string.IsNullOrEmpty(value))
+            return Enumerable.Empty<VesselEntity>();
+        return Vessels!.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Take(5);
+    }
+
+    #endregion
+}

@@ -1,0 +1,103 @@
+﻿
+@inject IDialogService DialogService
+
+<style>
+
+    .filters {
+        display: flex;
+        width: 100%;
+        align-items: center;
+    }
+
+    .min-width {
+        width: 960px;
+    }
+</style>
+
+<div class="@(MudDialog is null ? "item-container": "item-container min-width")">
+
+    <div class="container-head"></div>
+    <div class="container-content">
+        <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="@(async ()=>{newItemBtnDisable=true; await NewItem_Click(); await Task.Delay(1000); newItemBtnDisable=false; })">New Vessel</MudButton>
+    </div>
+
+</div>
+
+<div class="item-container">
+
+    <div class="container-head"></div>
+    <div class="container-content column ">
+
+        <div class="filters">
+
+            <MudTextField Class="wrapper-input" @bind-Value="filter_NAME" Label="NAME" Variant="Variant.Outlined" Clearable></MudTextField>
+            <MudSpacer />
+            <MudTextField Class="wrapper-input" @bind-Value="filter_Flag" Label="Eng NAME" Variant="Variant.Outlined" Clearable></MudTextField>
+
+            <MudSpacer />
+            <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Secondary" Disabled="@searchBtnDisable"
+                       OnClick="@(async ()=>{searchBtnDisable=true; await SearchItems_Click(); await Task.Delay(1000); searchBtnDisable=false; })">Search</MudButton>
+        </div>
+        <div class="viewDataTable">
+            <MudTable Items="@Items">
+                <HeaderContent>
+                    <MudTh></MudTh>
+                    <MudTh>IMO</MudTh>
+                    <MudTh>NAME</MudTh>
+                    <MudTh>FLAG</MudTh>
+
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.AspectRatio"></MudIconButton></MudTd>
+                    <MudTd DataLabel="Terminal">@context.IMO</MudTd>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="VoyageCarrier">@context.Flag.RUS</MudTd>
+
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    bool newItemBtnDisable = false;
+    bool searchBtnDisable = false;
+
+
+    string? filter_NAME;
+    string? filter_Flag;
+
+
+    [Parameter]
+    public IEnumerable<VesselEntity>? Items { get; set; } = new List<VesselEntity>();
+
+    private async Task SearchItems_Click()
+    {
+
+
+    }
+
+
+    private async Task NewItem_Click()
+    {
+        //var parameters = new DialogParameters { ["server"] = server };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<ItemVesselComponent>("NEW VESSEL", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            if (MudDialog is not null)
+            {
+
+                MudDialog?.Close(DialogResult.Ok(result.Data));
+
+            }
+
+    }
+}

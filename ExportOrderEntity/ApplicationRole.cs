@@ -1,0 +1,8 @@
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace ExportOrderEntites
+{
+    public class ApplicationRole:IdentityRole
+    {
+    }
+}

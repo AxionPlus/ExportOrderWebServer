@@ -1,0 +1,42 @@
+﻿using ExportOrderEntites.Cntr;
+using ExportOrderEntites.Document;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ExportOrderEntites.ExportOrder;
+
+public class ExportOrderEntity : Entity
+{
+
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
+    public string Num { get; set; }
+    public DateTime Dated { get; set; } = DateTime.Today;
+
+    public Carrier  Carrier { get; set; }
+
+    public IList<DocumentEntity>? Documents { get; set; } = new List<DocumentEntity>(); 
+    public IList<ExportOrderRecord>? Records { get; set; }= new List<ExportOrderRecord>();
+
+    [NotMapped]
+    public IEnumerable<DocumentCustomer> Shippers
+    {
+        get
+        {
+            if (Documents is null)
+                return Enumerable.Empty<DocumentCustomer>();
+
+            return Documents.Select(x => x.Shipper).ToList();
+        }
+    }
+
+    [NotMapped]
+    public IEnumerable<DocumentCustomer> Consignees
+    {
+        get
+        {
+            if (Documents is null)
+                return Enumerable.Empty<DocumentCustomer>();
+
+            return Documents.Select(x => x.Consignee).ToList();
+        }
+    }
+}

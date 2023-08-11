@@ -1,0 +1,108 @@
+﻿@inject AuthenticationStateProvider authenticationStateProvider;
+<style>
+
+
+
+    .wrapper-input * .mud-input > input.mud-input-root-outlined, div.mud-input-slot.mud-input-root-outlined {
+        text-align: left;
+    }
+</style>
+
+@if (Item is not null)
+{
+    <MudContainer>
+        <MudForm @ref="form">
+
+            <MudTextField T="string" Class="pt-3"
+                      Margin="Margin.Dense"
+                      Value="Item.Name"
+                            Immediate
+                      ValueChanged="@((e)=>{Item.Name = e.ToUpper();})"
+                      Label="Name"
+                      Lines="3"
+                      Variant="Variant.Outlined"
+                            Required RequiredError=""
+                            Clearable></MudTextField>
+            <MudTextField T="string" Class=" pt-3"
+                      Margin="Margin.Dense"
+                      Value="Item.EngName"
+                            Immediate
+                      ValueChanged="@((e)=>{Item.EngName=e.ToUpper();})"
+                      Label="ENG Name"
+                      Variant="Variant.Outlined"
+                            Required RequiredError=""
+                            Clearable></MudTextField>
+
+
+            <MudAutocomplete Class=" pt-3" T="CountryCatalog" Label="Country"
+                         ToStringFunc="@(e=>e.RUS)"
+                         Variant="Variant.Outlined"
+                         @bind-Value="Item.Country"
+                         SearchFunc="@Search"
+                         Margin="Margin.Dense" />
+        </MudForm>
+        <br />
+        <br />
+        <div>
+            <MudButton FullWidth Disabled="addBtnDisable" Class="wrapper-button " Variant="Variant.Filled" Color="Color.Secondary"
+                   OnClick="@(async()=>{ addBtnDisable = true;
+                        await AddItem_Click();
+                        await Task.Delay(1000);
+                        addBtnDisable = false;
+        })">Add</MudButton>
+        </div>
+        </MudContainer>
+    <br />
+}
+@code {
+
+    MudForm? form;
+    bool addBtnDisable = false;
+
+    [Parameter]
+    public CustomerCatalog? Item { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+    }
+
+
+    private async Task AddItem_Click()
+    {
+        await form!.Validate();
+        if (form.IsValid)
+        {
+
+           // await HttpMethods.POST("DictionaryData/NewCustomer", Item!);
+
+
+            MudDialog?.Close(DialogResult.Ok(Item));
+
+
+        }
+
+
+    }
+
+
+    private async Task<IEnumerable<CountryCatalog>> Search(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        //var result = await HttpClient.GetFromJsonAsync<IEnumerable<CountryEntity>>($"api/DictionaryData/Countries");
+
+        // if text is null or empty, show complete list
+        //if (string.IsNullOrEmpty(value))
+        //    return result;
+        //return result.Where(x => x.RUS.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        return null;
+    }
+
+
+    #region FUNCS
+
+    #endregion
+}

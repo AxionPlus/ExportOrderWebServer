@@ -1,0 +1,199 @@
+﻿@inject IDialogService DialogService
+@inject HttpClient Http
+
+<style>
+
+    .filters {
+        display: flex;
+        padding-bottom: 25px;
+    }
+</style>
+
+<div class="item-container">
+
+    <div class="container-head"></div>
+    <div class="container-content">
+        <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="@(async ()=>{newVslCallBtnDisable=true; await NewVesselCall_Click(); await Task.Delay(1000); newVslCallBtnDisable=false; })">New Vessel Call</MudButton>
+    </div>
+
+</div>
+
+
+<div class="item-container">
+
+    <div class="container-head"></div>
+    <div class="container-content column">
+
+        <div class="filters">
+            <MudAutocomplete Class="wrapper-input Vessel_filter" T="string" Label="Vessel" @bind-Value="@filter_Vessel" SearchFunc="@VesselSearch"
+                             CloseIcon="" OpenIcon=""
+                             MaxItems="5"
+                             Variant="Variant.Outlined"
+                             ResetValueOnEmptyText="true"
+                                              Clearable IconSize=Size.Small>
+            </MudAutocomplete>
+
+            <MudTextField Class="wrapper-input Voyage_filter" @bind-Value="filter_Voyage" Label="Voyage" Variant="Variant.Outlined" Clearable></MudTextField>
+
+            <MudAutocomplete Class="wrapper-input POD_filter" T="string" Label="POD" @bind-Value="@filter_Pod" SearchFunc="@PortSearch"
+                             CloseIcon="" OpenIcon=""
+                             MaxItems="5"
+                             Variant="Variant.Outlined"
+                             ResetValueOnEmptyText="true"
+                                              Clearable IconSize=Size.Small>
+            </MudAutocomplete>
+            <MudAutocomplete Class="wrapper-input Terminal_filter" T="string" Label="Terminal" @bind-Value="@filter_Terminal" SearchFunc="@TerminalSearch"
+                             CloseIcon="" OpenIcon=""
+                             MaxItems="5"
+                             Variant="Variant.Outlined"
+                             ResetValueOnEmptyText="true"
+                                              Clearable IconSize=Size.Small>
+            </MudAutocomplete>
+
+            <MudDatePicker Class="wrapper-input-date" Label="From" @bind-Date="filter_From"
+                           DateFormat="dd.MM.yy"
+                           Variant="Variant.Outlined"
+                           IconSize=Size.Small
+                           ShowWeekNumbers="true"
+                           AutoClose=true
+                           DisableToolbar=false
+                                          Clearable />
+
+            <MudDatePicker Class="wrapper-input-date" Label="To" @bind-Date="filter_To"
+                           DateFormat="dd.MM.yy"
+                           ShowWeekNumbers="true"
+                           Variant="Variant.Outlined"
+                           IconSize=Size.Small
+                           AutoClose=true
+                           DisableToolbar=false
+                                          Clearable />
+
+            <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Secondary"
+                       Disabled="@searchBtnDisable"
+                       OnClick="@(async ()=>{searchBtnDisable=true; await SearchVesselCall_Click(); await Task.Delay(1000); searchBtnDisable=false; })">
+  
+                    <span>Search</span>
+                
+            </MudButton>
+
+        </div>
+        <div class="viewDataTable">
+            <MudTable Items="@VesselCalls" Loading="@searchBtnDisable" LoadingProgressColor="Color.Secondary">
+                <HeaderContent>
+                    <MudTh></MudTh>
+                    <MudTh>Vessel</MudTh>
+                    <MudTh>Voyage</MudTh>
+                    <MudTh>Terminal</MudTh>
+                    <MudTh>POD</MudTh>
+                    <MudTh>ETA</MudTh>
+                    <MudTh>ETS</MudTh>
+
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.AspectRatio"></MudIconButton></MudTd>
+                    <MudTd DataLabel="Name">@context.Vessel.Name</MudTd>
+                    <MudTd DataLabel="VoyageCarrier">@context.VoyageCarrier</MudTd>
+                    <MudTd DataLabel="Terminal">@context.LoadingTerminal.Name</MudTd>
+                    <MudTd DataLabel="POD">@context.POD.Name</MudTd>
+                    <MudTd DataLabel="ETA">@(context.ETA.HasValue ? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
+                        <MudTd DataLabel="ETS">@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>
+
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager />
+                    </PagerContent>
+                </MudTable>
+            </div>
+        </div>
+    </div>
+
+    @code {
+    bool newVslCallBtnDisable = false;
+    bool searchBtnDisable = false;
+
+    public string? filter_Vessel { get; set; }
+    public string? filter_Voyage { get; set; }
+    public string? filter_Pod { get; set; }
+    public string? filter_Terminal { get; set; }
+    public bool? filter_IsOmit { get; set; }
+    public DateTime? filter_From { get; set; }
+    public DateTime? filter_To { get; set; }
+
+    public IEnumerable<VesselCallEntity>? VesselCalls { get; set; } = new List<VesselCallEntity>();
+
+    private async Task NewVesselCall_Click()
+    {
+
+        //var parameters = new DialogParameters { ["server"] = server };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<NewVesselCallComponent>("NEW VESSEL CALL", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+
+        }
+
+    }
+    private async Task SearchVesselCall_Click()
+    {
+        try
+        {
+            VesselCalls = await Http.GetFromJsonAsync<IEnumerable<VesselCallEntity>>("api/VesselCall/GetItems");
+        }
+        catch (Exception)
+        {
+            VesselCalls = Enumerable.Empty<VesselCallEntity>();
+        }
+
+
+    }
+    #region Searchers
+
+    private async Task<IEnumerable<string>> PortSearch(string value)
+    {
+
+        return Enumerable.Empty<string>();
+        //// In real life use an asynchronous function for fetching data from an api.
+        //var ports = await locationProvider.GetPortsAsync;
+
+        //// if text is null or empty, don't return values (drop-down will not open)
+        //if (string.IsNullOrEmpty(value))
+        //    return null;
+        //return ports.Where(x => x.UnLocode.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.UnLocode).Take(5);
+    }
+
+    private async Task<IEnumerable<string>> TerminalSearch(string value)
+    {
+        return Enumerable.Empty<string>();
+        //if (string.IsNullOrEmpty(value)) return Enumerable.Empty<string>();
+
+        //if (!string.IsNullOrWhiteSpace(filter_Port))
+        //{
+        //    var ports = await contractorProvider.GetPortTerminalsAsync(filter_Port);
+        //    return ports.Where(x => x.ShortNameNative.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.ShortNameNative);
+        //}
+        //var terminal = await contractorProvider.GetTerminalsAsync;
+
+        //// if text is null or empty, don't return values (drop-down will not open)
+
+        //return terminal.Where(x => x.ShortNameNative.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.ShortNameNative).Take(5);
+    }
+
+    private async Task<IEnumerable<string>> VesselSearch(string value)
+    {
+        return Enumerable.Empty<string>();
+        // In real life use an asynchronous function for fetching data from an api.
+        //var vessels = await auxDirectory.GetVesselsAsync();
+
+        //// if text is null or empty, don't return values (drop-down will not open)
+        //if (string.IsNullOrEmpty(value))
+        //    return null;
+        //return vessels.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.Name).Take(5);
+    }
+
+    #endregion
+
+}

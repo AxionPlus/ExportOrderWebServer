@@ -1,0 +1,79 @@
+﻿@using ExportOrderWebServer.Areas.Customer
+
+<style>
+    .wrapper-input * .mud-input > input.mud-input-root-outlined {
+        text-align: left !important;
+    }
+
+</style>
+<MudAutocomplete Class="@Class"
+                 T="DocumentCustomer" Label="@Label"
+                 Value="@Value"
+                 ToStringFunc="s=>s.Name"
+                 ValueChanged="@(async(e)=>{await ValueChanged.InvokeAsync(e);})"
+                      Immediate
+                 SearchFuncWithCancel="@Search"
+                 Variant="Variant.Outlined"
+                 Lines="10"
+                 CoerceText="@true" CoerceValue="@true"
+                      Clearable>
+
+
+    <MoreItemsTemplate>
+        <MudText Align="Align.Center" Class="px-4 py-1">
+            <MudLink Class="pl-4" OnClick="AddNewItem" Underline="Underline.None">ADD NEW</MudLink>
+        </MudText>
+    </MoreItemsTemplate>
+</MudAutocomplete>
+
+
+
+@code {
+
+    [Inject] private IDialogService DialogService { get; set; }
+
+    [Parameter]
+    public string Class { get; set; }
+    [Parameter]
+    public string Label { get; set; }
+
+    [Parameter]
+    public DocumentCustomer? Value { get; set; }
+    [Parameter]
+    public EventCallback<DocumentCustomer?> ValueChanged { get; set; }
+
+
+    private async Task<IEnumerable<DocumentCustomer>> Search(string value, CancellationToken token)
+    {
+        //    var _result = await HttpClient.GetFromJsonAsync<IEnumerable<CustomerEntity>>("api/DictionaryData/Customers", token);
+
+
+        //    var result = _result.Select(s => s.Name).ToList();
+        //    if (string.IsNullOrEmpty(value))
+        //        return result;
+        //    return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        return null;
+
+    }
+    private async Task AddNewItem()
+    {
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<ItemCustomerComponent>("NEW CUSTOMER", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+
+        {
+            var item = (CustomerCatalog)result.Data;
+            Value = new DocumentCustomer() { Name= item.Name};
+
+        }
+
+
+    }
+}
+@*    <NoItemsTemplate>
+        <MudText Align="Align.Center" Class="px-4 py-1">
+            No items found <MudLink Class="pl-4" OnClick="AddNewItem" Underline="Underline.None">ADD NEW</MudLink>
+        </MudText>
+    </NoItemsTemplate>*@

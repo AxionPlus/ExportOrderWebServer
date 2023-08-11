@@ -1,0 +1,140 @@
+﻿@inject IDialogService DialogService
+
+<style>
+
+    .filters {
+        display: flex;
+    }
+
+    .viewDataTable {
+        margin-top: 10px !important;
+    }
+
+    .mud-icon-button.wrapper-iconbutton {
+        padding: 4px;
+    }
+</style>
+
+<div class="item-container">
+
+    <div class="container-head"></div>
+    <div class="container-content">
+        <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="@(async ()=>{newItemBtnDisable=true; await NewItem_Click(); await Task.Delay(1000); newItemBtnDisable=false; })">New Document</MudButton>
+    </div>
+
+</div>
+
+<div class="item-container">
+
+    <div class="container-head">DOCUMENTS</div>
+    <div class="container-content column">
+
+        <div class="filters">
+
+            <MudTextField Class="wrapper-input Ducument_filter" @bind-Value="filter_Ducument" Label="Ducument" Variant="Variant.Outlined" Clearable></MudTextField>
+            <MudSpacer />
+            <MudTextField Class="wrapper-input Shipper_filter" @bind-Value="filter_Shipper" Label="Shipper" Variant="Variant.Outlined" Clearable></MudTextField>
+            <MudSpacer />
+            <MudTextField Class="wrapper-input Consignee_filter" @bind-Value="filter_Consignee" Label="Consignee" Variant="Variant.Outlined" Clearable></MudTextField>
+            <MudSpacer />
+            <MudTextField Class="wrapper-input Commodity_filter" @bind-Value="filter_Commodity" Label="Commodity" Variant="Variant.Outlined" Clearable></MudTextField>
+            <MudSpacer />
+            <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Secondary"
+                       OnClick="@(async ()=>{searchBtnDisable=true; await SearchItems_Click(); await Task.Delay(1000); searchBtnDisable=false; })">Search</MudButton>
+        </div>
+    </div>
+    <div class="item-container viewDataTable">
+        <MudTable Items="@Items">
+            <HeaderContent>
+                <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:50px">Type</MudTh>
+                <MudTh Style="width:100px">Name</MudTh>
+                <MudTh>Shipper</MudTh>
+                <MudTh>Consignee</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudIconButton Class="wrapper-iconbutton" Disabled="@selectItemBtn_Disable" Icon="@Icons.Material.Outlined.ChevronRight"
+                                   OnClick="@(async()=>{
+                                    selectItemBtn_Disable= true;
+                                      await  SelectItem_Click(context);
+                                    selectItemBtn_Disable= false;
+                                })"></MudIconButton>
+
+                </MudTd>
+                <MudTd DataLabel="Name">@context.Type.ToString()</MudTd>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="VoyageCarrier">@context.Shipper</MudTd>
+                <MudTd DataLabel="VoyageCarrier">@context.Consignee</MudTd>
+
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </div>
+
+</div>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    bool selectItemBtn_Disable = false;
+    bool newItemBtnDisable = false;
+    bool searchBtnDisable = false;
+
+    string? filter_Ducument;
+    string? filter_Shipper;
+    string? filter_Consignee;
+    string? filter_Commodity;
+
+
+    [Parameter]
+    public IEnumerable<DocumentEntity>? Items { get; set; }
+
+
+
+
+
+    private async Task SearchItems_Click()
+    {
+
+        Items = new List<DocumentEntity>() { new() { Name = "1111111/2222222/111111111" }, new() { Name = "1111111/2222222/111111111" } };
+    }
+
+
+    private async Task NewItem_Click()
+    {
+        //var parameters = new DialogParameters { ["server"] = server };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<ItemDocumentComponent>("NEW DOCUMENT", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+
+        }
+
+    }
+
+    private async Task SelectItem_Click(DocumentEntity item)
+    {
+        if (MudDialog is not null)
+            MudDialog.Close(DialogResult.Ok(item));
+
+
+        var parameters = new DialogParameters { ["IsNewItem"] = false };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<ItemDocumentComponent>($"Document No {item.Name}", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+
+        }
+
+
+    }
+}

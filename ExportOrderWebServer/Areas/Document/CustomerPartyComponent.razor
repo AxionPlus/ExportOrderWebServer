@@ -9,7 +9,6 @@
 <MudAutocomplete Class="@Class"
                  T="DocumentCustomer" Label="@Label"
                  Value="@Value"
-                 ToStringFunc="s=>s.Name"
                  ValueChanged="@(async(e)=>{await ValueChanged.InvokeAsync(e);})"
                       Immediate
                  SearchFuncWithCancel="@Search"

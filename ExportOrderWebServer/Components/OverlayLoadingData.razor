@@ -1,0 +1,17 @@
+﻿
+<MudOverlay Visible="@Visible" DarkBackground="true" Absolute="true" Style="align-items: flex-start; z-index:999999">
+    <div style=" margin-top:150px">
+        <h1>@Text</h1>
+        <MudProgressCircular Color="Color.Error" Indeterminate="true" Style="height:100px;width:100px;" />
+    </div>
+</MudOverlay>
+
+
+@code {
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public string Text { get; set; } = "Loading...";
+}

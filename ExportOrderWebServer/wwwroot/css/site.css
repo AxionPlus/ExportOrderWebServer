@@ -5,16 +5,16 @@
 }
 
 body {
-    background-color: #cfe5ed !important;
+    height: 100vh;
 }
 
-.mud-primary-hover {
+/*.mud-primary-hover {
     background-color: #3592b41f !important;
 }
 
 .h-100 {
     height: 100%;
-}
+}*/
 
 .page-container {
     display: flex;
@@ -23,6 +23,8 @@ body {
     height: 100%;
 }
 
+
+/*TOOLBAR*/
 .ToolBar-container {
     color: var(--mud-palette-text-primary);
     border-radius: var(--mud-default-borderradius);
@@ -33,7 +35,112 @@ body {
     z-index: 999;
 }
 
-.item-container {
+.mud-toolbar.ToolBar {
+    height: 36px;
+}
+
+.ToolBar-Title > span {
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.ToolBar-new {
+    background-color: var(--grey-30);
+}
+
+.ToolBar-mapping {
+    background-color: #ff980040;
+}
+
+.ToolBar-pending {
+    background-color: #ff980040;
+}
+
+.ToolBar-active {
+    background-color: #ff980020;
+}
+
+.ToolBar-confirmed {
+    background-color: #a6ebc3;
+}
+
+.ToolBar-printed {
+    background-color: #02cb5545;
+}
+
+.ToolBar-cancelled {
+    background-color: #FFCDD2;
+}
+
+.ToolBar-IconButton .mud-icon-size-medium {
+    font-size: 1.4rem;
+}
+
+.ToolBar-IconButton .mud-icon-size-medium:hover {
+    font-size: 1.5rem;
+}
+
+.ToolBar-iconbutton {
+    width: 1.5rem;
+    margin-inline: 2px;
+}
+.mud-icon-button.ToolBar-IconButton {
+    padding: 2px;
+}
+
+
+/*CONTAINER-ITEM*/
+.Container-item {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
+    box-shadow: var(--mud-elevation-1);
+    background-color: var(--containerBackGround);
+}
+
+    .Container-item > .container-head {
+        padding-inline: 10px;
+        background-color: #3592b4;
+        color: white;
+        font-weight: 700;
+    }
+
+        .Container-item > .container-head span {
+            margin-bottom: auto;
+            margin-top: auto;
+        }
+
+    .Container-item > .radioGroup_head {
+        padding-inline: 36px;
+        background: silver;
+    }
+
+    .Container-item > .container-content {
+        padding: 10px;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        background-color: var(--grey-08);
+    }
+
+    .Container-item * .container-content {
+        padding: 10px;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        background-color: var(--grey-08);
+    }
+
+    .Container-item > .container-content.column {
+        flex-direction: column;
+    }
+
+/*.item-container {
     margin-top: 15px !important;
     display: flex !important;
     flex-direction: column;
@@ -55,9 +162,9 @@ body {
 
     .container-head h4 {
         padding-left: 25px
-    }
+    }*/
 
-.container-content {
+/*.container-content {
     padding: 10px;
     width: 100%;
     display: flex !important;
@@ -68,7 +175,7 @@ body {
 
     .container-content.column {
         flex-direction: column;
-    }
+    }*/
 
 .dialog-container {
     width: 100%;
@@ -218,51 +325,9 @@ body {
     }
 
 
-.ToolBar {
-    height: 46px !important;
-}
 
-.ToolBar-new {
-    background-color: var(--grey-30);
-}
 
-.ToolBar-mapping {
-    background-color: #ff980040;
-}
-
-.ToolBar-pending {
-    background-color: #ff980040;
-}
-
-.ToolBar-active {
-    background-color: #ff980020;
-}
-
-.ToolBar-confirmed {
-    background-color: #a6ebc3;
-}
-
-.ToolBar-printed {
-    background-color: #02cb5545;
-}
-
-.ToolBar-cancelled {
-    background-color: #FFCDD2;
-}
-
-.ToolBar button.mud-icon-button {
-    padding: 2px;
-}
-
-.ToolBar * label.mud-icon-button {
-    padding: 2px;
-}
-
-.ToolBar * .mud-icon-size-medium:hover {
-    font-size: 1.6rem;
-}
-
-.ToolBar-SearchBox {
+/*.ToolBar-SearchBox {
     display: flex;
     align-items: center;
     padding-inline: 10px;
@@ -282,7 +347,7 @@ body {
 
     .ToolBar-SearchBox .mud-icon-button {
         padding: 5px;
-    }
+    }*/
 
 .controlIconButtons {
     display: flex;

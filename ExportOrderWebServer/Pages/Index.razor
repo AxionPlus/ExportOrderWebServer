@@ -1,9 +1,45 @@
 ﻿@page "/"
+@inject AuthenticationStateProvider authenticationStateProvider;
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
 
-Welcome to your new app.
+        <MudSpacer />
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<br />
+<h1>Hello, User</h1>
+@* <h1>Hello, @ApplicationParameter.ApplicationUser</h1> *@
+
+@* <MudButton OnClick="menu_click">Menu</MudButton> *@
+
+@* <AuthorizeView Roles="Admin">
+    <MudButton OnClick="TEST_click">TEST</MudButton>
+
+</AuthorizeView> *@
+
+@code {
+    [CascadingParameter]
+    protected EventCallback ShowMainMenu { get; set; }
+
+    private async Task menu_click()
+    {
+        await ShowMainMenu.InvokeAsync();
+    }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+    //     ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
+    // }
+}

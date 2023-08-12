@@ -1,0 +1,42 @@
+﻿<style>
+
+    .ExitIconButton {
+        transform: rotate(180deg);
+    }
+
+    .ToolBar-MenuIcon {
+        display: inline-flex;
+    }
+</style>
+
+
+<div class="ToolBar-iconbutton MenuIconBtn">
+    <MudTooltip Text="MENU">
+        <MudIconButton Class="@Class" Icon="@Icons.Material.Outlined.Menu" OnClick="menu_click" />
+    </MudTooltip>
+</div>
+
+<div class="ToolBar-iconbutton ml-1">
+    <MudTooltip Class="ExitIconButton" Text="EXIT">
+        <MudIconButton Class="ToolBar-IconButton ExitIconButton" Icon="@Icons.Material.Outlined.ExitToApp" Href="@ExitHref" />
+    </MudTooltip>
+</div>
+
+
+@code {
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? ExitHref { get; set; }
+
+
+    [CascadingParameter]
+    protected EventCallback ShowMainMenu { get; set; }
+
+    private async Task menu_click()
+    {
+        await ShowMainMenu.InvokeAsync();
+    }
+
+}

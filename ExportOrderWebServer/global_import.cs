@@ -4,3 +4,5 @@ global using ExportOrderEntites.Catalog;
 global using ExportOrderEntites.Cntr;
 global using ExportOrderEntites.VesselCall;
 global using ExportOrderEntites.ExportOrder;
+
+global using ExportOrderEntites;

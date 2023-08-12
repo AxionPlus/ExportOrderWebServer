@@ -1,4 +1,4 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@* <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">ExportOrderGeneratorWeb</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -26,6 +26,33 @@
         </div>
     </nav>
 </div>
+ *@
+
+<MudNavMenu>
+
+@*     <AuthorizeView Roles="Admin">
+        <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EmojiPeople">Users</MudNavLink>
+        <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EmojiPeople">Roles</MudNavLink>
+    </AuthorizeView>
+
+    <AuthorizeView Roles="Admin, TopManager, LogDept, ImpDept, ExpDept, FinDept">
+    </AuthorizeView> *@
+
+    <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Vessel Call</MudNavLink>
+    <MudNavLink Href="/document" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Documents</MudNavLink>
+    <MudNavLink Href="/exportOrder" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Export Order</MudNavLink>
+    <MudNavLink Href="/commodity" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Commodity</MudNavLink>
+    <MudNavLink Href="/container" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Container</MudNavLink>
+    <MudNavLink Href="/customer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Note">Customer</MudNavLink>
+    <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Vessel</MudNavLink>
+    <MudNavLink Href="/location" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Location</MudNavLink>
+    <MudNavLink Href="/country" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Country</MudNavLink>
+
+    <MudNavLink Href="/catalog" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Catalog</MudNavLink>
+   
+
+</MudNavMenu>
+
 
 @code {
     private bool collapseNavMenu = true;

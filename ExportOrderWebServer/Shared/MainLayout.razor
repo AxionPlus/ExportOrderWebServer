@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthenticationStateProvider authenticationStateProvider;
 
 <PageTitle>Export Order</PageTitle>
 
@@ -6,21 +7,47 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-
-
-
-
 <MudLayout>
-    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-        <div class="ToolBar-container ToolBar-new">
-            <MudToolBar Class="ToolBar">
-                <ToolBarMenu />
-                <MudSpacer />
-                <LoginDisplay />
-            </MudToolBar>
-        </div>
-        <div>
-            @Body
-        </div>
+    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="@DrawerClipMode.Never" Variant="@DrawerVariant.Temporary" Anchor="@Anchor.Start">
+        <NavMenu />
+    </MudDrawer>
+    <MudContainer MaxWidth="MaxWidth.Large" Style="padding-bottom: 15px;">
+        <CascadingValue Value=ShowMainMenu>
+            @* <AuthorizeView> *@
+                @* <Authorized> *@
+                    @Body
+                @* </Authorized> *@
+@*                 <NotAuthorized>
+                    <LoginRedirect />
+                </NotAuthorized> *@
+            @* </AuthorizeView> *@
+        </CascadingValue>
     </MudContainer>
 </MudLayout>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    EventCallback ShowMainMenu => EventCallback.Factory.Create(this, ToggleDrawer);
+
+
+    bool _drawerOpen = false;
+
+    void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private async Task LogoutApp()
+    {
+        // NavigationManager.NavigateTo($"{NavigationManager.BaseUri}logoutUser");
+
+    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+    //     ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
+
+    // }
+}

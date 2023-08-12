@@ -29,13 +29,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     #endregion
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-         : base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-
         //templateData = new TemplateData();
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
     }
 
     public ApplicationDbContext()
@@ -45,9 +42,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-
         optionsBuilder.UseNpgsql(ConnectionString);
-
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

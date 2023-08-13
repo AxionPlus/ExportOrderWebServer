@@ -184,6 +184,28 @@ body {
 }
 
 
+/*CONTAINER TABLE*/
+.Container-table {
+    margin-top: 15px !important;
+    background-color: var(--containerBackGround);
+    transition: box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
+    box-shadow: var(--mud-elevation-1);
+}
+
+    .Container-table .tableMenu {
+        display: flex;
+        justify-content: space-between;
+        padding-right: 10px;
+        height: 30px;
+    }
+
+        .Container-table .tableMenu * .mud-pagination-small .mud-pagination-item > * {
+            height: 24px;
+            min-width: 24px;
+        }
+
+
+
 .viewDataTable {
     height: 100%;
 }

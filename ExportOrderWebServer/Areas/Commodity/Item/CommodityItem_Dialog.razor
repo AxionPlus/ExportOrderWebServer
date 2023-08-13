@@ -1,0 +1,140 @@
+﻿@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject ICommodityProvider _commodityProvider
+
+<MudContainer MaxWidth="MaxWidth.Large">
+
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            @if (MudDialog != null)
+            {
+                <div class="ToolBar-iconbutton">
+                    <MudTooltip Text="EXIT">
+                        <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseDialog_Click" />
+                    </MudTooltip>
+                </div>
+            }
+
+            @if (!IsNewItem)
+            {
+                <div class="ToolBar-iconbutton">
+                    <MudTooltip Class="ExitIconButton" Text="REFRESH" Delay="1500" Duration="1000">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
+                    </MudTooltip>
+                </div>
+            }
+
+            <MudSpacer />
+
+            <div class="ToolBar-Title"><span>@($"HS code - {Header}")</span></div>
+
+            <MudSpacer />
+
+            @if (IsAuth)
+            {
+                <div class="ToolBar-iconbutton">
+                    <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="1500" Duration="1000">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
+                    </MudTooltip>
+                </div>
+            }
+            <div class="ToolBar-iconbutton" style="width: 20px"></div>            
+
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+
+    <MudForm @ref="@Form">        
+        @if (Item != null)
+        {
+            <CommodityItem_Component @bind-Value="Item" IsNewItem="IsNewItem" />
+        }
+    </MudForm>
+
+</MudContainer>
+@code {
+    private MudForm? Form { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter]
+    public string? Id { get; set; }
+
+    private CommodityCatalog? Item { get; set; }
+
+    private bool IsAuth = false;
+    private bool IsNewItem = false;
+    private string Header = "new";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItem();
+
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        {
+            IsAuth = true;
+        }
+    }
+
+    private async Task GetItem()
+    {
+        if (Id == "New")
+        {
+            IsNewItem = true;
+            Item = new();
+        }
+        else
+        {
+            IsNewItem = false;
+
+            var response = await _commodityProvider.GetItemCatalogAsync(long.Parse(Id!));
+            if (!response.HasError)
+            {
+                Item = (CommodityCatalog)response.Object!;
+                Header = Item.HSCode!;
+            }
+        }
+
+    }
+
+    public async Task SaveItem()
+    {
+        await Form!.Validate();
+
+        if (Form.IsValid)
+            if (IsNewItem)
+            {
+                var response = await _commodityProvider.NewItemAsync(Item!);
+                if (!response.HasError)
+                {                    
+                    Snackbar.Add("Saved successfully", Severity.Success);
+                    IsNewItem = false;
+                    await GetItem();
+                }                
+                else
+                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+            }
+            else
+            {
+                // var response = await _commodityProvider.ModifyItemAsync(Item!);
+                // if (!response.HasError)
+                // {
+                //     await GetItem();
+                //     Snackbar.Add("Save Successed", Severity.Success);
+                // }
+                // else
+                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+            }
+    }
+
+    public async Task CloseDialog_Click()
+    {
+        await Task.Delay(5);
+        MudDialog!.Close();
+    }
+}

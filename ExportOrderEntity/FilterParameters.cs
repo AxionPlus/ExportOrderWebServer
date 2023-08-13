@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExportOrderEntites;
 
@@ -16,8 +17,10 @@ public class FilterParameters
     //public bool IsOverCntrMaxPayLoad { get; set; } = false;
     public string? BolNo { get; set; }
     public List<string> BolsNo { get; set; } = new List<string>();
+    [MaxLength(10)]
     public string? HScode { get; set; }
-    public string? Commodity { get; set; }
+    public string? Name { get; set; }
+    public string? NameEn { get; set; }
 
 
 

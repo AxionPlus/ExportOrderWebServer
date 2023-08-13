@@ -1,0 +1,54 @@
+﻿
+<div class="Container-item">
+    <div class="container-head"></div>
+    <div class="container-content column">
+
+        <div class="container-content_row">
+            <MudTextField Style="width:120px" Label="HS code" @bind-Value="@Value!.HSCode"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Validation="HSCodeValidation"
+                          MaxLength="10" Mask="@(new PatternMask("0000000000"))"                          
+                          Required Clearable />
+
+            <MudSpacer/>
+            <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Value.Name" ValueChanged="@((e)=>{Value.Name = e.ToUpper();})"
+                          Margin="Margin.Dense"
+                          Variant="Variant.Outlined"
+                          Immediate Lines="3"
+                          Required RequiredError=""
+                          Clearable />
+             <MudSpacer />
+             <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Value.EngName" ValueChanged="@((e)=>{Value.EngName = e.ToUpper();})"
+                           Margin="Margin.Dense"
+                           Variant="Variant.Outlined"
+                           Immediate Lines="3"
+                           Required RequiredError=""
+                           Clearable />
+        </div>
+    </div>
+</div>
+
+@code {
+    MudTable<CommodityCatalog>? mudTable;
+
+    [Parameter]
+    public CommodityCatalog? Value { get; set; }
+    [Parameter]
+    public EventCallback<CommodityCatalog> ValueCommChanged { get; set; }
+    [Parameter]
+    public bool IsNewItem { get; set; }
+
+
+
+
+    Func<string, string> HSCodeValidation = (str) =>
+    {
+        if (string.IsNullOrWhiteSpace(str))
+            return string.Empty;
+        if (str.Length < 10)
+            return "pls insert 10 digits";
+
+        return null;
+    };
+}

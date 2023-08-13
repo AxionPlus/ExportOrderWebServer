@@ -1,72 +1,170 @@
 ﻿
-
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject ICountryProvider _countryProvider
 
 <style>
 
-    .filters {
-        display: flex;
-        width: 100%;
-        align-items: center;
-    }
 
-    .min-width {
-        width: 960px;
-    }
 </style>
 
-<div class="item-container">
+<MudForm @ref="@FilterForm">
+    <div class="Container-item">
+        <div class="container-content">
+             <MudAutocomplete Class="Autocomplete" T="string" @bind-Value="Filter.Name" SearchFunc="@SearchNames"
+                              Label="Name"
+                              Variant="Variant.Outlined"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              AdornmentColor="Color.Primary"
+                              ResetValueOnEmptyText="true"
+                              Margin="Margin.Dense"
+                                          Clearable Style="max-width: 350px" />
+             <MudSpacer />
+             <MudAutocomplete Class="Autocomplete" T="string" @bind-Value="Filter.NameEn" SearchFunc="@SearchNamesEn"
+                              Label="NameEng"
+                              Variant="Variant.Outlined"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              AdornmentColor="Color.Primary"
+                              ResetValueOnEmptyText="true"
+                              Margin="Margin.Dense"
+                                          Clearable Style="max-width: 350px" />
+             <MudSpacer />
+             <MudButton Class="Button" Style="max-width: 100px;"
+                        Variant="Variant.Filled" Color="Color.Secondary" Disabled="@IsLoadingData"
+                        OnClick="@(async () => { await SearchItems_Click(); })">Search</MudButton>
+         </div>
+     </div>
+</MudForm>
 
-    <div class="container-head"></div>
-    <div class="container-content column ">
-
-        <div class="filters">
-
-            <MudTextField Class="wrapper-input" @bind-Value="filter_NAME" Label="NAME" Variant="Variant.Outlined" Clearable></MudTextField>
+ <div class="Container-table">
+     @if (mudTable != null)
+    {
+        <div class="tableMenu">
             <MudSpacer />
-            <MudTextField Class="wrapper-input" @bind-Value="filter_EngNAME" Label="ENG NAME" Variant="Variant.Outlined" Clearable></MudTextField>
+            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+        </div>
+    }
 
-            <MudSpacer />
-            <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Secondary" Disabled="@searchBtnDisable"
-                       OnClick="@(async ()=>{searchBtnDisable=true; await SearchItems_Click(); await Task.Delay(1000); searchBtnDisable=false; })">Search</MudButton>
-        </div>
-        <div class="viewDataTable">
-            <MudTable Items="@Items">
-                <HeaderContent>
-                    <MudTh></MudTh>
-                    <MudTh>NAME</MudTh>
-                    <MudTh>NAME ENG</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.AspectRatio"></MudIconButton></MudTd>
-                    <MudTd DataLabel="Terminal">@context.RUS</MudTd>
-                    <MudTd DataLabel="Name">@context.ENG</MudTd>
-                </RowTemplate>
-                <PagerContent>
-                    <MudTablePager />
-                </PagerContent>
-            </MudTable>
-        </div>
-    </div>
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CountryCatalog" Context="country"
+              Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+
+        <HeaderContent>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:400px">Name Ru</MudTh>
+            <MudTh Style="width:400px">Name En</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(country.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(country); })"></MudIconButton></MudTd>
+            <MudTd>@country.RUS</MudTd>
+            <MudTd>@country.ENG</MudTd>
+        </RowTemplate>
+
+        <PagerContent></PagerContent>
+
+    </MudTable>
 </div>
 
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    bool newItemBtnDisable = false;
-    bool searchBtnDisable = false;
+    private MudForm? FilterForm;
+    private MudTable<CountryCatalog>? mudTable;
 
-    string? filter_NAME;
-    string? filter_EngNAME;
+    private IEnumerable<CountryCatalog>? Items { get; set; } = new List<CountryCatalog>();
+    private FilterParameters Filter { get; set; } = new();
+
+    bool IsLoadingData = false;
 
 
-    [Parameter]
-    public IEnumerable<CountryCatalog>? Items { get; set; } = new List<CountryCatalog>();
+    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     private async Task SearchItems_Click()
     {
+        IsLoadingData = true;
 
+        // await FilterForm!.Validate();
 
+        // if (!FilterForm.IsValid)
+        //     return;
+
+        var response = await _countryProvider.GetItemsAsync(Filter);
+        if (!response.HasError)
+            Items = ((IEnumerable<CountryCatalog>)response.Object!).ToArray();
+
+        await Task.Delay(500);
+
+        await InvokeAsync(StateHasChanged);
+
+        IsLoadingData = false;
     }
 
+    private async Task ShowItem_Click(long Id)
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
+        DialogParameters parameters = new DialogParameters { ["Id"] = Id.ToString() };
+        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+        //dialog = await DialogService.ShowAsync<CountryItem_Dialog>(null, parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await SearchItems_Click();
+        }
+    }
+
+    private async Task RemoveItem_Click(CountryCatalog item)
+    {        
+        bool? msgResult = await DialogService.ShowMessageBox(
+                          "REMOVE  Record",
+                          (MarkupString)$"<b>Do you to remove record?</b> <br />Country:<br/>{item.RUS} <br />",
+                          yesText: "YES", cancelText: "NO");
+
+        if (msgResult.HasValue)
+            if (msgResult.Value)
+            {
+                var response = await _countryProvider.RemoveItemAsync(item);
+
+                if (!response.HasError)
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                else
+                    Snackbar.Add($"Unable to delete", Severity.Warning);
+            }
+
+        await SearchItems_Click();
+    }
+
+    #region SEARCH FUNCTIONS
+
+    private async Task<IEnumerable<string>> SearchNames(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _countryProvider.GetSearchNames();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchNamesEn(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _countryProvider.GetSearchNamesEn();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    #endregion
 }

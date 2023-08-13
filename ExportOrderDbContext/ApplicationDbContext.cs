@@ -3,6 +3,7 @@
 using ExportOrderEntites.Document;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ExportOrderDbContext;
@@ -58,7 +59,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.ApplyConfiguration(new ExportOrderConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
 
-
+        
 
 
 
@@ -76,7 +77,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         #endregion
 
         modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
-
+        //modelBuilder.Entity<DocumentEntity>().Ignore(x => x.Consignee);
+        //modelBuilder.Entity<DocumentEntity>().Ignore(x => x.Shipper);
 
 
         //var type = new CntrTpSz()

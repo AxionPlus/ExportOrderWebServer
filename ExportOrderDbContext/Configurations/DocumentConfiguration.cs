@@ -10,7 +10,7 @@ public class DocumentConfiguration : IEntityTypeConfiguration<DocumentEntity>
     public void Configure(EntityTypeBuilder<DocumentEntity> builder)
     {
         var converter = new ValueConverter<byte[], long>(
-                       v => BitConverter.ToInt64(v, 0),
+                        v => BitConverter.ToInt64(v, 0),
                         v => BitConverter.GetBytes(v));
 
         //var valueComparer = new ValueComparer<byte[]>(
@@ -25,22 +25,22 @@ public class DocumentConfiguration : IEntityTypeConfiguration<DocumentEntity>
                  .HasConversion(converter);
 
 
-        builder.Navigation(s => s.Records)
-       .AutoInclude();
+        builder.Navigation(s => s.Records).AutoInclude();
 
 
         builder
-       .Property(b => b.Shipper)
-       .HasColumnType("jsonb")
-       .HasConversion(
-            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-            v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
+               .Property(b => b.Shipper)
+               .HasColumnType("jsonb")
+               .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
+
         builder
-       .Property(b => b.Consignee)
-       .HasColumnType("jsonb")
-       .HasConversion(
-            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-            v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
+               .Property(b => b.Consignee)
+               .HasColumnType("jsonb")
+               .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
 
 
 

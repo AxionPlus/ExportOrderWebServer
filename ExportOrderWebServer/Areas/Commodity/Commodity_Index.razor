@@ -1,8 +1,41 @@
 ﻿@page "/commodity"
+
+@inject IDialogService DialogService
+
 <PageTitle>Commodity</PageTitle>
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+        <MudSpacer />
+        <div class="ToolBar-Title"><span>commodities</span></div>
+        <MudSpacer />
+        <div class="ToolBar-iconbutton">
+            <MudTooltip Text="new commodity">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="NewItem" />
+            </MudTooltip>
+        </div>
+        <div class="ToolBar-iconbutton" style="width: 20px"></div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
 
 <CommodityComponent />
 
 @code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
+    async Task NewItem()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["Id"] = "New" };
+        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+        dialog = await DialogService.ShowAsync<CommodityItem_Dialog>(null, parameters, options);
+    }
 }

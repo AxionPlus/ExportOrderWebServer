@@ -12,7 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 {
     public readonly object MyCompany;
 
-    public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=NeoLineMainDb;Pooling=true;";
+    public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=AxionExportOrder;Pooling=true;";
 
     #region DataBASES
     public DbSet<CountryCatalog> Countries { get; set; }
@@ -58,6 +58,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.ApplyConfiguration(new CntrConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new DocumentConfiguration());
 
         
 

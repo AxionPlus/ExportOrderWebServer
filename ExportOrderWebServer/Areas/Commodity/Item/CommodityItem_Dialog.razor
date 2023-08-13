@@ -92,7 +92,7 @@
         {
             IsNewItem = false;
 
-            var response = await _commodityProvider.GetItemCatalogAsync(long.Parse(Id!));
+            var response = await _commodityProvider.GetItemAsync(long.Parse(Id!));
             if (!response.HasError)
             {
                 Item = (CommodityCatalog)response.Object!;

@@ -4,22 +4,36 @@
     <div class="container-content column">
 
         <div class="container-content_row">
-            <MudTextField Style="width:120px" Label="HS code" @bind-Value="@Value!.HSCode"
+            <MudTextField T="string" Style="width:120px" Label="HS code" Value="@Value.HSCode"
+                          ValueChanged="@(async(e)=> {
+                                          Value.HSCode = e;
+                                          await ValueChanged.InvokeAsync(Value);
+                                      })"
                           Variant="Variant.Outlined"
                           Margin="Margin.Dense"
                           Validation="HSCodeValidation"
                           MaxLength="10" Mask="@(new PatternMask("0000000000"))"                          
-                          Required Clearable />
+                                        Required RequiredError=""  Clearable />
 
             <MudSpacer/>
-            <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Value.Name" ValueChanged="@((e)=>{Value.Name = e.ToUpper();})"
+            <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Value.Name" 
+            ValueChanged="async (e)=> {
+                                          Value.Name = e.ToUpper();                                     
+                                          await ValueChanged.InvokeAsync(Value);
+                                      }"
                           Margin="Margin.Dense"
                           Variant="Variant.Outlined"
                           Immediate Lines="3"
                           Required RequiredError=""
                           Clearable />
              <MudSpacer />
-             <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Value.EngName" ValueChanged="@((e)=>{Value.EngName = e.ToUpper();})"
+             <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Value.EngName"
+             ValueChanged="@(async(e)=>{
+
+                            Value.EngName = e.ToUpper();
+                             await ValueChanged.InvokeAsync(Value);
+                            
+                            })"
                            Margin="Margin.Dense"
                            Variant="Variant.Outlined"
                            Immediate Lines="3"
@@ -35,7 +49,7 @@
     [Parameter]
     public CommodityCatalog? Value { get; set; }
     [Parameter]
-    public EventCallback<CommodityCatalog> ValueCommChanged { get; set; }
+    public EventCallback<CommodityCatalog> ValueChanged { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; }
 

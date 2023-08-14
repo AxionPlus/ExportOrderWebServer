@@ -17,10 +17,10 @@
 
             <MudSpacer/>
             <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Value.Name" 
-            ValueChanged="async (e)=> {
-                                          Value.Name = e.ToUpper();                                     
-                                          await ValueChanged.InvokeAsync(Value);
-                                      }"
+                          ValueChanged="async (e)=> {
+                                                        Value.Name = e.ToUpper();                                     
+                                                        await ValueChanged.InvokeAsync(Value);
+                                                    }"
                           Margin="Margin.Dense"
                           Variant="Variant.Outlined"
                           Immediate Lines="3"
@@ -28,12 +28,10 @@
                           Clearable />
              <MudSpacer />
              <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Value.EngName"
-             ValueChanged="@(async(e)=>{
-
-                            Value.EngName = e.ToUpper();
-                             await ValueChanged.InvokeAsync(Value);
-                            
-                            })"
+                           ValueChanged="@(async(e)=>{
+                                                          Value.EngName = e.ToUpper();
+                                                           await ValueChanged.InvokeAsync(Value);
+                                                     })"
                            Margin="Margin.Dense"
                            Variant="Variant.Outlined"
                            Immediate Lines="3"

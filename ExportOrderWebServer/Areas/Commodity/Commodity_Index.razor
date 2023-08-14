@@ -32,10 +32,17 @@
 
     async Task NewItem()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+        // IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
-        DialogParameters parameters = new DialogParameters { ["Id"] = "New" };
-        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        dialog = await DialogService.ShowAsync<CommodityItem_Dialog>(null, parameters, options);
+        // DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        // DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
+        // dialog = await DialogService.ShowAsync<CommodityItem_Dialog>("New COMMODITY", parameters, options);
+
+        // DialogResult result = await dialog.Result;
+
+        // if (!result.Canceled)
+        // {             
+        //     //await SearchItems_Click();
+        // }
     }
 }

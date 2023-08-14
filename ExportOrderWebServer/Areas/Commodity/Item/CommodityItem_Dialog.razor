@@ -2,7 +2,7 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICommodityProvider _commodityProvider
 
-<MudContainer MaxWidth="MaxWidth.Large">
+@* <MudContainer MaxWidth="MaxWidth.Large">
 
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">
@@ -56,18 +56,69 @@
         }
     </MudForm>
 
+</MudContainer> *@
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudForm @ref="@Form">
+        <div class="Container-item">
+            <div class="container-head"></div>
+            <div class="container-content">
+                <MudTextField T="string" Style="width:200px" Label="HS code" @bind-Value="@Item!.HSCode"                              
+                                Variant="Variant.Outlined"
+                                Margin="Margin.Dense"
+                                Validation="HSCodeValidation"
+                                MaxLength="10" Mask="@(new PatternMask("0000000000"))"                                
+                                Required RequiredError=""
+                                ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                <MudSpacer/>
+                @if (IsNewItem)
+                {
+                    <MudButton Class="Button" Style="min-width: 100px; max-width: 100px; margin-left: 10px"
+                               Variant="Variant.Filled" Color="Color.Primary"
+                               OnClick="@(async () => { await SaveItem_Click(); })">Add
+                    </MudButton>
+                }
+            </div>
+            <div class="container-content">             
+                <MudTextField T="string" Style="width: 400px" Label="Name" Value="@Item.Name"
+                            ValueChanged="async (e)=> { Item.Name = e.ToUpper(); }"
+                            Margin="Margin.Dense"
+                            Variant="Variant.Outlined"
+                            Immediate Lines="3"                            
+                            Required RequiredError=""
+                            ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                <MudSpacer/>
+                <MudTextField T="string" Style="width: 400px; margin-left: 10px" Label="Name En" Value="@Item.EngName"
+                            ValueChanged="@(async (e)=> { Item.EngName = e.ToUpper(); await InvokeAsync(StateHasChanged); })"
+                            Margin="Margin.Dense"
+                            Variant="Variant.Outlined"
+                            Immediate Lines="3"                            
+                            Required RequiredError=""
+                            ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                 
+                @if (IsNewItem)
+                {
+                    <MudSpacer />
+                    <MudButton Class="Button" Style="min-width: 100px; max-width: 100px; margin-left: 10px"
+                               Variant="Variant.Filled" Color="Color.Secondary"
+                               OnClick="@(async () => { await ClearItem_Click(); })">Clear
+                    </MudButton>
+                }
+             </div>
+         </div>
+     </MudForm>
 </MudContainer>
 @code {
     private MudForm? Form { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public string? Id { get; set; }
+    public long Id { get; set; } = 0;
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
 
     private CommodityCatalog? Item { get; set; }
 
     private bool IsAuth = false;
-    private bool IsNewItem = false;
-    private string Header = "new";
 
 
     protected override async Task OnInitializedAsync()
@@ -83,26 +134,19 @@
 
     private async Task GetItem()
     {
-        if (Id == "New")
-        {
-            IsNewItem = true;
+        if (IsNewItem)
             Item = new();
-        }
         else
         {
-            IsNewItem = false;
-
-            var response = await _commodityProvider.GetItemAsync(long.Parse(Id!));
+            var response = await _commodityProvider.GetItemAsync(Id);
             if (!response.HasError)
             {
                 Item = (CommodityCatalog)response.Object!;
-                Header = Item.HSCode!;
             }
         }
-
     }
 
-    public async Task SaveItem()
+    public async Task SaveItem_Click()
     {
         await Form!.Validate();
 
@@ -114,7 +158,7 @@
                 {                    
                     Snackbar.Add("Saved successfully", Severity.Success);
                     IsNewItem = false;
-                    await GetItem();
+                    //await GetItem();
                 }                
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
@@ -132,9 +176,32 @@
             }
     }
 
-    public async Task CloseDialog_Click()
+    public async Task ClearItem_Click()
     {
-        await Task.Delay(5);
-        MudDialog!.Close();
+        if (IsNewItem)
+        {
+            Item.HSCode = null;
+            Item.Name = null;
+            Item.EngName = null;
+            //await InvokeAsync(StateHasChanged);
+        }
+
+        await Task.Delay(50);
     }
+
+    Func<string, string> HSCodeValidation = (str) =>
+    {
+        if (string.IsNullOrWhiteSpace(str))
+            return string.Empty;
+        if (str.Length < 10)
+            return "pls insert 10 digits";
+
+        return null;
+    };
+
+    // public async Task CloseDialog_Click()
+    // {
+    //     await Task.Delay(5);
+    //     MudDialog!.Close();
+    // }
 }

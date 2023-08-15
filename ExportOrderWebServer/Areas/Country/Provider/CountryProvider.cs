@@ -79,7 +79,7 @@ public class CountryProvider : ICountryProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            //var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
             var itemExistCheck = await db.Countries.Where(s => s.ENG == item!.ENG).FirstOrDefaultAsync();
@@ -89,6 +89,7 @@ public class CountryProvider : ICountryProvider
                 return appObjResponse;
             }
 
+            item.CreateUser = User!;
             db.Entry(item).State = EntityState.Added;
 
             var bug = db.ChangeTracker.DebugView.LongView;
@@ -106,21 +107,21 @@ public class CountryProvider : ICountryProvider
 
     #region SEARCH METHODS
 
-    public async Task<IEnumerable<string>> GetSearchNames()
+    public async Task<IEnumerable<string>> GetNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Commodities.Select(s => s.Name!).ToListAsync();
+            return await db.Countries.Select(s => s.RUS!).ToListAsync();
         }
     }
 
-    public async Task<IEnumerable<string>> GetSearchNamesEn()
+    public async Task<IEnumerable<string>> GetNamesEn()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Commodities.Select(s => s.EngName!).ToListAsync();
+            return await db.Countries.Select(s => s.ENG!).ToListAsync();
         }
     }
 

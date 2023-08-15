@@ -1,14 +1,12 @@
 ﻿
 <MudNavMenu>
 
-@*     <AuthorizeView Roles="Admin">
+    <AuthorizeView Roles="Admin">
         <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EmojiPeople">Users</MudNavLink>
         <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EmojiPeople">Roles</MudNavLink>
     </AuthorizeView>
 
-    <AuthorizeView Roles="Admin, TopManager, LogDept, ImpDept, ExpDept, FinDept">
-    </AuthorizeView> *@
-
+    @* <AuthorizeView Roles="Admin, TopManager, LogDept, ImpDept, ExpDept, FinDept"> *@
     <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Vessel Call</MudNavLink>
     <MudNavLink Href="/document" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Documents</MudNavLink>
     <MudNavLink Href="/exportOrder" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Export Order</MudNavLink>
@@ -18,9 +16,8 @@
     <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Vessel</MudNavLink>
     <MudNavLink Href="/location" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Location</MudNavLink>
     <MudNavLink Href="/country" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Country</MudNavLink>
-
-    @* <MudNavLink Href="/catalog" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Catalog</MudNavLink> *@
-   
+    <MudNavLink Href="/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Terminal</MudNavLink>
+    @* </AuthorizeView> *@   
 
 </MudNavMenu>
 

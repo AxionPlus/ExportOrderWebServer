@@ -4,42 +4,41 @@
 
 <style>
 
-
 </style>
 
 <MudForm @ref="@FilterForm">
     <div class="Container-item">
         <div class="container-content">
-            <MudButton Class="Button" Style="max-width: 100px;"
-                       Variant="Variant.Filled" Color="Color.Primary" Disabled="@IsLoadingData"
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                       Variant="Variant.Filled" Color="Color.Primary" 
                        OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
             <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" @bind-Value="Filter.HScode" SearchFunc="@SearchHScodes"
-                             Label="HS code"
-                             Variant="Variant.Outlined"                              
+            <MudAutocomplete Class="Autocomplete" T="string" Label="HS code" Style="width: 180px" SearchFunc="@SearchHScodes"
+                             Value="Filter.HScode"
+                             ValueChanged="(e)=> { Filter.HScode = e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
                              AutoFocus=true
-                             ResetValueOnEmptyText="true"
-                             Margin="Margin.Dense"
                              MaxLength="10"
-                             Clearable Style="width: 180px" />
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" @bind-Value="Filter.Name" SearchFunc="@SearchNames"
-                             Label="Name"
-                             Variant="Variant.Outlined"
-                             ResetValueOnEmptyText="true"
-                             Margin="Margin.Dense"
-                             Clearable Style="width: 400px"/>
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
+                             Value="Filter.Name"
+                             ValueChanged="(e)=> { Filter.Name =e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" @bind-Value="Filter.NameEn" SearchFunc="@SearchNamesEn"
-                             Label="NameEng"
-                             Variant="Variant.Outlined"
-                             ResetValueOnEmptyText="true"
-                             Margin="Margin.Dense"
-                             Clearable Style="width: 400px" />
+            <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 400px" SearchFunc="@SearchNamesEn"
+                             Value="Filter.NameEn"
+                             ValueChanged="(e)=> { Filter.NameEn =e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
-            <MudButton Class="Button" Style="max-width: 100px;"
-                       Variant="Variant.Filled" Color="Color.Secondary" Disabled="@IsLoadingData"
-                       OnClick="@(async () => { await SearchItems_Click(); })">Search</MudButton>
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                       Variant="Variant.Filled" Color="Color.Secondary" 
+                       OnClick="@(async () => { await GetItems(); })">Search</MudButton>
         </div>
     </div>
 </MudForm>
@@ -60,15 +59,15 @@
         <HeaderContent>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:120px">
-                <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>int.Parse(x.HSCode))">HS code</MudTableSortLabel>
+            <MudTh >
+                <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.HSCode)">HS code</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:400px">Name</MudTh>
-            <MudTh Style="width:400px">Name En</MudTh>
+            <MudTh Style="width:515px">Name</MudTh>
+            <MudTh Style="width:515px">Name En</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(commodity.Id, commodity.HSCode); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(commodity.Id); })"></MudIconButton></MudTd>
             <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(commodity); })"></MudIconButton></MudTd>
             <MudTd>@commodity.HSCode</MudTd>
             <MudTd>@commodity.Name</MudTd>
@@ -80,9 +79,9 @@
     </MudTable>
 </div>
 
+<OverlayLoadingData Visible="@IsLoadingData" />
 
- @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+@code {
     private MudForm? FilterForm;
     private MudTable<CommodityCatalog>? mudTable;
 
@@ -93,17 +92,10 @@
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
-    
-       
 
-    private async Task SearchItems_Click()
+    private async Task GetItems()
     {
         IsLoadingData = true;
-
-        // await FilterForm!.Validate();
-
-        // if (!FilterForm.IsValid)
-        //     return;
 
         var response = await _commodityProvider.GetItemsAsync(Filter);
         if (!response.HasError)
@@ -122,30 +114,25 @@
 
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CommodityItem_Dialog>("New COMMODITY", parameters, options);
+        dialog = await DialogService.ShowAsync<CommodityItem_Dialog>("New Commodity", parameters, options);
 
         DialogResult result = await dialog.Result;
 
-        if (!result.Canceled)
-        {
-            await SearchItems_Click();
-        }
+        if (result.Canceled)
+            if (Items!.Count() > 0)
+                await GetItems();
     }
 
-    private async Task ShowItem_Click(long Id, string hsCode)
+    private async Task ShowItem_Click(long Id)
     {
+        // if (MudDialog is not null)
+        //     MudDialog.Close(DialogResult.Ok(Id));
+
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CommodityItem_Dialog>(hsCode, parameters, options);
-
-        // DialogResult result = await dialog.Result;
-
-        // if (!result.Canceled)
-        // {
-        //     await SearchItems_Click();
-        // }
+        dialog = await DialogService.ShowAsync<CommodityItem_Dialog>("Commodity", parameters, options);
     }
 
     private async Task RemoveItem_Click(CommodityCatalog item)
@@ -155,7 +142,7 @@
 
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you to remove commodity?</b> <br />HS code:<br/>{item.HSCode} <br />",
+                          (MarkupString)$"<b>Do you want to remove commodity?</b> <br/>HS code:<br/>{item.HSCode}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
@@ -169,7 +156,7 @@
                     Snackbar.Add($"Unable to delete", Severity.Warning);
             }
 
-        await SearchItems_Click();
+        await GetItems();
     }
 
     #region SEARCH FUNCTIONS
@@ -192,7 +179,7 @@
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();
 
-        var result = await _commodityProvider.GetSearchNames();
+        var result = await _commodityProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -205,7 +192,7 @@
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();
 
-        var result = await _commodityProvider.GetSearchNamesEn();
+        var result = await _commodityProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();

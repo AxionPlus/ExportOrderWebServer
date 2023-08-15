@@ -1,0 +1,150 @@
+﻿@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject ICountryProvider _countryProvider
+@inject ILocationProvider _loactionProvider
+
+@if (Item is not null)
+{
+    <MudForm @ref="@Form" Style="max-width:fit-content">
+        <div class="Container-item" style="width: 530px">
+            <div class="container-head"></div>
+            <div class="container-content">
+                <MudTextField T="string" Style="width: 385px" Label="Name" Text="@Item.Name"
+                              TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"
+                              Required RequiredError=""
+                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                 <MudButton Class="Button" Style="min-width: 100px; max-width: 100px; margin-left: 10px" Disabled="!IsNewItem"
+                            Variant="Variant.Filled" Color="Color.Primary"
+                            Size="Size.Small"
+                            OnClick="SaveItem_Click">
+                     Save
+                 </MudButton>
+             </div>
+             <div class="container-content">
+                 <MudTextField T="string" Style="width: 120px" Label="UN Locode" Text="@Item.UnLocode"
+                               TextChanged="@(async (e)=> { Item.UnLocode = e.ToUpper(); })"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true"
+                               Required RequiredError=""
+                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                 <MudAutocomplete T="CountryCatalog" Style="width: 250px" Label="Country" @bind-Value="Item.Country"
+                                  ToStringFunc="@(e => e != null ? e.RUS : "")"
+                                  SearchFunc="@SearchCountry"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Required RequiredError=""
+                                  CloseIcon="" OpenIcon=""
+                                  ResetValueOnEmptyText="true"
+                                  Placeholder="Country"
+                                  MaxItems="20"
+                                  IconSize="Size.Small"
+                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                 <MudButton Class="Button" Style="min-width: 100px; max-width: 100px; margin-left: 10px" Disabled="!IsNewItem"
+                            Variant="Variant.Filled" Color="Color.Secondary"
+                            Size="Size.Small"
+                            OnClick="ClearItem_Click">
+                     Clear
+                 </MudButton>
+             </div>
+         </div>
+     </MudForm>
+}
+
+@code {
+    private MudForm? Form { get; set; }
+    [Parameter]
+    public long Id { get; set; } = 0;
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
+
+    private LocationCatalog? Item { get; set; }
+
+    private bool IsAuth = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItem();
+
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        {
+            IsAuth = true;
+        }
+    }
+
+    private async Task GetItem()
+    {
+        if (IsNewItem)
+            Item = new();
+        else
+        {
+            var response = await _loactionProvider.GetItemAsync(Id);
+            if (!response.HasError)
+                Item = (LocationCatalog)response.Object!;
+        }
+    }
+
+    public async Task SaveItem_Click()
+    {
+        await Form!.Validate();
+
+        if (Form.IsValid)
+        {
+            if (IsNewItem)
+            {
+                var response = await _loactionProvider.NewItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Saved successfully", Severity.Success);
+                    IsNewItem = false;
+                }
+                else
+                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+            }
+            else
+            {
+                // var response = await _loactionProvider.ModifyItemAsync(Item!);
+                // if (!response.HasError)
+                // {
+                //     await GetItem();
+                //     Snackbar.Add("Save Successed", Severity.Success);
+                // }
+                // else
+                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async Task ClearItem_Click()
+    {
+        if (IsNewItem)
+        {
+            Item!.Name = null;
+            Item.UnLocode = null;
+            Item.Country = null;
+        }
+
+        await Task.Delay(50);
+    }
+
+    private async Task<IEnumerable<CountryCatalog>> SearchCountry(string value)
+    {
+        // if (string.IsNullOrWhiteSpace(value))
+        //     return Enumerable.Empty<CountryCatalog>();
+
+        var Countries = new List<CountryCatalog>();
+
+        var response = await _countryProvider.GetItemsAsync();
+        if (!response.HasError)
+            Countries = ((IEnumerable<CountryCatalog>)response.Object!).OrderBy(s => s.RUS).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Countries;
+
+        return Countries.Where(x => x.RUS.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+}

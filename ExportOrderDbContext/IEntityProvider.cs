@@ -10,6 +10,6 @@ public interface IEntityProvider<T>
     Task<AppObjectResponse> NewItemAsync(T item);
     Task<AppObjectResponse> RemoveItemAsync(T item);
 
-    Task<IEnumerable<string>> GetSearchNames();
-    Task<IEnumerable<string>> GetSearchNamesEn();
+    Task<IEnumerable<string>> GetNames();
+    Task<IEnumerable<string>> GetNamesEn();
 }

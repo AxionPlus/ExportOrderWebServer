@@ -1,10 +1,13 @@
-
+using ExportOrderWebServer.Areas.Carrier.Provider;
 using ExportOrderWebServer.Areas.Commodity.Provider;
+using ExportOrderWebServer.Areas.Country.Provider;
+using ExportOrderWebServer.Areas.Customer.Provider;
 using ExportOrderWebServer.Areas.Identity;
+using ExportOrderWebServer.Areas.Location.Provider;
+using ExportOrderWebServer.Areas.Terminal.Provider;
+using ExportOrderWebServer.Areas.Vessel.Provider;
 
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
@@ -31,7 +34,13 @@ builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuth
 
 builder.Services.AddMudServices();
 
+builder.Services.AddTransient<ICarrierProvider, CarrierProvider>();
 builder.Services.AddTransient<ICommodityProvider, CommodityProvider>();
+builder.Services.AddTransient<ICountryProvider, CountryProvider>();
+builder.Services.AddTransient<ICustomerProvider, CustomerProvider>();
+builder.Services.AddTransient<ILocationProvider, LocationProvider>();
+builder.Services.AddTransient<ITerminalProvider, TerminalProvider>();
+builder.Services.AddTransient<IVesselProvider, VesselProvider>();
 
 
 var app = builder.Build();

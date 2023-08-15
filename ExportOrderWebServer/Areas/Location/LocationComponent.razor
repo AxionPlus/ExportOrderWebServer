@@ -1,17 +1,16 @@
-﻿
-@inject ISnackbar Snackbar
+﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject ILocationProvider _locationProvider
 @inject ICountryProvider _countryProvider
 
 <style>
-
 </style>
 
 <MudForm @ref="@FilterForm">
     <div class="Container-item">
         <div class="container-content">
             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                       Variant="Variant.Filled" Color="Color.Primary" 
+                       Variant="Variant.Filled" Color="Color.Primary"
                        OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
             <MudSpacer />
             <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchNames"
@@ -21,19 +20,26 @@
                              CloseIcon="" OpenIcon=""
                              ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 300px" SearchFunc="@SearchNamesEn"
-                              Value="Filter.NameEn"
-                              ValueChanged="(e)=> { Filter.NameEn = e; }"
+             <MudAutocomplete Class="Autocomplete" T="string" Label="UN Locode" Style="width: 120px" SearchFunc="@SearchUNLocode"
+                              Value="Filter.UNLocode"
+                              ValueChanged="(e)=> { Filter.UNLocode = e; }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              CloseIcon="" OpenIcon=""
+                              ResetValueOnEmptyText="true" Clearable />
+             <MudSpacer />
+             <MudAutocomplete Class="Autocomplete" T="string" Label="Country" Style="width: 250px" SearchFunc="@SearchCountries"
+                              Value="Filter.Country"
+                              ValueChanged="(e)=> { Filter.Country = e; }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon=""
                               ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
              <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary" 
+                        Variant="Variant.Filled" Color="Color.Secondary"
                         OnClick="@(async () => { await GetItems(); })">Search</MudButton>
          </div>
      </div>
-</MudForm>
+ </MudForm>
 
  <div class="Container-table">
      @if (mudTable != null)
@@ -45,27 +51,30 @@
         </div>
     }
 
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CountryCatalog" Context="country"
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="LocationCatalog" Context="location"
               Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
         <HeaderContent>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:400px">
-                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Name Ru</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name)">Name Ru</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:400px">
-                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.ENG)">Name En</MudTableSortLabel>
+            <MudTh Style="width:120px">
+                <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.UnLocode)">UN Locode</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:300px">
+                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
             </MudTh>
             <MudTh></MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(country.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(country); })"></MudIconButton></MudTd>
-            <MudTd>@country.RUS</MudTd>
-            <MudTd>@country.ENG</MudTd>
-            <MudTd></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(location.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(location); })"></MudIconButton></MudTd>
+            <MudTd>@location.Name</MudTd>
+            <MudTd>@location.UnLocode</MudTd>
+            <MudTd>@location.Country.RUS</MudTd>
         </RowTemplate>
 
         <PagerContent></PagerContent>
@@ -77,9 +86,9 @@
 
 @code {
     private MudForm? FilterForm;
-    private MudTable<CountryCatalog>? mudTable;
+    private MudTable<LocationCatalog>? mudTable;
 
-    private IEnumerable<CountryCatalog>? Items { get; set; } = new List<CountryCatalog>();
+    private IEnumerable<LocationCatalog>? Items { get; set; } = new List<LocationCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
     bool IsLoadingData = false;
@@ -91,9 +100,9 @@
     {
         IsLoadingData = true;
 
-        var response = await _countryProvider.GetItemsAsync(Filter);
+        var response = await _locationProvider.GetItemsAsync(Filter);
         if (!response.HasError)
-            Items = ((IEnumerable<CountryCatalog>)response.Object!).ToArray();
+            Items = ((IEnumerable<LocationCatalog>)response.Object!).ToArray();
 
         await Task.Delay(500);
 
@@ -108,7 +117,7 @@
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CountryItem_Dialog>("Country", parameters, options);
+        dialog = await DialogService.ShowAsync<LocationItem_Dialog>("Location", parameters, options);
 
         DialogResult result = await dialog.Result;
     }
@@ -119,7 +128,7 @@
 
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CountryItem_Dialog>("New Country", parameters, options);
+        dialog = await DialogService.ShowAsync<LocationItem_Dialog>("New Location", parameters, options);
 
         DialogResult result = await dialog.Result;
 
@@ -128,17 +137,17 @@
                 await GetItems();
     }
 
-    private async Task RemoveItem_Click(CountryCatalog item)
-    {        
+    private async Task RemoveItem_Click(LocationCatalog item)
+    {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Country:<br/>{item.RUS}<br/>",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Country:<br/>{item.Name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _countryProvider.RemoveItemAsync(item);
+                var response = await _locationProvider.RemoveItemAsync(item);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
@@ -156,6 +165,32 @@
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();
 
+        var result = await _locationProvider.GetNames();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchUNLocode(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _locationProvider.GetUNLocodes();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchCountries(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
         var result = await _countryProvider.GetNames();
 
         if (result.Count() == 0)
@@ -164,18 +199,6 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchNamesEn(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
-        var result = await _countryProvider.GetNamesEn();
-
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
-
     #endregion
+
 }

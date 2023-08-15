@@ -1,0 +1,118 @@
+﻿@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject ICountryProvider _countryProvider
+
+@if (Item is not null)
+{   
+    <MudForm @ref="@Form" Style="max-width:fit-content">
+        <div class="Container-item" style="width: 530px">
+            <div class="container-head"></div>
+            <div class="container-content">
+                <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.RUS"
+                              TextChanged="async (e)=> { Item.RUS = e.ToUpper(); }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"
+                              Required RequiredError=""
+                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                <MudButton Class="Button" Style="min-width: 100px; max-width: 100px; margin-left: 10px" Disabled="!IsNewItem"
+                        Variant="Variant.Filled" Color="Color.Primary"
+                        OnClick="SaveItem_Click">
+                     Save
+                </MudButton>
+            </div>
+            <div class="container-content">
+                <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.ENG"
+                              TextChanged="@(async (e)=> { Item.ENG = e.ToUpper(); })"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"
+                              Required RequiredError=""
+                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                <MudButton Class="Button" Style="min-width: 100px; max-width: 100px; margin-left: 10px" Disabled="!IsNewItem"
+                        Variant="Variant.Filled" Color="Color.Secondary"
+                        OnClick="ClearItem_Click">
+                    Clear
+                </MudButton>
+            </div>
+            </div>
+    </MudForm>    
+}
+
+@code {
+    private MudForm? Form { get; set; }
+    [Parameter]
+    public long Id { get; set; } = 0;
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
+
+    private CountryCatalog? Item { get; set; }
+
+    private bool IsAuth = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItem();
+
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        {
+            IsAuth = true;
+        }
+    }
+
+    private async Task GetItem()
+    {
+        if (IsNewItem)
+            Item = new();
+        else
+        {
+            var response = await _countryProvider.GetItemAsync(Id);
+            if (!response.HasError)
+                Item = (CountryCatalog)response.Object!;
+        }
+    }
+
+    public async Task SaveItem_Click()
+    {
+        await Form!.Validate();
+
+        if (Form.IsValid)
+        {
+            if (IsNewItem)
+            {
+                var response = await _countryProvider.NewItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Saved successfully", Severity.Success);
+                    IsNewItem = false;
+                }
+                else
+                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+            }
+            else
+            {
+                // var response = await _countryProvider.ModifyItemAsync(Item!);
+                // if (!response.HasError)
+                // {
+                //     await GetItem();
+                //     Snackbar.Add("Save Successed", Severity.Success);
+                // }
+                // else
+                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async Task ClearItem_Click()
+    {
+        if (IsNewItem)
+        {
+            Item!.RUS = null;
+            Item.ENG= null;
+        }
+
+        await Task.Delay(50);
+    }
+}

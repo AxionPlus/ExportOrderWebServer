@@ -54,17 +54,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
         base.OnModelCreating(modelBuilder);
 
-
         modelBuilder.ApplyConfiguration(new CntrConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
         modelBuilder.ApplyConfiguration(new DocumentConfiguration());
-
-        
-
-
-
-
 
 
         #region TableNames
@@ -78,9 +71,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         #endregion
 
         modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
-        //modelBuilder.Entity<DocumentEntity>().Ignore(x => x.Consignee);
-        //modelBuilder.Entity<DocumentEntity>().Ignore(x => x.Shipper);
-
+        modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
+        modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
 
         //var type = new CntrTpSz()
         //{

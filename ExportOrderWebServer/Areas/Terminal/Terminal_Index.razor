@@ -1,19 +1,13 @@
-﻿@page "/commodity"
+﻿@page "/terminal"
 
-<PageTitle>Commodity</PageTitle>
+<PageTitle>Customer</PageTitle>
 
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
         <MudSpacer />
-        <div class="ToolBar-Title"><span>commodities</span></div>
+        <div class="ToolBar-Title"><span>terminals</span></div>
         <MudSpacer />
-@*         <div class="ToolBar-iconbutton">
-            <MudTooltip Text="new commodity">
-                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="NewItem" />
-            </MudTooltip>
-        </div>
-        <div class="ToolBar-iconbutton" style="width: 20px"></div> *@
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -23,8 +17,8 @@
     </MudToolBar>
 </div>
 
-<CommodityComponent />
+<TerminalComponent />
 
-@code {    
+@code {
 
 }

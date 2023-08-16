@@ -1,5 +1,5 @@
 ﻿namespace ExportOrderWebServer.Areas.Carrier.Provider;
 
-public interface ICarrierProvider
+public interface ICarrierProvider : IEntityProvider<CarrierCatalog>
 {
 }

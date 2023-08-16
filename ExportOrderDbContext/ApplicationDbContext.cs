@@ -19,7 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<LocationCatalog> Locations { get; set; }
     public DbSet<TerminalCatalog> Terminals { get; set; }
     public DbSet<CommodityCatalog> Commodities { get; set; }
-    public DbSet<Carrier> Carriers { get; set; }
+    public DbSet<CarrierCatalog> Carriers { get; set; }
     public DbSet<CntrEntity> Containers { get; set; }
     public DbSet<CntrTpSz> ContainerTypeSize { get; set; }
     public DbSet<CustomerCatalog> Customers { get; set; }

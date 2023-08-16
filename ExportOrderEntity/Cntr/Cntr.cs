@@ -14,7 +14,7 @@ public class CntrEntity
     public ushort TareWt { get; set; }
     public ushort MaxPayLoad { get; set; }
     public bool IsSOC { get; set; }
-    public Carrier Carrier { get; set; }
+    public CarrierCatalog Carrier { get; set; }
 
     [ConcurrencyCheck]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

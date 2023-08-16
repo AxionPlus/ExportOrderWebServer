@@ -11,7 +11,7 @@ public class ExportOrderEntity : Entity
     public string Num { get; set; }
     public DateTime Dated { get; set; } = DateTime.Today;
 
-    public Carrier  Carrier { get; set; }
+    public CarrierCatalog  Carrier { get; set; }
 
     public IList<DocumentEntity>? Documents { get; set; } = new List<DocumentEntity>(); 
     public IList<ExportOrderRecord>? Records { get; set; }= new List<ExportOrderRecord>();

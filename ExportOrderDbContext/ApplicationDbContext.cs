@@ -1,16 +1,12 @@
 ﻿
-
-using ExportOrderEntites.Document;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ExportOrderDbContext;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
 {
-    public readonly object MyCompany;
+    //public readonly object MyCompany;
 
     public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=AxionExportOrder;Pooling=true;";
 
@@ -23,6 +19,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CntrEntity> Containers { get; set; }
     public DbSet<CntrTpSz> ContainerTypeSize { get; set; }
     public DbSet<CustomerCatalog> Customers { get; set; }
+
+    public DbSet<VesselEntity> Vessels { get; set; }
+    public DbSet<VesselCallEntity> VesselCalls { get; set; }
     public DbSet<DocumentEntity> Documents { get; set; }
     public DbSet<ExportOrderEntity> ExportOrders { get; set; }
 
@@ -60,19 +59,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.ApplyConfiguration(new DocumentConfiguration());
 
 
-        #region TableNames
-        // modelBuilder.Entity<ContractorCommunicationChannel>(entity => { entity.ToTable(name: "Contractor_CommunicationChannels"); });
+        #region TableNames        
         // modelBuilder.Entity<ContractorType>(entity => { entity.ToTable(name: "Contractor_Types"); });
-
-
-
-
 
         #endregion
 
         modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
+        modelBuilder.Entity<VesselCallEntity>().Navigation(s => s.Vessel).AutoInclude();
+        modelBuilder.Entity<VesselEntity>().Navigation(s => s.Flag).AutoInclude();
+        
 
         //var type = new CntrTpSz()
         //{

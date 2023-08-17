@@ -1,32 +1,14 @@
-﻿
+﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject IVesselProvider _vesselProvider
 
 <style>
-
-    .filters {
-        display: flex;
-        width: 100%;
-        align-items: center;
-    }
-
-    .min-width {
-        width: 960px;
-    }
 </style>
 
-<div class="@(MudDialog is null ? "item-container": "item-container min-width")">
-
-    <div class="container-head"></div>
-    <div class="container-content">
-        <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Primary"
-                   OnClick="@(async ()=>{newItemBtnDisable=true; await NewItem_Click(); await Task.Delay(1000); newItemBtnDisable=false; })">New Vessel</MudButton>
-    </div>
-
-</div>
 
 <div class="item-container">
 
-    <div class="container-head"></div>
+@*     <div class="container-head"></div>
     <div class="container-content column ">
 
         <div class="filters">
@@ -60,21 +42,35 @@
                 </PagerContent>
             </MudTable>
         </div>
-    </div>
+    </div> *@
 </div>
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    bool newItemBtnDisable = false;
-    bool searchBtnDisable = false;
+    private MudForm? FilterForm;
+    private MudTable<VesselEntity>? mudTable;
+
+    private IEnumerable<VesselEntity>? Items { get; set; } = new List<VesselEntity>();
+    private FilterParameters Filter { get; set; } = new();
+
+    bool IsLoadingData = false;
 
 
-    string? filter_NAME;
-    string? filter_Flag;
+    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
+    private async Task GetItems()
+    {
+        IsLoadingData = true;
 
-    [Parameter]
-    public IEnumerable<VesselEntity>? Items { get; set; } = new List<VesselEntity>();
+        var response = await _vesselProvider.GetItemsAsync(Filter);
+        if (!response.HasError)
+            Items = ((IEnumerable<VesselEntity>)response.Object!).ToArray();
+
+        await Task.Delay(500);
+
+        await InvokeAsync(StateHasChanged);
+
+        IsLoadingData = false;
+    }
 
     private async Task SearchItems_Click()
     {
@@ -82,22 +78,4 @@
 
     }
 
-
-    private async Task NewItem_Click()
-    {
-        //var parameters = new DialogParameters { ["server"] = server };
-
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, DisableBackdropClick = true };
-        var dialog = await DialogService.ShowAsync<VesselItem_Dialog>("NEW VESSEL", options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
-            if (MudDialog is not null)
-            {
-
-                MudDialog?.Close(DialogResult.Ok(result.Data));
-
-            }
-
-    }
 }

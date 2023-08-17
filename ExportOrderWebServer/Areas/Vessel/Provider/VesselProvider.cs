@@ -15,32 +15,41 @@ public class VesselProvider : IVesselProvider
 
 
 
-    public Task<AppObjectResponse> GetItemAsync(long id)
+    public async Task<AppObjectResponse> GetItemAsync(long id)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            //appObjResponse.Object = await db.Vessels.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        return appObjResponse;
+    }
+
+    public async Task<AppObjectResponse> GetItemsAsync()
     {
         throw new NotImplementedException();
     }
 
-    public Task<AppObjectResponse> GetItemsAsync()
+    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
     {
         throw new NotImplementedException();
     }
 
-    public Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
     {
         throw new NotImplementedException();
     }
 
-    public Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
+    public async Task<AppObjectResponse> NewItemAsync(VesselEntity item)
     {
         throw new NotImplementedException();
     }
 
-    public Task<AppObjectResponse> NewItemAsync(VesselEntity item)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<AppObjectResponse> RemoveItemAsync(VesselEntity item)
+    public async Task<AppObjectResponse> RemoveItemAsync(VesselEntity item)
     {
         throw new NotImplementedException();
     }

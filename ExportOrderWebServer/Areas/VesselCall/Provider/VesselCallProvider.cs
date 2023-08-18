@@ -49,13 +49,15 @@ public class VesselCallProvider : IVesselCallProvider
         {
             var db = await _db;
 
-            var vesselCalls = await db.VesselCalls
-                                                .Where(s => s.ETA.HasValue ? s.ETA == DateTime.Today() : DateTime.Today )
-                                                .ToListAsync();
-
             if (parameters.GetType() == typeof(FilterParameters))
             {
                 var filter = (FilterParameters)parameters;
+
+                var vesselCalls = await db.VesselCalls
+                                    .Where(s => filter.ETA.HasValue ? s.ETA!.Value >= filter.ETA.Value : true)
+                                    .Where(s => filter.ETS.HasValue ? s.ETS!.Value >= filter.ETS.Value : true)
+                                    .ToListAsync();
+
 
                 if (!string.IsNullOrEmpty(filter.VesselName))
                     vesselCalls = vesselCalls.Where(s => s.Vessel.Name == filter.VesselName).ToList();
@@ -65,9 +67,9 @@ public class VesselCallProvider : IVesselCallProvider
 
                 if (!string.IsNullOrEmpty(filter.POD))
                     vesselCalls = vesselCalls.Where(s => s.POD.Name == filter.POD).ToList();
-            }
 
-            appObjResponse.Object = vesselCalls.ToArray();
+                appObjResponse.Object = vesselCalls.ToArray();
+            }            
 
             return appObjResponse;
         }
@@ -80,7 +82,35 @@ public class VesselCallProvider : IVesselCallProvider
 
     public async Task<AppObjectResponse> NewItemAsync(VesselCallEntity item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+            // check an Existing item
+            var itemExistCheck = await db.VesselCalls.Where(s => s.Vessel.Name == item.Vessel.Name)
+                                                    .Where(s => s.ETA!.Value == item.ETA!.Value).FirstOrDefaultAsync();
+            if (itemExistCheck != null)
+            {
+                appObjResponse.ErrorAdd($"Vessel {item.Vessel.Name} with ETA {item.ETA!.Value.ToString("d")} is exists already.");
+                return appObjResponse;
+            }
+
+            item.CreateUser = User!;
+
+            db.Entry(item.Vessel).State = EntityState.Unchanged;
+            db.Entry(item.LoadingTerminal).State = EntityState.Unchanged;
+            db.Entry(item.POD).State = EntityState.Unchanged;
+            db.Entry(item).State = EntityState.Added;
+
+            var bug = db.ChangeTracker.DebugView.LongView;
+
+            await db.SaveChangesAsync();
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> RemoveItemAsync(VesselCallEntity item)
@@ -104,14 +134,14 @@ public class VesselCallProvider : IVesselCallProvider
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<string>> GetTerminalNames()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.Terminals.Select(s => s.Name!).ToListAsync();
-        }
-    }
+    //public async Task<IEnumerable<string>> GetTerminalNames()
+    //{
+    //    using (var _db = _dbContext.CreateDbContextAsync())
+    //    {
+    //        var db = await _db;
+    //        return await db.Terminals.Select(s => s.Name!).ToListAsync();
+    //    }
+    //}
 
     public async Task<IEnumerable<string>> GetPODs()
     {

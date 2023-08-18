@@ -970,60 +970,6 @@ namespace ExportOrderWebServer.Migrations
                     b.Navigation("ExportOrder");
                 });
 
-            modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallEntity", b =>
-                {
-                    b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExportOrderEntites.Catalog.TerminalCatalog", "LoadingTerminal")
-                        .WithMany()
-                        .HasForeignKey("LoadingTerminalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "POD")
-                        .WithMany()
-                        .HasForeignKey("PODId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExportOrderEntites.VesselCall.VesselEntity", "Vessel")
-                        .WithMany()
-                        .HasForeignKey("VesselId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("LoadingTerminal");
-
-                    b.Navigation("POD");
-
-                    b.Navigation("Vessel");
-                });
-
-            modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselEntity", b =>
-                {
-                    b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExportOrderEntites.Catalog.CountryCatalog", "Flag")
-                        .WithMany()
-                        .HasForeignKey("FlagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("Flag");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("ExportOrderEntites.ApplicationRole", null)

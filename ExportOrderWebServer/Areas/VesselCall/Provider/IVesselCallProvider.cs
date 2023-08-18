@@ -2,6 +2,6 @@
 
 public interface IVesselCallProvider : IEntityProvider<VesselCallEntity>
 {
-    Task<IEnumerable<string>> GetTerminalNames();
+    //Task<IEnumerable<string>> GetTerminalNames();
     Task<IEnumerable<string>> GetPODs();
 }

@@ -14,7 +14,11 @@ public class FilterParameters
     public string? Country { get; set; }
     public string? UNLocode { get; set; }
     public string? Location { get; set; }
-
-
+    public string? IMO { get; set; }
+    public string? VesselName { get; set; }
+    public string? LoadTerminalName { get; set; }
+    public string? POD { get; set; }    
+    public DateTime? ETA { get; set; }
+    public DateTime? ETS { get; set; }
 
 }

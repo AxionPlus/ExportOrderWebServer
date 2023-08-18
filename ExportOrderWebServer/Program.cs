@@ -6,7 +6,7 @@ using ExportOrderWebServer.Areas.Identity;
 using ExportOrderWebServer.Areas.Location.Provider;
 using ExportOrderWebServer.Areas.Terminal.Provider;
 using ExportOrderWebServer.Areas.Vessel.Provider;
-
+using ExportOrderWebServer.Areas.VesselCall.Provider;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +41,7 @@ builder.Services.AddTransient<ICustomerProvider, CustomerProvider>();
 builder.Services.AddTransient<ILocationProvider, LocationProvider>();
 builder.Services.AddTransient<ITerminalProvider, TerminalProvider>();
 builder.Services.AddTransient<IVesselProvider, VesselProvider>();
+builder.Services.AddTransient<IVesselCallProvider, VesselCallProvider>();
 
 
 var app = builder.Build();

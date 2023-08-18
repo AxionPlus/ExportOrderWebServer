@@ -11,15 +11,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=AxionExportOrder;Pooling=true;";
 
     #region DataBASES
+    // Catalogues
     public DbSet<CountryCatalog> Countries { get; set; }
     public DbSet<LocationCatalog> Locations { get; set; }
     public DbSet<TerminalCatalog> Terminals { get; set; }
     public DbSet<CommodityCatalog> Commodities { get; set; }
     public DbSet<CarrierCatalog> Carriers { get; set; }
-    public DbSet<CntrEntity> Containers { get; set; }
-    public DbSet<CntrTpSz> ContainerTypeSize { get; set; }
     public DbSet<CustomerCatalog> Customers { get; set; }
 
+    // Entities
+    public DbSet<CntrEntity> Containers { get; set; }
+    public DbSet<CntrTpSz> ContainerTypeSize { get; set; }
     public DbSet<VesselEntity> Vessels { get; set; }
     public DbSet<VesselCallEntity> VesselCalls { get; set; }
     public DbSet<DocumentEntity> Documents { get; set; }
@@ -54,9 +56,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new CntrConfiguration());
+        modelBuilder.ApplyConfiguration(new DocumentConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
-        modelBuilder.ApplyConfiguration(new DocumentConfiguration());
+        modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
+        modelBuilder.ApplyConfiguration(new VesselConfiguration());
+
 
 
         #region TableNames        
@@ -67,8 +72,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
-        modelBuilder.Entity<VesselCallEntity>().Navigation(s => s.Vessel).AutoInclude();
-        modelBuilder.Entity<VesselEntity>().Navigation(s => s.Flag).AutoInclude();
         
 
         //var type = new CntrTpSz()

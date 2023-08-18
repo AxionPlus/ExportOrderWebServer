@@ -5,45 +5,77 @@
 <style>
 </style>
 
-
-<div class="item-container">
-
-@*     <div class="container-head"></div>
-    <div class="container-content column ">
-
-        <div class="filters">
-
-            <MudTextField Class="wrapper-input" @bind-Value="filter_NAME" Label="NAME" Variant="Variant.Outlined" Clearable></MudTextField>
+<MudForm @ref="@FilterForm">
+    <div class="Container-item">
+        <div class="container-content">
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                       Variant="Variant.Filled" Color="Color.Primary"
+                       OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
             <MudSpacer />
-            <MudTextField Class="wrapper-input" @bind-Value="filter_Flag" Label="Eng NAME" Variant="Variant.Outlined" Clearable></MudTextField>
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
+                             Value="Filter.Name"
+                             ValueChanged="(e)=> { Filter.Name = e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
+             <MudSpacer />
+             <MudAutocomplete Class="Autocomplete" T="string" Label="IMO no" Style="width: 140px" SearchFunc="@SearchIMO"
+                              Value="Filter.IMO"
+                              ValueChanged="(e)=> { Filter.IMO = e; }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              CloseIcon="" OpenIcon=""
+                              ResetValueOnEmptyText="true" Clearable />
+             <MudSpacer />
+             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                        Variant="Variant.Filled" Color="Color.Secondary"
+                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+         </div>
+     </div>
+ </MudForm>
 
+ <div class="Container-table">
+     @if (mudTable != null)
+    {
+        <div class="tableMenu">
             <MudSpacer />
-            <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Secondary" Disabled="@searchBtnDisable"
-                       OnClick="@(async ()=>{searchBtnDisable=true; await SearchItems_Click(); await Task.Delay(1000); searchBtnDisable=false; })">Search</MudButton>
+            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
-        <div class="viewDataTable">
-            <MudTable Items="@Items">
-                <HeaderContent>
-                    <MudTh></MudTh>
-                    <MudTh>IMO</MudTh>
-                    <MudTh>NAME</MudTh>
-                    <MudTh>FLAG</MudTh>
+    }
 
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.AspectRatio"></MudIconButton></MudTd>
-                    <MudTd DataLabel="Terminal">@context.IMO</MudTd>
-                    <MudTd DataLabel="Name">@context.Name</MudTd>
-                    <MudTd DataLabel="VoyageCarrier">@context.Flag.RUS</MudTd>
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="VesselEntity" Context="vessel"
+              Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
-                </RowTemplate>
-                <PagerContent>
-                    <MudTablePager />
-                </PagerContent>
-            </MudTable>
-        </div>
-    </div> *@
+        <HeaderContent>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:400px">
+                <MudTableSortLabel SortBy="new Func<VesselEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
+            </MudTh>
+            <MudTh></MudTh>
+            <MudTh Style="width:100px">
+                <MudTableSortLabel SortBy="new Func<VesselEntity, object>(x=>x.IMO!)">IMO number</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:200px">
+                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Flag</MudTableSortLabel>
+            </MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(vessel.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(vessel); })"></MudIconButton></MudTd>
+            <MudTd>@vessel.Name</MudTd>
+            <MudTd></MudTd>
+            <MudTd>@vessel.IMO</MudTd>
+            <MudTd>@vessel.Flag.RUS</MudTd>            
+        </RowTemplate>
+
+        <PagerContent></PagerContent>
+
+    </MudTable>
 </div>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     private MudForm? FilterForm;
@@ -72,10 +104,80 @@
         IsLoadingData = false;
     }
 
-    private async Task SearchItems_Click()
+    private async Task ShowItem_Click(long Id)
     {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
+        DialogParameters parameters = new DialogParameters { ["Id"] = Id };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<VesselItem_Dialog>("Vessel", parameters, options);
 
+        DialogResult result = await dialog.Result;
     }
 
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<VesselItem_Dialog>("New Vessel", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            if (Items!.Count() > 0)
+                await GetItems();
+    }
+
+    private async Task RemoveItem_Click(VesselEntity item)
+    {
+        bool? msgResult = await DialogService.ShowMessageBox(
+                          "REMOVE  Record",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel:<br/>{item.Name}<br/>",
+                          yesText: "YES", cancelText: "NO");
+
+        if (msgResult.HasValue)
+            if (msgResult.Value)
+            {
+                var response = await _vesselProvider.RemoveItemAsync(item);
+
+                if (!response.HasError)
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                else
+                    Snackbar.Add($"Unable to delete", Severity.Warning);
+            }
+
+        await GetItems();
+    }
+
+    #region SEARCH FUNCTIONS
+
+    private async Task<IEnumerable<string>> SearchNames(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _vesselProvider.GetNames();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchIMO(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _vesselProvider.GetIMOnos();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    #endregion
 }

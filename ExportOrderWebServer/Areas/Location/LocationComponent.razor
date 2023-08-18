@@ -141,7 +141,7 @@
     {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Country:<br/>{item.Name}<br/>",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Location:<br/>{item.Name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)

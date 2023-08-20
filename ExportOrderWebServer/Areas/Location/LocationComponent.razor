@@ -57,11 +57,11 @@
         <HeaderContent>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:400px">
-                <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name)">Name Ru</MudTableSortLabel>
-            </MudTh>
             <MudTh Style="width:120px">
                 <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.UnLocode)">UN Locode</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:400px">
+                <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name)">Name Ru</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:300px">
                 <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
@@ -72,8 +72,8 @@
         <RowTemplate>
             <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(location.Id); })"></MudIconButton></MudTd>
             <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(location); })"></MudIconButton></MudTd>
-            <MudTd>@location.Name</MudTd>
             <MudTd>@location.UnLocode</MudTd>
+            <MudTd>@location.Name</MudTd>            
             <MudTd>@location.Country.RUS</MudTd>
         </RowTemplate>
 

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ExportOrderDbContext;
@@ -61,8 +60,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
         modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
         modelBuilder.ApplyConfiguration(new VesselConfiguration());
-
-
 
         #region TableNames        
         // modelBuilder.Entity<ContractorType>(entity => { entity.ToTable(name: "Contractor_Types"); });

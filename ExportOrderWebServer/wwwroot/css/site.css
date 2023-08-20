@@ -448,28 +448,12 @@ body {
 
 
 
-
-/*.ToolBar-SearchBox {
+/*Mud_INPUT_Controls*/
+.mud-input-control.TextField {
     display: flex;
-    align-items: center;
-    padding-inline: 10px;
+    flex-direction: row;
+    flex: none;
 }
-
-    .ToolBar-SearchBox .mud-input > input.mud-input-root-outlined, div.mud-input-slot.mud-input-root-outlined {
-        padding: 3px;
-        font-size: 1.3rem;
-        font-weight: 700;
-        text-align: center;
-        color: var(--mud-palette-primary);
-    }
-
-    .ToolBar-SearchBox .mud-input-control {
-        margin-top: 0px;
-    }
-
-    .ToolBar-SearchBox .mud-icon-button {
-        padding: 5px;
-    }*/
 
 .controlIconButtons {
     display: flex;

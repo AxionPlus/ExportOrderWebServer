@@ -1,13 +1,15 @@
 ﻿@using System.Net.Http
 @using MudBlazor;
+@using Microsoft.JSInterop
 
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity;
+
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
-@using Microsoft.JSInterop
 
 @using ExportOrderEntites;
 
@@ -15,6 +17,7 @@
 @using ExportOrderWebServer.Shared
 @using ExportOrderWebServer.Components
 
+@using ExportOrderWebServer.Areas.User.Provider;
 @using ExportOrderWebServer.Areas.Carrier.Provider;
 @using ExportOrderWebServer.Areas.Commodity.Provider;
 @using ExportOrderWebServer.Areas.Country.Provider;

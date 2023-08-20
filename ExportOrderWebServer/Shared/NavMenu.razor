@@ -1,31 +1,30 @@
 ﻿
 <MudNavMenu>
 
-    <AuthorizeView Roles="Admin">
-        
-        @* <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EmojiPeople">Users</MudNavLink> *@
-        <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="fas fa-users">Users</MudNavLink>
+    @* <AuthorizeView Roles="Admin"> *@
+        <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EmojiPeople">Users</MudNavLink>
         <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EmojiPeople">Roles</MudNavLink>
-    </AuthorizeView>
+        <MudDivider Class="my-2" />
+    @* </AuthorizeView> *@
 
-    @* <AuthorizeView Roles="Admin, TopManager, LogDept, ImpDept, ExpDept, FinDept"> *@    
-    <MudNavLink Href="/exportOrder" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Export Order</MudNavLink>    
-    <MudNavLink Href="/document" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Documents</MudNavLink>
-    <MudDivider Class="my-2" />
-    <MudNavGroup Title="Vessel Calls" Icon="@Icons.Material.Filled.RoomService" Expanded="false">
-        <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Vessel</MudNavLink>
-        <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Vessel Call</MudNavLink>
-    </MudNavGroup>
-    <MudNavGroup Title="Catalogues" Icon="@Icons.Material.Filled.RoomService" Expanded="false">
-        <MudNavLink Href="/carrier" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Carrier</MudNavLink>
-        <MudNavLink Href="/commodity" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Commodity</MudNavLink>
-        <MudNavLink Href="/container" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Container</MudNavLink>
-        <MudNavLink Href="/country" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Country</MudNavLink>
-        <MudNavLink Href="/customer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Note">Customer</MudNavLink>
-        <MudNavLink Href="/location" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Location</MudNavLink>
-        <MudNavLink Href="/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Terminal</MudNavLink>        
-    </MudNavGroup>    
-    @* </AuthorizeView> *@   
+    @* <AuthorizeView Roles="Admin, TopManager, LogDept, ExpDept, FinDept"> *@
+        <MudNavLink Href="/exportOrder" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.LocalShipping">Export Order</MudNavLink>
+        <MudNavLink Href="/document" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DocumentScanner">Documents</MudNavLink>
+        <MudDivider Class="my-2" />
+        <MudNavGroup Title="Vessel Calls" Icon="@Icons.Material.Filled.RoomService" Expanded="false">
+            <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Anchor">Vessel</MudNavLink>
+            <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ShieldMoon">Vessel Call</MudNavLink>
+        </MudNavGroup>
+        <MudNavGroup Title="Catalogues" Icon="@Icons.Material.Filled.RoomService" Expanded="false">
+            <MudNavLink Href="/carrier" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Carrier</MudNavLink>
+            <MudNavLink Href="/commodity" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Commodity</MudNavLink>
+            <MudNavLink Href="/container" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Container</MudNavLink>
+            <MudNavLink Href="/country" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Country</MudNavLink>
+            <MudNavLink Href="/customer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Note">Customer</MudNavLink>
+            <MudNavLink Href="/location" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Location</MudNavLink>
+            <MudNavLink Href="/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Album">Terminal</MudNavLink>        
+        </MudNavGroup>    
+    @* </AuthorizeView> *@
 
 </MudNavMenu>
 

@@ -1,0 +1,92 @@
+﻿@page "/roles"
+@* @attribute [Authorize(Roles = "Admin")] *@
+@inject IUserProvider UserProvider
+
+<PageTitle>Roles</PageTitle>
+
+<style>
+    .Container-item > .container-content {
+        justify-content: flex-end;
+    }
+</style>
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+        <MudSpacer />
+        <div class="ToolBar-Title"><span>Application Roles</span></div>
+        <MudSpacer />
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
+
+<div class="Container-item">
+    <div class="container-content">
+        <h4 style="margin-bottom: unset">New Role</h4>
+        <MudTextField Class="TextField" Style="width: 250px; margin-inline: 20px" @bind-Value="RoleName"
+                        Variant="Variant.Outlined" Margin="Margin.Dense" Immediate />
+        <MudButton Class="Button" Style="width: 100px" 
+                    Variant="Variant.Filled" Color="Color.Secondary"
+                    OnClick="AddRole"
+                    Disabled="@(string.IsNullOrWhiteSpace(RoleName))">
+            Add new
+        </MudButton>
+    </div>
+</div>
+ 
+<div class="Container-table">
+     <MudTable Class="Table" Items="@Roles" Loading="IsLoadingData">
+        <HeaderContent>
+            <MudTh Style="width: 30px"></MudTh>
+            <MudTh Style="text-align: start">Role Name</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="(_)=>RemoveRole(context)" />
+            </MudTd>
+            <MudTd Style="text-align: start">@context</MudTd>
+        </RowTemplate>
+@*         <PagerContent>
+            <MudTablePager />
+        </PagerContent> *@
+    </MudTable>
+</div>
+
+
+ @code {
+    bool IsLoadingData = false;
+
+    private IEnumerable<ApplicationRole>? Items { get; set; }
+    private IEnumerable<string>? Roles { get; set; }
+    //private ApplicationRole? Role { get; set; } = new();
+    private string? RoleName { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItems();
+    }
+
+    private async Task GetItems()
+    {
+        IsLoadingData = true;
+        //Items = await UserProvider.GetRolesAsync();
+        Roles = await UserProvider.GetRolesAsync();
+        IsLoadingData = false;
+    }
+
+    private async Task RemoveRole(string role)
+    {
+
+    }
+
+    private async Task AddRole()
+    {
+        await UserProvider.AddRoleAsync(RoleName!);
+        await GetItems();
+    }
+}

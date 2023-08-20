@@ -13,14 +13,14 @@
     </MudDrawer>
     <MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="padding-bottom: 15px;">
         <CascadingValue Value=ShowMainMenu>
-            @* <AuthorizeView> *@
-                @* <Authorized> *@
+@*             <AuthorizeView>
+                <Authorized> *@
                     @Body
-                @* </Authorized> *@
-@*                 <NotAuthorized>
+@*                 </Authorized>
+                <NotAuthorized>
                     <LoginRedirect />
-                </NotAuthorized> *@
-            @* </AuthorizeView> *@
+                </NotAuthorized>
+            </AuthorizeView> *@
         </CascadingValue>
     </MudContainer>
 </MudLayout>
@@ -42,12 +42,11 @@
     private async Task LogoutApp()
     {
         // NavigationManager.NavigateTo($"{NavigationManager.BaseUri}logoutUser");
-
     }
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-    //     ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
 
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
+    }
 }

@@ -596,11 +596,11 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<byte[]>("Version")
+                    b.Property<long>("Version")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<long>("VesselId")
                         .HasColumnType("bigint");
@@ -645,26 +645,23 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("IMO")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<string>("TerminalId")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<byte[]>("Version")
+                    b.Property<long>("Version")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("Id");
 
@@ -968,6 +965,60 @@ namespace ExportOrderWebServer.Migrations
                     b.Navigation("Cntr");
 
                     b.Navigation("ExportOrder");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallEntity", b =>
+                {
+                    b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExportOrderEntites.Catalog.TerminalCatalog", "LoadingTerminal")
+                        .WithMany()
+                        .HasForeignKey("LoadingTerminalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "POD")
+                        .WithMany()
+                        .HasForeignKey("PODId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExportOrderEntites.VesselCall.VesselEntity", "Vessel")
+                        .WithMany()
+                        .HasForeignKey("VesselId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("LoadingTerminal");
+
+                    b.Navigation("POD");
+
+                    b.Navigation("Vessel");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselEntity", b =>
+                {
+                    b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExportOrderEntites.Catalog.CountryCatalog", "Flag")
+                        .WithMany()
+                        .HasForeignKey("FlagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("Flag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

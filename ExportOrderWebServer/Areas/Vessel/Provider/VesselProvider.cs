@@ -91,8 +91,9 @@ public class VesselProvider : IVesselProvider
             }
 
             item.CreateUser = User!;
-
+            //db.Entry(User).State = EntityState.Unchanged;
             db.Entry(item.Flag).State = EntityState.Unchanged;
+
             db.Entry(item).State = EntityState.Added;
 
             var bug = db.ChangeTracker.DebugView.LongView;

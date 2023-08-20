@@ -1,0 +1,77 @@
+﻿@page "/users"
+@* @attribute [Authorize(Roles = "Admin")] *@
+@inject IUserProvider UserProvider
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>Users</PageTitle>
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+        <MudSpacer />
+        <div class="ToolBar-Title"><span>Application Users</span></div>
+        <MudSpacer />
+@*         <AuthorizeView Roles="Admin">
+            <Authorized>
+                <div class="ToolBar-iconbutton">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddAlert" Href="Identity/Account/Manage/Register" />
+                </div>
+            </Authorized>
+        </AuthorizeView> *@
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
+
+<div class="Container-table">
+    <MudTable Class="Table" Items="@Items" Loading="IsLoadingData">
+        <HeaderContent>
+            <MudTh Style="width: 30px"><MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="GetItems" Disabled="IsLoadingData" /></MudTh>
+            <MudTh Style="width: 400px">User Name</MudTh>
+            <MudTh Style="text-align: left">Roles</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Href=@($"/user/{context.UserName}") />
+            </MudTd>
+            <MudTd>@context.UserName</MudTd>
+            <MudTd Style="text-align: left">
+                @(async () => { await GetUserRoles(context); })
+            </MudTd>
+            <MudTd></MudTd>
+        </RowTemplate>
+    </MudTable>
+</div>
+
+
+@code {
+    bool IsLoadingData = false;
+
+    private IEnumerable<ApplicationUser>? Items { get; set; }
+    private IEnumerable<string> SelectedRoles = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItems();
+    }
+
+    private async Task GetItems()
+    {
+        IsLoadingData = true;
+        Items = await UserProvider.GetUsersAsync();
+        IsLoadingData = false;
+    }
+
+    private async Task<string> GetUserRoles(ApplicationUser user)
+    {
+        SelectedRoles = await UserManager.GetRolesAsync(user);
+
+        if (SelectedRoles.Count() > 0)
+            return string.Join(", ", SelectedRoles);
+        else return string.Empty;
+    }
+}

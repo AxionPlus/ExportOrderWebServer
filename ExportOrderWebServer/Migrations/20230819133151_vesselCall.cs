@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class vesselCall : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -376,6 +376,38 @@ namespace ExportOrderWebServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Vessels",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IMO = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    TerminalId = table.Column<string>(type: "text", nullable: true),
+                    FlagId = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
+                    CreateUserId = table.Column<string>(type: "text", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Vessels", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Vessels_AspNetUsers_CreateUserId",
+                        column: x => x.CreateUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Vessels_Countries_FlagId",
+                        column: x => x.FlagId,
+                        principalTable: "Countries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DocumentRecord",
                 columns: table => new
                 {
@@ -504,6 +536,53 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_ContainerContent_ExportOrder_Records_ExportOrderRecordId",
                         column: x => x.ExportOrderRecordId,
                         principalTable: "ExportOrder_Records",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VesselCalls",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    VesselId = table.Column<long>(type: "bigint", nullable: false),
+                    VoyageCarrier = table.Column<string>(type: "text", nullable: false),
+                    VoyageTerminal = table.Column<string>(type: "text", nullable: false),
+                    LoadingTerminalId = table.Column<long>(type: "bigint", nullable: false),
+                    PODId = table.Column<long>(type: "bigint", nullable: false),
+                    ETA = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    ETS = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
+                    CreateUserId = table.Column<string>(type: "text", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VesselCalls", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VesselCalls_AspNetUsers_CreateUserId",
+                        column: x => x.CreateUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VesselCalls_Locations_PODId",
+                        column: x => x.PODId,
+                        principalTable: "Locations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VesselCalls_Terminals_LoadingTerminalId",
+                        column: x => x.LoadingTerminalId,
+                        principalTable: "Terminals",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VesselCalls_Vessels_VesselId",
+                        column: x => x.VesselId,
+                        principalTable: "Vessels",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -644,6 +723,36 @@ namespace ExportOrderWebServer.Migrations
                 name: "IX_Terminals_LocationId",
                 table: "Terminals",
                 column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VesselCalls_CreateUserId",
+                table: "VesselCalls",
+                column: "CreateUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VesselCalls_LoadingTerminalId",
+                table: "VesselCalls",
+                column: "LoadingTerminalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VesselCalls_PODId",
+                table: "VesselCalls",
+                column: "PODId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VesselCalls_VesselId",
+                table: "VesselCalls",
+                column: "VesselId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Vessels_CreateUserId",
+                table: "Vessels",
+                column: "CreateUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Vessels_FlagId",
+                table: "Vessels",
+                column: "FlagId");
         }
 
         /// <inheritdoc />
@@ -677,7 +786,7 @@ namespace ExportOrderWebServer.Migrations
                 name: "ExportOrders_Documents");
 
             migrationBuilder.DropTable(
-                name: "Terminals");
+                name: "VesselCalls");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -689,7 +798,10 @@ namespace ExportOrderWebServer.Migrations
                 name: "ExportOrder_Records");
 
             migrationBuilder.DropTable(
-                name: "Locations");
+                name: "Terminals");
+
+            migrationBuilder.DropTable(
+                name: "Vessels");
 
             migrationBuilder.DropTable(
                 name: "Documents");
@@ -701,13 +813,16 @@ namespace ExportOrderWebServer.Migrations
                 name: "ExportOrders");
 
             migrationBuilder.DropTable(
-                name: "Countries");
+                name: "Locations");
 
             migrationBuilder.DropTable(
                 name: "ContainerTypeSize");
 
             migrationBuilder.DropTable(
                 name: "Carriers");
+
+            migrationBuilder.DropTable(
+                name: "Countries");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

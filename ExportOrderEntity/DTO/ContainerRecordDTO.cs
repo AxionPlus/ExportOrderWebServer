@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 
-namespace ExportOrderEntites.DTO.ExportOrder;
+namespace ExportOrderEntites.DTO;
 
 public class ContainerRecordDTO
 {

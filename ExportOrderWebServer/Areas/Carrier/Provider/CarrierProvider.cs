@@ -80,6 +80,7 @@ public class CarrierProvider : ICarrierProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
+
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item

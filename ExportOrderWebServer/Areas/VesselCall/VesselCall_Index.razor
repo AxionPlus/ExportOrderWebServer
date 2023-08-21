@@ -1,8 +1,23 @@
 ﻿@page "/vesselcall"
 
-@attribute [Authorize]
+@* @attribute [Authorize] *@
 
 <PageTitle>Vessel Call</PageTitle>
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+        <MudSpacer />
+        <div class="ToolBar-Title"><span>vessel calls</span></div>
+        <MudSpacer />
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
 
 <VesselCallComponent/>
 

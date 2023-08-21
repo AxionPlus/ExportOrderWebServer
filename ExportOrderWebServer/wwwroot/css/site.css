@@ -140,7 +140,7 @@ body {
         flex-direction: column;
     }
 
-    .container-content-row {
+    .Container-item > .container-content.row {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -454,6 +454,12 @@ body {
     flex-direction: row;
     flex: none;
 }
+
+.mud-select.mud-autocomplete {
+    flex-grow: unset;
+}
+
+
 
 .controlIconButtons {
     display: flex;

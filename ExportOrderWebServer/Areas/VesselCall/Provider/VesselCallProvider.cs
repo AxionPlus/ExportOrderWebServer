@@ -62,8 +62,8 @@ public class VesselCallProvider : IVesselCallProvider
                 if (!string.IsNullOrEmpty(filter.VesselName))
                     vesselCalls = vesselCalls.Where(s => s.Vessel.Name == filter.VesselName).ToList();
 
-                if (!string.IsNullOrEmpty(filter.LoadTerminalName))
-                    vesselCalls = vesselCalls.Where(s => s.LoadingTerminal.Name == filter.LoadTerminalName).ToList();
+                if (!string.IsNullOrEmpty(filter.TerminalName))
+                    vesselCalls = vesselCalls.Where(s => s.LoadingTerminal.Name == filter.TerminalName).ToList();
 
                 if (!string.IsNullOrEmpty(filter.POD))
                     vesselCalls = vesselCalls.Where(s => s.POD.Name == filter.POD).ToList();

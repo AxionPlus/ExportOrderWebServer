@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ExportOrderDbContext;
@@ -69,7 +70,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
-        
+        modelBuilder.Entity<CntrEntity>().Navigation(s => s.TpSz).AutoInclude();
+        modelBuilder.Entity<CntrEntity>().Navigation(s => s.Carrier).AutoInclude();
+        modelBuilder.Entity<VesselEntity>().Navigation(s => s.Flag).AutoInclude();
+        modelBuilder.Entity<VesselCallEntity>().Navigation(s => s.Vessel).AutoInclude();
+        modelBuilder.Entity<VesselCallEntity>().Navigation(s => s.LoadingTerminal).AutoInclude();
+        modelBuilder.Entity<VesselCallEntity>().Navigation(s => s.POD).AutoInclude();
 
         //var type = new CntrTpSz()
         //{

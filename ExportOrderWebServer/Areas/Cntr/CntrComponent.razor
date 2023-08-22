@@ -1,0 +1,171 @@
+﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject ICntrProvider _cntrProvider
+@inject ICarrierProvider _carrierProvider
+
+<style>
+</style>
+
+<MudForm @ref="@FilterForm">
+    <div class="Container-item">
+        <div class="container-content">
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                       Variant="Variant.Filled" Color="Color.Primary"
+                       OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
+            <MudSpacer />
+            <MudTextField Class="TextField" @bind-Value="Filter.CntrNum"
+                          Variant="Variant.Outlined" MaxLength="11" Placeholder="ABCU1234567" Clearable />
+
+@*             <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchCntr"
+                             Value="Filter.Name"
+                             ValueChanged="(e)=> { Filter.Name = e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable /> *@
+             <MudSpacer />
+             <MudSelect Class="TextField Select" T="string" @bind-Value="@Filter.CntrType"
+                        Variant="Variant.Outlined" CloseIcon="" OpenIcon="" Clearable>
+                @if (CntrTypeList is not null)
+                    @foreach (var tpsz in CntrTypeList)
+                    {
+                        <MudSelectItem T="string" Value="@tpsz">@tpsz</MudSelectItem>
+                    }
+            </MudSelect>
+            <MudCheckBox Class="CheckBox" @bind-Checked="Filter.CntrIsSOC"></MudCheckBox>
+
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Carrier" @bind-Value="@Filter.Carrier" SearchFunc="@SearchCarrier"
+                             Style="width: 300px"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon="" MaxItems="20"
+                             ResetValueOnEmptyText="true" Clearable />
+             <MudSpacer />
+             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                        Variant="Variant.Filled" Color="Color.Secondary"
+                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+         </div>
+     </div>
+ </MudForm>
+
+ @code {
+    private MudForm? FilterForm;
+    private MudTable<CntrEntity>? mudTable;
+
+    private IEnumerable<CntrEntity>? Items { get; set; } = new List<CntrEntity>();
+    //private IEnumerable<CntrTpSz>? CntrTpSzList;
+    private IEnumerable<string>? CntrTypeList;
+    private FilterParameters Filter { get; set; } = new();
+
+    bool IsLoadingData = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        CntrTypeList = await _cntrProvider.GetCntrTypes();
+    }
+
+    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
+
+    private async Task GetItems()
+    {
+        IsLoadingData = true;
+
+        var response = await _cntrProvider.GetItemsAsync(Filter);
+        if (!response.HasError)
+            Items = ((IEnumerable<CntrEntity>)response.Object!).ToArray();
+
+        await Task.Delay(500);
+
+        await InvokeAsync(StateHasChanged);
+
+        IsLoadingData = false;
+    }
+
+    private async Task ShowItem_Click(string num)
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["Num"] = num };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<CntrItem_Dialog>("Container", parameters, options);
+
+        DialogResult result = await dialog.Result;
+    }
+
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<CntrItem_Dialog>("New Container", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            if (Items!.Count() > 0)
+                await GetItems();
+    }
+
+    private async Task RemoveItem_Click(CntrEntity item)
+    {
+        // bool? msgResult = await DialogService.ShowMessageBox(
+        //                   "REMOVE  Record",
+        //                   (MarkupString)$"<b>Do you want to remove record?</b> <br/>Container:<br/>{item.Num}<br/>",
+        //                   yesText: "YES", cancelText: "NO");
+
+        // if (msgResult.HasValue)
+        //     if (msgResult.Value)
+        //     {
+        //         var response = await _cntrProvider.RemoveItemAsync(item);
+
+        //         if (!response.HasError)
+        //             Snackbar.Add($"Deleted Successfully", Severity.Success);
+        //         else
+        //             Snackbar.Add($"Unable to delete", Severity.Warning);
+        //     }
+
+        // await GetItems();
+    }
+
+    #region SEARCH FUNCTIONS
+
+    private async Task<IEnumerable<string>> SearchCntr(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _cntrProvider.GetCntrNums();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    // private async Task<IEnumerable<string?>> SearchCntrType(string value)
+    // {
+    //     if (string.IsNullOrWhiteSpace(value))
+    //         return Enumerable.Empty<string>();
+
+    //     var result = await _cntrProvider.GetCntrTypes();
+
+    //     if (result.Count() == 0)
+    //         return Enumerable.Empty<string>();
+    //     else
+    //         return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    // }
+
+    private async Task<IEnumerable<string>> SearchCarrier(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _carrierProvider.GetNamesEn();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    #endregion
+}

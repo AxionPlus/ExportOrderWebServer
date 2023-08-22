@@ -12,6 +12,7 @@ public class FilterParameters
     public string? Country { get; set; }
     public string? UNLocode { get; set; }
     public string? Location { get; set; }
+    public string? Carrier { get; set; }
     public string? IMO { get; set; }
     [MaxLength(10)]
     public string? HScode { get; set; }
@@ -22,4 +23,9 @@ public class FilterParameters
     public DateTime? ETA { get; set; }
     public DateTime? ETS { get; set; }
     public bool? IsOnmit { get; set; }
+
+    [MaxLength(11)]
+    public string? CntrNum { get; set; }
+    public string? CntrType { get; set; }
+    public bool? CntrIsSOC { get; set; }
 }

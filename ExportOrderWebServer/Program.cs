@@ -1,4 +1,5 @@
 using ExportOrderWebServer.Areas.Carrier.Provider;
+using ExportOrderWebServer.Areas.Cntr.Provider;
 using ExportOrderWebServer.Areas.Commodity.Provider;
 using ExportOrderWebServer.Areas.Country.Provider;
 using ExportOrderWebServer.Areas.Customer.Provider;
@@ -63,6 +64,7 @@ builder.Services.AddTransient<ILocationProvider, LocationProvider>();
 builder.Services.AddTransient<ITerminalProvider, TerminalProvider>();
 builder.Services.AddTransient<IVesselProvider, VesselProvider>();
 builder.Services.AddTransient<IVesselCallProvider, VesselCallProvider>();
+builder.Services.AddTransient<ICntrProvider, CntrProvider>();
 
 
 var app = builder.Build();

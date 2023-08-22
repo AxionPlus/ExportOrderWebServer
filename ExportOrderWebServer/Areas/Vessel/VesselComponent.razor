@@ -52,12 +52,8 @@
             <MudTh Style="width:400px">
                 <MudTableSortLabel SortBy="new Func<VesselEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
             </MudTh>            
-            <MudTh Style="width:100px">
-                <MudTableSortLabel SortBy="new Func<VesselEntity, object>(x=>x.IMO!)">IMO number</MudTableSortLabel>
-            </MudTh>
-            <MudTh Style="width:200px">
-                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Flag</MudTableSortLabel>
-            </MudTh>
+            <MudTh Style="width:100px">IMO number</MudTh>
+            <MudTh Style="width:200px">Flag</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
 
@@ -132,24 +128,25 @@
 
     private async Task RemoveItem_Click(VesselEntity item)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel:<br/>{item.Name}<br/>",
-                          yesText: "YES", cancelText: "NO");
+        // bool? msgResult = await DialogService.ShowMessageBox(
+        //                   "REMOVE  Record",
+        //                   (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel:<br/>{item.Name}<br/>",
+        //                   yesText: "YES", cancelText: "NO");
 
-        if (msgResult.HasValue)
-            if (msgResult.Value)
-            {
-                var response = await _vesselProvider.RemoveItemAsync(item);
+        // if (msgResult.HasValue)
+        //     if (msgResult.Value)
+        //     {
+        //         var response = await _vesselProvider.RemoveItemAsync(item);
 
-                if (!response.HasError)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
-                else
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
-            }
+        //         if (!response.HasError)
+        //             Snackbar.Add($"Deleted Successfully", Severity.Success);
+        //         else
+        //             Snackbar.Add($"Unable to delete", Severity.Warning);
+        //     }
 
-        await GetItems();
+        // await GetItems();
     }
+
 
     #region SEARCH FUNCTIONS
 

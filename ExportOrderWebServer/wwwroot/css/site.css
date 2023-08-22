@@ -455,6 +455,9 @@ body {
     flex: none;
 }
 
+.container-content > .mud-input-control {
+    flex:unset;
+}
 .mud-select.mud-autocomplete {
     flex-grow: unset;
 }

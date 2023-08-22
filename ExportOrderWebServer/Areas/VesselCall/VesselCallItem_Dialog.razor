@@ -13,30 +13,28 @@
 {
     <MudForm @ref="@Form" Style="max-width:fit-content">
         <div class="Container-item">
-            <div class="container-content" style="width: 730px">
-                 <MudAutocomplete T="VesselEntity" Style="width: 300px" Label="Vessel" @bind-Value="Item.Vessel"
+            <div class="container-content" style="width: 760px; margin-bottom: 15px">
+                <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px" @bind-Value="Item.Vessel"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchVessel"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
                                  Required RequiredError=""
                                  CloseIcon="" OpenIcon=""
-                                 ResetValueOnEmptyText="true"
-                                 Placeholder="Vessel"
+                                 ResetValueOnEmptyText="true"                                 
                                  MaxItems="20"
                                  IconSize="Size.Small"
                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                  <MudSpacer />
                  <MudDatePicker Class="wrapper-input-date" Label="ETA" @bind-Date="Item.ETA"
-                                Style="width: 150px; height: 40px;"
+                                Style="width: 148px; height: 40px; margin-right: 2px"
                                 DateFormat="dd.MM.yy"
                                 ShowWeekNumbers="true"
                                 Variant="Variant.Outlined"
                                 IconSize=Size.Small
                                 AutoClose=true
-                                DisableToolbar=false Clearable />
-                 <MudSpacer />
+                                DisableToolbar=false Clearable />                 
                  <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
-                                Style="width: 150px; height: 40px;"
+                                Style="width: 148px; height: 40px; margin-left: 2px"
                                 DateFormat="dd.MM.yy"
                                 ShowWeekNumbers="true"
                                 Variant="Variant.Outlined"
@@ -45,13 +43,14 @@
                                 DisableToolbar=false Clearable />
 
                  <MudSpacer />
-                 <MudButton Class="Button" Style="width: 100px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
-                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
+                 <MudButton Class="Button" Style="width: 100px; margin-left: 20px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
+                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                            StartIcon="@Icons.Material.Filled.Save">
                      Save
                  </MudButton>
             </div>
-            <div class="container-content" style="width: 730px">
-                <MudTextField T="string" Style="width: 300px; margin-right: 10px" Label="Voyage Carrier" Text="@Item.VoyageCarrier"
+            <div class="container-content" style="width: 760px">
+                <MudTextField T="string" Style="width: 300px;" Label="Voyage Carrier" Text="@Item.VoyageCarrier"
                               TextChanged="async (e)=> { Item.VoyageCarrier = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
@@ -64,35 +63,35 @@
                               Immediate="true"
                               Required RequiredError=""
                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-               <div style="width: 100px"></div>
+                <MudSpacer />
+                <div style="width: 100px; margin-left: 20px"></div>
             </div>
-            <div class="container-content" style="width: 730px">
-                <MudAutocomplete T="TerminalCatalog" Style="width: 300px" Label="Loading Terminal" @bind-Value="Item.LoadingTerminal"
+            <div class="container-content" style="width: 760px">
+                <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px" Label="Loading Terminal" @bind-Value="Item.LoadingTerminal"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchTerminal"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
                                  Required RequiredError=""
                                  CloseIcon="" OpenIcon=""
                                  ResetValueOnEmptyText="true"
-                                  Placeholder="Loading Terminal"
                                  MaxItems="20"
                                  IconSize="Size.Small"
                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                 <MudSpacer />
-                <MudAutocomplete T="LocationCatalog" Style="width: 300px" Label="Port of Discharge" @bind-Value="Item.POD"
+                <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 300px" Label="Port of Discharge" @bind-Value="Item.POD"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchPOD"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
                                  Required RequiredError=""
                                  CloseIcon="" OpenIcon=""
                                  ResetValueOnEmptyText="true"
-                                 Placeholder="Port of Discharge"
                                  MaxItems="20"
                                  IconSize="Size.Small"
                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                 <MudSpacer />
-                <MudButton Class="Button" Style="width: 100px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
-                           Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
+                 <MudButton Class="Button" Style="width: 100px; margin-left: 20px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
+                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                            StartIcon="@Icons.Material.Filled.Clear">
                     Clear
                 </MudButton>
             </div>
@@ -184,6 +183,9 @@
         await Task.Delay(50);
     }
 
+
+    #region SEARCH FUNCTIONS
+
     private async Task<IEnumerable<VesselEntity>> SearchVessel(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -228,4 +230,6 @@
 
         return Ports.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
+
+    #endregion
 }

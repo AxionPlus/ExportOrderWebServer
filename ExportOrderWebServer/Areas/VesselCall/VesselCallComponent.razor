@@ -1,5 +1,9 @@
-﻿@inject IDialogService DialogService
+﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject IVesselCallProvider _vesselCallProvider
+@inject IVesselProvider _vesselProvider
+@inject ITerminalProvider _terminalProvider
+@inject ILocationProvider _locationProvider
 
 <style>
     .mud-picker-inline {
@@ -20,7 +24,7 @@
                 Add New
              </MudButton>
              <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.VesselName" SearchFunc="@VesselSearch"
+             <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.VesselName" SearchFunc="@SearchVessel"
                               Style="width: 300px"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon="" MaxItems="20"
@@ -29,13 +33,13 @@
              <MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 300px" @bind-Value="Filter.Voyage"
                            Variant="Variant.Outlined" Margin="Margin.Dense" Clearable></MudTextField>
              <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@PortSearch"
+             <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
                               Style="width: 300px"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon="" MaxItems="20"
                               ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.TerminalName" SearchFunc="@TerminalSearch"
+             <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.TerminalName" SearchFunc="@SearchTerminal"
                               Style="width: 300px"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon="" MaxItems="20"
@@ -81,20 +85,22 @@
               Virtualize="true" RowsPerPage="20">    
         <HeaderContent>
             <MudTh Style="width: 30px"></MudTh>
+            <MudTh Style="width: 30px"></MudTh>
             <MudTh Style="width: 300px">Vessel</MudTh>
             <MudTh Style="width: 300px">Voyage</MudTh>
-            <MudTh Style="width: 300px">Terminal</MudTh>
             <MudTh Style="width: 300px">POD</MudTh>
-            <MudTh Style="width: 100px">ETA</MudTh>
-            <MudTh Style="width: 100px">ETS</MudTh>
+            <MudTh Style="width: 300px">Terminal</MudTh>
+            <MudTh Style="width: 130px">ETA</MudTh>
+            <MudTh Style="width: 130px">ETS</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.AspectRatio"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
             <MudTd>@context.Vessel.Name</MudTd>
             <MudTd>@context.VoyageCarrier</MudTd>
-            <MudTd>@context.LoadingTerminal.Name</MudTd>
             <MudTd>@context.POD.Name</MudTd>
+            <MudTd>@context.LoadingTerminal.Name</MudTd>
             <MudTd>@(context.ETA.HasValue ? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
             <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>
             <MudTd></MudTd>
@@ -136,7 +142,7 @@
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<VesselCallItem_Dialog>("Vessel", parameters, options);
+        dialog = await DialogService.ShowAsync<VesselCallItem_Dialog>("Vessel Call", parameters, options);
 
         DialogResult result = await dialog.Result;
     }
@@ -156,91 +162,68 @@
                 await GetItems();
     }
 
-    // public string? filter_Vessel { get; set; }
-    // public string? filter_Voyage { get; set; }
-    // public string? filter_Pod { get; set; }
-    // public string? filter_Terminal { get; set; }
-    // public bool? filter_IsOmit { get; set; }
-    // public DateTime? filter_From { get; set; }
-    // public DateTime? filter_To { get; set; }
+    private async Task RemoveItem_Click(VesselCallEntity item)
+    {
+        // bool? msgResult = await DialogService.ShowMessageBox(
+        //                   "REMOVE  Record",
+        //                   (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel Call:<br/>{item.Vessel.Name}<br/>",
+        //                   yesText: "YES", cancelText: "NO");
 
+        // if (msgResult.HasValue)
+        //     if (msgResult.Value)
+        //     {
+        //         var response = await _vesselCallProvider.RemoveItemAsync(item);
+
+        //         if (!response.HasError)
+        //             Snackbar.Add($"Deleted Successfully", Severity.Success);
+        //         else
+        //             Snackbar.Add($"Unable to delete", Severity.Warning);
+        //     }
+
+        // await GetItems();
+    }
+
+
+    #region SEARCH FUNCTIONS
+
+    private async Task<IEnumerable<string>> SearchVessel(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _vesselProvider.GetNamesEn();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchPort(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _locationProvider.GetNames();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
     
-
-    // private async Task NewVesselCall_Click()
-    // {
-
-    //     //var parameters = new DialogParameters { ["server"] = server };
-
-    //     var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
-    //     var dialog = await DialogService.ShowAsync<NewVesselCallComponent>("NEW VESSEL CALL", options);
-    //     var result = await dialog.Result;
-
-    //     if (!result.Canceled)
-    //     {
-
-    //     }
-
-    // }
-    // private async Task SearchVesselCall_Click()
-    // {
-    //     try
-    //     {
-    //         //VesselCalls = await Http.GetFromJsonAsync<IEnumerable<VesselCallEntity>>("api/VesselCall/GetItems");
-    //     }
-    //     catch (Exception)
-    //     {
-    //         VesselCalls = Enumerable.Empty<VesselCallEntity>();
-    //     }
-
-
-    // }
-
-
-
-    #region Searchers
-
-    private async Task<IEnumerable<string>> PortSearch(string value)
+    private async Task<IEnumerable<string>> SearchTerminal(string value)
     {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
 
-        return Enumerable.Empty<string>();
-        //// In real life use an asynchronous function for fetching data from an api.
-        //var ports = await locationProvider.GetPortsAsync;
+        var result = await _terminalProvider.GetNames();
 
-        //// if text is null or empty, don't return values (drop-down will not open)
-        //if (string.IsNullOrEmpty(value))
-        //    return null;
-        //return ports.Where(x => x.UnLocode.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.UnLocode).Take(5);
-    }
-
-    private async Task<IEnumerable<string>> TerminalSearch(string value)
-    {
-        return Enumerable.Empty<string>();
-        //if (string.IsNullOrEmpty(value)) return Enumerable.Empty<string>();
-
-        //if (!string.IsNullOrWhiteSpace(filter_Port))
-        //{
-        //    var ports = await contractorProvider.GetPortTerminalsAsync(filter_Port);
-        //    return ports.Where(x => x.ShortNameNative.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.ShortNameNative);
-        //}
-        //var terminal = await contractorProvider.GetTerminalsAsync;
-
-        //// if text is null or empty, don't return values (drop-down will not open)
-
-        //return terminal.Where(x => x.ShortNameNative.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.ShortNameNative).Take(5);
-    }
-
-    private async Task<IEnumerable<string>> VesselSearch(string value)
-    {
-        return Enumerable.Empty<string>();
-        // In real life use an asynchronous function for fetching data from an api.
-        //var vessels = await auxDirectory.GetVesselsAsync();
-
-        //// if text is null or empty, don't return values (drop-down will not open)
-        //if (string.IsNullOrEmpty(value))
-        //    return null;
-        //return vessels.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.Name).Take(5);
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     #endregion
-
 }

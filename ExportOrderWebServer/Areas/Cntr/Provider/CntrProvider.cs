@@ -100,7 +100,7 @@ public class CntrProvider : ICntrProvider
                 return appObjResponse;
             }
 
-            //item.CreateUser = User!;
+            item.Num = item.Num.ToUpper();
 
             db.Entry(item.TpSz).State = EntityState.Unchanged;
             db.Entry(item.Carrier).State = EntityState.Unchanged;

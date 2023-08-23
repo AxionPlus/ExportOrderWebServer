@@ -70,8 +70,15 @@
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(customer.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(customer); })"></MudIconButton></MudTd>
+            @if(!SelectedItem)
+            {
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(customer.Id); })"></MudIconButton></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(customer); })"></MudIconButton></MudTd>
+            }
+            else
+            {
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.SendAndArchive" OnClick="@(async()=>{ await RemoveItem_Click(customer); })"></MudIconButton></MudTd>
+            }
             <MudTd>@customer.Name</MudTd>
             <MudTd>@customer.EngName</MudTd>
             <MudTd>@customer.Country.RUS</MudTd>
@@ -91,8 +98,10 @@
     private IEnumerable<CustomerCatalog>? Items { get; set; } = new List<CustomerCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
+    [Parameter]
+    public bool SelectedItem { get; set; } = false;
     bool IsLoadingData = false;
-
+    
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 

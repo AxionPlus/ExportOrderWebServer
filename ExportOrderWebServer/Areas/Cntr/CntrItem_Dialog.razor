@@ -11,10 +11,10 @@
 @if (Item is not null)
 {
     <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="Container-item" style="width: 530px">
-            <div class="container-content" style="max-width:fit-content">
-                <MudSelect T="CarrierCatalog" Label="Carrier" Style="width: 350px" @bind-Value="@Item.Carrier"
-                           Variant="Variant.Outlined" CloseIcon="" OpenIcon="" Clearable>
+        <div class="Container-item" style="width: 570px">
+            <div class="container-content">
+                <MudSelect T="CarrierCatalog" Label="Carrier" Style="width: 400px; text-align:left" @bind-Value="@Item.Carrier"
+                           Variant="Variant.Outlined" Margin="Margin.Dense" CloseIcon="" OpenIcon="" Clearable>
                      @if (Carriers is not null)
                         @foreach (var carrier in Carriers)
                         {
@@ -22,36 +22,41 @@
                         }
                 </MudSelect>                
                 <MudSpacer />
-                <MudButton Class="Button" Style="width: 100px; margin-left: 20px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
-                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
+                <MudButton Class="Button" Style="width: 100px" Disabled="!IsNewItem" OnClick="SaveItem_Click"                        
+                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Save">
                     Save
                 </MudButton>
             </div>
             <div class="container-content">
-                <MudTextField Class="TextField" Style="width: 180px" Label="Number" @bind-Value="@Item.Num"                
+                <MudTextField Class="TextField" Label="Number" Style="width: 180px" @bind-Value="@Item.Num"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Required RequiredError="" Clearable MaxLength="11" />
-                <MudSpacer />
-                <MudSelect Class="TextField Select" T="CntrTpSz" Label="Type" Style="width: 60px" @bind-Value="@Item.TpSz"
-                           Variant="Variant.Outlined" CloseIcon="" OpenIcon="" Clearable>
+                              Immediate="true" MaxLength="11"
+                              Required RequiredError="" Clearable />
+                <div style="width: 20px"></div>
+                <MudSelect T="CntrTpSz" Label="Type" Style="width: 120px" @bind-Value="@Item.TpSz"
+                           Variant="Variant.Outlined" Margin="Margin.Dense" CloseIcon="" OpenIcon="" Clearable>
                     @if (CntrTypes is not null)
                         @foreach (var type in CntrTypes)
                         {
-                            <MudSelectItem T="CntrTpSz" Value="@type">@type.Normolize!</MudSelectItem>
+                            <MudSelectItem T="CntrTpSz" Value="@type">@type.Normolize</MudSelectItem>
                         }
                 </MudSelect>
+                <div style="width: 80px"></div>
                 <MudSpacer />
-                <MudCheckBox Class="CheckBox" @bind-Checked="Item.IsSOC"></MudCheckBox>
+                <div style="width: 100px"></div>
             </div>
             <div class="container-content">
-                <MudTextField Class="TextField" Label="Tare" Style="width: 100px" @bind-Value="@Item.TareWt"
+                <MudTextField Class="TextField" Label="Max PayLoad" Style="width: 180px" @bind-Value="@Item.MaxPayLoad"
                               Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-                <MudSpacer />
-                <MudTextField Class="TextField" Label="Max PayLoad" Style="width: 100px" @bind-Value="@Item.MaxPayLoad"
+                <div style="width: 20px"></div>
+                <MudTextField Class="TextField" Label="Tare" Style="width: 120px" @bind-Value="@Item.TareWt"
                               Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+                <MudCheckBox Class="CheckBox" Style="width: 80px" @bind-Checked="Item.IsSOC">SOC</MudCheckBox>
                 <MudSpacer />
-                <MudButton Class="Button" Style="width: 100px; margin-left: 20px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
-                           Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
+                <MudButton Class="Button" Style="width: 100px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
+                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Clear">
                     Clear
                 </MudButton>
              </div>

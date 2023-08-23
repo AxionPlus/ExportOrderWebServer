@@ -1,0 +1,108 @@
+﻿@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<style>
+    .Body {
+        margin: 0px 10px 10px 10px
+    }
+
+    .wrapper-button {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+        margin-inline-end: 24px
+    }
+</style>
+
+<div class="Body">
+    <MudTextField T="string" Lines="25" Variant="Variant.Outlined" @bind-Value="InputData" />
+</div>
+<div>
+    <div class="wrapper-button">
+        <MudFab StartIcon="@Icons.Material.Filled.Save" Label="Save" Color="Color.Primary" Size="Size.Small"
+                Disabled="@btnIsDisabled"
+                OnClick="@(async () => { await UploadData(); })" />
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    private string? InputData { get; set; }
+    bool btnIsDisabled = false;
+
+    private async Task UploadData()
+    {
+        btnIsDisabled = true;
+
+        if (string.IsNullOrWhiteSpace(InputData))
+            return;
+        var lines = InputData.Replace("\"", "").Split("\n");
+        var cntrDTO = new List<CntrDTO>();
+
+        foreach (var item in lines)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(item))
+                    continue;
+                var str = item.Split('\t');
+
+                double tare = 0;
+                double maxPayLoad = 0;
+                bool IsSoc = false;
+                var carrier = str[0];
+                var cntr = str[1].Length == 11 ? str[1] : string.Empty; ;
+                var cntrType = str[2].Length == 4 ? str[2] : string.Empty;
+                var tareStr = str[3].Length < 5 ? str[4] : string.Empty; ;
+                var maxPayLoadStr = str[4].Length < 6 ? str[4] : string.Empty;
+                var soc = str[5].Length == 1 ? str[5] : string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(soc))
+                    IsSoc = soc.ToUpper() == "Y" ? true : false;
+
+                if (!string.IsNullOrWhiteSpace(tareStr))
+                    double.TryParse(tareStr, out tare);
+                if (!string.IsNullOrWhiteSpace(maxPayLoadStr))
+                    double.TryParse(maxPayLoadStr, out maxPayLoad);
+
+                if (string.IsNullOrWhiteSpace(carrier) || string.IsNullOrWhiteSpace(cntr) || string.IsNullOrWhiteSpace(cntrType) || string.IsNullOrWhiteSpace(soc))
+                {
+                    bool? result = await DialogService.ShowMessageBox(
+                    "Found out ERROR, skip record?",
+                    $"==={item}===",
+                    yesText: "Skip & Continue", cancelText: "Break");
+
+                    if (result.HasValue)
+                    {
+                        if (!result.Value)
+                            return;
+                        else
+                            continue;
+                    }
+                    else
+                        return;
+                }
+                cntrDTO.Add(new CntrDTO()
+                    {
+                        Carrier = carrier,
+                        Num = cntr,
+                        TpSz = cntrType,
+                        TareWt = tare != 0 ? tare : null,
+                        MaxPayLoad = maxPayLoad != 0 ? maxPayLoad : null,
+                        IsSOC = IsSoc,
+                    });
+            }
+            catch (Exception ex)
+            {
+                var res = ex;
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+
+        await Task.Delay(1000);
+        btnIsDisabled = false;
+
+        MudDialog?.Close(DialogResult.Ok(cntrDTO));
+    }
+}

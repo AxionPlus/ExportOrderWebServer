@@ -110,8 +110,6 @@ public class CustomerProvider : ICustomerProvider
         throw new NotImplementedException();
     }
 
-    #region SEARCH METHODS
-
     public async Task<IEnumerable<string>> GetNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -130,5 +128,4 @@ public class CustomerProvider : ICustomerProvider
         }
     }
 
-    #endregion
 }

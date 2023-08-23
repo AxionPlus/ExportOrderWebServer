@@ -109,8 +109,6 @@ public class VesselProvider : IVesselProvider
         throw new NotImplementedException();
     }
 
-    #region SEARCH METHODS
-
     public async Task<IEnumerable<string>> GetNames()
     {
         throw new NotImplementedException();
@@ -124,6 +122,10 @@ public class VesselProvider : IVesselProvider
             return await db.Vessels.Select(s => s.Name!).ToListAsync();
         }
     }
+
+
+    #region AUXILARY METHODS
+
     public async Task<IEnumerable<string>> GetIMOnos()
     {
         using (var _db = _dbContext.CreateDbContextAsync())

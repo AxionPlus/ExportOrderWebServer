@@ -13,8 +13,8 @@
                        Variant="Variant.Filled" Color="Color.Primary"
                        OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
             <MudSpacer />
-            <MudTextField Class="TextField" @bind-Value="Filter.CntrNum"
-                          Variant="Variant.Outlined" MaxLength="11" Placeholder="ABCU1234567" Clearable />
+            <MudTextField Class="TextField" Style="width: 180px" @bind-Value="Filter.CntrNum"
+                          Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="11" Placeholder="ABCU1234567" Clearable />
 
 @*             <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchCntr"
                              Value="Filter.Name"
@@ -22,26 +22,29 @@
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon=""
                              ResetValueOnEmptyText="true" Clearable /> *@
-             <MudSpacer />
-             <MudSelect Class="TextField Select" T="string" @bind-Value="@Filter.CntrType"
-                        Variant="Variant.Outlined" CloseIcon="" OpenIcon="" Clearable>
-                @if (CntrTypeList is not null)
-                    @foreach (var tpsz in CntrTypeList)
+            <MudSpacer />
+            <MudSelect Label="Type" T="string" @bind-Value="@Filter.CntrType"
+                        Style="width: 75px"
+                        Variant="Variant.Outlined" Margin="Margin.Dense" CloseIcon="" OpenIcon="" Clearable>
+                @if (CntrTypes is not null)
+                    @foreach (var type in CntrTypes)
                     {
-                        <MudSelectItem T="string" Value="@tpsz">@tpsz</MudSelectItem>
+                        <MudSelectItem T="string" Value="@type.Normolize!.ToString()"></MudSelectItem>
                     }
             </MudSelect>
-            <MudCheckBox Class="CheckBox" @bind-Checked="Filter.CntrIsSOC"></MudCheckBox>
-
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Carrier" @bind-Value="@Filter.Carrier" SearchFunc="@SearchCarrier"
+            <MudSpacer />
+            <MudAutocomplete Class="Autocomplete" Label="Carrier" T="string" @bind-Value="@Filter.Carrier" SearchFunc="@SearchCarrier"
                              Style="width: 300px"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon="" MaxItems="20"
                              ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary"
-                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+
+            <MudSpacer />
+            <MudCheckBox Label="SOC" @bind-Checked="Filter.CntrIsSOC"></MudCheckBox>
+            <MudSpacer />
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                       Variant="Variant.Filled" Color="Color.Secondary"
+                       OnClick="@(async () => { await GetItems(); })">Search</MudButton>
          </div>
      </div>
  </MudForm>
@@ -51,15 +54,20 @@
     private MudTable<CntrEntity>? mudTable;
 
     private IEnumerable<CntrEntity>? Items { get; set; } = new List<CntrEntity>();
-    //private IEnumerable<CntrTpSz>? CntrTpSzList;
-    private IEnumerable<string>? CntrTypeList;
+    //private List<CntrEntity>? Items { get; set; } = new List<CntrEntity>();
+    private IEnumerable<CntrTpSz>? CntrTypes;
+    private IEnumerable<CarrierCatalog>? Carriers;
     private FilterParameters Filter { get; set; } = new();
 
     bool IsLoadingData = false;
 
+
     protected override async Task OnParametersSetAsync()
     {
-        CntrTypeList = await _cntrProvider.GetCntrTypes();
+        CntrTypes = await _cntrProvider.GetCntrTypes();
+        var result = await _carrierProvider.GetItemsAsync();
+        if (!result.HasError)
+            Carriers = ((IEnumerable<CarrierCatalog>)result.Object!).ToList();
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -126,6 +134,34 @@
         // await GetItems();
     }
 
+    private async Task PathInput()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+        DialogOptions dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Large, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+
+        dialog = DialogService.Show<PathInputCntr_Dialog>("INPUT: List of Containers", dialogOptions);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var DTOitems = (List<CntrDTO>)result.Data;
+            if (DTOitems is null)
+                return;
+
+            Items = new List<CntrEntity>();
+            foreach (var item in DTOitems)
+                Items!.Append(new CntrEntity()
+                {
+                    Carrier = Carriers?.FirstOrDefault(s => s.ShortName.ToUpper() == item.Carrier.ToUpper()),
+                    Num = item.Num!,
+                    TpSz = CntrTypes?.FirstOrDefault(s => s.ToString() == item.TpSz.ToUpper()),
+                    TareWt = item.TareWt,
+                    MaxPayLoad = item.MaxPayLoad,
+                    IsSOC = item.IsSOC,
+                });
+        }
+    }
+
     #region SEARCH FUNCTIONS
 
     private async Task<IEnumerable<string>> SearchCntr(string value)
@@ -140,19 +176,6 @@
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
-
-    // private async Task<IEnumerable<string?>> SearchCntrType(string value)
-    // {
-    //     if (string.IsNullOrWhiteSpace(value))
-    //         return Enumerable.Empty<string>();
-
-    //     var result = await _cntrProvider.GetCntrTypes();
-
-    //     if (result.Count() == 0)
-    //         return Enumerable.Empty<string>();
-    //     else
-    //         return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    // }
 
     private async Task<IEnumerable<string>> SearchCarrier(string value)
     {

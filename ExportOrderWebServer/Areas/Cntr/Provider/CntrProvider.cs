@@ -14,9 +14,23 @@ public class CntrProvider : ICntrProvider
     }
 
 
-    public async Task<AppObjectResponse> GetItemAsync(long id)
+    public Task<AppObjectResponse> GetItemAsync(long id)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<AppObjectResponse> GetItemAsync(string Num)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            appObjResponse.Object = await db.Containers.AsNoTracking().FirstOrDefaultAsync(s => s.Num == Num);
+        }
+
+        return appObjResponse;
     }
 
     public async Task<AppObjectResponse> GetItemsAsync()
@@ -105,17 +119,18 @@ public class CntrProvider : ICntrProvider
         throw new NotImplementedException();
     }
 
-    #region SEARCH METHODS
-
-    public async Task<IEnumerable<string>> GetNames()
+    public Task<IEnumerable<string>> GetNames()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<string>> GetNamesEn()
+    public Task<IEnumerable<string>> GetNamesEn()
     {
         throw new NotImplementedException();
     }
+
+
+    #region AUXILARY METHODS
 
     public async Task<IEnumerable<string>> GetCntrNums()
     {
@@ -126,15 +141,23 @@ public class CntrProvider : ICntrProvider
         }
     }
 
-    public async Task<IEnumerable<string?>> GetCntrTypes()
+    public async Task<IEnumerable<string>> GetCntrTypeNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.ContainerTypeSize.Select(s => s.Normolize).ToListAsync();
+            return await db.ContainerTypeSize.Select(s => s.Normolize!).ToListAsync();
         }
     }
 
+    public async Task<IEnumerable<CntrTpSz>> GetCntrTypes()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
 
+            return await db.ContainerTypeSize.AsNoTracking().ToListAsync();
+        }
+    }
     #endregion
 }

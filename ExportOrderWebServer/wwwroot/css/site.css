@@ -147,43 +147,6 @@ body {
         justify-content: space-between;
     }
 
-/*.item-container {
-    margin-top: 15px !important;
-    display: flex !important;
-    flex-direction: column;
-    transition: box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
-    box-shadow: var(--mud-elevation-1);
-    background-color: var(--grey-08);
-}
-
-.container-head {
-    padding-inline: 10px;
-    background-color: #3592b4;
-    color: white;
-    font-weight: 700;
-}
-
-    .container-head span {
-        padding-left: 15px;
-    }
-
-    .container-head h4 {
-        padding-left: 25px
-    }*/
-
-/*.container-content {
-    padding: 10px;
-    width: 100%;
-    display: flex !important;
-    flex-direction: row;
-    justify-content: space-between;
-    background-color: var(--grey-08);
-}
-
-    .container-content.column {
-        flex-direction: column;
-    }*/
-
 .dialog-container {
     width: 100%;
     height: 100%;
@@ -305,120 +268,7 @@ body {
             margin-inline-end: -8px;
         }
 
-/*
-.viewDataTable {
-    height: 100%;
-}
-
-    .viewDataTable .mud-table {
-        height: 100%;
-    }
-
-    .viewDataTable * .filter * .mud-input.mud-input-outlined:focus-within .mud-input-outlined-border {
-        border-width: 1px;
-        border-color: #00000099;
-    }
-
-    .viewDataTable * .filter * .mud-input.mud-input-outlined:not(.mud-disabled):not(:focus-within):hover .mud-input-outlined-border {
-        border-color: #00000096;
-    }
-
-    .viewDataTable * .filter * .mud-icon-size-small {
-        font-size: 1.1rem;
-    }
-
-    .viewDataTable * .filter * .mud-icon-button-size-small.mud-icon-button-edge-end {
-        margin-inline-end: 3px !important;
-    }
-
-    .viewDataTable * .mud-table-dense * .mud-table-row .mud-table-cell {
-        padding-inline-start: 10px;
-        padding-inline-end: 10px;
-    }
-
-    .viewDataTable * .mud-table-head .mud-table-row .mud-table-cell {
-        background: var(--mud-palette-primary);
-        color: white;
-        font-weight: 700;
-        padding: 5px;
-        text-align: center;
-        letter-spacing: 1px;
-    }
-
-    .viewDataTable * .mud-table-sticky-header * .mud-table-root .mud-table-head * .mud-table-cell {
-        background: var(--mud-palette-primary);
-    }
-
-    .viewDataTable * .mud-table-head .mud-table-cell * .mud-input > input.mud-input-root-outlined, div.mud-input-slot.mud-input-root-outlined {
-        color: white;
-        padding-top: 5px;
-        text-align: center;
-        padding-bottom: 3px;
-        padding-inline: 3px;
-        font-size: 13px;
-    }
-
-    .viewDataTable * .mud-table-head .mud-table-cell * .mud-input-label-outlined.mud-input-label-margin-dense {
-        transform: translate(8px,9px) scale(1);
-    }
-
-    .viewDataTable * .mud-table-head .mud-table-cell *.mud-chip.mud-chip-size-medium {
-        height: 28px;
-        border-radius: 8px;
-    }
-
-    .viewDataTable * .mud-table-head .mud-table-sort-label {
-        align-items: flex-start;
-    }
-
-        .viewDataTable * .mud-table-head .mud-table-sort-label .mud-table-sort-label-icon {
-            margin-top: 5px;
-        }
-
-    .viewDataTable * .mud-table-head .mud-table-cell * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 0px;
-    }
-
-    .viewDataTable * .mud-table-head * .mud-icon-root.mud-svg-icon {
-        fill: white;
-    }
-
-    .viewDataTable * .mud-table-head * .mud-icon-button {
-        padding: 0px;
-    }
-
-    .viewDataTable * .mud-table-head * .mud-icon-size-medium {
-        font-size: 1.4rem;
-    }
-
-    .viewDataTable * .mud-table-body .mud-table-row .mud-table-cell {
-        text-align: center;
-        padding: 4px;
-        border-bottom: none;
-    }
-
-    .viewDataTable.Pages *.mud-table-container {
-        height: calc(100% - 50px);
-    }*/
-
-/*.mud-table-container {
-    height: 100%;
-}*/
-
-/*.viewDataTable * tbody > tr:hover {
-    background-color: gainsboro;
-    border: 1px solid gainsboro;
-}*/
-
-/*.viewDataTable.Dense * .mud-table-body .mud-table-row .mud-table-cell {
-    padding: 2px;
-}*/
-
-/*.container-content * .mud-input-control > .mud-input-control-input-container > .mud-input-label-inputcontrol {
-    background-color: var(--grey-08);
-}*/
-
-
+/*DATE RANGE*/
 .dateRange {
     width: 220px;
 }
@@ -462,6 +312,9 @@ body {
     flex-grow: unset;
 }
 
+.container-content > .mud-select {
+    flex-grow: unset;
+}
 
 
 .controlIconButtons {
@@ -474,7 +327,7 @@ body {
     }
 
 
-
+/*WRAPPER INPUT*/
 .wrapper-input {
 }
 

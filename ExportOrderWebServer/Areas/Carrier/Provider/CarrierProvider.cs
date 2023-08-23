@@ -106,9 +106,7 @@ public class CarrierProvider : ICarrierProvider
     {
         throw new NotImplementedException();
     }
-
-    #region SEARCH METHODS
-
+    
     public async Task<IEnumerable<string>> GetNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -126,6 +124,4 @@ public class CarrierProvider : ICarrierProvider
             return await db.Carriers.Select(s => s.ShortName!).ToListAsync();
         }
     }
-
-    #endregion
 }

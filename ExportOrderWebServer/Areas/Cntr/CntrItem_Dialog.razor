@@ -1,6 +1,152 @@
 ﻿@inject ISnackbar Snackbar
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject ICntrProvider _cntrProvider
+@inject ICarrierProvider _carrierProvider
+@inject ICntrProvider _cntrProvider
+
+<style>
+
+</style>
+
+@if (Item is not null)
+{
+    <MudForm @ref="@Form" Style="max-width:fit-content">
+        <div class="Container-item" style="width: 530px">
+            <div class="container-content" style="max-width:fit-content">
+                <MudSelect T="CarrierCatalog" Label="Carrier" Style="width: 350px" @bind-Value="@Item.Carrier"
+                           Variant="Variant.Outlined" CloseIcon="" OpenIcon="" Clearable>
+                     @if (Carriers is not null)
+                        @foreach (var carrier in Carriers)
+                        {
+                            <MudSelectItem T="CarrierCatalog" Value="@carrier">@carrier.ShortName</MudSelectItem>
+                        }
+                </MudSelect>                
+                <MudSpacer />
+                <MudButton Class="Button" Style="width: 100px; margin-left: 20px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
+                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
+                    Save
+                </MudButton>
+            </div>
+            <div class="container-content">
+                <MudTextField Class="TextField" Style="width: 180px" Label="Number" @bind-Value="@Item.Num"                
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Required RequiredError="" Clearable MaxLength="11" />
+                <MudSpacer />
+                <MudSelect Class="TextField Select" T="CntrTpSz" Label="Type" Style="width: 60px" @bind-Value="@Item.TpSz"
+                           Variant="Variant.Outlined" CloseIcon="" OpenIcon="" Clearable>
+                    @if (CntrTypes is not null)
+                        @foreach (var type in CntrTypes)
+                        {
+                            <MudSelectItem T="CntrTpSz" Value="@type">@type.Normolize!</MudSelectItem>
+                        }
+                </MudSelect>
+                <MudSpacer />
+                <MudCheckBox Class="CheckBox" @bind-Checked="Item.IsSOC"></MudCheckBox>
+            </div>
+            <div class="container-content">
+                <MudTextField Class="TextField" Label="Tare" Style="width: 100px" @bind-Value="@Item.TareWt"
+                              Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+                <MudSpacer />
+                <MudTextField Class="TextField" Label="Max PayLoad" Style="width: 100px" @bind-Value="@Item.MaxPayLoad"
+                              Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+                <MudSpacer />
+                <MudButton Class="Button" Style="width: 100px; margin-left: 20px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
+                           Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
+                    Clear
+                </MudButton>
+             </div>
+         </div>
+     </MudForm>
+}
 
 @code {
+    private MudForm? Form { get; set; }
+    [Parameter]
+    public string? Num { get; set; }
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
 
+    private CntrEntity? Item { get; set; }
+    private IEnumerable<CarrierCatalog>? Carriers;
+    private IEnumerable<CntrTpSz>? CntrTypes;
+
+    private bool IsAuth = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItem();
+
+        var result = await _carrierProvider.GetItemsAsync();
+        if (!result.HasError)
+            Carriers = ((IEnumerable<CarrierCatalog>)result.Object!).ToList();
+
+        CntrTypes = await _cntrProvider.GetCntrTypes();
+
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        {
+            IsAuth = true;
+        }
+    }
+
+    private async Task GetItem()
+    {
+        if (IsNewItem)
+            Item = new();
+        else
+        {
+            var response = await _cntrProvider.GetItemAsync(Num!);
+            if (!response.HasError)
+                Item = (CntrEntity)response.Object!;
+        }
+    }
+
+    public async Task SaveItem_Click()
+    {
+        await Form!.Validate();
+
+        if (Form.IsValid)
+        {
+            if (IsNewItem)
+            {
+                var response = await _cntrProvider.NewItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Saved successfully", Severity.Success);
+                    IsNewItem = false;
+                }
+                else
+                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+            }
+            else
+            {
+                // var response = await _cntrProvider.ModifyItemAsync(Item!);
+                // if (!response.HasError)
+                // {
+                //     await GetItem();
+                //     Snackbar.Add("Save Successed", Severity.Success);
+                // }
+                // else
+                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async Task ClearItem_Click()
+    {
+        if (IsNewItem)
+        {
+            Item!.Num = null;
+            Item.TpSz = null;
+            Item!.TareWt = 0;
+            Item!.MaxPayLoad = 0;
+            Item.IsSOC = false;
+            Item!.Carrier = null;
+        }
+
+        await Task.Delay(50);
+    }
 }

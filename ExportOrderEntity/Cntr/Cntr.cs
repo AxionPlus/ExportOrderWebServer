@@ -11,8 +11,8 @@ public class CntrEntity
     [MaxLength(11)]
     public string Num { get; set; }
     public CntrTpSz TpSz { get; set; }
-    public ushort TareWt { get; set; }
-    public ushort MaxPayLoad { get; set; }
+    public double? TareWt { get; set; }
+    public double? MaxPayLoad { get; set; }
     public bool IsSOC { get; set; }
     public CarrierCatalog Carrier { get; set; }
 

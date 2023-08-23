@@ -118,8 +118,6 @@ public class VesselCallProvider : IVesselCallProvider
         throw new NotImplementedException();
     }
 
-    #region SEARCH METHODS
-
     public async Task<IEnumerable<string>> GetNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -134,14 +132,9 @@ public class VesselCallProvider : IVesselCallProvider
         throw new NotImplementedException();
     }
 
-    //public async Task<IEnumerable<string>> GetTerminalNames()
-    //{
-    //    using (var _db = _dbContext.CreateDbContextAsync())
-    //    {
-    //        var db = await _db;
-    //        return await db.Terminals.Select(s => s.Name!).ToListAsync();
-    //    }
-    //}
+
+
+    #region AUXILARY METHODS
 
     public async Task<IEnumerable<string>> GetPODs()
     {

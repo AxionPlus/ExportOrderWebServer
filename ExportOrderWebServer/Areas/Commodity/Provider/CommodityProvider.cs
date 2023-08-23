@@ -108,17 +108,6 @@ public class CommodityProvider : ICommodityProvider
         throw new NotImplementedException();
     }
 
-    #region SEARCH METHODS
-
-    public async Task<IEnumerable<string>> GetHScodes()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.Commodities.Select(s => s.HSCode).ToListAsync();
-        }
-    }
-
     public async Task<IEnumerable<string>> GetNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -134,6 +123,18 @@ public class CommodityProvider : ICommodityProvider
         {
             var db = await _db;
             return await db.Commodities.Select(s => s.EngName!).ToListAsync();
+        }
+    }
+
+
+    #region SEARCH METHODS
+
+    public async Task<IEnumerable<string>> GetHScodes()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+            return await db.Commodities.Select(s => s.HSCode).ToListAsync();
         }
     }
 

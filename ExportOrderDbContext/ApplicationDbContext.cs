@@ -71,11 +71,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
         modelBuilder.Entity<CntrEntity>().Navigation(s => s.TpSz).AutoInclude();
-        modelBuilder.Entity<CntrEntity>().Navigation(s => s.Carrier).AutoInclude();
+        //modelBuilder.Entity<CntrEntity>().Navigation(s => s.Carrier).AutoInclude();
         modelBuilder.Entity<VesselEntity>().Navigation(s => s.Flag).AutoInclude();
-        modelBuilder.Entity<VesselCallEntity>().Navigation(s => s.Vessel).AutoInclude();
-        modelBuilder.Entity<VesselCallEntity>().Navigation(s => s.LoadingTerminal).AutoInclude();
-        modelBuilder.Entity<VesselCallEntity>().Navigation(s => s.POD).AutoInclude();
+
+        modelBuilder.Entity<DocumentEntity>().Navigation(s => s.CreateUser).AutoInclude();  // ???
 
         //var type = new CntrTpSz()
         //{

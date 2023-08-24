@@ -7,7 +7,7 @@ namespace ExportOrderEntites.Document;
 public class DocumentEntity : Entity
 {
     [Required]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public DocumentType Type { get; set; }
     public string? Discription { get; set; }

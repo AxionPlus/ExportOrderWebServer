@@ -11,39 +11,39 @@
     <div class="Container-item">
         <div class="container-content">
             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                       Variant="Variant.Filled" Color="Color.Primary"
-                       OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
+                        Variant="Variant.Filled" Color="Color.Primary"
+                        OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
             <MudSpacer />
             <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchNames"
-                             Value="Filter.Name"
-                             ValueChanged="(e)=> { Filter.Name = e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
+                                Value="Filter.Name"
+                                ValueChanged="(e)=> { Filter.Name = e; }"
+                                Variant="Variant.Outlined" Margin="Margin.Dense"
+                                CloseIcon="" OpenIcon=""
+                                ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
             <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 300px" SearchFunc="@SearchNamesEn"
-                             Value="Filter.NameEn"
-                             ValueChanged="(e)=> { Filter.NameEn = e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
+                                Value="Filter.NameEn"
+                                ValueChanged="(e)=> { Filter.NameEn = e; }"
+                                Variant="Variant.Outlined" Margin="Margin.Dense"
+                                CloseIcon="" OpenIcon=""
+                                ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
             <MudAutocomplete Class="Autocomplete" T="string" Label="Country" Style="width: 200px" SearchFunc="@SearchCountries"
-                             Value="Filter.Country"
-                             ValueChanged="(e)=> { Filter.Country = e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                                Value="Filter.Country"
+                                ValueChanged="(e)=> { Filter.Country = e; }"
+                                Variant="Variant.Outlined" Margin="Margin.Dense"
+                                CloseIcon="" OpenIcon=""
+                                ResetValueOnEmptyText="true" Clearable />
+                <MudSpacer />
+                <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
                         Variant="Variant.Filled" Color="Color.Secondary"
                         OnClick="@(async () => { await GetItems(); })">Search</MudButton>
-         </div>
-     </div>
- </MudForm>
+            </div>
+        </div>
+</MudForm>
 
- <div class="Container-table">
-     @if (mudTable != null)
+<div class="Container-table">
+    @if (mudTable != null)
     {
         <div class="tableMenu">
             <MudSpacer />
@@ -52,11 +52,14 @@
         </div>
     }
 
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CustomerCatalog" Context="customer"
-              Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CustomerCatalog"
+                Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
         <HeaderContent>
-            <MudTh Style="width:30px"></MudTh>
+            @if (!SelectItem)
+            {
+                <MudTh Style="width:30px"></MudTh>
+            }            
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:515px">
                 <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name)">Name Ru</MudTableSortLabel>
@@ -70,18 +73,18 @@
         </HeaderContent>
 
         <RowTemplate>
-            @if(!SelectedItem)
+            @if (!SelectItem)
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(customer.Id); })"></MudIconButton></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(customer); })"></MudIconButton></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"/></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"/></MudTd>
             }
             else
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.SendAndArchive" OnClick="@(async()=>{ await RemoveItem_Click(customer); })"></MudIconButton></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })"/></MudTd>
             }
-            <MudTd>@customer.Name</MudTd>
-            <MudTd>@customer.EngName</MudTd>
-            <MudTd>@customer.Country.RUS</MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.EngName</MudTd>
+            <MudTd>@context.Country.RUS</MudTd>
         </RowTemplate>
 
         <PagerContent></PagerContent>
@@ -92,6 +95,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private MudForm? FilterForm;
     private MudTable<CustomerCatalog>? mudTable;
 
@@ -99,9 +103,9 @@
     private FilterParameters Filter { get; set; } = new();
 
     [Parameter]
-    public bool SelectedItem { get; set; } = false;
+    public bool SelectItem { get; set; } = false;
     bool IsLoadingData = false;
-    
+
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
@@ -166,6 +170,13 @@
 
         await GetItems();
     }
+
+    private async Task SelectItem_Click(CustomerCatalog item)
+    {
+        await Task.Delay(50);
+        MudDialog.Close(item);
+    }
+
 
     #region SEARCH FUNCTIONS
 

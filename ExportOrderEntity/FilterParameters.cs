@@ -28,4 +28,10 @@ public class FilterParameters
     public string? CntrNum { get; set; }
     public string? CntrType { get; set; }
     public bool? CntrIsSOC { get; set; }
+
+    public string? Document { get; set; }
+    public string? Shipper { get; set; }
+    public string? Consignee { get; set; }
+    public string? Commodity { get; set; }
+
 }

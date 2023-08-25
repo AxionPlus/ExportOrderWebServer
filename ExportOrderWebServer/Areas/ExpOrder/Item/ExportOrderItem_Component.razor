@@ -1,0 +1,217 @@
+﻿@inject IDialogService DialogService;
+
+<style></style>
+
+@if (Value is not null)
+{
+    <MudForm @ref="Form" Disabled="@(!IsNewItem)">
+
+        <div class="Container-item">
+            <div class="container-head">INFO</div>
+            <div class="container-content">
+                <MudTextField Class="TextField" Style="width: 200px; margin-right: 20px" Label="Number" @bind-Value="@Value!.Num"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                                        Required RequiredError="" Clearable="IsNewItem" />
+
+                 <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="@Value.Dated"
+                                Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="IsNewItem"
+                                DateFormat="dd.MM.yy" IconSize=Size.Small />
+                 @Value.Status.ToString()
+             </div>
+        </div>
+
+        <div class="Container-item">
+            <div class="container-head">DOCUMENTS</div>
+            <div class="container-content">
+
+                 <div class="documents">
+                     <div class="controlIconButtons">
+                         <MudCheckBox Class="wrapper-checkBox" @bind-Checked="@MultiSelectionTreeItemData" />
+                         <MudSpacer />
+                         <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Filled.Add" aria-label="delete" OnClick="AddDocument_Click"></MudIconButton>
+                         <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Filled.List" aria-label="delete"></MudIconButton>
+                         <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                     </div>
+
+                     <MudPaper Width="450px" Elevation="0" Style="height:246px;overflow: auto;">
+                         <MudTreeView Items="TreeItems" MultiSelection="MultiSelectionTreeItemData" @bind-ActivatedValue="ActivatedValue">
+                             <ItemTemplate>
+                                 <MudTreeViewItem Items="@context.TreeItems"
+                                                  Value="@context"
+                                                  LoadingIconColor="Color.Info"
+                                                  CanExpand="@context.CanExpand"
+                                                  Text="@context.Title"
+                                                  EndText="@context.Number?.ToString()"
+                                                  EndTextTypo="@Typo.caption"
+                                                  OnClick="TreeViewItem_Click" />
+                             </ItemTemplate>
+                         </MudTreeView>
+                     </MudPaper>
+                 </div>
+                 <div class="documents-info">
+                     <h5>Shippers:</h5>
+                     <div class="ma-0" style="min-height:100px;overflow: auto;">
+                         @foreach (var shipper in Value.Shippers)
+                        {
+                            @shipper
+                        }
+                    </div>
+                    <br />
+                    <h5>Consignees:</h5>
+                    <div class="ma-0" style="min-height:100px;overflow: auto;">
+                        @foreach (var consignee in Value.Consignees)
+                        {
+                            @consignee
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="Container-item">
+            <div class="container-head">CONTAINER RECORDS</div>        
+            <div class="Container-table">
+                @if (mudTable != null)
+                {
+                    <div class="tableMenu">
+                        <MudSpacer />
+                        <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+                        <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
+                    </div>
+                }
+                <MudTable Class="Table" @ref="mudTable" T="ExportOrderRecord" Items="@Value.Records"
+                          Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+                    <HeaderContent>
+                        <MudTh Style="width:40px;">
+                            <div class="controlIconButtons">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddContainerRecord_Click" Size="Size.Small" />
+                            </div>
+                        </MudTh>
+                        <MudTh>Nr</MudTh>
+                        <MudTh>Seal</MudTh>
+                        <MudTh>Content</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           OnClick="@(async ()=>{ await RemoveContainerRecord(context);})"
+                                           Color="Color.Error" Size="Size.Small" />
+                        </MudTd>
+                        <MudTd>@context.Cntr.Num</MudTd>
+                        <MudTd>@context.Seal</MudTd>
+                        <MudTd>@context.Contents.ToHashSet()</MudTd>
+                    </RowTemplate>
+                    <PagerContent></PagerContent>
+                </MudTable>
+            </div>
+        </div>
+
+    </MudForm>
+}
+
+@code {
+    private MudForm? Form;
+    private MudTable<ExportOrderRecord>? mudTable;
+
+    [Parameter]
+    public ExportOrderEntity? Value { get; set; }
+    [Parameter]
+    public EventCallback<ExportOrderEntity> ValueChanged { get; set; }
+    [Parameter]
+    public bool IsNewItem { get; set; }
+
+    bool IsLoadingData = false;
+
+
+    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
+
+
+    void TreeViewItem_Click()
+    { }
+
+    void ShowBtnPress(string str)
+    {
+
+    }
+    async Task AddDocument_Click()
+    {
+        DialogParameters parameters = new DialogParameters { ["SelectItem"] = true };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<DocumentComponent>("ADD DOCUMENT", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+
+        }
+    }
+
+    #region Cntr RECORDS
+
+    async Task AddContainerRecord_Click()
+    {
+        if (Value!.Documents is null) return;
+
+        if (Value.Documents.Count() == 0) return;
+
+        var parameters = new DialogParameters() { ["Documents"] = Value.Documents };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<ExportOrder_ContainerContentComponent>("Container record", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+
+        }
+    }
+
+    private async Task RemoveContainerRecord(ExportOrderRecord record)
+    {
+        if (record is null)
+            return;
+
+        bool? result = await DialogService.ShowMessageBox(
+                 "Delete record",
+                 (MarkupString)$"<b>Do you want to remove record with {record.Cntr.Num}?<b>",
+                 yesText: "REMOVE", cancelText: "NO");
+
+        if (!result.HasValue) return;
+
+        if (result.Value)
+            Value!.Records!.Remove(record);
+
+        await InvokeAsync(StateHasChanged);
+    }
+    #endregion
+
+    #region  TreeItemData
+
+    bool MultiSelectionTreeItemData = false;
+
+    private TreeItemData ActivatedValue { get; set; }
+
+    private HashSet<TreeItemData> SelectedValues { get; set; }
+
+    private HashSet<TreeItemData> TreeItems { get; set; } = new HashSet<TreeItemData>();
+
+    public class TreeItemData
+    {
+        public string Title { get; set; }
+
+
+        public int? Number { get; set; }
+
+        public bool CanExpand { get; set; }
+
+        public HashSet<TreeItemData> TreeItems { get; set; }
+
+        public TreeItemData(string title, int? number = null, bool canExpand = true)
+        {
+            Title = title;
+
+            Number = number;
+            CanExpand = canExpand;
+        }
+    }
+    #endregion
+}

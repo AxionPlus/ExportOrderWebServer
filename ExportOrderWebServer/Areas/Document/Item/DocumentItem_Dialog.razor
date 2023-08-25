@@ -73,6 +73,7 @@
 @code {
     private MudForm? Form { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
     [Parameter]
     public long Id { get; set; }
     [Parameter]
@@ -80,9 +81,8 @@
 
     private DocumentEntity? Item { get; set; }
     private DocumentType Type { get; set; }
-    private string Header = "new";    
-    private bool IsAuth = false;        
-    //private bool IsFormDisabled { get; set; } = true;
+    private string Header = "new";
+    private bool IsAuth = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,7 +94,6 @@
         if (IsNewItem)
         {
             Item = new() { Shipper = new(), Consignee = new(), Records = new List<DocumentRecord>() };
-            //IsFormDisabled = false;
         }
         else
         {
@@ -119,7 +118,6 @@
                 var response = await _documentProvider.NewItemAsync(Item!);
                 if (!response.HasError)
                 {
-                    //Id = Item!.Id.ToString();
                     IsNewItem = false;
                     //await GetItem();
                     Snackbar.Add("Saved Successfully", Severity.Success);
@@ -146,11 +144,12 @@
     public async Task EditItem()
     {
         await Task.Delay(10);
-        IsNewItem = false;
+        IsNewItem = true;
     }
 
     public async Task CloseDialog_Click()
     {
+        await Task.Delay(50);
         MudDialog!.Close();
     }
 }

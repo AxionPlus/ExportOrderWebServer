@@ -24,7 +24,7 @@ public class ExportOrderEntity : Entity
             if (Documents is null)
                 return Enumerable.Empty<DocumentCustomer>();
 
-            return Documents.Select(x => x.Shipper).ToList();
+            return Documents.Select(x => x.Shipper).ToList()!;
         }
     }
 
@@ -36,7 +36,7 @@ public class ExportOrderEntity : Entity
             if (Documents is null)
                 return Enumerable.Empty<DocumentCustomer>();
 
-            return Documents.Select(x => x.Consignee).ToList();
+            return Documents.Select(x => x.Consignee).ToList()!;
         }
     }
 }

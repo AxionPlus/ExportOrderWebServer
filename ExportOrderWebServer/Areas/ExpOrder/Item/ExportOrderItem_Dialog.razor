@@ -1,0 +1,159 @@
+﻿@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IExportOrderProvider _exportOrderProvider
+
+<style></style>
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        @if (MudDialog != null)
+        {
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Text="EXIT">
+                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" OnClick="CloseDialog_Click"
+                                   Icon="@Icons.Material.Outlined.ExitToApp" />
+                </MudTooltip>
+            </div>
+        }
+
+        @if (!IsNewItem)
+        {
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Class="ExitIconButton" Text="REFRESH" Delay="500" Duration="1000">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
+                </MudTooltip>
+            </div>
+        }
+
+        <MudSpacer />
+
+        <div class="ToolBar-Title"><span>@($"Export Order : {Header}")</span></div>
+
+        <MudSpacer />
+
+        @if (IsNewItem)
+        {
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton" style="width: 20px"></div>
+        }
+
+@*         @if (IsAuth)
+        { *@
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Class="ExitIconButton" Text="edit" Delay="500" Duration="1000">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton" style="width: 20px"></div>
+        @* } *@
+
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
+
+<MudForm @ref="@Form">
+    @if (Item != null)
+    {
+        <ExportOrderItem_Component @bind-Value="Item" IsNewItem="IsNewItem" />
+    }
+</MudForm>
+
+
+
+ @code {
+    private MudForm? Form;
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public long Id { get; set; }
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
+
+    private ExportOrderEntity? Item { get; set; }
+    private string Header = "new";
+    private bool IsAuth = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItem();
+
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        {
+            IsAuth = true;
+        }
+    }
+
+    private async Task GetItem()
+    {
+        if (IsNewItem)
+            Item = new() { Carrier = new(), Documents = new List<DocumentEntity>(), Records = new List<ExportOrderRecord>() };
+        else
+        {
+            var response = await _exportOrderProvider.GetItemAsync(Id);
+            if (!response.HasError)
+                Item = (ExportOrderEntity)response.Object!;
+
+            if (Item is not null)
+                Header = Item!.Num!;
+
+            IsNewItem = false;
+        }
+    }
+
+    public async Task SaveItem()
+    {
+        await Form!.Validate();
+
+        if (Form.IsValid)
+            if (IsNewItem)
+            {
+                var response = await _exportOrderProvider.NewItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    IsNewItem = false;
+                    //await GetItem();
+                    Snackbar.Add("Saved Successfully", Severity.Success);
+                }
+                else
+                    Snackbar.Add("No Success", Severity.Error);
+            }
+            else
+            {
+                // var response = await _exportOrderProvider.ModifyItemAsync(Item!);
+                // if (!response.HasError)
+                // {
+                //     await GetItem();
+                //     Snackbar.Add("Save Successed", Severity.Success);
+                // }
+                // else
+                //     Snackbar.Add("Not Successed", Severity.Error);
+            }
+        else
+            Snackbar.Add("Fill up all reqired fields", Severity.Error);
+
+    }
+
+    public async Task EditItem()
+    {
+        await Task.Delay(10);
+        IsNewItem = true;
+    }
+
+    public async Task CloseDialog_Click()
+    {
+        await Task.Delay(50);
+        MudDialog!.Close();
+    }
+
+}

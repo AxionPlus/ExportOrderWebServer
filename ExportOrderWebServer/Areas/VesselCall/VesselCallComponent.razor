@@ -30,17 +30,17 @@
                               CloseIcon="" OpenIcon="" MaxItems="20"
                               ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
-             <MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 300px" @bind-Value="Filter.Voyage"
+             <MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 180px" @bind-Value="Filter.Voyage"
                            Variant="Variant.Outlined" Margin="Margin.Dense" Clearable></MudTextField>
              <MudSpacer />
              <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
-                              Style="width: 300px"
+                              Style="width: 180px"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon="" MaxItems="20"
                               ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
              <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.TerminalName" SearchFunc="@SearchTerminal"
-                              Style="width: 300px"
+                              Style="width: 180px"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon="" MaxItems="20"
                               ResetValueOnEmptyText="true" Clearable />
@@ -116,7 +116,7 @@
     private bool IsLoadingData = false;
 
     public IEnumerable<VesselCallEntity>? Items { get; set; } = new List<VesselCallEntity>();
-    private FilterParameters Filter { get; set; } = new();    
+    private FilterParameters Filter { get; set; } = new();
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);

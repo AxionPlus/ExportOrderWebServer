@@ -10,8 +10,9 @@
     <MudForm @ref="Form" Disabled="@(!IsNewItem)">
         <div class="Container-item">
             <div class="container-content">
-                <MudSelect T="DocumentType" Label="Type" Style="width: 80px" @bind-Value="@Value.Type" ToStringFunc="@(s => s.ToString())"
-                           Variant="Variant.Outlined" Margin="Margin.Dense" CloseIcon="" OpenIcon="">
+                <MudSelect T="DocumentType" Label="Type" Style="width: 80px" @bind-Value="@Value.Type" 
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           ToStringFunc="@(s => s.ToString())" CloseIcon="" OpenIcon="">
                     @foreach (DocumentType type in Enum.GetValues(typeof(DocumentType)))
                     {
                         <MudSelectItem Value="@type" />

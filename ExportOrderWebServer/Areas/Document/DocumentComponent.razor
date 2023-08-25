@@ -1,18 +1,17 @@
 ﻿@inject IDialogService DialogService
 @inject IDocumentProvider _documentProvider
 
-<style>
-</style>
+<style></style>
 
 <MudForm @ref="@FilterForm">
     <div class="Container-item">
         <div class="container-content">
-            <MudButton Class="Button" Style="max-width: 100px" OnClick="@(async () => { await NewItem_Click(); })"
-                       Variant="Variant.Filled" Color="Color.Primary">
+            <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await AddItem_Click(); })"
+                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary">
                 Add New
             </MudButton>
             <MudSpacer />
-            <MudTextField Class="TextField" Placeholder="Ducument" Style="width: 300px" @bind-Value="@Filter.Document"
+            <MudTextField Class="TextField" Placeholder="Document" Style="width: 300px" @bind-Value="@Filter.Document"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
             <MudTextField Class="TextField" Placeholder="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
@@ -24,8 +23,8 @@
             <MudTextField Class="TextField" Placeholder="Commodity" Style="width: 300px" @bind-Value="@Filter.Commodity"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
-            <MudButton Class="Button" Style="max-width: 100px" OnClick="@(async () => { await SearchItems_Click(); })"
-                        Variant="Variant.Filled" Color="Color.Secondary">
+            <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
+                        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
                  Search
             </MudButton>
         </div>
@@ -69,19 +68,21 @@
 @code {
     private MudForm? FilterForm;
     private MudTable<DocumentEntity>? mudTable;
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public IEnumerable<DocumentEntity>? Items { get; set; } = new List<DocumentEntity>();
-    private FilterParameters Filter { get; set; } = new();
+    [Parameter]
+    public bool SelectItem { get; set; } = false;
 
+
+    private FilterParameters Filter { get; set; } = new();
     bool IsLoadingData = false;
-    
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
-    private async Task SearchItems_Click()
+    private async Task GetItems()
     {
         //Items = new List<DocumentEntity>() { new() { Name = "1111111/2222222/111111111" }, new() { Name = "1111111/3333333/111111111" } };
 
@@ -98,7 +99,7 @@
         IsLoadingData = false;
     }
 
-    // private async Task NewItem_Click()
+    // private async Task AddItem_Click()
     // {
     //     //var parameters = new DialogParameters { ["server"] = server };
 
@@ -129,7 +130,7 @@
     //     }
     // }
 
-    private async Task NewItem_Click()
+    private async Task AddItem_Click()
     {
         //await Task.Delay(1000);
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
@@ -138,7 +139,7 @@
         DialogResult result = await dialog.Result;
 
         // if (!result.Canceled)
-        //     await SearchItems_Click();
+        //     await GetItems();
 
     }
 
@@ -153,6 +154,6 @@
         var result = await dialog.Result;
 
         if (!result.Canceled)
-            await SearchItems_Click();
+            await GetItems();
     }
 }

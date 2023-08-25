@@ -41,12 +41,11 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
 
+            var documents = await db.Documents.ToListAsync();
+
             if (parameters.GetType() == typeof(FilterParameters))
             {
                 var filter = (FilterParameters)parameters;
-
-                var documents = await db.Documents.ToListAsync();
-
 
                 if (!string.IsNullOrEmpty(filter.Document))
                     documents = documents.Where(s => s.Name == filter.Document).ToList();

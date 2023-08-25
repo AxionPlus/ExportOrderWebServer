@@ -34,4 +34,6 @@ public class FilterParameters
     public string? Consignee { get; set; }
     public string? Commodity { get; set; }
 
+    public string? ExportOrderNum { get; set; }      // номер поручения
+
 }

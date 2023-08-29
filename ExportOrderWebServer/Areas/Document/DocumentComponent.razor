@@ -11,7 +11,7 @@
                 Add New
             </MudButton>
             <MudSpacer />
-            <MudTextField Class="TextField" Placeholder="Document" Style="width: 300px" @bind-Value="@Filter.Document"
+            <MudTextField Class="TextField" Placeholder="Document" Style="width: 270px" @bind-Value="@Filter.Document"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
             <MudTextField Class="TextField" Placeholder="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
@@ -20,7 +20,7 @@
             <MudTextField Class="TextField" Placeholder="Consignee" Style="width: 300px" @bind-Value="@Filter.Consignee"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
-            <MudTextField Class="TextField" Placeholder="Commodity" Style="width: 300px" @bind-Value="@Filter.Commodity"
+            <MudTextField Class="TextField" Placeholder="Cargo" Style="width: 270px" @bind-Value="@Filter.CargoDescriptionShort"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
             <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
@@ -51,8 +51,15 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd>
-                <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.ChevronRight"
-                               OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
+                @if (!SelectItem)
+                {
+                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.ChevronRight"
+                                   OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })" />
+                }
             </MudTd>
             <MudTd>@context.Type.ToString()</MudTd>
             <MudTd>@context.Name</MudTd>
@@ -155,5 +162,11 @@
 
         if (!result.Canceled)
             await GetItems();
+    }
+
+    private async Task SelectItem_Click(DocumentEntity item)
+    {
+        await Task.Delay(50);
+        MudDialog!.Close(item);
     }
 }

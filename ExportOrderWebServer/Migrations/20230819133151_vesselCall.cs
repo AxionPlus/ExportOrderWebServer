@@ -241,7 +241,7 @@ namespace ExportOrderWebServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
-                    Discription = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
                     ContarctNo = table.Column<string>(type: "text", nullable: true),
                     Shipper = table.Column<string>(type: "jsonb", nullable: false),
                     Consignee = table.Column<string>(type: "jsonb", nullable: false),

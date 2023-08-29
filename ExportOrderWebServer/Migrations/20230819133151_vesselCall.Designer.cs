@@ -390,7 +390,7 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
-                    b.Property<string>("Discription")
+                    b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")

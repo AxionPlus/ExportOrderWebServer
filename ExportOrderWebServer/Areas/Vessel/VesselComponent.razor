@@ -8,8 +8,8 @@
 <MudForm @ref="@FilterForm">
     <div class="Container-item">
         <div class="container-content">
-            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                       Variant="Variant.Filled" Color="Color.Primary"
+            <MudButton Class="Button" Style="max-width: 80px" Disabled="@IsLoadingData"
+                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary"
                        OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
             <MudSpacer />
             <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
@@ -26,8 +26,8 @@
                               CloseIcon="" OpenIcon=""
                               ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary"
+             <MudButton Class="Button" Style="max-width: 80px" Disabled="@IsLoadingData"
+                        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary"
                         OnClick="@(async () => { await GetItems(); })">Search</MudButton>
          </div>
      </div>

@@ -10,7 +10,7 @@ public class DocumentEntity : Entity
     public string? Name { get; set; }
 
     public DocumentType Type { get; set; }
-    public string? Discription { get; set; }
+    public string? Description { get; set; }
     public string? ContarctNo { get; set; }
 
     [Required]

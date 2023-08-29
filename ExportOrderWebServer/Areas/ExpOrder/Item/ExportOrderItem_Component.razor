@@ -23,14 +23,13 @@
         <div class="Container-item">
             <div class="container-head">DOCUMENTS</div>
             <div class="container-content">
-
                  <div class="documents">
                      <div class="controlIconButtons">
-                         <MudCheckBox Class="wrapper-checkBox" @bind-Checked="@MultiSelectionTreeItemData" />
+                         <MudCheckBox Class="wrapper-checkBox" Dense="true" Size="Size.Small" @bind-Checked="@MultiSelectionTreeItemData" />
                          <MudSpacer />
-                         <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Filled.Add" aria-label="delete" OnClick="AddDocument_Click"></MudIconButton>
-                         <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Filled.List" aria-label="delete"></MudIconButton>
-                         <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                         <MudIconButton Icon="@Icons.Material.Filled.Add" aria-sort="ascending" Size="Size.Small" OnClick="AddDocument_Click"></MudIconButton>
+                         <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small"></MudIconButton>
+                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"></MudIconButton>
                      </div>
 
                      <MudPaper Width="450px" Elevation="0" Style="height:246px;overflow: auto;">
@@ -48,22 +47,22 @@
                          </MudTreeView>
                      </MudPaper>
                  </div>
-                 <div class="documents-info">
+                 <div class="documents-info" style="margin-left: 10px; min-width:fit-content; max-width:fit-content">
                      <h5>Shippers:</h5>
-                     <div class="ma-0" style="min-height:100px;overflow: auto;">
+                     @* <div class="ma-0" style="min-height:100px;overflow: auto;"> *@
                          @foreach (var shipper in Value.Shippers)
                         {
                             @shipper
                         }
-                    </div>
+                    @* </div> *@
                     <br />
                     <h5>Consignees:</h5>
-                    <div class="ma-0" style="min-height:100px;overflow: auto;">
+                    @* <div class="ma-0" style="min-height:100px;overflow: auto;"> *@
                         @foreach (var consignee in Value.Consignees)
                         {
                             @consignee
                         }
-                    </div>
+                    @* </div> *@
                 </div>
             </div>
         </div>
@@ -133,6 +132,8 @@
     {
 
     }
+
+    #region DOCUMENTS
     async Task AddDocument_Click()
     {
         DialogParameters parameters = new DialogParameters { ["SelectItem"] = true };
@@ -142,9 +143,10 @@
 
         if (!result.Canceled)
         {
-
+            var document = (DocumentEntity)result.Data;
         }
     }
+    #endregion
 
     #region Cntr RECORDS
 
@@ -198,7 +200,6 @@
     {
         public string Title { get; set; }
 
-
         public int? Number { get; set; }
 
         public bool CanExpand { get; set; }
@@ -208,7 +209,6 @@
         public TreeItemData(string title, int? number = null, bool canExpand = true)
         {
             Title = title;
-
             Number = number;
             CanExpand = canExpand;
         }

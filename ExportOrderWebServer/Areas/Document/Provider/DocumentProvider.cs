@@ -56,8 +56,9 @@ public class DocumentProvider : IDocumentProvider
                 if (!string.IsNullOrEmpty(filter.Consignee))
                     documents = documents.Where(s => s.Consignee!.Name == filter.Consignee).ToList();
 
-                if (!string.IsNullOrEmpty(filter.Commodity))
-                    documents = documents.Where(s => s.Records.FirstOrDefault()!.CommodityName == filter.Commodity).ToList();
+                if (!string.IsNullOrEmpty(filter.CargoDescriptionShort))
+                    documents = documents.Where(s => s.Description== filter.CargoDescriptionShort).ToList();
+                //documents = documents.Where(s => s.Records.FirstOrDefault()!.CommodityName == filter.CargoDiscriptionShort).ToList();
 
 
                 appObjResponse.Object = documents.ToArray();

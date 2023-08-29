@@ -19,28 +19,28 @@
         <div class="container-head"></div>
 
         <div class="container-content">
-             <MudButton Class="Button" Style="width: 100px" Disabled="@IsLoadingData" OnClick="@(async () => { await AddItem_Click(); })"
-                       Variant="Variant.Filled" Color="Color.Primary">
+             <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await AddItem_Click(); })"
+                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary">
                 Add New
              </MudButton>
              <MudSpacer />
              <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.VesselName" SearchFunc="@SearchVessel"
-                              Style="width: 300px"
+                              Style="width: 270px"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon="" MaxItems="20"
                               ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
-             <MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 180px" @bind-Value="Filter.Voyage"
+             <MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 150px" @bind-Value="Filter.Voyage"
                            Variant="Variant.Outlined" Margin="Margin.Dense" Clearable></MudTextField>
              <MudSpacer />
              <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
-                              Style="width: 180px"
+                              Style="width: 170px"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon="" MaxItems="20"
                               ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
              <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.TerminalName" SearchFunc="@SearchTerminal"
-                              Style="width: 180px"
+                              Style="width: 150px"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon="" MaxItems="20"
                               ResetValueOnEmptyText="true" Clearable />
@@ -63,8 +63,8 @@
                             AutoClose=true
                             DisableToolbar=false Clearable />
              <MudSpacer />
-             <MudButton Class="Button" Style="width: 100px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
-                        Variant="Variant.Filled" Color="Color.Secondary">
+             <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
+                        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
                  Search
              </MudButton>
         </div>

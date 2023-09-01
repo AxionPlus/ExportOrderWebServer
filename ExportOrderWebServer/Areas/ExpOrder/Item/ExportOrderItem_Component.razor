@@ -1,6 +1,12 @@
 ﻿@inject IDialogService DialogService;
 
-<style></style>
+<style>
+
+    .Container-item > .container-content{
+        justify-content:flex-start;
+    }
+
+</style>
 
 @if (Value is not null)
 {
@@ -16,7 +22,7 @@
                  <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="@Value.Dated"
                                 Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="IsNewItem"
                                 DateFormat="dd.MM.yy" IconSize=Size.Small />
-                 @Value.Status.ToString()
+                 <h6>@Value.Status.ToString()</h6>
              </div>
         </div>
 
@@ -25,17 +31,25 @@
             <div class="container-content">
                  <div class="documents">
                      <div class="controlIconButtons">
-                         <MudCheckBox Class="wrapper-checkBox" Dense="true" Size="Size.Small" @bind-Checked="@MultiSelectionTreeItemData" />
+                         @if (TreeItems.Count > 0)
+                         {
+                            <MudCheckBox Class="wrapper-checkBox" Dense="true" Size="Size.Small" @bind-Checked="@MultiSelectionTreeItemData" />
+                         }
+                         else
+                         {
+                            <div style="width: 10px"></div>
+                         }
                          <MudSpacer />
-                         <MudIconButton Icon="@Icons.Material.Filled.Add" aria-sort="ascending" Size="Size.Small" OnClick="AddDocument_Click"></MudIconButton>
+                         <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="AddDocument_Click"></MudIconButton>
                          <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small"></MudIconButton>
-                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="RemoveDocument"></MudIconButton>
                      </div>
 
                      <MudPaper Width="450px" Elevation="0" Style="height:246px;overflow: auto;">
-                         <MudTreeView Items="TreeItems" MultiSelection="MultiSelectionTreeItemData" @bind-ActivatedValue="ActivatedValue">
+@*                          <MudTreeView Items="TreeItems" Dense="true" Hover="true"
+                                     MultiSelection="MultiSelectionTreeItemData" @bind-SelectedValues="SelectedValues" >
                              <ItemTemplate>
-                                 <MudTreeViewItem Items="@context.TreeItems"
+                                <MudTreeViewItem Items="@context.TreeItems"
                                                   Value="@context"
                                                   LoadingIconColor="Color.Info"
                                                   CanExpand="@context.CanExpand"
@@ -44,24 +58,51 @@
                                                   EndTextTypo="@Typo.caption"
                                                   OnClick="TreeViewItem_Click" />
                              </ItemTemplate>
-                         </MudTreeView>
+                         </MudTreeView> *@
+
+                        <MudTreeView MultiSelection="true" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
+                                     Dense="true" Hover="true">
+                            <ItemTemplate>
+                                <MudTreeViewItem 
+                                                 Value="@context"
+                                                 Text="@context.Name"
+                                                 EndText="@context.Records.Count().ToString()"
+                                                 LoadingIconColor="Color.Info"
+                                                 EndTextTypo="@Typo.caption"
+                                                 OnClick="TreeViewItem_Click">
+@*                                     <MudDataGrid Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
+                                        <Columns>
+                                            <PropertyColumn Property="x => x.Seq" />
+                                            <PropertyColumn Property="x => x.CommodityHSCode" />
+                                            <PropertyColumn Property="x => x.CommodityName" />
+                                        </Columns>
+                                    </MudDataGrid> *@
+                                    <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
+                                              Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
+                                        <RowTemplate>
+                                            <MudTd Style="width: 30px">@DocRecords.Seq</MudTd>
+                                            <MudTd Style="width: 115px">@DocRecords.CommodityHSCode</MudTd>
+                                            <MudTd Style="text-align:left">@DocRecords.CommodityName</MudTd>
+                                        </RowTemplate>
+                                    </MudTable>
+                                </MudTreeViewItem>
+                            </ItemTemplate>
+                        </MudTreeView>
                      </MudPaper>
                  </div>
-                 <div class="documents-info" style="margin-left: 10px; min-width:fit-content; max-width:fit-content">
-                     <h5>Shippers:</h5>
-                     @* <div class="ma-0" style="min-height:100px;overflow: auto;"> *@
-                         @foreach (var shipper in Value.Shippers)
-                        {
-                            @shipper
-                        }
-                    @* </div> *@
+                <div class="documents-info" style="margin-left: 20px; min-width:fit-content; max-width:fit-content">
+                    <h5>Shippers:</h5>
+                    @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
+                    {
+                        @(shipper + " / ");
+                    }
                     <br />
                     <h5>Consignees:</h5>
                     @* <div class="ma-0" style="min-height:100px;overflow: auto;"> *@
-                        @foreach (var consignee in Value.Consignees)
-                        {
-                            @consignee
-                        }
+                    @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
+                    {
+                        @(consignee + " ; ");
+                    }
                     @* </div> *@
                 </div>
             </div>
@@ -86,8 +127,8 @@
                                 <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddContainerRecord_Click" Size="Size.Small" />
                             </div>
                         </MudTh>
-                        <MudTh>Nr</MudTh>
-                        <MudTh>Seal</MudTh>
+                        <MudTh Style="width: 180px">Nr</MudTh>
+                        <MudTh Style="width: 300px">Seals</MudTh>
                         <MudTh>Content</MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -111,6 +152,7 @@
 @code {
     private MudForm? Form;
     private MudTable<ExportOrderRecord>? mudTable;
+    private MudTable<DocumentRecord>? mudDocRecordsTable;
 
     [Parameter]
     public ExportOrderEntity? Value { get; set; }
@@ -120,13 +162,15 @@
     public bool IsNewItem { get; set; }
 
     bool IsLoadingData = false;
-
+    bool ItemSelected { get; set; }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
 
     void TreeViewItem_Click()
-    { }
+    {
+
+    }
 
     void ShowBtnPress(string str)
     {
@@ -136,16 +180,68 @@
     #region DOCUMENTS
     async Task AddDocument_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["SelectItem"] = true };
+        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, DisableBackdropClick = true };
         var dialog = await DialogService.ShowAsync<DocumentComponent>("ADD DOCUMENT", parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        try{
+            if (!result.Canceled)
+            {
+
+
+                // var document = (DocumentEntity)result.Data;
+                // //TreeItems.Add(new("12123213/123123123/12312312", 3) { TreeItems = new HashSet<TreeItemData>() { new("4f", 3) } });
+                // TreeItems.Add(new(document.Name!, 1) { TreeItems = new HashSet<TreeItemData>() { new("2f", 2) } });
+
+                var documents = (HashSet<DocumentEntity>)result.Data;
+
+                // foreach (var document in documents)
+                // {
+                //     TreeItems.Add(new(document.Name!, document.Records.Count())
+                //     { 
+                //         TreeItems = new HashSet<TreeItemData>() { new(document.Type.ToString(), 3, true, document.ContarctNo!) }
+                //     });
+                // }           
+                Value!.Documents!.AddRange(documents);
+
+                foreach (var document in documents)
+                {
+                    DocumentItems.Add(document);
+                    foreach (var record in document.Records)
+                    {
+                        DocumentRecordItems.Add(record);
+                    }
+                }
+
+                await ValueChanged.InvokeAsync(Value);
+            }
+        }
+        catch (Exception ex)
         {
-            var document = (DocumentEntity)result.Data;
+            var m = ex.Message;
         }
     }
+
+    private async Task RemoveDocument()
+    {
+        await Task.Delay(50);
+
+        if (SelectedDocumentValues.Count > 0)
+        {
+            foreach (var item in SelectedDocumentValues)
+            {
+                DocumentItems.Remove(item);
+                Value!.Documents!.Remove(item);
+            }
+            
+            SelectedDocumentValues.Clear();
+        }
+
+        
+        await InvokeAsync(StateHasChanged);
+    }
+
     #endregion
 
     #region Cntr RECORDS
@@ -186,13 +282,28 @@
     }
     #endregion
 
-    #region  TreeItemData
+    #region  TreeItems
 
     bool MultiSelectionTreeItemData = false;
 
+    //private DocumentEntity DocumentItem { get; set; }
+    //private DocumentRecord DocumentRecordItem { get; set; }
+
+    private HashSet<DocumentEntity> SelectedDocumentValues { get; set; }
+    //private HashSet<DocumentRecord> SelectedDocumentRecordValues { get; set; }
+
+    private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
+    private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
+
+
+
+
     private TreeItemData ActivatedValue { get; set; }
 
+    private TreeItemData SelectedValue { get; set; }
+
     private HashSet<TreeItemData> SelectedValues { get; set; }
+    
 
     private HashSet<TreeItemData> TreeItems { get; set; } = new HashSet<TreeItemData>();
 
@@ -204,13 +315,19 @@
 
         public bool CanExpand { get; set; }
 
+        public string Contract { get; set; }
+
+        public bool IsSelected { get; set; }
+
         public HashSet<TreeItemData> TreeItems { get; set; }
 
-        public TreeItemData(string title, int? number = null, bool canExpand = true)
+        public TreeItemData(string title, int? number = null, bool canExpand = true, string contract = "", bool selected = false)
         {
             Title = title;
             Number = number;
             CanExpand = canExpand;
+            Contract = contract;
+            IsSelected = selected;
         }
     }
     #endregion

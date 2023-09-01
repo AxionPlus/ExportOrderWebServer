@@ -10,8 +10,12 @@ public class ExportOrderRecord
 #pragma warning disable CS8618
     [Required]
     public CntrEntity Cntr { get; set; }
+    //[Required]
+    //public CntrEntity CntrNum { get; set; }
     [Required]
     public string Seal { get; set; }
+    //public CntrTpSz CntrType { get; set; }
+    //public double? CntrTareWt { get; set; }
 
     public IList<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
 

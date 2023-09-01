@@ -13,8 +13,8 @@ public class ExportOrderEntity : Entity
 
     public CarrierCatalog  Carrier { get; set; }
 
-    public IList<DocumentEntity>? Documents { get; set; } = new List<DocumentEntity>(); 
-    public IList<ExportOrderRecord>? Records { get; set; }= new List<ExportOrderRecord>();
+    public List<DocumentEntity>? Documents { get; set; } = new List<DocumentEntity>(); 
+    public List<ExportOrderRecord>? Records { get; set; } = new List<ExportOrderRecord>();
 
     [NotMapped]
     public IEnumerable<DocumentCustomer> Shippers

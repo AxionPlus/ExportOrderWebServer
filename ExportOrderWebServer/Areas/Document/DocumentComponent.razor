@@ -1,7 +1,13 @@
 ﻿@inject IDialogService DialogService
 @inject IDocumentProvider _documentProvider
 
-<style></style>
+<style>
+
+    .Table.MultiSelection * table tr > th:first-child {
+        width: 30px;
+    }
+
+</style>
 
 <MudForm @ref="@FilterForm">
     <div class="Container-item">
@@ -40,10 +46,15 @@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
-    <MudTable Class="Table" @ref="mudTable" T="DocumentEntity" Items="@Items"
-              Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+    <MudTable Class="Table MultiSelection" @ref="mudTable" T="DocumentEntity" Items="@Items" @bind-SelectedItems="SelectedItems"
+              MultiSelection="IsSelectable" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
         <HeaderContent>
-            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:30px">
+                @if (IsSelectable)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SendItems_Click(); })" />
+                }
+            </MudTh>
             <MudTh Style="width:50px">Type</MudTh>
             <MudTh Style="width:100px">Name</MudTh>
             <MudTh>Shipper</MudTh>
@@ -51,14 +62,10 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd>
-                @if (!SelectItem)
+                @if (!IsSelectable)
                 {
-                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.ChevronRight"
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Edit"
                                    OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
-                }
-                else
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })" />
                 }
             </MudTd>
             <MudTd>@context.Type.ToString()</MudTd>
@@ -80,7 +87,8 @@
     [Parameter]
     public IEnumerable<DocumentEntity>? Items { get; set; } = new List<DocumentEntity>();
     [Parameter]
-    public bool SelectItem { get; set; } = false;
+    public bool IsSelectable { get; set; } = false;
+    private HashSet<DocumentEntity> SelectedItems = new HashSet<DocumentEntity>();
 
 
     private FilterParameters Filter { get; set; } = new();
@@ -145,9 +153,9 @@
         IDialogReference dialog = await DialogService.ShowAsync<DocumentItem_Dialog>(null, parameters, options);
         DialogResult result = await dialog.Result;
 
-        // if (!result.Canceled)
-        //     await GetItems();
-
+        if (result.Canceled)
+            if (Items!.Count() > 0)
+                await GetItems();
     }
 
     private async Task ShowItem_Click(long id)
@@ -164,9 +172,22 @@
             await GetItems();
     }
 
-    private async Task SelectItem_Click(DocumentEntity item)
+    // private async Task SendItems_Click(DocumentEntity item)
+    // {
+    //     await Task.Delay(50);
+    //     MudDialog!.Close(item);
+    // }
+
+    private async Task SendItems_Click()
     {
         await Task.Delay(50);
-        MudDialog!.Close(item);
+        try
+        {
+            MudDialog!.Close(SelectedItems);
+        }
+        catch (Exception ex)
+        {
+            var msg = ex.Message;
+        }
     }
 }

@@ -1,14 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
-using ExportOrderWebServer.Areas.Cntr.Provider;
 
 namespace ExportOrderWebServer.Service;
 
 public class ExcelService : IDisposable
 {
-    public static ICntrTypeProvider? _cntrTypeProvider;
-    public static IEnumerable<CntrTpSz>? CntrTypes { get; set; } = new List<CntrTpSz>();
+    //public ICntrTypeProvider? _cntrTypeProvider;
+    private IEnumerable<CntrTpSz> CntrTypes = new List<CntrTpSz>();
 
     private string? FilePath { get; set; }
     private readonly uint ExcelAppPid;
@@ -23,17 +22,21 @@ public class ExcelService : IDisposable
     private Excel.Range? FilterRange;
 
 
-    public ExcelService()
-    {
-        ExcelApp = new Excel.Application();
-        Workbooks = ExcelApp.Workbooks;
-        var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
-    }
-    public ExcelService(string filePath)
+    //public ExcelService()
+    //{
+    //    ExcelApp = new Excel.Application();
+    //    Workbooks = ExcelApp.Workbooks;
+
+    //    var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
+    //}
+    public ExcelService(string filePath, IEnumerable<CntrTpSz> cntrTypes)
     {
         FilePath = filePath;
+        CntrTypes = cntrTypes;
+
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
+
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
@@ -45,20 +48,22 @@ public class ExcelService : IDisposable
         WorkSheet = WorkSheets?.Item[1];
 
         #region Column Name
-        int colNumDT = 1;
+        int colNumDT = 0;
+        int colCargoNum = 1;
         int colCntrNum = 2;
         int colCntrType = 3;
         int colCntrTareWt = 4;
         int colSeal = 5;
-        int colPackages = 6;
-        int colGross = 7;
-        int colNet = 8;
-        int colVolume = 9;
+        int colPackageQty = 6;
+        int colNet = 7;
+        int colGross = 8;
+        
         #endregion
 
-        var cntrNums = new List<string>();
+        //var cntrNums = new List<string>();
+        var dtNums = new List<string>();
         var exportOrderRecords = new List<ExportOrderRecord>();
-
+        
         try
         {
             uint columns = 9;
@@ -66,49 +71,45 @@ public class ExcelService : IDisposable
 
             do
             {
-                cntrNums.Add(WorkSheet!.Cells[row, colCntrNum].Text);
+                //cntrNums.Add(WorkSheet!.Cells[row, colCntrNum + 1].Text);
+                dtNums.Add(WorkSheet!.Cells[row, colNumDT + 1].Text);
                 row++;
-            } while (!string.IsNullOrWhiteSpace(WorkSheet!.Cells[row, colCntrNum].Text));
+            } while (!string.IsNullOrWhiteSpace(WorkSheet!.Cells[row, colCntrNum + 1].Text));
 
-            cntrNums = cntrNums.Distinct().Select(s => s.Replace("\n", "")).ToList();
+            //cntrNums = cntrNums.Distinct().Select(s => s.Replace("\n", "")).ToList();
+            dtNums = dtNums.Distinct().Select(s => s.Replace("\n", "")).ToList();
 
             var startCell = WorkSheet.Cells[2, 1];
-            var endCell = WorkSheet.Cells[row - 1, columns - 1];
+            var endCell = WorkSheet.Cells[row - 1, columns];
             Range = WorkSheet.Range[startCell, endCell];
 
-            string[][] sheetAray = GetStringArray(Range.Cells.Value);
+            string[][] sheetArray = GetStringArray(Range.Cells.Value);
 
-            foreach (var cntrNum in cntrNums)
+            foreach (var dtNum in dtNums)
             {
                 //var exportOrderRecord = new ExportOrderRecord() { CntrNum = cntrNum };
                 var exportOrderRecord = new ExportOrderRecord();
-                bool blData = true;
+                bool IsDeclarationData = true;
 
-                for (int i = 0; i < sheetAray.Length; i++)
+                for (int i = 0; i < sheetArray.Length; i++)
                 {
-                    if (sheetAray[i][colCntrNum - 1].Contains(cntrNum))
+                    if (sheetArray[i][colNumDT].Contains(dtNum))
                     {
-                        if (blData)
-                        {
-                            exportOrderRecord.CntrNum = sheetAray[i][colCntrNum - 1];
+                        if (IsDeclarationData)
+                        {                            
+                            exportOrderRecord.CntrNum = sheetArray[i][colCntrType];
+                            exportOrderRecord.CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == sheetArray[i][colCntrType].ToUpper())!;
+                            exportOrderRecord.CntrTareWt = double.TryParse(sheetArray[i][colCntrTareWt], out double _Twt) ? _Twt : 0;
+                            exportOrderRecord.Seal = sheetArray[i][colSeal];
 
-                            //string typeUploaded = sheetAray[i][colCntrType - 1];
-                            //var typesEntity = await _cntrTypeProvider.GetCntrTypes();
-                            //var type = typesEntity.FirstOrDefault(t => t.Normolize == typeUploaded);
-                            exportOrderRecord.CntrType = GetCntrTypeEntity(sheetAray[i][colCntrType - 1]);
-
-                            exportOrderRecord.CntrTareWt = double.TryParse(sheetAray[i][colCntrTareWt - 1], out double _Twt) ? _Twt : 0;
-                            exportOrderRecord.Seal = sheetAray[i][colSeal - 1];
-
-                            blData = false;
+                            IsDeclarationData = false;
                         }
 
                         exportOrderRecord.Contents.Add(new()
                         {
-                            Quantity = int.TryParse(sheetAray[i][colPackages - 1], out int _pkgQty) ? _pkgQty : 0,
-                            GrossWt = double.TryParse(sheetAray[i][colGross - 1], out double _gwt) ? _gwt : 0,
-                            NetWt = double.TryParse(sheetAray[i][colNet - 1], out double _nwt) ? _nwt : 0,
-                            Volume = double.TryParse(sheetAray[i][colVolume - 1], out double _vol) ? _vol : 0,
+                            Quantity = int.TryParse(sheetArray[i][colPackageQty], out int _pkgQty) ? _pkgQty : 0,
+                            NetWt = double.TryParse(sheetArray[i][colNet], out double _nwt) ? _nwt : 0,
+                            GrossWt = double.TryParse(sheetArray[i][colGross], out double _gwt) ? _gwt : 0,
                         });
                     }
                 }
@@ -126,7 +127,7 @@ public class ExcelService : IDisposable
     {
         string[][]? stringArray = null;
 
-        Array array = rangeValues as Array;
+        Array? array = rangeValues as Array;
         if (null != array)
         {
             int rank = array.Rank;
@@ -143,10 +144,10 @@ public class ExcelService : IDisposable
 
                     for (int index2 = 0; index2 < columnCount; index2++)
                     {
-                        Object obj = array.GetValue(index + 1, index2 + 1);
+                        Object obj = array.GetValue(index + 1, index2 + 1)!;
                         if (null != obj)
                         {
-                            string value = obj.ToString();
+                            string value = obj.ToString()!;
 
                             stringArray[index][index2] = value;
                         }
@@ -157,17 +158,6 @@ public class ExcelService : IDisposable
 
         return stringArray;
     }
-
-    Func<string, CntrTpSz> GetCntrTypeEntity = (str) =>
-    {   
-        CntrTypes = (IEnumerable<CntrTpSz>)_cntrTypeProvider!.GetCntrTypes();
-        var type = CntrTypes.FirstOrDefault(t => t.Normolize == str);
-
-        if (type != null)
-            return type;
-        else
-            return new CntrTpSz();
-    };
 
 
     [DllImport("user32.dll", SetLastError = true)]

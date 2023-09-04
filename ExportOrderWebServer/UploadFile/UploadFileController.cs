@@ -14,11 +14,14 @@ namespace ExportOrderWebServer.UploadFile;
 public class UploadFileController : ControllerBase
 {
     public readonly IExportOrderProvider _exportOrderProvider;
+    public readonly ICntrTypeProvider _cntrTypeProvider;
 
-    public UploadFileController(IExportOrderProvider exportOrderProvider)
+    public UploadFileController(IExportOrderProvider exportOrderProvider , ICntrTypeProvider cntrTypeProvider)
     {
         _exportOrderProvider = exportOrderProvider;
+        _cntrTypeProvider = cntrTypeProvider;
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        
     }
 
 
@@ -29,12 +32,73 @@ public class UploadFileController : ControllerBase
     {
         var filesDir = new List<string>();
         var items = new List<ExportOrderRecord>();
+        var cntrTpSzList = await _cntrTypeProvider.GetCntrTypes();
+
+        foreach (var file in files)
+            if (file != null)
+            {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string SavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
+                filesDir.Add(SavePath);
+                using (var stream = new FileStream(SavePath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+            }
+
+        foreach (var fileDir in filesDir)
+            using (var exl = new ExcelService(fileDir, cntrTpSzList))
+            {
+                var uploadingRecords = exl.ReadUploadingFile();
+                items.AddRange(uploadingRecords);
+            }
+
+        items = items.DistinctBy(s => s.Id).ToList();
+
+        #region CHECK Entity before Upload
+
+        var errList = new List<string>();
+        
+        foreach (var item in items)
+        {
+            // Empties:
+
+            if (item.CntrTareWt !> 0)
+                errList.Add($"Cntr: {item.CntrNum} - Tare weight is empty.");
+
+            if (string.IsNullOrWhiteSpace(item.Seal))
+                errList.Add($"Cntr: {item.CntrNum} - Seal is empty.");
+
+            // Content records:
+
+            if (item.Contents.Count() > 0)
+                foreach (var content in item.Contents)
+                {
+                    // Empties:
+
+                    if (content.Quantity !> 0)
+                        errList.Add($"Cntr: {item.CntrNum} - Pakage Quantity is empty.");
+
+                    if (content.GrossWt !> 0)
+                        errList.Add($"Cntr: {item.CntrNum} - Gross weight is empty.");
+
+                    if (content.NetWt !> 0)
+                        errList.Add($"Cntr: {item.CntrNum} - Net weight is empty.");
+
+                    if (content.Volume !> 0)
+                        errList.Add($"Cntr: {item.CntrNum} - Volume is empty.");
+                }
+            else
+                errList.Add($"List of Content to upload is empty.");
+        }
+
+        #endregion
 
         var UploadedResults = new UploadedResult()
         {
             CntrCount = items.Count(),
-            CntrContentCount = items.SelectMany(s => s.Contents).ToList().DistinctBy(x => x.DocumentRecord?.Id).Count()
-            //Errors = err,
+            CntrContentCount = items.SelectMany(s => s.Contents).ToList().DistinctBy(x => x.DocumentRecord?.Id).Count(),
+            Errors = errList,
         };
 
         return UploadedResults;
@@ -46,13 +110,13 @@ public class UploadFileController : ControllerBase
     {
         var filesDir = new List<string>();
         var items = new List<ExportOrderRecord>();
+        var cntrTpSzList = await _cntrTypeProvider.GetCntrTypes();
 
         foreach (var file in files)
             if (file != null)
             {
                 //string dirName = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "Temp");
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                //Get url To Save
                 string SavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
                 filesDir.Add(SavePath);
                 using (var stream = new FileStream(SavePath, FileMode.Create))
@@ -63,14 +127,14 @@ public class UploadFileController : ControllerBase
 
         foreach (var fileDir in filesDir)
         {
-            using (var exl = new ExcelService(fileDir))
+            using (var exl = new ExcelService(fileDir, cntrTpSzList))
             {
                 var uploadingRecords = exl.ReadUploadingFile();
                 items.AddRange(uploadingRecords);
             }
         }
 
-        items = items.DistinctBy(s => s.Id).ToList();
+        //items = items.DistinctBy(s => s.Id).ToList();
 
         var appresponse = await _exportOrderProvider.AddUploadedFileItemsAsync(items);
 

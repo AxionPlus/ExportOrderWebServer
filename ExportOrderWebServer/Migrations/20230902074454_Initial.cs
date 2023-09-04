@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     /// <inheritdoc />
-    public partial class vesselCall : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -109,8 +109,8 @@ namespace ExportOrderWebServer.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<string>(type: "text", nullable: false)
                 },
@@ -154,8 +154,8 @@ namespace ExportOrderWebServer.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "text", nullable: false),
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -258,35 +258,6 @@ namespace ExportOrderWebServer.Migrations
                         column: x => x.CreateUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Containers",
-                columns: table => new
-                {
-                    Num = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
-                    TpSzISO = table.Column<string>(type: "character varying(4)", nullable: false),
-                    TareWt = table.Column<int>(type: "integer", nullable: false),
-                    MaxPayLoad = table.Column<int>(type: "integer", nullable: false),
-                    IsSOC = table.Column<bool>(type: "boolean", nullable: false),
-                    CarrierId = table.Column<long>(type: "bigint", nullable: false),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Containers", x => x.Num);
-                    table.ForeignKey(
-                        name: "FK_Containers_Carriers_CarrierId",
-                        column: x => x.CarrierId,
-                        principalTable: "Carriers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Containers_ContainerTypeSize_TpSzISO",
-                        column: x => x.TpSzISO,
-                        principalTable: "ContainerTypeSize",
-                        principalColumn: "ISO",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -439,18 +410,20 @@ namespace ExportOrderWebServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CntrNum = table.Column<string>(type: "character varying(11)", nullable: false),
+                    CntrNum = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
                     Seal = table.Column<string>(type: "text", nullable: false),
+                    CntrTypeISO = table.Column<string>(type: "character varying(4)", nullable: false),
+                    CntrTareWt = table.Column<double>(type: "double precision", nullable: true),
                     ExportOrderId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ExportOrder_Records", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ExportOrder_Records_Containers_CntrNum",
-                        column: x => x.CntrNum,
-                        principalTable: "Containers",
-                        principalColumn: "Num",
+                        name: "FK_ExportOrder_Records_ContainerTypeSize_CntrTypeISO",
+                        column: x => x.CntrTypeISO,
+                        principalTable: "ContainerTypeSize",
+                        principalColumn: "ISO",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ExportOrder_Records_ExportOrders_ExportOrderId",
@@ -645,16 +618,6 @@ namespace ExportOrderWebServer.Migrations
                 column: "ExportOrderRecordId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Containers_CarrierId",
-                table: "Containers",
-                column: "CarrierId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Containers_TpSzISO",
-                table: "Containers",
-                column: "TpSzISO");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Countries_CreateUserId",
                 table: "Countries",
                 column: "CreateUserId");
@@ -680,9 +643,9 @@ namespace ExportOrderWebServer.Migrations
                 column: "CreateUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExportOrder_Records_CntrNum",
+                name: "IX_ExportOrder_Records_CntrTypeISO",
                 table: "ExportOrder_Records",
-                column: "CntrNum");
+                column: "CntrTypeISO");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExportOrder_Records_ExportOrderId",
@@ -807,16 +770,13 @@ namespace ExportOrderWebServer.Migrations
                 name: "Documents");
 
             migrationBuilder.DropTable(
-                name: "Containers");
+                name: "ContainerTypeSize");
 
             migrationBuilder.DropTable(
                 name: "ExportOrders");
 
             migrationBuilder.DropTable(
                 name: "Locations");
-
-            migrationBuilder.DropTable(
-                name: "ContainerTypeSize");
 
             migrationBuilder.DropTable(
                 name: "Carriers");

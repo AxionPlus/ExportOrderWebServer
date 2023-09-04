@@ -2,33 +2,37 @@
 @inject IDialogService DialogService
 @inject IVesselProvider _vesselProvider
 
-<style>
-</style>
+<style></style>
 
 <MudForm @ref="@FilterForm">
     <div class="Container-item">
         <div class="container-content">
             <MudButton Class="Button" Style="max-width: 80px" Disabled="@IsLoadingData"
-                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary"
-                       OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
+                    Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary"
+                    OnClick="@(async () => { await AddItem_Click(); })">
+                Add New
+            </MudButton>
             <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
-                             Value="Filter.Name"
-                             ValueChanged="(e)=> { Filter.Name = e; } "
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="IMO no" Style="width: 140px" SearchFunc="@SearchIMO"
-                              Value="Filter.IMO"
-                              ValueChanged="(e)=> { Filter.IMO = e; }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              CloseIcon="" OpenIcon=""
-                              ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 80px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary"
-                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+            <MudAutocomplete Class="Autocomplete" T="string" Label="IMO no" Style="width: 140px" SearchFunc="@SearchIMO"
+                            Value="Filter.IMO" Dense="true"
+                            ValueChanged="(e)=> { Filter.IMO = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+            
+            <div style="width: 50px"></div>
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px; text-align:center" SearchFunc="@SearchNames"
+                            Value="Filter.Name"
+                            ValueChanged="(e)=> { Filter.Name = e; } "
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+            <MudSpacer />
+            <MudButton Class="Button" Style="max-width: 80px; align-items:end" Disabled="@IsLoadingData"
+                    Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary"
+                    OnClick="@(async () => { await GetItems(); })">
+                Search
+            </MudButton>
          </div>
      </div>
  </MudForm>
@@ -54,6 +58,7 @@
             </MudTh>            
             <MudTh Style="width:100px">IMO number</MudTh>
             <MudTh Style="width:200px">Flag</MudTh>
+            <MudTh Style="width:100px">Terrminal id</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
 
@@ -63,6 +68,7 @@
             <MudTd>@vessel.Name</MudTd>            
             <MudTd>@vessel.IMO</MudTd>
             <MudTd>@vessel.Flag.RUS</MudTd>
+            <MudTd>@vessel.TerminalId</MudTd>
             <MudTd></MudTd>
         </RowTemplate>
 

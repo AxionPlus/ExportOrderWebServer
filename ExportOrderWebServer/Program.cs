@@ -1,16 +1,3 @@
-using ExportOrderWebServer.Areas.Carrier.Provider;
-using ExportOrderWebServer.Areas.Cntr.Provider;
-using ExportOrderWebServer.Areas.Commodity.Provider;
-using ExportOrderWebServer.Areas.Country.Provider;
-using ExportOrderWebServer.Areas.Customer.Provider;
-using ExportOrderWebServer.Areas.Document.Provider;
-using ExportOrderWebServer.Areas.ExpOrder.Provider;
-using ExportOrderWebServer.Areas.Identity;
-using ExportOrderWebServer.Areas.Location.Provider;
-using ExportOrderWebServer.Areas.Terminal.Provider;
-using ExportOrderWebServer.Areas.User.Provider;
-using ExportOrderWebServer.Areas.Vessel.Provider;
-using ExportOrderWebServer.Areas.VesselCall.Provider;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -52,9 +39,9 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-//builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
 
+builder.Services.AddHttpClient();
 builder.Services.AddMudServices();
 
 builder.Services.AddTransient<IUserProvider, UserProvider>();
@@ -66,7 +53,7 @@ builder.Services.AddTransient<ILocationProvider, LocationProvider>();
 builder.Services.AddTransient<ITerminalProvider, TerminalProvider>();
 builder.Services.AddTransient<IVesselProvider, VesselProvider>();
 builder.Services.AddTransient<IVesselCallProvider, VesselCallProvider>();
-builder.Services.AddTransient<ICntrProvider, CntrProvider>();
+builder.Services.AddTransient<ICntrTypeProvider, CntrTypeProvider>();
 builder.Services.AddTransient<IDocumentProvider, DocumentProvider>();
 builder.Services.AddTransient<IExportOrderProvider, ExportOrderProvider>();
 

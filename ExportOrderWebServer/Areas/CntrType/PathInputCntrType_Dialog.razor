@@ -19,8 +19,7 @@
 </div>
 <div>
     <div class="wrapper-button">
-        <MudFab StartIcon="@Icons.Material.Filled.Save" Label="Save" Color="Color.Primary" Size="Size.Small"
-                Disabled="@btnIsDisabled"
+        <MudFab StartIcon="@Icons.Material.Filled.Save" Label="Save" Color="Color.Primary" Size="Size.Small" Disabled="@btnIsDisabled"
                 OnClick="@(async () => { await UploadData(); })" />
     </div>
 </div>
@@ -38,7 +37,7 @@
         if (string.IsNullOrWhiteSpace(InputData))
             return;
         var lines = InputData.Replace("\"", "").Split("\n");
-        var cntrDTO = new List<CntrDTO>();
+        var records = new List<CntrTpSz>();
 
         foreach (var item in lines)
         {
@@ -48,25 +47,10 @@
                     continue;
                 var str = item.Split('\t');
 
-                double tare = 0;
-                double maxPayLoad = 0;
-                bool IsSoc = false;
-                var carrier = str[0];
-                var cntr = str[1].Length == 11 ? str[1] : string.Empty; ;
-                var cntrType = str[2].Length == 4 ? str[2] : string.Empty;
-                var tareStr = str[3].Length < 5 ? str[4] : string.Empty; ;
-                var maxPayLoadStr = str[4].Length < 6 ? str[4] : string.Empty;
-                var soc = str[5].Length == 1 ? str[5] : string.Empty;
+                var cntrISO = str[0].Length == 4 ? str[0] : string.Empty;
+                var cntrNormolize = str[1].Length < 8 ? str[1] : string.Empty;
 
-                if (!string.IsNullOrWhiteSpace(soc))
-                    IsSoc = soc.ToUpper() == "Y" ? true : false;
-
-                if (!string.IsNullOrWhiteSpace(tareStr))
-                    double.TryParse(tareStr, out tare);
-                if (!string.IsNullOrWhiteSpace(maxPayLoadStr))
-                    double.TryParse(maxPayLoadStr, out maxPayLoad);
-
-                if (string.IsNullOrWhiteSpace(carrier) || string.IsNullOrWhiteSpace(cntr) || string.IsNullOrWhiteSpace(cntrType) || string.IsNullOrWhiteSpace(soc))
+                if (string.IsNullOrWhiteSpace(cntrISO) || string.IsNullOrWhiteSpace(cntrNormolize))
                 {
                     bool? result = await DialogService.ShowMessageBox(
                     "Found out ERROR, skip record?",
@@ -83,15 +67,11 @@
                     else
                         return;
                 }
-                cntrDTO.Add(new CntrDTO()
-                    {
-                        Carrier = carrier,
-                        Num = cntr,
-                        TpSz = cntrType,
-                        TareWt = tare != 0 ? tare : null,
-                        MaxPayLoad = maxPayLoad != 0 ? maxPayLoad : null,
-                        IsSOC = IsSoc,
-                    });
+                records.Add(new CntrTpSz()
+                {
+                    ISO = cntrISO,
+                    Normolize = cntrNormolize,
+                });
             }
             catch (Exception ex)
             {
@@ -100,9 +80,9 @@
             }
         }
 
-        await Task.Delay(1000);
+        await Task.Delay(500);
         btnIsDisabled = false;
 
-        MudDialog?.Close(DialogResult.Ok(cntrDTO));
+        MudDialog?.Close(DialogResult.Ok(records));
     }
 }

@@ -32,7 +32,10 @@
                                 Variant="Variant.Outlined"
                                 IconSize=Size.Small
                                 AutoClose=true
-                                DisableToolbar=false Clearable />                 
+                                DisableToolbar=false
+                                Required
+                                ReadOnly="!IsNewItem"
+                                Clearable />
                  <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
                                 Style="width: 148px; height: 40px; margin-left: 2px"
                                 DateFormat="dd.MM.yy"
@@ -40,8 +43,10 @@
                                 Variant="Variant.Outlined"
                                 IconSize=Size.Small
                                 AutoClose=true
-                                DisableToolbar=false Clearable />
-
+                                DisableToolbar=false
+                                Required
+                                ReadOnly="!IsNewItem"
+                                Clearable />
                  <MudSpacer />
                  <MudButton Class="Button" Style="width: 100px; margin-left: 20px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
                             Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"

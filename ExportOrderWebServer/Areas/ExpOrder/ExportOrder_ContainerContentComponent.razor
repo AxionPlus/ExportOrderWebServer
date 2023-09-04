@@ -1,6 +1,7 @@
-﻿
+﻿@inject ICntrTypeProvider _cntrTypeProvider
+
 <style>
-    .AddContainerContent {
+    .CntrContent {
         display: flex;
         padding-bottom: 25px;
     }
@@ -9,36 +10,49 @@
         width: 160px;
     }
 
-    .Cntr{
-        width: 155px;
-    }
-
-    .Seal
-    {
+    .Cntr {
         width: 160px;
     }
+
+    .CntrType {
+        width: 80px;
+    }
+
+    .Seal {
+        width: 220px;
+    }
+
 </style>
 
 <div class="item-container">
-
-    <div class="container-head">DOCUMENTS</div>
-
+    <div class="container-head">CONTAINER's Data' </div>
     <div class="container-content">
-        <MudAutocomplete Class="wrapper-input Cntr" T="CntrEntity" Label="CONTAINER" @bind-Value="@Item.Cntr" SearchFunc="@SearchCntr" Variant="Variant.Outlined" MaxHeight="11"/>
+        @* <MudAutocomplete Class="wrapper-input Cntr" T="CntrEntity" Label="CONTAINER" @bind-Value="@Item.Cntr" SearchFunc="@SearchCntr" Variant="Variant.Outlined" MaxHeight="11"/> *@
+        <MudTextField Class="wrapper-input Cntr" Label="cntr num" Variant="Variant.Outlined" MaxLength="11" @bind-Value="@Item!.CntrNum"></MudTextField>
+        <MudSpacer />
+        <MudSelect Label="Type" T="CntrTpSz" Style="width: 120px" @bind-Value="@Item.CntrType"
+                   Variant="Variant.Outlined" Margin="Margin.Dense" CloseIcon="" OpenIcon="" Clearable>
+            @if (CntrTypes is not null)
+                @foreach (var type in CntrTypes)
+                {
+                    <MudSelectItem T="string" Value="@type.Normolize!.ToString()"></MudSelectItem>
+                }
+        </MudSelect>
+        <MudSpacer />
+        <MudTextField Class="wrapper-input fieldWt" Label="Tare Wt" Variant="Variant.Outlined" @bind-Value="@Item!.CntrTareWt"></MudTextField>
+        <MudSpacer />
         <MudTextField Class="wrapper-input Seal" Label="SEALS" Variant="Variant.Outlined" @bind-Value="@Item.Seal"></MudTextField>
         <MudButton Variant="Variant.Filled">SAVE</MudButton>
     </div>
 </div>
 
 <div class="item-container">
-
-    <div class="container-head">DOCUMENTS</div>
-
+    <div class="container-head">CONTENT</div>
     <div class="container-content column">
 
         @if (containerContent_Disable)
         {
-            <div class="AddContainerContent">
+            <div class="CntrContent">
 
                 <MudSelect Class="wrapper-input" T="DocumentEntity" Label="DOCUMENT" @bind-Value="SelectedDocument" Variant="Variant.Outlined">
                     @foreach (var document in Documents)
@@ -104,6 +118,8 @@
     [Parameter]
     public IEnumerable<DocumentEntity>? Documents { get; set; }
 
+    private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
+
     private DocumentEntity? SelectedDocument { get; set; }
 
     private DocumentRecord? SelectedDocumentRecord { get; set; }
@@ -111,10 +127,12 @@
     private ContainerContent? ContainerContentItem { get; set; } = new();
 
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         if (Item is null)
             Item = new() { Contents = new List<ContainerContent>()};
+
+        CntrTypes = await _cntrTypeProvider.GetCntrTypes();
     }
 
 
@@ -132,14 +150,14 @@
         containerContent_Disable = true;
     }
 
-    private async Task<IEnumerable<CntrEntity>> SearchCntr(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-        return Enumerable.Empty<CntrEntity>();
-        // if text is null or empty, show complete list
-        //if (string.IsNullOrEmpty(value))
-        //    return states;
-        //return states.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
+    // private async Task<IEnumerable<CntrEntity>> SearchCntr(string value)
+    // {
+    //     // In real life use an asynchronous function for fetching data from an api.
+    //     await Task.Delay(5);
+    //     return Enumerable.Empty<CntrEntity>();
+    //     // if text is null or empty, show complete list
+    //     //if (string.IsNullOrEmpty(value))
+    //     //    return states;
+    //     //return states.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    // }
 }

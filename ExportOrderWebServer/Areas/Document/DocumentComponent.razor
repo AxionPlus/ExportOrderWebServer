@@ -114,46 +114,14 @@
         IsLoadingData = false;
     }
 
-    // private async Task AddItem_Click()
-    // {
-    //     //var parameters = new DialogParameters { ["server"] = server };
-
-    //     var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
-    //     var dialog = await DialogService.ShowAsync<DocumentItemComponent>("NEW DOCUMENT", options);
-    //     var result = await dialog.Result;
-
-    //     if (!result.Canceled)
-    //     {
-
-    //     }
-
-    // }
-
-    // private async Task ShowItem_Click(DocumentEntity item)
-    // {
-    //     if (MudDialog is not null)
-    //         MudDialog.Close(DialogResult.Ok(item));
-
-    //     var parameters = new DialogParameters { ["IsNewItem"] = false };
-    //     var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
-    //     var dialog = await DialogService.ShowAsync<DocumentItemComponent>($"Document No {item.Name}", parameters, options);
-    //     var result = await dialog.Result;
-
-    //     if (!result.Canceled)
-    //     {
-
-    //     }
-    // }
-
     private async Task AddItem_Click()
     {
-        //await Task.Delay(1000);
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
         IDialogReference dialog = await DialogService.ShowAsync<DocumentItem_Dialog>(null, parameters, options);
         DialogResult result = await dialog.Result;
 
-        if (result.Canceled)
+        if (!result.Canceled)
             if (Items!.Count() > 0)
                 await GetItems();
     }
@@ -172,22 +140,9 @@
             await GetItems();
     }
 
-    // private async Task SendItems_Click(DocumentEntity item)
-    // {
-    //     await Task.Delay(50);
-    //     MudDialog!.Close(item);
-    // }
-
     private async Task SendItems_Click()
     {
         await Task.Delay(50);
-        try
-        {
-            MudDialog!.Close(SelectedItems);
-        }
-        catch (Exception ex)
-        {
-            var msg = ex.Message;
-        }
+        MudDialog!.Close(SelectedItems);
     }
 }

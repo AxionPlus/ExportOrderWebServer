@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using static MudBlazor.CategoryTypes;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
 
@@ -11,6 +12,40 @@ public class ExportOrderProvider : IExportOrderProvider
     public ExportOrderProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public async Task<AppObjectResponse> AddUploadedFileItemsAsync(IEnumerable<ExportOrderRecord> items)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            try
+            {
+                var db = await _db;
+
+                //var cntrTypes = await db.ContainerTypeSize.AsNoTracking().ToArrayAsync();
+                
+
+                foreach (var exportOrderRecord in items)
+                {
+                    //var cntrType = cntrTypes.FirstOrDefault(s => s.Normolize!.Replace(" ", "") == exportOrderRecord.CntrType.Normolize);
+
+                    db.Entry(exportOrderRecord).State = EntityState.Added;
+
+                    foreach (var cntrContent in exportOrderRecord.Contents)
+                        db.Entry(cntrContent).State = EntityState.Added;
+
+                    var bug = db.ChangeTracker.DebugView.LongView;
+
+                    await db.SaveChangesAsync();
+                }
+
+            }
+            catch (Exception ex) { var message = ex.Message; }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
@@ -50,7 +85,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     items = items.Where(s => s.Num == filter.ExportOrderNum).ToList();
 
                 if (!string.IsNullOrEmpty(filter.CntrNum))
-                    items = items.Where(s => s.Records!.FirstOrDefault()!.Cntr.Num == filter.CntrNum).ToList();
+                    items = items.Where(s => s.Records!.FirstOrDefault()!.CntrNum == filter.CntrNum).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Carrier))
                     items = items.Where(s => s.Carrier.ShortName == filter.Carrier).ToList();

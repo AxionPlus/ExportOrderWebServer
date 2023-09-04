@@ -10,7 +10,7 @@ public class ContainerRecordDTO
 
 #pragma warning disable CS8618
     [Required]
-    public CntrEntity Cntr { get; set; }
+    public string Cntr { get; set; }
     [Required]
     public string Seal { get; set; }
     [Required]

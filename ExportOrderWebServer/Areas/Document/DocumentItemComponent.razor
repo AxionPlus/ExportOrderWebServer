@@ -1,6 +1,4 @@
-﻿@using ExportOrderWebServer.Areas.Commodity;
-@using ExportOrderWebServer.Areas.Customer;
-@inject IDialogService DialogService;
+﻿@inject IDialogService DialogService;
 
 <style>
 
@@ -317,12 +315,10 @@
         if (record is null)
             return;
 
-
         bool? result = await DialogService.ShowMessageBox(
                  "Delete record",
                  (MarkupString)$"<b>Do you want to remove record No {record.Seq.ToString("000")}?<b>",
                  yesText: "REMOVE", cancelText: "NO");
-
 
         if (!result.HasValue) return;
 
@@ -334,8 +330,6 @@
             foreach (var _record in Item!.Records!)
                 _record.Seq = seq++;
         }
-
-
 
         await InvokeAsync(StateHasChanged);
     }

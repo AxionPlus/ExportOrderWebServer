@@ -25,9 +25,6 @@ public class DocumentConfiguration : IEntityTypeConfiguration<DocumentEntity>
                  .HasConversion(converter);
 
 
-        builder.Navigation(s => s.Records).AutoInclude();
-
-
         builder
                .Property(b => b.Shipper)
                .HasColumnType("jsonb")
@@ -43,9 +40,9 @@ public class DocumentConfiguration : IEntityTypeConfiguration<DocumentEntity>
                     v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
 
 
+        builder.Navigation(s => s.Records).AutoInclude();
 
-
-
+        builder.Navigation(s => s.CreateUser).AutoInclude();  // ???
 
 
 

@@ -102,16 +102,10 @@ public class DocumentProvider : IDocumentProvider
 
             item.CreateUser = User!;
 
-            //db.Entry(item.Shipper).State = EntityState.Unchanged;
-            //db.Entry(item.Consignee).State = EntityState.Unchanged;
-            //db.Entry(item.Type).State = EntityState.Unchanged;
             db.Entry(item).State = EntityState.Added;
 
             foreach (var records in item.Records)
                 db.Entry(records).State = EntityState.Added;
-
-            //foreach (var exportOrder in item.ExportOrders!)
-            //    db.Entry(exportOrder).State = EntityState.Unchanged;
 
 
             var bug = db.ChangeTracker.DebugView.LongView;

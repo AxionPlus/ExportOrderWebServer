@@ -1,0 +1,189 @@
+﻿@page "/uploadExportOrderRecords"
+
+@using System.Net.Http.Headers;
+@using System.Text;
+
+@inject ISnackbar Snackbar
+@inject IHttpClientFactory httpClient
+@inject NavigationManager Navigation
+
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+
+        <MudSpacer />
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
+
+<MudStack Style="width: 100%">
+    <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
+                   InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+                   @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+        <ButtonTemplate>
+            <MudPaper Height="300px" Outlined="true" Class="@DragClass">
+                <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
+                @if (!string.IsNullOrEmpty(FileName))
+                {
+                    <MudChip Color="Color.Dark" Text="@FileName" />
+                }                
+            </MudPaper>
+        </ButtonTemplate>
+    </MudFileUpload>
+    <MudToolBar DisableGutters="true" Class="gap-4">
+        <MudButton OnClick="CheckAndUploadFile" Disabled="@(!FileName.Any())" Color="Color.Primary" Variant="Variant.Filled">
+            @(IsDataUploaded ? "Upload File(s)" : "Check File(s)")
+        </MudButton>
+        <MudButton OnClick="Clear" Disabled="@(!FileName.Any())" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
+@*         <div style="width: 50px"></div>
+        <MudButton OnClick="DownloadTemplate" Disabled="@IsLoadingData" Color="Color.Dark" Variant="Variant.Filled" StartIcon="@Icons.Material.Outlined.Download">
+            Manifest Template
+        </MudButton> *@
+    </MudToolBar>
+</MudStack>
+
+<OverlayLoadingData Visible="IsLoadingData" Text="@(IsDataUploaded ? "Uploading...":"Checking...")" />
+
+@code {
+    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
+    private string DragClass = DefaultDragClass;
+    private string FileName = string.Empty;
+    IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
+
+    private int maxAllowedFiles = 1;
+    private bool IsLoadingData = false;
+    private bool IsDataUploaded = false;
+    private bool HasErrors = false;
+    private UploadedResult? UploadedResult { get; set; }
+
+
+    private async Task OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        ClearDragClass();
+
+        BrowserFiles = (IList<IBrowserFile>)e.GetMultipleFiles();
+        using var content = new MultipartFormDataContent();
+
+        FileName = e.File.Name;
+
+        IsDataUploaded = false;                
+    }
+
+    private async Task Clear()
+    {
+        FileName = string.Empty;
+        ClearDragClass();
+        IsDataUploaded = false;
+        HasErrors = false;
+        await Task.Delay(100);
+    }
+
+    private void SetDragClass()
+    {
+        DragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        DragClass = DefaultDragClass;
+    }
+
+    private async Task CheckAndUploadFile()
+    {
+        IsLoadingData = true;
+        long maxFileSize = 1024 * 500;
+        using var content = new MultipartFormDataContent();
+
+        foreach (var file in BrowserFiles)
+        {
+            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+
+            fileContent.Headers.ContentType =
+                new MediaTypeHeaderValue(file.ContentType);
+
+            content.Add(
+                content: fileContent,
+                name: "\"files\"",
+                fileName: file.Name);
+        }
+
+        var client = httpClient.CreateClient();
+        client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
+
+        // DELETE
+        IsDataUploaded = true;
+        //
+
+        if (IsDataUploaded)
+        {
+            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExpOrderRecords", content);
+            if (response.IsSuccessStatusCode)
+            {
+                UploadedResult = await response.Content.ReadFromJsonAsync<UploadedResult>();
+                if (UploadedResult.HasErrors)
+                {
+                    // if (UploadedResult.HasRemarks)
+                    // {
+                    //     var text = new StringBuilder();
+                    //     text.Append("<ul>");
+                    //     foreach (var item in ExportOrderRecords.Remarks)
+                    //         text.Append($"<li>{item}</li>");
+                    //     text.Append("</ul>");
+
+                    //     Snackbar.Add($"{text.ToString()}", Severity.Error);
+                    // }
+                    if (UploadedResult.HasErrors)
+                    {
+                        var text = new StringBuilder();
+                        text.Append("<ul>");
+                        foreach (var item in UploadedResult.Errors)
+                            text.Append($"<li>{item}</li>");
+                        text.Append("</ul>");
+
+                        Snackbar.Add($"{text.ToString()}", Severity.Error);
+                    }
+                }
+                else
+                {
+                    var text = new StringBuilder();
+                    text.Append("<h4>uploaded</h4>");
+                    text.Append("<ul>");
+                    text.Append($"<li>Containers: {UploadedResult.CntrCount}</li>");
+                    text.Append($"<li>Content: {UploadedResult.CntrContentCount}</li>");
+                    text.Append("</ul>");
+
+                    Snackbar.Add($"{text.ToString()}", Severity.Success);
+                }
+                IsDataUploaded = true;
+            }
+            else
+                IsDataUploaded = false;
+
+        }
+        else
+        {
+            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords", content);
+            if (response.IsSuccessStatusCode)
+            {
+                UploadedResult = await response.Content.ReadFromJsonAsync<UploadedResult>();
+
+                if (UploadedResult is not null)
+                    if (!UploadedResult.HasErrors)
+                        IsDataUploaded = true;
+                    else
+                        HasErrors = true;
+            }
+        }
+
+        IsLoadingData = false;
+        client.Dispose();
+        //  Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        //  Snackbar.Add("TODO: Upload your files!", Severity.Normal);
+    }
+}

@@ -16,7 +16,7 @@
                 <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"
+                              Immediate="true" AutoFocus="true"
                               Required RequiredError=""
                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"

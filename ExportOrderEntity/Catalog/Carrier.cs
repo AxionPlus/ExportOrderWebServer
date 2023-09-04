@@ -1,4 +1,4 @@
-﻿namespace ExportOrderEntites.Cntr;
+﻿namespace ExportOrderEntites.Catalog;
 
 public class CarrierCatalog : CatalogEntity
 {

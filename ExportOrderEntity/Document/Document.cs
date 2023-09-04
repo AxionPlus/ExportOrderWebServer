@@ -1,5 +1,4 @@
-﻿using ExportOrderEntites.ExportOrder;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExportOrderEntites.Document;

@@ -15,7 +15,6 @@ public class ContainerContent
     public double Volume { get; set; }
 
     public DocumentRecord DocumentRecord { get; set; }
-
     [JsonInclude]
     public ExportOrderRecord ExportOrderRecord { get; set; }
 }

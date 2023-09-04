@@ -20,7 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CustomerCatalog> Customers { get; set; }
 
     // Entities
-    public DbSet<CntrEntity> Containers { get; set; }
+    //public DbSet<CntrEntity> Containers { get; set; }
     public DbSet<CntrTpSz> ContainerTypeSize { get; set; }
     public DbSet<VesselEntity> Vessels { get; set; }
     public DbSet<VesselCallEntity> VesselCalls { get; set; }
@@ -55,26 +55,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new CntrConfiguration());
+        //modelBuilder.ApplyConfiguration(new CntrConfiguration());
         modelBuilder.ApplyConfiguration(new DocumentConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
         modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
         modelBuilder.ApplyConfiguration(new VesselConfiguration());
 
-        #region TableNames        
-        // modelBuilder.Entity<ContractorType>(entity => { entity.ToTable(name: "Contractor_Types"); });
-
-        #endregion
+        #region AutoInclude
 
         modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
-        modelBuilder.Entity<CntrEntity>().Navigation(s => s.TpSz).AutoInclude();
-        //modelBuilder.Entity<CntrEntity>().Navigation(s => s.Carrier).AutoInclude();
-        modelBuilder.Entity<VesselEntity>().Navigation(s => s.Flag).AutoInclude();
+        //modelBuilder.Entity<ExportOrderRecord>().Navigation(s => s.CntrType).AutoInclude();
+        //modelBuilder.Entity<VesselEntity>().Navigation(s => s.Flag).AutoInclude();
 
-        modelBuilder.Entity<DocumentEntity>().Navigation(s => s.CreateUser).AutoInclude();  // ???
+        //modelBuilder.Entity<DocumentEntity>().Navigation(s => s.CreateUser).AutoInclude();  // ???
+
+        #endregion
 
         //var type = new CntrTpSz()
         //{

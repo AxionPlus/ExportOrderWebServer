@@ -15,7 +15,7 @@
         <div class="Container-item">
             <div class="container-head">INFO</div>
             <div class="container-content">
-                <MudTextField Class="TextField" Style="width: 200px; margin-right: 20px" Label="Number" @bind-Value="@Value!.Num"
+                <MudTextField Class="TextField" Style="width: 150px; margin-right: 20px" Label="Number" @bind-Value="@Value!.Num"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                                         Required RequiredError="" Clearable="IsNewItem" />
 
@@ -68,8 +68,7 @@
                                                  Text="@context.Name"
                                                  EndText="@context.Records.Count().ToString()"
                                                  LoadingIconColor="Color.Info"
-                                                 EndTextTypo="@Typo.caption"
-                                                 OnClick="TreeViewItem_Click">
+                                                 EndTextTypo="@Typo.caption">                                                 >
 @*                                     <MudDataGrid Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
                                         <Columns>
                                             <PropertyColumn Property="x => x.Seq" />
@@ -114,6 +113,11 @@
                 @if (mudTable != null)
                 {
                     <div class="tableMenu">
+                        <MudButton Class="Button" OnClick="@(async()=>{ await UploadFile(); })"
+                                   Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.UploadFile">
+                            Upload New List
+                        </MudButton>
                         <MudSpacer />
                         <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
                         <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
@@ -128,7 +132,9 @@
                             </div>
                         </MudTh>
                         <MudTh Style="width: 180px">Nr</MudTh>
-                        <MudTh Style="width: 300px">Seals</MudTh>
+                        <MudTh Style="width: 60px">Type</MudTh>
+                        <MudTh Style="width: 100px">TareWt</MudTh>
+                        <MudTh Style="width: 300px">Seals</MudTh>                        
                         <MudTh>Content</MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -137,7 +143,9 @@
                                            OnClick="@(async ()=>{ await RemoveContainerRecord(context);})"
                                            Color="Color.Error" Size="Size.Small" />
                         </MudTd>
-                        <MudTd>@context.Cntr.Num</MudTd>
+                        <MudTd>@context.CntrNum</MudTd>
+                        <MudTd>@context.CntrType</MudTd>
+                        <MudTd>@context.CntrTareWt</MudTd>
                         <MudTd>@context.Seal</MudTd>
                         <MudTd>@context.Contents.ToHashSet()</MudTd>
                     </RowTemplate>
@@ -162,22 +170,14 @@
     public bool IsNewItem { get; set; }
 
     bool IsLoadingData = false;
-    bool ItemSelected { get; set; }
+    bool IsItemSelected { get; set; }
+
+
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
-
-    void TreeViewItem_Click()
-    {
-
-    }
-
-    void ShowBtnPress(string str)
-    {
-
-    }
-
     #region DOCUMENTS
+
     async Task AddDocument_Click()
     {
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
@@ -185,41 +185,22 @@
         var dialog = await DialogService.ShowAsync<DocumentComponent>("ADD DOCUMENT", parameters, options);
         var result = await dialog.Result;
 
-        try{
-            if (!result.Canceled)
-            {
-
-
-                // var document = (DocumentEntity)result.Data;
-                // //TreeItems.Add(new("12123213/123123123/12312312", 3) { TreeItems = new HashSet<TreeItemData>() { new("4f", 3) } });
-                // TreeItems.Add(new(document.Name!, 1) { TreeItems = new HashSet<TreeItemData>() { new("2f", 2) } });
-
-                var documents = (HashSet<DocumentEntity>)result.Data;
-
-                // foreach (var document in documents)
-                // {
-                //     TreeItems.Add(new(document.Name!, document.Records.Count())
-                //     { 
-                //         TreeItems = new HashSet<TreeItemData>() { new(document.Type.ToString(), 3, true, document.ContarctNo!) }
-                //     });
-                // }           
-                Value!.Documents!.AddRange(documents);
-
-                foreach (var document in documents)
-                {
-                    DocumentItems.Add(document);
-                    foreach (var record in document.Records)
-                    {
-                        DocumentRecordItems.Add(record);
-                    }
-                }
-
-                await ValueChanged.InvokeAsync(Value);
-            }
-        }
-        catch (Exception ex)
+        if (!result.Canceled)
         {
-            var m = ex.Message;
+            var documents = (HashSet<DocumentEntity>)result.Data;
+
+            Value!.Documents!.AddRange(documents);
+
+            await ValueChanged.InvokeAsync(Value);
+
+            foreach (var document in documents)
+            {
+                DocumentItems.Add(document);
+                foreach (var record in document.Records)
+                {
+                    DocumentRecordItems.Add(record);
+                }
+            }
         }
     }
 
@@ -234,17 +215,16 @@
                 DocumentItems.Remove(item);
                 Value!.Documents!.Remove(item);
             }
-            
+
             SelectedDocumentValues.Clear();
         }
 
-        
         await InvokeAsync(StateHasChanged);
     }
 
     #endregion
 
-    #region Cntr RECORDS
+    #region CNTR RECORDS
 
     async Task AddContainerRecord_Click()
     {
@@ -259,7 +239,7 @@
 
         if (!result.Canceled)
         {
-
+            //await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -270,7 +250,7 @@
 
         bool? result = await DialogService.ShowMessageBox(
                  "Delete record",
-                 (MarkupString)$"<b>Do you want to remove record with {record.Cntr.Num}?<b>",
+                 (MarkupString)$"<b>Do you want to remove record with {record.CntrNum}?<b>",
                  yesText: "REMOVE", cancelText: "NO");
 
         if (!result.HasValue) return;
@@ -280,18 +260,37 @@
 
         await InvokeAsync(StateHasChanged);
     }
+
+    private async Task UploadFile()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+        DialogOptions dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+        dialog = DialogService.Show<UploadExportOrderRecordsFile>("INPUT: List of Containers", dialogOptions);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            // var newItems = new List<CntrTpSz>();
+
+            // if (result.Data is not null)
+            // {
+            //     newItems = (List<CntrTpSz>)result.Data;
+
+            //     //await SaveItem_Click(newItems);
+            // }
+
+            // await InvokeAsync(StateHasChanged);
+        }
+    }
+
     #endregion
+
 
     #region  TreeItems
 
     bool MultiSelectionTreeItemData = false;
 
-    //private DocumentEntity DocumentItem { get; set; }
-    //private DocumentRecord DocumentRecordItem { get; set; }
-
     private HashSet<DocumentEntity> SelectedDocumentValues { get; set; }
-    //private HashSet<DocumentRecord> SelectedDocumentRecordValues { get; set; }
-
     private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
     private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
 

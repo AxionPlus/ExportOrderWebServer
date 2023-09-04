@@ -127,6 +127,33 @@ namespace ExportOrderWebServer.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ExportOrderEntites.Catalog.CarrierCatalog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreateUserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShortName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.ToTable("Carriers");
+                });
+
             modelBuilder.Entity("ExportOrderEntites.Catalog.CountryCatalog", b =>
                 {
                     b.Property<long>("Id")
@@ -217,70 +244,6 @@ namespace ExportOrderWebServer.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("Terminals");
-                });
-
-            modelBuilder.Entity("ExportOrderEntites.Cntr.CarrierCatalog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("CreateUserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ShortName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.ToTable("Carriers");
-                });
-
-            modelBuilder.Entity("ExportOrderEntites.Cntr.CntrEntity", b =>
-                {
-                    b.Property<string>("Num")
-                        .HasMaxLength(11)
-                        .HasColumnType("character varying(11)");
-
-                    b.Property<long>("CarrierId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsSOC")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("MaxPayLoad")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TareWt")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TpSzISO")
-                        .IsRequired()
-                        .HasColumnType("character varying(4)");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Num");
-
-                    b.HasIndex("CarrierId");
-
-                    b.HasIndex("TpSzISO");
-
-                    b.ToTable("Containers");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.Cntr.CntrTpSz", b =>
@@ -546,7 +509,15 @@ namespace ExportOrderWebServer.Migrations
 
                     b.Property<string>("CntrNum")
                         .IsRequired()
+                        .HasMaxLength(11)
                         .HasColumnType("character varying(11)");
+
+                    b.Property<double?>("CntrTareWt")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("CntrTypeISO")
+                        .IsRequired()
+                        .HasColumnType("character varying(4)");
 
                     b.Property<long>("ExportOrderId")
                         .HasColumnType("bigint");
@@ -557,7 +528,7 @@ namespace ExportOrderWebServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CntrNum");
+                    b.HasIndex("CntrTypeISO");
 
                     b.HasIndex("ExportOrderId");
 
@@ -725,12 +696,10 @@ namespace ExportOrderWebServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
@@ -767,12 +736,10 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Value")
                         .HasColumnType("text");
@@ -795,6 +762,15 @@ namespace ExportOrderWebServer.Migrations
                         .HasForeignKey("ExportOrdersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.Catalog.CarrierCatalog", b =>
+                {
+                    b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId");
+
+                    b.Navigation("CreateUser");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.Catalog.CountryCatalog", b =>
@@ -836,34 +812,6 @@ namespace ExportOrderWebServer.Migrations
                     b.Navigation("CreateUser");
 
                     b.Navigation("Location");
-                });
-
-            modelBuilder.Entity("ExportOrderEntites.Cntr.CarrierCatalog", b =>
-                {
-                    b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId");
-
-                    b.Navigation("CreateUser");
-                });
-
-            modelBuilder.Entity("ExportOrderEntites.Cntr.CntrEntity", b =>
-                {
-                    b.HasOne("ExportOrderEntites.Cntr.CarrierCatalog", "Carrier")
-                        .WithMany()
-                        .HasForeignKey("CarrierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExportOrderEntites.Cntr.CntrTpSz", "TpSz")
-                        .WithMany()
-                        .HasForeignKey("TpSzISO")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Carrier");
-
-                    b.Navigation("TpSz");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.Document.CommodityCatalog", b =>
@@ -933,7 +881,7 @@ namespace ExportOrderWebServer.Migrations
 
             modelBuilder.Entity("ExportOrderEntites.ExportOrder.ExportOrderEntity", b =>
                 {
-                    b.HasOne("ExportOrderEntites.Cntr.CarrierCatalog", "Carrier")
+                    b.HasOne("ExportOrderEntites.Catalog.CarrierCatalog", "Carrier")
                         .WithMany()
                         .HasForeignKey("CarrierId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -950,9 +898,9 @@ namespace ExportOrderWebServer.Migrations
 
             modelBuilder.Entity("ExportOrderEntites.ExportOrder.ExportOrderRecord", b =>
                 {
-                    b.HasOne("ExportOrderEntites.Cntr.CntrEntity", "Cntr")
+                    b.HasOne("ExportOrderEntites.Cntr.CntrTpSz", "CntrType")
                         .WithMany()
-                        .HasForeignKey("CntrNum")
+                        .HasForeignKey("CntrTypeISO")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -962,7 +910,7 @@ namespace ExportOrderWebServer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Cntr");
+                    b.Navigation("CntrType");
 
                     b.Navigation("ExportOrder");
                 });

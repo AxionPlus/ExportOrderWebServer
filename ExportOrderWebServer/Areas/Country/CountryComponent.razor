@@ -45,8 +45,7 @@
         </div>
     }
 
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CountryCatalog" Context="country"
-              Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CountryCatalog" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
         <HeaderContent>
             <MudTh Style="width:30px"></MudTh>
@@ -61,10 +60,10 @@
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(country.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(country); })"></MudIconButton></MudTd>
-            <MudTd>@country.RUS</MudTd>
-            <MudTd>@country.ENG</MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
+            <MudTd>@context.RUS</MudTd>
+            <MudTd>@context.ENG</MudTd>
             <MudTd></MudTd>
         </RowTemplate>
 

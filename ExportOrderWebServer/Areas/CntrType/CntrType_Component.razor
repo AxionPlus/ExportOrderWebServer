@@ -1,0 +1,200 @@
+﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject ICntrTypeProvider _cntrTypeProvider
+
+<style>
+
+    .ToolBar-IconButton {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .Table * .mud-table-cell {
+        padding: 4px;
+    }
+
+    .TextField {
+        padding-top: unset;
+    }
+
+</style>
+
+<div class="Container-table">
+    @if (mudTable != null)
+    {
+        <div class="tableMenu">
+            <MudSpacer />
+            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+        </div>
+    }
+    
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CntrTpSz" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">
+        <HeaderContent>
+            <MudTh Style="width:200px">
+                <MudButton Class="Button" OnClick="@(async()=>{ await PathInput(); })"
+                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Download">
+                    Upload New List
+                </MudButton>
+            </MudTh>
+            <MudTh Style="width:30px"><MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(async()=>{ await AddItem_Click(); })" /></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:80px"><MudTableSortLabel SortBy="new Func<CntrTpSz, object>(x=>x.ISO!)">ISO</MudTableSortLabel></MudTh>
+            <MudTh Style="width:80px"><MudTableSortLabel SortBy="new Func<CntrTpSz, object>(x=>x.Normolize!)">Type</MudTableSortLabel></MudTh>
+            <MudTh Style="width:200px">
+                @if (IsSaveBtnVisible)
+                {
+                    <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await SaveItem_Click(NewItems!); })"
+                               Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Save">
+                        Save
+                    </MudButton>
+                }
+            </MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd></MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" 
+                               OnClick="@(async()=>{ await RemoveItem_Click(context); })" />
+            </MudTd>
+            <MudTd></MudTd>
+            <MudTd>
+                <MudTextField Class="TextField" T="string" Variant="Variant.Outlined" Required RequiredError="" Disabled="@(context.ISO is not null)"
+                              Text="@context.ISO"
+                              TextChanged="@(async (e) => { NewItems!.FirstOrDefault(x => x.ISO == context.ISO)!.ISO = e.ToUpper();                                                           
+                                                            context.ISO = e.ToUpper(); })" />
+            </MudTd>
+            <MudTd>
+                 <MudTextField Class="TextField" T="string" Variant="Variant.Outlined" Required RequiredError="" Disabled="@(context.Normolize is not null)"
+                              Text="@context.Normolize"
+                              TextChanged="@(async (e) => { NewItems!.FirstOrDefault(x => x.Normolize == context.Normolize)!.Normolize = e.ToUpper();
+                                                            context.Normolize = e.ToUpper(); })" />
+            </MudTd>
+            <MudTd></MudTd>
+            <MudTd></MudTd>
+        </RowTemplate>
+
+        <PagerContent></PagerContent>
+
+    </MudTable>
+</div>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
+
+ @code {
+    private MudTable<CntrTpSz>? mudTable;
+    //private IEnumerable<CntrTpSz>? Items { get; set; } = new List<CntrTpSz>();
+    private List<CntrTpSz>? Items { get; set; } = new List<CntrTpSz>();
+    private List<CntrTpSz>? NewItems { get; set; } = new List<CntrTpSz>();
+
+    bool IsLoadingData = false;
+    bool IsSaveBtnVisible = false;
+
+
+    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItems();
+    }
+
+    private async Task GetItems()
+    {
+        if (Items is not null)
+        {
+            IsLoadingData = true;
+
+            var response = await _cntrTypeProvider.GetItemsAsync();
+            if (!response.HasError)
+                Items = ((List<CntrTpSz>)response.Object!).ToList();
+
+            await Task.Delay(500);
+
+            IsLoadingData = false;
+        }
+    }
+
+    private async Task AddItem_Click()
+    {
+        await Task.Delay(50);
+
+        Items!.Add(new());
+        NewItems!.Add(new());
+
+        IsSaveBtnVisible = true;
+    }
+
+    private async Task RemoveItem_Click(CntrTpSz item)
+    {
+        bool? msgResult = await DialogService.ShowMessageBox(
+                  "REMOVE Record",
+                  (MarkupString)$"<b>Do you want to remove record?</b> <br/>Cntr Type<br/>{item.Normolize}<br/>",
+                  yesText: "YES", cancelText: "NO");
+
+        if (msgResult.HasValue)
+            if (msgResult.Value)
+            {
+                CntrTpSz itemExistCheck = new();
+                
+                itemExistCheck = Items!.Where(s => s.ISO == item.ISO).FirstOrDefault()!;
+                if (itemExistCheck !=null)
+                    Items!.Remove(item);
+                
+                itemExistCheck = NewItems!.Where(s => s.ISO == item.ISO).FirstOrDefault()!;
+                if (itemExistCheck != null)
+                    NewItems!.Remove(itemExistCheck);
+
+                // var response = await _cntrTypeProvider.RemoveItemAsync(item);
+
+                // if (!response.HasError)
+                //     Snackbar.Add($"Deleted Successfully", Severity.Success);
+                // else
+                //     Snackbar.Add($"Unable to delete", Severity.Warning);
+
+            }
+
+        //await GetItems();
+    }
+
+    private async Task SaveItem_Click(List<CntrTpSz> newItems)
+    {
+        await Task.Delay(50);
+
+        var response = await _cntrTypeProvider.NewItemsAsync(newItems);
+        if (!response.HasError)
+            Snackbar.Add("Saved successfully", Severity.Success);
+        else
+            Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+
+        NewItems = new List<CntrTpSz>();
+        IsSaveBtnVisible = false;
+
+        await GetItems();
+    }
+
+    private async Task PathInput()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+        DialogOptions dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+
+        dialog = DialogService.Show<PathInputCntrType_Dialog>("INPUT: List of Container Types", dialogOptions);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var newItems = new List<CntrTpSz>();
+
+            if (result.Data is not null)
+            {
+                newItems = (List<CntrTpSz>)result.Data;
+
+                await SaveItem_Click(newItems);
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

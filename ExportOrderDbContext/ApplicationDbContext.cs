@@ -6,8 +6,6 @@ namespace ExportOrderDbContext;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
 {
-    //public readonly object MyCompany;
-
     public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=AxionExportOrder;Pooling=true;";
 
     #region DataBASES
@@ -20,16 +18,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CustomerCatalog> Customers { get; set; }
 
     // Entities
-    //public DbSet<CntrEntity> Containers { get; set; }
     public DbSet<CntrTpSz> ContainerTypeSize { get; set; }
     public DbSet<VesselEntity> Vessels { get; set; }
     public DbSet<VesselCallEntity> VesselCalls { get; set; }
     public DbSet<DocumentEntity> Documents { get; set; }
     public DbSet<ExportOrderEntity> ExportOrders { get; set; }
-
-    
-
     #endregion
+
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -55,69 +50,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
         base.OnModelCreating(modelBuilder);
 
-        //modelBuilder.ApplyConfiguration(new CntrConfiguration());
         modelBuilder.ApplyConfiguration(new DocumentConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
         modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
         modelBuilder.ApplyConfiguration(new VesselConfiguration());
-
-        #region AutoInclude
+        
+        
+        #region AutoIUNCLUDE
 
         modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
-        //modelBuilder.Entity<ExportOrderRecord>().Navigation(s => s.CntrType).AutoInclude();
-        //modelBuilder.Entity<VesselEntity>().Navigation(s => s.Flag).AutoInclude();
-
-        //modelBuilder.Entity<DocumentEntity>().Navigation(s => s.CreateUser).AutoInclude();  // ???
+                
 
         #endregion
-
-        //var type = new CntrTpSz()
-        //{
-        //    ISO = "22GP",
-        //    Size = CntrSize._20,
-        //    Height = CntrHeight.DC,
-        //    Type = CntrType.DC,
-        //    Normolize = "20DC"
-        //};
-
-        //modelBuilder.Entity<CntrTpSz>().HasData(type);
-
-
-        //var carrier = new CarrierEntity()
-        //{
-
-        //    FullName = "LAM",
-        //    ShortName = "LAM"
-
-        //};
-
-        //modelBuilder.Entity<CarrierEntity>().HasData(carrier);
-
-        //var cntEvent = new CntrEventType()
-        //{
-        //    Id = "TEST",
-        //    Name = "TEST",
-        //    NameEn = "TEST",
-        //    Finance = false,
-        //    Mode = CntrEventTypeMode.Carrier,
-        //    Notes = "TEST"
-
-
-        //};
-        //modelBuilder.Entity<CntrEventType>().HasData(cntEvent);
-
-
-        //var cont = new ContractorEntity() {
-        //FullName="Test",
-        //ShortName="Test",
-        //    TaxNo= "TaxNo"
-        //};
-
-        //modelBuilder.Entity<ContractorEntity>().HasData(cont);
-        //modelBuilder.Entity<CntrEntity>().HasData(new CntrEntity() { Carrier= carrier, Num = "ABCU1234567", TpSz = type, TareWt = 2200, MaxPayLoad = 25000, Volume = 54, IsSOC = false });
 
 
     }

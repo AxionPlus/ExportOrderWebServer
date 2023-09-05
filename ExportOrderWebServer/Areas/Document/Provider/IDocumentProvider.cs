@@ -2,4 +2,5 @@
 
 public interface IDocumentProvider : IEntityProvider<DocumentEntity>
 {
+    Task<IEnumerable<DocumentEntity>> GetDocumentsAsync();
 }

@@ -162,6 +162,8 @@
     private MudTable<ExportOrderRecord>? mudTable;
     private MudTable<DocumentRecord>? mudDocRecordsTable;
 
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public ExportOrderEntity? Value { get; set; }
     [Parameter]
@@ -264,12 +266,17 @@
     private async Task UploadFile()
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-        DialogOptions dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-        dialog = DialogService.Show<UploadExportOrderRecordsFile>("INPUT: List of Containers", dialogOptions);
+
+        var parameters = new DialogParameters() { ["EOId"] = Value!.Id };
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+        dialog = DialogService.Show<UploadExportOrderRecordsFile>("INPUT: List of Records", parameters, options);
 
         var result = await dialog.Result;
         if (!result.Canceled)
         {
+            if(result.Data != null)
+                Value.Records = (List<ExportOrderRecord>)result.Data;
+            
             // var newItems = new List<CntrTpSz>();
 
             // if (result.Data is not null)
@@ -279,7 +286,7 @@
             //     //await SaveItem_Click(newItems);
             // }
 
-            // await InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         }
     }
 

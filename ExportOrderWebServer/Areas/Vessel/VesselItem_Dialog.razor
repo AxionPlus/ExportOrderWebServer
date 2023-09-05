@@ -43,14 +43,14 @@
                 </MudButton>
             </div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 140px; margin-right: 10px" Label="IMO no" @bind-Text="@Item.IMO"
+                <MudTextField T="string" Style="width: 160px; margin-right: 10px" Label="IMO no" @bind-Text="@Item.IMO"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" MaxLength="10"
                               Required RequiredError=""
                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
             </div>
              <div class="container-content">
-                 <MudTextField T="string" Style="width: 140px" Label="Terminal Id" @bind-Text="@Item.TerminalId"
+                 <MudTextField T="string" Style="width: 80px" Label="Terminal Id" @bind-Text="@Item.TerminalId"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true"
                                Required RequiredError=""

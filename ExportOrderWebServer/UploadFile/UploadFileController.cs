@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using ExportOrderWebServer.Areas.ExpOrder.Provider;
 using ExportOrderWebServer.Service;
 
 namespace ExportOrderWebServer.UploadFile;
@@ -15,45 +14,50 @@ public class UploadFileController : ControllerBase
 {
     public readonly IExportOrderProvider _exportOrderProvider;
     public readonly ICntrTypeProvider _cntrTypeProvider;
+    public readonly IDocumentProvider _documentProvider;
 
-    public UploadFileController(IExportOrderProvider exportOrderProvider , ICntrTypeProvider cntrTypeProvider)
+    public UploadFileController(IExportOrderProvider exportOrderProvider , ICntrTypeProvider cntrTypeProvider, IDocumentProvider documentProvider)
     {
         _exportOrderProvider = exportOrderProvider;
         _cntrTypeProvider = cntrTypeProvider;
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        
+        _documentProvider = documentProvider;
+
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);        
     }
 
 
 
     [HttpPost]
-    [Route("CheckExpOrderRecords")]
-    public async Task<UploadedResult> CheckImpManifest([FromForm] IEnumerable<IFormFile> files)
+    [Route("CheckExpOrderRecords/{eoId}")]
+    public async Task<UploadedResult> CheckExpOrderRecords([FromForm] IEnumerable<IFormFile> files, long eoId)
     {
-        var filesDir = new List<string>();
+        string filePath = string.Empty;
+
         var items = new List<ExportOrderRecord>();
-        var cntrTpSzList = await _cntrTypeProvider.GetCntrTypes();
+
+        var cntrTypes = await _cntrTypeProvider.GetCntrTypes();
+        var documents = await _documentProvider.GetDocumentsAsync();
+        //var exportOrder = new ExportOrderEntity();
 
         foreach (var file in files)
             if (file != null)
             {
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                string SavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
-                filesDir.Add(SavePath);
-                using (var stream = new FileStream(SavePath, FileMode.Create))
+                filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     file.CopyTo(stream);
                 }
             }
 
-        foreach (var fileDir in filesDir)
-            using (var exl = new ExcelService(fileDir, cntrTpSzList))
-            {
-                var uploadingRecords = exl.ReadUploadingFile();
-                items.AddRange(uploadingRecords);
-            }
+        using (var exl = new ExcelService(filePath, cntrTypes, documents, eoId))
+        {
+            var uploadingRecords = exl.ReadUploadingFile();
+            items.AddRange(uploadingRecords);
+        }
 
-        items = items.DistinctBy(s => s.Id).ToList();
+        //items = items.DistinctBy(s => s.Id).ToList();
 
         #region CHECK Entity before Upload
 
@@ -81,12 +85,19 @@ public class UploadFileController : ControllerBase
 
                     if (content.GrossWt !> 0)
                         errList.Add($"Cntr: {item.CntrNum} - Gross weight is empty.");
+                    else
+                        if (content.GrossWt > 29000)
+                            errList.Add($"Cntr: {item.CntrNum} - Gross weight exceeded.");
 
                     if (content.NetWt !> 0)
                         errList.Add($"Cntr: {item.CntrNum} - Net weight is empty.");
+                    else
+                        if (content.NetWt > 29000)
+                        errList.Add($"Cntr: {item.CntrNum} - Netto weight exceeded.");
 
-                    if (content.Volume !> 0)
-                        errList.Add($"Cntr: {item.CntrNum} - Volume is empty.");
+                    
+
+
                 }
             else
                 errList.Add($"List of Content to upload is empty.");
@@ -105,54 +116,68 @@ public class UploadFileController : ControllerBase
     }
 
     [HttpPost]
-    [Route("UploadExpOrderRecords")]
-    public async Task<UploadedResult> UploadExpOrderRecords([FromForm] IEnumerable<IFormFile> files)
+    [Route("UploadExpOrderRecords/{eoId}")]
+    public async Task<UploadedResult> UploadExpOrderRecords([FromForm] IEnumerable<IFormFile> files, long eoId)
     {
-        var filesDir = new List<string>();
+        string filePath = string.Empty;
+
         var items = new List<ExportOrderRecord>();
-        var cntrTpSzList = await _cntrTypeProvider.GetCntrTypes();
+
+        var cntrTypes = await _cntrTypeProvider.GetCntrTypes();
+        var documents = await _documentProvider.GetDocumentsAsync();
+        //var exportOrder = new ExportOrderEntity();
+
+        //exportOrder.Id = eoId;
+
+
+        //var eoAppResponse = await _exportOrderProvider.GetItemAsync(eoId);
+        //if (!eoAppResponse.HasError)
+        //    exportOrder = (ExportOrderEntity)eoAppResponse.Object!;
 
         foreach (var file in files)
             if (file != null)
             {
                 //string dirName = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "Temp");
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                string SavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
-                filesDir.Add(SavePath);
-                using (var stream = new FileStream(SavePath, FileMode.Create))
+                filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
+                
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     file.CopyTo(stream);
                 }
             }
 
-        foreach (var fileDir in filesDir)
+        using (var exl = new ExcelService(filePath, cntrTypes, documents, eoId))
         {
-            using (var exl = new ExcelService(fileDir, cntrTpSzList))
-            {
-                var uploadingRecords = exl.ReadUploadingFile();
-                items.AddRange(uploadingRecords);
-            }
+            var uploadingRecords = exl.ReadUploadingFile();            
+            items.AddRange(uploadingRecords);
         }
+        
+        items = items.DistinctBy(s => s.Id).ToList();
 
-        //items = items.DistinctBy(s => s.Id).ToList();
+        //var appresponse = await _exportOrderProvider.AddUploadedFileItemsAsync(items);
 
-        var appresponse = await _exportOrderProvider.AddUploadedFileItemsAsync(items);
+        //if (!appresponse.HasError)
+        //{
+        //    return new UploadedResult()
+        //    {
+        //        CntrCount = items.Count(),
+        //        CntrContentCount = items.SelectMany(s => s.Contents).ToList().DistinctBy(x => x.DocumentRecord?.Id).Count()
+        //    };
+        //}
+        //else
+        //{
+        //    return new UploadedResult()
+        //    {
+        //        Errors = appresponse.Error.ToArray(),
+        //    };
+        //}
 
-        if (!appresponse.HasError)
+        return new UploadedResult()
         {
-            return new UploadedResult()
-            {
-                CntrCount = items.Count(),
-                CntrContentCount = items.SelectMany(s => s.Contents).ToList().DistinctBy(x => x.DocumentRecord?.Id).Count()
-            };
-        }
-        else
-        {
-            return new UploadedResult()
-            {
-                Errors = appresponse.Error.ToArray(),
-            };
-        }
+            CntrCount = items.Count(),
+            CntrContentCount = items.SelectMany(s => s.Contents).ToList().DistinctBy(x => x.DocumentRecord?.Id).Count()
+        };
     }
 }
 

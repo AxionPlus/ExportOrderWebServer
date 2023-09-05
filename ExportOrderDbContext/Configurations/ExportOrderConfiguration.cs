@@ -56,7 +56,7 @@ public class ExportOrderRecordConfiguration : IEntityTypeConfiguration<ExportOrd
         builder.ToTable("ExportOrder_Records");
 
 
-        builder.HasOne(s => s.CntrType);
+        //builder.HasOne(s => s.CntrType);
 
         builder.Navigation(s => s.CntrType).AutoInclude();
 

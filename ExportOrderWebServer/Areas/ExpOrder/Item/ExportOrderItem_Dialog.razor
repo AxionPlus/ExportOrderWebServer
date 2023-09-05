@@ -68,7 +68,7 @@
 
 
 
- @code {
+@code {
     private MudForm? Form;
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
@@ -96,7 +96,10 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-            Item = new() { Carrier = new(), Documents = new List<DocumentEntity>(), Records = new List<ExportOrderRecord>() };
+        {
+            //Item = new() { Carrier = new(), Documents = new List<DocumentEntity>(), Records = new List<ExportOrderRecord>() };
+            Item = new() { Carrier = new() };
+        }        
         else
         {
             var response = await _exportOrderProvider.GetItemAsync(Id);

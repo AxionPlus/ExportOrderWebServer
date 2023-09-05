@@ -42,7 +42,10 @@ public class ExportOrderProvider : IExportOrderProvider
                 }
 
             }
-            catch (Exception ex) { var message = ex.Message; }
+            catch (Exception ex)
+            {
+                var message = ex.Message;
+            }
 
             return appObjResponse;
         }

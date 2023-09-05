@@ -39,29 +39,39 @@
     </MudFileUpload>
     <MudToolBar DisableGutters="true" Class="gap-4">
         <MudButton OnClick="CheckAndUploadFile" Disabled="@(!FileName.Any())" Color="Color.Primary" Variant="Variant.Filled">
-            @(IsDataUploaded ? "Upload File(s)" : "Check File(s)")
+            @(IsDataUploading ? "Upload File(s)" : "Check File(s)")
         </MudButton>
         <MudButton OnClick="Clear" Disabled="@(!FileName.Any())" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
 @*         <div style="width: 50px"></div>
         <MudButton OnClick="DownloadTemplate" Disabled="@IsLoadingData" Color="Color.Dark" Variant="Variant.Filled" StartIcon="@Icons.Material.Outlined.Download">
             Manifest Template
         </MudButton> *@
+        <MudSpacer />
+        <MudButton OnClick="CloseDialog_Click" Disabled="@(!FileName.Any())" Color="Color.Dark" Variant="Variant.Filled">Close</MudButton>
     </MudToolBar>
 </MudStack>
 
-<OverlayLoadingData Visible="IsLoadingData" Text="@(IsDataUploaded ? "Uploading...":"Checking...")" />
+<OverlayLoadingData Visible="IsLoadingData" Text="@(IsDataUploading ? "Uploading...":"Checking...")" />
 
 @code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
     private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
     private string DragClass = DefaultDragClass;
     private string FileName = string.Empty;
     IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
 
+    [Parameter]
+    public long EOId { get; set; }
+    // [Parameter]
+    // public ExportOrderEntity? ExpOrder { get; set; }
+
     private int maxAllowedFiles = 1;
     private bool IsLoadingData = false;
-    private bool IsDataUploaded = false;
+    private bool IsDataUploading = false;
     private bool HasErrors = false;
     private UploadedResult? UploadedResult { get; set; }
+    private ExportOrderRecord exportOrderRecord { get; set; }
 
 
     private async Task OnInputFileChanged(InputFileChangeEventArgs e)
@@ -73,14 +83,14 @@
 
         FileName = e.File.Name;
 
-        IsDataUploaded = false;                
+        IsDataUploading = false;                
     }
 
     private async Task Clear()
     {
         FileName = string.Empty;
         ClearDragClass();
-        IsDataUploaded = false;
+        IsDataUploading = false;
         HasErrors = false;
         await Task.Delay(100);
     }
@@ -118,12 +128,12 @@
         client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
 
         // DELETE
-        IsDataUploaded = true;
+        IsDataUploading = true;
         //
 
-        if (IsDataUploaded)
+        if (IsDataUploading)
         {
-            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExpOrderRecords", content);
+            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExpOrderRecords/{EOId}", content);
             if (response.IsSuccessStatusCode)
             {
                 UploadedResult = await response.Content.ReadFromJsonAsync<UploadedResult>();
@@ -160,23 +170,26 @@
                     text.Append("</ul>");
 
                     Snackbar.Add($"{text.ToString()}", Severity.Success);
+
+                    // post data (item) back to: ExportOrderItem_Component
                 }
-                IsDataUploaded = true;
+                IsDataUploading = true;
+
+                exportOrderRecord = await response.Content.ReadFromJsonAsync<ExportOrderRecord>();
             }
             else
-                IsDataUploaded = false;
-
+                IsDataUploading = false;
         }
         else
         {
-            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords", content);
+            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords/{EOId}", content);
             if (response.IsSuccessStatusCode)
             {
                 UploadedResult = await response.Content.ReadFromJsonAsync<UploadedResult>();
 
                 if (UploadedResult is not null)
                     if (!UploadedResult.HasErrors)
-                        IsDataUploaded = true;
+                        IsDataUploading = true;
                     else
                         HasErrors = true;
             }
@@ -184,7 +197,14 @@
 
         IsLoadingData = false;
         client.Dispose();
+
         //  Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
         //  Snackbar.Add("TODO: Upload your files!", Severity.Normal);
+    }
+
+    public async Task CloseDialog_Click()
+    {
+        await Task.Delay(50);
+        MudDialog!.Close(exportOrderRecord);
     }
 }

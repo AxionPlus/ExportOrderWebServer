@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Areas.Document.Provider;
 
@@ -13,6 +14,15 @@ public class DocumentProvider : IDocumentProvider
         _dbContext = dbContext;
     }
 
+    public async Task<IEnumerable<DocumentEntity>> GetDocumentsAsync()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            return await db.Documents.AsNoTracking().ToListAsync();
+        }
+    }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
@@ -42,6 +52,15 @@ public class DocumentProvider : IDocumentProvider
             var db = await _db;
 
             var documents = await db.Documents.ToListAsync();
+
+            //var documentNum = parameters as string;
+            //if (parameters.GetType() == typeof(string))
+            //    if (!string.IsNullOrWhiteSpace(documentNum))                    
+            //        appObjResponse.Object = documents.Where(s => s.Name == documentNum);
+
+            if (parameters.GetType() == typeof(string))
+                if (!string.IsNullOrWhiteSpace(parameters as string))
+                    appObjResponse.Object = documents.Where(s => s.Name == parameters as string);
 
             if (parameters.GetType() == typeof(FilterParameters))
             {

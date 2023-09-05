@@ -17,5 +17,5 @@ public class ExportOrderRecord
     public string Seal { get; set; }
 
     public IList<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
-    public ExportOrderEntity ExportOrder { get; set; }
+    public ExportOrderEntity ExportOrder { get; set; }   // added: = new ExportOrderEntity();
 }

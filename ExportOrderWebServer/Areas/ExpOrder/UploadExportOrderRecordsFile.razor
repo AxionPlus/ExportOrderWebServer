@@ -134,7 +134,6 @@
 
         if (IsDataUploading)
         {
-            //var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExpOrderRecords", content);
             var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExportOrder", content);
             if (response.IsSuccessStatusCode)
             {
@@ -148,12 +147,14 @@
                 // }
 
                 _UploadResult = await response.Content.ReadFromJsonAsync<UploadResult>();
-  
-                IsDataUploading = true;
 
+                IsDataUploading = true;
             }
             else
+            {
+                _UploadResult = await response.Content.ReadFromJsonAsync<UploadResult>();
                 IsDataUploading = false;
+            }
         }
         else
         {

@@ -40,9 +40,10 @@ public class ExcelService : IDisposable
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
-    public async Task<(List<ExportOrderRecord>, List<DocumentEntity>)> ReadUploadingFile()
+    //public async Task<(List<ExportOrderRecord>, List<DocumentEntity>)> ReadUploadingFile()
+    public async Task<UploadResult> ReadUploadingFile()
     {
-        if (!File.Exists(FilePath)) return (null, null);
+        if (!File.Exists(FilePath)) return (null);
         Workbook = Workbooks?.Open(FilePath, 0, true);
         WorkSheets = Workbook?.Worksheets;
         WorkSheet = WorkSheets?.Item[1];
@@ -175,7 +176,8 @@ public class ExcelService : IDisposable
         uploadResult._ExportOrderRecords = records.ToList();
         uploadResult._Docuemnts = documents.ToList();
 
-        return (records, documents);
+        //return (records, documents);
+        return uploadResult!;
     }
 
 

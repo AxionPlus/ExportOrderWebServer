@@ -209,13 +209,23 @@ public class UploadFileController : ControllerBase
 
         using (var exl = new ExcelService(filePath, cntrTypes, _documentProvider))
         {
-            var result = await exl.ReadUploadingFile();
+            try
+            {            
+                var result = await exl.ReadUploadingFile();
 
-            return new()
+                //var ur = new UploadResult()
+                //{
+                //    _ExportOrderRecords = result.Item1.ToList(),
+                //    _Docuemnts = result.Item2.ToList(),
+                //};
+
+                return result;
+            }
+            catch (Exception ex)
             {
-                _ExportOrderRecords = result.Item1.ToList(),
-                _Docuemnts = result.Item2.ToList(),
-            };
+                var msg = ex.Message;
+                return new UploadResult();
+            }
         }  
     }
 }

@@ -1,5 +1,8 @@
 ﻿using ExportOrderEntites.ExportOrder;
+using ExportOrderWebServer.UploadFile;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -9,12 +12,12 @@ public class ExcelService : IDisposable
 {
     private string? FilePath { get; set; }
     private readonly uint ExcelAppPid;
-    private long EOid;
+    private readonly IDocumentProvider _documentProvider;
 
     //private ExportOrderEntity ExportOder = new ExportOrderEntity();
     private IEnumerable<CntrTpSz> CntrTypes = new List<CntrTpSz>();
-    private IEnumerable<DocumentEntity> Documents = new List<DocumentEntity>();
-
+    //private IEnumerable<DocumentEntity> Documents = new List<DocumentEntity>();
+    
     private Excel.Application? ExcelApp;
     private Excel.Workbooks? Workbooks;
     private Excel.Workbook? Workbook;
@@ -25,13 +28,11 @@ public class ExcelService : IDisposable
     private Excel.Range? FilterRange;
 
 
-    public ExcelService(string filePath, IEnumerable<CntrTpSz> cntrTypes, IEnumerable<DocumentEntity> documents, long eoId)
+    public ExcelService(string filePath, IEnumerable<CntrTpSz> cntrTypes, IDocumentProvider documentProvider)
     {
         FilePath = filePath;
         CntrTypes = cntrTypes;
-        Documents = documents;
-        //ExportOder = exportOrder;
-        EOid = eoId;
+        _documentProvider = documentProvider;
 
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
@@ -39,12 +40,14 @@ public class ExcelService : IDisposable
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
-    public IEnumerable<ExportOrderRecord> ReadUploadingFile()
+    public async Task<(List<ExportOrderRecord>, List<DocumentEntity>)> ReadUploadingFile()
     {
-        if (!File.Exists(FilePath)) return Enumerable.Empty<ExportOrderRecord>();
+        if (!File.Exists(FilePath)) return (null, null);
         Workbook = Workbooks?.Open(FilePath, 0, true);
         WorkSheets = Workbook?.Worksheets;
         WorkSheet = WorkSheets?.Item[1];
+
+        var uploadResult = new UploadResult();
 
         #region COLUMN NAME
 
@@ -61,7 +64,10 @@ public class ExcelService : IDisposable
         #endregion
                 
         var cntrNums = new List<string>();
-        var records = new List<ExportOrderRecord>();                
+        //var docNums = new List<string>();
+
+        var records = new List<ExportOrderRecord>();
+        var documents = new List<DocumentEntity>();
 
         try
         {
@@ -71,10 +77,12 @@ public class ExcelService : IDisposable
             do
             {
                 cntrNums.Add(WorkSheet!.Cells[row, colCntrNum + 1].Text);
+                //docNums.Add(WorkSheet!.Cells[row, colDoc + 1].Text);
                 row++;
-            } while (!string.IsNullOrWhiteSpace(WorkSheet!.Cells[row, colDoc + 1].Text));
+            } while (!string.IsNullOrWhiteSpace(WorkSheet!.Cells[row, 1].Text));
                         
             cntrNums = cntrNums.Distinct().Select(s => s.Replace("\n", "")).ToList();
+            //docNums = docNums.Distinct().Select(s => s.Replace("\n", "")).ToList();
 
             var startCell = WorkSheet.Cells[2, 1];
             var endCell = WorkSheet.Cells[row - 1, columns];
@@ -82,24 +90,55 @@ public class ExcelService : IDisposable
 
             string[][] sheetArray = GetStringArray(Range.Cells.Value);
 
-            long counter = 0;
+            //var _Document = new DocumentEntity();
+            var document = new DocumentEntity() { Name = ""};
+            var documentRecord = new DocumentRecord();
+            int CargoIndex = 0;
+
+            uint counter = 0;
 
             foreach (var cntrNum in cntrNums)
             {                
                 var record = new ExportOrderRecord();                
-                var document = new DocumentEntity();
-                var documentRecord = new DocumentRecord();
 
                 bool IsRecordData = true;
+
                 counter ++;
 
-                long counterContent = 0;
+                uint counterContent = 0;
+                //uint CargoIndexCounter = 0;
 
                 for (int i = 0; i < sheetArray.Length; i++)
                 {
                     if (sheetArray[i][colCntrNum].Contains(cntrNum))
                     {
-                        // Container (record)
+                        // Document
+                        var _Document = await _documentProvider.GetDocumentAsync(sheetArray[i][colDoc]);
+
+                        if (!documents.Any(s => s.Name == sheetArray[i][colDoc]))
+                        {
+                            CargoIndex = int.TryParse(sheetArray[i][colCargoIndex], out int _indx) ? _indx : 0;
+                            documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
+
+                            document = _Document;
+                            document.Records.Clear();
+                            documents.Add(document);
+                        }
+                        else
+                        {
+                            CargoIndex = int.TryParse(sheetArray[i][colCargoIndex], out int _indx) ? _indx : 0;
+                            document = documents.FirstOrDefault(s => s.Name == sheetArray[i][colDoc]);
+
+                            if (!document!.Records.Any(s => s.Seq == CargoIndex))
+                                documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
+                            else
+                                documentRecord = null;
+                        }
+
+                        if (documentRecord != null)
+                            document.Records!.Add(documentRecord!);
+
+                        // Container record
                         if (IsRecordData)
                         {
                             record.Id = counter;
@@ -107,19 +146,12 @@ public class ExcelService : IDisposable
                             record.CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == sheetArray[i][colCntrType].ToUpper())!;
                             record.CntrTareWt = double.TryParse(sheetArray[i][colCntrTareWt], out double _Twt) ? _Twt : 0;
                             record.Seal = sheetArray[i][colSeal];
-                            //record.ExportOrder.Id = 1;
-                            //record.ExportOrder.Id = EOid;
 
                             IsRecordData = false;
                         }
 
                         // Container Content
-                        document = Documents.FirstOrDefault(d => d.Name == sheetArray[i][colDoc]);
-
-                        var index = int.TryParse(sheetArray[i][colCargoIndex], out int _indx) ? _indx : 0;
-                        documentRecord = document!.Records.FirstOrDefault(r => r.Seq == index);
-
-                        counterContent ++;
+                        counterContent++;
 
                         record.Contents.Add(new()
                         {
@@ -140,7 +172,10 @@ public class ExcelService : IDisposable
             var msg = ex.Message;
         }
 
-        return records;
+        uploadResult._ExportOrderRecords = records.ToList();
+        uploadResult._Docuemnts = documents.ToList();
+
+        return (records, documents);
     }
 
 

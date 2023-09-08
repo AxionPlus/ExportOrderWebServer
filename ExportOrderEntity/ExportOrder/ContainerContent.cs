@@ -13,8 +13,8 @@ public class ContainerContent
     public double NetWt { get; set; }
     public double GrossWt { get; set; }
     public double Volume { get; set; }
-
+    [JsonIgnore]
     public DocumentRecord DocumentRecord { get; set; }
-    [JsonInclude]
+    [JsonIgnore]
     public ExportOrderRecord ExportOrderRecord { get; set; }
 }

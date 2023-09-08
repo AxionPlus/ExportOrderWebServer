@@ -14,13 +14,13 @@ public class DocumentProvider : IDocumentProvider
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<DocumentEntity>> GetDocumentsAsync()
+    public async Task<DocumentEntity> GetDocumentAsync(string Num)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            return await db.Documents.AsNoTracking().ToListAsync();
+            return await db.Documents.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Num);
         }
     }
 
@@ -76,7 +76,7 @@ public class DocumentProvider : IDocumentProvider
                     documents = documents.Where(s => s.Consignee!.Name == filter.Consignee).ToList();
 
                 if (!string.IsNullOrEmpty(filter.CargoDescriptionShort))
-                    documents = documents.Where(s => s.Description== filter.CargoDescriptionShort).ToList();
+                    documents = documents.Where(s => s.Description == filter.CargoDescriptionShort).ToList();
                 //documents = documents.Where(s => s.Records.FirstOrDefault()!.CommodityName == filter.CargoDiscriptionShort).ToList();
 
 

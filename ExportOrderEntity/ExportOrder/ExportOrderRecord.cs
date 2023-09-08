@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.ExportOrder;
 
@@ -17,5 +18,6 @@ public class ExportOrderRecord
     public string Seal { get; set; }
 
     public IList<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
+    [JsonIgnore]
     public ExportOrderEntity ExportOrder { get; set; }   // added: = new ExportOrderEntity();
 }

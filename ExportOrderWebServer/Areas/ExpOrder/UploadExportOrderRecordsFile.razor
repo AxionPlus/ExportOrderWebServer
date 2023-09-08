@@ -26,14 +26,14 @@
 <MudStack Style="width: 100%">
     <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
                    InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
-                   @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+    @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
         <ButtonTemplate>
             <MudPaper Height="300px" Outlined="true" Class="@DragClass">
                 <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
                 @if (!string.IsNullOrEmpty(FileName))
                 {
                     <MudChip Color="Color.Dark" Text="@FileName" />
-                }                
+                }
             </MudPaper>
         </ButtonTemplate>
     </MudFileUpload>
@@ -42,9 +42,9 @@
             @(IsDataUploading ? "Upload File(s)" : "Check File(s)")
         </MudButton>
         <MudButton OnClick="Clear" Disabled="@(!FileName.Any())" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
-@*         <div style="width: 50px"></div>
+        @*         <div style="width: 50px"></div>
         <MudButton OnClick="DownloadTemplate" Disabled="@IsLoadingData" Color="Color.Dark" Variant="Variant.Filled" StartIcon="@Icons.Material.Outlined.Download">
-            Manifest Template
+        Manifest Template
         </MudButton> *@
         <MudSpacer />
         <MudButton OnClick="CloseDialog_Click" Disabled="@(!FileName.Any())" Color="Color.Dark" Variant="Variant.Filled">Close</MudButton>
@@ -63,15 +63,16 @@
 
     [Parameter]
     public long EOId { get; set; }
-    // [Parameter]
-    // public ExportOrderEntity? ExpOrder { get; set; }
+    [Parameter]
+    public ExportOrderEntity? ExpOrder { get; set; }
 
     private int maxAllowedFiles = 1;
     private bool IsLoadingData = false;
     private bool IsDataUploading = false;
     private bool HasErrors = false;
-    private UploadedResult? UploadedResult { get; set; }
-    private ExportOrderRecord exportOrderRecord { get; set; }
+    private UploadedResult? UploadedResult { get; set; }        // DELETE
+    private UploadResult? _UploadResult { get; set; }          
+    private ExportOrderRecord exportOrderRecord { get; set; }   // DELETE
 
 
     private async Task OnInputFileChanged(InputFileChangeEventArgs e)
@@ -83,7 +84,7 @@
 
         FileName = e.File.Name;
 
-        IsDataUploading = false;                
+        IsDataUploading = false;
     }
 
     private async Task Clear()
@@ -133,49 +134,23 @@
 
         if (IsDataUploading)
         {
-            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExpOrderRecords/{EOId}", content);
+            //var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExpOrderRecords", content);
+            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExportOrder", content);
             if (response.IsSuccessStatusCode)
             {
-                UploadedResult = await response.Content.ReadFromJsonAsync<UploadedResult>();
-                if (UploadedResult.HasErrors)
-                {
-                    // if (UploadedResult.HasRemarks)
-                    // {
-                    //     var text = new StringBuilder();
-                    //     text.Append("<ul>");
-                    //     foreach (var item in ExportOrderRecords.Remarks)
-                    //         text.Append($"<li>{item}</li>");
-                    //     text.Append("</ul>");
+                //Snackbar.Add($"Uploaded", Severity.Success);
 
-                    //     Snackbar.Add($"{text.ToString()}", Severity.Error);
-                    // }
-                    if (UploadedResult.HasErrors)
-                    {
-                        var text = new StringBuilder();
-                        text.Append("<ul>");
-                        foreach (var item in UploadedResult.Errors)
-                            text.Append($"<li>{item}</li>");
-                        text.Append("</ul>");
+                // var items = await response.Content.ReadFromJsonAsync<IEnumerable<ExportOrderRecord>>();
 
-                        Snackbar.Add($"{text.ToString()}", Severity.Error);
-                    }
-                }
-                else
-                {
-                    var text = new StringBuilder();
-                    text.Append("<h4>uploaded</h4>");
-                    text.Append("<ul>");
-                    text.Append($"<li>Containers: {UploadedResult.CntrCount}</li>");
-                    text.Append($"<li>Content: {UploadedResult.CntrContentCount}</li>");
-                    text.Append("</ul>");
+                // if (items is not null)
+                // {
+                //     ExpOrder!.Records!.AddRange(items);
+                // }
 
-                    Snackbar.Add($"{text.ToString()}", Severity.Success);
-
-                    // post data (item) back to: ExportOrderItem_Component
-                }
+                _UploadResult = await response.Content.ReadFromJsonAsync<UploadResult>();
+  
                 IsDataUploading = true;
 
-                exportOrderRecord = await response.Content.ReadFromJsonAsync<ExportOrderRecord>();
             }
             else
                 IsDataUploading = false;
@@ -205,6 +180,6 @@
     public async Task CloseDialog_Click()
     {
         await Task.Delay(50);
-        MudDialog!.Close(exportOrderRecord);
+        MudDialog!.Close(_UploadResult);
     }
 }

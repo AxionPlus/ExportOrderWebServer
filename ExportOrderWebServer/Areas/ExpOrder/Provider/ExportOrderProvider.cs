@@ -116,9 +116,18 @@ public class ExportOrderProvider : IExportOrderProvider
         throw new NotImplementedException();
     }
 
-    public Task<AppObjectResponse> NewItemAsync(ExportOrderEntity item)
+    public async Task<AppObjectResponse> NewItemAsync(ExportOrderEntity item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            
+        }
+
+        return appObjResponse;
     }
 
     public Task<AppObjectResponse> RemoveItemAsync(ExportOrderEntity item)

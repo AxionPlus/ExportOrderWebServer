@@ -3,6 +3,33 @@
 @inject IDialogService DialogService;
 
 <style>
+    .Table * .mud-table-cell {
+        padding:4px;
+    }
+
+    .GoodMeasures {        
+        width: 450px;
+        display: flex;
+        padding-left: 300px;
+    }
+
+        .GoodMeasures > .numField_Label {
+            width:50px; margin-top:4px; margin-bottom:unset
+        }
+
+
+    .GoodMeasures * .mud-input.mud-input-outlined {
+        width: 100px;
+    } 
+
+    .mud-input-control.wrapper-input.NoHeader {
+        margin-top: 1px;
+    }
+
+    .wrapper-input.NoHeader * .mud-input > input.mud-input-root-outlined {
+        padding: 3px 1px 3px 3px;
+    }
+
 </style>
 
 @if (Value is not null)
@@ -61,18 +88,20 @@
     
         <div class="Container-table">
             <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" T="DocumentRecord"
-                      Virtualize="true" RowsPerPage="20"
-                      Hover="false" FixedHeader="true" Height="565px">
+                      Virtualize="true" RowsPerPage="20" HorizontalScrollbar="true"
+                      Height="490px">
+
                 <HeaderContent>
                     <MudTh Style="width:40px;">
                         <div class="controlIconButtons">
                             <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddRecord_Click" Size="Size.Small"></MudIconButton>
                         </div>
                     </MudTh>
-                    <MudTh Style="width:40px;">SEQ</MudTh>
-                    <MudTh Style="width:130px;">HS CODE</MudTh>
-                    <MudTh>COMMODITY NAME</MudTh>
-                    <MudTh Style="width:200px;">ENGLISH  </MudTh>
+                    <MudTh Style="width:45px;">SEQ</MudTh>
+                    <MudTh Style="width:140px;">HS CODE</MudTh>
+                    <MudTh Style="width:460px;">COMMODITY NAME</MudTh>
+                    <MudTh Style="width:460px;">ENGLISH  </MudTh>
+                    <MudTh Style="width:40px;"></MudTh>
                     <MudTh Style="width:40px;"></MudTh>
                 </HeaderContent>
 
@@ -100,14 +129,14 @@
                     </MudTd>
                     <MudTd>
                         <div class="wrapper-input Dense EventType">
-                            <MudTextField T="string" Style="width: 470px" Value="@context.CommodityName"                                    
+                            <MudTextField T="string" Style="width: 450px" Value="@context.CommodityName"                                    
                                           ValueChanged="@((e)=>{context.CommodityName =e.ToUpper();})"
                                           Lines=2 Variant="Variant.Outlined" Required RequiredError="" Immediate />
                         </div>
                     </MudTd>
                     <MudTd>
                         <div class="wrapper-input Dense EventType">
-                            <MudTextField T="string" Style="width: 470px" Value="@context.CommodityEngName"
+                            <MudTextField T="string" Style="width: 450px" Value="@context.CommodityEngName"
                                           ValueChanged="@((e)=>{context.CommodityEngName =e.ToUpper();})"
                                           Lines=2 Variant="Variant.Outlined" Required RequiredError="" Immediate />
                         </div>
@@ -119,34 +148,27 @@
                             </div>
                         </div>
                     </MudTd>
+                    <MudTd></MudTd>
                 </RowTemplate>
 
                 <ChildRowContent>
                     <MudTr Class=@(!context.IsShowWT_Details ? "d-none" : "splitRow")>
                         <td colspan="4" />
-                        <td>
+                        <td style="width:450px">
                             <div class="GoodMeasures">
-                                 <div class="d-flex" style="padding-left: 250px">
-                                    <h6>Net Wt</h6>
-                                    <MudNumericField Class="wrapper-input NoHeader pl-2" @bind-Value="@context.NetWt"
-                                                     Variant="Variant.Outlined" MaxLength="10"
-                                                     Format="N3" HideSpinButtons="true"  />
-                                </div>
-                                <div class="d-flex" style="padding-left: 250px">
-                                    <h6>Gross Wt</h6>
-                                    <MudNumericField Class="wrapper-input NoHeader pl-2" @bind-Value="@context.GrossWt"
-                                                     Variant="Variant.Outlined" MaxLength="10"
-                                                     Format="N3" HideSpinButtons="true" />
-
-                                </div>
-                                <div class="d-flex" style="padding-left: 250px">
-                                    <h6>Volume</h6>
-                                    <MudNumericField Class="wrapper-input NoHeader pl-2" @bind-Value="@context.Volume"                                                
-                                                     Variant="Variant.Outlined" MaxLength="10"
-                                                     Format="N3" HideSpinButtons="true" />
-                                </div>
+                                <div class="numField_Label">Net</div>                                    
+                                <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt"
+                                                    Variant="Variant.Outlined" MaxLength="10"
+                                                    Format="N3" HideSpinButtons="true"  />
+                            </div>
+                            <div class="GoodMeasures">
+                                <div class="numField_Label">Gross</div>
+                                <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt"
+                                                    Variant="Variant.Outlined" MaxLength="10"
+                                                    Format="N3" HideSpinButtons="true" />
                             </div>
                         </td>
+                        <td />
                         <td />
                     </MudTr>
                 </ChildRowContent>

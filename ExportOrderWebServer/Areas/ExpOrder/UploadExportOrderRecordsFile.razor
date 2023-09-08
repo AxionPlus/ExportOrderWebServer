@@ -3,13 +3,12 @@
 @using System.Net.Http.Headers;
 @using System.Text;
 
-
 @inject ISnackbar Snackbar
 @inject IHttpClientFactory httpClient
 @inject NavigationManager Navigation
 
 
-<div class="ToolBar-container">
+@* <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
 
@@ -21,7 +20,7 @@
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
         </div>
     </MudToolBar>
-</div>
+</div> *@
 
 <MudStack Style="width: 100%">
     <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
@@ -70,9 +69,8 @@
     private bool IsLoadingData = false;
     private bool IsDataUploading = false;
     private bool HasErrors = false;
-    private UploadedResult? UploadedResult { get; set; }        // DELETE
-    private UploadResult? _UploadResult { get; set; }          
-    private ExportOrderRecord exportOrderRecord { get; set; }   // DELETE
+    private CheckingResult? _CheckingResult { get; set; }
+    private UploadResult? _UploadResult { get; set; }
 
 
     private async Task OnInputFileChanged(InputFileChangeEventArgs e)
@@ -136,35 +134,27 @@
         {
             var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExportOrder", content);
             if (response.IsSuccessStatusCode)
-            {
-                //Snackbar.Add($"Uploaded", Severity.Success);
-
-                // var items = await response.Content.ReadFromJsonAsync<IEnumerable<ExportOrderRecord>>();
-
-                // if (items is not null)
-                // {
-                //     ExpOrder!.Records!.AddRange(items);
-                // }
-
-                _UploadResult = await response.Content.ReadFromJsonAsync<UploadResult>();
-
+            {   
+                var uploadedData = await response.Content.ReadFromJsonAsync<IEnumerable<ExportOrderRecord>>();
                 IsDataUploading = true;
+                Snackbar.Add($"Uploaded", Severity.Success);
+                MudDialog!.Close(uploadedData);
             }
             else
             {
-                _UploadResult = await response.Content.ReadFromJsonAsync<UploadResult>();
+                Snackbar.Add($"Data where not uploaded", Severity.Error);
                 IsDataUploading = false;
             }
         }
         else
         {
-            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords/{EOId}", content);
+            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords", content);
             if (response.IsSuccessStatusCode)
             {
-                UploadedResult = await response.Content.ReadFromJsonAsync<UploadedResult>();
+                _CheckingResult = await response.Content.ReadFromJsonAsync<CheckingResult>();
 
-                if (UploadedResult is not null)
-                    if (!UploadedResult.HasErrors)
+                if (_CheckingResult is not null)
+                    if (!_CheckingResult.HasErrors)
                         IsDataUploading = true;
                     else
                         HasErrors = true;
@@ -181,6 +171,6 @@
     public async Task CloseDialog_Click()
     {
         await Task.Delay(50);
-        MudDialog!.Close(_UploadResult);
+        //MudDialog!.Close(_UploadResult);
     }
 }

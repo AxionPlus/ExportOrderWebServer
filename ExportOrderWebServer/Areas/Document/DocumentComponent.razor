@@ -98,9 +98,7 @@
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     private async Task GetItems()
-    {
-        //Items = new List<DocumentEntity>() { new() { Name = "1111111/2222222/111111111" }, new() { Name = "1111111/3333333/111111111" } };
-
+    {        
         IsLoadingData = true;
 
         var response = await _documentProvider.GetItemsAsync(Filter);

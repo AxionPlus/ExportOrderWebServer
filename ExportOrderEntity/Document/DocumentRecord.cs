@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.Document;
 
@@ -23,8 +24,8 @@ public class DocumentRecord
     public double GrossWt { get; set; }
     public double Volume { get; set; }
 
+    [JsonIgnore]
     public DocumentEntity Document { get; set; }
-
 
     [NotMapped]
     public bool IsShowWT_Details { get; set; } = false;

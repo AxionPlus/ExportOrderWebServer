@@ -40,15 +40,14 @@ public class ExcelService : IDisposable
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
-    //public async Task<(List<ExportOrderRecord>, List<DocumentEntity>)> ReadUploadingFile()
-    public async Task<UploadResult> ReadUploadingFile()
+    //public async Task<UploadResult> ReadUploadingFile()
+    //public async Task<(List<ExportOrderRecord>, List<ExportOrderRecord>)> _ReadUploadingFile() { return (null, null); }
+    public async Task<IEnumerable<ExportOrderRecord>> ReadUploadingFile()
     {
         if (!File.Exists(FilePath)) return (null);
         Workbook = Workbooks?.Open(FilePath, 0, true);
         WorkSheets = Workbook?.Worksheets;
         WorkSheet = WorkSheets?.Item[1];
-
-        var uploadResult = new UploadResult();
 
         #region COLUMN NAME
 
@@ -64,11 +63,8 @@ public class ExcelService : IDisposable
         
         #endregion
                 
-        var cntrNums = new List<string>();
-        //var docNums = new List<string>();
-
         var records = new List<ExportOrderRecord>();
-        var documents = new List<DocumentEntity>();
+        //var documents = new List<DocumentEntity>();
 
         try
         {
@@ -76,14 +72,9 @@ public class ExcelService : IDisposable
             uint row = 2;
 
             do
-            {
-                cntrNums.Add(WorkSheet!.Cells[row, colCntrNum + 1].Text);
-                //docNums.Add(WorkSheet!.Cells[row, colDoc + 1].Text);
+            {                
                 row++;
             } while (!string.IsNullOrWhiteSpace(WorkSheet!.Cells[row, 1].Text));
-                        
-            cntrNums = cntrNums.Distinct().Select(s => s.Replace("\n", "")).ToList();
-            //docNums = docNums.Distinct().Select(s => s.Replace("\n", "")).ToList();
 
             var startCell = WorkSheet.Cells[2, 1];
             var endCell = WorkSheet.Cells[row - 1, columns];
@@ -91,93 +82,126 @@ public class ExcelService : IDisposable
 
             string[][] sheetArray = GetStringArray(Range.Cells.Value);
 
-            //var _Document = new DocumentEntity();
-            var document = new DocumentEntity() { Name = ""};
-            var documentRecord = new DocumentRecord();
-            int CargoIndex = 0;
+            var cntrNumGroup = sheetArray.GroupBy(s => s[colCntrNum]).ToList();
 
             uint counter = 0;
 
-            foreach (var cntrNum in cntrNums)
-            {                
-                var record = new ExportOrderRecord();                
-
-                bool IsRecordData = true;
-
-                counter ++;
-
-                uint counterContent = 0;
-                //uint CargoIndexCounter = 0;
-
-                for (int i = 0; i < sheetArray.Length; i++)
+            foreach (var itemCntrNum in cntrNumGroup)
+            {
+                var newRecord = new ExportOrderRecord()
                 {
-                    if (sheetArray[i][colCntrNum].Contains(cntrNum))
+                    Id = counter++,
+                    CntrNum = itemCntrNum.FirstOrDefault()![colCntrNum],
+                    CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == itemCntrNum.FirstOrDefault()![colCntrType].ToUpper())!,
+                    CntrTareWt = double.TryParse(itemCntrNum.FirstOrDefault()![colCntrTareWt], out double _Twt) ? _Twt : 0,
+                    Seal = itemCntrNum.FirstOrDefault()![colSeal],
+                };
+
+                //var _Document = await _documentProvider.GetDocumentAsync(itemCntrNum.FirstOrDefault()![colDoc]);
+
+                foreach (var record in itemCntrNum)
+                {
+                    int cgoIndex = int.TryParse(itemCntrNum.FirstOrDefault()![colCargoIndex], out int _cIndex) ? _cIndex : 0;
+
+                    var content = new ContainerContent()
                     {
-                        // Document
-                        var _Document = await _documentProvider.GetDocumentAsync(sheetArray[i][colDoc]);
+                        Quantity = int.TryParse(itemCntrNum.FirstOrDefault()![colPackageQty], out int _pkgQty) ? _pkgQty : 0,
+                        NetWt = double.TryParse(itemCntrNum.FirstOrDefault()![colNet], out double _nwt) ? _nwt : 0,
+                        GrossWt = double.TryParse(itemCntrNum.FirstOrDefault()![colGross], out double _gwt) ? _gwt : 0,
+                        DocumentRecord = await _documentProvider.GetDocumentRecordAsync(itemCntrNum.FirstOrDefault()![colDoc],
+                                                                                        cgoIndex),
+                    };
 
-                        if (!documents.Any(s => s.Name == sheetArray[i][colDoc]))
-                        {
-                            CargoIndex = int.TryParse(sheetArray[i][colCargoIndex], out int _indx) ? _indx : 0;
-                            documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
-
-                            document = _Document;
-                            document.Records.Clear();
-                            documents.Add(document);
-                        }
-                        else
-                        {
-                            CargoIndex = int.TryParse(sheetArray[i][colCargoIndex], out int _indx) ? _indx : 0;
-                            document = documents.FirstOrDefault(s => s.Name == sheetArray[i][colDoc]);
-
-                            if (!document!.Records.Any(s => s.Seq == CargoIndex))
-                                documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
-                            else
-                                documentRecord = null;
-                        }
-
-                        if (documentRecord != null)
-                            document.Records!.Add(documentRecord!);
-
-                        // Container record
-                        if (IsRecordData)
-                        {
-                            record.Id = counter;
-                            record.CntrNum = sheetArray[i][colCntrNum];
-                            record.CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == sheetArray[i][colCntrType].ToUpper())!;
-                            record.CntrTareWt = double.TryParse(sheetArray[i][colCntrTareWt], out double _Twt) ? _Twt : 0;
-                            record.Seal = sheetArray[i][colSeal];
-
-                            IsRecordData = false;
-                        }
-
-                        // Container Content
-                        counterContent++;
-
-                        record.Contents.Add(new()
-                        {
-                            Id = counterContent,
-                            Quantity = int.TryParse(sheetArray[i][colPackageQty], out int _pkgQty) ? _pkgQty : 0,
-                            NetWt = double.TryParse(sheetArray[i][colNet], out double _nwt) ? _nwt : 0,
-                            GrossWt = double.TryParse(sheetArray[i][colGross], out double _gwt) ? _gwt : 0,
-                            DocumentRecord = documentRecord!,
-                            ExportOrderRecord = record,
-                        });
-                    }
+                    newRecord.Contents.Add(content);
                 }
-                records.Add(record);
+
+                records.Add(newRecord);
             }
+
+            #region Docs & Records
+            //records = records.ToList();
+            //var document = new DocumentEntity() { Name = ""};
+            //var documentRecord = new DocumentRecord();
+            //int CargoIndex = 0;
+
+            
+
+            //foreach (var cntrNum in cntrNums)
+            //{                
+            //    var record = new ExportOrderRecord();                
+
+            //    bool IsRecordData = true;
+
+            //    counter ++;
+
+            //    uint counterContent = 0;
+
+            //    for (int i = 0; i < sheetArray.Length; i++)
+            //    {
+            //        if (sheetArray[i][colCntrNum].Contains(cntrNum))
+            //        {
+            //            // Document
+            //            var _Document = await _documentProvider.GetDocumentAsync(sheetArray[i][colDoc]);
+
+            //            if (!documents.Any(s => s.Name == sheetArray[i][colDoc]))
+            //            {
+            //                CargoIndex = int.TryParse(sheetArray[i][colCargoIndex], out int _indx) ? _indx : 0;
+            //                documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
+
+            //                document = _Document;
+            //                document.Records.Clear();
+            //                documents.Add(document);
+            //            }
+            //            else
+            //            {
+            //                CargoIndex = int.TryParse(sheetArray[i][colCargoIndex], out int _indx) ? _indx : 0;
+            //                document = documents.FirstOrDefault(s => s.Name == sheetArray[i][colDoc]);
+
+            //                if (!document!.Records.Any(s => s.Seq == CargoIndex))
+            //                    documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
+            //                else
+            //                    documentRecord = null;
+            //            }
+
+            //            if (documentRecord != null)
+            //                document.Records!.Add(documentRecord!);
+
+            //            // Container record
+            //            if (IsRecordData)
+            //            {
+            //                record.Id = counter;
+            //                record.CntrNum = sheetArray[i][colCntrNum];
+            //                record.CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == sheetArray[i][colCntrType].ToUpper())!;
+            //                record.CntrTareWt = double.TryParse(sheetArray[i][colCntrTareWt], out double _Twt) ? _Twt : 0;
+            //                record.Seal = sheetArray[i][colSeal];
+
+            //                IsRecordData = false;
+            //            }
+
+            //            // Container Content
+            //            counterContent++;
+
+            //            record.Contents.Add(new()
+            //            {
+            //                Id = counterContent,
+            //                Quantity = int.TryParse(sheetArray[i][colPackageQty], out int _pkgQty) ? _pkgQty : 0,
+            //                NetWt = double.TryParse(sheetArray[i][colNet], out double _nwt) ? _nwt : 0,
+            //                GrossWt = double.TryParse(sheetArray[i][colGross], out double _gwt) ? _gwt : 0,
+            //                DocumentRecord = documentRecord!,
+            //                ExportOrderRecord = record,
+            //            });
+            //        }
+            //    }
+            //    records.Add(record);
+            //}
+            #endregion
         }
         catch (Exception ex)
         {
             var msg = ex.Message;
         }
 
-        uploadResult._ExportOrderRecords = records.ToList();
-        uploadResult._Docuemnts = documents.ToList();
-
-        //return (records, documents);
-        return uploadResult!;
+        return (records);
     }
 
 

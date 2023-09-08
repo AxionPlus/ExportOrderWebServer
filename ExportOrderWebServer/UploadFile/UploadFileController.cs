@@ -188,7 +188,7 @@ public class UploadFileController : ControllerBase
 
     [HttpPost]
     [Route("UploadExportOrder")]
-    public async Task<UploadResult> UploadExportOrder([FromForm] IEnumerable<IFormFile> files)
+    public async Task<IEnumerable<ExportOrderRecord>> UploadExportOrder([FromForm] IEnumerable<IFormFile> files)
     {
         string filePath = string.Empty;
 
@@ -213,31 +213,26 @@ public class UploadFileController : ControllerBase
             {            
                 var result = await exl.ReadUploadingFile();
 
+                if (result != null)
+                    return result;
+                else
+                    return new ExportOrderRecord[0];
+
                 //var ur = new UploadResult()
                 //{
                 //    _ExportOrderRecords = result.Item1.ToList(),
                 //    _Docuemnts = result.Item2.ToList(),
                 //};
 
-                return result;
+                //return ur;
             }
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                return new UploadResult();
+                return new ExportOrderRecord[0];
             }
         }  
     }
-}
-
-public class UploadedResult
-{
-    public int CntrCount { get; set; }
-    public int CntrContentCount { get; set; }
-    public IEnumerable<string> Errors { get; set; } = new List<string>();
-    public bool HasErrors => Errors.Count() > 0;
-    public IEnumerable<string> ErrorsCntrList { get; set; } = new List<string>();
-    public bool HasErrorsCntrList => ErrorsCntrList.Count() > 0;
 }
 
 public class UploadResult
@@ -246,4 +241,16 @@ public class UploadResult
     public IEnumerable<DocumentEntity>? _Docuemnts { get; set; }
 
     public IEnumerable<string> Summary { get; set; } = new List<string>();
+}
+
+
+
+public class CheckingResult
+{
+    public int CntrCount { get; set; }
+    public int CntrContentCount { get; set; }
+    public IEnumerable<string> Errors { get; set; } = new List<string>();
+    public bool HasErrors => Errors.Count() > 0;
+    public IEnumerable<string> ErrorsCntrList { get; set; } = new List<string>();
+    public bool HasErrorsCntrList => ErrorsCntrList.Count() > 0;
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Office.Interop.Excel;
+using static MudBlazor.CategoryTypes;
 
 namespace ExportOrderWebServer.Areas.Document.Provider;
 
@@ -21,6 +22,19 @@ public class DocumentProvider : IDocumentProvider
             var db = await _db;
 
             return await db.Documents.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Num);
+        }
+    }
+
+    public async Task<DocumentRecord> GetDocumentRecordAsync(string Num, int index)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;            
+                
+            var result =await db.Set<DocumentRecord>().Include(s => s.Document).AsNoTracking()
+                                                 .Where(s => s.Document.Name == Num)
+                                                 .FirstOrDefaultAsync(s => s.Seq == index);
+            return result;
         }
     }
 

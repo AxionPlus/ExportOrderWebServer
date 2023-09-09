@@ -188,7 +188,8 @@ public class UploadFileController : ControllerBase
 
     [HttpPost]
     [Route("UploadExportOrder")]
-    public async Task<IEnumerable<ExportOrderRecord>> UploadExportOrder([FromForm] IEnumerable<IFormFile> files)
+    //public async Task<IEnumerable<ExportOrderRecord>> UploadExportOrder([FromForm] IEnumerable<IFormFile> files)
+    public async Task<UploadResult> UploadExportOrder([FromForm] IEnumerable<IFormFile> files)
     {
         string filePath = string.Empty;
 
@@ -213,23 +214,23 @@ public class UploadFileController : ControllerBase
             {            
                 var result = await exl.ReadUploadingFile();
 
-                if (result != null)
-                    return result;
-                else
-                    return new ExportOrderRecord[0];
+                //if (result != null)
+                //    return result;
+                //else
+                //    return new ExportOrderRecord[0];
 
-                //var ur = new UploadResult()
-                //{
-                //    _ExportOrderRecords = result.Item1.ToList(),
-                //    _Docuemnts = result.Item2.ToList(),
-                //};
+                var ur = new UploadResult()
+                {
+                    _ExportOrderRecords = result.Item1.ToList(),
+                    _Documents = result.Item2.ToList(),
+                };
 
-                //return ur;
+                return ur;
             }
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                return new ExportOrderRecord[0];
+                return new UploadResult();    //ExportOrderRecord[0]
             }
         }  
     }
@@ -238,7 +239,7 @@ public class UploadFileController : ControllerBase
 public class UploadResult
 {
     public IEnumerable<ExportOrderRecord>? _ExportOrderRecords { get; set; }
-    public IEnumerable<DocumentEntity>? _Docuemnts { get; set; }
+    public IEnumerable<DocumentEntity>? _Documents { get; set; }
 
     public IEnumerable<string> Summary { get; set; } = new List<string>();
 }

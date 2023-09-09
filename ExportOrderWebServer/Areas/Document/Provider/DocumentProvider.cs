@@ -21,7 +21,8 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
 
-            return await db.Documents.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Num);
+            var result = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == Num);
+            return result; 
         }
     }
 

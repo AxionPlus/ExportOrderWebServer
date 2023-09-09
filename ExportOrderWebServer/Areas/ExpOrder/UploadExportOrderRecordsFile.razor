@@ -40,13 +40,12 @@
         <MudButton OnClick="CheckAndUploadFile" Disabled="@(!FileName.Any())" Color="Color.Primary" Variant="Variant.Filled">
             @(IsDataUploading ? "Upload File(s)" : "Check File(s)")
         </MudButton>
+        <MudSpacer />
         <MudButton OnClick="Clear" Disabled="@(!FileName.Any())" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
         @*         <div style="width: 50px"></div>
         <MudButton OnClick="DownloadTemplate" Disabled="@IsLoadingData" Color="Color.Dark" Variant="Variant.Filled" StartIcon="@Icons.Material.Outlined.Download">
         Manifest Template
         </MudButton> *@
-        <MudSpacer />
-        <MudButton OnClick="CloseDialog_Click" Disabled="@(!FileName.Any())" Color="Color.Dark" Variant="Variant.Filled">Close</MudButton>
     </MudToolBar>
 </MudStack>
 
@@ -60,14 +59,9 @@
     private string FileName = string.Empty;
     IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
 
-    [Parameter]
-    public long EOId { get; set; }
-    [Parameter]
-    public ExportOrderEntity? ExpOrder { get; set; }
-
     private int maxAllowedFiles = 1;
     private bool IsLoadingData = false;
-    private bool IsDataUploading = false;
+    private bool IsDataUploading = true;    // false - when check is used
     private bool HasErrors = false;
     private CheckingResult? _CheckingResult { get; set; }
     private UploadResult? _UploadResult { get; set; }
@@ -135,7 +129,8 @@
             var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExportOrder", content);
             if (response.IsSuccessStatusCode)
             {   
-                var uploadedData = await response.Content.ReadFromJsonAsync<IEnumerable<ExportOrderRecord>>();
+                //var uploadedData = await response.Content.ReadFromJsonAsync<IEnumerable<ExportOrderRecord>>();
+                var uploadedData = await response.Content.ReadFromJsonAsync<UploadResult>();
                 IsDataUploading = true;
                 Snackbar.Add($"Uploaded", Severity.Success);
                 MudDialog!.Close(uploadedData);
@@ -168,9 +163,4 @@
         //  Snackbar.Add("TODO: Upload your files!", Severity.Normal);
     }
 
-    public async Task CloseDialog_Click()
-    {
-        await Task.Delay(50);
-        //MudDialog!.Close(_UploadResult);
-    }
 }

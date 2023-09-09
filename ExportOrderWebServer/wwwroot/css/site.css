@@ -185,10 +185,10 @@ body {
         color: var(--mud-palette-text-primary);
         font-weight: 500;
         text-align: center;
-        line-height: 1.1rem;
+        /*line-height: 1.1rem;*/
     }
 
-    .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
+    .Table * .mud-table-cell * .mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
         padding: 4px 0px 1px 6px;
         font-size: 0.92rem;
         font-weight: 500;
@@ -201,9 +201,9 @@ body {
     }
 
 
-    .Table * .mud-table-cell *.mud-input-control {
+/*    .Table * .mud-table-cell *.mud-input-control {
         margin-top: unset;
-    }
+    }*/
 
     .Table * .mud-table-cell * .mud-input.mud-input-outlined.mud-input-adorned-end {
         padding-right: 0px;

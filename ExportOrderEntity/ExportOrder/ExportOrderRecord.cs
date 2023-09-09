@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.ExportOrder;
@@ -19,5 +20,9 @@ public class ExportOrderRecord
 
     public IList<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
     [JsonIgnore]
-    public ExportOrderEntity ExportOrder { get; set; }   // added: = new ExportOrderEntity();
+    public ExportOrderEntity ExportOrder { get; set; }
+
+
+    [NotMapped]
+    public bool IsShowCntrContent { get; set; } = false;
 }

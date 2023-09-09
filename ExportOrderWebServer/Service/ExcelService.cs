@@ -41,10 +41,10 @@ public class ExcelService : IDisposable
     }
 
     //public async Task<UploadResult> ReadUploadingFile()
-    //public async Task<(List<ExportOrderRecord>, List<ExportOrderRecord>)> _ReadUploadingFile() { return (null, null); }
-    public async Task<IEnumerable<ExportOrderRecord>> ReadUploadingFile()
+    public async Task<(List<ExportOrderRecord>, List<DocumentEntity>)> ReadUploadingFile()
+    //public async Task<IEnumerable<ExportOrderRecord>> ReadUploadingFile()
     {
-        if (!File.Exists(FilePath)) return (null);
+        if (!File.Exists(FilePath)) return (new List<ExportOrderRecord>(), new List<DocumentEntity>());
         Workbook = Workbooks?.Open(FilePath, 0, true);
         WorkSheets = Workbook?.Worksheets;
         WorkSheet = WorkSheets?.Item[1];
@@ -64,7 +64,7 @@ public class ExcelService : IDisposable
         #endregion
                 
         var records = new List<ExportOrderRecord>();
-        //var documents = new List<DocumentEntity>();
+        var documents = new List<DocumentEntity>();
 
         try
         {
@@ -85,9 +85,11 @@ public class ExcelService : IDisposable
             var cntrNumGroup = sheetArray.GroupBy(s => s[colCntrNum]).ToList();
 
             uint counter = 0;
+            int CargoIndex = 0;
 
             foreach (var itemCntrNum in cntrNumGroup)
             {
+                // Container Records
                 var newRecord = new ExportOrderRecord()
                 {
                     Id = counter++,
@@ -96,8 +98,6 @@ public class ExcelService : IDisposable
                     CntrTareWt = double.TryParse(itemCntrNum.FirstOrDefault()![colCntrTareWt], out double _Twt) ? _Twt : 0,
                     Seal = itemCntrNum.FirstOrDefault()![colSeal],
                 };
-
-                //var _Document = await _documentProvider.GetDocumentAsync(itemCntrNum.FirstOrDefault()![colDoc]);
 
                 foreach (var record in itemCntrNum)
                 {
@@ -116,15 +116,43 @@ public class ExcelService : IDisposable
                 }
 
                 records.Add(newRecord);
+
+                // Documents
+                var _Document = await _documentProvider.GetDocumentAsync(itemCntrNum.FirstOrDefault()![colDoc]);
+                var document = new DocumentEntity() { Name = "" };
+                var documentRecord = new DocumentRecord();
+
+                if (!documents.Any(s => s.Name == itemCntrNum.FirstOrDefault()![colDoc]))
+                {
+                    CargoIndex = int.TryParse(itemCntrNum.FirstOrDefault()![colCargoIndex], out int _indx) ? _indx : 0;
+                    documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
+
+                    document = _Document;
+                    document.Records.Clear();
+                    documents.Add(document);
+                }
+                else
+                {
+                    CargoIndex = int.TryParse(itemCntrNum.FirstOrDefault()![colCargoIndex], out int _indx) ? _indx : 0;
+                    document = documents.FirstOrDefault(s => s.Name == itemCntrNum.FirstOrDefault()![colDoc]);
+
+                    if (!document!.Records.Any(s => s.Seq == CargoIndex))
+                        documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
+                    else
+                        documentRecord = null;
+                }
+
+                if (documentRecord != null)
+                    document.Records!.Add(documentRecord!);
             }
 
-            #region Docs & Records
+            #region Docs & Records  - DELETE
             //records = records.ToList();
             //var document = new DocumentEntity() { Name = ""};
             //var documentRecord = new DocumentRecord();
             //int CargoIndex = 0;
 
-            
+
 
             //foreach (var cntrNum in cntrNums)
             //{                
@@ -195,13 +223,14 @@ public class ExcelService : IDisposable
             //    records.Add(record);
             //}
             #endregion
+
         }
         catch (Exception ex)
         {
             var msg = ex.Message;
         }
 
-        return (records);
+        return (records, documents);
     }
 
 

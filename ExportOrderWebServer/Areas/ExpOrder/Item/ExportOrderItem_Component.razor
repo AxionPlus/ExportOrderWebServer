@@ -194,13 +194,13 @@
                     </MudTd>
                     <MudTd>
                          <MudNumericField Class="NumericField" T="double?" @bind-Value="expOrderRecords.CntrTareWt"
-                                            Style="text-align:center"
+                                          Style="text-align:center"
                                           Variant="Variant.Outlined" Margin="Margin.Dense"
                                           Required RequiredError="" HideSpinButtons="true"/>
                     </MudTd>
                     <MudTd>
                          <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecords.Seal"
-                                        Style="width: 290px"
+                                       Style="width: 290px"
                                        Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
                     </MudTd>
                     <MudTd></MudTd>
@@ -232,14 +232,14 @@
                             <td colspan="5">
                                 <MudTable Class="sub-Table" T="ContainerContent" Context="CntrContent" Items="@expOrderRecords.Contents">
                                     <RowTemplate>
-                                        
-                                        <MudTd Style="width:300px; text-align:end">Docum Name</MudTd>
+
+                                        <MudTd Style="width:300px; padding-right:12px; text-align:end">@CntrContent.DocumentRecord.Document.Name</MudTd>
                                         <MudTd Style="width:30px">@CntrContent.DocumentRecord.Seq</MudTd>
                                         <MudTd>
                                             <MudNumericField Class="QuantityField" T="int" @bind-Value="CntrContent.Quantity"
                                                              Style="width: 80px"
-                                                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                                Required RequiredError="" HideSpinButtons=true />
+                                                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                             Required RequiredError="" HideSpinButtons=true />
                                         </MudTd>
                                         <MudTd>
                                             <MudNumericField Class="NumericField_Content" T="double" @bind-Value="CntrContent.NetWt"
@@ -249,9 +249,9 @@
                                         </MudTd>
                                         <MudTd>
                                             <MudNumericField Class="NumericField_Content" T="double" @bind-Value="CntrContent.GrossWt"
-                                                              Style="width: 120px"
-                                                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                            Required RequiredError="" HideSpinButtons=true />
+                                                             Style="width: 120px"
+                                                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                             Required RequiredError="" HideSpinButtons=true />
                                         </MudTd>
                                     </RowTemplate>
                                 </MudTable>
@@ -262,12 +262,15 @@
                 </ChildRowContent>
                 <PagerContent></PagerContent>
                 <FooterContent>
-                    <td colspan="3">
-                        <MudTd>
-                            <h6>Total container records: @Value.Records!.Count().ToString("000")</h6>
-                        </MudTd>
-                    </td>
-                </FooterContent>
+                    @if (Value.Records!.Count > 0)
+                    {
+                        <td colspan="3">
+                            <MudTd>
+                                <h6>Total: container records: @Value.Records!.Count().ToString("000")</h6>
+                            </MudTd>
+                        </td>
+                    }
+                </FooterContent>                
             </MudTable>
         </div>
     </div>
@@ -394,20 +397,20 @@
         dialog = DialogService.Show<UploadExportOrderRecordsFile>("INPUT: list of records", options);
 
         var result = await dialog.Result;
+
         if (!result.Canceled)
         {
             if(result.Data != null)
             {
-                //Value.Records = (List<ExportOrderRecord>)result.Data;
-
                 uploadResult = (UploadResult)result.Data;
 
+                var records = uploadResult!._ExportOrderRecords!.ToList();
                 var documents = uploadResult!._Documents!.ToList();
 
                 foreach (var document in documents)
                 {
                     DocumentItems.Add(document);
-                    
+
                     foreach (var docRecord in document.Records)
                     {
                         docRecord.Document = document;
@@ -415,15 +418,23 @@
                     }
                 }                
 
-                Value!.Records = uploadResult!._ExportOrderRecords!.ToList();
+                foreach (var record in records)
+                    foreach (var cntrContent in record.Contents)
+                        cntrContent.DocumentRecord.Document = documents.First(s => s.Records.Any(s => s.Id == cntrContent.DocumentRecord.Id));
+
+                Value!.Records = records;
                 Value.Documents = documents;
 
-                //Value.Records.AddRange(uploadResult!._ExportOrderRecords!.ToList());
-                //Value.Documents.AddRange(uploadResult!._Documents!.ToList());
+                await AddUploadedItems(Value);
 
                 await ValueChanged.InvokeAsync(Value);
             }
         }
+    }
+
+    private async Task AddUploadedItems(ExportOrderEntity exportOrder)      // SaveExportOrder
+    {
+        
     }
 
     #endregion

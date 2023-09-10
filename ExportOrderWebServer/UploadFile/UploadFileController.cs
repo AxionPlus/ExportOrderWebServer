@@ -214,11 +214,6 @@ public class UploadFileController : ControllerBase
             {            
                 var result = await exl.ReadUploadingFile();
 
-                //if (result != null)
-                //    return result;
-                //else
-                //    return new ExportOrderRecord[0];
-
                 var ur = new UploadResult()
                 {
                     _ExportOrderRecords = result.Item1.ToList(),

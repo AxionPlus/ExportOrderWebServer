@@ -85,7 +85,6 @@ public class ExcelService : IDisposable
             var cntrNumGroup = sheetArray.GroupBy(s => s[colCntrNum]).ToList();
 
             uint counter = 0;
-            int CargoIndex = 0;
 
             foreach (var itemCntrNum in cntrNumGroup)
             {
@@ -101,50 +100,52 @@ public class ExcelService : IDisposable
 
                 foreach (var record in itemCntrNum)
                 {
-                    int cgoIndex = int.TryParse(itemCntrNum.FirstOrDefault()![colCargoIndex], out int _cIndex) ? _cIndex : 0;
+                    int cargoIndex = int.TryParse(record[colCargoIndex], out int _cIndex) ? _cIndex : 0;
 
                     var content = new ContainerContent()
                     {
-                        Quantity = int.TryParse(itemCntrNum.FirstOrDefault()![colPackageQty], out int _pkgQty) ? _pkgQty : 0,
-                        NetWt = double.TryParse(itemCntrNum.FirstOrDefault()![colNet], out double _nwt) ? _nwt : 0,
-                        GrossWt = double.TryParse(itemCntrNum.FirstOrDefault()![colGross], out double _gwt) ? _gwt : 0,
-                        DocumentRecord = await _documentProvider.GetDocumentRecordAsync(itemCntrNum.FirstOrDefault()![colDoc],
-                                                                                        cgoIndex),
+                        Quantity = int.TryParse(record[colPackageQty], out int _pkgQty) ? _pkgQty : 0,
+                        NetWt = double.TryParse(record[colNet], out double _nwt) ? _nwt : 0,
+                        GrossWt = double.TryParse(record[colGross], out double _gwt) ? _gwt : 0,
+                        DocumentRecord = await _documentProvider.GetDocumentRecordAsync(record[colDoc], cargoIndex)
                     };
 
                     newRecord.Contents.Add(content);
+
+                    // Documents
+                    var _Document = await _documentProvider.GetDocumentAsync(record[colDoc]);
+                    var document = new DocumentEntity() { Name = "" };
+                    var documentRecord = new DocumentRecord();
+
+                    if (!documents.Any(s => s.Name == record[colDoc]))
+                    {
+                        documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == cargoIndex);
+
+                        document = _Document;
+                        document.Records.Clear();
+
+                        documents.Add(document);
+                    }
+                    else
+                    {
+                        document = documents.FirstOrDefault(s => s.Name == record[colDoc]);
+
+                        if (!document!.Records.Any(s => s.Seq == cargoIndex))
+                            documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == cargoIndex);
+                        else
+                            documentRecord = null;
+                    }
+
+                    if (documentRecord != null)
+                        document.Records!.Add(documentRecord!);
                 }
 
                 records.Add(newRecord);
-
-                // Documents
-                var _Document = await _documentProvider.GetDocumentAsync(itemCntrNum.FirstOrDefault()![colDoc]);
-                var document = new DocumentEntity() { Name = "" };
-                var documentRecord = new DocumentRecord();
-
-                if (!documents.Any(s => s.Name == itemCntrNum.FirstOrDefault()![colDoc]))
-                {
-                    CargoIndex = int.TryParse(itemCntrNum.FirstOrDefault()![colCargoIndex], out int _indx) ? _indx : 0;
-                    documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
-
-                    document = _Document;
-                    document.Records.Clear();
-                    documents.Add(document);
-                }
-                else
-                {
-                    CargoIndex = int.TryParse(itemCntrNum.FirstOrDefault()![colCargoIndex], out int _indx) ? _indx : 0;
-                    document = documents.FirstOrDefault(s => s.Name == itemCntrNum.FirstOrDefault()![colDoc]);
-
-                    if (!document!.Records.Any(s => s.Seq == CargoIndex))
-                        documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == CargoIndex);
-                    else
-                        documentRecord = null;
-                }
-
-                if (documentRecord != null)
-                    document.Records!.Add(documentRecord!);
             }
+
+            //var documentGroup = sheetArray.GroupBy(s => s[colDoc], s => s[colCargoIndex]).ToList();    // ???
+
+
 
             #region Docs & Records  - DELETE
             //records = records.ToList();

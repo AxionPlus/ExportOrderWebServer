@@ -123,8 +123,18 @@ public class ExportOrderProvider : IExportOrderProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-            
+            // check an Existing item
+            var itemExistCheck = await db.Set<ExportOrderEntity>().Where(s => s.Num == item.Num).FirstOrDefaultAsync();
+            if (itemExistCheck != null)
+            {
+                appObjResponse.ErrorAdd($"Document {item.Num} is exists already.");
+                return appObjResponse;
+            }
+
+            item.CreateUser = User!;
+
         }
 
         return appObjResponse;

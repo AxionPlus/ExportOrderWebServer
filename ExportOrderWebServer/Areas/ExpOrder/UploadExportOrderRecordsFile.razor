@@ -8,20 +8,6 @@
 @inject NavigationManager Navigation
 
 
-@* <div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
-
-        <MudSpacer />
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-        </div>
-    </MudToolBar>
-</div> *@
-
 <MudStack Style="width: 100%">
     <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
                    InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
@@ -131,8 +117,10 @@
             {   
                 //var uploadedData = await response.Content.ReadFromJsonAsync<IEnumerable<ExportOrderRecord>>();
                 var uploadedData = await response.Content.ReadFromJsonAsync<UploadResult>();
+                
                 IsDataUploading = true;
                 Snackbar.Add($"Uploaded", Severity.Success);
+
                 MudDialog!.Close(uploadedData);
             }
             else

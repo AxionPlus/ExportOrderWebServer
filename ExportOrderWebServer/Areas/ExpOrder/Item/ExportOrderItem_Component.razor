@@ -1,5 +1,8 @@
-﻿@inject IDialogService DialogService;
-@inject ICntrTypeProvider _cntrTypeProvider 
+﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService;
+@inject IExportOrderProvider _exportOrderProvider
+@inject ICntrTypeProvider _cntrTypeProvider
+
 
 <style>
 
@@ -425,16 +428,44 @@
                 Value!.Records = records;
                 Value.Documents = documents;
 
-                await AddUploadedItems(Value);
+                //await AddUploadedItems(Value);
 
                 await ValueChanged.InvokeAsync(Value);
             }
         }
     }
 
-    private async Task AddUploadedItems(ExportOrderEntity exportOrder)      // SaveExportOrder
+    private async Task AddUploadedItems(ExportOrderEntity item)      // SaveExportOrder
     {
-        
+        await Form!.Validate();
+
+        if (Form.IsValid)
+            if (IsNewItem)
+            {
+                var response = await _exportOrderProvider.NewItemAsync(item!);
+                if (!response.HasError)
+                {
+                    IsNewItem = false;
+                    //await GetItem();
+                    Snackbar.Add("Saved Successfully", Severity.Success);
+                    IsNewItem = true;   // DELETE
+                }
+                else
+                    Snackbar.Add("No Success", Severity.Error);
+            }
+            else
+            {
+                // var response = await _exportOrderProvider.ModifyItemAsync(Item!);
+                // if (!response.HasError)
+                // {
+                //     await GetItem();
+                //     Snackbar.Add("Save Successed", Severity.Success);
+                // }
+                // else
+                //     Snackbar.Add("Not Successed", Severity.Error);
+            }
+        else
+            Snackbar.Add("Fill up all reqired fields", Severity.Error);
     }
 
     #endregion

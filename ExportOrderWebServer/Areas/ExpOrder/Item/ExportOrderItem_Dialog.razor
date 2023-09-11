@@ -127,8 +127,9 @@
                 if (!response.HasError)
                 {
                     IsNewItem = false;
-                    //await GetItem();
+                    await GetItem();
                     Snackbar.Add("Saved Successfully", Severity.Success);
+                    IsNewItem = true;   // DELETE
                 }
                 else
                     Snackbar.Add("No Success", Severity.Error);

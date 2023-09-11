@@ -138,8 +138,8 @@ public class DocumentProvider : IDocumentProvider
 
             db.Entry(item).State = EntityState.Added;
 
-            foreach (var records in item.Records)
-                db.Entry(records).State = EntityState.Added;
+            foreach (var record in item.Records)
+                db.Entry(record).State = EntityState.Added;
 
 
             var bug = db.ChangeTracker.DebugView.LongView;

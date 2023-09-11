@@ -125,15 +125,54 @@ public class ExportOrderProvider : IExportOrderProvider
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-            // check an Existing item
-            var itemExistCheck = await db.Set<ExportOrderEntity>().Where(s => s.Num == item.Num).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
+
+            try
+            { 
+                // check an Existing item
+                var itemExistCheck = await db.Set<ExportOrderEntity>().Where(s => s.Num == item.Num).FirstOrDefaultAsync();
+                if (itemExistCheck != null)
+                {
+                    appObjResponse.ErrorAdd($"Document {item.Num} is exists already.");
+                    return appObjResponse;
+                }
+
+                item.CreateUser = User!;
+
+                db.Entry(item).State = EntityState.Added;
+                db.Entry(item.Carrier).State = EntityState.Unchanged;
+
+
+                // Documents
+                foreach (var document in item.Documents!)
+                {
+                    db.Entry(document).State = EntityState.Added;
+                    foreach (var documentRecord in document.Records)
+                        db.Entry(documentRecord).State = EntityState.Added;
+                }               
+
+                // Records
+                foreach (var record in item.Records!)
+                {
+                    db.Entry(record).State = EntityState.Added;
+                    db.Entry(record.CntrType).State = EntityState.Unchanged;
+
+                    foreach (var recordContent in record.Contents)
+                    {
+                        db.Entry(recordContent).State = EntityState.Added;
+                        db.Entry(recordContent.DocumentRecord).State = EntityState.Detached;
+                    }
+                }                    
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
             {
-                appObjResponse.ErrorAdd($"Document {item.Num} is exists already.");
+                string msg = ex.Message;
                 return appObjResponse;
             }
-
-            item.CreateUser = User!;
 
         }
 

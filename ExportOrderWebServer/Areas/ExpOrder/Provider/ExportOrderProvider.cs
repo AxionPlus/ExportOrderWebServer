@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ExportOrderEntites.Document;
+using Microsoft.EntityFrameworkCore;
 using static MudBlazor.CategoryTypes;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
@@ -125,7 +126,6 @@ public class ExportOrderProvider : IExportOrderProvider
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-
             try
             { 
                 // check an Existing item
@@ -141,27 +141,19 @@ public class ExportOrderProvider : IExportOrderProvider
                 db.Entry(item).State = EntityState.Added;
                 db.Entry(item.Carrier).State = EntityState.Unchanged;
 
-
                 // Documents
                 foreach (var document in item.Documents!)
-                {
-                    db.Entry(document).State = EntityState.Added;
-                    foreach (var documentRecord in document.Records)
-                        db.Entry(documentRecord).State = EntityState.Added;
-                }               
+                    db.Entry(document).State = EntityState.Unchanged;
 
                 // Records
                 foreach (var record in item.Records!)
                 {
                     db.Entry(record).State = EntityState.Added;
-                    db.Entry(record.CntrType).State = EntityState.Unchanged;
+                    db.Entry(record.CntrType).State = EntityState.Detached;
 
                     foreach (var recordContent in record.Contents)
-                    {
                         db.Entry(recordContent).State = EntityState.Added;
-                        db.Entry(recordContent.DocumentRecord).State = EntityState.Detached;
-                    }
-                }                    
+                }
 
                 var bug = db.ChangeTracker.DebugView.LongView;
 

@@ -2,12 +2,16 @@
 @inject IDialogService DialogService;
 @inject IExportOrderProvider _exportOrderProvider
 @inject ICntrTypeProvider _cntrTypeProvider
-
+@inject ICarrierProvider _carrierProvider
 
 <style>
 
     .Container-item > .container-content{
         justify-content:flex-start;
+    }
+
+    .mud-picker-inline {
+        flex: unset;
     }
 
     .sub-Table {
@@ -48,14 +52,29 @@
         <div class="container-head">INFO</div>
         <div class="container-content">
             <MudTextField Class="TextField" Style="width: 150px; margin-right: 20px" Label="Number" @bind-Value="@Value!.Num"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                                    Required RequiredError="" Clearable="IsNewItem" />
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Required RequiredError="" Clearable="IsNewItem" />
 
-                <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="@Value.Dated"
-                            Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="IsNewItem"
-                            DateFormat="dd.MM.yy" IconSize=Size.Small />
-                <h6>@Value.Status.ToString()</h6>
-            </div>
+            <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="@Value.Dated"
+                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="IsNewItem"
+                           DateFormat="dd.MM.yy" IconSize=Size.Small />
+            <MudSpacer />
+
+            <MudAutocomplete T="CarrierCatalog" Style="width: 300px" @bind-Value="Value.Carrier"
+                             ToStringFunc="@(e => e != null ? e.FullName : "")"
+                             SearchFunc="@SearchCarrier"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             Required RequiredError=""
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true"
+                             Placeholder="Carrier"
+                             MaxItems="20"
+                             IconSize="Size.Small"
+                             ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+            <MudSpacer />
+
+            <h6>@Value.Status.ToString()</h6>
+        </div>
     </div>
 
     <div class="Container-item">
@@ -63,13 +82,13 @@
         <div class="container-content">
                 <div class="documents">
                     <div class="controlIconButtons">
-                        @if (TreeItems.Count > 0)
+                        @if (DocumentItems.Count > 0)
                         {
-                        <MudCheckBox Class="wrapper-checkBox" Dense="true" Size="Size.Small" @bind-Checked="@MultiSelectionTreeItemData" />
+                            <MudCheckBox Class="wrapper-checkBox" Dense="true" Size="Size.Small" @bind-Checked="@MultiSelectionTreeItemData" />
                         }
                         else
                         {
-                        <div style="width: 10px"></div>
+                            <div style="width: 10px"></div>
                         }
                         <MudSpacer />
                         <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="AddDocument_Click"></MudIconButton>
@@ -92,32 +111,32 @@
                             </ItemTemplate>
                         </MudTreeView> *@
 
-                    <MudTreeView MultiSelection="true" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
-                                    Dense="true" Hover="true">
-                        <ItemTemplate>
-                            <MudTreeViewItem Value="@context"
-                                             Text="@context.Name"
-                                             EndText="@context.Records.Count().ToString()"
-                                             LoadingIconColor="Color.Info"
-                                             EndTextTypo="@Typo.caption">                                                 >
-@*                                 <MudDataGrid Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
-                                    <Columns>
-                                        <PropertyColumn Property="x => x.Seq" />
-                                        <PropertyColumn Property="x => x.CommodityHSCode" />
-                                        <PropertyColumn Property="x => x.CommodityName" />
-                                    </Columns>
-                                </MudDataGrid> *@
-                                <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
-                                            Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
-                                    <RowTemplate>
-                                        <MudTd Style="width: 30px">@DocRecords.Seq</MudTd>
-                                        <MudTd Style="width: 115px">@DocRecords.CommodityHSCode</MudTd>
-                                        <MudTd Style="text-align:left">@DocRecords.CommodityName</MudTd>
-                                    </RowTemplate>
-                                </MudTable>
-                            </MudTreeViewItem>
-                        </ItemTemplate>
-                    </MudTreeView>
+                        <MudTreeView MultiSelection="true" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
+                                     Dense="true" Hover="true">
+                            <ItemTemplate>
+                                <MudTreeViewItem Value="@context"
+                                                 Text="@context.Name"
+                                                 EndText="@context.Records.Count().ToString()"
+                                                 LoadingIconColor="Color.Info"
+                                                 EndTextTypo="@Typo.caption">                                                 >
+    @*                                 <MudDataGrid Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
+                                        <Columns>
+                                            <PropertyColumn Property="x => x.Seq" />
+                                            <PropertyColumn Property="x => x.CommodityHSCode" />
+                                            <PropertyColumn Property="x => x.CommodityName" />
+                                        </Columns>
+                                    </MudDataGrid> *@
+                                    <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
+                                                Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
+                                        <RowTemplate>
+                                            <MudTd Style="width: 30px">@DocRecords.Seq</MudTd>
+                                            <MudTd Style="width: 115px">@DocRecords.CommodityHSCode</MudTd>
+                                            <MudTd Style="text-align:left">@DocRecords.CommodityName</MudTd>
+                                        </RowTemplate>
+                                    </MudTable>
+                                </MudTreeViewItem>
+                            </ItemTemplate>
+                        </MudTreeView>
                     </MudPaper>
                 </div>
             <div class="documents-info" style="margin-left: 20px; min-width:fit-content; max-width:fit-content">
@@ -435,7 +454,7 @@
         }
     }
 
-    private async Task AddUploadedItems(ExportOrderEntity item)      // SaveExportOrder
+    private async Task AddUploadedItems(ExportOrderEntity item)      // Replaced by SaveExportOrder
     {
         await Form!.Validate();
 
@@ -471,48 +490,62 @@
     #endregion
 
 
+    private async Task<IEnumerable<CarrierCatalog>> SearchCarrier(string value)
+    {
+        var Carriers = new List<CarrierCatalog>();
+
+        var response = await _carrierProvider.GetItemsAsync();
+        if (!response.HasError)
+            Carriers = ((IEnumerable<CarrierCatalog>)response.Object!).OrderBy(s => s.FullName).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Carriers;
+
+        return Carriers.Where(x => x.FullName!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
     #region  TreeItems
 
     bool MultiSelectionTreeItemData = false;
 
     private HashSet<DocumentEntity> SelectedDocumentValues { get; set; }
     private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
+
     private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
 
 
+    // private TreeItemData ActivatedValue { get; set; }
 
+    // private TreeItemData SelectedValue { get; set; }
 
-    private TreeItemData ActivatedValue { get; set; }
-
-    private TreeItemData SelectedValue { get; set; }
-
-    private HashSet<TreeItemData> SelectedValues { get; set; }
+    // private HashSet<TreeItemData> SelectedValues { get; set; }
     
 
-    private HashSet<TreeItemData> TreeItems { get; set; } = new HashSet<TreeItemData>();
+    // private HashSet<TreeItemData> TreeItems { get; set; } = new HashSet<TreeItemData>();
 
-    public class TreeItemData
-    {
-        public string Title { get; set; }
+    // public class TreeItemData
+    // {
+    //     public string Title { get; set; }
 
-        public int? Number { get; set; }
+    //     public int? Number { get; set; }
 
-        public bool CanExpand { get; set; }
+    //     public bool CanExpand { get; set; }
 
-        public string Contract { get; set; }
+    //     public string Contract { get; set; }
 
-        public bool IsSelected { get; set; }
+    //     public bool IsSelected { get; set; }
 
-        public HashSet<TreeItemData> TreeItems { get; set; }
+    //     public HashSet<TreeItemData> TreeItems { get; set; }
 
-        public TreeItemData(string title, int? number = null, bool canExpand = true, string contract = "", bool selected = false)
-        {
-            Title = title;
-            Number = number;
-            CanExpand = canExpand;
-            Contract = contract;
-            IsSelected = selected;
-        }
-    }
+    //     public TreeItemData(string title, int? number = null, bool canExpand = true, string contract = "", bool selected = false)
+    //     {
+    //         Title = title;
+    //         Number = number;
+    //         CanExpand = canExpand;
+    //         Contract = contract;
+    //         IsSelected = selected;
+    //     }
+    // }
+
     #endregion
 }

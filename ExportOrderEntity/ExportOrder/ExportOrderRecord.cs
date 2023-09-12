@@ -7,6 +7,7 @@ namespace ExportOrderEntites.ExportOrder;
 
 public class ExportOrderRecord
 {
+    [Key]
     public long Id { get; set; }
 
 #pragma warning disable CS8618

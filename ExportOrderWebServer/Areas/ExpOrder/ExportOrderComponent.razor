@@ -45,16 +45,18 @@
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:100px">Number</MudTh>
             <MudTh Style="width:100px">Dated</MudTh>
-            <MudTh>Carrier</MudTh>
+            <MudTh Style="text-align:start">Carrier</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>
-                <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.ChevronRight"
-                               OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
+                <MudTooltip Text="view details">
+                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
+                                   OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
+                </MudTooltip>
             </MudTd>
             <MudTd>@context.Num</MudTd>
-            <MudTd>@context.Dated</MudTd>
-            <MudTd>@context.Carrier.ShortName</MudTd>
+            <MudTd>@context.Dated.ToShortDateString()</MudTd>
+            <MudTd Style="text-align:start">@context.Carrier.FullName</MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>

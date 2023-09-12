@@ -1,4 +1,5 @@
-﻿@inject ISnackbar Snackbar
+﻿
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService;
 @inject IExportOrderProvider _exportOrderProvider
 @inject ICntrTypeProvider _cntrTypeProvider
@@ -59,6 +60,24 @@
                            Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="IsNewItem"
                            DateFormat="dd.MM.yy" IconSize=Size.Small />
             <MudSpacer />
+
+            <MudTextField Class="TextField" Style="width: 300px; margin-right: 20px" @bind-Value="@Value!.VesselCall"
+                          Label="Vessel Call"
+                          Text="@Value.VesselCall.Vessel.Name & " >
+
+            </MudTextField>
+
+            <MudAutocomplete T="VesselCallEntity" Style="width: 300px" @bind-Value="Value.VesselCall"
+                              ToStringFunc="@(e => e != null ? e.VoyageCarrier : "")"
+                              SearchFunc="@GetVesselCall_Click"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Required RequiredError=""
+                              CloseIcon="" OpenIcon=""
+                              ResetValueOnEmptyText="true"
+                              Placeholder="Vessel Call"
+                              MaxItems="20"
+                              IconSize="Size.Small"
+                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
 
             <MudAutocomplete T="CarrierCatalog" Style="width: 300px" @bind-Value="Value.Carrier"
                              ToStringFunc="@(e => e != null ? e.FullName : "")"
@@ -490,6 +509,25 @@
     #endregion
 
 
+    #region SEARCH
+    private async Task GetVesselCall_Click(string value)
+    {
+        DialogParameters parameters = new DialogParameters { ["SelectItem"] = true };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var _vesselCall = (VesselCallEntity)result.Data;
+
+            Value!.VesselCall = _vesselCall;
+            //Value.VesselCall.Vessel = _vesselCall.Vessel;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
     private async Task<IEnumerable<CarrierCatalog>> SearchCarrier(string value)
     {
         var Carriers = new List<CarrierCatalog>();
@@ -503,6 +541,8 @@
 
         return Carriers.Where(x => x.FullName!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
+
+    #endregion
 
     #region  TreeItems
 

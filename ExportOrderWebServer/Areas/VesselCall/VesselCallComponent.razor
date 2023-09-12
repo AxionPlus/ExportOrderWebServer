@@ -95,8 +95,15 @@
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
+            @if (!SelectItem)
+            {
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
+            }
+            else
+            {
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })" /></MudTd>
+            }
             <MudTd>@context.Vessel.Name</MudTd>
             <MudTd>@context.VoyageCarrier</MudTd>
             <MudTd>@context.POD.Name</MudTd>
@@ -110,13 +117,18 @@
 
 </div>
 
-@code {
+    @code {
     private MudForm? FilterForm;
     private MudTable<VesselCallEntity>? mudTable;
-    private bool IsLoadingData = false;
+    
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter]
+    public bool SelectItem { get; set; } = false;
 
     public IEnumerable<VesselCallEntity>? Items { get; set; } = new List<VesselCallEntity>();
     private FilterParameters Filter { get; set; } = new();
+    private bool IsLoadingData = false;
+
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -183,6 +195,13 @@
         // await GetItems();
     }
 
+    private async Task SelectItem_Click(VesselCallEntity item)
+    {
+        await Task.Delay(50);
+
+
+        MudDialog!.Close(item);
+    }
 
     #region SEARCH FUNCTIONS
 

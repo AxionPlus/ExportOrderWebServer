@@ -130,14 +130,14 @@
                             </ItemTemplate>
                         </MudTreeView> *@
 
-                        <MudTreeView MultiSelection="true" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
+                    <MudTreeView MultiSelection="@MultiSelectionTreeItemData" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
                                      Dense="true" Hover="true">
                             <ItemTemplate>
                                 <MudTreeViewItem Value="@context"
                                                  Text="@context.Name"
                                                  EndText="@context.Records.Count().ToString()"
                                                  LoadingIconColor="Color.Info"
-                                                 EndTextTypo="@Typo.caption">                                                 >
+                                                 EndTextTypo="@Typo.caption">
     @*                                 <MudDataGrid Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
                                         <Columns>
                                             <PropertyColumn Property="x => x.Seq" />
@@ -146,7 +146,9 @@
                                         </Columns>
                                     </MudDataGrid> *@
                                     <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
-                                                Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
+                                                Items="context.Records.Where(x => x.Document.Id == context.Id)">
+                                              @* Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)" *@
+                                    
                                         <RowTemplate>
                                             <MudTd Style="width: 30px">@DocRecords.Seq</MudTd>
                                             <MudTd Style="width: 115px">@DocRecords.CommodityHSCode</MudTd>
@@ -232,8 +234,8 @@
                         </MudSelect>
                     </MudTd>
                     <MudTd>
-                         <MudNumericField Class="NumericField" T="double?" @bind-Value="expOrderRecords.CntrTareWt"
-                                          Style="text-align:center"
+                         <MudNumericField Class="QuantityField" T="double?" @bind-Value="expOrderRecords.CntrTareWt"
+                                          
                                           Variant="Variant.Outlined" Margin="Margin.Dense"
                                           Required RequiredError="" HideSpinButtons="true"/>
                     </MudTd>
@@ -304,11 +306,12 @@
                     @if (Value.Records!.Count > 0)
                     {
                         <td></td>
-                        <td colspan="3">
-                            <MudTd><h6>Total: containers: @Value.Records!.Count().ToString("000")</h6></MudTd>
+                        <td colspan="2">
+                            <MudTd><h6>Total containers: @Value.Records!.Count().ToString("000")</h6></MudTd>
                         </td>
+                        <MudTd Style="text-align:center"><h6>@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6></MudTd>
                         <td colspan="2"></td>
-                        <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.Quantity)).ToString("000 000")</h6></MudTd>
+                        <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.Quantity)).ToString()</h6></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt)).ToString("000 000.000")</h6></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.GrossWt)).ToString("000 000.000")</h6></MudTd>
                     }
@@ -342,6 +345,12 @@
     protected override async void OnInitialized()
     {
         CntrTypes = await _cntrTypeProvider.GetCntrTypes();
+
+        DocumentItems = Value!.Documents!.ToHashSet();        
+
+        // foreach (var document in DocumentItems)
+        //     foreach (var docRecord in document.Records)
+        //         DocumentRecordItems.Add(docRecord);
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -367,8 +376,8 @@
             {
                 DocumentItems.Add(document);
 
-                foreach (var docRecord in document.Records)
-                    DocumentRecordItems.Add(docRecord);
+                // foreach (var docRecord in document.Records)
+                //     DocumentRecordItems.Add(docRecord);
             }
         }
     }
@@ -377,7 +386,7 @@
     {
         await Task.Delay(50);
 
-        if (SelectedDocumentValues.Count > 0)
+        if (SelectedDocumentValues!.Count > 0)
         {
             foreach (var item in SelectedDocumentValues)
             {
@@ -456,7 +465,7 @@
                     foreach (var docRecord in document.Records)
                     {
                         docRecord.Document = document;
-                        DocumentRecordItems.Add(docRecord);
+                        // DocumentRecordItems.Add(docRecord);
                     }
                 }                
 
@@ -547,6 +556,7 @@
     bool MultiSelectionTreeItemData = false;
 
     private HashSet<DocumentEntity>? SelectedDocumentValues { get; set; }
+
     private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
 
     private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();

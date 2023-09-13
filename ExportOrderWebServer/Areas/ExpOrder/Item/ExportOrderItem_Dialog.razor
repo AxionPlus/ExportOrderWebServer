@@ -100,7 +100,6 @@
     {
         if (IsNewItem)
         {
-            //Item = new() { Carrier = new(), Documents = new List<DocumentEntity>(), Records = new List<ExportOrderRecord>() };
             Item = new() { Carrier = new(), VesselCall = new() { Vessel = new()} };
         }        
         else
@@ -127,9 +126,12 @@
                 if (!response.HasError)
                 {
                     IsNewItem = false;
+                    Id = Item!.Id;
+                    
                     await GetItem();
+
                     Snackbar.Add("Saved Successfully", Severity.Success);
-                    IsNewItem = true;   // DELETE
+                    //IsNewItem = true;   // DELETE
                 }
                 else
                     Snackbar.Add("No Success", Severity.Error);
@@ -147,7 +149,8 @@
             }
         else
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
-
+        
+        await InvokeAsync(StateHasChanged);
     }
 
     public async Task EditItem()

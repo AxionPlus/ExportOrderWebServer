@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230902074454_Initial")]
+    [Migration("20230913095314_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -493,11 +493,16 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<long?>("VesselCallId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CarrierId");
 
                     b.HasIndex("CreateUserId");
+
+                    b.HasIndex("VesselCallId");
 
                     b.ToTable("ExportOrders");
                 });
@@ -550,7 +555,6 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ETA")
@@ -894,9 +898,15 @@ namespace ExportOrderWebServer.Migrations
                         .WithMany()
                         .HasForeignKey("CreateUserId");
 
+                    b.HasOne("ExportOrderEntites.VesselCall.VesselCallEntity", "VesselCall")
+                        .WithMany("ExportOrders")
+                        .HasForeignKey("VesselCallId");
+
                     b.Navigation("Carrier");
 
                     b.Navigation("CreateUser");
+
+                    b.Navigation("VesselCall");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.ExportOrder.ExportOrderRecord", b =>
@@ -922,9 +932,7 @@ namespace ExportOrderWebServer.Migrations
                 {
                     b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("ExportOrderEntites.Catalog.TerminalCatalog", "LoadingTerminal")
                         .WithMany()
@@ -1036,6 +1044,11 @@ namespace ExportOrderWebServer.Migrations
             modelBuilder.Entity("ExportOrderEntites.ExportOrder.ExportOrderRecord", b =>
                 {
                     b.Navigation("Contents");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallEntity", b =>
+                {
+                    b.Navigation("ExportOrders");
                 });
 #pragma warning restore 612, 618
         }

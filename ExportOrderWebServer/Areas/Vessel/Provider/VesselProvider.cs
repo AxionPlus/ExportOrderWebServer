@@ -68,7 +68,7 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
+    public Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
     {
         throw new NotImplementedException();
     }
@@ -104,12 +104,12 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(VesselEntity item)
+    public Task<AppObjectResponse> RemoveItemAsync(VesselEntity item)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<string>> GetNames()
+    public Task<IEnumerable<string>> GetNames()
     {
         throw new NotImplementedException();
     }

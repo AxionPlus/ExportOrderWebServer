@@ -10,6 +10,7 @@
 </style>
 
 <MudForm @ref="@FilterForm">
+
     <div class="Container-item">
         <div class="container-content">
             <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await AddItem_Click(); })"
@@ -131,7 +132,7 @@
         if (MudDialog is not null)
             MudDialog.Close(DialogResult.Ok(id));
 
-        var parameters = new DialogParameters { ["Id"] = id };
+        var parameters = new DialogParameters { ["Id"] = id, ["IsNewItem"] = false };
         var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
         var dialog = await DialogService.ShowAsync<DocumentItem_Dialog>(null, parameters, options);
         var result = await dialog.Result;

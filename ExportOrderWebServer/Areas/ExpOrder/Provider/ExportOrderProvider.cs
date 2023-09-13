@@ -58,7 +58,9 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.ExportOrders.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            appObjResponse.Object = await db.ExportOrders.AsNoTracking().Include(x => x.Records)!.ThenInclude(c => c.Contents)
+                                                                        .Include(x => x.Documents)!.ThenInclude(dr => dr.Records)
+                                                                        .FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;
@@ -89,9 +91,14 @@ public class ExportOrderProvider : IExportOrderProvider
                 if (!string.IsNullOrEmpty(filter.CntrNum))
                     items = items.Where(s => s.Records!.FirstOrDefault()!.CntrNum == filter.CntrNum).ToList();
 
-                if (!string.IsNullOrEmpty(filter.Carrier))
-                    items = items.Where(s => s.Carrier.ShortName == filter.Carrier).ToList();
+                if (!string.IsNullOrEmpty(filter.Voyage))
+                    items = items.Where(s => s.VesselCall!.VoyageCarrier == filter.Voyage).ToList();
 
+                if (!string.IsNullOrEmpty(filter.VesselName))
+                    items = items.Where(s => s.VesselCall!.Vessel.Name == filter.VesselName).ToList();
+
+                if (!string.IsNullOrEmpty(filter.Carrier))
+                    items = items.Where(s => s.Carrier.FullName == filter.Carrier).ToList();
 
                 appObjResponse.Object = items.ToArray();
             }

@@ -2,10 +2,14 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IExportOrderProvider _exportOrderProvider
+@inject IVesselProvider _vesselProvider
+@inject IVesselCallProvider _vesselCallProvider
+@inject ICarrierProvider _carrierProvider
 
 <style></style>
 
 <MudForm @ref="@FilterForm">
+
     <div class="Container-item">
         <div class="container-content">
             <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await AddItem_Click(); })"
@@ -13,15 +17,39 @@
                 Add New
             </MudButton>
             <MudSpacer />
+            
             <MudTextField Class="TextField" Placeholder="Number" Style="width: 200px" @bind-Value="@Filter.ExportOrderNum"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
-            <MudTextField Class="TextField" Placeholder="Carrier" Style="width: 400px" @bind-Value="@Filter.Carrier"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+
+             <MudAutocomplete Class="Autocomplete" T="string" Style="width: 300px" Value="Filter.VesselName" SearchFunc="@SearchVessel"
+                              Label="Vessel"
+                              ValueChanged="(e)=> { Filter.VesselName = e; }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              CloseIcon="" OpenIcon=""
+                              ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
+
+            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 300px" Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+                              Label="Voyage" 
+                              ValueChanged="(e)=> { Filter.Voyage = e; }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              CloseIcon="" OpenIcon=""
+                              ResetValueOnEmptyText="true" Clearable />
+            <MudSpacer />
+
+            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 300px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
+                              Label="Carrier" 
+                              ValueChanged="(e)=> { Filter.Carrier= e; }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              CloseIcon="" OpenIcon=""
+                              ResetValueOnEmptyText="true" Clearable />
+            <MudSpacer />
+
             <MudTextField Class="TextField" Placeholder="Container" Style="width: 200px" @bind-Value="@Filter.CntrNum"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
+
             <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
                         Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
                 Search
@@ -44,6 +72,8 @@
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:100px">Number</MudTh>
             <MudTh Style="width:100px">Dated</MudTh>
+            <MudTh Style="width:300px">Voyage</MudTh>
+            <MudTh Style="width:300px">Vessel</MudTh>
             <MudTh Style="text-align:start">Carrier</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -55,6 +85,8 @@
             </MudTd>
             <MudTd>@context.Num</MudTd>
             <MudTd>@context.Dated.ToShortDateString()</MudTd>
+            <MudTd>@context.VesselCall!.VoyageCarrier</MudTd>
+            <MudTd>@context.VesselCall!.Vessel.Name</MudTd>
             <MudTd Style="text-align:start">@context.Carrier.FullName</MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -107,7 +139,7 @@
 
         DialogResult result = await dialog.Result;
 
-        if (result.Canceled)
+        if (!result.Canceled)
             if (Items!.Count() > 0)
                 await GetItems();
     }
@@ -117,13 +149,56 @@
         // if (MudDialog is not null)
         //     MudDialog.Close(DialogResult.Ok(id));
 
-        var parameters = new DialogParameters { ["Id"] = id };
-        var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+        DialogParameters parameters = new DialogParameters { ["Id"] = id };
+        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
         var dialog = await DialogService.ShowAsync<ExportOrderItem_Dialog>(null, parameters, options);
-        var result = await dialog.Result;
 
-        if (!result.Canceled)
-            await GetItems();
+        DialogResult result = await dialog.Result;
+
+        // if (!result.Canceled)
+        //     await GetItems();
     }
 
+    #region SEARCHERS
+
+    private async Task<IEnumerable<string>> SearchVessel(string value)
+    {
+        var result = await _vesselProvider.GetNamesEn();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    private async Task<IEnumerable<string>> SearchVoyage(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _vesselCallProvider.GetVoyagesCarrier();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchCarrier(string value)
+    {
+        var result = await _carrierProvider.GetNames();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    #endregion
 }

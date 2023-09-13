@@ -47,7 +47,7 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Documents.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            appObjResponse.Object = await db.Documents.AsNoTracking().Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == id);
         }
 
         return appObjResponse;
@@ -66,7 +66,7 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
 
-            var documents = await db.Documents.ToListAsync();
+            var documents = await db.Documents.Include(d => d.Records).ToListAsync();
 
             //var documentNum = parameters as string;
             //if (parameters.GetType() == typeof(string))

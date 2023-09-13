@@ -145,5 +145,14 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
+    public async Task<IEnumerable<string>> GetVoyagesCarrier()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+            return await db.VesselCalls.Select(s => s.VoyageCarrier!).ToListAsync();
+        }
+    }
+
     #endregion
 }

@@ -38,9 +38,8 @@
                         OnClick="@(async () => { await GetItems(); })">Search</MudButton>
             </div>
         </div>
-</MudForm>
 
-<div class="Container-table">
+    <div class="Container-table">
     @if (mudTable != null)
     {
         <div class="tableMenu">
@@ -89,6 +88,8 @@
 
     </MudTable>
 </div>
+
+</MudForm>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 

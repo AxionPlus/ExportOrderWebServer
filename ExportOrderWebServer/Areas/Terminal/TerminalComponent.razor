@@ -31,10 +31,9 @@
                         Variant="Variant.Filled" Color="Color.Secondary"
                         OnClick="@(async () => { await GetItems(); })">Search</MudButton>
          </div>
-     </div>
- </MudForm>
+     </div> 
 
- <div class="Container-table">
+    <div class="Container-table">
      @if (mudTable != null)
     {
         <div class="tableMenu">
@@ -71,6 +70,8 @@
 
     </MudTable>
 </div>
+
+</MudForm>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 

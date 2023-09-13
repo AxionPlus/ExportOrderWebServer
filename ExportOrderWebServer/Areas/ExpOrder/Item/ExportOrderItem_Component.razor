@@ -1,5 +1,4 @@
-﻿
-@inject ISnackbar Snackbar
+﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService;
 @inject IExportOrderProvider _exportOrderProvider
 @inject ICntrTypeProvider _cntrTypeProvider
@@ -33,6 +32,10 @@
         padding: 4px 4px 1px 4px;
     }
 
+    .tfoot {
+        color: #0a58ca;
+    }
+
     .TextField_Sum * .mud-input > input.mud-input-root-outlined {
         text-align: end;
     }
@@ -45,6 +48,10 @@
         text-align:center;
     }
 
+    .h6 {
+        margin-bottom: 2px;
+    }
+
 </style>
 
 @if (Value is not null)
@@ -54,32 +61,24 @@
         <div class="container-content">
             <MudTextField Class="TextField" Style="width: 150px; margin-right: 20px" Label="Number" @bind-Value="@Value!.Num"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                          Required RequiredError="" Clearable="IsNewItem" />
+                          Required RequiredError=""
+                          ReadOnly="!IsNewItem" Clearable="IsNewItem" />
 
             <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="@Value.Dated"
-                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="IsNewItem"
-                           DateFormat="dd.MM.yy" IconSize=Size.Small />
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           DateFormat="dd.MM.yy" IconSize=Size.Small
+                           ReadOnly="!IsNewItem" Clearable="IsNewItem" />
             <MudSpacer />
 
-            <MudTextField Class="TextField" Style="width: 300px; margin-right: 20px" @bind-Value="@Value!.VesselCall"
-                          Label="Vessel Call"
-                          Text="@Value.VesselCall.Vessel.Name & " >
+            <MudTextField Class="TextField" Style="width: 400px; margin-right: 20px" @bind-Value="@Value!.VesselCall!.Vessel.Name"
+                           Label="Vessel Call" Placeholder="Vessel Call"
+                           Text="@(Value.VesselCall!.Vessel.Name is not null ? Value.VesselCall!.Vessel.Name + " / " + Value.VesselCall.VoyageCarrier : "")"
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           Required RequiredError=""
+                           ReadOnly="!IsNewItem" Clearable="IsNewItem"
+                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Waves" OnAdornmentClick="GetVesselCall_Click" />
 
-            </MudTextField>
-
-            <MudAutocomplete T="VesselCallEntity" Style="width: 300px" @bind-Value="Value.VesselCall"
-                              ToStringFunc="@(e => e != null ? e.VoyageCarrier : "")"
-                              SearchFunc="@GetVesselCall_Click"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Required RequiredError=""
-                              CloseIcon="" OpenIcon=""
-                              ResetValueOnEmptyText="true"
-                              Placeholder="Vessel Call"
-                              MaxItems="20"
-                              IconSize="Size.Small"
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-
-            <MudAutocomplete T="CarrierCatalog" Style="width: 300px" @bind-Value="Value.Carrier"
+            <MudAutocomplete T="CarrierCatalog" Style="width: 350px" Label="Carrier" @bind-Value="Value.Carrier"
                              ToStringFunc="@(e => e != null ? e.FullName : "")"
                              SearchFunc="@SearchCarrier"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -91,8 +90,9 @@
                              IconSize="Size.Small"
                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
             <MudSpacer />
-
-            <h6>@Value.Status.ToString()</h6>
+            <div style="margin-right:20px">
+                <h6>@Value.Status.ToString()</h6>
+            </div>            
         </div>
     </div>
 
@@ -112,7 +112,7 @@
                         <MudSpacer />
                         <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="AddDocument_Click"></MudIconButton>
                         <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small"></MudIconButton>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="RemoveDocument"></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="RemoveDocument"></MudIconButton>
                     </div>
 
                     <MudPaper Width="450px" Elevation="0" Style="height:246px;overflow: auto;">
@@ -166,12 +166,10 @@
                 }
                 <br />
                 <h5>Consignees:</h5>
-                @* <div class="ma-0" style="min-height:100px;overflow: auto;"> *@
                 @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
                 {
                     @(consignee + " ; ");
-                }
-                @* </div> *@
+                }                
             </div>
         </div>
     </div>
@@ -305,11 +303,14 @@
                 <FooterContent>
                     @if (Value.Records!.Count > 0)
                     {
+                        <td></td>
                         <td colspan="3">
-                            <MudTd>
-                                <h6>Total: container records: @Value.Records!.Count().ToString("000")</h6>
-                            </MudTd>
+                            <MudTd><h6>Total: containers: @Value.Records!.Count().ToString("000")</h6></MudTd>
                         </td>
+                        <td colspan="2"></td>
+                        <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.Quantity)).ToString("000 000")</h6></MudTd>
+                        <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt)).ToString("000 000.000")</h6></MudTd>
+                        <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.GrossWt)).ToString("000 000.000")</h6></MudTd>
                     }
                 </FooterContent>                
             </MudTable>
@@ -510,19 +511,16 @@
 
 
     #region SEARCH
-    private async Task GetVesselCall_Click(string value)
+    private async Task GetVesselCall_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["SelectItem"] = true };
+        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
         var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
-        {
-            var _vesselCall = (VesselCallEntity)result.Data;
-
-            Value!.VesselCall = _vesselCall;
-            //Value.VesselCall.Vessel = _vesselCall.Vessel;
+        {            
+            Value!.VesselCall = (VesselCallEntity)result.Data;
         }
 
         await InvokeAsync(StateHasChanged);
@@ -548,7 +546,7 @@
 
     bool MultiSelectionTreeItemData = false;
 
-    private HashSet<DocumentEntity> SelectedDocumentValues { get; set; }
+    private HashSet<DocumentEntity>? SelectedDocumentValues { get; set; }
     private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
 
     private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();

@@ -70,7 +70,7 @@
 
                 <MudNumericField Class="wrapper-input fieldWt" HideSpinButtons="true" @bind-Value="ContainerContentItem!.NetWt" Label="NET" Variant="Variant.Outlined" Format="N3" MaxLength="9" />
                 <MudNumericField Class="wrapper-input fieldWt" HideSpinButtons="true" @bind-Value="ContainerContentItem!.GrossWt" Label="GROSS" Variant="Variant.Outlined" Format="N3" MaxLength="9" />
-                <MudNumericField Class="wrapper-input fieldWt" HideSpinButtons="true" @bind-Value="ContainerContentItem!.Volume" Label="VOLUME" Variant="Variant.Outlined" Format="N3" MaxLength="6" />
+                @* <MudNumericField Class="wrapper-input fieldWt" HideSpinButtons="true" @bind-Value="ContainerContentItem!.Volume" Label="VOLUME" Variant="Variant.Outlined" Format="N3" MaxLength="6" /> *@
                 <MudButton Variant="Variant.Filled" OnClick="AddContainerContent_Click">ADD</MudButton>
                 <MudButton Variant="Variant.Filled" OnClick="@(()=>{containerContent_Disable=false;})" Color="Color.Error">CANCEL</MudButton>
             </div>
@@ -102,7 +102,7 @@
                 <MudTd DataLabel="Nr">@context.DocumentRecord.CommodityHSCode</MudTd>
                 <MudTd DataLabel="Nr"><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.DocumentRecord.NetWt" Variant="Variant.Outlined"></MudTextField></MudTd>
                 <MudTd DataLabel="Nr"><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.DocumentRecord.GrossWt" Variant="Variant.Outlined"></MudTextField></MudTd>
-                <MudTd DataLabel="Nr"><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.DocumentRecord.Volume" Variant="Variant.Outlined"></MudTextField></MudTd>
+                @* <MudTd DataLabel="Nr"><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.DocumentRecord.Volume" Variant="Variant.Outlined"></MudTextField></MudTd> *@
 
             </RowTemplate>
         </MudTable>

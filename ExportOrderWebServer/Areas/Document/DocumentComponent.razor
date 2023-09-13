@@ -35,9 +35,8 @@
             </MudButton>
         </div>
     </div>
-</MudForm>
 
-<div class="Container-table">
+    <div class="Container-table">
     @if (mudTable != null)
     {
         <div class="tableMenu">
@@ -48,6 +47,7 @@
     }
     <MudTable Class="Table MultiSelection" @ref="mudTable" T="DocumentEntity" Items="@Items" @bind-SelectedItems="SelectedItems"
               MultiSelection="IsSelectable" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+
         <HeaderContent>
             <MudTh Style="width:30px">
                 @if (IsSelectable)
@@ -76,6 +76,8 @@
         <PagerContent></PagerContent>
     </MudTable>
 </div>
+
+</MudForm>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 

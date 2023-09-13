@@ -1,6 +1,4 @@
-﻿using ExportOrderEntites.Document;
-using Microsoft.EntityFrameworkCore;
-using static MudBlazor.CategoryTypes;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
 
@@ -140,6 +138,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 db.Entry(item).State = EntityState.Added;
                 db.Entry(item.Carrier).State = EntityState.Unchanged;
+                db.Entry(item.VesselCall!).State = EntityState.Unchanged;
 
                 // Documents
                 foreach (var document in item.Documents!)
@@ -165,7 +164,6 @@ public class ExportOrderProvider : IExportOrderProvider
                 string msg = ex.Message;
                 return appObjResponse;
             }
-
         }
 
         return appObjResponse;

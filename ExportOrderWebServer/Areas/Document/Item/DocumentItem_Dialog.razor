@@ -93,7 +93,8 @@
     {
         if (IsNewItem)
         {
-            Item = new() { Shipper = new(), Consignee = new(), Records = new List<DocumentRecord>() };
+            //Item = new() { Shipper = new(), Consignee = new(), Records = new List<DocumentRecord>() };
+            Item = new() { Shipper = new(), Consignee = new() };
         }
         else
         {

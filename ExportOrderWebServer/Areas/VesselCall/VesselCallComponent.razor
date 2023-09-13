@@ -15,6 +15,7 @@
  </style>
 
 <MudForm @ref="@FilterForm">
+
     <div class="Container-item">
         <div class="container-head"></div>
 
@@ -69,9 +70,8 @@
              </MudButton>
         </div>
     </div>
- </MudForm>
-
- <div class="Container-table">
+ 
+    <div class="Container-table">
      @if (mudTable != null)
     {
         <div class="tableMenu">
@@ -84,21 +84,25 @@
     <MudTable Class="Table" @ref="mudTable" Items="@Items" T="VesselCallEntity" Loading="IsLoadingData"
               Virtualize="true" RowsPerPage="20">    
         <HeaderContent>
-            <MudTh Style="width: 30px"></MudTh>
+            @if (!IsSelectable)
+            {
+                <MudTh Style="width: 30px"></MudTh>
+            }            
             <MudTh Style="width: 30px"></MudTh>
             <MudTh Style="width: 300px">Vessel</MudTh>
-            <MudTh Style="width: 300px">Voyage</MudTh>
-            <MudTh Style="width: 300px">POD</MudTh>
-            <MudTh Style="width: 300px">Terminal</MudTh>
+            <MudTh Style="width: 280px">Voyage</MudTh>
+            <MudTh Style="width: 280px">POD</MudTh>
+            <MudTh Style="width: 280px">Terminal</MudTh>
             <MudTh Style="width: 130px">ETA</MudTh>
             <MudTh Style="width: 130px">ETS</MudTh>
+            <MudTh Style="width: 30px"></MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            @if (!SelectItem)
+            @if (!IsSelectable)
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
+                <MudTd Style="margin-right:20px"><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>                
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })"></MudIconButton></MudTd>
             }
             else
             {
@@ -110,6 +114,9 @@
             <MudTd>@context.LoadingTerminal.Name</MudTd>
             <MudTd>@(context.ETA.HasValue ? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
             <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton>
+            </MudTd>
             <MudTd></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -117,13 +124,17 @@
 
 </div>
 
+</MudForm>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
+
     @code {
     private MudForm? FilterForm;
     private MudTable<VesselCallEntity>? mudTable;
-    
+
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public bool SelectItem { get; set; } = false;
+    public bool IsSelectable { get; set; } = false;
 
     public IEnumerable<VesselCallEntity>? Items { get; set; } = new List<VesselCallEntity>();
     private FilterParameters Filter { get; set; } = new();
@@ -195,11 +206,15 @@
         // await GetItems();
     }
 
+    private async Task AddExportOrder_Click(long id)
+    {
+        
+    }
+
+
     private async Task SelectItem_Click(VesselCallEntity item)
     {
         await Task.Delay(50);
-
-
         MudDialog!.Close(item);
     }
 

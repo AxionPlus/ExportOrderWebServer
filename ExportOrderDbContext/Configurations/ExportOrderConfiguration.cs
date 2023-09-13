@@ -17,28 +17,24 @@ public class ExportOrderConfiguration : IEntityTypeConfiguration<ExportOrderEnti
         //c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c);
 
 
-        builder
-                 .Property(s => s.Version)
-                 .HasColumnName("xmin")
-                 .HasColumnType("xid")
-                 .HasConversion(converter);
+        builder.Property(s => s.Version)
+               .HasColumnName("xmin")
+               .HasColumnType("xid")
+               .HasConversion(converter);
 
-        builder.Navigation(s => s.Records)
-               .AutoInclude();
+        builder.Navigation(s => s.Records).AutoInclude();
 
-        builder.Navigation(s => s.Documents)
-               .AutoInclude();
+        builder.Navigation(s => s.Documents).AutoInclude();
 
+        builder.Navigation(s => s.Carrier).AutoInclude();
 
-        builder.Navigation(s => s.Carrier)
-               .AutoInclude();
+        builder.Navigation(s => s.VesselCall).AutoInclude();
 
 
         builder.HasMany(s=>s.Documents).WithMany(s=>s.ExportOrders).UsingEntity(j => j.ToTable("ExportOrders_Documents"));
-
-
     }
 }
+
 
 public class ExportOrderRecordConfiguration : IEntityTypeConfiguration<ExportOrderRecord>
 {

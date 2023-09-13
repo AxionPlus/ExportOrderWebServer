@@ -41,9 +41,5 @@ public class DocumentConfiguration : IEntityTypeConfiguration<DocumentEntity>
 
 
         builder.Navigation(s => s.CreateUser).AutoInclude();  // ???
-
-
-
-
     }
 }

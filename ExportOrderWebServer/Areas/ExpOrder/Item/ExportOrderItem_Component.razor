@@ -146,7 +146,7 @@
                                         </Columns>
                                     </MudDataGrid> *@
                                     <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
-                                                Items="context.Records.Where(x => x.Document.Id == context.Id)">
+                                              Items="context.Records.Where(x => x.Document.Id == context.Id)">
                                               @* Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)" *@
                                     
                                         <RowTemplate>

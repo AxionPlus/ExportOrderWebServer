@@ -4,4 +4,5 @@ namespace ExportOrderEntites;
 
 public class ApplicationUser : IdentityUser
 {
+
 }

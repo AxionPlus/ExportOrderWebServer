@@ -58,9 +58,11 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.ExportOrders.AsNoTracking().Include(x => x.Records)!.ThenInclude(c => c.Contents)
+            appObjResponse.Object = await db.ExportOrders.AsNoTracking().Include(s => s.Records).ThenInclude(c => c.Contents).ThenInclude(dr => dr.DocumentRecord).ThenInclude(d => d.Document)
                                                                         .Include(x => x.Documents)!.ThenInclude(dr => dr.Records)
                                                                         .FirstOrDefaultAsync(s => s.Id == id);
+            //appObjResponse.Object = await db.ExportOrders.Include(x => x.Documents)!.ThenInclude(dr => dr.Records)
+            //                                             .FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;

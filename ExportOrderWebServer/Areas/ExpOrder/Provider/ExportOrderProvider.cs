@@ -1,4 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ExportOrderEntites.DTO;
+using ExportOrderEntites.ExportOrder;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using static MudBlazor.Colors;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
 
@@ -13,42 +18,6 @@ public class ExportOrderProvider : IExportOrderProvider
         _dbContext = dbContext;
     }
 
-    public async Task<AppObjectResponse> AddUploadedFileItemsAsync(IEnumerable<ExportOrderRecord> items)
-    {
-        appObjResponse = new();
-
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            try
-            {
-                var db = await _db;
-
-                //var cntrTypes = await db.ContainerTypeSize.AsNoTracking().ToArrayAsync();
-                
-
-                foreach (var exportOrderRecord in items)
-                {
-                    //var cntrType = cntrTypes.FirstOrDefault(s => s.Normolize!.Replace(" ", "") == exportOrderRecord.CntrType.Normolize);
-
-                    db.Entry(exportOrderRecord).State = EntityState.Added;
-
-                    foreach (var cntrContent in exportOrderRecord.Contents)
-                        db.Entry(cntrContent).State = EntityState.Added;
-
-                    var bug = db.ChangeTracker.DebugView.LongView;
-
-                    await db.SaveChangesAsync();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                var message = ex.Message;
-            }
-
-            return appObjResponse;
-        }
-    }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
@@ -58,14 +27,44 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.ExportOrders.AsNoTracking().Include(s => s.Records).ThenInclude(c => c.Contents).ThenInclude(dr => dr.DocumentRecord).ThenInclude(d => d.Document)
+            appObjResponse.Object = await db.ExportOrders.AsNoTracking().Include(s => s.Records)!.ThenInclude(c => c.Contents).ThenInclude(dr => dr.DocumentRecord).ThenInclude(d => d.Document)
                                                                         .Include(x => x.Documents)!.ThenInclude(dr => dr.Records)
                                                                         .FirstOrDefaultAsync(s => s.Id == id);
-            //appObjResponse.Object = await db.ExportOrders.Include(x => x.Documents)!.ThenInclude(dr => dr.Records)
-            //                                             .FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;
+    }
+
+    public async Task<ExportOrderDTO> GetItemDTOAsync(long id)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
+                                            .Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Name)
+                                            .Include(x => x.Documents)!.ThenInclude(d => d.Shipper)
+                                            .Include(x => x.Documents)!.ThenInclude(d => d.Consignee)
+                                            .Include(x => x.Documents)!.ThenInclude(d => d.Records).ThenInclude(dr => dr.Document)
+                                            .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
+                                            .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord)
+                                            .AsNoTracking()
+                                            .Select(source => new ExportOrderDTO()
+                                            {
+                                                Id = source.Id,
+                                                Num = source.Num,
+                                                Dated = source.Dated,
+                                                VesselName = source.VesselCall!.Vessel.Name + " (" + source.VesselCall.Vessel.Flag + ")",
+                                                Voyage = source.VesselCall.VoyageCarrier,
+                                                DateOfLoading = source.VesselCall.ETA,
+                                                POD = source.VesselCall.POD.Name,
+                                                Shipper = source.Shippers.ToString(),
+                                                Consignee = source.Consignees.ToString(),
+                                                _ExportOrderRecords = eoRecords(source.Records!)
+                                            })
+                                            .FirstOrDefaultAsync(x => x.Id == id);
+            return Item!;
+        }
     }
 
     public Task<AppObjectResponse> GetItemsAsync()
@@ -182,4 +181,87 @@ public class ExportOrderProvider : IExportOrderProvider
     {
         throw new NotImplementedException();
     }
+
+    #region AUXIALARY
+
+    Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
+    {
+        var eoRecordsDTO = new List<ExportOrderRecordDTO>();
+
+        int index = 0;
+
+        foreach (var record in _eoRecords)
+        {
+            foreach (var content in record.Contents)
+            {
+                eoRecordsDTO.Add(new ExportOrderRecordDTO()
+                {
+                    IndexExpRecord = index++,
+                    Cntr = record.CntrNum,
+                    CntrType = record.CntrType.Normolize!,
+                    CntrTareWt = record.CntrTareWt,
+                    Seal = record.Seal,
+
+                    Quantity = content.Quantity,
+                    NetWt = content.NetWt,
+                    GrossWt = content.GrossWt,
+
+                    DocumentName = content.DocumentRecord.Document.Name,
+                    CommodityName = content.DocumentRecord.CommodityName,
+                    HSCode = content.DocumentRecord.CommodityHSCode,
+                    //IMO = content.DocumentRecord.IMO,
+                    //UNNO = content.DocumentRecord.UNNO,
+                    //IsIMO = content.DocumentRecord.IsIMO,
+                });
+            }
+        }
+
+        return eoRecordsDTO.ToArray();
+    };
+
+
+    // DELETE
+    Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> expOrderRecords = (_eoRecords) =>
+    {
+        var eoRecordsDTO = new List<ExportOrderRecordDTO>();
+
+        var containerContentsDTO = new List<ContainerContentDTO>();
+
+        int index = 0;
+
+        foreach (var record in _eoRecords)
+        {
+            foreach (var content in record.Contents)
+            {
+                containerContentsDTO.Add(new ContainerContentDTO()
+                {
+                    Quantity = content.Quantity,
+                    NetWt = content.NetWt,
+                    GrossWt = content.GrossWt,
+                    CommodityName = content.DocumentRecord.CommodityName,
+                    HSCode = content.DocumentRecord.CommodityHSCode,
+                    //IMO = content.DocumentRecord.IMO,
+                    //UNNO = content.DocumentRecord.UNNO,
+                    //IsIMO = content.DocumentRecord.IsIMO,
+                });
+            }
+
+            eoRecordsDTO.Add(new ExportOrderRecordDTO()
+            {
+                IndexExpRecord = index++,
+                Cntr = record.CntrNum,
+                CntrType = record.CntrType.Normolize!,
+                CntrTareWt = record.CntrTareWt,
+                Seal = record.Seal,
+                //ContentsDTO = containerContentsDTO
+            });            
+        }
+
+        return eoRecordsDTO.ToArray();
+    };
+
+
+
+    #endregion
+
 }

@@ -23,6 +23,10 @@ public class DocumentRecord
     [Required]
     public double GrossWt { get; set; }
     public double Volume { get; set; }
+    //public string? IMO { get; set; }
+    //public string? UNNO { get; set; }
+    //public bool? IsIMO { get; set; }
+
 
     [JsonIgnore]
     public DocumentEntity Document { get; set; }

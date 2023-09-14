@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataSet\**" />
+    <Content Remove="DataSet\**" />
+    <EmbeddedResource Remove="DataSet\**" />
+    <None Remove="DataSet\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Reports\ExportOrder.rdlc" />
   </ItemGroup>
 
@@ -58,10 +65,6 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DataSet\" />
   </ItemGroup>
 
 </Project>

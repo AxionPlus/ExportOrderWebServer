@@ -1,5 +1,8 @@
 ﻿@inject ISnackbar Snackbar
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
 @inject IExportOrderProvider _exportOrderProvider
 
 <style></style>
@@ -127,7 +130,7 @@
                 {
                     IsNewItem = false;
                     Id = Item!.Id;
-                    
+
                     await GetItem();
 
                     Snackbar.Add("Saved Successfully", Severity.Success);
@@ -149,7 +152,7 @@
             }
         else
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
-        
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -165,4 +168,15 @@
         MudDialog!.Close();
     }
 
+    private async Task ViewReport_Click(long id)
+    {
+        await Form!.Validate();
+
+        if (!Form.IsValid)
+            return;
+
+        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReport?Id={id}";
+        await JSRuntime.InvokeVoidAsync("open", path);
+
+    }
 }

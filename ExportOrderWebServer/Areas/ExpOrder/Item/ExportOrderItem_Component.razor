@@ -146,8 +146,8 @@
                                         </Columns>
                                     </MudDataGrid> *@
                                     <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
-                                              Items="context.Records.Where(x => x.Document.Id == context.Id)">
-                                              @* Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)" *@
+                                              Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)" >
+                                              @* Items="context.Records.Where(x => x.Document.Id == context.Id)" *@
                                     
                                         <RowTemplate>
                                             <MudTd Style="width: 30px">@DocRecords.Seq</MudTd>
@@ -348,9 +348,9 @@
 
         DocumentItems = Value!.Documents!.ToHashSet();        
 
-        // foreach (var document in DocumentItems)
-        //     foreach (var docRecord in document.Records)
-        //         DocumentRecordItems.Add(docRecord);
+        foreach (var document in DocumentItems)
+            foreach (var docRecord in document.Records)
+                DocumentRecordItems.Add(docRecord);
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -376,8 +376,8 @@
             {
                 DocumentItems.Add(document);
 
-                // foreach (var docRecord in document.Records)
-                //     DocumentRecordItems.Add(docRecord);
+                foreach (var docRecord in document.Records)
+                    DocumentRecordItems.Add(docRecord);
             }
         }
     }
@@ -465,7 +465,7 @@
                     foreach (var docRecord in document.Records)
                     {
                         docRecord.Document = document;
-                        // DocumentRecordItems.Add(docRecord);
+                        DocumentRecordItems.Add(docRecord);
                     }
                 }                
 
@@ -476,14 +476,12 @@
                 Value!.Records = records;
                 Value.Documents = documents;
 
-                //await AddUploadedItems(Value);
-
                 await ValueChanged.InvokeAsync(Value);
             }
         }
     }
 
-    private async Task AddUploadedItems(ExportOrderEntity item)      // Replaced by SaveExportOrder
+    private async Task AddUploadedItems(ExportOrderEntity item)      // Replaced by SaveExportOrder [DELETE]
     {
         await Form!.Validate();
 

@@ -1,9 +1,10 @@
 ﻿@inject ISnackbar Snackbar
 @inject AuthenticationStateProvider authenticationStateProvider
-@inject NavigationManager Navigation
-@inject HttpClient Http
-@inject IJSRuntime JSRuntime
 @inject IExportOrderProvider _exportOrderProvider
+
+@* @inject NavigationManager Navigation
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime *@
 
 <style></style>
 
@@ -168,15 +169,4 @@
         MudDialog!.Close();
     }
 
-    private async Task ViewReport_Click(long id)
-    {
-        await Form!.Validate();
-
-        if (!Form.IsValid)
-            return;
-
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReport?Id={id}";
-        await JSRuntime.InvokeVoidAsync("open", path);
-
-    }
 }

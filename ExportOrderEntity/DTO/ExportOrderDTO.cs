@@ -6,6 +6,8 @@ public class ExportOrderDTO
 {
     [Key]
     public long Id { get; set; }
+
+#pragma warning disable CS8618
     public string? Num { get; set; }
     public DateTime? Dated { get; set; }
     public string? VesselName { get; set; }
@@ -13,11 +15,11 @@ public class ExportOrderDTO
     public DateTime? DateOfLoading { get; set; }
     public string? POL { get; set; } = "Новороссийск, Россия";    
     public string? POD { get; set; }
-    public string? Shipper { get; set; }
-    public string? Consignee { get; set; }
-
+    //public string? Shipper { get; set; }
+    //public string? Consignee { get; set; }
+    public string? Person { get; set; } = "Д.В. Меркульцев т. +7 918 6624251";
 
     //public IEnumerable<DocumentDTO>? _Documents { get; set; } = new List<DocumentDTO>();
-    public IEnumerable<ExportOrderRecordDTO>? _ExportOrderRecords { get; set; } = new List<ExportOrderRecordDTO>();
+    public IEnumerable<ExportOrderRecordDTO>? _ExportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
 
 }

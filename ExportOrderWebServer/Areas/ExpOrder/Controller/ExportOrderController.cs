@@ -47,15 +47,22 @@ public class ExportOrderController : ControllerBase
             #region DATA SOURCE
 
             var dsItem = new List<ExportOrderDTO>() { Item };
-            
+            var dsShippers = Item._ExportOrderRecordsDTO!.GroupBy(s => s.Shipper);
+            var dsConsignees = Item._ExportOrderRecordsDTO!.GroupBy(s => s.Consignee);
+            var dsCommodities = Item._ExportOrderRecordsDTO?.GroupBy(r => r.CommodityName);
+            var dsDocuments = Item._ExportOrderRecordsDTO?.GroupBy(r => r.DocumentName);
+
+            localReport.AddDataSource("dsItem", Item);
+            localReport.AddDataSource("dsRecords", Item?._ExportOrderRecordsDTO!.ToArray());            
+            localReport.AddDataSource("dsShippers", dsShippers);
+            localReport.AddDataSource("dsConsignees", dsConsignees);
+            localReport.AddDataSource("dsCommmodities", dsCommodities);
+            localReport.AddDataSource("dsDocuments", dsDocuments);
+
             //var dsAgreement = new List<AgreementCustomer>() { Invoice!.Agreement! };
             //var dsCustomer = new List<ContractorEntity>() { Invoice.Agreement?.Contractor! };
             //var dsCustomerAddress = new List<ContractorAddressDetail>() { Invoice.Agreement?.Contractor?.AddressDetails! };
             //var dsMyCompany = new List<MyCompanyEntity>() { Invoice.MyCompany };
-
-            localReport.AddDataSource("dsItem", dsItem);
-            localReport.AddDataSource("dsItemRecords", Item?._ExportOrderRecords!.ToArray());
-
 
             //localReport.AddDataSource("dsAgreement", dsAgreement.ToArray());
             //localReport.AddDataSource("dsCustomer", dsCustomer.ToArray());

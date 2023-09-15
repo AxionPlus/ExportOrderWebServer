@@ -8,13 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="DataSet\**" />
-    <Content Remove="DataSet\**" />
-    <EmbeddedResource Remove="DataSet\**" />
-    <None Remove="DataSet\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="Reports\ExportOrder.rdlc" />
   </ItemGroup>
 
@@ -65,6 +58,22 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DataSet\DS_ExportOrder.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DS_ExportOrder.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DataSet\DS_ExportOrder.xsd">
+      <SubType>Designer</SubType>
+      <LastGenOutput>DS_ExportOrder.Designer.cs</LastGenOutput>
+      <Generator>MSDataSetGenerator</Generator>
+    </None>
   </ItemGroup>
 
 </Project>

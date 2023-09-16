@@ -47,10 +47,15 @@ public class ExportOrderController : ControllerBase
             #region DATA SOURCE
 
             var dsItem = new List<ExportOrderDTO>() { Item };
-            var dsShippers = Item._ExportOrderRecordsDTO!.GroupBy(s => s.Shipper);
-            var dsConsignees = Item._ExportOrderRecordsDTO!.GroupBy(s => s.Consignee);
-            var dsCommodities = Item._ExportOrderRecordsDTO?.GroupBy(r => r.CommodityName);
-            var dsDocuments = Item._ExportOrderRecordsDTO?.GroupBy(r => r.DocumentName);
+            
+            var dsShippers = Item._Documents!.GroupBy(d => d.Shipper);
+            var dsConsignees = Item._Documents!.GroupBy(d => d.Consignee);
+            var dsCommodities = Item._Documents?.GroupBy(d => d.CommodityName);
+
+            var dsDocuments = Item._Documents?.GroupBy(d => d.DocumentName);
+
+
+
 
             localReport.AddDataSource("dsItem", Item);
             localReport.AddDataSource("dsRecords", Item?._ExportOrderRecordsDTO!.ToArray());            

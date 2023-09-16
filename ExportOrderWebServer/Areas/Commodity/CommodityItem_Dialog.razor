@@ -5,7 +5,7 @@
 @if (Item is not null)
 {
     <MudContainer MaxWidth="MaxWidth.Large">
-        <MudForm @ref="@Form">
+        <MudForm @ref="@Form" Disabled="!IsNewItem">
             <div class="Container-item">
                 <div class="container-head"></div>
                 <div class="container-content">
@@ -13,8 +13,7 @@
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
                                   Validation="HSCodeValidation"
                                   MaxLength="10" Mask="@( IsNewItem? new PatternMask("0000000000") : null)"
-                                  AutoFocus="true"
-                                  Immediate="true"
+                                  AutoFocus="true" Immediate="true"
                                   Required RequiredError=""
                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                     <MudSpacer/>
@@ -32,7 +31,7 @@
                                   Required RequiredError=""
                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                     <MudSpacer/>
-                     <MudTextField T="string" Style="width: 400px; margin-left: 10px" Label="Name En" Text="@Item.EngName"
+                    <MudTextField T="string" Style="width: 400px; margin-left: 10px" Label="Name En" Text="@Item.EngName"
                                    TextChanged="(e)=> { Item.EngName = e.ToUpper(); StateHasChanged();}"
                                    Variant="Variant.Outlined" Margin="Margin.Dense"
                                    Lines="3"
@@ -44,9 +43,27 @@
                                Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" >
                          Clear
                     </MudButton>
+                </div>
+                 <div class="container-content">
+                     <MudTextField T="string" Style="width:195px; margin-right:10px" Label="IMO" @bind-Value="@Item.IMO"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   MaxLength="3" Mask="@( IsNewItem? new PatternMask("0.0") : null)"
+                                   Required RequiredError=""
+                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                     <MudTextField T="string" Style="width:195px" Label="UNNO" @bind-Value="@Item.UNNO"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   MaxLength="4" Mask="@( IsNewItem? new PatternMask("0000") : null)"
+                                   Required RequiredError=""
+                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                    <MudSpacer />
+                    <div class="wrapper-checkBox" style="width:400px">
+                         <MudCheckBox @bind-Checked="@Item.IsIMO"></MudCheckBox>
+                    </div>
+                    <MudSpacer />
+                    <div style="width:100px"></div>
                  </div>
-             </div>
-         </MudForm>
+            </div>
+        </MudForm>
     </MudContainer>
 }
 

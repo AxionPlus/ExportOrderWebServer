@@ -227,14 +227,14 @@
             switch (_documentCustomer)
             {
                 case "Shipper":
-                    Value.Shipper!.Name = customer.Name;
+                    Value!.Shipper!.Name = customer.Name;
                     Value.Shipper!.EngName = customer.EngName;
                     Value.Shipper!.CountryRUS = customer.Country.RUS;
                     Value.Shipper!.CountryENG = customer.Country.ENG;
                     break;
 
-                case "Consignee":
-                    Value.Consignee!.Name = customer.Name;
+                case "Consignee":                    
+                    Value!.Consignee!.Name = customer.Name;
                     Value.Consignee!.EngName = customer.EngName;
                     Value.Consignee!.CountryRUS = customer.Country.RUS;
                     Value.Consignee!.CountryENG = customer.Country.ENG;
@@ -260,6 +260,9 @@
             documentRecord.CommodityName = commodity.Name;
             documentRecord.CommodityEngName = commodity.EngName;
             documentRecord.CommodityHSCode = commodity.HSCode;
+            documentRecord.IMO = commodity.IMO;
+            documentRecord.UNNO = commodity.UNNO;
+            documentRecord.IsIMO = commodity.IsIMO;
         }
 
         await InvokeAsync(StateHasChanged);

@@ -101,7 +101,7 @@ public class ExcelService : IDisposable
 
                     var content = new ContainerContent()
                     {
-                        Quantity = int.TryParse(record[colPackageQty], out int _pkgQty) ? _pkgQty : 0,
+                        Quantity = uint.TryParse(record[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
                         NetWt = double.TryParse(record[colNet], out double _nwt) ? _nwt : 0,
                         GrossWt = double.TryParse(record[colGross], out double _gwt) ? _gwt : 0,
                         DocumentRecord = await _documentProvider.GetDocumentRecordAsync(record[colDoc], cargoIndex)

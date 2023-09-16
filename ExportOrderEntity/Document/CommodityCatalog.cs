@@ -12,4 +12,7 @@ public class CommodityCatalog : CatalogEntity
     [Required]
     [MaxLength(10)]
     public string HSCode { get; set; }
+    public string? IMO { get; set; }
+    public string? UNNO { get; set; }
+    public bool? IsIMO { get; set; } = false;
 }

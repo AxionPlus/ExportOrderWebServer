@@ -9,7 +9,7 @@ public class ContainerContentDTO
 {
     [Key]
     public uint Id { get; set; }
-    public int Quantity { get; set; }
+    public uint Quantity { get; set; }
     public double NetWt { get; set; }
     public double GrossWt { get; set; }
 

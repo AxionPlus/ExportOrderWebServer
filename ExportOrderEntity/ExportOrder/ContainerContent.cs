@@ -12,7 +12,7 @@ public class ContainerContent
     [Key]
     public long Id { get; set; }
 #pragma warning disable CS8618
-    public int Quantity { get; set; }
+    public uint Quantity { get; set; }
     public double NetWt { get; set; }
     public double GrossWt { get; set; }
     public double Volume { get; set; }

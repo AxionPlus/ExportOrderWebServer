@@ -18,15 +18,16 @@ public class DocumentRecord
 
     [MaxLength(10)]
     public string? CommodityHSCode { get; set; }
+    public string? IMO { get; set; }
+    public string? UNNO { get; set; }
+    public bool? IsIMO { get; set; }
+
     [Required]
     public double NetWt { get; set; }
     [Required]
     public double GrossWt { get; set; }
     public double Volume { get; set; }
-    //public string? IMO { get; set; }
-    //public string? UNNO { get; set; }
-    //public bool? IsIMO { get; set; }
-
+    
 
     [JsonIgnore]
     public DocumentEntity Document { get; set; }

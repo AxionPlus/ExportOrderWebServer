@@ -15,7 +15,7 @@ public class ExportOrderRecordDTO
     public double? CntrTareWt { get; set; }
     public string Seal { get; set; }
 
-    public int Quantity { get; set; }       // change to < uint >
+    public uint Quantity { get; set; }
     public double NetWt { get; set; }
     public double GrossWt { get; set; }
 
@@ -32,5 +32,5 @@ public class ExportOrderRecordDTO
     //public IEnumerable<ContainerContentDTO>? ContentsDTO { get; set; } = new List<ContainerContentDTO>();
 
 
-    public ExportOrderEntity? ExportOrder { get; set; }  // ???
+    public ExportOrderDTO? exportOrderDTO { get; set; }  // ???
 }

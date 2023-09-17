@@ -14,5 +14,5 @@ public class CommodityCatalog : CatalogEntity
     public string HSCode { get; set; }
     public string? IMO { get; set; }
     public string? UNNO { get; set; }
-    public bool? IsIMO { get; set; } = false;
+    public bool IsIMO { get; set; } = false;
 }

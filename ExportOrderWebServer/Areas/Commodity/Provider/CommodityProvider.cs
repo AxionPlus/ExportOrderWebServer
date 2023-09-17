@@ -48,11 +48,11 @@ public class CommodityProvider : ICommodityProvider
         {
             var db = await _db;
 
-            var Commodities = await db.Commodities.ToListAsync();
-
             if (parameters.GetType() == typeof(FilterParameters))
             {
                 var filter = (FilterParameters)parameters;
+
+                var Commodities = await db.Commodities.ToListAsync();
 
                 if (!string.IsNullOrEmpty(filter.HScode))
                     Commodities = Commodities.Where(s => s.HSCode == filter.HScode).ToList();
@@ -62,9 +62,12 @@ public class CommodityProvider : ICommodityProvider
 
                 if (!string.IsNullOrEmpty(filter.NameEn))
                     Commodities = Commodities.Where(s => s.EngName == filter.NameEn).ToList();
-            }
 
-            appObjResponse.Object = Commodities.ToArray();
+                if (filter.IsIMO.HasValue)
+                    Commodities = Commodities.Where(s => s.IsIMO == filter.IsIMO).ToList();
+
+                appObjResponse.Object = Commodities.ToArray();
+            }
 
             return appObjResponse;
         }

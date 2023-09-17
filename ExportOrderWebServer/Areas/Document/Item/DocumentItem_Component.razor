@@ -3,6 +3,7 @@
 @inject IDialogService DialogService;
 
 <style>
+
     .Table * .mud-table-cell {
         padding:4px;
     }
@@ -10,18 +11,39 @@
     .GoodMeasures {        
         width: 450px;
         display: flex;
-        padding-left: 300px;
-    }
+        flex-direction: row-reverse;
+    }    
 
-        .GoodMeasures > .numField_Label {
-            width:50px; margin-top:4px; margin-bottom:unset
+    .GoodWeight {
+        display: flex;
+        margin-inline: 20px;
+    }
+        .GoodWeight > .numField_Label {
+            width: 40px;
+            margin: 4px;
+            text-align: end;
         }
 
+        .GoodWeight * .mud-input.mud-input-outlined {
+            width: 100px;
+        }
 
-    .GoodMeasures * .mud-input.mud-input-outlined {
-        width: 100px;
-    } 
+    .IMOWeight {
+        display: flex;
+        margin-inline-start: 20px;
+    }
 
+        .IMOWeight> .numField_Label {
+            width:40px; margin:4px; text-align:end;
+        }
+        
+        .IMOWeight * .mud-input.mud-input-outlined {
+            width: 50px;
+        }
+
+    
+
+        
     .mud-input-control.wrapper-input.NoHeader {
         margin-top: 1px;
     }
@@ -98,26 +120,33 @@
                             <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddRecord_Click" Size="Size.Small"></MudIconButton>
                         </div>
                     </MudTh>
-                    <MudTh Style="width:45px;">SEQ</MudTh>
+                    <MudTh Style="width:35px;"></MudTh>
+                    <MudTh Style="width:40px;">SEQ</MudTh>
                     <MudTh Style="width:140px;">HS CODE</MudTh>
-                    <MudTh Style="width:460px;">COMMODITY NAME</MudTh>
-                    <MudTh Style="width:460px;">ENGLISH  </MudTh>
-                    <MudTh Style="width:40px;"></MudTh>
-                    <MudTh Style="width:40px;"></MudTh>
+                    <MudTh Style="width:440px;">COMMODITY NAME</MudTh>
+                    <MudTh Style="width:440px;">ENGLISH </MudTh>
+                    <MudTh Style="width:50px;">Is IMO</MudTh>
+                    <MudTh></MudTh>
                 </HeaderContent>
 
                 <RowTemplate>
                     <MudTd>
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{ await RemoveRecord(context);})"
-                                        Color="Color.Error" Size="Size.Small" />
+                                       Color="Color.Error" Size="Size.Small" />
                     </MudTd>
                     <MudTd>
-                        <h6>
+                         <div class="controlIconButtons">
+                             <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(context.IsShowWT_Details ? "transform: rotate(180deg);" : "")"
+                                            OnClick="() => { context.IsShowWT_Details = !context.IsShowWT_Details; }" Size="Size.Small"></MudIconButton>
+                         </div>
+                    </MudTd>
+                    <MudTd>
+                        @* <h6> *@
                             @context.Seq.ToString("000")
-                        </h6>
+                        @* </h6> *@
                     </MudTd>
                     <MudTd>
-                        <div class="wrapper-input Dense EventType HScode">
+                        <div class="wrapper-input">
                             <MudTextField Style="width: 130px" @bind-Value="@context.CommodityHSCode"
                                             Mask="@(new PatternMask("0000000000"))"
                                             MaxLength="10" Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -129,49 +158,71 @@
                         </div>
                     </MudTd>
                     <MudTd>
-                        <div class="wrapper-input Dense EventType">
-                            <MudTextField T="string" Style="width: 450px" Value="@context.CommodityName"                                    
+                        <div class="wrapper-input">
+                             <MudTextField T="string" Style="width: 440px" Value="@context.CommodityName"
                                           ValueChanged="@((e)=>{context.CommodityName =e.ToUpper();})"
-                                          Lines=2 Variant="Variant.Outlined" Required RequiredError="" Immediate />
+                                          Lines=2 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                          Required RequiredError="" Immediate />
                         </div>
                     </MudTd>
                     <MudTd>
-                        <div class="wrapper-input Dense EventType">
-                            <MudTextField T="string" Style="width: 450px" Value="@context.CommodityEngName"
+                        <div class="wrapper-input">
+                             <MudTextField T="string" Style="width: 440px" Value="@context.CommodityEngName"
                                           ValueChanged="@((e)=>{context.CommodityEngName =e.ToUpper();})"
-                                          Lines=2 Variant="Variant.Outlined" Required RequiredError="" Immediate />
+                                          Lines=2 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                          Required RequiredError="" Immediate />
                         </div>
                     </MudTd>
                     <MudTd>
-                        <div class="controlIconButtons">
+                        @* <div class="controlIconButtons"> *@
                             <div class="wrapper-checkBox">
-                                <MudCheckBox @bind-Checked="@context.IsShowWT_Details"></MudCheckBox>
-                            </div>
+                                 @* <MudCheckBox @bind-Checked="@context.IsShowWT_Details"></MudCheckBox> *@
+                                <MudCheckBox @bind-Checked="@context.IsIMO"></MudCheckBox>
+                            @* </div> *@
                         </div>
                     </MudTd>
                     <MudTd></MudTd>
                 </RowTemplate>
 
                 <ChildRowContent>
-                    <MudTr Class=@(!context.IsShowWT_Details ? "d-none" : "splitRow")>
-                        <td colspan="4" />
-                        <td style="width:450px">
-                            <div class="GoodMeasures">
-                                <div class="numField_Label">Net</div>                                    
-                                <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt"
-                                                    Variant="Variant.Outlined" MaxLength="10"
-                                                    Format="N3" HideSpinButtons="true"  />
-                            </div>
-                            <div class="GoodMeasures">
-                                <div class="numField_Label">Gross</div>
-                                <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt"
-                                                    Variant="Variant.Outlined" MaxLength="10"
-                                                    Format="N3" HideSpinButtons="true" />
-                            </div>
-                        </td>
-                        <td />
-                        <td />
-                    </MudTr>
+                    @if (context.IsShowWT_Details)
+                    {
+                        @* <MudTr Class=@(!context.IsShowWT_Details ? "d-none" : "splitRow")> *@
+                        <MudTr>
+                            <td colspan="5" />
+                            <td>
+                                <div class="GoodMeasures">
+                                    <div class="GoodWeight">
+                                        <div class="numField_Label">Net</div>
+                                        <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt"
+                                                         Variant="Variant.Outlined" MaxLength="10"
+                                                         Format="N3" HideSpinButtons="true" />
+                                    </div>
+                                    <div class="IMOWeight" hidden="@(context.IsIMO==false)">
+                                        <div class="numField_Label">IMO</div>
+                                        <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.IMO"
+                                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                      MaxLength="4" />
+                                    </div>
+                                </div>
+                                <div class="GoodMeasures">
+                                    <div class="GoodWeight">
+                                        <div class="numField_Label">Gross</div>
+                                        <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt"
+                                                         Variant="Variant.Outlined" MaxLength="10"
+                                                         Format="N3" HideSpinButtons="true" />
+                                    </div>
+                                    <div class="IMOWeight" hidden="@(context.IsIMO==false)">
+                                        <div class="numField_Label">UNNO</div>
+                                         <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.UNNO"
+                                                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                       MaxLength="4" />
+                                    </div>
+                                </div>
+                            </td>
+                            <td />
+                        </MudTr>
+                    }
                 </ChildRowContent>
 
             </MudTable>
@@ -214,7 +265,7 @@
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
-        DialogParameters parameters = new DialogParameters { ["SelectItem"] = true };
+        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<CustomerComponent>("Customer", parameters, options);
 
@@ -248,7 +299,7 @@
 
     private async Task GetCommodity_Click(DocumentRecord documentRecord)
     {
-        DialogParameters parameters = new DialogParameters { ["SelectItem"] = true };
+        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
         var dialog = await DialogService.ShowAsync<CommodityComponent>("SELECT COMMODITY", parameters, options);
         var result = await dialog.Result;

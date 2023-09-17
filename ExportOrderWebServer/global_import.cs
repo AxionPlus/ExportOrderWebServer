@@ -7,6 +7,8 @@ global using ExportOrderEntites.Cntr;
 global using ExportOrderEntites.VesselCall;
 global using ExportOrderEntites.ExportOrder;
 
+global using ExportOrderEntites.DTO;
+
 global using ExportOrderWebServer.Areas.Carrier.Provider;
 global using ExportOrderWebServer.Areas.Cntr.Provider;
 global using ExportOrderWebServer.Areas.Commodity.Provider;

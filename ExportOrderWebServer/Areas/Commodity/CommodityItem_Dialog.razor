@@ -16,7 +16,28 @@
                                   AutoFocus="true" Immediate="true"
                                   Required RequiredError=""
                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                    <MudSpacer/>
+                    <div class="wrapper-checkBox" style="width:200px; justify-content: flex-end;">
+                        <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.Start" @bind-Checked="@Item.IsIMO"></MudCheckBox>
+                    </div>
+                    <MudSpacer />
+                    @if (Item.IsIMO)
+                    {
+                        <MudTextField T="string" Style="width:195px; margin-right:10px" Label="IMO" @bind-Value="@Item.IMO"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      MaxLength="3" Mask="@( IsNewItem? new PatternMask("0.0") : null)"
+                                                Required RequiredError=""
+                                       ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                        <MudTextField T="string" Style="width:195px" Label="UNNO" @bind-Value="@Item.UNNO"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      MaxLength="4" Mask="@( IsNewItem? new PatternMask("0000") : null)"
+                                      Required RequiredError=""
+                         ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                    }
+                    else
+                    {
+                        <div style="width:400px"></div>
+                    }
+                    <MudSpacer />
                     <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
                               Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
                          Save
@@ -44,24 +65,6 @@
                          Clear
                     </MudButton>
                 </div>
-                 <div class="container-content">
-                     <MudTextField T="string" Style="width:195px; margin-right:10px" Label="IMO" @bind-Value="@Item.IMO"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   MaxLength="3" Mask="@( IsNewItem? new PatternMask("0.0") : null)"
-                                   Required RequiredError=""
-                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                     <MudTextField T="string" Style="width:195px" Label="UNNO" @bind-Value="@Item.UNNO"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   MaxLength="4" Mask="@( IsNewItem? new PatternMask("0000") : null)"
-                                   Required RequiredError=""
-                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                    <MudSpacer />
-                    <div class="wrapper-checkBox" style="width:400px">
-                         <MudCheckBox @bind-Checked="@Item.IsIMO"></MudCheckBox>
-                    </div>
-                    <MudSpacer />
-                    <div style="width:100px"></div>
-                 </div>
             </div>
         </MudForm>
     </MudContainer>
@@ -114,7 +117,7 @@
                 if (!response.HasError)
                 {                    
                     Snackbar.Add("Saved successfully", Severity.Success);
-                    IsNewItem = false;
+                    IsNewItem = false;                    
                 }                
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);

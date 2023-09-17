@@ -19,7 +19,7 @@ public class ExportOrderDTO
     //public string? Consignee { get; set; }
     public string? Person { get; set; } = "Д.В. Меркульцев т. +7 918 6624251";
 
-    public IEnumerable<DocumentDTO>? _Documents { get; set; } = new List<DocumentDTO>();
-    public IEnumerable<ExportOrderRecordDTO>? _ExportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
+    //public IEnumerable<DocumentDTO>? _Documents { get; set; } = new List<DocumentDTO>();
+    public IEnumerable<ExportOrderRecordDTO>? exportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
 
 }

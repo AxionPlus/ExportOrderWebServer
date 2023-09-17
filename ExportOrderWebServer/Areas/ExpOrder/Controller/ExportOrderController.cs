@@ -1,7 +1,8 @@
 ﻿using AspNetCore.Reporting;
-using ExportOrderEntites.DTO;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using System.Net;
+using System.Numerics;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -31,48 +32,44 @@ public class ExportOrderController : ControllerBase
         {
             string mimeType = "";
             int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.WebRootPath, "Reports", "ExportOrder.rdlc");
-            string fileName = $"{Item?.Num}_{DateOnly.FromDateTime(Item!.Dated!.Value)}_{Path.GetRandomFileName()}.pdf";
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
 
             LocalReport localReport = new LocalReport(pathReport);
 
             #region PARAMETERS
             Dictionary<string, string> parameters = new Dictionary<string, string>()
             {
-                //{ "MoneyToText", await MoneyToTextParam(Invoice!) },
+                { "report", "new" },
             };
             #endregion
-
 
             #region DATA SOURCE
 
             var dsItem = new List<ExportOrderDTO>() { Item };
-            
-            var dsShippers = Item._Documents!.GroupBy(d => d.Shipper);
-            var dsConsignees = Item._Documents!.GroupBy(d => d.Consignee);
-            var dsCommodities = Item._Documents?.GroupBy(d => d.CommodityName);
+            var dsRecords = Item.exportOrderRecordsDTO;
 
-            var dsDocuments = Item._Documents?.GroupBy(d => d.DocumentName);
+            var dsShippers = dsRecords?.GroupBy(rec => rec.Shipper).Select(g => new { ShipperName = g.Key}).ToList();
+            var dsConsignees = dsRecords?.GroupBy(rec => rec.Consignee).Select(g => new { ConsigneeName = g.Key}).ToList();
+            var dsCommodities = dsRecords?.GroupBy(rec => rec.CommodityName).Select(g => new {
+                                        Commodity = g.Key,
+                                        HScode = g.FirstOrDefault()!.HSCode,
+                                        IMO = g.FirstOrDefault()!.IMO,
+                                        UNNO = g.FirstOrDefault()!.UNNO,
+                                        IsIMO = g.FirstOrDefault()!.IsIMO }).ToList();
 
+            var dsDocuments = dsRecords?.GroupBy(rec => rec.DocumentName).Select(g => new {
+                                        Seq=1,
+                                        Document = g.Key,
+                                        Pakages = g.Sum(q => q.Quantity),
+                                        Net = g.Sum(net => net.NetWt),
+                                        Gross =g.Sum(gr => gr.GrossWt) }).ToList();
 
-
-
-            localReport.AddDataSource("dsItem", Item);
-            localReport.AddDataSource("dsRecords", Item?._ExportOrderRecordsDTO!.ToArray());            
+            localReport.AddDataSource("dsItem", dsItem);
+            localReport.AddDataSource("dsRecords", dsRecords);
             localReport.AddDataSource("dsShippers", dsShippers);
             localReport.AddDataSource("dsConsignees", dsConsignees);
             localReport.AddDataSource("dsCommmodities", dsCommodities);
             localReport.AddDataSource("dsDocuments", dsDocuments);
-
-            //var dsAgreement = new List<AgreementCustomer>() { Invoice!.Agreement! };
-            //var dsCustomer = new List<ContractorEntity>() { Invoice.Agreement?.Contractor! };
-            //var dsCustomerAddress = new List<ContractorAddressDetail>() { Invoice.Agreement?.Contractor?.AddressDetails! };
-            //var dsMyCompany = new List<MyCompanyEntity>() { Invoice.MyCompany };
-
-            //localReport.AddDataSource("dsAgreement", dsAgreement.ToArray());
-            //localReport.AddDataSource("dsCustomer", dsCustomer.ToArray());
-            //localReport.AddDataSource("dsCustomerAddress", dsCustomerAddress.ToArray());
-            //localReport.AddDataSource("dsMyCompany", dsMyCompany.ToArray());
 
             #endregion
 

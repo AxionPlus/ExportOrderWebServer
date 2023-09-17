@@ -3,7 +3,13 @@
 @inject ICustomerProvider _customerProvider
 @inject ICountryProvider _countryProvider
 
-<style></style>
+<style>
+    
+    .Table * .Tcell_Name {
+        text-align: start;
+    }
+    
+</style>
 
 <MudForm @ref="@FilterForm">
     <div class="Container-item">
@@ -53,7 +59,7 @@
                 Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
         <HeaderContent>
-            @if (!SelectItem)
+            @if (!IsSelectable)
             {
                 <MudTh Style="width:30px"></MudTh>
             }            
@@ -70,7 +76,7 @@
         </HeaderContent>
 
         <RowTemplate>
-            @if (!SelectItem)
+            @if (!IsSelectable)
             {
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"/></MudTd>
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"/></MudTd>
@@ -79,7 +85,7 @@
             {
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })"/></MudTd>
             }
-            <MudTd>@context.Name</MudTd>
+            <MudTd Class="Tcell_Name">@context.Name</MudTd>
             <MudTd>@context.EngName</MudTd>
             <MudTd>@context.Country.RUS</MudTd>
         </RowTemplate>
@@ -94,7 +100,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     private MudForm? FilterForm;
     private MudTable<CustomerCatalog>? mudTable;
 
@@ -102,7 +108,7 @@
     private FilterParameters Filter { get; set; } = new();
 
     [Parameter]
-    public bool SelectItem { get; set; } = false;
+    public bool IsSelectable { get; set; } = false;
     bool IsLoadingData = false;
 
 
@@ -128,7 +134,7 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<CustomerItem_Dialog>("Customer", parameters, options);
 
         DialogResult result = await dialog.Result;
@@ -139,7 +145,7 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<CustomerItem_Dialog>("New Customer", parameters, options);
 
         DialogResult result = await dialog.Result;
@@ -173,7 +179,7 @@
     private async Task SelectItem_Click(CustomerCatalog item)
     {
         await Task.Delay(50);
-        MudDialog.Close(item);
+        MudDialog!.Close(item);
     }
 
 

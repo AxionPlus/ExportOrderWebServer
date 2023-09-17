@@ -188,6 +188,7 @@ body {
         /*line-height: 1.1rem;*/
     }
 
+    
     .Table * .mud-table-cell * .mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
         padding: 4px 0px 1px 6px;
         font-size: 0.92rem;
@@ -332,7 +333,7 @@ body {
 }
 
     .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-        padding-top: 10px;
+        padding-top: 5px;
         padding-bottom: 4px;
         font-size: 14px;
         font-weight: 500;
@@ -489,6 +490,7 @@ body {
 .wrapper-checkBox {
     display: flex;
     align-items: center;
+    justify-content:center;
 }
 
     .wrapper-checkBox * .mud-checkbox .mud-icon-button {

@@ -3,8 +3,8 @@
 @inject ICountryProvider _countryProvider
 
 @if (Item is not null)
-{   
-    <MudForm @ref="@Form" Style="max-width:fit-content">
+{
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="!IsNewItem">
         <div class="Container-item" style="width: 530px">
             <div class="container-head"></div>
             <div class="container-content">
@@ -13,8 +13,8 @@
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
+                              Clearable="IsNewItem" />
+                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
                      Save
                 </MudButton>
@@ -25,7 +25,7 @@
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                              Clearable="IsNewItem" />
                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
                            Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
                     Clear

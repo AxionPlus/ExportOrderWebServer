@@ -173,6 +173,8 @@
     private async Task ViewReport_Click(long id)
     {
         //var Item = await _exportOrderProvider._GetItemDTOAsync(id);
+        //var Item = await _exportOrderProvider.GetItemDTOAsync(id);
+
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReport?Id={id}";
         await JSRuntime.InvokeVoidAsync("open", path);
     }

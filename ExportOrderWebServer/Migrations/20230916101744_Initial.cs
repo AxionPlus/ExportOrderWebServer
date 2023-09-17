@@ -199,6 +199,9 @@ namespace ExportOrderWebServer.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     EngName = table.Column<string>(type: "text", nullable: false),
                     HSCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    IMO = table.Column<string>(type: "text", nullable: true),
+                    UNNO = table.Column<string>(type: "text", nullable: true),
+                    IsIMO = table.Column<bool>(type: "boolean", nullable: true),
                     CreateUserId = table.Column<string>(type: "text", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
@@ -358,6 +361,9 @@ namespace ExportOrderWebServer.Migrations
                     CommodityName = table.Column<string>(type: "text", nullable: false),
                     CommodityEngName = table.Column<string>(type: "text", nullable: false),
                     CommodityHSCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    IMO = table.Column<string>(type: "text", nullable: true),
+                    UNNO = table.Column<string>(type: "text", nullable: true),
+                    IsIMO = table.Column<bool>(type: "boolean", nullable: true),
                     NetWt = table.Column<double>(type: "double precision", nullable: false),
                     GrossWt = table.Column<double>(type: "double precision", nullable: false),
                     Volume = table.Column<double>(type: "double precision", nullable: false),
@@ -541,7 +547,7 @@ namespace ExportOrderWebServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<long>(type: "bigint", nullable: false),
                     NetWt = table.Column<double>(type: "double precision", nullable: false),
                     GrossWt = table.Column<double>(type: "double precision", nullable: false),
                     Volume = table.Column<double>(type: "double precision", nullable: false),

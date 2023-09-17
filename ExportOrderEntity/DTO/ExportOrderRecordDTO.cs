@@ -9,7 +9,7 @@ public class ExportOrderRecordDTO
 
 #pragma warning disable CS8618
 
-    public uint IndexExpRecord { get; set; }               // Record index for RDLC Report    
+    public uint Seq { get; set; }               // Record index for RDLC Report    
     public string Cntr { get; set; }
     public string CntrType { get; set; }
     public double? CntrTareWt { get; set; }

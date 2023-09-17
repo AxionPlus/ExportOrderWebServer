@@ -61,8 +61,8 @@
         <RowTemplate>
             <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
             <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
-            <MudTd>@context.RUS</MudTd>
-            <MudTd>@context.ENG</MudTd>
+            <MudTd Style="text-align:start">@context.RUS</MudTd>
+            <MudTd Style="text-align:start">@context.ENG</MudTd>
             <MudTd></MudTd>
         </RowTemplate>
 

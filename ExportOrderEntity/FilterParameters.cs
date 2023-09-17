@@ -14,6 +14,7 @@ public class FilterParameters
     public string? Location { get; set; }
     public string? Carrier { get; set; }
     public string? IMO { get; set; }
+    public bool? IsIMO { get; set; }
     [MaxLength(10)]
     public string? HScode { get; set; }
     public string? VesselName { get; set; }

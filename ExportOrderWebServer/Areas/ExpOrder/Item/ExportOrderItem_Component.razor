@@ -59,7 +59,8 @@
     <div class="Container-item">
         <div class="container-head">INFO</div>
         <div class="container-content">
-            <MudTextField Class="TextField" Style="width: 150px; margin-right: 20px" Label="Number" @bind-Value="@Value!.Num"
+            <MudTextField Class="TextField" Style="width: 150px; margin-right: 20px" T="string" Label="Number" Value="@Value!.Num"
+                          ValueChanged="async (e) => { Value.Num = e.ToUpper(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required RequiredError=""
                           ReadOnly="!IsNewItem" Clearable="IsNewItem" />
@@ -164,13 +165,13 @@
                 <h5>Shippers:</h5>
                 @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
                 {
-                    @(shipper + " / ");
+                    @(string.Join(" / ", shipper));
                 }
                 <br />
                 <h5>Consignees:</h5>
                 @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
                 {
-                    @(consignee + " ; ");
+                    @(string.Join("; ", consignee));
                 }                
             </div>
         </div>
@@ -455,6 +456,13 @@
             {
                 uploadResult = (UploadResult)result.Data;
 
+                if (uploadResult._Documents is null)
+                {
+                    Snackbar.Add($"Document is null", Severity.Warning);
+                    Snackbar.Add($"{uploadResult.Summary.FirstOrDefault()}", Severity.Warning);
+                    return;
+                }
+
                 var records = uploadResult!._ExportOrderRecords!.ToList();
                 var documents = uploadResult!._Documents!.ToList();
 
@@ -476,43 +484,13 @@
                 Value!.Records = records;
                 Value.Documents = documents;
 
+                Snackbar.Add($"Uploaded", Severity.Success);
+
                 await ValueChanged.InvokeAsync(Value);
             }
         }
     }
-
-    private async Task AddUploadedItems(ExportOrderEntity item)      // Replaced by SaveExportOrder [DELETE]
-    {
-        await Form!.Validate();
-
-        if (Form.IsValid)
-            if (IsNewItem)
-            {
-                var response = await _exportOrderProvider.NewItemAsync(item!);
-                if (!response.HasError)
-                {
-                    IsNewItem = false;
-                    //await GetItem();
-                    Snackbar.Add("Saved Successfully", Severity.Success);
-                    IsNewItem = true;   // DELETE
-                }
-                else
-                    Snackbar.Add("No Success", Severity.Error);
-            }
-            else
-            {
-                // var response = await _exportOrderProvider.ModifyItemAsync(Item!);
-                // if (!response.HasError)
-                // {
-                //     await GetItem();
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add("Not Successed", Severity.Error);
-            }
-        else
-            Snackbar.Add("Fill up all reqired fields", Severity.Error);
-    }
+        
 
     #endregion
 

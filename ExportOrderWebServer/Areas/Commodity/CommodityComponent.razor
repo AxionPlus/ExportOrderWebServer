@@ -9,6 +9,7 @@
 </style>
 
 <MudForm @ref="@FilterForm">
+
     <div class="Container-item">
         <div class="container-content">
             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
@@ -38,6 +39,8 @@
                                 CloseIcon="" OpenIcon=""
                                 ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
+            <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Checked="@Filter.IsIMO"></MudCheckBox>
+            <MudSpacer />
             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
                         Variant="Variant.Filled" Color="Color.Secondary" 
                         OnClick="@(async () => { await GetItems(); })">Search</MudButton>
@@ -58,7 +61,7 @@
                 Loading="IsLoadingData" Virtualize="true" RowsPerPage="20" >
 
         <HeaderContent>
-            @if (!SelectItem)
+            @if (!IsSelectable)
             {
                 <MudTh Style="width:30px"></MudTh>
             }                    
@@ -66,12 +69,17 @@
             <MudTh Style="width: 130px">
                 <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.HSCode)">HS code</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:515px">Name</MudTh>
-            <MudTh Style="width:515px">Name En</MudTh>
+            <MudTh Style="width:400px">
+                    <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:400px">Name En</MudTh>
+            <MudTh Style="width:65px">Is IMO</MudTh>
+            <MudTh Style="width:65px">IMO</MudTh>
+            <MudTh Style="width:65px">UNNO</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            @if (!SelectItem)
+            @if (!IsSelectable)
             {
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"/></MudTd>
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"/></MudTd>
@@ -83,6 +91,9 @@
             <MudTd>@context.HSCode</MudTd>
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.EngName</MudTd>
+            <MudTd>@context.IsIMO</MudTd>
+            <MudTd>@context.IMO</MudTd>
+            <MudTd>@context.UNNO</MudTd>
         </RowTemplate>
 
         <PagerContent></PagerContent>
@@ -95,12 +106,12 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     private MudForm? FilterForm;
     private MudTable<CommodityCatalog>? mudTable;
 
     [Parameter]
-    public bool SelectItem { get; set; } = false;
+    public bool IsSelectable { get; set; } = false;
 
     private IEnumerable<CommodityCatalog>? Items { get; set; } = new List<CommodityCatalog>();
     private FilterParameters Filter { get; set; } = new();
@@ -137,7 +148,7 @@
 
         if (result.Canceled)
             if (Items!.Count() > 0)
-                await GetItems();
+                await GetItems();        
     }
 
     private async Task ShowItem_Click(long Id)

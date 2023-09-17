@@ -3,37 +3,45 @@
 @inject ICountryProvider _countryProvider
 @inject ICustomerProvider _customerProvider
 
+<style>
+
+    .TextField_Names * .mud-input > textarea.mud-input-root-outlined {
+        margin:10px;
+    }
+
+</style>
+
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="Container-item" style="width: 530px">
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="!IsNewItem">
+        <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
+                <MudTextField Class="TextField_Names" T="string" Style="width: 600px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Lines="2"
+                              Immediate="true" Lines="3"
                               Required RequiredError=""
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
+                              Clearable="IsNewItem" />
+                <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
                     Save
                 </MudButton>
              </div>
              <div class="container-content">
-                <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.EngName"
+                <MudTextField Class="TextField_Names" T="string" Style="width: 600px" Label="Name En" Text="@Item.EngName"
                               TextChanged="@(async (e)=> { Item.EngName = e.ToUpper(); })"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Lines="2"
+                              Immediate="true" Lines="3"
                               Required RequiredError=""
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                              Clearable="IsNewItem" />
                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
                            Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
                     Clear
                 </MudButton>
              </div>
              <div class="container-content">
-                 <MudAutocomplete T="CountryCatalog" Style="width: 250px" Label="Country" @bind-Value="Item.Country"
+                 <MudAutocomplete T="CountryCatalog" Style="width: 300px" Label="Country" @bind-Value="Item.Country"
                                   ToStringFunc="@(e => e != null ? e.RUS : "")"
                                   SearchFunc="@SearchCountry"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"                               
@@ -43,7 +51,7 @@
                                   Placeholder="Country"
                                   MaxItems="20"
                                   IconSize="Size.Small"
-                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                                  Clearable="IsNewItem" />
              </div>
          </div>
      </MudForm>

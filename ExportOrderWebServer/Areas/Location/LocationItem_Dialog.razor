@@ -9,7 +9,7 @@
         <div class="Container-item" style="width: 530px">
             <div class="container-head"></div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 385px" Label="Name" Text="@Item.Name"
+                <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
@@ -21,12 +21,13 @@
                  </MudButton>
              </div>
              <div class="container-content">
-                 <MudTextField T="string" Style="width: 120px" Label="UN Locode" Text="@Item.UnLocode"
+                 <MudTextField T="string" Style="width: 135px" Label="UN Locode" Text="@Item.UnLocode"
                                TextChanged="@(async (e)=> { Item.UnLocode = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true"
                                Required RequiredError=""
                                ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                <MudSpacer />
                  <MudAutocomplete T="CountryCatalog" Style="width: 250px" Label="Country" @bind-Value="Item.Country"
                                   ToStringFunc="@(e => e != null ? e.RUS : "")"
                                   SearchFunc="@SearchCountry"

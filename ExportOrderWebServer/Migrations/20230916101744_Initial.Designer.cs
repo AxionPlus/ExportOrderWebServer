@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230913095314_Initial")]
+    [Migration("20230916101744_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -287,8 +287,17 @@ namespace ExportOrderWebServer.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<string>("IMO")
+                        .HasColumnType("text");
+
+                    b.Property<bool?>("IsIMO")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UNNO")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -409,11 +418,20 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<double>("GrossWt")
                         .HasColumnType("double precision");
 
+                    b.Property<string>("IMO")
+                        .HasColumnType("text");
+
+                    b.Property<bool?>("IsIMO")
+                        .HasColumnType("boolean");
+
                     b.Property<double>("NetWt")
                         .HasColumnType("double precision");
 
                     b.Property<int>("Seq")
                         .HasColumnType("integer");
+
+                    b.Property<string>("UNNO")
+                        .HasColumnType("text");
 
                     b.Property<double>("Volume")
                         .HasColumnType("double precision");
@@ -445,8 +463,8 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<double>("NetWt")
                         .HasColumnType("double precision");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
+                    b.Property<long>("Quantity")
+                        .HasColumnType("bigint");
 
                     b.Property<double>("Volume")
                         .HasColumnType("double precision");

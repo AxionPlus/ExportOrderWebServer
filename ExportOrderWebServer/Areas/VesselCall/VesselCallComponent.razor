@@ -95,14 +95,13 @@
             <MudTh Style="width: 280px">Terminal</MudTh>
             <MudTh Style="width: 130px">ETA</MudTh>
             <MudTh Style="width: 130px">ETS</MudTh>
-            <MudTh Style="width: 30px"></MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             @if (!IsSelectable)
             {
                 <MudTd Style="margin-right:20px"><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>                
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })"></MudIconButton></MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton>
             }
             else
             {
@@ -113,10 +112,7 @@
             <MudTd>@context.POD.Name</MudTd>
             <MudTd>@context.LoadingTerminal.Name</MudTd>
             <MudTd>@(context.ETA.HasValue ? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
-            <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>
-            <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton>
-            </MudTd>
+            <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>            
             <MudTd></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -206,11 +202,6 @@
         // await GetItems();
     }
 
-    private async Task AddExportOrder_Click(long id)
-    {
-        
-    }
-
 
     private async Task SelectItem_Click(VesselCallEntity item)
     {
@@ -222,15 +213,18 @@
 
     private async Task<IEnumerable<string>> SearchVessel(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
+        // if (string.IsNullOrWhiteSpace(value))
+        //     return Enumerable.Empty<string>();
 
         var result = await _vesselProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchPort(string value)
@@ -248,15 +242,18 @@
     
     private async Task<IEnumerable<string>> SearchTerminal(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
+        // if (string.IsNullOrWhiteSpace(value))
+        //     return Enumerable.Empty<string>();
 
         var result = await _terminalProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     #endregion

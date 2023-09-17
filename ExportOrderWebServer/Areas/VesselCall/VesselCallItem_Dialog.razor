@@ -193,8 +193,8 @@
 
     private async Task<IEnumerable<VesselEntity>> SearchVessel(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<VesselEntity>();
+        // if (string.IsNullOrWhiteSpace(value))
+        //     return Enumerable.Empty<VesselEntity>();
 
         var Vessels = new List<VesselEntity>();
 
@@ -202,36 +202,42 @@
         if (!response.HasError)
             Vessels = ((IEnumerable<VesselEntity>)response.Object!).OrderBy(s => s.Name).ToList();
 
-        // if (string.IsNullOrWhiteSpace(value))
-        //     return Vessels;
+        if (string.IsNullOrWhiteSpace(value))
+            return Vessels;
 
         return Vessels.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
     private async Task<IEnumerable<TerminalCatalog>> SearchTerminal(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<TerminalCatalog>();
+        // if (string.IsNullOrWhiteSpace(value))
+        //     return Enumerable.Empty<TerminalCatalog>();
 
         var Terminals = new List<TerminalCatalog>();
 
         var response = await _terminalProvider.GetItemsAsync();
         if (!response.HasError)
             Terminals = ((IEnumerable<TerminalCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+        
+        if (string.IsNullOrWhiteSpace(value))
+            return Terminals;
 
         return Terminals.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
     private async Task<IEnumerable<LocationCatalog>> SearchPOD(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<LocationCatalog>();
+        // if (string.IsNullOrWhiteSpace(value))
+        //     return Enumerable.Empty<LocationCatalog>();
 
         var Ports = new List<LocationCatalog>();
 
         var response = await _locationProvider.GetItemsAsync();
         if (!response.HasError)
             Ports = ((IEnumerable<LocationCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Ports;
 
         return Ports.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }

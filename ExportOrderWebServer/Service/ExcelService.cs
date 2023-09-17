@@ -1,5 +1,6 @@
 ﻿using ExportOrderEntites.ExportOrder;
 using ExportOrderWebServer.UploadFile;
+using MudBlazor;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -35,7 +36,7 @@ public class ExcelService : IDisposable
         _documentProvider = documentProvider;
 
         ExcelApp = new Excel.Application();
-        Workbooks = ExcelApp.Workbooks;
+        Workbooks = ExcelApp.Workbooks;        
 
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
@@ -65,6 +66,8 @@ public class ExcelService : IDisposable
                 
         var records = new List<ExportOrderRecord>();
         var documents = new List<DocumentEntity>();
+
+        UploadResult uploadResult = new UploadResult();
 
         try
         {
@@ -111,6 +114,14 @@ public class ExcelService : IDisposable
 
                     // Documents
                     var _Document = await _documentProvider.GetDocumentAsync(record[colDoc]);
+
+                    if (_Document is null)
+                    {
+                        //uploadResult.Summary.Append($"There is no Document: {record[colDoc]}");
+                        return (null, null);
+                    }
+                        
+
                     var document = new DocumentEntity() { Name = "" };
                     var documentRecord = new DocumentRecord();
 

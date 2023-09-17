@@ -119,7 +119,7 @@
                 var uploadedData = await response.Content.ReadFromJsonAsync<UploadResult>();
                 
                 IsDataUploading = true;
-                Snackbar.Add($"Uploaded", Severity.Success);
+                //Snackbar.Add($"Uploaded", Severity.Success);
 
                 MudDialog!.Close(uploadedData);
             }

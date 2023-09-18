@@ -48,6 +48,8 @@ public class ExportOrderController : ControllerBase
             var dsItem = new List<ExportOrderDTO>() { Item };
             var dsRecords = Item.exportOrderRecordsDTO;
 
+            var das = dsRecords.Select(s=>new { ShipperName = s.Shipper }).Distinct().ToList();
+
             var dsShippers = dsRecords?.GroupBy(rec => rec.Shipper).Select(g => new { ShipperName = g.Key}).ToList();
             var dsConsignees = dsRecords?.GroupBy(rec => rec.Consignee).Select(g => new { ConsigneeName = g.Key}).ToList();
             var dsCommodities = dsRecords?.GroupBy(rec => rec.CommodityName).Select(g => new {
@@ -58,7 +60,7 @@ public class ExportOrderController : ControllerBase
                                         IsIMO = g.FirstOrDefault()!.IsIMO }).ToList();
 
             var dsDocuments = dsRecords?.GroupBy(rec => rec.DocumentName).Select(g => new {
-                                        Seq=1,
+                                        Seq= 1,
                                         Document = g.Key,
                                         Pakages = g.Sum(q => q.Quantity),
                                         Net = g.Sum(net => net.NetWt),

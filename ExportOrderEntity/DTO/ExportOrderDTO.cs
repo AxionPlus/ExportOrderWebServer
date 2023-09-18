@@ -9,10 +9,10 @@ public class ExportOrderDTO
 
 #pragma warning disable CS8618
     public string? Num { get; set; }
-    public DateTime? Dated { get; set; }
+    public string? Dated { get; set; }
     public string? VesselName { get; set; }
     public string? Voyage { get; set; }
-    public DateTime? DateOfLoading { get; set; }
+    public string? DateOfLoading { get; set; }
     public string? POL { get; set; } = "Новороссийск, Россия";    
     public string? POD { get; set; }
     //public string? Shipper { get; set; }

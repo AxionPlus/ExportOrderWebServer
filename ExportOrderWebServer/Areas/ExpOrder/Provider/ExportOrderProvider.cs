@@ -59,11 +59,11 @@ public class ExportOrderProvider : IExportOrderProvider
                                             {
                                                 Id = source.Id,
                                                 Num = source.Num,
-                                                Dated = source.Dated,
+                                                Dated = source.Dated.ToString("dd.MM.yyyy"),
                                                 VesselName = source.VesselCall!.Vessel.Name + " (" + source.VesselCall.Vessel.Flag.RUS + ")",
                                                 Voyage = source.VesselCall.VoyageCarrier,
-                                                DateOfLoading = source.VesselCall.ETA,
-                                                POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Name,
+                                                DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
+                                                POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
                                                 //_Documents = eoDocuments(source.Documents!),
                                                 exportOrderRecordsDTO = eoRecords(source.Records!)
                                             })
@@ -199,7 +199,7 @@ public class ExportOrderProvider : IExportOrderProvider
     {
         var eoRecordsDTO = new List<ExportOrderRecordDTO>();
 
-        var eoDocumentsDTO = new List<DocumentDTO>();
+        //var eoDocumentsDTO = new List<DocumentDTO>();
 
         uint indexRec = 0;
         //uint indexDoc = 0;
@@ -236,6 +236,7 @@ public class ExportOrderProvider : IExportOrderProvider
         return eoRecordsDTO.ToArray();
     };
 
+    // DELETE
     Func<IEnumerable<DocumentEntity>, IEnumerable<DocumentDTO>> eoDocuments = (_eoDocuments) =>
     {
         var eoDocumentsDTO = new List<DocumentDTO>();

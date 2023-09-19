@@ -15,6 +15,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<TerminalCatalog> Terminals { get; set; }
     public DbSet<CommodityCatalog> Commodities { get; set; }
     public DbSet<CarrierCatalog> Carriers { get; set; }
+    public DbSet<CarrierTerminalDetails> CarrierDetails { get; set; }
     public DbSet<CustomerCatalog> Customers { get; set; }
 
     // Entities

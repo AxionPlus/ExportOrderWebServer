@@ -48,23 +48,52 @@ public class ExportOrderController : ControllerBase
             var dsItem = new List<ExportOrderDTO>() { Item };
             var dsRecords = Item.exportOrderRecordsDTO;
 
-            var das = dsRecords.Select(s=>new { ShipperName = s.Shipper }).Distinct().ToList();
+            var dsShippers = dsRecords?.Select(r => new { ShipperName = r.Shipper }).Distinct().ToList();
+            var dsConsignees = dsRecords?.Select(r => new { ConsigneeName = r.Consignee }).Distinct().ToList();
+            var dsCommodities = dsRecords?.GroupBy(rec => rec.CommodityName).Select(g => new
+            {
+                Commodity = g.Key,
+                HScode = g.FirstOrDefault()!.HSCode,
+                IMO = g.FirstOrDefault()!.IMO,
+                UNNO = g.FirstOrDefault()!.UNNO,
+                IsIMO = g.FirstOrDefault()!.IsIMO
+            }).ToList();
 
-            var dsShippers = dsRecords?.GroupBy(rec => rec.Shipper).Select(g => new { ShipperName = g.Key}).ToList();
-            var dsConsignees = dsRecords?.GroupBy(rec => rec.Consignee).Select(g => new { ConsigneeName = g.Key}).ToList();
-            var dsCommodities = dsRecords?.GroupBy(rec => rec.CommodityName).Select(g => new {
-                                        Commodity = g.Key,
-                                        HScode = g.FirstOrDefault()!.HSCode,
-                                        IMO = g.FirstOrDefault()!.IMO,
-                                        UNNO = g.FirstOrDefault()!.UNNO,
-                                        IsIMO = g.FirstOrDefault()!.IsIMO }).ToList();
+            var dsDocuments = dsRecords?.GroupBy(rec => rec.DocumentName).Select(g => new
+            {
+                Seq = 1,
+                Document = g.Key,
+                Pakages = g.Sum(q => q.Quantity),
+                Net = g.Sum(net => net.NetWt),
+                Gross = g.Sum(gr => gr.GrossWt)
+            }).ToList();
 
-            var dsDocuments = dsRecords?.GroupBy(rec => rec.DocumentName).Select(g => new {
-                                        Seq= 1,
-                                        Document = g.Key,
-                                        Pakages = g.Sum(q => q.Quantity),
-                                        Net = g.Sum(net => net.NetWt),
-                                        Gross =g.Sum(gr => gr.GrossWt) }).ToList();
+            //var dsCommodities = dsRecords?.Select(s => new {
+            //                                                 Commodity = s.CommodityName,
+            //                                                 HScode = s.HSCode,
+            //                                                 IMO = s.IMO,
+            //                                                 UNNO = s.UNNO,
+            //                                                 IsIMO = s.IsIMO }).Distinct().ToList();
+
+            //var dsDocuments = dsRecords?.Select(s => new {
+            //                                                 Seq = 1,
+            //                                                 Document = s.DocumentName,
+            //                                                 Pakages = dsRecords.Sum(q=>q.Quantity),
+            //                                                 Net = dsRecords.Sum(net => net.NetWt),
+            //                                                 Gross = dsRecords.Sum(gr => gr.GrossWt)
+            //                                             }).ToList();
+            
+            //uint counter = 0;
+
+            foreach (var document in dsDocuments!)
+            {
+                //document(s=> new { Seq = ++counter });
+                //document.Seq = document(s=>s.Seq = ++counter);
+            }
+
+            //var dsShippers = dsRecords?.GroupBy(rec => rec.Shipper).Select(g => new { ShipperName = g.Key}).ToList();
+            //var dsConsignees = dsRecords?.GroupBy(rec => rec.Consignee).Select(g => new { ConsigneeName = g.Key}).ToList();
+
 
             localReport.AddDataSource("dsItem", dsItem);
             localReport.AddDataSource("dsRecords", dsRecords);

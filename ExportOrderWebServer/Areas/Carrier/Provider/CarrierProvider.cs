@@ -56,10 +56,10 @@ public class CarrierProvider : ICarrierProvider
                 var filter = (FilterParameters)parameters;
 
                 if (!string.IsNullOrEmpty(filter.Name))
-                    Carriers = Carriers.Where(s => s.FullName == filter.Name).ToList();
+                    Carriers = Carriers.Where(s => s.Name == filter.Name).ToList();
 
                 if (!string.IsNullOrEmpty(filter.NameEn))
-                    Carriers = Carriers.Where(s => s.ShortName == filter.NameEn).ToList();
+                    Carriers = Carriers.Where(s => s.NameEn == filter.NameEn).ToList();
             }
 
             appObjResponse.Object = Carriers.ToArray();
@@ -84,10 +84,10 @@ public class CarrierProvider : ICarrierProvider
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
-            var itemExistCheck = await db.Carriers.Where(s => s.FullName == item!.FullName).FirstOrDefaultAsync();
+            var itemExistCheck = await db.Carriers.Where(s => s.Name == item!.Name).FirstOrDefaultAsync();
             if (itemExistCheck != null)
             {
-                appObjResponse.ErrorAdd($"Carrier exists already: {item!.ShortName}");
+                appObjResponse.ErrorAdd($"Carrier exists already: {item!.Name}");
                 return appObjResponse;
             }
 
@@ -112,7 +112,7 @@ public class CarrierProvider : ICarrierProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Carriers.Select(s => s.FullName!).ToListAsync();
+            return await db.Carriers.Select(s => s.Name!).ToListAsync();
         }
     }
 
@@ -121,7 +121,7 @@ public class CarrierProvider : ICarrierProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Carriers.Select(s => s.ShortName!).ToListAsync();
+            return await db.Carriers.Select(s => s.NameEn!).ToListAsync();
         }
     }
 }

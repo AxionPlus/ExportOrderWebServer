@@ -110,7 +110,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     items = items.Where(s => s.VesselCall!.Vessel.Name == filter.VesselName).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Carrier))
-                    items = items.Where(s => s.Carrier.FullName == filter.Carrier).ToList();
+                    items = items.Where(s => s.Carrier.Name == filter.Carrier).ToList();
 
                 appObjResponse.Object = items.ToArray();
             }
@@ -193,50 +193,95 @@ public class ExportOrderProvider : IExportOrderProvider
         throw new NotImplementedException();
     }
 
-#region AUXIALARY
+    #region AUXIALARY
 
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
     {
         var eoRecordsDTO = new List<ExportOrderRecordDTO>();
-
-        //var eoDocumentsDTO = new List<DocumentDTO>();
+        var eoRecordDTO = new ExportOrderRecordDTO();
 
         uint indexRec = 0;
-        //uint indexDoc = 0;
 
         foreach (var record in _eoRecords)
         {
-            foreach (var content in record.Contents)
-            {
-                eoRecordsDTO.Add(new ExportOrderRecordDTO()
-                {
-                    Seq = ++indexRec,
-                    Cntr = record.CntrNum,
-                    CntrType = record.CntrType.Normolize!,
-                    CntrTareWt = record.CntrTareWt,
-                    Seal = record.Seal,
+            //eoRecordsDTO.Add(new ExportOrderRecordDTO({}));
+            ++indexRec;
+            eoRecordDTO.Seq = indexRec.ToString();
 
-                    Quantity = content.Quantity,
-                    NetWt = content.NetWt,
-                    GrossWt = content.GrossWt,
+            foreach (var content in record.Contents)    {
+                //eoRecordDTO.Seq = "";
+                eoRecordDTO.Cntr = record.CntrNum;
+                eoRecordDTO.CntrType = record.CntrType.Normolize!;
+                eoRecordDTO.CntrTareWt = record.CntrTareWt;
+                eoRecordDTO.Seal = record.Seal;
+                eoRecordDTO.Quantity = content.Quantity;
+                eoRecordDTO.NetWt = content.NetWt;
+                eoRecordDTO.GrossWt = content.GrossWt;
 
-                    DocumentName = content.DocumentRecord.Document.Name!,
-                    Shipper = content.DocumentRecord.Document.Shipper!.Name!,
-                    Consignee = content.DocumentRecord.Document.Consignee!.Name!,
+                eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
+                eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
+                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;
 
-                    CommodityName = content.DocumentRecord.CommodityName!,
-                    HSCode = content.DocumentRecord.CommodityHSCode!,
-                    IMO = content.DocumentRecord.IMO,
-                    UNNO = content.DocumentRecord.UNNO,
-                    IsIMO = content.DocumentRecord.IsIMO,
-                });
+                eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName!;
+                eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode!;
+                eoRecordDTO.IMO = content.DocumentRecord.IMO;
+                eoRecordDTO.UNNO = content.DocumentRecord.UNNO;
+                eoRecordDTO.IsIMO = content.DocumentRecord.IsIMO;
+
+                eoRecordsDTO.Add(eoRecordDTO);
+                eoRecordDTO = new ExportOrderRecordDTO();
             }
         }
 
         return eoRecordsDTO.ToArray();
     };
 
+
+
+    //Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
+    //{
+    //    var eoRecordsDTO = new List<ExportOrderRecordDTO>();
+    //    //var eoRecordDTO = new ExportOrderRecordDTO();
+
+    //    //var eoDocumentsDTO = new List<DocumentDTO>();
+
+    //    uint indexRec = 0;
+    //    //uint indexDoc = 0;
+
+    //    foreach (var record in _eoRecords)
+    //    {
+    //        foreach (var content in record.Contents)
+    //        {
+    //            eoRecordsDTO.Add(new ExportOrderRecordDTO()
+    //            {
+    //                Seq = ++indexRec,
+    //                Cntr = record.CntrNum,
+    //                CntrType = record.CntrType.Normolize!,
+    //                CntrTareWt = record.CntrTareWt,
+    //                Seal = record.Seal,
+
+    //                Quantity = content.Quantity,
+    //                NetWt = content.NetWt,
+    //                GrossWt = content.GrossWt,
+
+    //                DocumentName = content.DocumentRecord.Document.Name!,
+    //                Shipper = content.DocumentRecord.Document.Shipper!.Name!,
+    //                Consignee = content.DocumentRecord.Document.Consignee!.Name!,
+
+    //                CommodityName = content.DocumentRecord.CommodityName!,
+    //                HSCode = content.DocumentRecord.CommodityHSCode!,
+    //                IMO = content.DocumentRecord.IMO,
+    //                UNNO = content.DocumentRecord.UNNO,
+    //                IsIMO = content.DocumentRecord.IsIMO,
+    //            });
+    //        }
+    //    }
+
+    //    return eoRecordsDTO.ToArray();
+    //};
+
     // DELETE
+
     Func<IEnumerable<DocumentEntity>, IEnumerable<DocumentDTO>> eoDocuments = (_eoDocuments) =>
     {
         var eoDocumentsDTO = new List<DocumentDTO>();

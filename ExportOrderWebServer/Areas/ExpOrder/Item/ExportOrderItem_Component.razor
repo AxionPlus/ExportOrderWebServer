@@ -80,7 +80,7 @@
                            Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Waves" OnAdornmentClick="GetVesselCall_Click" />
 
             <MudAutocomplete T="CarrierCatalog" Style="width: 350px" Label="Carrier" @bind-Value="Value.Carrier"
-                             ToStringFunc="@(e => e != null ? e.FullName : "")"
+                             ToStringFunc="@(e => e != null ? e.Name : "")"
                              SearchFunc="@SearchCarrier"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              Required RequiredError=""
@@ -517,12 +517,12 @@
 
         var response = await _carrierProvider.GetItemsAsync();
         if (!response.HasError)
-            Carriers = ((IEnumerable<CarrierCatalog>)response.Object!).OrderBy(s => s.FullName).ToList();
+            Carriers = ((IEnumerable<CarrierCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
 
         if (string.IsNullOrWhiteSpace(value))
             return Carriers;
 
-        return Carriers.Where(x => x.FullName!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return Carriers.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
     #endregion

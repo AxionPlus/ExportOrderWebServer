@@ -5,6 +5,6 @@ namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
 
 public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
 {
-    Task<ExportOrderDTO> GetItemDTOAsync(long id);  
+    Task<ExportOrderDTO> GetItemDTOAsync(long eoId);
     Task<IEnumerable<PersonEntity>> GetPersonAsync();
 }

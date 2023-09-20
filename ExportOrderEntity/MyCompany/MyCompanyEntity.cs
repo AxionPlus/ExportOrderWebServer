@@ -5,6 +5,8 @@ namespace ExportOrderEntites.MyCompany;
 
 public class MyCompanyEntity
 {
+    [Key]
+    public uint Id { get; set; }
     public string? Name { get; set; } = "Рожки да ножки";                            // Наименование компании
     public IList<PersonEntity>? Persons { get; set; } = new List<PersonEntity>();    // Список сотрудников
 

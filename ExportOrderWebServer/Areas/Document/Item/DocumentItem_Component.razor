@@ -38,7 +38,7 @@
         }
         
         .IMOWeight * .mud-input.mud-input-outlined {
-            width: 50px;
+            width: 70px;
         }
 
     
@@ -174,11 +174,8 @@
                         </div>
                     </MudTd>
                     <MudTd>
-                        @* <div class="controlIconButtons"> *@
-                            <div class="wrapper-checkBox">
-                                 @* <MudCheckBox @bind-Checked="@context.IsShowWT_Details"></MudCheckBox> *@
+                        <div class="wrapper-checkBox">
                                 <MudCheckBox @bind-Checked="@context.IsIMO"></MudCheckBox>
-                            @* </div> *@
                         </div>
                     </MudTd>
                     <MudTd></MudTd>
@@ -216,7 +213,7 @@
                                         <div class="numField_Label">UNNO</div>
                                          <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.UNNO"
                                                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                       MaxLength="4" />
+                                                       MaxLength="6" Mask="@( IsNewItem? new PatternMask("UN0000") : null)" />
                                     </div>
                                 </div>
                             </td>

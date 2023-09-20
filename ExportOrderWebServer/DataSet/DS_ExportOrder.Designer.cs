@@ -866,7 +866,7 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
         public partial class RecordsDataTable : global::System.Data.TypedTableBase<RecordsRow> {
             
-            private global::System.Data.DataColumn columnrecId;
+            private global::System.Data.DataColumn columnId;
             
             private global::System.Data.DataColumn columnSeq;
             
@@ -935,9 +935,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn recIdColumn {
+            public global::System.Data.DataColumn IdColumn {
                 get {
-                    return this.columnrecId;
+                    return this.columnId;
                 }
             }
             
@@ -1107,7 +1107,7 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public RecordsRow AddRecordsRow(
-                        long recId, 
+                        long Id, 
                         int Seq, 
                         string Cntr, 
                         string CntrType, 
@@ -1126,7 +1126,7 @@ namespace ExportOrderWebServer.DataSet {
                         bool IsIMO) {
                 RecordsRow rowRecordsRow = ((RecordsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
-                        recId,
+                        Id,
                         Seq,
                         Cntr,
                         CntrType,
@@ -1165,7 +1165,7 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             internal void InitVars() {
-                this.columnrecId = base.Columns["recId"];
+                this.columnId = base.Columns["Id"];
                 this.columnSeq = base.Columns["Seq"];
                 this.columnCntr = base.Columns["Cntr"];
                 this.columnCntrType = base.Columns["CntrType"];
@@ -1187,8 +1187,8 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             private void InitClass() {
-                this.columnrecId = new global::System.Data.DataColumn("recId", typeof(long), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnrecId);
+                this.columnId = new global::System.Data.DataColumn("Id", typeof(long), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnId);
                 this.columnSeq = new global::System.Data.DataColumn("Seq", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnSeq);
                 this.columnCntr = new global::System.Data.DataColumn("Cntr", typeof(string), null, global::System.Data.MappingType.Element);
@@ -2811,17 +2811,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public long recId {
+            public long Id {
                 get {
                     try {
-                        return ((long)(this[this.tableRecords.recIdColumn]));
+                        return ((long)(this[this.tableRecords.IdColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'recId\' в таблице \'Records\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Id\' в таблице \'Records\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableRecords.recIdColumn] = value;
+                    this[this.tableRecords.IdColumn] = value;
                 }
             }
             
@@ -3083,14 +3083,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsrecIdNull() {
-                return this.IsNull(this.tableRecords.recIdColumn);
+            public bool IsIdNull() {
+                return this.IsNull(this.tableRecords.IdColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetrecIdNull() {
-                this[this.tableRecords.recIdColumn] = global::System.Convert.DBNull;
+            public void SetIdNull() {
+                this[this.tableRecords.IdColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

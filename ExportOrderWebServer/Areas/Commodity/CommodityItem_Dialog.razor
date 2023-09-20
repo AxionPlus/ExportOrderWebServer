@@ -24,12 +24,12 @@
                     {
                         <MudTextField T="string" Style="width:195px; margin-right:10px" Label="IMO" @bind-Value="@Item.IMO"
                                       Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      MaxLength="3" Mask="@( IsNewItem? new PatternMask("0.0") : null)"
-                                                Required RequiredError=""
+                                      MaxLength="3" 
+                                      Required RequiredError=""
                                        ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                         <MudTextField T="string" Style="width:195px" Label="UNNO" @bind-Value="@Item.UNNO"
                                       Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      MaxLength="4" Mask="@( IsNewItem? new PatternMask("0000") : null)"
+                                      MaxLength="6" Mask="@( IsNewItem? new PatternMask("UN0000") : null)"
                                       Required RequiredError=""
                          ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                     }

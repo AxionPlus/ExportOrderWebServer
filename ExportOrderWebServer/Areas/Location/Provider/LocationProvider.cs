@@ -86,7 +86,7 @@ public class LocationProvider : ILocationProvider
 
             // check an Existing item
             var itemExistCheck = await db.Locations.Where(s => s.UnLocode == item!.UnLocode).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
+            if (itemExistCheck is not null)
             {
                 appObjResponse.ErrorAdd($"Location exists already: {item!.Name}");
                 return appObjResponse;

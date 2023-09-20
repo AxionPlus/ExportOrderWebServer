@@ -29,7 +29,7 @@
 
             <MudSpacer />
 
-            <div class="ToolBar-Title"><span>@($"Export Order Status:  {Header}")</span></div>
+            <div class="ToolBar-Title"><span>@($"Export Order:  {Header}")</span></div>
 
             <MudSpacer />
 
@@ -99,7 +99,7 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-            Item = new() { Carrier = new(), VesselCall = new() { Vessel = new()}, Person = new() };
+            Item = new() { Carrier = new(), VesselCall = new() { Vessel = new()} };
         else
         {
             var response = await _exportOrderProvider.GetItemAsync(Id);

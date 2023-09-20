@@ -93,17 +93,16 @@
                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
             <MudSpacer />
             <div style="margin-right:20px">
-                 <MudSelect Class="SelectField" T="PersonEntity" @bind-Value="@Value.Person"
+                 <MudSelect Class="SelectField" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
+                            Style="width:180px" Placeholder="И.О. Фамилия"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon="">
                      @if (Persons is not null)
                         @foreach (var person in Persons)
                         {
-                            <MudSelectItem Value="@person">@person.Name!.ToString()</MudSelectItem>
+                            <MudSelectItem Value="@person">@person.Name</MudSelectItem>
                         }
                 </MudSelect>
-
-                @* <h6>@Value.Status.ToString()</h6> *@
             </div>            
         </div>
     </div>

@@ -81,8 +81,8 @@
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
-        <Field Name="recId">
-          <DataField>recId</DataField>
+        <Field Name="Id">
+          <DataField>Id</DataField>
           <rd:TypeName>System.Int64</rd:TypeName>
         </Field>
         <Field Name="Seq">
@@ -302,6 +302,19 @@
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Договор</Value>
+                                  <Style>
+                                    <FontStyle>Italic</FontStyle>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
@@ -1292,7 +1305,7 @@
                                   <Style />
                                 </TextRun>
                                 <TextRun>
-                                  <Value>=IIf(Fields!IsIMO.Value=true,"IMO: " &amp; Fields!IMO.Value &amp; " UNNO: " &amp; Fields!UNNO.Value, "")</Value>
+                                  <Value>=IIf(Fields!IsIMO.Value=true,"IMO: " &amp; Fields!IMO.Value &amp; " " &amp; Fields!UNNO.Value, "")</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -2771,8 +2784,44 @@
               </Border>
             </Style>
           </Tablix>
+          <Textbox Name="PersonIssued">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value xml:space="preserve"> </Value>
+                    <Style />
+                  </TextRun>
+                  <TextRun>
+                    <Value>=First(Fields!Person.Value, "dsItem")</Value>
+                    <Style />
+                  </TextRun>
+                  <TextRun>
+                    <Value>_______________________</Value>
+                    <Style />
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <Top>15cm</Top>
+            <Height>0.6cm</Height>
+            <Width>13cm</Width>
+            <ZIndex>6</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
         </ReportItems>
-        <Height>5.29583in</Height>
+        <Height>6.17635in</Height>
         <Style />
       </Body>
       <Width>7.44094in</Width>

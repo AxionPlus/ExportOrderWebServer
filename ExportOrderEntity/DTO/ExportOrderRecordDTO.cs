@@ -6,7 +6,7 @@ namespace ExportOrderEntites.DTO;
 public class ExportOrderRecordDTO
 {
     [Key]
-    public uint recId { get; set; }
+    public uint Id { get; set; }
 
 #pragma warning disable CS8618
 

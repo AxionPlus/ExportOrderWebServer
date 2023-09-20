@@ -26,7 +26,8 @@ public class ExportOrderProvider : IExportOrderProvider
             var db = await _db;
 
             try { 
-            appObjResponse.Object = await db.ExportOrders.Include(eo => eo.Carrier)!.ThenInclude(c => c.CarrierDetails)
+            appObjResponse.Object = await db.ExportOrders.Include(eo => eo.Person)
+                                                         .Include(eo => eo.Carrier)!.ThenInclude(c => c.CarrierDetails)
                                                          .Include(eo => eo.Documents)!
                                                          .Include(eo => eo.Records)!.ThenInclude(r => r.Contents)
                                                                                     .ThenInclude(c => c.DocumentRecord)
@@ -44,7 +45,7 @@ public class ExportOrderProvider : IExportOrderProvider
         return appObjResponse;
     }
 
-    public async Task<ExportOrderDTO> GetItemDTOAsync(long id)
+    public async Task<ExportOrderDTO> GetItemDTOAsync(long eoId)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -52,12 +53,10 @@ public class ExportOrderProvider : IExportOrderProvider
             //{
             var db = await _db;
 
-            var myCompany = await db.MyCompany.AsNoTracking().Include(co => co.Persons).FirstOrDefaultAsync();
-            var person = await db.Persons.FirstOrDefaultAsync();
+            var myCompany = await db.MyCompany.AsNoTracking().FirstOrDefaultAsync();
 
-            //string person = persons.FirstOrDefault(p => p.Id == myCompany.Persons)?.Name;
-
-            var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
+            var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.LoadingTerminal)
+                                            .Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)                                            
                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Country)
                                             .Include(x => x.Carrier)!.ThenInclude(c => c.CarrierDetails)
                                             .Include(x => x.Person)
@@ -74,16 +73,13 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 Voyage = source.VesselCall.VoyageCarrier,
                                                 DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
-                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract!,
+                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract!,                                                
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
                                                 MyCompanyName = myCompany!.Name!,
-                                                Person = person!.Name + " т. " + person!.Phone,
-                                                //Person = source.Person!.Name + " т. " + source.Person.Phone,
-                                                //Person = myCompany.Persons!.FirstOrDefault(p => p.Id == source.Person!.Id)!.Name + " т. " +
-                                                //        myCompany.Persons!.FirstOrDefault(p => p.Id == source.Person!.Id)!.Phone,
+                                                Person = source.Person!.Name + " т. " + source.Person.Phone,
                                                 exportOrderRecordsDTO = eoRecords(source.Records!)
                                             })
-                                            .FirstOrDefaultAsync(x => x.Id == id);
+                                            .FirstOrDefaultAsync(x => x.Id == eoId);
 
             return Item!;
             //}
@@ -222,17 +218,7 @@ public class ExportOrderProvider : IExportOrderProvider
         }
     }
 
-    //public async Task<MyCompanyEntity> GetMyCompanyAsync()
-    //{
-    //    using (var _db = _dbContext.CreateDbContextAsync())
-    //    {
-    //        var db = await _db;
 
-    //        var Item = db.MyCompany.Include(x => x.Persons).AsNoTracking().FirstOrDefault();
-
-    //        return Item!;
-    //    }
-    //}
 
     #region AUXIALARY
 
@@ -280,36 +266,17 @@ public class ExportOrderProvider : IExportOrderProvider
     };
 
 
-    Func<IEnumerable<DocumentEntity>, IEnumerable<DocumentDTO>> eoDocuments = (_eoDocuments) =>
-    {
-        var eoDocumentsDTO = new List<DocumentDTO>();
+    //public async Task<MyCompanyEntity> GetMyCompanyAsync()
+    //{
+    //    using (var _db = _dbContext.CreateDbContextAsync())
+    //    {
+    //        var db = await _db;
 
-        uint index = 0;
+    //        var Item = db.MyCompany.Include(x => x.Persons).AsNoTracking().FirstOrDefault();
 
-        foreach (var document in _eoDocuments)
-        {
-            foreach (var record in document.Records)
-            {
-                eoDocumentsDTO.Add(new DocumentDTO()
-                {
-                    IndexDocument = index++,
-                    DocumentName = document.Name,
-                    Shipper = document.Shipper!.Name,
-                    Consignee = document.Consignee!.Name,
-
-                    CommodityName = record.CommodityName,
-                    CommodityHSCode = record.CommodityHSCode,
-                    //IMO = record.IMO,
-                    //UNNO = record.UNNO,
-                    //IsIMO = record.IsIMO,
-                    Quantity = 1,
-                });
-            }
-        }
-
-        return eoDocumentsDTO.ToArray();
-    };
-
+    //        return Item!;
+    //    }
+    //}
 
     #endregion
 

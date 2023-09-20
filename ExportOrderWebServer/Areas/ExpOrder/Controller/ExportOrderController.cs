@@ -27,7 +27,6 @@ public class ExportOrderController : ControllerBase
     public async Task<IActionResult> ExportOrderReport(long Id)
     {
         var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
-        //var myCompany = await _exportOrderProvider.GetMyCompanyAsync();
 
         try
         {
@@ -52,22 +51,22 @@ public class ExportOrderController : ControllerBase
             var dsShippers = dsRecords?.Select(r => new { ShipperName = r.Shipper }).Distinct().ToList();
             var dsConsignees = dsRecords?.Select(r => new { ConsigneeName = r.Consignee }).Distinct().ToList();
             var dsCommodities = dsRecords?.GroupBy(rec => rec.CommodityName).Select(g => new
-            {
-                Commodity = g.Key,
-                HScode = g.FirstOrDefault()!.HSCode,
-                IMO = g.FirstOrDefault()!.IMO,
-                UNNO = g.FirstOrDefault()!.UNNO,
-                IsIMO = g.FirstOrDefault()!.IsIMO
-            }).ToList();
+                                                                                            {
+                                                                                                Commodity = g.Key,
+                                                                                                HScode = g.FirstOrDefault()!.HSCode,
+                                                                                                IMO = g.FirstOrDefault()!.IMO,
+                                                                                                UNNO = g.FirstOrDefault()!.UNNO,
+                                                                                                IsIMO = g.FirstOrDefault()!.IsIMO
+                                                                                            }).ToList();
 
             var dsDocuments = dsRecords?.GroupBy(rec => rec.DocumentName).Select(g => new
-            {
-                Seq = 1,
-                Document = g.Key,
-                Pakages = g.Sum(q => q.Quantity),
-                Net = g.Sum(net => net.NetWt),
-                Gross = g.Sum(gr => gr.GrossWt)
-            }).ToList();
+                                                                                        {
+                                                                                            Seq = 1,
+                                                                                            Document = g.Key,
+                                                                                            Pakages = g.Sum(q => q.Quantity),
+                                                                                            Net = g.Sum(net => net.NetWt),
+                                                                                            Gross = g.Sum(gr => gr.GrossWt)
+                                                                                        }).ToList();
 
             //var dsCommodities = dsRecords?.Select(s => new {
             //                                                 Commodity = s.CommodityName,
@@ -84,18 +83,7 @@ public class ExportOrderController : ControllerBase
             //                                                 Gross = dsRecords.Sum(gr => gr.GrossWt)
             //                                             }).ToList();
             
-            //uint counter = 0;
-
-            foreach (var document in dsDocuments!)
-            {
-                //document(s=> new { Seq = ++counter });
-                //document.Seq = document(s=>s.Seq = ++counter);
-            }
-
-            //var dsShippers = dsRecords?.GroupBy(rec => rec.Shipper).Select(g => new { ShipperName = g.Key}).ToList();
-            //var dsConsignees = dsRecords?.GroupBy(rec => rec.Consignee).Select(g => new { ConsigneeName = g.Key}).ToList();
-
-
+            
             localReport.AddDataSource("dsItem", dsItem);
             localReport.AddDataSource("dsRecords", dsRecords);
             localReport.AddDataSource("dsShippers", dsShippers);

@@ -92,10 +92,7 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-        {
-            //Item = new() { Shipper = new(), Consignee = new(), RecorDocumentRecordDTODocumentRecord>() };
             Item = new() { Shipper = new(), Consignee = new() };
-        }
         else
         {
             var response = await _documentProvider.GetItemAsync(Id);

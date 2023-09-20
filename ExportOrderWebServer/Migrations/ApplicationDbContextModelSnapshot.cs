@@ -141,10 +141,10 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<string>("ShortName")
+                    b.Property<string>("NameEn")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -152,6 +152,33 @@ namespace ExportOrderWebServer.Migrations
                     b.HasIndex("CreateUserId");
 
                     b.ToTable("Carriers");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.Catalog.CarrierTerminalDetails", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CarrierId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Contract")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DateContract")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("TerminalName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarrierId");
+
+                    b.ToTable("CarrierDetails");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.Catalog.CountryCatalog", b =>
@@ -287,7 +314,7 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("IMO")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("IsIMO")
+                    b.Property<bool>("IsIMO")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
@@ -795,6 +822,15 @@ namespace ExportOrderWebServer.Migrations
                     b.Navigation("CreateUser");
                 });
 
+            modelBuilder.Entity("ExportOrderEntites.Catalog.CarrierTerminalDetails", b =>
+                {
+                    b.HasOne("ExportOrderEntites.Catalog.CarrierCatalog", "Carrier")
+                        .WithMany("TerminalDetails")
+                        .HasForeignKey("CarrierId");
+
+                    b.Navigation("Carrier");
+                });
+
             modelBuilder.Entity("ExportOrderEntites.Catalog.CountryCatalog", b =>
                 {
                     b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
@@ -1044,6 +1080,11 @@ namespace ExportOrderWebServer.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.Catalog.CarrierCatalog", b =>
+                {
+                    b.Navigation("TerminalDetails");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.Document.DocumentEntity", b =>

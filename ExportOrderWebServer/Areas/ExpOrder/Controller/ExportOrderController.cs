@@ -27,6 +27,7 @@ public class ExportOrderController : ControllerBase
     public async Task<IActionResult> ExportOrderReport(long Id)
     {
         var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
+        //var myCompany = await _exportOrderProvider.GetMyCompanyAsync();
 
         try
         {

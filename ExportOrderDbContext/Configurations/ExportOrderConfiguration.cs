@@ -24,7 +24,7 @@ public class ExportOrderConfiguration : IEntityTypeConfiguration<ExportOrderEnti
 
         builder.Navigation(s => s.Records).AutoInclude();
 
-        builder.Navigation(s => s.Documents).AutoInclude();
+        //builder.Navigation(s => s.Documents).AutoInclude();
 
         builder.Navigation(s => s.Carrier).AutoInclude();
 

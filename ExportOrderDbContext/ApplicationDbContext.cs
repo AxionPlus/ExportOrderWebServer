@@ -1,4 +1,5 @@
 ﻿
+using ExportOrderEntites.MyCompany;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -24,6 +25,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<VesselCallEntity> VesselCalls { get; set; }
     public DbSet<DocumentEntity> Documents { get; set; }
     public DbSet<ExportOrderEntity> ExportOrders { get; set; }
+    //public DbSet<MyCompanyEntity> MyCompany { get; set; }
+    //public DbSet<PersonEntity> Persons { get; set; }
+
     #endregion
 
 

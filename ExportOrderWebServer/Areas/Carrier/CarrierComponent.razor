@@ -13,14 +13,14 @@
                        Variant="Variant.Filled" Color="Color.Primary"
                        OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
             <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Full Name" Style="width: 400px" SearchFunc="@SearchNames"
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
                              Value="Filter.Name"
                              ValueChanged="(e)=> { Filter.Name = e; }"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon=""
                              ResetValueOnEmptyText="true" Clearable />
              <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="Short Name" Style="width: 400px" SearchFunc="@SearchNamesEn"
+             <MudAutocomplete Class="Autocomplete" T="string" Label="Name En" Style="width: 400px" SearchFunc="@SearchNamesEn"
                               Value="Filter.NameEn"
                               ValueChanged="(e)=> { Filter.NameEn = e; }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -34,42 +34,42 @@
      </div>
  
     <div class="Container-table">
-     @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-        </div>
-    }
+         @if (mudTable != null)
+        {
+            <div class="tableMenu">
+                <MudSpacer />
+                <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+                <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+            </div>
+        }
 
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CarrierCatalog" Context="carrier"
-              Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+        <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CarrierCatalog" Context="carrier"
+                  Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
-        <HeaderContent>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:400px">
-                <MudTableSortLabel SortBy="new Func<CarrierCatalog, object>(x=>x.Name!)">Full Name</MudTableSortLabel>
-            </MudTh>
-            <MudTh Style="width:400px">
-                <MudTableSortLabel SortBy="new Func<CarrierCatalog, object>(x=>x.NameEn!)">Short Name</MudTableSortLabel>
-            </MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
+            <HeaderContent>
+                <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:400px">
+                    <MudTableSortLabel SortBy="new Func<CarrierCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:400px">
+                    <MudTableSortLabel SortBy="new Func<CarrierCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
+                </MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
 
-        <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(carrier.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(carrier); })"></MudIconButton></MudTd>
-            <MudTd>@carrier.Name</MudTd>
-            <MudTd>@carrier.NameEn</MudTd>
-            <MudTd></MudTd>
-        </RowTemplate>
+            <RowTemplate>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(carrier.Id); })"></MudIconButton></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(carrier); })"></MudIconButton></MudTd>
+                <MudTd>@carrier.Name</MudTd>
+                <MudTd>@carrier.NameEn</MudTd>
+                <MudTd></MudTd>
+            </RowTemplate>
 
-        <PagerContent></PagerContent>
+            <PagerContent></PagerContent>
 
-    </MudTable>
-</div>
+        </MudTable>
+    </div>
 
 </MudForm>
 
@@ -107,7 +107,7 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<CarrierItem_Dialog>("Carrier", parameters, options);
 
         DialogResult result = await dialog.Result;
@@ -118,7 +118,7 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<CarrierItem_Dialog>("New Carrier", parameters, options);
 
         DialogResult result = await dialog.Result;

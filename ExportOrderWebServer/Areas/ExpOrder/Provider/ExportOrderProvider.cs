@@ -1,5 +1,6 @@
 ﻿using ExportOrderEntites.DTO;
 using ExportOrderEntites.ExportOrder;
+using ExportOrderEntites.MyCompany;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Linq;
@@ -29,9 +30,19 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.ExportOrders.AsNoTracking().Include(s => s.Records)!.ThenInclude(c => c.Contents).ThenInclude(dr => dr.DocumentRecord).ThenInclude(d => d.Document)
-                                                                        .Include(x => x.Documents)!.ThenInclude(dr => dr.Records)
-                                                                        .FirstOrDefaultAsync(s => s.Id == id);
+            try { 
+            appObjResponse.Object = await db.ExportOrders.Include(eo => eo.Carrier)!.ThenInclude(c => c.CarrierDetails)
+                                                         .Include(eo => eo.Documents)!
+                                                         .Include(eo => eo.Records)!.ThenInclude(r => r.Contents)
+                                                                                    .ThenInclude(c => c.DocumentRecord)
+                                                                                    .ThenInclude(dr => dr.Document)
+                                                         .AsNoTracking()
+                                                         .FirstOrDefaultAsync(s => s.Id == id);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
         }
 
         return appObjResponse;
@@ -47,12 +58,9 @@ public class ExportOrderProvider : IExportOrderProvider
 
             var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Country)
-                                            //.Include(x => x.Documents)!.ThenInclude(x => x.Shipper as DocumentCustomer)
-                                            //.Include(x => x.Documents)!.ThenInclude(d => d.Consignee)
-                                            .Include(x => x.Documents)!.ThenInclude(d => d.Records) //.ThenInclude(dr => dr.Document)
+                                            .Include(x => x.Carrier)!.ThenInclude(c => c.CarrierDetails)
+                                            .Include(x => x.Documents)!.ThenInclude(d => d.Records)
                                             .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
-                                            //.Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document).ThenInclude(d => d.Shipper)
-                                            //.Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document).ThenInclude(d => d.Consignee)
                                             .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
                                             .AsNoTracking()
                                             .Select(source => new ExportOrderDTO()
@@ -64,10 +72,12 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 Voyage = source.VesselCall.VoyageCarrier,
                                                 DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
-                                                //_Documents = eoDocuments(source.Documents!),
+                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract!,
+                                                ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
                                                 exportOrderRecordsDTO = eoRecords(source.Records!)
                                             })
                                             .FirstOrDefaultAsync(x => x.Id == id);
+
             return Item!;
             //}
             //catch(Exception ex)
@@ -193,6 +203,18 @@ public class ExportOrderProvider : IExportOrderProvider
         throw new NotImplementedException();
     }
 
+    //public async Task<MyCompanyEntity> GetMyCompanyAsync()
+    //{
+    //    using (var _db = _dbContext.CreateDbContextAsync())
+    //    {
+    //        var db = await _db;
+
+    //        var Item = db.MyCompany.Include(x => x.Persons).AsNoTracking().FirstOrDefault();
+
+    //        return Item!;
+    //    }
+    //}
+
     #region AUXIALARY
 
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
@@ -214,6 +236,8 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.CntrType = record.CntrType.Normolize!;
                 eoRecordDTO.CntrTareWt = record.CntrTareWt;
                 eoRecordDTO.Seal = record.Seal;
+
+
                 eoRecordDTO.Quantity = content.Quantity;
                 eoRecordDTO.NetWt = content.NetWt;
                 eoRecordDTO.GrossWt = content.GrossWt;
@@ -222,8 +246,8 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
                 eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;
 
-                eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName!;
-                eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode!;
+                eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
+                eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode;
                 eoRecordDTO.IMO = content.DocumentRecord.IMO;
                 eoRecordDTO.UNNO = content.DocumentRecord.UNNO;
                 eoRecordDTO.IsIMO = content.DocumentRecord.IsIMO;
@@ -236,51 +260,6 @@ public class ExportOrderProvider : IExportOrderProvider
         return eoRecordsDTO.ToArray();
     };
 
-
-
-    //Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
-    //{
-    //    var eoRecordsDTO = new List<ExportOrderRecordDTO>();
-    //    //var eoRecordDTO = new ExportOrderRecordDTO();
-
-    //    //var eoDocumentsDTO = new List<DocumentDTO>();
-
-    //    uint indexRec = 0;
-    //    //uint indexDoc = 0;
-
-    //    foreach (var record in _eoRecords)
-    //    {
-    //        foreach (var content in record.Contents)
-    //        {
-    //            eoRecordsDTO.Add(new ExportOrderRecordDTO()
-    //            {
-    //                Seq = ++indexRec,
-    //                Cntr = record.CntrNum,
-    //                CntrType = record.CntrType.Normolize!,
-    //                CntrTareWt = record.CntrTareWt,
-    //                Seal = record.Seal,
-
-    //                Quantity = content.Quantity,
-    //                NetWt = content.NetWt,
-    //                GrossWt = content.GrossWt,
-
-    //                DocumentName = content.DocumentRecord.Document.Name!,
-    //                Shipper = content.DocumentRecord.Document.Shipper!.Name!,
-    //                Consignee = content.DocumentRecord.Document.Consignee!.Name!,
-
-    //                CommodityName = content.DocumentRecord.CommodityName!,
-    //                HSCode = content.DocumentRecord.CommodityHSCode!,
-    //                IMO = content.DocumentRecord.IMO,
-    //                UNNO = content.DocumentRecord.UNNO,
-    //                IsIMO = content.DocumentRecord.IsIMO,
-    //            });
-    //        }
-    //    }
-
-    //    return eoRecordsDTO.ToArray();
-    //};
-
-    // DELETE
 
     Func<IEnumerable<DocumentEntity>, IEnumerable<DocumentDTO>> eoDocuments = (_eoDocuments) =>
     {
@@ -312,49 +291,6 @@ public class ExportOrderProvider : IExportOrderProvider
         return eoDocumentsDTO.ToArray();
     };
 
-
-    #region MULTI-LEVEL RECORDS
-
-    //Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> expOrderRecords = (_eoRecords) =>
-    //{
-    //    var eoRecordsDTO = new List<ExportOrderRecordDTO>();
-
-    //    var containerContentsDTO = new List<ContainerContentDTO>();
-
-    //    uint index = 0;
-
-    //    foreach (var record in _eoRecords)
-    //    {
-    //        foreach (var content in record.Contents)
-    //        {
-    //            containerContentsDTO.Add(new ContainerContentDTO()
-    //            {
-    //                Quantity = content.Quantity,
-    //                NetWt = content.NetWt,
-    //                GrossWt = content.GrossWt,
-    //                CommodityName = content.DocumentRecord.CommodityName,
-    //                HSCode = content.DocumentRecord.CommodityHSCode,
-    //                //IMO = content.DocumentRecord.IMO,
-    //                //UNNO = content.DocumentRecord.UNNO,
-    //                //IsIMO = content.DocumentRecord.IsIMO,
-    //            });
-    //        }
-
-    //        eoRecordsDTO.Add(new ExportOrderRecordDTO()
-    //        {
-    //            IndexExpRecord = index++,
-    //            Cntr = record.CntrNum,
-    //            CntrType = record.CntrType.Normolize!,
-    //            CntrTareWt = record.CntrTareWt,
-    //            Seal = record.Seal,
-    //            //ContentsDTO = containerContentsDTO
-    //        });            
-    //    }
-
-    //    return eoRecordsDTO.ToArray();
-    //};
-
-    #endregion
 
     #endregion
 

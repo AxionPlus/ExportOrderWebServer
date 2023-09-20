@@ -49,6 +49,18 @@
           <DataField>POD</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="Contract">
+          <DataField>Contract</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ContractDate">
+          <DataField>ContractDate</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="MyCompanyName">
+          <DataField>MyCompanyName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="Person">
           <DataField>Person</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -293,11 +305,27 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
-                                  <Style />
+                                  <Value>=Fields!Contract.Value</Value>
+                                  <Style>
+                                    <FontStyle>Italic</FontStyle>
+                                  </Style>
+                                </TextRun>
+                                <TextRun>
+                                  <Value> от </Value>
+                                  <Style>
+                                    <FontStyle>Italic</FontStyle>
+                                  </Style>
+                                </TextRun>
+                                <TextRun>
+                                  <Value>=Fields!ContractDate.Value</Value>
+                                  <Style>
+                                    <FontStyle>Italic</FontStyle>
+                                  </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -391,11 +419,15 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
-                                  <Style />
+                                  <Value>=Fields!MyCompanyName.Value</Value>
+                                  <Style>
+                                    <FontStyle>Italic</FontStyle>
+                                  </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -490,6 +522,7 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -1237,7 +1270,7 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Shipper3">
+                        <Textbox Name="Commodity">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1260,7 +1293,7 @@
                                   <Style />
                                 </TextRun>
                                 <TextRun>
-                                  <Value>=IIf(Fields!IsIMO.Value=true,"IMO: " &amp; Fields!IMO.Value &amp; "UNNO: " &amp; Fields!UNNO.Value, "")</Value>
+                                  <Value>=IIf(Fields!IsIMO.Value=true,"IMO: " &amp; Fields!IMO.Value &amp; " UNNO: " &amp; Fields!UNNO.Value, "")</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -1635,7 +1668,7 @@
                             <Border>
                               <Style>None</Style>
                             </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingLeft>6pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
@@ -1688,11 +1721,12 @@
                                   <Value>=Fields!Net.Value</Value>
                                   <Style>
                                     <FontFamily>Courier New</FontFamily>
+                                    <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Center</TextAlign>
+                                <TextAlign>Right</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -1721,11 +1755,12 @@
                                   <Value>=Fields!Gross.Value</Value>
                                   <Style>
                                     <FontFamily>Courier New</FontFamily>
+                                    <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Center</TextAlign>
+                                <TextAlign>Right</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -1848,7 +1883,7 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox40">
+                        <Textbox Name="d_SumNetto">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1859,6 +1894,7 @@
                                   <Style>
                                     <FontFamily>Courier New</FontFamily>
                                     <FontWeight>Bold</FontWeight>
+                                    <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1867,7 +1903,6 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox40</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1882,7 +1917,7 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox41">
+                        <Textbox Name="d_SumGross">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1893,6 +1928,7 @@
                                   <Style>
                                     <FontFamily>Courier New</FontFamily>
                                     <FontWeight>Bold</FontWeight>
+                                    <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1901,7 +1937,6 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox41</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2637,11 +2672,12 @@
                                   <Value>=Fields!NetWt.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Center</TextAlign>
+                                <TextAlign>Right</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -2669,11 +2705,12 @@
                                   <Value>=Fields!GrossWt.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Center</TextAlign>
+                                <TextAlign>Right</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>

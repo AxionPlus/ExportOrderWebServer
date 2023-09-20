@@ -174,8 +174,8 @@ body {
             min-width: 24px;
         }
 
-.Table {
-}
+/*.Table {
+}*/
 
     .Table * thead {
         background-color: var(--tableThead);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Eventing.Reader;
 
 namespace ExportOrderWebServer.Areas.Carrier.Provider;
 
@@ -23,7 +24,7 @@ public class CarrierProvider : ICarrierProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Carriers.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            appObjResponse.Object = await db.Carriers.AsNoTracking().Include(s => s.CarrierDetails).FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;
@@ -94,6 +95,9 @@ public class CarrierProvider : ICarrierProvider
             item.CreateUser = User!;
             db.Entry(item).State = EntityState.Added;
 
+            foreach (var record in item.CarrierDetails)
+                db.Entry(record).State = EntityState.Added;
+
             var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
@@ -106,7 +110,7 @@ public class CarrierProvider : ICarrierProvider
     {
         throw new NotImplementedException();
     }
-    
+
     public async Task<IEnumerable<string>> GetNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -124,4 +128,44 @@ public class CarrierProvider : ICarrierProvider
             return await db.Carriers.Select(s => s.NameEn!).ToListAsync();
         }
     }
+
+
+    #region AUXILARY
+
+    public async Task<AppObjectResponse> RemoveDetailsAsync(CarrierTerminalDetails item)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            // check an Existing item
+            var itemExistCheck = await db.CarrierDetails.Where(s => s.Id == item!.Id).FirstOrDefaultAsync();
+            if (itemExistCheck != null)
+            {
+                appObjResponse.ErrorAdd($"Carrier details dosn't exists for: {item!.TerminalName}");
+                return appObjResponse;
+            }
+
+            db.Entry(item).State = EntityState.Deleted;
+
+            var bug = db.ChangeTracker.DebugView.LongView;
+
+            await db.SaveChangesAsync();
+
+            return appObjResponse;
+        }
+    }
+
+    public async Task<IEnumerable<string>> GetTerminalNames()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+            return await db.Terminals.Select(s => s.Name!).ToListAsync();
+        }
+    }
+
+    #endregion
 }

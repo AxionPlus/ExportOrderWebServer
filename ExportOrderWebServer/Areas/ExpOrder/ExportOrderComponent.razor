@@ -75,9 +75,9 @@
         <HeaderContent>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:100px">Number</MudTh>
+            <MudTh Style="width:120px">Number</MudTh>
             <MudTh Style="width:100px">Dated</MudTh>
-            <MudTh Style="width:300px">Voyage</MudTh>
+            <MudTh Style="width:150px">Voyage</MudTh>
             <MudTh Style="width:300px">Vessel</MudTh>
             <MudTh Style="text-align:start">Carrier</MudTh>
         </HeaderContent>
@@ -91,7 +91,7 @@
             <MudTd>
                 <MudTooltip Text="view Report">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
-                                       OnClick="@(async()=>{ await ViewReport_Click(context.Id); })" />
+                                   OnClick="@(async()=>{ await ViewReport_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>@context.Num</MudTd>
@@ -172,9 +172,6 @@
 
     private async Task ViewReport_Click(long id)
     {
-        //var Item = await _exportOrderProvider._GetItemDTOAsync(id);
-        //var Item = await _exportOrderProvider.GetItemDTOAsync(id);
-
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReport?Id={id}";
         await JSRuntime.InvokeVoidAsync("open", path);
     }

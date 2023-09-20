@@ -2,10 +2,6 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IExportOrderProvider _exportOrderProvider
 
-@* @inject NavigationManager Navigation
-@inject HttpClient Http
-@inject IJSRuntime JSRuntime *@
-
 <style></style>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
@@ -103,9 +99,7 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-        {
             Item = new() { Carrier = new(), VesselCall = new() { Vessel = new()} };
-        }        
         else
         {
             var response = await _exportOrderProvider.GetItemAsync(Id);

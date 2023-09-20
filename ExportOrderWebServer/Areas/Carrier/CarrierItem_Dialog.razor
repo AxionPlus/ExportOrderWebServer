@@ -1,12 +1,26 @@
 ﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICarrierProvider _carrierProvider
 
+<style>
+    .DatePicker > .mud-input-control {
+        margin-top: unset;
+    }
+
+    .Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
+        margin-inline-end:unset;
+    }
+
+    .Table * .mud-table-cell .mud-input-control * .mud-icon-button {
+        padding: unset;
+    }
+</style>
+
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="Container-item" style="width: 530px">
-            <div class="container-head"></div>
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="!IsNewItem">
+        <div class="Container-item">
             <div class="container-content">
                 <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
@@ -19,7 +33,7 @@
                      Save
                  </MudButton>
              </div>
-             <div class="container-content">
+            <div class="container-content">
                  <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.NameEn"
                                TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -31,12 +45,59 @@
                      Clear
                  </MudButton>
              </div>
-         </div>
-     </MudForm>
+            <div class="Container-table">
+                <MudTable Class="Table" @ref="mudTable" T="CarrierTerminalDetails" Items="@Item.CarrierDetails" Context="details"
+                          Virtualize="true" RowsPerPage="20">
+                   
+                   <HeaderContent>
+                       <MudTh Style="width:30px">
+                            <div class="controlIconButtons">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetails_Click" Size="Size.Small" Disabled="IsNewItem"></MudIconButton>
+                            </div>
+                       </MudTh>
+                       <MudTh Style="width:300px">Terminal</MudTh>
+                       <MudTh Style="width:100px">Contract</MudTh>
+                       <MudTh Style="width:130px">Dated</MudTh>
+                   </HeaderContent>
+
+                   <RowTemplate>
+                       <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(details); })" /></MudTd>
+                       <MudTd>
+                            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 300px" SearchFunc="@SearchTerminalNames"
+                                             Value="details.TerminalName"
+                                             ValueChanged="(e)=> { details.TerminalName = e; }"
+                                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                                             CloseIcon="" OpenIcon=""
+                                             ResetValueOnEmptyText="true" Clearable />
+                       </MudTd>
+                       <MudTd>
+                            <MudTextField Class="TextField" T="string" @bind-Value="details.Contract"
+                                          Style="width: 100px"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
+                       </MudTd>
+                       <MudTd>
+                            <MudDatePicker Class="DatePicker" @bind-Date="@details.DateContract"
+                                           Style="width: 115px"
+                                           DateFormat="dd.MM.yy"
+                                           ShowWeekNumbers="true"
+                                           Variant="Variant.Outlined"
+                                           IconSize=Size.Small
+                                           AutoClose=true
+                                           DisableToolbar=false
+                                           Required                                            
+                                           Clearable />
+                       </MudTd>
+                   </RowTemplate>
+               </MudTable>
+            </div>
+        </div>
+    </MudForm>
 }
 
 @code {
     private MudForm? Form { get; set; }
+    private MudTable<CarrierTerminalDetails>? mudTable;
+
     [Parameter]
     public long Id { get; set; } = 0;
     [Parameter]
@@ -109,8 +170,70 @@
         {
             Item!.Name = null;
             Item.NameEn = null;
+
+            // foreach (var details in Item.CarrierDetails)
+            //     await RemoveDetails_Click(details);
         }
 
         await Task.Delay(50);
     }
+
+
+    #region DETAILS
+
+    private async Task AddDetails_Click()
+    {
+        await Task.Delay(50);
+
+        if (Item is not null)
+            Item.CarrierDetails.Add(new());
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RemoveDetails_Click(CarrierTerminalDetails item)
+    {
+        bool? msgResult = await DialogService.ShowMessageBox(
+                          "REMOVE  Record",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>{item.TerminalName}<br/>",
+                          yesText: "YES", cancelText: "NO");
+
+        var response = new AppObjectResponse();
+
+        if (item is null)
+            return;
+
+        if (msgResult.HasValue)
+            if (msgResult.Value)
+            {
+                if (IsNewItem)
+                    Item!.CarrierDetails.Remove(item);
+                else
+                {
+                    response = await _carrierProvider.RemoveDetailsAsync(item);
+
+                    if (!response.HasError)
+                        Snackbar.Add($"Deleted Successfully", Severity.Success);
+                    else
+                        Snackbar.Add($"Unable to delete", Severity.Warning);
+                }
+            }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<IEnumerable<string>> SearchTerminalNames(string value)
+    {
+        var result = await _carrierProvider.GetTerminalNames();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    #endregion
 }

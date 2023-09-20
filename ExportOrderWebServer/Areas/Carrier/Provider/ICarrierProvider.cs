@@ -2,4 +2,6 @@
 
 public interface ICarrierProvider : IEntityProvider<CarrierCatalog>
 {
+    Task<AppObjectResponse> RemoveDetailsAsync(CarrierTerminalDetails item);
+    Task<IEnumerable<string>> GetTerminalNames();
 }

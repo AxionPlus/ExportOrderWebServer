@@ -12,15 +12,15 @@ public class DocumentRecord
     public int Seq { get; set; }
 
     [Required]
-    public string? CommodityName { get; set; }
+    public string CommodityName { get; set; }
     [Required]
-    public string? CommodityEngName { get; set; }
+    public string CommodityEngName { get; set; }
 
     [MaxLength(10)]
-    public string? CommodityHSCode { get; set; }
-    public string? IMO { get; set; }
-    public string? UNNO { get; set; }
-    public bool? IsIMO { get; set; }
+    public string CommodityHSCode { get; set; }
+    public string IMO { get; set; }
+    public string UNNO { get; set; }
+    public bool IsIMO { get; set; }
 
     [Required]
     public double NetWt { get; set; }

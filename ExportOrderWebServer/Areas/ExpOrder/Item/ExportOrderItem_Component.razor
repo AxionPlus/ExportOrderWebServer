@@ -235,7 +235,7 @@
                         </MudSelect>
                     </MudTd>
                     <MudTd>
-                         <MudNumericField Class="QuantityField" T="double?" @bind-Value="expOrderRecords.CntrTareWt"
+                         <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecords.CntrTareWt"
                                           
                                           Variant="Variant.Outlined" Margin="Margin.Dense"
                                           Required RequiredError="" HideSpinButtons="true"/>
@@ -440,7 +440,6 @@
         await InvokeAsync(StateHasChanged);
     }
 
-
     private async Task UploadFile()
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
@@ -489,13 +488,13 @@
                 await ValueChanged.InvokeAsync(Value);
             }
         }
-    }
-        
+    }        
 
     #endregion
 
 
     #region SEARCH
+
     private async Task GetVesselCall_Click()
     {
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };

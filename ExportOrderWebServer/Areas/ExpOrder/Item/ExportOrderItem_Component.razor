@@ -1,4 +1,5 @@
-﻿@inject ISnackbar Snackbar
+﻿
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService;
 @inject IExportOrderProvider _exportOrderProvider
 @inject ICntrTypeProvider _cntrTypeProvider
@@ -92,7 +93,17 @@
                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
             <MudSpacer />
             <div style="margin-right:20px">
-                <h6>@Value.Status.ToString()</h6>
+                 <MudSelect Class="SelectField" T="PersonEntity" @bind-Value="@Value.Person"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon="">
+                     @if (Persons is not null)
+                        @foreach (var person in Persons)
+                        {
+                            <MudSelectItem Value="@person">@person.Name!.ToString()</MudSelectItem>
+                        }
+                </MudSelect>
+
+                @* <h6>@Value.Status.ToString()</h6> *@
             </div>            
         </div>
     </div>
@@ -337,6 +348,8 @@
     public bool IsNewItem { get; set; }
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
+    private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
+
     private UploadResult? uploadResult { get; set; }
 
     bool IsLoadingData = false;
@@ -346,6 +359,7 @@
     protected override async void OnInitialized()
     {
         CntrTypes = await _cntrTypeProvider.GetCntrTypes();
+        Persons = await _exportOrderProvider.GetPersonAsync();
 
         DocumentItems = Value!.Documents!.ToHashSet();        
 

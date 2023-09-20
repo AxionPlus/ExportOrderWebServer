@@ -125,7 +125,10 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            try
+            {
 
+     
             // check an Existing item
             var itemExistCheck = await db.Documents.Where(s => s.Name == item.Name).FirstOrDefaultAsync();
             if (itemExistCheck != null)
@@ -135,7 +138,8 @@ public class DocumentProvider : IDocumentProvider
             }
 
             item.CreateUser = User!;
-
+                var counrDoc = await db.Documents.CountAsync();
+                item.Id = counrDoc+10;
             db.Entry(item).State = EntityState.Added;
 
             foreach (var record in item.Records)
@@ -145,7 +149,11 @@ public class DocumentProvider : IDocumentProvider
             var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
-
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
             return appObjResponse;
         }
     }

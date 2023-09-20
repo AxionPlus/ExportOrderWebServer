@@ -1,4 +1,5 @@
 ﻿using ExportOrderEntites.Document;
+using ExportOrderEntites.MyCompany;
 using ExportOrderEntites.VesselCall;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,6 +13,7 @@ public class ExportOrderEntity : Entity
     public DateTime Dated { get; set; } = DateTime.Today;
     public VesselCallEntity VesselCall { get; set; }
     public CarrierCatalog Carrier { get; set; }
+    public PersonEntity? Person { get; set; }
 
     public List<DocumentEntity> Documents { get; set; } = new List<DocumentEntity>(); 
     public List<ExportOrderRecord> Records { get; set; } = new List<ExportOrderRecord>();

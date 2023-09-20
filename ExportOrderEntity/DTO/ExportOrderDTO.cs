@@ -17,8 +17,8 @@ public class ExportOrderDTO
     public string POD { get; set; }
     public string Contract { get; set; }
     public string ContractDate { get; set; }
-    public string MyCompanyName { get; set; } = "Рожки да ножки";
-    public string Person { get; set; } = "Д.В. Меркульцев  т. +7 918 6624251";
+    public string MyCompanyName { get; set; }   // = "Рожки да ножки";
+    public string Person { get; set; }          // = "Д.В. Меркульцев  т. +7 918 6624251";
 
     public IEnumerable<ExportOrderRecordDTO> exportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
 }

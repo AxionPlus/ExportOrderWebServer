@@ -1,12 +1,7 @@
-﻿using ExportOrderEntites.DTO;
-using ExportOrderEntites.ExportOrder;
-using ExportOrderEntites.MyCompany;
+﻿using ExportOrderEntites.MyCompany;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using static MudBlazor.Colors;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System;
+
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
 
@@ -42,6 +37,7 @@ public class ExportOrderProvider : IExportOrderProvider
             catch (Exception ex)
             {
                 string msg = ex.Message;
+                return appObjResponse;
             }
         }
 
@@ -56,9 +52,15 @@ public class ExportOrderProvider : IExportOrderProvider
             //{
             var db = await _db;
 
+            var myCompany = await db.MyCompany.AsNoTracking().Include(co => co.Persons).FirstOrDefaultAsync();
+            var person = await db.Persons.FirstOrDefaultAsync();
+
+            //string person = persons.FirstOrDefault(p => p.Id == myCompany.Persons)?.Name;
+
             var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Country)
                                             .Include(x => x.Carrier)!.ThenInclude(c => c.CarrierDetails)
+                                            .Include(x => x.Person)
                                             .Include(x => x.Documents)!.ThenInclude(d => d.Records)
                                             .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
                                             .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
@@ -74,6 +76,11 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
                                                 Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract!,
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
+                                                MyCompanyName = myCompany!.Name!,
+                                                Person = person!.Name + " т. " + person!.Phone,
+                                                //Person = source.Person!.Name + " т. " + source.Person.Phone,
+                                                //Person = myCompany.Persons!.FirstOrDefault(p => p.Id == source.Person!.Id)!.Name + " т. " +
+                                                //        myCompany.Persons!.FirstOrDefault(p => p.Id == source.Person!.Id)!.Phone,
                                                 exportOrderRecordsDTO = eoRecords(source.Records!)
                                             })
                                             .FirstOrDefaultAsync(x => x.Id == id);
@@ -203,6 +210,18 @@ public class ExportOrderProvider : IExportOrderProvider
         throw new NotImplementedException();
     }
 
+    public async Task<IEnumerable<PersonEntity>> GetPersonAsync()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var Item = db.Persons.AsNoTracking().ToList();
+
+            return Item!;
+        }
+    }
+
     //public async Task<MyCompanyEntity> GetMyCompanyAsync()
     //{
     //    using (var _db = _dbContext.CreateDbContextAsync())
@@ -248,8 +267,8 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
                 eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode;
-                eoRecordDTO.IMO = content.DocumentRecord.IMO;
-                eoRecordDTO.UNNO = content.DocumentRecord.UNNO;
+                eoRecordDTO.IMO = content.DocumentRecord.IMO!;
+                eoRecordDTO.UNNO = content.DocumentRecord.UNNO!;
                 eoRecordDTO.IsIMO = content.DocumentRecord.IsIMO;
 
                 eoRecordsDTO.Add(eoRecordDTO);

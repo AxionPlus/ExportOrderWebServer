@@ -522,7 +522,6 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
-                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -1687,7 +1686,7 @@
                                 <TextRun>
                                   <Value>=Fields!Pakages.Value</Value>
                                   <Style>
-                                    <FontFamily>Courier New</FontFamily>
+                                    <FontSize>9pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1720,7 +1719,7 @@
                                 <TextRun>
                                   <Value>=Fields!Net.Value</Value>
                                   <Style>
-                                    <FontFamily>Courier New</FontFamily>
+                                    <FontSize>9pt</FontSize>
                                     <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
@@ -1754,7 +1753,7 @@
                                 <TextRun>
                                   <Value>=Fields!Gross.Value</Value>
                                   <Style>
-                                    <FontFamily>Courier New</FontFamily>
+                                    <FontSize>9pt</FontSize>
                                     <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
@@ -2480,6 +2479,7 @@
                                   <Value>=Fields!DocumentName.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2512,6 +2512,7 @@
                                   <Value>=Fields!Cntr.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2544,6 +2545,7 @@
                                   <Value>=Fields!CntrTareWt.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2576,6 +2578,7 @@
                                   <Value>=Fields!CntrType.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2608,6 +2611,7 @@
                                   <Value>=Fields!Seal.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2640,6 +2644,7 @@
                                   <Value>=Fields!Quantity.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2672,6 +2677,7 @@
                                   <Value>=Fields!NetWt.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
                                     <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>
@@ -2705,6 +2711,7 @@
                                   <Value>=Fields!GrossWt.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
                                     <Format>0.000;(0.000)</Format>
                                   </Style>
                                 </TextRun>

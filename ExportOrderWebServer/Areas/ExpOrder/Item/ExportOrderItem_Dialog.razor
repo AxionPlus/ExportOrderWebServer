@@ -99,7 +99,7 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-            Item = new() { Carrier = new(), VesselCall = new() { Vessel = new()} };
+            Item = new() { Carrier = new(), VesselCall = new() { Vessel = new()}, Person = new() };
         else
         {
             var response = await _exportOrderProvider.GetItemAsync(Id);
@@ -109,7 +109,7 @@
             if (Item is not null)
                 Header = Item!.Status!.ToString();
 
-            IsNewItem = false;
+            //IsNewItem = false;
         }
     }
 

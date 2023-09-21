@@ -28,7 +28,7 @@ public class ExportOrderProvider : IExportOrderProvider
             try { 
             appObjResponse.Object = await db.ExportOrders.Include(eo => eo.Person)
                                                          .Include(eo => eo.Carrier)!.ThenInclude(c => c.CarrierDetails)
-                                                         .Include(eo => eo.Documents)!
+                                                         .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)
                                                          .Include(eo => eo.Records)!.ThenInclude(r => r.Contents)
                                                                                     .ThenInclude(c => c.DocumentRecord)
                                                                                     .ThenInclude(dr => dr.Document)
@@ -56,7 +56,7 @@ public class ExportOrderProvider : IExportOrderProvider
             var myCompany = await db.MyCompany.AsNoTracking().FirstOrDefaultAsync();
 
             var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.LoadingTerminal)
-                                            .Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)                                            
+                                            .Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Country)
                                             .Include(x => x.Carrier)!.ThenInclude(c => c.CarrierDetails)
                                             .Include(x => x.Person)
@@ -73,7 +73,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 Voyage = source.VesselCall.VoyageCarrier,
                                                 DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
-                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract!,                                                
+                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name) != null ? source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
                                                 MyCompanyName = myCompany!.Name!,
                                                 Person = source.Person!.Name + " т. " + source.Person.Phone,

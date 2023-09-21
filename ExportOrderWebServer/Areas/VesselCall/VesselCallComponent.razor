@@ -91,10 +91,10 @@
             <MudTh Style="width: 30px"></MudTh>
             <MudTh Style="width: 300px">Vessel</MudTh>
             <MudTh Style="width: 280px">Voyage</MudTh>
-            <MudTh Style="width: 280px">POD</MudTh>
-            <MudTh Style="width: 280px">Terminal</MudTh>
             <MudTh Style="width: 130px">ETA</MudTh>
             <MudTh Style="width: 130px">ETS</MudTh>
+            <MudTh Style="width: 280px">Terminal</MudTh>
+            <MudTh Style="width: 280px">POD</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -109,10 +109,10 @@
             }
             <MudTd>@context.Vessel.Name</MudTd>
             <MudTd>@context.VoyageCarrier</MudTd>
-            <MudTd>@context.POD.Name</MudTd>
-            <MudTd>@context.LoadingTerminal.Name</MudTd>
             <MudTd>@(context.ETA.HasValue ? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
-            <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>            
+            <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>
+            <MudTd>@context.LoadingTerminal.Name</MudTd>
+            <MudTd>@context.POD.Name</MudTd>            
             <MudTd></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>

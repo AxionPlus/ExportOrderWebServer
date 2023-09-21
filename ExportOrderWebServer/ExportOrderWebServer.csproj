@@ -77,4 +77,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas\BillOfLading\Controller\" />
+    <Folder Include="Areas\BillOfLading\Provider\" />
+  </ItemGroup>
+
 </Project>

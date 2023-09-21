@@ -94,6 +94,7 @@
             <MudSpacer />
             <div style="margin-right:20px">
                  <MudSelect Class="SelectField" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
+                            Text="@Value.Person!.Name"
                             Style="width:180px" Placeholder="И.О. Фамилия"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon="">
@@ -175,7 +176,7 @@
                 <h5>Shippers:</h5>
                 @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
                 {
-                    @(string.Join(" / ", shipper));
+                    @(string.Join("/ ", shipper));
                 }
                 <br />
                 <h5>Consignees:</h5>
@@ -365,6 +366,14 @@
         foreach (var document in DocumentItems)
             foreach (var docRecord in document.Records)
                 DocumentRecordItems.Add(docRecord);
+
+        // foreach (var document in DocumentItems)
+        // {
+        //     DocumentRecordItems = Value.Documents.FirstOrDefault(d => d.Id == document.Id).Records.ToHashSet();
+        //     document.Records = DocumentRecordItems.ToList();
+        // }
+
+                //DocumentRecordItems.Add(docRecord);    
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -453,6 +462,8 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    #endregion
+
     private async Task UploadFile()
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
@@ -502,9 +513,6 @@
             }
         }
     }        
-
-    #endregion
-
 
     #region SEARCH
 

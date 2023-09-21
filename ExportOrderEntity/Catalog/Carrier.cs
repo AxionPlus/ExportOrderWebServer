@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.Catalog;
@@ -17,8 +18,10 @@ public class CarrierTerminalDetails
     public long Id { get; set; }
 #pragma warning disable CS8618
     public string TerminalName { get; set; }
-    public string Contract { get; set; }
+    public string? Contract { get; set; }
     public DateTime? DateContract { get; set; }
     [JsonIgnore]
     public CarrierCatalog Carrier { get; set; }
+    [NotMapped]
+    public string? POLAgent { get; set; }
 }

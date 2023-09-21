@@ -8,7 +8,7 @@ namespace ExportOrderEntites.ExportOrder;
 public class ExportOrderEntity : Entity
 {
 
-#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
+//#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
     public string Num { get; set; }
     public DateTime Dated { get; set; } = DateTime.Today;
     public VesselCallEntity VesselCall { get; set; }

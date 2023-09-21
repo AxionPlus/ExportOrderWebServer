@@ -17,7 +17,7 @@ public class VesselCallEntity : Entity
 
     [Required] public TerminalCatalog LoadingTerminal { get; set; }
     [Required] public LocationCatalog POD { get; set; }
-
+    //[Required] public string PODAgent { get; set; }
     [Required] public DateTime? ETA { get; set; }
     [Required] public DateTime? ETS { get; set; }
 

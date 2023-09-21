@@ -12,8 +12,8 @@
 @if (Item is not null)
 {
     <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="Container-item">
-            <div class="container-content" style="width: 760px; margin-bottom: 15px">
+        <div class="Container-item" style="width: 760px">
+            <div class="container-content" style="margin-bottom: 15px">
                 <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px" @bind-Value="Item.Vessel"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchVessel"
@@ -54,7 +54,7 @@
                      Save
                  </MudButton>
             </div>
-            <div class="container-content" style="width: 760px">
+            <div class="container-content">
                 <MudTextField T="string" Style="width: 300px;" Label="Voyage Carrier" Text="@Item.VoyageCarrier"
                               TextChanged="async (e)=> { Item.VoyageCarrier = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -71,7 +71,7 @@
                 <MudSpacer />
                 <div style="width: 100px; margin-left: 20px"></div>
             </div>
-            <div class="container-content" style="width: 760px">
+            <div class="container-content">
                 <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px" Label="Loading Terminal" @bind-Value="Item.LoadingTerminal"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchTerminal"
@@ -99,6 +99,18 @@
                            StartIcon="@Icons.Material.Filled.Clear">
                    Clear
                 </MudButton>
+            </div>
+            <div class="container-content">
+                <div style="width:300px"></div>
+                <MudSpacer />
+                <MudTextField T="string" Style="width: 300px;" Label="POD Agent" Text="@Item.VoyageCarrier"
+                               TextChanged="async (e)=> { Item.VoyageCarrier = e.ToUpper(); }"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true"
+                               Required RequiredError=""
+                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                <MudSpacer />
+                <div style="width:100px; margin-left: 20px"></div>
             </div>
         </div>
     </MudForm>

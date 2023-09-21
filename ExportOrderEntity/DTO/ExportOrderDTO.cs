@@ -15,7 +15,7 @@ public class ExportOrderDTO
     public string DateOfLoading { get; set; }
     public string POL { get; set; } = "Новороссийск, Россия";    
     public string POD { get; set; }
-    public string Contract { get; set; }
+    public string? Contract { get; set; }
     public string ContractDate { get; set; }
     public string MyCompanyName { get; set; }
     public string Person { get; set; }

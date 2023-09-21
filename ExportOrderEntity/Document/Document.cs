@@ -21,7 +21,7 @@ public class DocumentEntity : Entity
 
     public IList<DocumentRecord> Records { get; set; } = new List<DocumentRecord>();
 
-    [JsonIgnore] // added
+    [JsonIgnore]
     public IEnumerable<ExportOrderEntity>? ExportOrders { get; set; }
 
     [NotMapped]

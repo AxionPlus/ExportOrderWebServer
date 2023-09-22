@@ -75,6 +75,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
                                                 BLDate = source.VesselCall.ETS!.Value.ToString("dd.MM.yyyy"),
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
+                                                PODAgent = source.VesselCall.PODAgent,
                                                 //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ? source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
                                                 Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract,
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
@@ -174,6 +175,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 db.Entry(item).State = EntityState.Added;
                 db.Entry(item.Carrier).State = EntityState.Unchanged;
                 db.Entry(item.VesselCall!).State = EntityState.Unchanged;
+                db.Entry(item.Person!).State = EntityState.Unchanged;
 
                 // Documents
                 foreach (var document in item.Documents!)
@@ -245,15 +247,15 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.CntrTareWt = record.CntrTareWt;
                 eoRecordDTO.Seal = record.Seal;
 
-
                 eoRecordDTO.PackageQty = content.PackageQty;
+                eoRecordDTO.PackageName = content.PackageName;
                 eoRecordDTO.NetWt = content.NetWt;
                 eoRecordDTO.GrossWt = content.GrossWt;
-                eoRecordDTO.Volume = content.Volume;
+                eoRecordDTO.Volume = content.Volume;    // is not null ? content.Volume : 0;
 
                 eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
                 eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
-                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;
+                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;                
 
                 eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
                 eoRecordDTO.CommodityEngName = content.DocumentRecord.CommodityEngName;

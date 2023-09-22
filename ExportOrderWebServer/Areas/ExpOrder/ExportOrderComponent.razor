@@ -75,6 +75,7 @@
         <HeaderContent>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:120px"></MudTh>
             <MudTh Style="width:120px">Number</MudTh>
             <MudTh Style="width:100px">Dated</MudTh>
             <MudTh Style="width:150px">Voyage</MudTh>
@@ -95,10 +96,15 @@
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudTooltip Text="view Report - BL">
+                <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })"
+                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                            StartIcon="@Icons.Material.Filled.Preview">
+                    View BL
+                </MudButton>
+@*                 <MudTooltip Text="view Report - BL">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
                                     OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })" />
-                </MudTooltip>
+                </MudTooltip> *@
             </MudTd>
             <MudTd>@context.Num</MudTd>
             <MudTd>@context.Dated.ToShortDateString()</MudTd>

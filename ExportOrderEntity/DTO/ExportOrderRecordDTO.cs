@@ -17,10 +17,10 @@ public class ExportOrderRecordDTO
     public string Seal { get; set; }
 
     public uint PackageQty { get; set; }
-    public string PackageName { get; set; }
+    public string? PackageName { get; set; }
     public double NetWt { get; set; }
     public double GrossWt { get; set; }
-    public double Volume { get; set; }
+    public double? Volume { get; set; }
 
     public string DocumentName { get; set; }      // Declaration number
     public string Shipper { get; set; }

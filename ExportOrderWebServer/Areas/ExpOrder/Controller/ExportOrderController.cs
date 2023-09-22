@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Net;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -131,9 +132,9 @@ public class ExportOrderController : ControllerBase
             var Records = Item.exportOrderRecordsDTO;
             //var ShippersGroup = Item.exportOrderRecordsDTO.GroupBy(r => r.Shipper).ToList();
 
-            var ShipperList = Records.Select(x => x.Shipper).ToList();
-            var ConsigneeList = Records.Select(x => x.Consignee).ToList();
-            var NotifyList = Records.Select(x => x.Consignee).ToList();
+            var ShipperList = Records.Select(x => x.Shipper).Distinct().ToList();
+            var ConsigneeList = Records.Select(x => x.Consignee).Distinct().ToList();
+            var NotifyList = Records.Select(x => x.Consignee).Distinct().ToList();
 
             StringBuilder sb = new StringBuilder();
 
@@ -141,33 +142,33 @@ public class ExportOrderController : ControllerBase
             foreach (var item in ShipperList)
                 Shippers = sb.Append(item + "\n").ToString();
 
-            Shippers = Shippers.Trim();
+            Shippers = Shippers.Trim(); sb.Clear();
 
             string Consignees = "";
             foreach (var item in ConsigneeList)
                 Consignees = sb.Append(item + "\n").ToString();
 
-            Consignees = Consignees.Trim();
+            Consignees = Consignees.Trim(); sb.Clear();
 
             string NotifyParties = "";
             foreach (var item in ConsigneeList)
                 NotifyParties = sb.Append(item + "\n").ToString();
 
-            NotifyParties = NotifyParties.Trim();
+            NotifyParties = NotifyParties.Trim(); sb.Clear();
 
             // общие данные
             var dsItem = Items.Select(x => new
             { 
-                BLnum = x.Num,
+                x.Num,
                 POLAgent = x.CarrierName,
                 x.PODAgent,
                 Vessel = x.VesselName,
                 x.Voyage,
                 x.POL,
                 x.POD,
-                Shipper = Shippers,
-                Consignee = Consignees,
-                Notify = NotifyParties,
+                Shippers,
+                Consignees,
+                NotifyParties,
             });
 
             // список контейнеров
@@ -182,8 +183,9 @@ public class ExportOrderController : ControllerBase
                 r.GrossWt,
                 r.Volume,
                 Measures = r.Volume > 0 ? "CUB. M" : "KG"
-            }); 
+            });
 
+            var ContrType = Records.GroupBy(gtype => gtype.CntrType);
             // список товаров
             var CommoditiesGroup = Records.GroupBy(rgroup => rgroup.CommodityEngName).Select(g => new
             {
@@ -194,10 +196,32 @@ public class ExportOrderController : ControllerBase
                 IsIMO = g.FirstOrDefault()!.IsIMO,
 
                 CntrCount = g.Count(),
-                CntrType = g.FirstOrDefault()!.CntrType,
+                CntrType = g.Select(type => new { cntrType = type.CntrType }),
+                //_CntrType = g.Select(rgroup => rgroup).Distinct(),
+                //__CntrType = g.GroupBy(rgroup => rgroup.CntrType),
+                //___CntrType = g.Select(rgroup => rgroup).Select(x => x.CntrType).Distinct(),
+                ____CntrType = g.Select(x => x.CntrType).Distinct(),
             }).ToList();
 
+            var CommGroup = Records.GroupBy(r => r.CommodityEngName, c => c.CntrType).Select(g => new
+            {
+                Commodity = g.Key,
+                //HScode = g.FirstOrDefault(),
+                CntrType = g.Select(x => x.GroupBy(cType => cType).Distinct())
+            }).ToList();
+
+            var _CommGroup = Records.GroupBy(r => r.CommodityEngName, c => c.CntrType).Select(g => new
+            {
+                Commodity = g.Key,
+                //HScode = g.FirstOrDefault(),
+                CntrType = g.Select(c => g.Key)
+            }).ToList();
+
+
             var dsCommodities = CommoditiesGroup;
+            //var dsCommodities = CommGroup;
+            //var dsCommodities = _CommGroup;
+            
 
             localReport.AddDataSource("dsItem", dsItem);
             localReport.AddDataSource("dsCntrRecords", dsCntrRecords);

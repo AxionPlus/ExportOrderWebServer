@@ -220,6 +220,7 @@
                     <MudTh Style="width: 300px">Seals</MudTh>
                     <MudTh Style="width: 30px"></MudTh>
                     <MudTh Style="width: 80px">QTY</MudTh>
+                    <MudTh Style="width: 120px">Pkg Name</MudTh>
                     <MudTh Style="width: 120px">NET</MudTh>
                     <MudTh Style="width: 120px">GROSS</MudTh>
                     <MudTh Style="width: 30px"></MudTh>
@@ -262,6 +263,7 @@
                                        Style="width: 80px"
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
+                     <MudTd></MudTd>
                      <MudTd>
                          <MudTextField Class="TextField_Sum" T="string" Text="@expOrderRecords.Contents.Sum(s => s.NetWt).ToString("00 000.000")"
                                        Style="width: 120px"
@@ -282,7 +284,7 @@
                     {
                         <MudTr>
                             <td colspan="4"></td>
-                            <td colspan="5">
+                            <td colspan="6">
                                 <MudTable Class="sub-Table" T="ContainerContent" Context="CntrContent" Items="@expOrderRecords.Contents">
                                     <RowTemplate>
 
@@ -294,6 +296,11 @@
                                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                                              Required RequiredError="" HideSpinButtons=true />
                                         </MudTd>
+                                         <MudTd>
+                                             <MudTextField Class="TextField" T="string" Text="@CntrContent.PackageName"
+                                                           Style="width: 120px"
+                                                           Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                         </MudTd>
                                         <MudTd>
                                             <MudNumericField Class="NumericField_Content" T="double" @bind-Value="CntrContent.NetWt"
                                                              Style="width: 120px"
@@ -324,6 +331,7 @@
                         <MudTd Style="text-align:center"><h6>@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6></MudTd>
                         <td colspan="2"></td>
                         <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.PackageQty)).ToString()</h6></MudTd>
+                        <MudTd></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt)).ToString("000 000.000")</h6></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.GrossWt)).ToString("000 000.000")</h6></MudTd>
                     }

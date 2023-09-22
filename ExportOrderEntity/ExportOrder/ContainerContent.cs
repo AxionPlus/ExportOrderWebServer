@@ -8,13 +8,13 @@ public class ContainerContent
 {
     [Key]
     public long Id { get; set; }
-#pragma warning disable CS8618
-    //public uint Quantity { get; set; }
+
+#pragma warning disable CS8618    
     public uint PackageQty { get; set; }
-    public string PackageName { get; set; }
+    public string? PackageName { get; set; }
     public double NetWt { get; set; }
     public double GrossWt { get; set; }
-    public double Volume { get; set; }
+    public double? Volume { get; set; }
 
     public DocumentRecord DocumentRecord { get; set; }
     [JsonIgnore]

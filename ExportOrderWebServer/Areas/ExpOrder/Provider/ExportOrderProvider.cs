@@ -69,11 +69,14 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 Id = source.Id,
                                                 Num = source.Num,
                                                 Dated = source.Dated.ToString("dd.MM.yyyy"),
+                                                CarrierName = source.Carrier.Name,
                                                 VesselName = source.VesselCall!.Vessel.Name + " (" + source.VesselCall.Vessel.Flag.RUS + ")",
                                                 Voyage = source.VesselCall.VoyageCarrier,
                                                 DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
+                                                BLDate = source.VesselCall.ETS!.Value.ToString("dd.MM.yyyy"),
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
-                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name) != null ? source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
+                                                //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ? source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
+                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract,
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
                                                 MyCompanyName = myCompany!.Name!,
                                                 Person = source.Person!.Name + " т. " + source.Person.Phone,
@@ -243,15 +246,17 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.Seal = record.Seal;
 
 
-                eoRecordDTO.Quantity = content.Quantity;
+                eoRecordDTO.PackageQty = content.PackageQty;
                 eoRecordDTO.NetWt = content.NetWt;
                 eoRecordDTO.GrossWt = content.GrossWt;
+                eoRecordDTO.Volume = content.Volume;
 
                 eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
                 eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
                 eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;
 
                 eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
+                eoRecordDTO.CommodityEngName = content.DocumentRecord.CommodityEngName;
                 eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode;
                 eoRecordDTO.IMO = content.DocumentRecord.IMO!;
                 eoRecordDTO.UNNO = content.DocumentRecord.UNNO!;

@@ -89,9 +89,15 @@
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudTooltip Text="view Report">
+                <MudTooltip Text="view Report - export order">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
-                                   OnClick="@(async()=>{ await ViewReport_Click(context.Id); })" />
+                                   OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
+                </MudTooltip>
+            </MudTd>
+            <MudTd>
+                <MudTooltip Text="view Report - BL">
+                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
+                                    OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>@context.Num</MudTd>
@@ -170,9 +176,15 @@
         //     await GetItems();
     }
 
-    private async Task ViewReport_Click(long id)
+    private async Task ViewReportExpOrder_Click(long id)
     {
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReport?Id={id}";
+        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
+        await JSRuntime.InvokeVoidAsync("open", path);
+    }
+
+    private async Task ViewReportBL_Click(long id)
+    {
+        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
         await JSRuntime.InvokeVoidAsync("open", path);
     }
 

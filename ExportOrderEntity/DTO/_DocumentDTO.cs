@@ -2,7 +2,7 @@
 
 namespace ExportOrderEntites.DTO;
 
-public class DocumentDTO
+public class _DocumentDTO
 {
     [Key]
     public uint Id { get; set; }

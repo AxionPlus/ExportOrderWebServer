@@ -65,8 +65,8 @@
         <MudForm @ref="form">
             <div class="d-flex">
                 <div class="ItemType">
-                    <MudSelect Class="wrapper-input " T="DocumentType" Label="Type"
-                    @bind-Value="@Item.Type" ToStringFunc="@(str=>str.ToString())"
+                    <MudSelect Class="wrapper-input " T="DocumentType" Label="Type" @bind-Value="@Item.Type"
+                               ToStringFunc="@(str=>str.ToString())"
                                Variant="Variant.Outlined">
                         @foreach (DocumentType type in Enum.GetValues(typeof(DocumentType)))
                         {

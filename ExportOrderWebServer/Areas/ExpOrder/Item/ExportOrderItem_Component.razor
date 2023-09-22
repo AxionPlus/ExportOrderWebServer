@@ -258,7 +258,7 @@
                     </MudTd>
                     <MudTd></MudTd>
                      <MudTd>
-                         <MudTextField Class="QuantityField" T="string" Text="@expOrderRecords.Contents.Sum(s => s.Quantity).ToString()"
+                         <MudTextField Class="QuantityField" T="string" Text="@expOrderRecords.Contents.Sum(s => s.PackageQty).ToString()"
                                        Style="width: 80px"
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
@@ -289,7 +289,7 @@
                                         <MudTd Style="width:300px; padding-right:12px; text-align:end">@CntrContent.DocumentRecord.Document.Name</MudTd>
                                         <MudTd Style="width:30px">@CntrContent.DocumentRecord.Seq</MudTd>
                                         <MudTd>
-                                            <MudNumericField Class="QuantityField" T="uint" @bind-Value="CntrContent.Quantity"
+                                            <MudNumericField Class="QuantityField" T="uint" @bind-Value="CntrContent.PackageQty"
                                                              Style="width: 80px"
                                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                                              Required RequiredError="" HideSpinButtons=true />
@@ -323,7 +323,7 @@
                         </td>
                         <MudTd Style="text-align:center"><h6>@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6></MudTd>
                         <td colspan="2"></td>
-                        <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.Quantity)).ToString()</h6></MudTd>
+                        <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.PackageQty)).ToString()</h6></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt)).ToString("000 000.000")</h6></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.GrossWt)).ToString("000 000.000")</h6></MudTd>
                     }

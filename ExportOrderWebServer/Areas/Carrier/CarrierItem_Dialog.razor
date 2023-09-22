@@ -21,6 +21,7 @@
 {
     <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="!IsNewItem">
         <div class="Container-item">
+
             <div class="container-content">
                 <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
@@ -33,6 +34,7 @@
                      Save
                  </MudButton>
              </div>
+
             <div class="container-content">
                  <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.NameEn"
                                TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
@@ -45,6 +47,18 @@
                      Clear
                  </MudButton>
              </div>
+
+             <div class="container-content">
+                 <MudSelect Class="wrapper-input " T="BLTemplate" Label="BL Template" @bind-Value="@Item.blTemplate"
+                            ToStringFunc="@(str=>str.ToString())"
+                            Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @foreach (BLTemplate template in Enum.GetValues(typeof(BLTemplate)))
+                    {
+                        <MudSelectItem Value="@template" />
+                    }
+                </MudSelect>
+            </div>
+
             <div class="Container-table">
                 <MudTable Class="Table" @ref="mudTable" T="CarrierTerminalDetails" Items="@Item.CarrierDetails" Context="details"
                           Virtualize="true" RowsPerPage="5">

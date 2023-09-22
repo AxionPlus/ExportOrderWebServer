@@ -356,7 +356,7 @@
                             </RightBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingTop>6pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
@@ -1305,7 +1305,7 @@
                                   <Style />
                                 </TextRun>
                                 <TextRun>
-                                  <Value>=IIf(Fields!IsIMO.Value=true,"IMO: " &amp; Fields!IMO.Value &amp; " " &amp; Fields!UNNO.Value, "")</Value>
+                                  <Value>=IIf(Fields!IsIMO.Value=true,"IMO:" &amp; Fields!IMO.Value &amp; " " &amp; Fields!UNNO.Value, "")</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>

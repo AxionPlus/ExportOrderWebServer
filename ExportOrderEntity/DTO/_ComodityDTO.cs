@@ -2,7 +2,7 @@
 
 namespace ExportOrderEntites.DTO;
 
-public class ComodityDTO
+public class _ComodityDTO
 {
     [Key]
     public uint Id { get; set; }

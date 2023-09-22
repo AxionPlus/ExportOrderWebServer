@@ -3,7 +3,7 @@
 namespace ExportOrderEntites.DTO;
 
 [Keyless]
-public class CntrDTO
+public class _CntrDTO
 {
     public string? Carrier { get; set; }
     public string? Num { get; set; }

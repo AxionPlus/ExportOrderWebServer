@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ExportOrderEntites.DTO;
 
-public class ContainerContentDTO
+public class _ContainerContentDTO
 {
     [Key]
     public uint Id { get; set; }

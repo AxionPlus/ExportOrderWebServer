@@ -254,14 +254,14 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.Volume = content.Volume;    // is not null ? content.Volume : 0;
 
                 eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
-                eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
-                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;                
+                eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.EngName!;
+                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.EngName!;                
 
                 eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
                 eoRecordDTO.CommodityEngName = content.DocumentRecord.CommodityEngName;
                 eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode;
-                eoRecordDTO.IMO = content.DocumentRecord.IMO!;
-                eoRecordDTO.UNNO = content.DocumentRecord.UNNO!;
+                eoRecordDTO.IMO = content.DocumentRecord.IsIMO ? "IMO:" + content.DocumentRecord.IMO! : "";
+                eoRecordDTO.UNNO = content.DocumentRecord.IsIMO ? "UN:" + content.DocumentRecord.UNNO! : "";
                 eoRecordDTO.IsIMO = content.DocumentRecord.IsIMO;
 
                 eoRecordsDTO.Add(eoRecordDTO);

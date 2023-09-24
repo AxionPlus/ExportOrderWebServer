@@ -15,7 +15,7 @@ public class ExportOrderDTO
     public string Voyage { get; set; }
     public string DateOfLoading { get; set; }                   // дата поручения
     public string BLDate { get; set; }                          // дата коносамента (added for BL)
-    public string POL { get; set; } = "Новороссийск, Россия";    
+    public string POL { get; set; } = "NOVOROSSIYSK, RUSSIA";    
     public string POD { get; set; }
     public string? PODAgent { get; set; }   // added for BL
     public string? Contract { get; set; }

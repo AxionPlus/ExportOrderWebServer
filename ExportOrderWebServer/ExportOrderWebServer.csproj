@@ -33,7 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Reports\ExportOrder.rdlc" />
+    <EmbeddedResource Include="Reports\ExportOrder.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -62,6 +64,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="DataSet\DS_BillOfLading.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DS_BillOfLading.xsd</DependentUpon>
+    </Compile>
     <Compile Update="DataSet\DS_ExportOrder.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -70,10 +77,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="DataSet\DS_BillOfLading.xsd">
+      <SubType>Designer</SubType>
+      <LastGenOutput>DS_BillOfLading.Designer.cs</LastGenOutput>
+      <Generator>MSDataSetGenerator</Generator>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="DataSet\DS_ExportOrder.xsd">
       <SubType>Designer</SubType>
       <LastGenOutput>DS_ExportOrder.Designer.cs</LastGenOutput>
       <Generator>MSDataSetGenerator</Generator>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\BLStandart.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

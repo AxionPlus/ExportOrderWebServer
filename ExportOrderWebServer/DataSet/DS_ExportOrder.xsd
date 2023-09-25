@@ -23,9 +23,9 @@
               <xs:element name="DateOfLoading" msprop:Generator_ColumnPropNameInTable="DateOfLoadingColumn" msprop:Generator_ColumnPropNameInRow="DateOfLoading" msprop:Generator_UserColumnName="DateOfLoading" msprop:Generator_ColumnVarNameInTable="columnDateOfLoading" type="xs:dateTime" minOccurs="0" />
               <xs:element name="POL" msprop:Generator_ColumnPropNameInTable="POLColumn" msprop:Generator_ColumnPropNameInRow="POL" msprop:Generator_UserColumnName="POL" msprop:Generator_ColumnVarNameInTable="columnPOL" type="xs:string" minOccurs="0" />
               <xs:element name="POD" msprop:Generator_ColumnPropNameInTable="PODColumn" msprop:Generator_ColumnPropNameInRow="POD" msprop:Generator_UserColumnName="POD" msprop:Generator_ColumnVarNameInTable="columnPOD" type="xs:string" minOccurs="0" />
-              <xs:element name="Contract" msprop:Generator_UserColumnName="Contract" msprop:Generator_ColumnPropNameInTable="ContractColumn" msprop:Generator_ColumnPropNameInRow="Contract" msprop:Generator_ColumnVarNameInTable="columnContract" type="xs:string" minOccurs="0" />
-              <xs:element name="ContractDate" msprop:Generator_UserColumnName="ContractDate" msprop:Generator_ColumnPropNameInTable="ContractDateColumn" msprop:Generator_ColumnPropNameInRow="ContractDate" msprop:Generator_ColumnVarNameInTable="columnContractDate" type="xs:string" minOccurs="0" />
-              <xs:element name="MyCompanyName" msprop:Generator_UserColumnName="MyCompanyName" msprop:Generator_ColumnPropNameInTable="MyCompanyNameColumn" msprop:Generator_ColumnPropNameInRow="MyCompanyName" msprop:Generator_ColumnVarNameInTable="columnMyCompanyName" type="xs:string" minOccurs="0" />
+              <xs:element name="Contract" msprop:Generator_ColumnPropNameInTable="ContractColumn" msprop:Generator_ColumnPropNameInRow="Contract" msprop:Generator_UserColumnName="Contract" msprop:Generator_ColumnVarNameInTable="columnContract" type="xs:string" minOccurs="0" />
+              <xs:element name="ContractDate" msprop:Generator_ColumnPropNameInTable="ContractDateColumn" msprop:Generator_ColumnPropNameInRow="ContractDate" msprop:Generator_UserColumnName="ContractDate" msprop:Generator_ColumnVarNameInTable="columnContractDate" type="xs:string" minOccurs="0" />
+              <xs:element name="MyCompanyName" msprop:Generator_ColumnPropNameInTable="MyCompanyNameColumn" msprop:Generator_ColumnPropNameInRow="MyCompanyName" msprop:Generator_UserColumnName="MyCompanyName" msprop:Generator_ColumnVarNameInTable="columnMyCompanyName" type="xs:string" minOccurs="0" />
               <xs:element name="Person" msprop:Generator_ColumnPropNameInTable="PersonColumn" msprop:Generator_ColumnPropNameInRow="Person" msprop:Generator_UserColumnName="Person" msprop:Generator_ColumnVarNameInTable="columnPerson" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
@@ -56,14 +56,14 @@
         <xs:element name="Shippers" msprop:Generator_RowEvHandlerName="ShippersRowChangeEventHandler" msprop:Generator_RowDeletedName="ShippersRowDeleted" msprop:Generator_RowDeletingName="ShippersRowDeleting" msprop:Generator_RowEvArgName="ShippersRowChangeEvent" msprop:Generator_TablePropName="Shippers" msprop:Generator_RowChangedName="ShippersRowChanged" msprop:Generator_UserTableName="Shippers" msprop:Generator_RowChangingName="ShippersRowChanging" msprop:Generator_RowClassName="ShippersRow" msprop:Generator_TableClassName="ShippersDataTable" msprop:Generator_TableVarName="tableShippers">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="ShipperName" msprop:Generator_ColumnPropNameInTable="ShipperNameColumn" msprop:Generator_ColumnPropNameInRow="ShipperName" msprop:Generator_UserColumnName="ShipperName" msprop:Generator_ColumnVarNameInTable="columnShipperName" type="xs:string" minOccurs="0" />
+              <xs:element name="Shippers" msprop:Generator_ColumnPropNameInTable="ShippersColumn" msprop:Generator_ColumnPropNameInRow="Shippers" msprop:Generator_UserColumnName="Shippers" msprop:Generator_ColumnVarNameInTable="columnShippers" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
         <xs:element name="Consignees" msprop:Generator_RowEvHandlerName="ConsigneesRowChangeEventHandler" msprop:Generator_RowDeletedName="ConsigneesRowDeleted" msprop:Generator_RowDeletingName="ConsigneesRowDeleting" msprop:Generator_RowEvArgName="ConsigneesRowChangeEvent" msprop:Generator_TablePropName="Consignees" msprop:Generator_RowChangedName="ConsigneesRowChanged" msprop:Generator_UserTableName="Consignees" msprop:Generator_RowChangingName="ConsigneesRowChanging" msprop:Generator_RowClassName="ConsigneesRow" msprop:Generator_TableClassName="ConsigneesDataTable" msprop:Generator_TableVarName="tableConsignees">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="ConsigneeName" msprop:Generator_ColumnPropNameInTable="ConsigneeNameColumn" msprop:Generator_ColumnPropNameInRow="ConsigneeName" msprop:Generator_UserColumnName="ConsigneeName" msprop:Generator_ColumnVarNameInTable="columnConsigneeName" type="xs:string" minOccurs="0" />
+              <xs:element name="Consignees" msprop:Generator_ColumnPropNameInTable="ConsigneesColumn" msprop:Generator_ColumnPropNameInRow="Consignees" msprop:Generator_UserColumnName="Consignees" msprop:Generator_ColumnVarNameInTable="columnConsignees" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

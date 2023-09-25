@@ -1354,7 +1354,7 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
         public partial class ShippersDataTable : global::System.Data.TypedTableBase<ShippersRow> {
             
-            private global::System.Data.DataColumn columnShipperName;
+            private global::System.Data.DataColumn columnShippers;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
@@ -1391,9 +1391,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn ShipperNameColumn {
+            public global::System.Data.DataColumn ShippersColumn {
                 get {
-                    return this.columnShipperName;
+                    return this.columnShippers;
                 }
             }
             
@@ -1434,10 +1434,10 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ShippersRow AddShippersRow(string ShipperName) {
+            public ShippersRow AddShippersRow(string Shippers) {
                 ShippersRow rowShippersRow = ((ShippersRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
-                        ShipperName};
+                        Shippers};
                 rowShippersRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowShippersRow);
                 return rowShippersRow;
@@ -1460,14 +1460,14 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             internal void InitVars() {
-                this.columnShipperName = base.Columns["ShipperName"];
+                this.columnShippers = base.Columns["Shippers"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             private void InitClass() {
-                this.columnShipperName = new global::System.Data.DataColumn("ShipperName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnShipperName);
+                this.columnShippers = new global::System.Data.DataColumn("Shippers", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnShippers);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1601,7 +1601,7 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
         public partial class ConsigneesDataTable : global::System.Data.TypedTableBase<ConsigneesRow> {
             
-            private global::System.Data.DataColumn columnConsigneeName;
+            private global::System.Data.DataColumn columnConsignees;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
@@ -1638,9 +1638,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn ConsigneeNameColumn {
+            public global::System.Data.DataColumn ConsigneesColumn {
                 get {
-                    return this.columnConsigneeName;
+                    return this.columnConsignees;
                 }
             }
             
@@ -1681,10 +1681,10 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ConsigneesRow AddConsigneesRow(string ConsigneeName) {
+            public ConsigneesRow AddConsigneesRow(string Consignees) {
                 ConsigneesRow rowConsigneesRow = ((ConsigneesRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
-                        ConsigneeName};
+                        Consignees};
                 rowConsigneesRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowConsigneesRow);
                 return rowConsigneesRow;
@@ -1707,14 +1707,14 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             internal void InitVars() {
-                this.columnConsigneeName = base.Columns["ConsigneeName"];
+                this.columnConsignees = base.Columns["Consignees"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             private void InitClass() {
-                this.columnConsigneeName = new global::System.Data.DataColumn("ConsigneeName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnConsigneeName);
+                this.columnConsignees = new global::System.Data.DataColumn("Consignees", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnConsignees);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -3302,30 +3302,30 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string ShipperName {
+            public string Shippers {
                 get {
                     try {
-                        return ((string)(this[this.tableShippers.ShipperNameColumn]));
+                        return ((string)(this[this.tableShippers.ShippersColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'ShipperName\' в таблице \'Shippers\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Shippers\' в таблице \'Shippers\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableShippers.ShipperNameColumn] = value;
+                    this[this.tableShippers.ShippersColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsShipperNameNull() {
-                return this.IsNull(this.tableShippers.ShipperNameColumn);
+            public bool IsShippersNull() {
+                return this.IsNull(this.tableShippers.ShippersColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetShipperNameNull() {
-                this[this.tableShippers.ShipperNameColumn] = global::System.Convert.DBNull;
+            public void SetShippersNull() {
+                this[this.tableShippers.ShippersColumn] = global::System.Convert.DBNull;
             }
         }
         
@@ -3345,30 +3345,30 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string ConsigneeName {
+            public string Consignees {
                 get {
                     try {
-                        return ((string)(this[this.tableConsignees.ConsigneeNameColumn]));
+                        return ((string)(this[this.tableConsignees.ConsigneesColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'ConsigneeName\' в таблице \'Consignees\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Consignees\' в таблице \'Consignees\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableConsignees.ConsigneeNameColumn] = value;
+                    this[this.tableConsignees.ConsigneesColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsConsigneeNameNull() {
-                return this.IsNull(this.tableConsignees.ConsigneeNameColumn);
+            public bool IsConsigneesNull() {
+                return this.IsNull(this.tableConsignees.ConsigneesColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetConsigneeNameNull() {
-                this[this.tableConsignees.ConsigneeNameColumn] = global::System.Convert.DBNull;
+            public void SetConsigneesNull() {
+                this[this.tableConsignees.ConsigneesColumn] = global::System.Convert.DBNull;
             }
         }
         

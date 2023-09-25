@@ -21,6 +21,16 @@
                  </MudButton>
              </div>
              <div class="container-content">
+                 <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.NameEn"
+                               TextChanged="async (e)=> { Item.NameEn = e.ToUpper(); }"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true"
+                               Required RequiredError=""
+                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                 <MudSpacer />
+                 <div style="width:110px"></div>
+             </div>             
+             <div class="container-content">
                  <MudTextField T="string" Style="width: 135px" Label="UN Locode" Text="@Item.UnLocode"
                                TextChanged="@(async (e)=> { Item.UnLocode = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"

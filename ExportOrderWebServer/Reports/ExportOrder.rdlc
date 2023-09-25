@@ -165,8 +165,8 @@
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
-        <Field Name="ShipperName">
-          <DataField>ShipperName</DataField>
+        <Field Name="Shippers">
+          <DataField>Shippers</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -185,8 +185,8 @@
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
-        <Field Name="ConsigneeName">
-          <DataField>ConsigneeName</DataField>
+        <Field Name="Consignees">
+          <DataField>Consignees</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -1009,7 +1009,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!ShipperName.Value</Value>
+                                  <Value>=Fields!Shippers.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -1150,7 +1150,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!ConsigneeName.Value</Value>
+                                  <Value>=Fields!Consignees.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -2799,7 +2799,7 @@
                     <Style />
                   </TextRun>
                   <TextRun>
-                    <Value>_______________________</Value>
+                    <Value>  _______________________</Value>
                     <Style />
                   </TextRun>
                 </TextRuns>

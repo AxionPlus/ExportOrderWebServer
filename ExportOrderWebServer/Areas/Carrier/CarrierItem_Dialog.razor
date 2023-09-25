@@ -49,7 +49,7 @@
              </div>
 
              <div class="container-content">
-                 <MudSelect Class="wrapper-input " T="BLTemplate" Label="BL Template" @bind-Value="@Item.blTemplate"
+                 <MudSelect Class="wrapper-input " T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
                             ToStringFunc="@(str=>str.ToString())"
                             Variant="Variant.Outlined" Margin="Margin.Dense">
                     @foreach (BLTemplate template in Enum.GetValues(typeof(BLTemplate)))

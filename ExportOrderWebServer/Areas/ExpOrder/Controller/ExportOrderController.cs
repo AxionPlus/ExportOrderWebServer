@@ -51,8 +51,8 @@ public class ExportOrderController : ControllerBase
             var dsItem = new List<ExportOrderDTO>() { Item };
             var dsRecords = Item.exportOrderRecordsDTO;
 
-            var dsShippers = dsRecords?.Select(r => new { ShipperName = r.Shipper }).Distinct().ToList();
-            var dsConsignees = dsRecords?.Select(r => new { ConsigneeName = r.Consignee }).Distinct().ToList();
+            var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
+            var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
             var dsCommodities = dsRecords?.GroupBy(r => r.CommodityName).Select(g => new
                                                                                          {
                                                                                              Commodity = g.Key,
@@ -133,9 +133,9 @@ public class ExportOrderController : ControllerBase
             var Items = new List<ExportOrderDTO>() { Item };
             var Records = Item.exportOrderRecordsDTO;
 
-            var ShipperList = Records.Select(x => x.Shipper).Distinct().ToList();
-            var ConsigneeList = Records.Select(x => x.Consignee).Distinct().ToList();
-            var NotifyList = Records.Select(x => x.Consignee).Distinct().ToList();
+            var ShipperList = Records.Select(x => x.ShipperEn).Distinct().ToList();
+            var ConsigneeList = Records.Select(x => x.ConsigneeEn).Distinct().ToList();
+            var NotifyList = Records.Select(x => x.ConsigneeEn).Distinct().ToList();
 
             StringBuilder sb = new StringBuilder();
 
@@ -170,18 +170,18 @@ public class ExportOrderController : ControllerBase
                 Measures = r.Volume > 0 ? "CUB. M" : "KG"
             }).ToList();
 
-            //List<string> CommAndTypes = new List<string>();
-
             var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName, c.CntrType })
                                                   .Select(g => new
                                                   {
                                                       Commodity = g.Key.CommodityEngName,
                                                       g.Key.CntrType,
+
                                                       g.FirstOrDefault()!.HSCode,
                                                       g.FirstOrDefault()!.IsIMO,
                                                       g.FirstOrDefault()!.IMO,
                                                       g.FirstOrDefault()!.UNNO,
                                                       g.FirstOrDefault()!.Measures,
+
                                                       CntrTypesCount = g.ToList().Count,
 
                                                       CommodityAggregated = string.Join(" ", g.ToList().Count,
@@ -190,7 +190,6 @@ public class ExportOrderController : ControllerBase
                                                                                              g.FirstOrDefault()!.CommodityEngName,
                                                                                              g.FirstOrDefault()!.IMO,
                                                                                              g.FirstOrDefault()!.UNNO).Trim(),
-                                                      //CommAndTypes = g.ToList()
                                                   })
                                                   .ToList();
 
@@ -204,16 +203,20 @@ public class ExportOrderController : ControllerBase
             var dsItem = Items.Select(x => new
             { 
                 x.Num,
-                POLAgent = x.CarrierName,
+                POLAgent = x.CarrierNameEn,
                 x.PODAgent,
-                Vessel = x.VesselName,
+                Vessel = x.VesselNameEn,
                 x.Voyage,
-                x.POL,
-                x.POD,
+                x.POLEn,
+                x.PODEn,
                 Shippers,
                 Consignees,
                 NotifyParties,
                 Commodities,
+                x.TotalCntrsCount,
+                x.TotalCntrWeight,
+                x.TotalTareWeight,
+                Measures = CommodityRecords.FirstOrDefault()!.Measures
             }).ToList();
 
             // список контейнеров

@@ -2,7 +2,6 @@
 using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.DTO;
-
 public class ExportOrderRecordDTO
 {
     [Key]
@@ -24,7 +23,9 @@ public class ExportOrderRecordDTO
 
     public string DocumentName { get; set; }      // Declaration number
     public string Shipper { get; set; }
+    public string ShipperEn { get; set; }
     public string Consignee { get; set; }
+    public string ConsigneeEn { get; set; }
     public string CommodityName { get; set; }
     public string CommodityEngName { get; set; }
     public string HSCode { get; set; }

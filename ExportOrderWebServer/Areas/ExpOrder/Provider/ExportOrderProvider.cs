@@ -49,8 +49,6 @@ public class ExportOrderProvider : IExportOrderProvider
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-            //try
-            //{
             var db = await _db;
 
             var myCompany = await db.MyCompany.AsNoTracking().FirstOrDefaultAsync();
@@ -58,7 +56,7 @@ public class ExportOrderProvider : IExportOrderProvider
             var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.LoadingTerminal)
                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Country)
-                                            .Include(x => x.Carrier)!.ThenInclude(c => c.CarrierDetails)
+                                            .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
                                             .Include(x => x.Person)
                                             .Include(x => x.Documents)!.ThenInclude(d => d.Records)
                                             .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
@@ -69,13 +67,19 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 Id = source.Id,
                                                 Num = source.Num,
                                                 Dated = source.Dated.ToString("dd.MM.yyyy"),
-                                                CarrierName = source.Carrier.Name,
+                                                CarrierNameEn = source.Carrier!.NameEn,
                                                 VesselName = source.VesselCall!.Vessel.Name + " (" + source.VesselCall.Vessel.Flag.RUS + ")",
+                                                VesselNameEn = source.VesselCall!.Vessel.Name + " (" + source.VesselCall.Vessel.Flag.ENG + ")",
                                                 Voyage = source.VesselCall.VoyageCarrier,
                                                 DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
                                                 BLDate = source.VesselCall.ETS!.Value.ToString("dd.MM.yyyy"),
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
+                                                PODEn = source.VesselCall.POD.NameEn + ", " + source.VesselCall.POD.Country.ENG,
                                                 PODAgent = source.VesselCall.PODAgent,
+                                                TotalCntrsCount = source.Records.Count,
+                                                TotalCntrWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
+                                                //TotalCntrWeight = totalWeight(source.Records),
+                                                TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
                                                 //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ? source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
                                                 Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract,
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
@@ -86,12 +90,6 @@ public class ExportOrderProvider : IExportOrderProvider
                                             .FirstOrDefaultAsync(x => x.Id == eoId);
 
             return Item!;
-            //}
-            //catch(Exception ex)
-            //{
-            //    string msg = ex.Message;
-            //    return new ExportOrderDTO();
-            //}
         }
     }
 
@@ -240,7 +238,8 @@ public class ExportOrderProvider : IExportOrderProvider
             ++indexRec;
             eoRecordDTO.Seq = indexRec.ToString();
 
-            foreach (var content in record.Contents)    {
+            foreach (var content in record.Contents)
+            {
                 //eoRecordDTO.Seq = "";
                 eoRecordDTO.Cntr = record.CntrNum;
                 eoRecordDTO.CntrType = record.CntrType.Normolize!;
@@ -254,8 +253,10 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.Volume = content.Volume;    // is not null ? content.Volume : 0;
 
                 eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
-                eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.EngName!;
-                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.EngName!;                
+                eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
+                eoRecordDTO.ShipperEn = content.DocumentRecord.Document.Shipper!.NameEn!;
+                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;
+                eoRecordDTO.ConsigneeEn = content.DocumentRecord.Document.Consignee!.NameEn!;
 
                 eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
                 eoRecordDTO.CommodityEngName = content.DocumentRecord.CommodityEngName;
@@ -272,6 +273,22 @@ public class ExportOrderProvider : IExportOrderProvider
         return eoRecordsDTO.ToArray();
     };
 
+    Func<IEnumerable<ExportOrderRecord>, double> totalWeight = (_eoRecords) =>
+    {
+        double GrandTotal = 0;
+
+        foreach (var record in _eoRecords)
+        {
+            double total = record.Contents.Sum(c => c.GrossWt);
+
+            GrandTotal = GrandTotal + total;
+        }
+
+        if (GrandTotal > 0)
+            return GrandTotal;
+        else
+            return 0;
+    };
 
     //public async Task<MyCompanyEntity> GetMyCompanyAsync()
     //{

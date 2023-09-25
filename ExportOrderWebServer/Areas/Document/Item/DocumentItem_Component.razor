@@ -90,7 +90,7 @@
                  <MudTextField Class="TextField" Placeholder="Shipper ru" Style="width: 520px" @bind-Value="@Value.Shipper!.Name"
                                Variant="Variant.Outlined" Margin="Margin.Dense"                               
                                Required RequiredError="" Clearable />
-                 <MudTextField Class="TextField" Placeholder="Shipper en" Style="width: 520px" @bind-Value="@Value.Shipper!.EngName"
+                 <MudTextField Class="TextField" Placeholder="Shipper en" Style="width: 520px" @bind-Value="@Value.Shipper!.NameEn"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Required RequiredError="" Clearable />
             </div>
@@ -103,7 +103,7 @@
                 <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 520px" @bind-Value="@Value.Consignee!.Name"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Required RequiredError="" Clearable />
-                <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 520px" @bind-Value="@Value.Consignee.EngName"
+                <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 520px" @bind-Value="@Value.Consignee.NameEn"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Required RequiredError="" Clearable />
             </div>
@@ -276,14 +276,14 @@
             {
                 case "Shipper":
                     Value!.Shipper!.Name = customer.Name;
-                    Value.Shipper!.EngName = customer.EngName;
+                    Value.Shipper!.NameEn = customer.EngName;
                     Value.Shipper!.CountryRUS = customer.Country.RUS;
                     Value.Shipper!.CountryENG = customer.Country.ENG;
                     break;
 
                 case "Consignee":                    
                     Value!.Consignee!.Name = customer.Name;
-                    Value.Consignee!.EngName = customer.EngName;
+                    Value.Consignee!.NameEn = customer.EngName;
                     Value.Consignee!.CountryRUS = customer.Country.RUS;
                     Value.Consignee!.CountryENG = customer.Country.ENG;
                     break;

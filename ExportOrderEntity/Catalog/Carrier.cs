@@ -7,7 +7,7 @@ public class CarrierCatalog : CatalogEntity
 {
     public string? Name { get; set; }
     public string? NameEn { get; set; }
-    public BLTemplate blTemplate { get; set; }
+    public BLTemplate BlTemplate { get; set; } = 0;
 
     public IList<CarrierTerminalDetails> CarrierDetails { get; set; } = new List<CarrierTerminalDetails>();
 }

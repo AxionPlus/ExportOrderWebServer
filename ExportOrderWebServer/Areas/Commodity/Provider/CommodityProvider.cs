@@ -61,7 +61,7 @@ public class CommodityProvider : ICommodityProvider
                     Commodities = Commodities.Where(s => s.Name == filter.Name).ToList();
 
                 if (!string.IsNullOrEmpty(filter.NameEn))
-                    Commodities = Commodities.Where(s => s.EngName == filter.NameEn).ToList();
+                    Commodities = Commodities.Where(s => s.NameEn == filter.NameEn).ToList();
 
                 if (filter.IsIMO.HasValue)
                     Commodities = Commodities.Where(s => s.IsIMO == filter.IsIMO).ToList();
@@ -125,7 +125,7 @@ public class CommodityProvider : ICommodityProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Commodities.Select(s => s.EngName!).ToListAsync();
+            return await db.Commodities.Select(s => s.NameEn!).ToListAsync();
         }
     }
 

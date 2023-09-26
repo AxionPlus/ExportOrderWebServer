@@ -29,8 +29,8 @@
                 </MudButton>
              </div>
              <div class="container-content">
-                <MudTextField Class="TextField_Names" T="string" Style="width: 600px" Label="Name En" Text="@Item.EngName"
-                              TextChanged="@(async (e)=> { Item.EngName = e.ToUpper(); })"
+                <MudTextField Class="TextField_Names" T="string" Style="width: 600px" Label="Name En" Text="@Item.NameEn"
+                              TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" Lines="3"
                               Required RequiredError=""
@@ -130,7 +130,7 @@
         if (IsNewItem)
         {
             Item!.Name = null;
-            Item.EngName = null;
+            Item.NameEn = null;
             Item.Country = null;
         }
 

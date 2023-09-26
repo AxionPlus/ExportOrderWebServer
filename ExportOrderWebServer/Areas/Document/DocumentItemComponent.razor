@@ -297,8 +297,8 @@
         {
             var commodity = (CommodityCatalog)result.Data;
 
-            documentRecord.CommodityName = commodity.Name;
-            documentRecord.CommodityEngName = commodity.EngName;
+            documentRecord.CommodityName = commodity.Name!;
+            documentRecord.CommodityEngName = commodity.NameEn!;
             documentRecord.CommodityHSCode = commodity.HSCode;
         }
 

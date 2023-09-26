@@ -59,8 +59,9 @@ public class ExcelService : IDisposable
         int colCntrTareWt = 4;
         int colSeal = 5;
         int colPackageQty = 6;
-        int colNet = 7;
-        int colGross = 8;        
+        int colPackageName = 7;
+        int colNet = 8;
+        int colGross = 9;        
         
         #endregion
                 
@@ -71,7 +72,7 @@ public class ExcelService : IDisposable
 
         try
         {
-            uint columns = 9;
+            uint columns = 10;
             uint row = 2;
 
             do
@@ -105,6 +106,7 @@ public class ExcelService : IDisposable
                     var content = new ContainerContent()
                     {
                         PackageQty = uint.TryParse(record[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
+                        PackageName = record[colPackageName],
                         NetWt = double.TryParse(record[colNet], out double _nwt) ? _nwt : 0,
                         GrossWt = double.TryParse(record[colGross], out double _gwt) ? _gwt : 0,
                         DocumentRecord = await _documentProvider.GetDocumentRecordAsync(record[colDoc], cargoIndex)

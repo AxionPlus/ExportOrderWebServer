@@ -10,5 +10,5 @@ public class VesselEntity: Entity
     public string? IMO { get; set; }
     public string? Name { get; set; }    
     public string? TerminalId { get; set; }
-    public CountryCatalog Flag { get; set; }
+    public CountryCatalog? Flag { get; set; }
 }

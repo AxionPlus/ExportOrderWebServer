@@ -12,7 +12,7 @@ public class ExportOrderRecordDTO
     public string Seq { get; set; }               // Record index for RDLC Report    
     public string Cntr { get; set; }
     public string CntrType { get; set; }
-    public double CntrTareWt { get; set; }
+    public double? CntrTareWt { get; set; }
     public string Seal { get; set; }
 
     public uint PackageQty { get; set; }
@@ -21,7 +21,7 @@ public class ExportOrderRecordDTO
     public double GrossWt { get; set; }
     public double? Volume { get; set; }
 
-    public string DocumentName { get; set; }      // Declaration number
+    public string DocumentName { get; set; }
     public string Shipper { get; set; }
     public string ShipperEn { get; set; }
     public string Consignee { get; set; }

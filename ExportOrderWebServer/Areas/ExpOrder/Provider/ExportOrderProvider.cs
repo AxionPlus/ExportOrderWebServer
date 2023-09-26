@@ -68,7 +68,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 Num = source.Num,
                                                 Dated = source.Dated.ToString("dd.MM.yyyy"),
                                                 CarrierNameEn = source.Carrier!.NameEn,
-                                                VesselName = source.VesselCall!.Vessel.Name + " (" + source.VesselCall.Vessel.Flag.RUS + ")",
+                                                VesselName = source.VesselCall!.Vessel.Name + " (" + source.VesselCall.Vessel.Flag!.RUS + ")",
                                                 VesselNameEn = source.VesselCall!.Vessel.Name + " (" + source.VesselCall.Vessel.Flag.ENG + ")",
                                                 Voyage = source.VesselCall.VoyageCarrier,
                                                 DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
@@ -76,7 +76,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
                                                 PODEn = source.VesselCall.POD.NameEn + ", " + source.VesselCall.POD.Country.ENG,
                                                 PODAgent = source.VesselCall.PODAgent,
-                                                TotalCntrsCount = source.Records.Count,
+                                                TotalCntrCount = source.Records.Count,
                                                 TotalCntrWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
                                                 //TotalCntrWeight = totalWeight(source.Records),
                                                 TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
@@ -171,7 +171,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 item.CreateUser = User!;
 
                 db.Entry(item).State = EntityState.Added;
-                db.Entry(item.Carrier).State = EntityState.Unchanged;
+                db.Entry(item.Carrier!).State = EntityState.Unchanged;
                 db.Entry(item.VesselCall!).State = EntityState.Unchanged;
                 db.Entry(item.Person!).State = EntityState.Unchanged;
 
@@ -183,7 +183,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 foreach (var record in item.Records!)
                 {
                     db.Entry(record).State = EntityState.Added;
-                    db.Entry(record.CntrType).State = EntityState.Detached;
+                    db.Entry(record.CntrType!).State = EntityState.Detached;
 
                     foreach (var recordContent in record.Contents)
                         db.Entry(recordContent).State = EntityState.Added;

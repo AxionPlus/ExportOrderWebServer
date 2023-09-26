@@ -58,7 +58,7 @@ public class CustomerProvider : ICustomerProvider
                     Customers = Customers.Where(s => s.Name == filter.Name).ToList();
 
                 if (!string.IsNullOrEmpty(filter.NameEn))
-                    Customers = Customers.Where(s => s.EngName == filter.NameEn).ToList();
+                    Customers = Customers.Where(s => s.NameEn == filter.NameEn).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Country))
                     Customers = Customers.Where(s => s.Country.RUS == filter.Country).ToList();
@@ -85,7 +85,7 @@ public class CustomerProvider : ICustomerProvider
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
-            var itemExistCheck = await db.Customers.Where(s => s.EngName == item!.EngName).FirstOrDefaultAsync();
+            var itemExistCheck = await db.Customers.Where(s => s.NameEn == item!.NameEn).FirstOrDefaultAsync();
             if (itemExistCheck != null)
             {
                 appObjResponse.ErrorAdd($"Customer exists already: {item!.Name}");
@@ -124,7 +124,7 @@ public class CustomerProvider : ICustomerProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Customers.Select(s => s.EngName!).ToListAsync();
+            return await db.Customers.Select(s => s.NameEn!).ToListAsync();
         }
     }
 

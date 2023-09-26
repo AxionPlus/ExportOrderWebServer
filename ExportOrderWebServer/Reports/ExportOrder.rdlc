@@ -105,8 +105,8 @@
           <DataField>Seal</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="Quantity">
-          <DataField>Quantity</DataField>
+        <Field Name="PackageQty">
+          <DataField>PackageQty</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="NetWt">
@@ -1305,7 +1305,7 @@
                                   <Style />
                                 </TextRun>
                                 <TextRun>
-                                  <Value>=IIf(Fields!IsIMO.Value=true,"IMO:" &amp; Fields!IMO.Value &amp; " " &amp; Fields!UNNO.Value, "")</Value>
+                                  <Value>=IIf(Fields!IsIMO.Value=true, Fields!IMO.Value &amp; " " &amp; Fields!UNNO.Value, "")</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -1911,7 +1911,7 @@
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Center</TextAlign>
+                                <TextAlign>Right</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -1945,7 +1945,7 @@
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Center</TextAlign>
+                                <TextAlign>Right</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -1998,7 +1998,7 @@
               </Border>
             </Style>
           </Tablix>
-          <Tablix Name="Tablix5">
+          <Tablix Name="T_CntrRecords">
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
@@ -2648,16 +2648,16 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="RecPackages">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Quantity.Value</Value>
+                                  <Value>=Fields!PackageQty.Value</Value>
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
                                     <FontWeight>Bold</FontWeight>
+                                    <Format>0;(0)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

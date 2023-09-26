@@ -14,8 +14,8 @@ public class ExportOrderRecord
     [Required]
     [MaxLength(11)]
     public string CntrNum { get; set; }
-    public CntrTpSz CntrType { get; set; }
-    public double CntrTareWt { get; set; }
+    public CntrTpSz? CntrType { get; set; }
+    public double? CntrTareWt { get; set; }
     [Required]
     public string Seal { get; set; }
 

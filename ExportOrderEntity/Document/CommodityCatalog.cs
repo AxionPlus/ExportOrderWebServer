@@ -8,10 +8,10 @@ public class CommodityCatalog : CatalogEntity
     [Required]
     public string? Name { get; set; }
     [Required]
-    public string? EngName { get; set; }
+    public string? NameEn { get; set; }
     [Required]
     [MaxLength(10)]
-    public string HSCode { get; set; }
+    public string? HSCode { get; set; }
     public string? IMO { get; set; }
     public string? UNNO { get; set; }
     public bool IsIMO { get; set; } = false;

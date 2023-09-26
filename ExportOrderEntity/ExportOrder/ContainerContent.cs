@@ -9,7 +9,7 @@ public class ContainerContent
     [Key]
     public long Id { get; set; }
 
-#pragma warning disable CS8618    
+#pragma warning disable CS8618
     public uint PackageQty { get; set; }
     public string? PackageName { get; set; }
     public double NetWt { get; set; }

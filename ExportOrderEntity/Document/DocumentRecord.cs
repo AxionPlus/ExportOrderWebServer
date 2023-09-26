@@ -17,7 +17,7 @@ public class DocumentRecord
     public string CommodityEngName { get; set; }
 
     [MaxLength(10)]
-    public string CommodityHSCode { get; set; }
+    public string? CommodityHSCode { get; set; }
     public string? IMO { get; set; }
     public string? UNNO { get; set; }
     public bool IsIMO { get; set; }

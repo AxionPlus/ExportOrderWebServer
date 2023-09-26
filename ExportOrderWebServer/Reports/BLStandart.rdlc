@@ -61,8 +61,8 @@
           <DataField>Commodities</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="TotalCntrsCount">
-          <DataField>TotalCntrsCount</DataField>
+        <Field Name="TotalCntrCount">
+          <DataField>TotalCntrCount</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="TotalCntrWeight">
@@ -2304,7 +2304,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="Textbox98">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -2449,7 +2448,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="Textbox112">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -3310,9 +3308,10 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!TotalCntrsCount.Value</Value>
+                                  <Value>=Fields!TotalCntrCount.Value</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
                                     <Format>0;(0)</Format>
                                   </Style>
                                 </TextRun>
@@ -3320,6 +3319,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                   <Value> CONTAINERS</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -3363,6 +3363,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                   <Value>=Fields!POLEn.Value</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

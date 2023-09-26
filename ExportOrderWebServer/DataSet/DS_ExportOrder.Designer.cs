@@ -878,7 +878,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnSeal;
             
-            private global::System.Data.DataColumn columnQuantity;
+            private global::System.Data.DataColumn columnPackageQty;
             
             private global::System.Data.DataColumn columnNetWt;
             
@@ -983,9 +983,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn QuantityColumn {
+            public global::System.Data.DataColumn PackageQtyColumn {
                 get {
-                    return this.columnQuantity;
+                    return this.columnPackageQty;
                 }
             }
             
@@ -1113,7 +1113,7 @@ namespace ExportOrderWebServer.DataSet {
                         string CntrType, 
                         double CntrTareWt, 
                         string Seal, 
-                        int Quantity, 
+                        int PackageQty, 
                         double NetWt, 
                         double GrossWt, 
                         string DocumentName, 
@@ -1132,7 +1132,7 @@ namespace ExportOrderWebServer.DataSet {
                         CntrType,
                         CntrTareWt,
                         Seal,
-                        Quantity,
+                        PackageQty,
                         NetWt,
                         GrossWt,
                         DocumentName,
@@ -1171,7 +1171,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnCntrType = base.Columns["CntrType"];
                 this.columnCntrTareWt = base.Columns["CntrTareWt"];
                 this.columnSeal = base.Columns["Seal"];
-                this.columnQuantity = base.Columns["Quantity"];
+                this.columnPackageQty = base.Columns["PackageQty"];
                 this.columnNetWt = base.Columns["NetWt"];
                 this.columnGrossWt = base.Columns["GrossWt"];
                 this.columnDocumentName = base.Columns["DocumentName"];
@@ -1199,8 +1199,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnCntrTareWt);
                 this.columnSeal = new global::System.Data.DataColumn("Seal", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnSeal);
-                this.columnQuantity = new global::System.Data.DataColumn("Quantity", typeof(int), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnQuantity);
+                this.columnPackageQty = new global::System.Data.DataColumn("PackageQty", typeof(int), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnPackageQty);
                 this.columnNetWt = new global::System.Data.DataColumn("NetWt", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnNetWt);
                 this.columnGrossWt = new global::System.Data.DataColumn("GrossWt", typeof(double), null, global::System.Data.MappingType.Element);
@@ -2907,17 +2907,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public int Quantity {
+            public int PackageQty {
                 get {
                     try {
-                        return ((int)(this[this.tableRecords.QuantityColumn]));
+                        return ((int)(this[this.tableRecords.PackageQtyColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Quantity\' в таблице \'Records\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'PackageQty\' в таблице \'Records\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableRecords.QuantityColumn] = value;
+                    this[this.tableRecords.PackageQtyColumn] = value;
                 }
             }
             
@@ -3155,14 +3155,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsQuantityNull() {
-                return this.IsNull(this.tableRecords.QuantityColumn);
+            public bool IsPackageQtyNull() {
+                return this.IsNull(this.tableRecords.PackageQtyColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetQuantityNull() {
-                this[this.tableRecords.QuantityColumn] = global::System.Convert.DBNull;
+            public void SetPackageQtyNull() {
+                this[this.tableRecords.PackageQtyColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

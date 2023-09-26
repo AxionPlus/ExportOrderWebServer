@@ -52,8 +52,8 @@
                                   Required RequiredError=""
                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                     <MudSpacer/>
-                    <MudTextField T="string" Style="width: 400px; margin-left: 10px" Label="Name En" Text="@Item.EngName"
-                                   TextChanged="(e)=> { Item.EngName = e.ToUpper(); StateHasChanged();}"
+                    <MudTextField T="string" Style="width: 400px; margin-left: 10px" Label="Name En" Text="@Item.NameEn"
+                                   TextChanged="(e)=> { Item.NameEn = e.ToUpper(); StateHasChanged();}"
                                    Variant="Variant.Outlined" Margin="Margin.Dense"
                                    Lines="3"
                                    Immediate="true"
@@ -145,7 +145,7 @@
         {
             Item!.HSCode = null;
             Item.Name = null;
-            Item.EngName = null;
+            Item.NameEn = null;
             //await InvokeAsync(StateHasChanged);
         }
 

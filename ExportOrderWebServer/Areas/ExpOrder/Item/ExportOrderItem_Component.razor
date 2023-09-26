@@ -247,7 +247,7 @@
                         </MudSelect>
                     </MudTd>
                     <MudTd>
-                         <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecords.CntrTareWt"
+                         <MudNumericField Class="QuantityField" T="double?" @bind-Value="expOrderRecords.CntrTareWt"
                                           
                                           Variant="Variant.Outlined" Margin="Margin.Dense"
                                           Required RequiredError="" HideSpinButtons="true"/>
@@ -298,7 +298,7 @@
                                         </MudTd>
                                          <MudTd>
                                              <MudTextField Class="TextField" T="string" Text="@CntrContent.PackageName"
-                                                           Style="width: 120px"
+                                                           Style="width: 120px; text-align:center"
                                                            Variant="Variant.Outlined" Margin="Margin.Dense" />
                                          </MudTd>
                                         <MudTd>

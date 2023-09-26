@@ -213,7 +213,7 @@ public class ExportOrderController : ControllerBase
                 Consignees,
                 NotifyParties,
                 Commodities,
-                x.TotalCntrsCount,
+                x.TotalCntrCount,
                 x.TotalCntrWeight,
                 x.TotalTareWeight,
                 Measures = CommodityRecords.FirstOrDefault()!.Measures
@@ -359,5 +359,99 @@ public class ExportOrderController : ControllerBase
             string message = ex.Message;
             return Ok();
         }
+    }
+
+    [HttpGet]
+    [Route("ViewReportManifest")]
+    public async Task<IActionResult> ManifestReport(long Id)
+    {
+        var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
+
+        try
+        {
+            string mimeType = "";
+            int extension = 1;
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
+
+            LocalReport localReport = new LocalReport(pathReport);
+
+            #region PARAMETERS
+            Dictionary<string, string> parameters = new Dictionary<string, string>()
+            {
+                { "report", "new" },
+            };
+            #endregion
+
+            var Items = new List<ExportOrderDTO>() { Item };
+            var Records = Item.exportOrderRecordsDTO;
+
+            var ShipperList = Records.Select(x => x.ShipperEn).Distinct().ToList();
+            var ConsigneeList = Records.Select(x => x.ConsigneeEn).Distinct().ToList();
+            var NotifyList = Records.Select(x => x.ConsigneeEn).Distinct().ToList();
+
+            StringBuilder sb = new StringBuilder();
+
+            string Shippers = "";
+            foreach (var item in ShipperList)
+                Shippers = sb.Append(item + "\n").ToString();
+
+            Shippers = Shippers.Trim(); sb.Clear();
+
+            string Consignees = "";
+            foreach (var item in ConsigneeList)
+                Consignees = sb.Append(item + "\n").ToString();
+
+            Consignees = Consignees.Trim(); sb.Clear();
+
+            string NotifyParties = "";
+            foreach (var item in ConsigneeList)
+                NotifyParties = sb.Append(item + "\n").ToString();
+
+            NotifyParties = NotifyParties.Trim(); sb.Clear();
+
+            // список товаров
+            var CommodityRecords = Records.Select(r => new
+            {
+                r.CommodityEngName,
+                r.HSCode,
+                r.IsIMO,
+                r.IMO,
+                r.UNNO,
+                r.CntrTareWt,
+                r.GrossWt,
+                r.Volume
+            }).ToList();
+
+            var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName })
+                                                   .Select(g => new
+                                                   {
+                                                       //Commodity = g.Key.CommodityEngName,
+                                                       Commodity = string.Join(" ", g.Key.CommodityEngName,
+                                                                                    g.FirstOrDefault()!.IMO,
+                                                                                    g.FirstOrDefault()!.UNNO).Trim(),
+                                                   
+                                                       //g.FirstOrDefault()!.HSCode,
+                                                       //g.FirstOrDefault()!.IsIMO,
+                                                       //g.FirstOrDefault()!.IMO,
+                                                       //g.FirstOrDefault()!.UNNO,
+                                                   
+                                                       CommodityCntrTareWt = g.Sum(c => c.CntrTareWt),
+                                                       CommodityGrossWt = g.Sum(c => c.GrossWt),
+                                                       CommodityVolume = g.Sum(c => c.Volume),
+                                                   
+                                                   })
+                                                   .ToList();
+
+            var dsCommodities = CommoditiesGroup;
+
+
+        }
+        catch (Exception ex)
+        {
+            string message = ex.Message;
+            return Ok();
+        }
+
+        return Ok();
     }
 }

@@ -276,14 +276,14 @@
             {
                 case "Shipper":
                     Value!.Shipper!.Name = customer.Name;
-                    Value.Shipper!.NameEn = customer.EngName;
+                    Value.Shipper!.NameEn = customer.NameEn;
                     Value.Shipper!.CountryRUS = customer.Country.RUS;
                     Value.Shipper!.CountryENG = customer.Country.ENG;
                     break;
 
                 case "Consignee":                    
                     Value!.Consignee!.Name = customer.Name;
-                    Value.Consignee!.NameEn = customer.EngName;
+                    Value.Consignee!.NameEn = customer.NameEn;
                     Value.Consignee!.CountryRUS = customer.Country.RUS;
                     Value.Consignee!.CountryENG = customer.Country.ENG;
                     break;
@@ -305,8 +305,8 @@
         {
             var commodity = (CommodityCatalog)result.Data;
 
-            documentRecord.CommodityName = commodity.Name;
-            documentRecord.CommodityEngName = commodity.EngName;
+            documentRecord.CommodityName = commodity.Name!;
+            documentRecord.CommodityEngName = commodity.NameEn!;
             documentRecord.CommodityHSCode = commodity.HSCode;
             documentRecord.IMO = commodity.IMO;
             documentRecord.UNNO = commodity.UNNO;

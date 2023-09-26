@@ -65,10 +65,10 @@
             }            
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:515px">
-                <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name)">Name Ru</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:515px">
-                <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.EngName)">Name En</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
             </MudTh>
             <MudTh>
                 <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
@@ -86,8 +86,8 @@
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })"/></MudTd>
             }
             <MudTd Class="Tcell_Name">@context.Name</MudTd>
-            <MudTd>@context.EngName</MudTd>
-            <MudTd>@context.Country.RUS</MudTd>
+            <MudTd>@context.NameEn</MudTd>
+            <MudTd>@context.Country!.RUS</MudTd>
         </RowTemplate>
 
         <PagerContent></PagerContent>

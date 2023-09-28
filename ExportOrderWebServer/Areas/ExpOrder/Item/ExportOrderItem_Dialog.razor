@@ -35,23 +35,23 @@
 
             <MudSpacer />
 
-            @if (IsNewItem)
-            {
-                <div class="ToolBar-iconbutton">
+            <div class="ToolBar-iconbutton">
+                @if (IsNewItem)
+                {
                     <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
                     </MudTooltip>
-                </div>
-            }
-
-    @*         @if (IsAuth)
-            { *@
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Class="ExitIconButton" Text="edit" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
-                    </MudTooltip>
-                </div>            
-            @* } *@
+                }
+                else
+                {
+@*                     @if (IsAuth)
+                    { *@
+                        <MudTooltip Class="ExitIconButton" Text="edit" Delay="500" Duration="1000">
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
+                        </MudTooltip>
+                    @* } *@
+                }
+            </div>
 
             <div class="ToolBar-iconbutton" style="width: 20px"></div>
             <div class="ToolBar-iconbutton">

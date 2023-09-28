@@ -194,8 +194,8 @@
             @if (mudTable != null)
             {
                 <div class="tableMenu">
-                    <MudButton Class="Button" OnClick="@(async()=>{ await UploadFile(); })"
-                                Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                    <MudButton Class="Button" Size="Size.Small" OnClick="UploadFile"
+                                Variant="Variant.Filled" Color="Color.Dark" 
                                 StartIcon="@Icons.Material.Filled.UploadFile">
                         Upload New List
                     </MudButton>

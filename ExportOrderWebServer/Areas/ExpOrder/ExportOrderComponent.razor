@@ -1,4 +1,4 @@
-﻿@using ExportOrderWebServer.Areas.ExpOrder.Item;
+﻿
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
@@ -131,7 +131,7 @@
     public IEnumerable<ExportOrderEntity>? Items { get; set; } = new List<ExportOrderEntity>();
 
     private FilterParameters Filter { get; set; } = new();
-    private bool IsLoadingData {get; set; }= false;
+    private bool IsLoadingData {get; set; } = false;
 
 
 

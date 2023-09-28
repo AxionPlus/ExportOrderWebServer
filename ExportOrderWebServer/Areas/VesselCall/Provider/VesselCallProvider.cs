@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Globalization;
 
 namespace ExportOrderWebServer.Areas.VesselCall.Provider;
 
@@ -151,6 +150,44 @@ public class VesselCallProvider : IVesselCallProvider
         {
             var db = await _db;
             return await db.VesselCalls.Select(s => s.VoyageCarrier!).ToListAsync();
+        }
+    }
+
+    public async Task<IEnumerable<VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var eoItems = await db.ExportOrders.AsNoTracking().Include(eo => eo.Carrier)
+                            .Where(eo => eo.VesselCall!.Id == vslCallId)
+                            .Select(eo => new 
+                            {
+                                VesselCallId = eo.VesselCall!.Id,
+                                CarrierId = eo.Carrier!.Id,
+                                CarrierNameEn = eo.Carrier!.NameEn,
+                                ExportOrderId = eo.Id,
+                                ExportOrderNum = eo.Num,
+                                ExportOrderDate = eo.Dated,
+                            })
+                            .ToListAsync();            
+
+            var CarriersGroup = eoItems.GroupBy(e => e.CarrierNameEn)
+                                  .Select(g => new VesselCallCarrierDTO()
+                                  {
+                                      VesselCallId = g.FirstOrDefault()!.VesselCallId,
+                                      CarrierId = g.FirstOrDefault()!.CarrierId,
+                                      CarrierNameEn = g.Key,
+                                      RecordsDTO = g.Select(r => new VesselCallRecordDTO()
+                                      {
+                                        ExportOrderId = r.ExportOrderId,
+                                        ExportOrderNum = r.ExportOrderNum,
+                                        ExportOrderDate = r.ExportOrderDate,
+                                        //vesselCallCarrierDTO = g,
+                                      }).ToList()
+                                  }).ToList();
+
+            return CarriersGroup;
         }
     }
 

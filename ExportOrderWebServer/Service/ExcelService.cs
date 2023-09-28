@@ -114,15 +114,15 @@ public class ExcelService : IDisposable
 
                     newRecord.Contents.Add(content);
 
+
+
                     // Documents
                     var _Document = await _documentProvider.GetDocumentAsync(record[colDoc]);
 
                     if (_Document is null)
                     {
-                        //uploadResult.Summary.Append($"There is no Document: {record[colDoc]}");
                         return (null, null);
-                    }
-                        
+                    }   
 
                     var document = new DocumentEntity() { Name = "" };
                     var documentRecord = new DocumentRecord();

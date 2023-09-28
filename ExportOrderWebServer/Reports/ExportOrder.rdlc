@@ -29,8 +29,8 @@
           <DataField>Dated</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
         </Field>
-        <Field Name="VesselName">
-          <DataField>VesselName</DataField>
+        <Field Name="Vessel">
+          <DataField>Vessel</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="Voyage">
@@ -539,14 +539,14 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="VesselName">
+                        <Textbox Name="Vessel">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VesselName.Value</Value>
+                                  <Value>=Fields!Vessel.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -555,7 +555,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>VesselName</rd:DefaultName>
+                          <rd:DefaultName>Vessel</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>

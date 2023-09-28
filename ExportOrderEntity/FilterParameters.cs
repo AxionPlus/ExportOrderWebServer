@@ -36,5 +36,6 @@ public class FilterParameters
     public string? CargoDescriptionShort { get; set; }
 
     public string? ExportOrderNum { get; set; }      // номер поручения
+    public long? VesselCallId { get; set; }
 
 }

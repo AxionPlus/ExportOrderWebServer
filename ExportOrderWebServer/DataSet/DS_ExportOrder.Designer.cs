@@ -460,7 +460,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnDated;
             
-            private global::System.Data.DataColumn columnVesselName;
+            private global::System.Data.DataColumn columnVessel;
             
             private global::System.Data.DataColumn columnVoyage;
             
@@ -537,9 +537,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn VesselNameColumn {
+            public global::System.Data.DataColumn VesselColumn {
                 get {
-                    return this.columnVesselName;
+                    return this.columnVessel;
                 }
             }
             
@@ -644,13 +644,13 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ExportOrderRow AddExportOrderRow(long Id, string Num, System.DateTime Dated, string VesselName, string Voyage, System.DateTime DateOfLoading, string POL, string POD, string Contract, string ContractDate, string MyCompanyName, string Person) {
+            public ExportOrderRow AddExportOrderRow(long Id, string Num, System.DateTime Dated, string Vessel, string Voyage, System.DateTime DateOfLoading, string POL, string POD, string Contract, string ContractDate, string MyCompanyName, string Person) {
                 ExportOrderRow rowExportOrderRow = ((ExportOrderRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Id,
                         Num,
                         Dated,
-                        VesselName,
+                        Vessel,
                         Voyage,
                         DateOfLoading,
                         POL,
@@ -691,7 +691,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnId = base.Columns["Id"];
                 this.columnNum = base.Columns["Num"];
                 this.columnDated = base.Columns["Dated"];
-                this.columnVesselName = base.Columns["VesselName"];
+                this.columnVessel = base.Columns["Vessel"];
                 this.columnVoyage = base.Columns["Voyage"];
                 this.columnDateOfLoading = base.Columns["DateOfLoading"];
                 this.columnPOL = base.Columns["POL"];
@@ -711,8 +711,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnNum);
                 this.columnDated = new global::System.Data.DataColumn("Dated", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnDated);
-                this.columnVesselName = new global::System.Data.DataColumn("VesselName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnVesselName);
+                this.columnVessel = new global::System.Data.DataColumn("Vessel", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnVessel);
                 this.columnVoyage = new global::System.Data.DataColumn("Voyage", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnVoyage);
                 this.columnDateOfLoading = new global::System.Data.DataColumn("DateOfLoading", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
@@ -2520,17 +2520,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string VesselName {
+            public string Vessel {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.VesselNameColumn]));
+                        return ((string)(this[this.tableExportOrder.VesselColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'VesselName\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Vessel\' в таблице \'ExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.VesselNameColumn] = value;
+                    this[this.tableExportOrder.VesselColumn] = value;
                 }
             }
             
@@ -2688,14 +2688,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsVesselNameNull() {
-                return this.IsNull(this.tableExportOrder.VesselNameColumn);
+            public bool IsVesselNull() {
+                return this.IsNull(this.tableExportOrder.VesselColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetVesselNameNull() {
-                this[this.tableExportOrder.VesselNameColumn] = global::System.Convert.DBNull;
+            public void SetVesselNull() {
+                this[this.tableExportOrder.VesselColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

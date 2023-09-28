@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DS_Manifest" targetNamespace="http://tempuri.org/DS_Manifest.xsd" xmlns:mstns="http://tempuri.org/DS_Manifest.xsd" xmlns="http://tempuri.org/DS_Manifest.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DS_Manifest" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="DS_Manifest" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DS_Manifest">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="BsL" msprop:Generator_RowEvHandlerName="BsLRowChangeEventHandler" msprop:Generator_RowDeletedName="BsLRowDeleted" msprop:Generator_RowDeletingName="BsLRowDeleting" msprop:Generator_RowEvArgName="BsLRowChangeEvent" msprop:Generator_TablePropName="BsL" msprop:Generator_RowChangedName="BsLRowChanged" msprop:Generator_UserTableName="BsL" msprop:Generator_RowChangingName="BsLRowChanging" msprop:Generator_RowClassName="BsLRow" msprop:Generator_TableClassName="BsLDataTable" msprop:Generator_TableVarName="tableBsL">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="BLNum" msprop:Generator_ColumnPropNameInTable="BLNumColumn" msprop:Generator_ColumnPropNameInRow="BLNum" msprop:Generator_UserColumnName="BLNum" msprop:Generator_ColumnVarNameInTable="columnBLNum" type="xs:string" minOccurs="0" />
+              <xs:element name="VesselName" msprop:Generator_UserColumnName="VesselName" msprop:Generator_ColumnPropNameInTable="VesselNameColumn" msprop:Generator_ColumnPropNameInRow="VesselName" msprop:Generator_ColumnVarNameInTable="columnVesselName" type="xs:string" minOccurs="0" />
+              <xs:element name="Voyage" msprop:Generator_UserColumnName="Voyage" msprop:Generator_ColumnPropNameInTable="VoyageColumn" msprop:Generator_ColumnPropNameInRow="Voyage" msprop:Generator_ColumnVarNameInTable="columnVoyage" type="xs:string" minOccurs="0" />
+              <xs:element name="BLDate" msprop:Generator_UserColumnName="BLDate" msprop:Generator_ColumnPropNameInTable="BLDateColumn" msprop:Generator_ColumnPropNameInRow="BLDate" msprop:Generator_ColumnVarNameInTable="columnBLDate" type="xs:string" minOccurs="0" />
+              <xs:element name="VesselFlagEn" msprop:Generator_UserColumnName="VesselFlagEn" msprop:Generator_ColumnPropNameInTable="VesselFlagEnColumn" msprop:Generator_ColumnPropNameInRow="VesselFlagEn" msprop:Generator_ColumnVarNameInTable="columnVesselFlagEn" type="xs:string" minOccurs="0" />
+              <xs:element name="POLEn" msprop:Generator_UserColumnName="POLEn" msprop:Generator_ColumnPropNameInTable="POLEnColumn" msprop:Generator_ColumnPropNameInRow="POLEn" msprop:Generator_ColumnVarNameInTable="columnPOLEn" type="xs:string" minOccurs="0" />
+              <xs:element name="PODEn" msprop:Generator_UserColumnName="PODEn" msprop:Generator_ColumnPropNameInTable="PODEnColumn" msprop:Generator_ColumnPropNameInRow="PODEn" msprop:Generator_ColumnVarNameInTable="columnPODEn" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Commodities" msprop:Generator_RowEvHandlerName="CommoditiesRowChangeEventHandler" msprop:Generator_RowDeletedName="CommoditiesRowDeleted" msprop:Generator_RowDeletingName="CommoditiesRowDeleting" msprop:Generator_RowEvArgName="CommoditiesRowChangeEvent" msprop:Generator_TablePropName="Commodities" msprop:Generator_RowChangedName="CommoditiesRowChanged" msprop:Generator_RowChangingName="CommoditiesRowChanging" msprop:Generator_TableClassName="CommoditiesDataTable" msprop:Generator_RowClassName="CommoditiesRow" msprop:Generator_TableVarName="tableCommodities" msprop:Generator_UserTableName="Commodities">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="CommodityEngName" msprop:Generator_ColumnPropNameInRow="CommodityEngName" msprop:Generator_ColumnPropNameInTable="CommodityEngNameColumn" msprop:Generator_ColumnVarNameInTable="columnCommodityEngName" msprop:Generator_UserColumnName="CommodityEngName" type="xs:string" minOccurs="0" />
+              <xs:element name="CntrTareWt" msprop:Generator_ColumnPropNameInRow="CntrTareWt" msprop:Generator_ColumnPropNameInTable="CntrTareWtColumn" msprop:Generator_ColumnVarNameInTable="columnCntrTareWt" msprop:Generator_UserColumnName="CntrTareWt" type="xs:double" minOccurs="0" />
+              <xs:element name="GrossWt" msprop:Generator_ColumnPropNameInRow="GrossWt" msprop:Generator_ColumnPropNameInTable="GrossWtColumn" msprop:Generator_ColumnVarNameInTable="columnGrossWt" msprop:Generator_UserColumnName="GrossWt" type="xs:double" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

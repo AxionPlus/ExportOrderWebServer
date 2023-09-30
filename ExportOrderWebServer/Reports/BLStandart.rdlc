@@ -65,8 +65,8 @@
           <DataField>TotalCntrCount</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="TotalCntrWeight">
-          <DataField>TotalCntrWeight</DataField>
+        <Field Name="TotalGrossWeight">
+          <DataField>TotalGrossWeight</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
         </Field>
         <Field Name="TotalTareWeight">
@@ -141,6 +141,10 @@
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
+        <Field Name="BLnum">
+          <DataField>BLnum</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="Cntr">
           <DataField>Cntr</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -2231,7 +2235,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!TotalCntrWeight.Value</Value>
+                                  <Value>=Fields!TotalGrossWeight.Value</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -4522,6 +4526,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -4929,7 +4934,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <KeepWithGroup>After</KeepWithGroup>
                 </TablixMember>
                 <TablixMember>
-                  <Group Name="Подробности1" />
+                  <Group Name="CntrNum">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!Cntr.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
                 </TablixMember>
                 <TablixMember>
                   <KeepWithGroup>Before</KeepWithGroup>

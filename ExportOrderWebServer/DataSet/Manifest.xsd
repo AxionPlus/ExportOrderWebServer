@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="Manifest" targetNamespace="http://tempuri.org/Manifest.xsd" xmlns:mstns="http://tempuri.org/Manifest.xsd" xmlns="http://tempuri.org/Manifest.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="Manifest" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_UserDSName="Manifest" msprop:Generator_DataSetName="Manifest">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="dtBL" msprop:Generator_RowEvHandlerName="dtBLRowChangeEventHandler" msprop:Generator_RowDeletedName="dtBLRowDeleted" msprop:Generator_RowDeletingName="dtBLRowDeleting" msprop:Generator_RowEvArgName="dtBLRowChangeEvent" msprop:Generator_TablePropName="dtBL" msprop:Generator_RowChangedName="dtBLRowChanged" msprop:Generator_RowChangingName="dtBLRowChanging" msprop:Generator_TableClassName="dtBLDataTable" msprop:Generator_RowClassName="dtBLRow" msprop:Generator_TableVarName="tabledtBL" msprop:Generator_UserTableName="dtBL">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="BLNum" msprop:Generator_ColumnPropNameInRow="BLNum" msprop:Generator_ColumnPropNameInTable="BLNumColumn" msprop:Generator_ColumnVarNameInTable="columnBLNum" msprop:Generator_UserColumnName="BLNum" type="xs:string" minOccurs="0" />
+              <xs:element name="VesselName" msprop:Generator_ColumnPropNameInRow="VesselName" msprop:Generator_ColumnPropNameInTable="VesselNameColumn" msprop:Generator_ColumnVarNameInTable="columnVesselName" msprop:Generator_UserColumnName="VesselName" type="xs:string" minOccurs="0" />
+              <xs:element name="Voyage" msprop:Generator_ColumnPropNameInRow="Voyage" msprop:Generator_ColumnPropNameInTable="VoyageColumn" msprop:Generator_ColumnVarNameInTable="columnVoyage" msprop:Generator_UserColumnName="Voyage" type="xs:string" minOccurs="0" />
+              <xs:element name="BLDate" msprop:Generator_ColumnPropNameInRow="BLDate" msprop:Generator_ColumnPropNameInTable="BLDateColumn" msprop:Generator_ColumnVarNameInTable="columnBLDate" msprop:Generator_UserColumnName="BLDate" type="xs:string" minOccurs="0" />
+              <xs:element name="VesselFlagEn" msprop:Generator_ColumnPropNameInRow="VesselFlagEn" msprop:Generator_ColumnPropNameInTable="VesselFlagEnColumn" msprop:Generator_ColumnVarNameInTable="columnVesselFlagEn" msprop:Generator_UserColumnName="VesselFlagEn" type="xs:string" minOccurs="0" />
+              <xs:element name="POLEn" msprop:Generator_ColumnPropNameInRow="POLEn" msprop:Generator_ColumnPropNameInTable="POLEnColumn" msprop:Generator_ColumnVarNameInTable="columnPOLEn" msprop:Generator_UserColumnName="POLEn" type="xs:string" minOccurs="0" />
+              <xs:element name="PODEn" msprop:Generator_ColumnPropNameInRow="PODEn" msprop:Generator_ColumnPropNameInTable="PODEnColumn" msprop:Generator_ColumnVarNameInTable="columnPODEn" msprop:Generator_UserColumnName="PODEn" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalCntrCount" msprop:Generator_ColumnPropNameInRow="TotalCntrCount" msprop:Generator_ColumnPropNameInTable="TotalCntrCountColumn" msprop:Generator_ColumnVarNameInTable="columnTotalCntrCount" msprop:Generator_UserColumnName="TotalCntrCount" type="xs:int" minOccurs="0" />
+              <xs:element name="TotalGrossWeight" msprop:Generator_ColumnPropNameInRow="TotalGrossWeight" msprop:Generator_ColumnPropNameInTable="TotalGrossWeightColumn" msprop:Generator_ColumnVarNameInTable="columnTotalGrossWeight" msprop:Generator_UserColumnName="TotalGrossWeight" type="xs:double" minOccurs="0" />
+              <xs:element name="TotalTareWeight" msprop:Generator_ColumnPropNameInRow="TotalTareWeight" msprop:Generator_ColumnPropNameInTable="TotalTareWeightColumn" msprop:Generator_ColumnVarNameInTable="columnTotalTareWeight" msprop:Generator_UserColumnName="TotalTareWeight" type="xs:double" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

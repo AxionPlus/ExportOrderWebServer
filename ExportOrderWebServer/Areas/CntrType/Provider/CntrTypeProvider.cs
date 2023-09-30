@@ -74,38 +74,4 @@ public class CntrTypeProvider : ICntrTypeProvider
         }
     }
 
-
-    #region NOT USED
-    public async Task<CntrTpSz> GetCntrType(string type)
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            var Types = await db.ContainerTypeSize.AsNoTracking().ToListAsync();
-
-            var Type = Types.FirstOrDefault(x => x.Normolize == type);
-
-            if (Type != null)
-                return Type;
-            else
-                return new CntrTpSz();
-        }
-    }
-
-    public async Task<IEnumerable<string>> GetCntrNums()
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<string>> GetCntrTypeNames()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.ContainerTypeSize.Select(s => s.Normolize!).ToListAsync();
-        }
-    }
-
-    #endregion
 }

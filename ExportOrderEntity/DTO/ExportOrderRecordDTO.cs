@@ -14,13 +14,16 @@ public class ExportOrderRecordDTO
     public string Cntr { get; set; }
     public string CntrType { get; set; }
     public double? CntrTareWt { get; set; }
+    //public double? SumCommodityCntrTareWt { get; set; }
     public string Seal { get; set; }
 
     public uint PackageQty { get; set; }
     public string? PackageName { get; set; }
     public double NetWt { get; set; }
     public double GrossWt { get; set; }
+    //public double SumCommodityGrossWt { get; set; }
     public double? Volume { get; set; }
+    //public double? SumCommodityVolume { get; set; }
 
     public string DocumentName { get; set; }
     public string Shipper { get; set; }

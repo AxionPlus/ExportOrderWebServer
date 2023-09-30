@@ -213,7 +213,7 @@ public class ExportOrderController : ControllerBase
                 NotifyParties,
                 Commodities,
                 x.TotalCntrCount,
-                x.TotalCntrWeight,
+                x.TotalGrossWeight,
                 x.TotalTareWeight,
                 Measures = CommodityRecords.FirstOrDefault()!.Measures
             }).ToList();
@@ -221,6 +221,7 @@ public class ExportOrderController : ControllerBase
             // список контейнеров
             var dsCntrRecords = Records.Select(r => new 
             {
+                m = r.BLnum,
                 r.Cntr,
                 r.CntrType,
                 r.Seal,
@@ -351,229 +352,96 @@ public class ExportOrderController : ControllerBase
         {
             string mimeType = "";
             int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
+            //string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ManifestOverAll.rdlc");
 
             LocalReport localReport = new LocalReport(pathReport);
 
             #region PARAMETERS
-            Dictionary<string, string> parameters = new Dictionary<string, string>()
-            {
-                { "Full20Qty", "20" },
-                { "Full20TareWt", "2"},
-                { "Full20GrossWt", "2000"},
-                { "Full40Qty", "40"},
-                { "Full40TareWt", "4"},
-                { "Full40GrossWt", "4000"}
-            };
+            //Dictionary<string, string> parameters = new Dictionary<string, string>()
+            //{
+            //    { "Full20Qty", "20" },
+            //    { "Full20TareWt", "2"},
+            //    { "Full20GrossWt", "2000"},
+            //    { "Full40Qty", "40"},
+            //    { "Full40TareWt", "4"},
+            //    { "Full40GrossWt", "4000"}
+            //};
             #endregion
 
             #region DATA SOURCE
 
-            List<ExportOrderDTO> ItemsForDS = new List<ExportOrderDTO>();
- 
-            var dsItems = Items.Select(x => new
-            {
-                BLNum = x.Num,
-                x.VesselName,
-                x.Voyage,
-                x.BLDate,
-                x.VesselFlagEn,
-                x.POLEn,
-                x.PODEn,
-                //Commodities = Items.GroupBy(eo => x.exportOrderRecordsDTO.FirstOrDefault()),
-                //Records = x.exportOrderRecordsDTO
+            //var dsItems = Items.ToList();
+            var dsItems = Items;
+            //var dsItems = (List<BLDTO>)Items;
 
+            #region SEPARATE DSOURCES
+            //var dsItems = Items.Select(x => new
+            //{
+            //    BLNum = x.Num,
+            //    x.VesselName,
+            //    x.Voyage,
+            //    x.BLDate,
+            //    x.VesselFlagEn,
+            //    x.POLEn,
+            //    x.PODEn,
+            //    Commodities = new List<ExportOrderRecordDTO>(),
+            //    //Commodities = Items.GroupBy(eo => x.exportOrderRecordsDTO.FirstOrDefault()),
+            //    Records = x.exportOrderRecordsDTO
+            //}).ToList();
 
-            }).ToList();
 
 
             //List<ExportOrderRecordDTO> Commodities = new List<ExportOrderRecordDTO>();
-            var dsCommodities = new List<ExportOrderRecordDTO>();
-            var dsCom = new { };
+            //var dsCommodities = new List<ExportOrderRecordDTO>();
+            //var dsCom = new { };
 
-            foreach (var Item in Items)
-            {
-                List<ExportOrderRecordDTO> Commodities = new List<ExportOrderRecordDTO>();
+            //foreach (var Item in Items)
+            //{
+            //    List<ExportOrderRecordDTO> Commodities = new List<ExportOrderRecordDTO>();
 
-                var CommodityRecords = Item.exportOrderRecordsDTO.Select(r => new
-                {
-                    r.CommodityEngName,
-                    r.CntrTareWt,
-                    r.GrossWt,                    
-                }).ToList();
+            //    var CommodityRecords = Item.exportOrderRecordsDTO.Select(r => new
+            //    {
+            //        r.CommodityEngName,
+            //        r.CntrTareWt,
+            //        r.GrossWt,                    
+            //    }).ToList();
 
-                var CommoditiesGroup = CommodityRecords.GroupBy(cr => cr.CommodityEngName)
-                                        .Select(g => new ExportOrderRecordDTO()
-                                        {
-                                            BLnum = Item.Num,
-                                            CommodityEngName = g.Key,
-                                            CntrTareWt = g.Sum(trw => trw.CntrTareWt),
-                                            GrossWt = g.Sum(gw => gw.GrossWt),
-                                        }).ToList();
+            //    var CommoditiesGroup = CommodityRecords.GroupBy(cr => cr.CommodityEngName)
+            //                            .Select(g => new ExportOrderRecordDTO()
+            //                            {
+            //                                BLnum = Item.Num,
+            //                                CommodityEngName = g.Key,
+            //                                CntrTareWt = g.Sum(trw => trw.CntrTareWt),
+            //                                GrossWt = g.Sum(gw => gw.GrossWt),
+            //                            }).ToList();
 
-                foreach (var commodity in CommoditiesGroup)
-                {
-                    Commodities.Add(commodity);
-                }
+            //    foreach (var commodity in CommoditiesGroup)
+            //    {
+            //        Commodities.Add(commodity);
+            //        dsItems.FirstOrDefault(s => s.BLNum == Item.Num)!.Commodities.Add(commodity);
+            //    }
 
-                //dsCommodities.Add(Commodities);
-                
-            }
+            //    //dsItems.FirstOrDefault(s => s.BLNum == Item.Num).Commodities.Add(Commodities);
+            //    //dsCommodities.Add(Commodities);
+
+            //}
 
             //var dsCommodities = Commodities;
+            #endregion
 
-
-            localReport.AddDataSource("dsBsL", dsItems);
+            localReport.AddDataSource("dsBL", dsItems);
+            //localReport.AddDataSource("dsBsL", Items);
             //localReport.AddDataSource("dsCntrRecords", dsCntrRecords);
-            localReport.AddDataSource("dsCommodities", dsCommodities);
+            //localReport.AddDataSource("dsCommodities", dsCommodities);
 
             #endregion
 
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
+            //ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
+            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
 
             return File(result.MainStream, "application/pdf");
 
-
-            #region Attempt
-            //var BLGroup = Items.GroupBy(eo => eo.Num);
-            //var CntrRecordGroup = Items.GroupBy(eo => eo.Num).Select(g => new
-            //                                                            {
-            //                                                                g.Key,
-            //                                                                Records = g.Select(eo => eo.Records)
-            //                                                            });
-
-
-
-            //foreach (var CntrRecord in CntrRecordGroup)
-            //{
-            //    var containers = new List<string>();
-            //    foreach (var item in CntrRecord.Records)
-            //    {
-            //        var commodities = new List<string>();
-            //        var contents = new { Commodities = commodities };
-            //        foreach (var contentItem in item)
-            //        {
-
-            //            foreach (var content in contentItem.Contents)
-            //            {
-            //                var Commodity = content.DocumentRecord.CommodityEngName;
-            //                commodities.Add(Commodity);
-            //            }
-
-            //            //contentList.Add();
-            //        }
-            //    }
-
-            //}
-
-            //var dsItems = BLGroup.Select(g => new
-            //{
-            //    g.Key,
-            //    Vessel = g.FirstOrDefault()!.VesselCall!.Vessel.Name,
-            //    Voyage = g.FirstOrDefault()!.VesselCall!.VoyageCarrier,
-            //    BLDate = g.FirstOrDefault()!.VesselCall!.ETS!.Value.ToShortDateString(),
-            //    VesselFlag = g.FirstOrDefault()!.VesselCall!.Vessel.Flag!.ENG,
-            //    POL = "NOVOROSSIYSK",
-            //    POD = g.FirstOrDefault()!.VesselCall!.POD.NameEn + ", " + g.FirstOrDefault()!.VesselCall!.POD.Country.ENG,
-            //    g.FirstOrDefault()!.Records,
-            //}).ToList();
-
-            //var BLrecordsGroup = BLGroup.Select(g => new { g.Key, g.FirstOrDefault()!.Records });
-
-
-            // список товаров
-
-            //var Records = new List<ExportOrderRecord>();
-
-            //foreach (var item in BLGroup)
-            //{
-
-            //    //var CommGroup = item.Records.GroupBy(r => r.Contents);
-
-            //    foreach (var BL in item)
-            //    {
-            //        var blRecords = BL.Records;
-
-            //        foreach (var record in blRecords)
-            //        {
-            //            var contents = record.Contents;
-
-            //            foreach (var content in contents)
-            //            {
-            //                var Commodity = content.DocumentRecord.CommodityEngName;
-            //            }
-            //        }
-
-            //    }
-
-            //}
-
-
-
-
-            //var CommodityGroup = Items.GroupBy(eo => eo);
-
-
-
-            //var ShipperList = Records.Select(x => x.ShipperEn).Distinct().ToList();
-            //var ConsigneeList = Records.Select(x => x.ConsigneeEn).Distinct().ToList();
-            //var NotifyList = Records.Select(x => x.ConsigneeEn).Distinct().ToList();
-
-            //StringBuilder sb = new StringBuilder();
-
-            //string Shippers = "";
-            //foreach (var item in ShipperList)
-            //    Shippers = sb.Append(item + "\n").ToString();
-
-            //Shippers = Shippers.Trim(); sb.Clear();
-
-            //string Consignees = "";
-            //foreach (var item in ConsigneeList)
-            //    Consignees = sb.Append(item + "\n").ToString();
-
-            //Consignees = Consignees.Trim(); sb.Clear();
-
-            //string NotifyParties = "";
-            //foreach (var item in ConsigneeList)
-            //    NotifyParties = sb.Append(item + "\n").ToString();
-
-            //NotifyParties = NotifyParties.Trim(); sb.Clear();
-
-            //// список товаров
-            //var CommodityRecords = Records.Select(r => new
-            //{
-            //    r.CommodityEngName,
-            //    r.HSCode,
-            //    r.IsIMO,
-            //    r.IMO,
-            //    r.UNNO,
-            //    r.CntrTareWt,
-            //    r.GrossWt,
-            //    r.Volume
-            //}).ToList();
-
-            //var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName })
-            //                                       .Select(g => new
-            //                                       {
-            //                                           //Commodity = g.Key.CommodityEngName,
-            //                                           Commodity = string.Join(" ", g.Key.CommodityEngName,
-            //                                                                        g.FirstOrDefault()!.IMO,
-            //                                                                        g.FirstOrDefault()!.UNNO).Trim(),
-
-            //                                           //g.FirstOrDefault()!.HSCode,
-            //                                           //g.FirstOrDefault()!.IsIMO,
-            //                                           //g.FirstOrDefault()!.IMO,
-            //                                           //g.FirstOrDefault()!.UNNO,
-
-            //                                           CommodityCntrTareWt = g.Sum(c => c.CntrTareWt),
-            //                                           CommodityGrossWt = g.Sum(c => c.GrossWt),
-            //                                           CommodityVolume = g.Sum(c => c.Volume),
-
-            //                                       })
-            //                                       .ToList();
-
-            //var dsCommodities = CommoditiesGroup;
-            #endregion
 
         }
         catch (Exception ex)
@@ -582,6 +450,6 @@ public class ExportOrderController : ControllerBase
             return Ok();
         }
 
-        return Ok();
+        //return Ok();
     }
 }

@@ -25,8 +25,8 @@ public class BLDTO
     //public string POD { get; set; }
     public string PODEn { get; set; }
     //public string? PODAgent { get; set; }
-    public int TotalCntrCount { get; set; }
-    public double TotalGrossWeight { get; set; }
+    public int? TotalCntrCount { get; set; }
+    public double? TotalGrossWeight { get; set; }
     public double? TotalTareWeight { get; set; }
 
     // RECORDS
@@ -38,20 +38,22 @@ public class BLDTO
     public string Seal { get; set; }
 
     public uint PackageQty { get; set; }
-    //public string? PackageName { get; set; }
-    public double NetWt { get; set; }
-    public double GrossWt { get; set; }
+    public string? PackageName { get; set; }
+    public double? NetWt { get; set; }
+    public double? GrossWt { get; set; }
     //public double SumCommodityGrossWt { get; set; }
     public double? Volume { get; set; }
     //public double? SumCommodityVolume { get; set; }
 
     //public string DocumentName { get; set; }
     //public string Shipper { get; set; }
-    public string ShipperEn { get; set; }
+    public string Commodity { get; set; }
+    public string Shipper { get; set; }
     //public string Consignee { get; set; }
-    public string ConsigneeEn { get; set; }
+    public string Consignee { get; set; }
+    public string Notify { get; set; }
     //public string CommodityName { get; set; }
-    public string CommodityEngName { get; set; }
+    
     //public string HSCode { get; set; }
     public string IMO { get; set; }
     public string UNNO { get; set; }

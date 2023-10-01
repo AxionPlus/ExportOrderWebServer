@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <None Remove="Reports\ExportOrder.rdlc" />
-    <None Remove="Reports\ManifestOverAll.rdlc" />
+    <None Remove="Reports\Manifest.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,7 +37,7 @@
     <EmbeddedResource Include="Reports\ExportOrder.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Reports\ManifestOverAll.rdlc" />
+    <EmbeddedResource Include="Reports\Manifest.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
@@ -79,11 +79,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>DS_ExportOrder.xsd</DependentUpon>
     </Compile>
-    <Compile Update="DataSet\DS_Manifest.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DS_Manifest.xsd</DependentUpon>
-    </Compile>
     <Compile Update="DataSet\Manifest.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -104,11 +99,6 @@
       <Generator>MSDataSetGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DataSet\DS_Manifest.xsd">
-      <SubType>Designer</SubType>
-      <LastGenOutput>DS_Manifest.Designer.cs</LastGenOutput>
-      <Generator>MSDataSetGenerator</Generator>
-    </None>
     <None Update="DataSet\Manifest.xsd">
       <SubType>Designer</SubType>
       <LastGenOutput>Manifest.Designer.cs</LastGenOutput>
@@ -116,9 +106,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Reports\BLStandart.rdlc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Reports\ManifestAllinOne.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

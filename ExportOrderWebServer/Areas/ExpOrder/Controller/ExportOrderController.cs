@@ -1,10 +1,6 @@
 ﻿using AspNetCore.Reporting;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using System.Net;
-using System.Numerics;
-using System.Text.RegularExpressions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Data;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
@@ -333,6 +329,7 @@ public class ExportOrderController : ControllerBase
              
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
 
+
             return File(result.MainStream, "application/pdf");
         }
         catch (Exception ex)
@@ -352,28 +349,50 @@ public class ExportOrderController : ControllerBase
         {
             string mimeType = "";
             int extension = 1;
-            //string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ManifestOverAll.rdlc");
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
 
             LocalReport localReport = new LocalReport(pathReport);
 
             #region PARAMETERS
-            //Dictionary<string, string> parameters = new Dictionary<string, string>()
-            //{
-            //    { "Full20Qty", "20" },
-            //    { "Full20TareWt", "2"},
-            //    { "Full20GrossWt", "2000"},
-            //    { "Full40Qty", "40"},
-            //    { "Full40TareWt", "4"},
-            //    { "Full40GrossWt", "4000"}
-            //};
+
+            // Count
+            var Full20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
+            var Full40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
+
+            var Empty20 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
+            var Empty40 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
+
+            // Sum Weight
+            var SumFull20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWt);
+            var SumFull40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWt);
+
+            // Sum Tare
+            var SumFull20Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
+            var SumFull40Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
+
+            var SumEmpty20Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
+            var SumEmpty40Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
+
+            Dictionary<string, string> parameters = new Dictionary<string, string>()
+            {
+                { "Full20Qty", Full20.ToString() },
+                { "Full40Qty", Full40.ToString() },
+                { "Empty20Qty", Empty20.ToString() },
+                { "Empty40Qty", Empty40.ToString() },
+
+                { "Full20TareWt", SumFull20Tare is not null ? SumFull20Tare.ToString()! : "0" },
+                { "Full40TareWt", SumFull40Tare is not null ? SumFull40Tare.ToString()! : "0" },
+                { "Empty20TareWt", SumEmpty20Tare is not null ? SumEmpty20Tare.ToString()! : "0" },
+                { "Empty40TareWt", SumEmpty40Tare is not null ? SumEmpty40Tare.ToString()! : "0" },
+
+                { "Full20GrossWt", SumFull20 is not null ? SumFull20.ToString()! : "0"},
+                { "Full40GrossWt", SumFull40 is not null ? SumFull40.ToString()! : "0"},
+            };
+
             #endregion
 
             #region DATA SOURCE
-
-            //var dsItems = Items.ToList();
-            var dsItems = Items;
-            //var dsItems = (List<BLDTO>)Items;
+            //var dsItems = Items;
 
             #region SEPARATE DSOURCES
             //var dsItems = Items.Select(x => new
@@ -430,19 +449,15 @@ public class ExportOrderController : ControllerBase
             //var dsCommodities = Commodities;
             #endregion
 
-            localReport.AddDataSource("dsBL", dsItems);
-            //localReport.AddDataSource("dsBsL", Items);
-            //localReport.AddDataSource("dsCntrRecords", dsCntrRecords);
-            //localReport.AddDataSource("dsCommodities", dsCommodities);
+            //localReport.AddDataSource("dsBL", dsItems);
+            localReport.AddDataSource("dsBsL", Items);
 
             #endregion
 
-            //ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
+            ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
+            //ReportResult result = localReport.Execute(RenderType.Pdf, extension, parametersInt, mimeType);
 
             return File(result.MainStream, "application/pdf");
-
-
         }
         catch (Exception ex)
         {
@@ -450,6 +465,5 @@ public class ExportOrderController : ControllerBase
             return Ok();
         }
 
-        //return Ok();
     }
 }

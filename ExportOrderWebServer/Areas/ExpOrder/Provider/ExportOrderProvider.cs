@@ -85,7 +85,6 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 PODAgent = source.VesselCall.PODAgent,
                                                 TotalCntrCount = source.Records.Count,
                                                 TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
-                                                //TotalCntrWeight = totalWeight(source.Records),
                                                 TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
                                                 //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ? source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
                                                 Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract,
@@ -119,7 +118,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                  .AsSplitQuery()
                                  .ToListAsync();
             
-            var ManifestItems = mItems(Items);
+            var ManifestItems = mRecords(Items);
 
             return ManifestItems;
         }
@@ -333,7 +332,6 @@ public class ExportOrderProvider : IExportOrderProvider
 
             foreach (var content in record.Contents)
             {
-                //eoRecordDTO.BLnum = record.ExportOrder.Num;
                 eoRecordDTO.Cntr = record.CntrNum;
                 eoRecordDTO.CntrType = record.CntrType!.Normolize!;
 
@@ -341,7 +339,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.PackageName = content.PackageName;
                 eoRecordDTO.NetWt = content.NetWt;
                 eoRecordDTO.GrossWt = content.GrossWt;
-                eoRecordDTO.Volume = content.Volume;    // is not null ? content.Volume : 0;
+                eoRecordDTO.Volume = content.Volume;
 
                 eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
                 eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
@@ -364,35 +362,12 @@ public class ExportOrderProvider : IExportOrderProvider
         return eoRecordsDTO.ToArray();
     };
 
-    Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> mRecords = (_mRecords) =>
-    {
-        var eoRecordsDTO = new List<ExportOrderRecordDTO>();
-        var eoRecordDTO = new ExportOrderRecordDTO();
-
-        foreach (var record in _mRecords)
-        {
-            foreach (var content in record.Contents)
-            {
-                //eoRecordDTO.BLnum = record.ExportOrder.Num;
-                eoRecordDTO.CommodityEngName = content.DocumentRecord.CommodityEngName;
-                eoRecordDTO.CntrTareWt = record.CntrTareWt;
-                eoRecordDTO.GrossWt = content.GrossWt;
-                eoRecordDTO.Volume = content.Volume;
-
-                eoRecordsDTO.Add(eoRecordDTO);
-                eoRecordDTO = new ExportOrderRecordDTO();
-            }
-        }
-
-        return eoRecordsDTO.ToArray();
-    };
-
-    Func<IEnumerable<ExportOrderEntity>, IEnumerable<BLDTO>> mItems = (_mItems) =>
+    Func<IEnumerable<ExportOrderEntity>, IEnumerable<BLDTO>> mRecords = (_mRecords) =>
     {
         var BLDTO_List = new List<BLDTO>();
         var bLDTO = new BLDTO();
 
-        foreach (var Item in _mItems)
+        foreach (var Item in _mRecords)
         {
             //var bLDTO = new BLDTO();
             bLDTO.BLDate = Item.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy");
@@ -409,17 +384,19 @@ public class ExportOrderProvider : IExportOrderProvider
             foreach (var record in Item.Records)
             {
                 bLDTO.Seq = ++indexRec;
-                bLDTO.Cntr = record.CntrNum;
-                bLDTO.CntrType = record.CntrType!.Normolize!;
                 bLDTO.Seal = record.Seal;
                 bLDTO.CntrTareWt = record.CntrTareWt;
 
                 foreach (var content in record.Contents)
                 {
                     bLDTO.BLNum = Item.Num;
+                    bLDTO.Cntr = record.CntrNum;
+                    bLDTO.CntrType = record.CntrType!.Normolize!;
 
-                    bLDTO.CommodityEngName = content.DocumentRecord.CommodityEngName;
+                    bLDTO.Commodity = content.DocumentRecord.CommodityEngName;
                     bLDTO.PackageQty = content.PackageQty;
+                    bLDTO.PackageName = content.PackageName;
+                    
                     bLDTO.NetWt = content.NetWt;
                     bLDTO.GrossWt = content.GrossWt;
                     bLDTO.Volume = content.Volume;
@@ -427,8 +404,9 @@ public class ExportOrderProvider : IExportOrderProvider
                     bLDTO.UNNO = content.DocumentRecord.UNNO!;
                     bLDTO.IsIMO = content.DocumentRecord.IsIMO!;
 
-                    bLDTO.ShipperEn = content.DocumentRecord.Document.Shipper!.NameEn!;
-                    bLDTO.ConsigneeEn = content.DocumentRecord.Document.Consignee!.NameEn!;
+                    bLDTO.Shipper = content.DocumentRecord.Document.Shipper!.NameEn!;
+                    bLDTO.Consignee = content.DocumentRecord.Document.Consignee!.NameEn!;
+                    bLDTO.Notify = content.DocumentRecord.Document.Consignee!.NameEn!;
 
                     BLDTO_List.Add(bLDTO);
                     bLDTO = new BLDTO();
@@ -439,35 +417,6 @@ public class ExportOrderProvider : IExportOrderProvider
         return BLDTO_List;
     };
 
-
-    Func<IEnumerable<ExportOrderRecord>, double> totalWeight = (_eoRecords) =>
-    {
-        double GrandTotal = 0;
-
-        foreach (var record in _eoRecords)
-        {
-            double total = record.Contents.Sum(c => c.GrossWt);
-
-            GrandTotal = GrandTotal + total;
-        }
-
-        if (GrandTotal > 0)
-            return GrandTotal;
-        else
-            return 0;
-    };
-
-    //public async Task<MyCompanyEntity> GetMyCompanyAsync()
-    //{
-    //    using (var _db = _dbContext.CreateDbContextAsync())
-    //    {
-    //        var db = await _db;
-
-    //        var Item = db.MyCompany.Include(x => x.Persons).AsNoTracking().FirstOrDefault();
-
-    //        return Item!;
-    //    }
-    //}
 
     #endregion
 

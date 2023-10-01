@@ -60,7 +60,7 @@
     <div class="Container-item">
         <div class="container-head">INFO</div>
         <div class="container-content">
-            <MudTextField Class="TextField" Style="width: 150px; margin-right: 20px" T="string" Label="Number" Value="@Value!.Num"
+            <MudTextField Class="TextField" Style="width: 180px; margin-right: 20px" T="string" Label="Number" Value="@Value!.Num"
                           ValueChanged="async (e) => { Value.Num = e.ToUpper(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required RequiredError=""
@@ -265,17 +265,20 @@
                      </MudTd>
                      <MudTd></MudTd>
                      <MudTd>
-                         <MudTextField Class="TextField_Sum" T="string" Text="@expOrderRecords.Contents.Sum(s => s.NetWt).ToString("00 000.000")"
+                         <MudTextField Class="TextField_Sum" T="string" Text="@(expOrderRecords.Contents.Sum(s => s.NetWt) is not null ? 
+                                                                                    expOrderRecords.Contents.Sum(s => s.NetWt!.Value).ToString("00 000.000") : "-")"
                                        Style="width: 120px"
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
                      <MudTd>
-                         <MudTextField Class="TextField_Sum" T="string" Text="@expOrderRecords.Contents.Sum(s => s.GrossWt).ToString("00 000.000")"
+                         <MudTextField Class="TextField_Sum" T="string"
+                                       Text="@(expOrderRecords.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("00 000.000"))"
+
                                        Style="width: 120px"
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
                     <MudTd>
-                         <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecords.IsShowCntrContent ? "transform: rotate(180deg);" : "")"
+                         <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecords.IsShowCntrContent ? "transform: rotate(180deg);" : null)"
                                         Size="@Size.Small" OnClick="(_)=>{expOrderRecords.IsShowCntrContent = !expOrderRecords.IsShowCntrContent;}" />
                     </MudTd>
                 </RowTemplate>
@@ -302,13 +305,13 @@
                                                            Variant="Variant.Outlined" Margin="Margin.Dense" />
                                          </MudTd>
                                         <MudTd>
-                                            <MudNumericField Class="NumericField_Content" T="double" @bind-Value="CntrContent.NetWt"
+                                            <MudNumericField Class="NumericField_Content" T="double?" @bind-Value="CntrContent.NetWt"
                                                              Style="width: 120px"
                                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                                              Required RequiredError="" HideSpinButtons=true />
                                         </MudTd>
                                         <MudTd>
-                                            <MudNumericField Class="NumericField_Content" T="double" @bind-Value="CntrContent.GrossWt"
+                                            <MudNumericField Class="NumericField_Content" T="double?" @bind-Value="CntrContent.GrossWt"
                                                              Style="width: 120px"
                                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                                              Required RequiredError="" HideSpinButtons=true />
@@ -332,8 +335,18 @@
                         <td colspan="2"></td>
                         <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.PackageQty)).ToString()</h6></MudTd>
                         <MudTd></MudTd>
-                        <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt)).ToString("000 000.000")</h6></MudTd>
-                        <MudTd Style="text-align:end; padding-right: 8px"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.GrossWt)).ToString("000 000.000")</h6></MudTd>
+                        <MudTd Style="text-align:end; padding-right: 8px">
+                            <h6>
+@*                                 @(Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt)) is not null ? 
+                                    Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt!.Value)).ToString("000 000.000") : "-") *@
+                                @(Value.Records.Sum(s => s.Contents.Where(c => c.NetWt is not null).Sum(c => c.NetWt!.Value)).ToString("000 000.000"))
+                            </h6>
+                        </MudTd>
+                        <MudTd Style="text-align:end; padding-right: 8px">
+                            <h6>
+                                @(Value.Records.Sum(s => s.Contents.Where(c => c.GrossWt is not null).Sum(c => c.GrossWt!.Value)).ToString("000 000.000"))
+                            </h6>
+                        </MudTd>
                     }
                 </FooterContent>                
             </MudTable>

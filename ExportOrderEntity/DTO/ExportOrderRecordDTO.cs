@@ -19,8 +19,8 @@ public class ExportOrderRecordDTO
 
     public uint PackageQty { get; set; }
     public string? PackageName { get; set; }
-    public double NetWt { get; set; }
-    public double GrossWt { get; set; }
+    public double? NetWt { get; set; }
+    public double? GrossWt { get; set; }
     //public double SumCommodityGrossWt { get; set; }
     public double? Volume { get; set; }
     //public double? SumCommodityVolume { get; set; }

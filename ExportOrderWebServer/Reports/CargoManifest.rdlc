@@ -2216,7 +2216,6 @@
                           </Style>
                         </Tablix>
                         <ColSpan>11</ColSpan>
-                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell />

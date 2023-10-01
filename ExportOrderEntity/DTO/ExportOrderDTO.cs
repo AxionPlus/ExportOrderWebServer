@@ -25,7 +25,7 @@ public class ExportOrderDTO
     public string PODEn { get; set; }
     public string? PODAgent { get; set; }
     public int TotalCntrCount { get; set; }
-    public double TotalGrossWeight { get; set; }
+    public double? TotalGrossWeight { get; set; }
     public double? TotalTareWeight { get; set; }
     public string? Contract { get; set; }
     public string ContractDate { get; set; }

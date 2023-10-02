@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema id="DS_ExportOrder" targetNamespace="http://tempuri.org/DS_ExportOrder.xsd" xmlns:mstns="http://tempuri.org/DS_ExportOrder.xsd" xmlns="http://tempuri.org/DS_ExportOrder.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+<xs:schema id="ExportOrder" targetNamespace="http://tempuri.org/ExportOrder.xsd" xmlns:mstns="http://tempuri.org/ExportOrder.xsd" xmlns="http://tempuri.org/ExportOrder.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
   <xs:annotation>
     <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
       <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
@@ -9,7 +9,7 @@
       </DataSource>
     </xs:appinfo>
   </xs:annotation>
-  <xs:element name="DS_ExportOrder" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="DS_ExportOrder" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DS_ExportOrder">
+  <xs:element name="ExportOrder" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="ExportOrder" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="ExportOrder">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="dtExportOrder" msprop:Generator_RowEvHandlerName="dtExportOrderRowChangeEventHandler" msprop:Generator_RowDeletedName="dtExportOrderRowDeleted" msprop:Generator_RowDeletingName="dtExportOrderRowDeleting" msprop:Generator_RowEvArgName="dtExportOrderRowChangeEvent" msprop:Generator_TablePropName="dtExportOrder" msprop:Generator_RowChangedName="dtExportOrderRowChanged" msprop:Generator_UserTableName="dtExportOrder" msprop:Generator_RowChangingName="dtExportOrderRowChanging" msprop:Generator_RowClassName="dtExportOrderRow" msprop:Generator_TableClassName="dtExportOrderDataTable" msprop:Generator_TableVarName="tabledtExportOrder">
@@ -18,7 +18,7 @@
               <xs:element name="Id" msprop:Generator_ColumnPropNameInTable="IdColumn" msprop:Generator_ColumnPropNameInRow="Id" msprop:Generator_UserColumnName="Id" msprop:Generator_ColumnVarNameInTable="columnId" type="xs:long" />
               <xs:element name="Num" msprop:Generator_ColumnPropNameInTable="NumColumn" msprop:Generator_ColumnPropNameInRow="Num" msprop:Generator_UserColumnName="Num" msprop:Generator_ColumnVarNameInTable="columnNum" type="xs:string" minOccurs="0" />
               <xs:element name="Dated" msprop:Generator_ColumnPropNameInTable="DatedColumn" msprop:Generator_ColumnPropNameInRow="Dated" msprop:Generator_UserColumnName="Dated" msprop:Generator_ColumnVarNameInTable="columnDated" type="xs:dateTime" minOccurs="0" />
-              <xs:element name="VesselName" msprop:Generator_ColumnPropNameInTable="VesselNameColumn" msprop:Generator_ColumnPropNameInRow="VesselName" msprop:Generator_UserColumnName="VesselName" msprop:Generator_ColumnVarNameInTable="columnVesselName" type="xs:string" minOccurs="0" />
+              <xs:element name="Vessel" msprop:Generator_ColumnPropNameInTable="VesselColumn" msprop:Generator_ColumnPropNameInRow="Vessel" msprop:Generator_UserColumnName="Vessel" msprop:Generator_ColumnVarNameInTable="columnVessel" type="xs:string" minOccurs="0" />
               <xs:element name="Voyage" msprop:Generator_ColumnPropNameInTable="VoyageColumn" msprop:Generator_ColumnPropNameInRow="Voyage" msprop:Generator_UserColumnName="Voyage" msprop:Generator_ColumnVarNameInTable="columnVoyage" type="xs:string" minOccurs="0" />
               <xs:element name="DateOfLoading" msprop:Generator_ColumnPropNameInTable="DateOfLoadingColumn" msprop:Generator_ColumnPropNameInRow="DateOfLoading" msprop:Generator_UserColumnName="DateOfLoading" msprop:Generator_ColumnVarNameInTable="columnDateOfLoading" type="xs:dateTime" minOccurs="0" />
               <xs:element name="POL" msprop:Generator_ColumnPropNameInTable="POLColumn" msprop:Generator_ColumnPropNameInRow="POL" msprop:Generator_UserColumnName="POL" msprop:Generator_ColumnVarNameInTable="columnPOL" type="xs:string" minOccurs="0" />
@@ -70,12 +70,12 @@
         <xs:element name="Commodities" msprop:Generator_RowEvHandlerName="CommoditiesRowChangeEventHandler" msprop:Generator_RowDeletedName="CommoditiesRowDeleted" msprop:Generator_RowDeletingName="CommoditiesRowDeleting" msprop:Generator_RowEvArgName="CommoditiesRowChangeEvent" msprop:Generator_TablePropName="Commodities" msprop:Generator_RowChangedName="CommoditiesRowChanged" msprop:Generator_UserTableName="Commodities" msprop:Generator_RowChangingName="CommoditiesRowChanging" msprop:Generator_RowClassName="CommoditiesRow" msprop:Generator_TableClassName="CommoditiesDataTable" msprop:Generator_TableVarName="tableCommodities">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="CommodityName" msdata:Caption="Commodity" msprop:Generator_UserColumnName="CommodityName" msprop:Generator_ColumnPropNameInTable="CommodityNameColumn" msprop:Generator_ColumnPropNameInRow="CommodityName" msprop:Generator_ColumnVarNameInTable="columnCommodityName" type="xs:string" minOccurs="0" />
+              <xs:element name="CommodityName" msdata:Caption="Commodity" msprop:Generator_ColumnPropNameInTable="CommodityNameColumn" msprop:Generator_ColumnPropNameInRow="CommodityName" msprop:Generator_UserColumnName="CommodityName" msprop:Generator_ColumnVarNameInTable="columnCommodityName" type="xs:string" minOccurs="0" />
               <xs:element name="HScode" msprop:Generator_ColumnPropNameInTable="HScodeColumn" msprop:Generator_ColumnPropNameInRow="HScode" msprop:Generator_UserColumnName="HScode" msprop:Generator_ColumnVarNameInTable="columnHScode" type="xs:string" minOccurs="0" />
               <xs:element name="IMO" msprop:Generator_ColumnPropNameInTable="IMOColumn" msprop:Generator_ColumnPropNameInRow="IMO" msprop:Generator_UserColumnName="IMO" msprop:Generator_ColumnVarNameInTable="columnIMO" type="xs:string" minOccurs="0" />
               <xs:element name="UNNO" msprop:Generator_ColumnPropNameInTable="UNNOColumn" msprop:Generator_ColumnPropNameInRow="UNNO" msprop:Generator_UserColumnName="UNNO" msprop:Generator_ColumnVarNameInTable="columnUNNO" type="xs:string" minOccurs="0" />
               <xs:element name="IsIMO" msprop:Generator_ColumnPropNameInTable="IsIMOColumn" msprop:Generator_ColumnPropNameInRow="IsIMO" msprop:Generator_UserColumnName="IsIMO" msprop:Generator_ColumnVarNameInTable="columnIsIMO" type="xs:boolean" minOccurs="0" />
-              <xs:element name="Commodity" msprop:Generator_UserColumnName="Commodity" msprop:Generator_ColumnPropNameInTable="CommodityColumn" msprop:Generator_ColumnPropNameInRow="Commodity" msprop:Generator_ColumnVarNameInTable="columnCommodity" type="xs:string" minOccurs="0" />
+              <xs:element name="Commodity" msprop:Generator_ColumnPropNameInTable="CommodityColumn" msprop:Generator_ColumnPropNameInRow="Commodity" msprop:Generator_UserColumnName="Commodity" msprop:Generator_ColumnVarNameInTable="columnCommodity" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

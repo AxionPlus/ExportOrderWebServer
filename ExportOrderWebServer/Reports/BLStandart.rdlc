@@ -2,7 +2,7 @@
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
-    <DataSource Name="DS_BillOfLading">
+    <DataSource Name="BillOfLading">
       <ConnectionProperties>
         <DataProvider>System.Data.DataSet</DataProvider>
         <ConnectString>/* Local Connection */</ConnectString>
@@ -13,7 +13,7 @@
   <DataSets>
     <DataSet Name="dsBL">
       <Query>
-        <DataSourceName>DS_BillOfLading</DataSourceName>
+        <DataSourceName>BillOfLading</DataSourceName>
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
@@ -79,57 +79,9 @@
         </Field>
       </Fields>
       <rd:DataSetInfo>
-        <rd:DataSetName>DS_BillOfLading</rd:DataSetName>
-        <rd:SchemaPath>D:\Lessons\AxionPlus\ExportOrder\ExportOrderWebServer\ExportOrderWebServer\DataSet\DS_BillOfLading.xsd</rd:SchemaPath>
+        <rd:DataSetName>BillOfLading</rd:DataSetName>
+        <rd:SchemaPath>D:\Lessons\AxionPlus\ExportOrder\ExportOrderWebServer\ExportOrderWebServer\DataSet\BillOfLading.xsd</rd:SchemaPath>
         <rd:TableName>BL</rd:TableName>
-        <rd:TableAdapterFillMethod />
-        <rd:TableAdapterGetDataMethod />
-        <rd:TableAdapterName />
-      </rd:DataSetInfo>
-    </DataSet>
-    <DataSet Name="dsCommodities">
-      <Query>
-        <DataSourceName>DS_BillOfLading</DataSourceName>
-        <CommandText>/* Local Query */</CommandText>
-      </Query>
-      <Fields>
-        <Field Name="Commodity">
-          <DataField>Commodity</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="HSCode">
-          <DataField>HSCode</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="IsIMO">
-          <DataField>IsIMO</DataField>
-          <rd:TypeName>System.Boolean</rd:TypeName>
-        </Field>
-        <Field Name="IMO">
-          <DataField>IMO</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="UNNO">
-          <DataField>UNNO</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="CntrType">
-          <DataField>CntrType</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="CntrTypesCount">
-          <DataField>CntrTypesCount</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="Measures">
-          <DataField>Measures</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-      </Fields>
-      <rd:DataSetInfo>
-        <rd:DataSetName>DS_BillOfLading</rd:DataSetName>
-        <rd:SchemaPath>D:\Lessons\AxionPlus\ExportOrder\ExportOrderWebServer\ExportOrderWebServer\DataSet\DS_BillOfLading.xsd</rd:SchemaPath>
-        <rd:TableName>Commodities</rd:TableName>
         <rd:TableAdapterFillMethod />
         <rd:TableAdapterGetDataMethod />
         <rd:TableAdapterName />
@@ -137,7 +89,7 @@
     </DataSet>
     <DataSet Name="dsCntrRecords">
       <Query>
-        <DataSourceName>DS_BillOfLading</DataSourceName>
+        <DataSourceName>BillOfLading</DataSourceName>
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
@@ -179,8 +131,8 @@
         </Field>
       </Fields>
       <rd:DataSetInfo>
-        <rd:DataSetName>DS_BillOfLading</rd:DataSetName>
-        <rd:SchemaPath>D:\Lessons\AxionPlus\ExportOrder\ExportOrderWebServer\ExportOrderWebServer\DataSet\DS_BillOfLading.xsd</rd:SchemaPath>
+        <rd:DataSetName>BillOfLading</rd:DataSetName>
+        <rd:SchemaPath>D:\Lessons\AxionPlus\ExportOrder\ExportOrderWebServer\ExportOrderWebServer\DataSet\BillOfLading.xsd</rd:SchemaPath>
         <rd:TableName>CntrRecords</rd:TableName>
         <rd:TableAdapterFillMethod />
         <rd:TableAdapterGetDataMethod />

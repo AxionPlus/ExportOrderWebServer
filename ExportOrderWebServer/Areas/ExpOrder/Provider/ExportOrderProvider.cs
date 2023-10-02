@@ -331,11 +331,12 @@ public class ExportOrderProvider : IExportOrderProvider
             eoRecordDTO.Seq = indexRec.ToString();
             eoRecordDTO.CntrTareWt = record.CntrTareWt;
             eoRecordDTO.Seal = record.Seal;
+            eoRecordDTO.CntrType = record.CntrType!.Normolize!;
 
             foreach (var content in record.Contents)
             {
                 eoRecordDTO.Cntr = record.CntrNum;
-                eoRecordDTO.CntrType = record.CntrType!.Normolize!;
+                //eoRecordDTO.CntrType = record.CntrType!.Normolize!;
 
                 eoRecordDTO.PackageQty = content.PackageQty;
                 eoRecordDTO.PackageName = content.PackageName;
@@ -371,7 +372,6 @@ public class ExportOrderProvider : IExportOrderProvider
 
         foreach (var Item in _mRecords)
         {
-            //var bLDTO = new BLDTO();
             bLDTO.BLDate = Item.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy");
             bLDTO.Voyage = Item.VesselCall!.VoyageCarrier;
             bLDTO.VesselName = Item.VesselCall!.Vessel.Name!;
@@ -418,7 +418,6 @@ public class ExportOrderProvider : IExportOrderProvider
 
         return BLDTO_List;
     };
-
 
     #endregion
 

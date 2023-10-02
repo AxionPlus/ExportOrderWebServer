@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema id="DS_BillOfLading" targetNamespace="http://tempuri.org/DS_BillOfLading.xsd" xmlns:mstns="http://tempuri.org/DS_BillOfLading.xsd" xmlns="http://tempuri.org/DS_BillOfLading.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+<xs:schema id="BillOfLading" targetNamespace="http://tempuri.org/BillOfLading.xsd" xmlns:mstns="http://tempuri.org/BillOfLading.xsd" xmlns="http://tempuri.org/BillOfLading.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
   <xs:annotation>
     <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
       <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
@@ -9,10 +9,10 @@
       </DataSource>
     </xs:appinfo>
   </xs:annotation>
-  <xs:element name="DS_BillOfLading" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="DS_BillOfLading" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DS_BillOfLading">
+  <xs:element name="BillOfLading" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="BillOfLading" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="BillOfLading">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="BL" msprop:Generator_RowEvHandlerName="BLRowChangeEventHandler" msprop:Generator_RowDeletedName="BLRowDeleted" msprop:Generator_RowDeletingName="BLRowDeleting" msprop:Generator_RowEvArgName="BLRowChangeEvent" msprop:Generator_TablePropName="BL" msprop:Generator_RowChangedName="BLRowChanged" msprop:Generator_UserTableName="BL" msprop:Generator_RowChangingName="BLRowChanging" msprop:Generator_RowClassName="BLRow" msprop:Generator_TableClassName="BLDataTable" msprop:Generator_TableVarName="tableBL">
+        <xs:element name="dtBL" msprop:Generator_RowEvHandlerName="dtBLRowChangeEventHandler" msprop:Generator_RowDeletedName="dtBLRowDeleted" msprop:Generator_RowDeletingName="dtBLRowDeleting" msprop:Generator_RowEvArgName="dtBLRowChangeEvent" msprop:Generator_TablePropName="dtBL" msprop:Generator_RowChangedName="dtBLRowChanged" msprop:Generator_UserTableName="dtBL" msprop:Generator_RowChangingName="dtBLRowChanging" msprop:Generator_RowClassName="dtBLRow" msprop:Generator_TableClassName="dtBLDataTable" msprop:Generator_TableVarName="tabledtBL">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="Num" msprop:Generator_ColumnPropNameInTable="NumColumn" msprop:Generator_ColumnPropNameInRow="Num" msprop:Generator_UserColumnName="Num" msprop:Generator_ColumnVarNameInTable="columnNum" type="xs:string" minOccurs="0" />
@@ -50,7 +50,7 @@
         <xs:element name="CntrRecords" msprop:Generator_RowEvHandlerName="CntrRecordsRowChangeEventHandler" msprop:Generator_RowDeletedName="CntrRecordsRowDeleted" msprop:Generator_RowDeletingName="CntrRecordsRowDeleting" msprop:Generator_RowEvArgName="CntrRecordsRowChangeEvent" msprop:Generator_TablePropName="CntrRecords" msprop:Generator_RowChangedName="CntrRecordsRowChanged" msprop:Generator_UserTableName="CntrRecords" msprop:Generator_RowChangingName="CntrRecordsRowChanging" msprop:Generator_RowClassName="CntrRecordsRow" msprop:Generator_TableClassName="CntrRecordsDataTable" msprop:Generator_TableVarName="tableCntrRecords">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="BLnum" msprop:Generator_ColumnPropNameInRow="BLnum" msprop:Generator_ColumnPropNameInTable="BLnumColumn" msprop:Generator_ColumnVarNameInTable="columnBLnum" msprop:Generator_UserColumnName="BLnum" type="xs:string" minOccurs="0" />
+              <xs:element name="BLnum" msprop:Generator_UserColumnName="BLnum" msprop:Generator_ColumnPropNameInTable="BLnumColumn" msprop:Generator_ColumnPropNameInRow="BLnum" msprop:Generator_ColumnVarNameInTable="columnBLnum" type="xs:string" minOccurs="0" />
               <xs:element name="Cntr" msprop:Generator_ColumnPropNameInTable="CntrColumn" msprop:Generator_ColumnPropNameInRow="Cntr" msprop:Generator_UserColumnName="Cntr" msprop:Generator_ColumnVarNameInTable="columnCntr" type="xs:string" minOccurs="0" />
               <xs:element name="CntrType" msprop:Generator_ColumnPropNameInTable="CntrTypeColumn" msprop:Generator_ColumnPropNameInRow="CntrType" msprop:Generator_UserColumnName="CntrType" msprop:Generator_ColumnVarNameInTable="columnCntrType" type="xs:string" minOccurs="0" />
               <xs:element name="Seal" msprop:Generator_ColumnPropNameInTable="SealColumn" msprop:Generator_ColumnPropNameInRow="Seal" msprop:Generator_UserColumnName="Seal" msprop:Generator_ColumnVarNameInTable="columnSeal" type="xs:string" minOccurs="0" />

@@ -20,9 +20,9 @@ namespace ExportOrderWebServer.DataSet {
     [global::System.ComponentModel.DesignerCategoryAttribute("code")]
     [global::System.ComponentModel.ToolboxItem(true)]
     [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedDataSetSchema")]
-    [global::System.Xml.Serialization.XmlRootAttribute("DS_ExportOrder")]
+    [global::System.Xml.Serialization.XmlRootAttribute("ExportOrder")]
     [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.DataSet")]
-    public partial class DS_ExportOrder : global::System.Data.DataSet {
+    public partial class ExportOrder : global::System.Data.DataSet {
         
         private dtExportOrderDataTable tabledtExportOrder;
         
@@ -40,7 +40,7 @@ namespace ExportOrderWebServer.DataSet {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        public DS_ExportOrder() {
+        public ExportOrder() {
             this.BeginInit();
             this.InitClass();
             global::System.ComponentModel.CollectionChangeEventHandler schemaChangedHandler = new global::System.ComponentModel.CollectionChangeEventHandler(this.SchemaChanged);
@@ -51,7 +51,7 @@ namespace ExportOrderWebServer.DataSet {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        protected DS_ExportOrder(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
+        protected ExportOrder(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
                 base(info, context, false) {
             if ((this.IsBinarySerialized(info, context) == true)) {
                 this.InitVars(false);
@@ -202,7 +202,7 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         public override global::System.Data.DataSet Clone() {
-            DS_ExportOrder cln = ((DS_ExportOrder)(base.Clone()));
+            ExportOrder cln = ((ExportOrder)(base.Clone()));
             cln.InitVars();
             cln.SchemaSerializationMode = this.SchemaSerializationMode;
             return cln;
@@ -319,9 +319,9 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         private void InitClass() {
-            this.DataSetName = "DS_ExportOrder";
+            this.DataSetName = "ExportOrder";
             this.Prefix = "";
-            this.Namespace = "http://tempuri.org/DS_ExportOrder.xsd";
+            this.Namespace = "http://tempuri.org/ExportOrder.xsd";
             this.EnforceConstraints = true;
             this.SchemaSerializationMode = global::System.Data.SchemaSerializationMode.IncludeSchema;
             this.tabledtExportOrder = new dtExportOrderDataTable();
@@ -385,7 +385,7 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedDataSetSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
-            DS_ExportOrder ds = new DS_ExportOrder();
+            ExportOrder ds = new ExportOrder();
             global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
             global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
             global::System.Xml.Schema.XmlSchemaAny any = new global::System.Xml.Schema.XmlSchemaAny();
@@ -460,7 +460,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnDated;
             
-            private global::System.Data.DataColumn columnVesselName;
+            private global::System.Data.DataColumn columnVessel;
             
             private global::System.Data.DataColumn columnVoyage;
             
@@ -537,9 +537,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn VesselNameColumn {
+            public global::System.Data.DataColumn VesselColumn {
                 get {
-                    return this.columnVesselName;
+                    return this.columnVessel;
                 }
             }
             
@@ -644,13 +644,13 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public dtExportOrderRow AdddtExportOrderRow(long Id, string Num, System.DateTime Dated, string VesselName, string Voyage, System.DateTime DateOfLoading, string POL, string POD, string Contract, string ContractDate, string MyCompanyName, string Person) {
+            public dtExportOrderRow AdddtExportOrderRow(long Id, string Num, System.DateTime Dated, string Vessel, string Voyage, System.DateTime DateOfLoading, string POL, string POD, string Contract, string ContractDate, string MyCompanyName, string Person) {
                 dtExportOrderRow rowdtExportOrderRow = ((dtExportOrderRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Id,
                         Num,
                         Dated,
-                        VesselName,
+                        Vessel,
                         Voyage,
                         DateOfLoading,
                         POL,
@@ -691,7 +691,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnId = base.Columns["Id"];
                 this.columnNum = base.Columns["Num"];
                 this.columnDated = base.Columns["Dated"];
-                this.columnVesselName = base.Columns["VesselName"];
+                this.columnVessel = base.Columns["Vessel"];
                 this.columnVoyage = base.Columns["Voyage"];
                 this.columnDateOfLoading = base.Columns["DateOfLoading"];
                 this.columnPOL = base.Columns["POL"];
@@ -711,8 +711,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnNum);
                 this.columnDated = new global::System.Data.DataColumn("Dated", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnDated);
-                this.columnVesselName = new global::System.Data.DataColumn("VesselName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnVesselName);
+                this.columnVessel = new global::System.Data.DataColumn("Vessel", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnVessel);
                 this.columnVoyage = new global::System.Data.DataColumn("Voyage", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnVoyage);
                 this.columnDateOfLoading = new global::System.Data.DataColumn("DateOfLoading", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
@@ -800,7 +800,7 @@ namespace ExportOrderWebServer.DataSet {
             public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
                 global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
                 global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
-                DS_ExportOrder ds = new DS_ExportOrder();
+                ExportOrder ds = new ExportOrder();
                 global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
                 any1.Namespace = "http://www.w3.org/2001/XMLSchema";
                 any1.MinOccurs = new decimal(0);
@@ -1288,7 +1288,7 @@ namespace ExportOrderWebServer.DataSet {
             public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
                 global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
                 global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
-                DS_ExportOrder ds = new DS_ExportOrder();
+                ExportOrder ds = new ExportOrder();
                 global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
                 any1.Namespace = "http://www.w3.org/2001/XMLSchema";
                 any1.MinOccurs = new decimal(0);
@@ -1535,7 +1535,7 @@ namespace ExportOrderWebServer.DataSet {
             public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
                 global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
                 global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
-                DS_ExportOrder ds = new DS_ExportOrder();
+                ExportOrder ds = new ExportOrder();
                 global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
                 any1.Namespace = "http://www.w3.org/2001/XMLSchema";
                 any1.MinOccurs = new decimal(0);
@@ -1782,7 +1782,7 @@ namespace ExportOrderWebServer.DataSet {
             public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
                 global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
                 global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
-                DS_ExportOrder ds = new DS_ExportOrder();
+                ExportOrder ds = new ExportOrder();
                 global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
                 any1.Namespace = "http://www.w3.org/2001/XMLSchema";
                 any1.MinOccurs = new decimal(0);
@@ -2100,7 +2100,7 @@ namespace ExportOrderWebServer.DataSet {
             public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
                 global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
                 global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
-                DS_ExportOrder ds = new DS_ExportOrder();
+                ExportOrder ds = new ExportOrder();
                 global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
                 any1.Namespace = "http://www.w3.org/2001/XMLSchema";
                 any1.MinOccurs = new decimal(0);
@@ -2417,7 +2417,7 @@ namespace ExportOrderWebServer.DataSet {
             public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
                 global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
                 global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
-                DS_ExportOrder ds = new DS_ExportOrder();
+                ExportOrder ds = new ExportOrder();
                 global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
                 any1.Namespace = "http://www.w3.org/2001/XMLSchema";
                 any1.MinOccurs = new decimal(0);
@@ -2535,17 +2535,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string VesselName {
+            public string Vessel {
                 get {
                     try {
-                        return ((string)(this[this.tabledtExportOrder.VesselNameColumn]));
+                        return ((string)(this[this.tabledtExportOrder.VesselColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'VesselName\' в таблице \'dtExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Vessel\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tabledtExportOrder.VesselNameColumn] = value;
+                    this[this.tabledtExportOrder.VesselColumn] = value;
                 }
             }
             
@@ -2703,14 +2703,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsVesselNameNull() {
-                return this.IsNull(this.tabledtExportOrder.VesselNameColumn);
+            public bool IsVesselNull() {
+                return this.IsNull(this.tabledtExportOrder.VesselColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetVesselNameNull() {
-                this[this.tabledtExportOrder.VesselNameColumn] = global::System.Convert.DBNull;
+            public void SetVesselNull() {
+                this[this.tabledtExportOrder.VesselColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

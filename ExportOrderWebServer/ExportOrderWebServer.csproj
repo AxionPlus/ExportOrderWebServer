@@ -69,10 +69,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="DataSet\DS_BillOfLading.Designer.cs">
+    <Compile Update="DataSet\BillOfLading.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>DS_BillOfLading.xsd</DependentUpon>
+      <DependentUpon>BillOfLading.xsd</DependentUpon>
     </Compile>
     <Compile Update="DataSet\ExportOrder.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -87,9 +87,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DataSet\DS_BillOfLading.xsd">
+    <None Update="DataSet\BillOfLading.xsd">
       <SubType>Designer</SubType>
-      <LastGenOutput>DS_BillOfLading.Designer.cs</LastGenOutput>
+      <LastGenOutput>BillOfLading.Designer.cs</LastGenOutput>
       <Generator>MSDataSetGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

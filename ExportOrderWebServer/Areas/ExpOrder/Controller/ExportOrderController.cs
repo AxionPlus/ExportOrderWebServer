@@ -50,7 +50,7 @@ public class ExportOrderController : ControllerBase
             {
                 x.Num,
                 x.Dated,
-                Vessel = x.VesselName + "(" + x.VesselFlag + ")",
+                Vessel = x.VesselName + " (" + x.VesselFlag + ")",
                 x.Voyage,
                 x.DateOfLoading,
                 x.POL,
@@ -65,20 +65,13 @@ public class ExportOrderController : ControllerBase
 
             var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
             var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
-            var dsCommodities = dsRecords?.GroupBy(r => r.CommodityName).Select(g => new
-                                                                                         {
-                                                                                             g.Key,
-                                                                                             HScode = g.FirstOrDefault()!.HSCode,
-                                                                                             g.FirstOrDefault()!.IMO,
-                                                                                             g.FirstOrDefault()!.UNNO,
-                                                                                             g.FirstOrDefault()!.IsIMO,
-                                                                                             Commodity = g.Key + " (" + g.FirstOrDefault()!.HSCode +
-                                                                                                                  ") " + g.FirstOrDefault()!.IMO + " " +
-                                                                                                                  g.FirstOrDefault()!.UNNO,
+            var dsCommodities = dsRecords?.GroupBy(r => r.CommodityName).Select(g => new {
+                                                                                             Commodity = g.Key +
+                                                                                                        " (" + g.FirstOrDefault()!.HSCode + ") " +
+                                                                                                        g.FirstOrDefault()!.IMO + " " + g.FirstOrDefault()!.UNNO,
                                                                                           }).ToList();
 
-            var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new
-                                                                                      {
+            var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
                                                                                           Seq = 1,
                                                                                           Document = g.Key,
                                                                                           Pakages = g.Sum(q => q.PackageQty),
@@ -158,17 +151,6 @@ public class ExportOrderController : ControllerBase
 
 
             // список товаров
-            //var CommodityRecords = Records.Select(r => new
-            //{
-            //    r.CommodityEngName,
-            //    r.HSCode,
-            //    //r.IsIMO,
-            //    r.IMO,
-            //    r.UNNO,
-            //    //r.CntrType,
-            //    //Measures = r.Volume > 0 ? "CUB. M" : "KG"
-            //}).ToList();
-
             var CommoditiesGroup = Records.GroupBy(c => c.CommodityEngName)
                                                     .Select(g => new
                                                     {
@@ -177,14 +159,16 @@ public class ExportOrderController : ControllerBase
                                                             g.FirstOrDefault()!.IMO,
                                                             g.FirstOrDefault()!.UNNO).Trim(),
                                                     }).ToList();
-
-            var CntrTypesGroup = Records.GroupBy(r => r.CntrType)
+            
+            // список типов контейнеров
+            var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)
                                         .Select(g => new
                                         {
                                             CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key),
                                         }).ToList();
 
 
+            #region GROUP WITH 2 KEYS
             //var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName, c.CntrType })
             //                                      .Select(g => new
             //                                      {
@@ -206,6 +190,7 @@ public class ExportOrderController : ControllerBase
             //                                                                                 g.FirstOrDefault()!.IMO,
             //                                                                                 g.FirstOrDefault()!.UNNO).Trim(),
             //                                      }).ToList();
+            #endregion
 
             string Commodities = "";
             foreach (var item in CommoditiesGroup)
@@ -225,7 +210,7 @@ public class ExportOrderController : ControllerBase
                 x.Num,
                 POLAgent = x.CarrierNameEn,
                 x.PODAgent,
-                Vessel = x.VesselName,
+                x.VesselName,
                 x.Voyage,
                 x.POLEn,
                 x.PODEn,
@@ -235,15 +220,15 @@ public class ExportOrderController : ControllerBase
                 CntrTypes,
                 Commodities,
                 x.TotalCntrCount,
-                x.TotalGrossWeight,
                 x.TotalTareWeight,
+                x.TotalGrossWeight,
                 x.Measurement
             }).ToList();
 
             // список контейнеров
             var dsCntrRecords = Records.Select(r => new 
             {
-                m = r.BLnum,
+                r.BLnum,
                 r.Cntr,
                 r.CntrType,
                 r.Seal,

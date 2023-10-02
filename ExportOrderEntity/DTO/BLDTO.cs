@@ -32,8 +32,6 @@ public class BLDTO
     public double? GrossWt { get; set; }
     public double? Volume { get; set; }    
     public string Commodity { get; set; }
-    public string Notify { get; set; }    
-    //public string HSCode { get; set; }
     public string IMO { get; set; }
     public string UNNO { get; set; }
     public bool IsIMO { get; set; }

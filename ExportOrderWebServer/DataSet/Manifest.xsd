@@ -41,7 +41,6 @@
               <xs:element name="IsIMO" msprop:Generator_ColumnPropNameInTable="IsIMOColumn" msprop:Generator_ColumnPropNameInRow="IsIMO" msprop:Generator_UserColumnName="IsIMO" msprop:Generator_ColumnVarNameInTable="columnIsIMO" type="xs:string" minOccurs="0" />
               <xs:element name="Shipper" msprop:Generator_ColumnPropNameInTable="ShipperColumn" msprop:Generator_ColumnPropNameInRow="Shipper" msprop:Generator_UserColumnName="Shipper" msprop:Generator_ColumnVarNameInTable="columnShipper" type="xs:string" minOccurs="0" />
               <xs:element name="Consignee" msprop:Generator_ColumnPropNameInTable="ConsigneeColumn" msprop:Generator_ColumnPropNameInRow="Consignee" msprop:Generator_UserColumnName="Consignee" msprop:Generator_ColumnVarNameInTable="columnConsignee" type="xs:string" minOccurs="0" />
-              <xs:element name="Notify" msprop:Generator_ColumnPropNameInRow="Notify" msprop:Generator_ColumnPropNameInTable="NotifyColumn" msprop:Generator_ColumnVarNameInTable="columnNotify" msprop:Generator_UserColumnName="Notify" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

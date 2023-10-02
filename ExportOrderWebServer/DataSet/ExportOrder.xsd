@@ -70,11 +70,6 @@
         <xs:element name="Commodities" msprop:Generator_RowEvHandlerName="CommoditiesRowChangeEventHandler" msprop:Generator_RowDeletedName="CommoditiesRowDeleted" msprop:Generator_RowDeletingName="CommoditiesRowDeleting" msprop:Generator_RowEvArgName="CommoditiesRowChangeEvent" msprop:Generator_TablePropName="Commodities" msprop:Generator_RowChangedName="CommoditiesRowChanged" msprop:Generator_UserTableName="Commodities" msprop:Generator_RowChangingName="CommoditiesRowChanging" msprop:Generator_RowClassName="CommoditiesRow" msprop:Generator_TableClassName="CommoditiesDataTable" msprop:Generator_TableVarName="tableCommodities">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="CommodityName" msdata:Caption="Commodity" msprop:Generator_ColumnPropNameInTable="CommodityNameColumn" msprop:Generator_ColumnPropNameInRow="CommodityName" msprop:Generator_UserColumnName="CommodityName" msprop:Generator_ColumnVarNameInTable="columnCommodityName" type="xs:string" minOccurs="0" />
-              <xs:element name="HScode" msprop:Generator_ColumnPropNameInTable="HScodeColumn" msprop:Generator_ColumnPropNameInRow="HScode" msprop:Generator_UserColumnName="HScode" msprop:Generator_ColumnVarNameInTable="columnHScode" type="xs:string" minOccurs="0" />
-              <xs:element name="IMO" msprop:Generator_ColumnPropNameInTable="IMOColumn" msprop:Generator_ColumnPropNameInRow="IMO" msprop:Generator_UserColumnName="IMO" msprop:Generator_ColumnVarNameInTable="columnIMO" type="xs:string" minOccurs="0" />
-              <xs:element name="UNNO" msprop:Generator_ColumnPropNameInTable="UNNOColumn" msprop:Generator_ColumnPropNameInRow="UNNO" msprop:Generator_UserColumnName="UNNO" msprop:Generator_ColumnVarNameInTable="columnUNNO" type="xs:string" minOccurs="0" />
-              <xs:element name="IsIMO" msprop:Generator_ColumnPropNameInTable="IsIMOColumn" msprop:Generator_ColumnPropNameInRow="IsIMO" msprop:Generator_UserColumnName="IsIMO" msprop:Generator_ColumnVarNameInTable="columnIsIMO" type="xs:boolean" minOccurs="0" />
               <xs:element name="Commodity" msprop:Generator_ColumnPropNameInTable="CommodityColumn" msprop:Generator_ColumnPropNameInRow="Commodity" msprop:Generator_UserColumnName="Commodity" msprop:Generator_ColumnVarNameInTable="columnCommodity" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
@@ -86,7 +81,7 @@
               <xs:element name="Document" msprop:Generator_ColumnPropNameInTable="DocumentColumn" msprop:Generator_ColumnPropNameInRow="Document" msprop:Generator_UserColumnName="Document" msprop:Generator_ColumnVarNameInTable="columnDocument" type="xs:string" minOccurs="0" />
               <xs:element name="Pakages" msprop:Generator_ColumnPropNameInTable="PakagesColumn" msprop:Generator_ColumnPropNameInRow="Pakages" msprop:Generator_UserColumnName="Pakages" msprop:Generator_ColumnVarNameInTable="columnPakages" type="xs:int" minOccurs="0" />
               <xs:element name="Net" msprop:Generator_ColumnPropNameInTable="NetColumn" msprop:Generator_ColumnPropNameInRow="Net" msprop:Generator_UserColumnName="Net" msprop:Generator_ColumnVarNameInTable="columnNet" type="xs:double" minOccurs="0" />
-              <xs:element name="Gross" msprop:Generator_ColumnPropNameInTable="GrossColumn" msprop:Generator_ColumnPropNameInRow="Gross" msprop:Generator_UserColumnName="Gross" msprop:Generator_ColumnVarNameInTable="columnGross" type="xs:string" minOccurs="0" />
+              <xs:element name="Gross" msprop:Generator_ColumnPropNameInTable="GrossColumn" msprop:Generator_ColumnPropNameInRow="Gross" msprop:Generator_UserColumnName="Gross" msprop:Generator_ColumnVarNameInTable="columnGross" type="xs:double" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

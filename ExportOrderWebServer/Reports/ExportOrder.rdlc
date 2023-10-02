@@ -241,26 +241,6 @@
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
-        <Field Name="CommodityName">
-          <DataField>CommodityName</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="HScode">
-          <DataField>HScode</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="IMO">
-          <DataField>IMO</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="UNNO">
-          <DataField>UNNO</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="IsIMO">
-          <DataField>IsIMO</DataField>
-          <rd:TypeName>System.Boolean</rd:TypeName>
-        </Field>
         <Field Name="Commodity">
           <DataField>Commodity</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -1688,6 +1668,7 @@
                                   <Value>=Fields!Pakages.Value</Value>
                                   <Style>
                                     <FontSize>9pt</FontSize>
+                                    <Format>#,0;(#,0)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1721,7 +1702,7 @@
                                   <Value>=Fields!Net.Value</Value>
                                   <Style>
                                     <FontSize>9pt</FontSize>
-                                    <Format>0.000;(0.000)</Format>
+                                    <Format>#,0.000;(#,0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1736,7 +1717,7 @@
                               <Style>None</Style>
                             </Border>
                             <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>4pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
@@ -1755,7 +1736,7 @@
                                   <Value>=Fields!Gross.Value</Value>
                                   <Style>
                                     <FontSize>9pt</FontSize>
-                                    <Format>0.000;(0.000)</Format>
+                                    <Format>#,0.000;(#,0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1770,7 +1751,7 @@
                               <Style>None</Style>
                             </Border>
                             <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>4pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
@@ -1860,6 +1841,7 @@
                                   <Style>
                                     <FontFamily>Courier New</FontFamily>
                                     <FontWeight>Bold</FontWeight>
+                                    <Format>#,0;(#,0)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1894,7 +1876,7 @@
                                   <Style>
                                     <FontFamily>Courier New</FontFamily>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>0.000;(0.000)</Format>
+                                    <Format>#,0.000;(#,0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1908,7 +1890,7 @@
                               <Style>None</Style>
                             </Border>
                             <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>4pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
@@ -1928,7 +1910,7 @@
                                   <Style>
                                     <FontFamily>Courier New</FontFamily>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>0.000;(0.000)</Format>
+                                    <Format>#,0.000;(#,0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1942,7 +1924,7 @@
                               <Style>None</Style>
                             </Border>
                             <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>4pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>

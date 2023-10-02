@@ -331,8 +331,6 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnConsignee;
             
-            private global::System.Data.DataColumn columnNotify;
-            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public dtBLDataTable() {
@@ -576,14 +574,6 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn NotifyColumn {
-                get {
-                    return this.columnNotify;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -645,8 +635,7 @@ namespace ExportOrderWebServer.DataSet {
                         string UNNO, 
                         string IsIMO, 
                         string Shipper, 
-                        string Consignee, 
-                        string Notify) {
+                        string Consignee) {
                 dtBLRow rowdtBLRow = ((dtBLRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         BLNum,
@@ -674,8 +663,7 @@ namespace ExportOrderWebServer.DataSet {
                         UNNO,
                         IsIMO,
                         Shipper,
-                        Consignee,
-                        Notify};
+                        Consignee};
                 rowdtBLRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowdtBLRow);
                 return rowdtBLRow;
@@ -724,7 +712,6 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnIsIMO = base.Columns["IsIMO"];
                 this.columnShipper = base.Columns["Shipper"];
                 this.columnConsignee = base.Columns["Consignee"];
-                this.columnNotify = base.Columns["Notify"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -782,8 +769,6 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnShipper);
                 this.columnConsignee = new global::System.Data.DataColumn("Consignee", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnConsignee);
-                this.columnNotify = new global::System.Data.DataColumn("Notify", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnNotify);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1342,22 +1327,6 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string Notify {
-                get {
-                    try {
-                        return ((string)(this[this.tabledtBL.NotifyColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Notify\' в таблице \'dtBL\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tabledtBL.NotifyColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsBLNumNull() {
                 return this.IsNull(this.tabledtBL.BLNumColumn);
             }
@@ -1666,18 +1635,6 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetConsigneeNull() {
                 this[this.tabledtBL.ConsigneeColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsNotifyNull() {
-                return this.IsNull(this.tabledtBL.NotifyColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetNotifyNull() {
-                this[this.tabledtBL.NotifyColumn] = global::System.Convert.DBNull;
             }
         }
         

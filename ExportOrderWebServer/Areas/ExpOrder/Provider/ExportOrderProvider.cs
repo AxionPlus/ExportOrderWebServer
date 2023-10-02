@@ -86,8 +86,11 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 TotalCntrCount = source.Records.Count,
                                                 TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
                                                 TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
-                                                //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ? source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
+                                                //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ?
+                                                //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
                                                 Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract,
+                                                //ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract != null ?
+                                                //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
                                                 MyCompanyName = myCompany!.Name!,
                                                 Person = source.Person!.Name + " т. " + source.Person.Phone,
@@ -326,7 +329,6 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             ++indexRec;
             eoRecordDTO.Seq = indexRec.ToString();
-            //eoRecordDTO.exportOrderDTO = record.ExportOrder;
             eoRecordDTO.CntrTareWt = record.CntrTareWt;
             eoRecordDTO.Seal = record.Seal;
 

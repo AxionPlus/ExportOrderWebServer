@@ -67,11 +67,14 @@ public class ExportOrderController : ControllerBase
             var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
             var dsCommodities = dsRecords?.GroupBy(r => r.CommodityName).Select(g => new
                                                                                          {
-                                                                                             Commodity = g.Key,
+                                                                                             g.Key,
                                                                                              HScode = g.FirstOrDefault()!.HSCode,
-                                                                                             IMO = g.FirstOrDefault()!.IMO,
-                                                                                             UNNO = g.FirstOrDefault()!.UNNO,
-                                                                                             IsIMO = g.FirstOrDefault()!.IsIMO
+                                                                                             g.FirstOrDefault()!.IMO,
+                                                                                             g.FirstOrDefault()!.UNNO,
+                                                                                             g.FirstOrDefault()!.IsIMO,
+                                                                                             Commodity = g.Key + " (" + g.FirstOrDefault()!.HSCode +
+                                                                                                                  ") " + g.FirstOrDefault()!.IMO + " " +
+                                                                                                                  g.FirstOrDefault()!.UNNO,
                                                                                           }).ToList();
 
             var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new

@@ -28,12 +28,9 @@ public class ExportOrderDTO
     public double? TotalGrossWeight { get; set; }
     public double? TotalTareWeight { get; set; }
     public string? Contract { get; set; }
-    public string ContractDate { get; set; }
+    public string? ContractDate { get; set; }
     public string MyCompanyName { get; set; }
     public string Person { get; set; }
 
     public IEnumerable<ExportOrderRecordDTO> exportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
-
-    //public IEnumerable<ExportOrderRecordDTO> Commodities { get; set; } = new List<ExportOrderRecordDTO>();
-    //public IEnumerable<ExportOrderRecordDTO> Containers { get; set; } = new List<ExportOrderRecordDTO>();
 }

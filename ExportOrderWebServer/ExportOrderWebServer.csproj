@@ -74,10 +74,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>DS_BillOfLading.xsd</DependentUpon>
     </Compile>
-    <Compile Update="DataSet\DS_ExportOrder.Designer.cs">
+    <Compile Update="DataSet\ExportOrder.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>DS_ExportOrder.xsd</DependentUpon>
+      <DependentUpon>ExportOrder.xsd</DependentUpon>
     </Compile>
     <Compile Update="DataSet\Manifest.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -93,9 +93,9 @@
       <Generator>MSDataSetGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DataSet\DS_ExportOrder.xsd">
+    <None Update="DataSet\ExportOrder.xsd">
       <SubType>Designer</SubType>
-      <LastGenOutput>DS_ExportOrder.Designer.cs</LastGenOutput>
+      <LastGenOutput>ExportOrder.Designer.cs</LastGenOutput>
       <Generator>MSDataSetGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

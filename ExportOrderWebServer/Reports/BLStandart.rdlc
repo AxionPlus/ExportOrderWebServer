@@ -4526,7 +4526,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
-                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>

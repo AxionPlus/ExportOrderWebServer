@@ -24,7 +24,7 @@ namespace ExportOrderWebServer.DataSet {
     [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.DataSet")]
     public partial class DS_ExportOrder : global::System.Data.DataSet {
         
-        private ExportOrderDataTable tableExportOrder;
+        private dtExportOrderDataTable tabledtExportOrder;
         
         private RecordsDataTable tableRecords;
         
@@ -64,8 +64,8 @@ namespace ExportOrderWebServer.DataSet {
             if ((this.DetermineSchemaSerializationMode(info, context) == global::System.Data.SchemaSerializationMode.IncludeSchema)) {
                 global::System.Data.DataSet ds = new global::System.Data.DataSet();
                 ds.ReadXmlSchema(new global::System.Xml.XmlTextReader(new global::System.IO.StringReader(strSchema)));
-                if ((ds.Tables["ExportOrder"] != null)) {
-                    base.Tables.Add(new ExportOrderDataTable(ds.Tables["ExportOrder"]));
+                if ((ds.Tables["dtExportOrder"] != null)) {
+                    base.Tables.Add(new dtExportOrderDataTable(ds.Tables["dtExportOrder"]));
                 }
                 if ((ds.Tables["Records"] != null)) {
                     base.Tables.Add(new RecordsDataTable(ds.Tables["Records"]));
@@ -104,9 +104,9 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         [global::System.ComponentModel.Browsable(false)]
         [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
-        public ExportOrderDataTable ExportOrder {
+        public dtExportOrderDataTable dtExportOrder {
             get {
-                return this.tableExportOrder;
+                return this.tabledtExportOrder;
             }
         }
         
@@ -227,8 +227,8 @@ namespace ExportOrderWebServer.DataSet {
                 this.Reset();
                 global::System.Data.DataSet ds = new global::System.Data.DataSet();
                 ds.ReadXml(reader);
-                if ((ds.Tables["ExportOrder"] != null)) {
-                    base.Tables.Add(new ExportOrderDataTable(ds.Tables["ExportOrder"]));
+                if ((ds.Tables["dtExportOrder"] != null)) {
+                    base.Tables.Add(new dtExportOrderDataTable(ds.Tables["dtExportOrder"]));
                 }
                 if ((ds.Tables["Records"] != null)) {
                     base.Tables.Add(new RecordsDataTable(ds.Tables["Records"]));
@@ -278,10 +278,10 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         internal void InitVars(bool initTable) {
-            this.tableExportOrder = ((ExportOrderDataTable)(base.Tables["ExportOrder"]));
+            this.tabledtExportOrder = ((dtExportOrderDataTable)(base.Tables["dtExportOrder"]));
             if ((initTable == true)) {
-                if ((this.tableExportOrder != null)) {
-                    this.tableExportOrder.InitVars();
+                if ((this.tabledtExportOrder != null)) {
+                    this.tabledtExportOrder.InitVars();
                 }
             }
             this.tableRecords = ((RecordsDataTable)(base.Tables["Records"]));
@@ -324,8 +324,8 @@ namespace ExportOrderWebServer.DataSet {
             this.Namespace = "http://tempuri.org/DS_ExportOrder.xsd";
             this.EnforceConstraints = true;
             this.SchemaSerializationMode = global::System.Data.SchemaSerializationMode.IncludeSchema;
-            this.tableExportOrder = new ExportOrderDataTable();
-            base.Tables.Add(this.tableExportOrder);
+            this.tabledtExportOrder = new dtExportOrderDataTable();
+            base.Tables.Add(this.tabledtExportOrder);
             this.tableRecords = new RecordsDataTable();
             base.Tables.Add(this.tableRecords);
             this.tableShippers = new ShippersDataTable();
@@ -340,7 +340,7 @@ namespace ExportOrderWebServer.DataSet {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        private bool ShouldSerializeExportOrder() {
+        private bool ShouldSerializedtExportOrder() {
             return false;
         }
         
@@ -430,7 +430,7 @@ namespace ExportOrderWebServer.DataSet {
         }
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        public delegate void ExportOrderRowChangeEventHandler(object sender, ExportOrderRowChangeEvent e);
+        public delegate void dtExportOrderRowChangeEventHandler(object sender, dtExportOrderRowChangeEvent e);
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         public delegate void RecordsRowChangeEventHandler(object sender, RecordsRowChangeEvent e);
@@ -452,7 +452,7 @@ namespace ExportOrderWebServer.DataSet {
         ///</summary>
         [global::System.Serializable()]
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
-        public partial class ExportOrderDataTable : global::System.Data.TypedTableBase<ExportOrderRow> {
+        public partial class dtExportOrderDataTable : global::System.Data.TypedTableBase<dtExportOrderRow> {
             
             private global::System.Data.DataColumn columnId;
             
@@ -460,7 +460,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnDated;
             
-            private global::System.Data.DataColumn columnVessel;
+            private global::System.Data.DataColumn columnVesselName;
             
             private global::System.Data.DataColumn columnVoyage;
             
@@ -480,8 +480,8 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ExportOrderDataTable() {
-                this.TableName = "ExportOrder";
+            public dtExportOrderDataTable() {
+                this.TableName = "dtExportOrder";
                 this.BeginInit();
                 this.InitClass();
                 this.EndInit();
@@ -489,7 +489,7 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            internal ExportOrderDataTable(global::System.Data.DataTable table) {
+            internal dtExportOrderDataTable(global::System.Data.DataTable table) {
                 this.TableName = table.TableName;
                 if ((table.CaseSensitive != table.DataSet.CaseSensitive)) {
                     this.CaseSensitive = table.CaseSensitive;
@@ -506,7 +506,7 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected ExportOrderDataTable(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
+            protected dtExportOrderDataTable(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
                     base(info, context) {
                 this.InitVars();
             }
@@ -537,9 +537,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn VesselColumn {
+            public global::System.Data.DataColumn VesselNameColumn {
                 get {
-                    return this.columnVessel;
+                    return this.columnVesselName;
                 }
             }
             
@@ -618,39 +618,39 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ExportOrderRow this[int index] {
+            public dtExportOrderRow this[int index] {
                 get {
-                    return ((ExportOrderRow)(this.Rows[index]));
+                    return ((dtExportOrderRow)(this.Rows[index]));
                 }
             }
             
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public event ExportOrderRowChangeEventHandler ExportOrderRowChanging;
+            public event dtExportOrderRowChangeEventHandler dtExportOrderRowChanging;
             
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public event ExportOrderRowChangeEventHandler ExportOrderRowChanged;
+            public event dtExportOrderRowChangeEventHandler dtExportOrderRowChanged;
             
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public event ExportOrderRowChangeEventHandler ExportOrderRowDeleting;
+            public event dtExportOrderRowChangeEventHandler dtExportOrderRowDeleting;
             
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public event ExportOrderRowChangeEventHandler ExportOrderRowDeleted;
+            public event dtExportOrderRowChangeEventHandler dtExportOrderRowDeleted;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void AddExportOrderRow(ExportOrderRow row) {
+            public void AdddtExportOrderRow(dtExportOrderRow row) {
                 this.Rows.Add(row);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ExportOrderRow AddExportOrderRow(long Id, string Num, System.DateTime Dated, string Vessel, string Voyage, System.DateTime DateOfLoading, string POL, string POD, string Contract, string ContractDate, string MyCompanyName, string Person) {
-                ExportOrderRow rowExportOrderRow = ((ExportOrderRow)(this.NewRow()));
+            public dtExportOrderRow AdddtExportOrderRow(long Id, string Num, System.DateTime Dated, string VesselName, string Voyage, System.DateTime DateOfLoading, string POL, string POD, string Contract, string ContractDate, string MyCompanyName, string Person) {
+                dtExportOrderRow rowdtExportOrderRow = ((dtExportOrderRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Id,
                         Num,
                         Dated,
-                        Vessel,
+                        VesselName,
                         Voyage,
                         DateOfLoading,
                         POL,
@@ -659,22 +659,22 @@ namespace ExportOrderWebServer.DataSet {
                         ContractDate,
                         MyCompanyName,
                         Person};
-                rowExportOrderRow.ItemArray = columnValuesArray;
-                this.Rows.Add(rowExportOrderRow);
-                return rowExportOrderRow;
+                rowdtExportOrderRow.ItemArray = columnValuesArray;
+                this.Rows.Add(rowdtExportOrderRow);
+                return rowdtExportOrderRow;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ExportOrderRow FindById(long Id) {
-                return ((ExportOrderRow)(this.Rows.Find(new object[] {
+            public dtExportOrderRow FindById(long Id) {
+                return ((dtExportOrderRow)(this.Rows.Find(new object[] {
                             Id})));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public override global::System.Data.DataTable Clone() {
-                ExportOrderDataTable cln = ((ExportOrderDataTable)(base.Clone()));
+                dtExportOrderDataTable cln = ((dtExportOrderDataTable)(base.Clone()));
                 cln.InitVars();
                 return cln;
             }
@@ -682,7 +682,7 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             protected override global::System.Data.DataTable CreateInstance() {
-                return new ExportOrderDataTable();
+                return new dtExportOrderDataTable();
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -691,7 +691,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnId = base.Columns["Id"];
                 this.columnNum = base.Columns["Num"];
                 this.columnDated = base.Columns["Dated"];
-                this.columnVessel = base.Columns["Vessel"];
+                this.columnVesselName = base.Columns["VesselName"];
                 this.columnVoyage = base.Columns["Voyage"];
                 this.columnDateOfLoading = base.Columns["DateOfLoading"];
                 this.columnPOL = base.Columns["POL"];
@@ -711,8 +711,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnNum);
                 this.columnDated = new global::System.Data.DataColumn("Dated", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnDated);
-                this.columnVessel = new global::System.Data.DataColumn("Vessel", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnVessel);
+                this.columnVesselName = new global::System.Data.DataColumn("VesselName", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnVesselName);
                 this.columnVoyage = new global::System.Data.DataColumn("Voyage", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnVoyage);
                 this.columnDateOfLoading = new global::System.Data.DataColumn("DateOfLoading", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
@@ -737,28 +737,28 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ExportOrderRow NewExportOrderRow() {
-                return ((ExportOrderRow)(this.NewRow()));
+            public dtExportOrderRow NewdtExportOrderRow() {
+                return ((dtExportOrderRow)(this.NewRow()));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             protected override global::System.Data.DataRow NewRowFromBuilder(global::System.Data.DataRowBuilder builder) {
-                return new ExportOrderRow(builder);
+                return new dtExportOrderRow(builder);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             protected override global::System.Type GetRowType() {
-                return typeof(ExportOrderRow);
+                return typeof(dtExportOrderRow);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             protected override void OnRowChanged(global::System.Data.DataRowChangeEventArgs e) {
                 base.OnRowChanged(e);
-                if ((this.ExportOrderRowChanged != null)) {
-                    this.ExportOrderRowChanged(this, new ExportOrderRowChangeEvent(((ExportOrderRow)(e.Row)), e.Action));
+                if ((this.dtExportOrderRowChanged != null)) {
+                    this.dtExportOrderRowChanged(this, new dtExportOrderRowChangeEvent(((dtExportOrderRow)(e.Row)), e.Action));
                 }
             }
             
@@ -766,8 +766,8 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             protected override void OnRowChanging(global::System.Data.DataRowChangeEventArgs e) {
                 base.OnRowChanging(e);
-                if ((this.ExportOrderRowChanging != null)) {
-                    this.ExportOrderRowChanging(this, new ExportOrderRowChangeEvent(((ExportOrderRow)(e.Row)), e.Action));
+                if ((this.dtExportOrderRowChanging != null)) {
+                    this.dtExportOrderRowChanging(this, new dtExportOrderRowChangeEvent(((dtExportOrderRow)(e.Row)), e.Action));
                 }
             }
             
@@ -775,8 +775,8 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             protected override void OnRowDeleted(global::System.Data.DataRowChangeEventArgs e) {
                 base.OnRowDeleted(e);
-                if ((this.ExportOrderRowDeleted != null)) {
-                    this.ExportOrderRowDeleted(this, new ExportOrderRowChangeEvent(((ExportOrderRow)(e.Row)), e.Action));
+                if ((this.dtExportOrderRowDeleted != null)) {
+                    this.dtExportOrderRowDeleted(this, new dtExportOrderRowChangeEvent(((dtExportOrderRow)(e.Row)), e.Action));
                 }
             }
             
@@ -784,14 +784,14 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             protected override void OnRowDeleting(global::System.Data.DataRowChangeEventArgs e) {
                 base.OnRowDeleting(e);
-                if ((this.ExportOrderRowDeleting != null)) {
-                    this.ExportOrderRowDeleting(this, new ExportOrderRowChangeEvent(((ExportOrderRow)(e.Row)), e.Action));
+                if ((this.dtExportOrderRowDeleting != null)) {
+                    this.dtExportOrderRowDeleting(this, new dtExportOrderRowChangeEvent(((dtExportOrderRow)(e.Row)), e.Action));
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void RemoveExportOrderRow(ExportOrderRow row) {
+            public void RemovedtExportOrderRow(dtExportOrderRow row) {
                 this.Rows.Remove(row);
             }
             
@@ -818,7 +818,7 @@ namespace ExportOrderWebServer.DataSet {
                 type.Attributes.Add(attribute1);
                 global::System.Xml.Schema.XmlSchemaAttribute attribute2 = new global::System.Xml.Schema.XmlSchemaAttribute();
                 attribute2.Name = "tableTypeName";
-                attribute2.FixedValue = "ExportOrderDataTable";
+                attribute2.FixedValue = "dtExportOrderDataTable";
                 type.Attributes.Add(attribute2);
                 type.Particle = sequence;
                 global::System.Xml.Schema.XmlSchema dsSchema = ds.GetSchemaSerializable();
@@ -1848,7 +1848,7 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
         public partial class CommoditiesDataTable : global::System.Data.TypedTableBase<CommoditiesRow> {
             
-            private global::System.Data.DataColumn columnCommodity;
+            private global::System.Data.DataColumn columnCommodityName;
             
             private global::System.Data.DataColumn columnHScode;
             
@@ -1857,6 +1857,8 @@ namespace ExportOrderWebServer.DataSet {
             private global::System.Data.DataColumn columnUNNO;
             
             private global::System.Data.DataColumn columnIsIMO;
+            
+            private global::System.Data.DataColumn columnCommodity;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
@@ -1893,9 +1895,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn CommodityColumn {
+            public global::System.Data.DataColumn CommodityNameColumn {
                 get {
-                    return this.columnCommodity;
+                    return this.columnCommodityName;
                 }
             }
             
@@ -1928,6 +1930,14 @@ namespace ExportOrderWebServer.DataSet {
             public global::System.Data.DataColumn IsIMOColumn {
                 get {
                     return this.columnIsIMO;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn CommodityColumn {
+                get {
+                    return this.columnCommodity;
                 }
             }
             
@@ -1968,14 +1978,15 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public CommoditiesRow AddCommoditiesRow(string Commodity, string HScode, string IMO, string UNNO, bool IsIMO) {
+            public CommoditiesRow AddCommoditiesRow(string CommodityName, string HScode, string IMO, string UNNO, bool IsIMO, string Commodity) {
                 CommoditiesRow rowCommoditiesRow = ((CommoditiesRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
-                        Commodity,
+                        CommodityName,
                         HScode,
                         IMO,
                         UNNO,
-                        IsIMO};
+                        IsIMO,
+                        Commodity};
                 rowCommoditiesRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowCommoditiesRow);
                 return rowCommoditiesRow;
@@ -1998,18 +2009,19 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             internal void InitVars() {
-                this.columnCommodity = base.Columns["Commodity"];
+                this.columnCommodityName = base.Columns["CommodityName"];
                 this.columnHScode = base.Columns["HScode"];
                 this.columnIMO = base.Columns["IMO"];
                 this.columnUNNO = base.Columns["UNNO"];
                 this.columnIsIMO = base.Columns["IsIMO"];
+                this.columnCommodity = base.Columns["Commodity"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             private void InitClass() {
-                this.columnCommodity = new global::System.Data.DataColumn("Commodity", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnCommodity);
+                this.columnCommodityName = new global::System.Data.DataColumn("CommodityName", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnCommodityName);
                 this.columnHScode = new global::System.Data.DataColumn("HScode", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnHScode);
                 this.columnIMO = new global::System.Data.DataColumn("IMO", typeof(string), null, global::System.Data.MappingType.Element);
@@ -2018,6 +2030,9 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnUNNO);
                 this.columnIsIMO = new global::System.Data.DataColumn("IsIMO", typeof(bool), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnIsIMO);
+                this.columnCommodity = new global::System.Data.DataColumn("Commodity", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnCommodity);
+                this.columnCommodityName.Caption = "Commodity";
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -2464,25 +2479,25 @@ namespace ExportOrderWebServer.DataSet {
         /// <summary>
         ///Represents strongly named DataRow class.
         ///</summary>
-        public partial class ExportOrderRow : global::System.Data.DataRow {
+        public partial class dtExportOrderRow : global::System.Data.DataRow {
             
-            private ExportOrderDataTable tableExportOrder;
+            private dtExportOrderDataTable tabledtExportOrder;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            internal ExportOrderRow(global::System.Data.DataRowBuilder rb) : 
+            internal dtExportOrderRow(global::System.Data.DataRowBuilder rb) : 
                     base(rb) {
-                this.tableExportOrder = ((ExportOrderDataTable)(this.Table));
+                this.tabledtExportOrder = ((dtExportOrderDataTable)(this.Table));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public long Id {
                 get {
-                    return ((long)(this[this.tableExportOrder.IdColumn]));
+                    return ((long)(this[this.tabledtExportOrder.IdColumn]));
                 }
                 set {
-                    this[this.tableExportOrder.IdColumn] = value;
+                    this[this.tabledtExportOrder.IdColumn] = value;
                 }
             }
             
@@ -2491,14 +2506,14 @@ namespace ExportOrderWebServer.DataSet {
             public string Num {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.NumColumn]));
+                        return ((string)(this[this.tabledtExportOrder.NumColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Num\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Num\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.NumColumn] = value;
+                    this[this.tabledtExportOrder.NumColumn] = value;
                 }
             }
             
@@ -2507,30 +2522,30 @@ namespace ExportOrderWebServer.DataSet {
             public System.DateTime Dated {
                 get {
                     try {
-                        return ((global::System.DateTime)(this[this.tableExportOrder.DatedColumn]));
+                        return ((global::System.DateTime)(this[this.tabledtExportOrder.DatedColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Dated\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Dated\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.DatedColumn] = value;
+                    this[this.tabledtExportOrder.DatedColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string Vessel {
+            public string VesselName {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.VesselColumn]));
+                        return ((string)(this[this.tabledtExportOrder.VesselNameColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Vessel\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'VesselName\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.VesselColumn] = value;
+                    this[this.tabledtExportOrder.VesselNameColumn] = value;
                 }
             }
             
@@ -2539,14 +2554,14 @@ namespace ExportOrderWebServer.DataSet {
             public string Voyage {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.VoyageColumn]));
+                        return ((string)(this[this.tabledtExportOrder.VoyageColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Voyage\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Voyage\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.VoyageColumn] = value;
+                    this[this.tabledtExportOrder.VoyageColumn] = value;
                 }
             }
             
@@ -2555,14 +2570,14 @@ namespace ExportOrderWebServer.DataSet {
             public System.DateTime DateOfLoading {
                 get {
                     try {
-                        return ((global::System.DateTime)(this[this.tableExportOrder.DateOfLoadingColumn]));
+                        return ((global::System.DateTime)(this[this.tabledtExportOrder.DateOfLoadingColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'DateOfLoading\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'DateOfLoading\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.DateOfLoadingColumn] = value;
+                    this[this.tabledtExportOrder.DateOfLoadingColumn] = value;
                 }
             }
             
@@ -2571,14 +2586,14 @@ namespace ExportOrderWebServer.DataSet {
             public string POL {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.POLColumn]));
+                        return ((string)(this[this.tabledtExportOrder.POLColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'POL\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'POL\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.POLColumn] = value;
+                    this[this.tabledtExportOrder.POLColumn] = value;
                 }
             }
             
@@ -2587,14 +2602,14 @@ namespace ExportOrderWebServer.DataSet {
             public string POD {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.PODColumn]));
+                        return ((string)(this[this.tabledtExportOrder.PODColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'POD\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'POD\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.PODColumn] = value;
+                    this[this.tabledtExportOrder.PODColumn] = value;
                 }
             }
             
@@ -2603,14 +2618,14 @@ namespace ExportOrderWebServer.DataSet {
             public string Contract {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.ContractColumn]));
+                        return ((string)(this[this.tabledtExportOrder.ContractColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Contract\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Contract\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.ContractColumn] = value;
+                    this[this.tabledtExportOrder.ContractColumn] = value;
                 }
             }
             
@@ -2619,14 +2634,14 @@ namespace ExportOrderWebServer.DataSet {
             public string ContractDate {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.ContractDateColumn]));
+                        return ((string)(this[this.tabledtExportOrder.ContractDateColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'ContractDate\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'ContractDate\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.ContractDateColumn] = value;
+                    this[this.tabledtExportOrder.ContractDateColumn] = value;
                 }
             }
             
@@ -2635,14 +2650,14 @@ namespace ExportOrderWebServer.DataSet {
             public string MyCompanyName {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.MyCompanyNameColumn]));
+                        return ((string)(this[this.tabledtExportOrder.MyCompanyNameColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'MyCompanyName\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'MyCompanyName\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.MyCompanyNameColumn] = value;
+                    this[this.tabledtExportOrder.MyCompanyNameColumn] = value;
                 }
             }
             
@@ -2651,147 +2666,147 @@ namespace ExportOrderWebServer.DataSet {
             public string Person {
                 get {
                     try {
-                        return ((string)(this[this.tableExportOrder.PersonColumn]));
+                        return ((string)(this[this.tabledtExportOrder.PersonColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Person\' в таблице \'ExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Person\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableExportOrder.PersonColumn] = value;
+                    this[this.tabledtExportOrder.PersonColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsNumNull() {
-                return this.IsNull(this.tableExportOrder.NumColumn);
+                return this.IsNull(this.tabledtExportOrder.NumColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetNumNull() {
-                this[this.tableExportOrder.NumColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.NumColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsDatedNull() {
-                return this.IsNull(this.tableExportOrder.DatedColumn);
+                return this.IsNull(this.tabledtExportOrder.DatedColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetDatedNull() {
-                this[this.tableExportOrder.DatedColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.DatedColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsVesselNull() {
-                return this.IsNull(this.tableExportOrder.VesselColumn);
+            public bool IsVesselNameNull() {
+                return this.IsNull(this.tabledtExportOrder.VesselNameColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetVesselNull() {
-                this[this.tableExportOrder.VesselColumn] = global::System.Convert.DBNull;
+            public void SetVesselNameNull() {
+                this[this.tabledtExportOrder.VesselNameColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsVoyageNull() {
-                return this.IsNull(this.tableExportOrder.VoyageColumn);
+                return this.IsNull(this.tabledtExportOrder.VoyageColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetVoyageNull() {
-                this[this.tableExportOrder.VoyageColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.VoyageColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsDateOfLoadingNull() {
-                return this.IsNull(this.tableExportOrder.DateOfLoadingColumn);
+                return this.IsNull(this.tabledtExportOrder.DateOfLoadingColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetDateOfLoadingNull() {
-                this[this.tableExportOrder.DateOfLoadingColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.DateOfLoadingColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsPOLNull() {
-                return this.IsNull(this.tableExportOrder.POLColumn);
+                return this.IsNull(this.tabledtExportOrder.POLColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetPOLNull() {
-                this[this.tableExportOrder.POLColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.POLColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsPODNull() {
-                return this.IsNull(this.tableExportOrder.PODColumn);
+                return this.IsNull(this.tabledtExportOrder.PODColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetPODNull() {
-                this[this.tableExportOrder.PODColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.PODColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsContractNull() {
-                return this.IsNull(this.tableExportOrder.ContractColumn);
+                return this.IsNull(this.tabledtExportOrder.ContractColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetContractNull() {
-                this[this.tableExportOrder.ContractColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.ContractColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsContractDateNull() {
-                return this.IsNull(this.tableExportOrder.ContractDateColumn);
+                return this.IsNull(this.tabledtExportOrder.ContractDateColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetContractDateNull() {
-                this[this.tableExportOrder.ContractDateColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.ContractDateColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsMyCompanyNameNull() {
-                return this.IsNull(this.tableExportOrder.MyCompanyNameColumn);
+                return this.IsNull(this.tabledtExportOrder.MyCompanyNameColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetMyCompanyNameNull() {
-                this[this.tableExportOrder.MyCompanyNameColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.MyCompanyNameColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsPersonNull() {
-                return this.IsNull(this.tableExportOrder.PersonColumn);
+                return this.IsNull(this.tabledtExportOrder.PersonColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetPersonNull() {
-                this[this.tableExportOrder.PersonColumn] = global::System.Convert.DBNull;
+                this[this.tabledtExportOrder.PersonColumn] = global::System.Convert.DBNull;
             }
         }
         
@@ -3388,17 +3403,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string Commodity {
+            public string CommodityName {
                 get {
                     try {
-                        return ((string)(this[this.tableCommodities.CommodityColumn]));
+                        return ((string)(this[this.tableCommodities.CommodityNameColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Commodity\' в таблице \'Commodities\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'CommodityName\' в таблице \'Commodities\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableCommodities.CommodityColumn] = value;
+                    this[this.tableCommodities.CommodityNameColumn] = value;
                 }
             }
             
@@ -3468,14 +3483,30 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsCommodityNull() {
-                return this.IsNull(this.tableCommodities.CommodityColumn);
+            public string Commodity {
+                get {
+                    try {
+                        return ((string)(this[this.tableCommodities.CommodityColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Commodity\' в таблице \'Commodities\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableCommodities.CommodityColumn] = value;
+                }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetCommodityNull() {
-                this[this.tableCommodities.CommodityColumn] = global::System.Convert.DBNull;
+            public bool IsCommodityNameNull() {
+                return this.IsNull(this.tableCommodities.CommodityNameColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetCommodityNameNull() {
+                this[this.tableCommodities.CommodityNameColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -3524,6 +3555,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetIsIMONull() {
                 this[this.tableCommodities.IsIMOColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsCommodityNull() {
+                return this.IsNull(this.tableCommodities.CommodityColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetCommodityNull() {
+                this[this.tableCommodities.CommodityColumn] = global::System.Convert.DBNull;
             }
         }
         
@@ -3669,22 +3712,22 @@ namespace ExportOrderWebServer.DataSet {
         ///Row event argument class
         ///</summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        public class ExportOrderRowChangeEvent : global::System.EventArgs {
+        public class dtExportOrderRowChangeEvent : global::System.EventArgs {
             
-            private ExportOrderRow eventRow;
+            private dtExportOrderRow eventRow;
             
             private global::System.Data.DataRowAction eventAction;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ExportOrderRowChangeEvent(ExportOrderRow row, global::System.Data.DataRowAction action) {
+            public dtExportOrderRowChangeEvent(dtExportOrderRow row, global::System.Data.DataRowAction action) {
                 this.eventRow = row;
                 this.eventAction = action;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public ExportOrderRow Row {
+            public dtExportOrderRow Row {
                 get {
                     return this.eventRow;
                 }

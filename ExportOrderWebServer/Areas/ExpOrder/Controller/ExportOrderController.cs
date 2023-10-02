@@ -158,42 +158,66 @@ public class ExportOrderController : ControllerBase
 
 
             // список товаров
-            var CommodityRecords = Records.Select(r => new
-            {
-                r.CommodityEngName,
-                r.HSCode,
-                r.IsIMO,
-                r.IMO,
-                r.UNNO,
-                r.CntrType,
-                Measures = r.Volume > 0 ? "CUB. M" : "KG"
-            }).ToList();
+            //var CommodityRecords = Records.Select(r => new
+            //{
+            //    r.CommodityEngName,
+            //    r.HSCode,
+            //    //r.IsIMO,
+            //    r.IMO,
+            //    r.UNNO,
+            //    //r.CntrType,
+            //    //Measures = r.Volume > 0 ? "CUB. M" : "KG"
+            //}).ToList();
 
-            var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName, c.CntrType })
-                                                  .Select(g => new
-                                                  {
-                                                      Commodity = g.Key.CommodityEngName,
-                                                      g.Key.CntrType,
+            var CommoditiesGroup = Records.GroupBy(c => c.CommodityEngName)
+                                                    .Select(g => new
+                                                    {
+                                                        Commodity = string.Join(" ",                                                    
+                                                            g.FirstOrDefault()!.CommodityEngName,
+                                                            g.FirstOrDefault()!.IMO,
+                                                            g.FirstOrDefault()!.UNNO).Trim(),
+                                                    }).ToList();
 
-                                                      g.FirstOrDefault()!.HSCode,
-                                                      g.FirstOrDefault()!.IsIMO,
-                                                      g.FirstOrDefault()!.IMO,
-                                                      g.FirstOrDefault()!.UNNO,
-                                                      g.FirstOrDefault()!.Measures,
+            var CntrTypesGroup = Records.GroupBy(r => r.CntrType)
+                                        .Select(g => new
+                                        {
+                                            CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key),
+                                        }).ToList();
 
-                                                      CntrTypesCount = g.ToList().Count,
 
-                                                      CommodityAggregated = string.Join(" ", g.ToList().Count,
-                                                                                             "*",
-                                                                                             g.FirstOrDefault()!.CntrType,
-                                                                                             g.FirstOrDefault()!.CommodityEngName,
-                                                                                             g.FirstOrDefault()!.IMO,
-                                                                                             g.FirstOrDefault()!.UNNO).Trim(),
-                                                  }).ToList();
+            //var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName, c.CntrType })
+            //                                      .Select(g => new
+            //                                      {
+            //                                          Commodity = g.Key.CommodityEngName,
+            //                                          g.Key.CntrType,
+
+            //                                          g.FirstOrDefault()!.HSCode,
+            //                                          g.FirstOrDefault()!.IsIMO,
+            //                                          g.FirstOrDefault()!.IMO,
+            //                                          g.FirstOrDefault()!.UNNO,
+            //                                          g.FirstOrDefault()!.Measures,
+
+            //                                          CntrTypesCount = g.ToList().Count,
+
+            //                                          CommodityAggregated = string.Join(" ", g.ToList().Count,
+            //                                                                                 "*",
+            //                                                                                 g.FirstOrDefault()!.CntrType,
+            //                                                                                 g.FirstOrDefault()!.CommodityEngName,
+            //                                                                                 g.FirstOrDefault()!.IMO,
+            //                                                                                 g.FirstOrDefault()!.UNNO).Trim(),
+            //                                      }).ToList();
 
             string Commodities = "";
             foreach (var item in CommoditiesGroup)
-                Commodities = sb.Append(item.CommodityAggregated + "\n").ToString();
+                Commodities = sb.Append(item.Commodity + "\n").ToString();
+
+            sb.Clear();
+
+            string CntrTypes = "";
+            foreach(var item in CntrTypesGroup)
+                CntrTypes = sb.Append(item.CntrTypes + "\n").ToString();
+
+            sb.Clear();
 
             // общие данные
             var dsItem = Items.Select(x => new
@@ -208,11 +232,12 @@ public class ExportOrderController : ControllerBase
                 Shippers,
                 Consignees,
                 NotifyParties,
+                CntrTypes,
                 Commodities,
                 x.TotalCntrCount,
                 x.TotalGrossWeight,
                 x.TotalTareWeight,
-                Measures = CommodityRecords.FirstOrDefault()!.Measures
+                x.Measurement
             }).ToList();
 
             // список контейнеров

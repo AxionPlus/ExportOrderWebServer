@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using static MudBlazor.CategoryTypes;
 
 
@@ -83,6 +84,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
                                                 PODEn = source.VesselCall.POD.NameEn + ", " + source.VesselCall.POD.Country.ENG,
                                                 PODAgent = source.VesselCall.PODAgent,
+                                                Measurement = source.Records.FirstOrDefault()!.Contents.FirstOrDefault()!.Volume > 0 ? "CBM" : "KG",
                                                 TotalCntrCount = source.Records.Count,
                                                 TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
                                                 TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),

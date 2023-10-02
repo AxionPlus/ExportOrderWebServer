@@ -26,8 +26,6 @@ namespace ExportOrderWebServer.DataSet {
         
         private dtBLDataTable tabledtBL;
         
-        private CommoditiesDataTable tableCommodities;
-        
         private CntrRecordsDataTable tableCntrRecords;
         
         private global::System.Data.SchemaSerializationMode _schemaSerializationMode = global::System.Data.SchemaSerializationMode.IncludeSchema;
@@ -61,9 +59,6 @@ namespace ExportOrderWebServer.DataSet {
                 if ((ds.Tables["dtBL"] != null)) {
                     base.Tables.Add(new dtBLDataTable(ds.Tables["dtBL"]));
                 }
-                if ((ds.Tables["Commodities"] != null)) {
-                    base.Tables.Add(new CommoditiesDataTable(ds.Tables["Commodities"]));
-                }
                 if ((ds.Tables["CntrRecords"] != null)) {
                     base.Tables.Add(new CntrRecordsDataTable(ds.Tables["CntrRecords"]));
                 }
@@ -92,16 +87,6 @@ namespace ExportOrderWebServer.DataSet {
         public dtBLDataTable dtBL {
             get {
                 return this.tabledtBL;
-            }
-        }
-        
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        [global::System.ComponentModel.Browsable(false)]
-        [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
-        public CommoditiesDataTable Commodities {
-            get {
-                return this.tableCommodities;
             }
         }
         
@@ -185,9 +170,6 @@ namespace ExportOrderWebServer.DataSet {
                 if ((ds.Tables["dtBL"] != null)) {
                     base.Tables.Add(new dtBLDataTable(ds.Tables["dtBL"]));
                 }
-                if ((ds.Tables["Commodities"] != null)) {
-                    base.Tables.Add(new CommoditiesDataTable(ds.Tables["Commodities"]));
-                }
                 if ((ds.Tables["CntrRecords"] != null)) {
                     base.Tables.Add(new CntrRecordsDataTable(ds.Tables["CntrRecords"]));
                 }
@@ -230,12 +212,6 @@ namespace ExportOrderWebServer.DataSet {
                     this.tabledtBL.InitVars();
                 }
             }
-            this.tableCommodities = ((CommoditiesDataTable)(base.Tables["Commodities"]));
-            if ((initTable == true)) {
-                if ((this.tableCommodities != null)) {
-                    this.tableCommodities.InitVars();
-                }
-            }
             this.tableCntrRecords = ((CntrRecordsDataTable)(base.Tables["CntrRecords"]));
             if ((initTable == true)) {
                 if ((this.tableCntrRecords != null)) {
@@ -254,8 +230,6 @@ namespace ExportOrderWebServer.DataSet {
             this.SchemaSerializationMode = global::System.Data.SchemaSerializationMode.IncludeSchema;
             this.tabledtBL = new dtBLDataTable();
             base.Tables.Add(this.tabledtBL);
-            this.tableCommodities = new CommoditiesDataTable();
-            base.Tables.Add(this.tableCommodities);
             this.tableCntrRecords = new CntrRecordsDataTable();
             base.Tables.Add(this.tableCntrRecords);
         }
@@ -263,12 +237,6 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         private bool ShouldSerializedtBL() {
-            return false;
-        }
-        
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        private bool ShouldSerializeCommodities() {
             return false;
         }
         
@@ -337,9 +305,6 @@ namespace ExportOrderWebServer.DataSet {
         public delegate void dtBLRowChangeEventHandler(object sender, dtBLRowChangeEvent e);
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        public delegate void CommoditiesRowChangeEventHandler(object sender, CommoditiesRowChangeEvent e);
-        
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         public delegate void CntrRecordsRowChangeEventHandler(object sender, CntrRecordsRowChangeEvent e);
         
         /// <summary>
@@ -369,6 +334,8 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnNotifyParties;
             
+            private global::System.Data.DataColumn columnCntrTypes;
+            
             private global::System.Data.DataColumn columnCommodities;
             
             private global::System.Data.DataColumn columnTotalCntrCount;
@@ -377,7 +344,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnTotalTareWeight;
             
-            private global::System.Data.DataColumn columnMeasures;
+            private global::System.Data.DataColumn columnMeasurement;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
@@ -494,6 +461,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn CntrTypesColumn {
+                get {
+                    return this.columnCntrTypes;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public global::System.Data.DataColumn CommoditiesColumn {
                 get {
                     return this.columnCommodities;
@@ -526,9 +501,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn MeasuresColumn {
+            public global::System.Data.DataColumn MeasurementColumn {
                 get {
-                    return this.columnMeasures;
+                    return this.columnMeasurement;
                 }
             }
             
@@ -569,7 +544,23 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public dtBLRow AdddtBLRow(string Num, string POLAgent, string PODAgent, string Vessel, string Voyage, string POLEn, string PODEn, string Shippers, string Consignees, string NotifyParties, string Commodities, int TotalCntrCount, double TotalGrossWeight, double TotalTareWeight, string Measures) {
+            public dtBLRow AdddtBLRow(
+                        string Num, 
+                        string POLAgent, 
+                        string PODAgent, 
+                        string Vessel, 
+                        string Voyage, 
+                        string POLEn, 
+                        string PODEn, 
+                        string Shippers, 
+                        string Consignees, 
+                        string NotifyParties, 
+                        string CntrTypes, 
+                        string Commodities, 
+                        int TotalCntrCount, 
+                        double TotalGrossWeight, 
+                        double TotalTareWeight, 
+                        string Measurement) {
                 dtBLRow rowdtBLRow = ((dtBLRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Num,
@@ -582,11 +573,12 @@ namespace ExportOrderWebServer.DataSet {
                         Shippers,
                         Consignees,
                         NotifyParties,
+                        CntrTypes,
                         Commodities,
                         TotalCntrCount,
                         TotalGrossWeight,
                         TotalTareWeight,
-                        Measures};
+                        Measurement};
                 rowdtBLRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowdtBLRow);
                 return rowdtBLRow;
@@ -619,11 +611,12 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnShippers = base.Columns["Shippers"];
                 this.columnConsignees = base.Columns["Consignees"];
                 this.columnNotifyParties = base.Columns["NotifyParties"];
+                this.columnCntrTypes = base.Columns["CntrTypes"];
                 this.columnCommodities = base.Columns["Commodities"];
                 this.columnTotalCntrCount = base.Columns["TotalCntrCount"];
                 this.columnTotalGrossWeight = base.Columns["TotalGrossWeight"];
                 this.columnTotalTareWeight = base.Columns["TotalTareWeight"];
-                this.columnMeasures = base.Columns["Measures"];
+                this.columnMeasurement = base.Columns["Measurement"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -649,6 +642,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnConsignees);
                 this.columnNotifyParties = new global::System.Data.DataColumn("NotifyParties", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnNotifyParties);
+                this.columnCntrTypes = new global::System.Data.DataColumn("CntrTypes", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnCntrTypes);
                 this.columnCommodities = new global::System.Data.DataColumn("Commodities", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnCommodities);
                 this.columnTotalCntrCount = new global::System.Data.DataColumn("TotalCntrCount", typeof(int), null, global::System.Data.MappingType.Element);
@@ -657,8 +652,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnTotalGrossWeight);
                 this.columnTotalTareWeight = new global::System.Data.DataColumn("TotalTareWeight", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTotalTareWeight);
-                this.columnMeasures = new global::System.Data.DataColumn("Measures", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnMeasures);
+                this.columnMeasurement = new global::System.Data.DataColumn("Measurement", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnMeasurement);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -745,351 +740,6 @@ namespace ExportOrderWebServer.DataSet {
                 global::System.Xml.Schema.XmlSchemaAttribute attribute2 = new global::System.Xml.Schema.XmlSchemaAttribute();
                 attribute2.Name = "tableTypeName";
                 attribute2.FixedValue = "dtBLDataTable";
-                type.Attributes.Add(attribute2);
-                type.Particle = sequence;
-                global::System.Xml.Schema.XmlSchema dsSchema = ds.GetSchemaSerializable();
-                if (xs.Contains(dsSchema.TargetNamespace)) {
-                    global::System.IO.MemoryStream s1 = new global::System.IO.MemoryStream();
-                    global::System.IO.MemoryStream s2 = new global::System.IO.MemoryStream();
-                    try {
-                        global::System.Xml.Schema.XmlSchema schema = null;
-                        dsSchema.Write(s1);
-                        for (global::System.Collections.IEnumerator schemas = xs.Schemas(dsSchema.TargetNamespace).GetEnumerator(); schemas.MoveNext(); ) {
-                            schema = ((global::System.Xml.Schema.XmlSchema)(schemas.Current));
-                            s2.SetLength(0);
-                            schema.Write(s2);
-                            if ((s1.Length == s2.Length)) {
-                                s1.Position = 0;
-                                s2.Position = 0;
-                                for (; ((s1.Position != s1.Length) 
-                                            && (s1.ReadByte() == s2.ReadByte())); ) {
-                                    ;
-                                }
-                                if ((s1.Position == s1.Length)) {
-                                    return type;
-                                }
-                            }
-                        }
-                    }
-                    finally {
-                        if ((s1 != null)) {
-                            s1.Close();
-                        }
-                        if ((s2 != null)) {
-                            s2.Close();
-                        }
-                    }
-                }
-                xs.Add(dsSchema);
-                return type;
-            }
-        }
-        
-        /// <summary>
-        ///Represents the strongly named DataTable class.
-        ///</summary>
-        [global::System.Serializable()]
-        [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
-        public partial class CommoditiesDataTable : global::System.Data.TypedTableBase<CommoditiesRow> {
-            
-            private global::System.Data.DataColumn columnCommodity;
-            
-            private global::System.Data.DataColumn columnHSCode;
-            
-            private global::System.Data.DataColumn columnIsIMO;
-            
-            private global::System.Data.DataColumn columnIMO;
-            
-            private global::System.Data.DataColumn columnUNNO;
-            
-            private global::System.Data.DataColumn columnCntrType;
-            
-            private global::System.Data.DataColumn columnCntrTypesCount;
-            
-            private global::System.Data.DataColumn columnMeasures;
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public CommoditiesDataTable() {
-                this.TableName = "Commodities";
-                this.BeginInit();
-                this.InitClass();
-                this.EndInit();
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            internal CommoditiesDataTable(global::System.Data.DataTable table) {
-                this.TableName = table.TableName;
-                if ((table.CaseSensitive != table.DataSet.CaseSensitive)) {
-                    this.CaseSensitive = table.CaseSensitive;
-                }
-                if ((table.Locale.ToString() != table.DataSet.Locale.ToString())) {
-                    this.Locale = table.Locale;
-                }
-                if ((table.Namespace != table.DataSet.Namespace)) {
-                    this.Namespace = table.Namespace;
-                }
-                this.Prefix = table.Prefix;
-                this.MinimumCapacity = table.MinimumCapacity;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected CommoditiesDataTable(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
-                    base(info, context) {
-                this.InitVars();
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn CommodityColumn {
-                get {
-                    return this.columnCommodity;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn HSCodeColumn {
-                get {
-                    return this.columnHSCode;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn IsIMOColumn {
-                get {
-                    return this.columnIsIMO;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn IMOColumn {
-                get {
-                    return this.columnIMO;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn UNNOColumn {
-                get {
-                    return this.columnUNNO;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn CntrTypeColumn {
-                get {
-                    return this.columnCntrType;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn CntrTypesCountColumn {
-                get {
-                    return this.columnCntrTypesCount;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn MeasuresColumn {
-                get {
-                    return this.columnMeasures;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            [global::System.ComponentModel.Browsable(false)]
-            public int Count {
-                get {
-                    return this.Rows.Count;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public CommoditiesRow this[int index] {
-                get {
-                    return ((CommoditiesRow)(this.Rows[index]));
-                }
-            }
-            
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public event CommoditiesRowChangeEventHandler CommoditiesRowChanging;
-            
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public event CommoditiesRowChangeEventHandler CommoditiesRowChanged;
-            
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public event CommoditiesRowChangeEventHandler CommoditiesRowDeleting;
-            
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public event CommoditiesRowChangeEventHandler CommoditiesRowDeleted;
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void AddCommoditiesRow(CommoditiesRow row) {
-                this.Rows.Add(row);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public CommoditiesRow AddCommoditiesRow(string Commodity, string HSCode, bool IsIMO, string IMO, string UNNO, string CntrType, int CntrTypesCount, string Measures) {
-                CommoditiesRow rowCommoditiesRow = ((CommoditiesRow)(this.NewRow()));
-                object[] columnValuesArray = new object[] {
-                        Commodity,
-                        HSCode,
-                        IsIMO,
-                        IMO,
-                        UNNO,
-                        CntrType,
-                        CntrTypesCount,
-                        Measures};
-                rowCommoditiesRow.ItemArray = columnValuesArray;
-                this.Rows.Add(rowCommoditiesRow);
-                return rowCommoditiesRow;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public override global::System.Data.DataTable Clone() {
-                CommoditiesDataTable cln = ((CommoditiesDataTable)(base.Clone()));
-                cln.InitVars();
-                return cln;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected override global::System.Data.DataTable CreateInstance() {
-                return new CommoditiesDataTable();
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            internal void InitVars() {
-                this.columnCommodity = base.Columns["Commodity"];
-                this.columnHSCode = base.Columns["HSCode"];
-                this.columnIsIMO = base.Columns["IsIMO"];
-                this.columnIMO = base.Columns["IMO"];
-                this.columnUNNO = base.Columns["UNNO"];
-                this.columnCntrType = base.Columns["CntrType"];
-                this.columnCntrTypesCount = base.Columns["CntrTypesCount"];
-                this.columnMeasures = base.Columns["Measures"];
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            private void InitClass() {
-                this.columnCommodity = new global::System.Data.DataColumn("Commodity", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnCommodity);
-                this.columnHSCode = new global::System.Data.DataColumn("HSCode", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnHSCode);
-                this.columnIsIMO = new global::System.Data.DataColumn("IsIMO", typeof(bool), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnIsIMO);
-                this.columnIMO = new global::System.Data.DataColumn("IMO", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnIMO);
-                this.columnUNNO = new global::System.Data.DataColumn("UNNO", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnUNNO);
-                this.columnCntrType = new global::System.Data.DataColumn("CntrType", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnCntrType);
-                this.columnCntrTypesCount = new global::System.Data.DataColumn("CntrTypesCount", typeof(int), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnCntrTypesCount);
-                this.columnMeasures = new global::System.Data.DataColumn("Measures", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnMeasures);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public CommoditiesRow NewCommoditiesRow() {
-                return ((CommoditiesRow)(this.NewRow()));
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected override global::System.Data.DataRow NewRowFromBuilder(global::System.Data.DataRowBuilder builder) {
-                return new CommoditiesRow(builder);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected override global::System.Type GetRowType() {
-                return typeof(CommoditiesRow);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected override void OnRowChanged(global::System.Data.DataRowChangeEventArgs e) {
-                base.OnRowChanged(e);
-                if ((this.CommoditiesRowChanged != null)) {
-                    this.CommoditiesRowChanged(this, new CommoditiesRowChangeEvent(((CommoditiesRow)(e.Row)), e.Action));
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected override void OnRowChanging(global::System.Data.DataRowChangeEventArgs e) {
-                base.OnRowChanging(e);
-                if ((this.CommoditiesRowChanging != null)) {
-                    this.CommoditiesRowChanging(this, new CommoditiesRowChangeEvent(((CommoditiesRow)(e.Row)), e.Action));
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected override void OnRowDeleted(global::System.Data.DataRowChangeEventArgs e) {
-                base.OnRowDeleted(e);
-                if ((this.CommoditiesRowDeleted != null)) {
-                    this.CommoditiesRowDeleted(this, new CommoditiesRowChangeEvent(((CommoditiesRow)(e.Row)), e.Action));
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            protected override void OnRowDeleting(global::System.Data.DataRowChangeEventArgs e) {
-                base.OnRowDeleting(e);
-                if ((this.CommoditiesRowDeleting != null)) {
-                    this.CommoditiesRowDeleting(this, new CommoditiesRowChangeEvent(((CommoditiesRow)(e.Row)), e.Action));
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void RemoveCommoditiesRow(CommoditiesRow row) {
-                this.Rows.Remove(row);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
-                global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
-                global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
-                BillOfLading ds = new BillOfLading();
-                global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
-                any1.Namespace = "http://www.w3.org/2001/XMLSchema";
-                any1.MinOccurs = new decimal(0);
-                any1.MaxOccurs = decimal.MaxValue;
-                any1.ProcessContents = global::System.Xml.Schema.XmlSchemaContentProcessing.Lax;
-                sequence.Items.Add(any1);
-                global::System.Xml.Schema.XmlSchemaAny any2 = new global::System.Xml.Schema.XmlSchemaAny();
-                any2.Namespace = "urn:schemas-microsoft-com:xml-diffgram-v1";
-                any2.MinOccurs = new decimal(1);
-                any2.ProcessContents = global::System.Xml.Schema.XmlSchemaContentProcessing.Lax;
-                sequence.Items.Add(any2);
-                global::System.Xml.Schema.XmlSchemaAttribute attribute1 = new global::System.Xml.Schema.XmlSchemaAttribute();
-                attribute1.Name = "namespace";
-                attribute1.FixedValue = ds.Namespace;
-                type.Attributes.Add(attribute1);
-                global::System.Xml.Schema.XmlSchemaAttribute attribute2 = new global::System.Xml.Schema.XmlSchemaAttribute();
-                attribute2.Name = "tableTypeName";
-                attribute2.FixedValue = "CommoditiesDataTable";
                 type.Attributes.Add(attribute2);
                 type.Particle = sequence;
                 global::System.Xml.Schema.XmlSchema dsSchema = ds.GetSchemaSerializable();
@@ -1665,6 +1315,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public string CntrTypes {
+                get {
+                    try {
+                        return ((string)(this[this.tabledtBL.CntrTypesColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'CntrTypes\' в таблице \'dtBL\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtBL.CntrTypesColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string Commodities {
                 get {
                     try {
@@ -1729,17 +1395,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string Measures {
+            public string Measurement {
                 get {
                     try {
-                        return ((string)(this[this.tabledtBL.MeasuresColumn]));
+                        return ((string)(this[this.tabledtBL.MeasurementColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Measures\' в таблице \'dtBL\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Measurement\' в таблице \'dtBL\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tabledtBL.MeasuresColumn] = value;
+                    this[this.tabledtBL.MeasurementColumn] = value;
                 }
             }
             
@@ -1865,6 +1531,18 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsCntrTypesNull() {
+                return this.IsNull(this.tabledtBL.CntrTypesColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetCntrTypesNull() {
+                this[this.tabledtBL.CntrTypesColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsCommoditiesNull() {
                 return this.IsNull(this.tabledtBL.CommoditiesColumn);
             }
@@ -1913,253 +1591,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsMeasuresNull() {
-                return this.IsNull(this.tabledtBL.MeasuresColumn);
+            public bool IsMeasurementNull() {
+                return this.IsNull(this.tabledtBL.MeasurementColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetMeasuresNull() {
-                this[this.tabledtBL.MeasuresColumn] = global::System.Convert.DBNull;
-            }
-        }
-        
-        /// <summary>
-        ///Represents strongly named DataRow class.
-        ///</summary>
-        public partial class CommoditiesRow : global::System.Data.DataRow {
-            
-            private CommoditiesDataTable tableCommodities;
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            internal CommoditiesRow(global::System.Data.DataRowBuilder rb) : 
-                    base(rb) {
-                this.tableCommodities = ((CommoditiesDataTable)(this.Table));
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string Commodity {
-                get {
-                    try {
-                        return ((string)(this[this.tableCommodities.CommodityColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Commodity\' в таблице \'Commodities\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableCommodities.CommodityColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string HSCode {
-                get {
-                    try {
-                        return ((string)(this[this.tableCommodities.HSCodeColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'HSCode\' в таблице \'Commodities\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableCommodities.HSCodeColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsIMO {
-                get {
-                    try {
-                        return ((bool)(this[this.tableCommodities.IsIMOColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'IsIMO\' в таблице \'Commodities\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableCommodities.IsIMOColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string IMO {
-                get {
-                    try {
-                        return ((string)(this[this.tableCommodities.IMOColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'IMO\' в таблице \'Commodities\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableCommodities.IMOColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string UNNO {
-                get {
-                    try {
-                        return ((string)(this[this.tableCommodities.UNNOColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'UNNO\' в таблице \'Commodities\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableCommodities.UNNOColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string CntrType {
-                get {
-                    try {
-                        return ((string)(this[this.tableCommodities.CntrTypeColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'CntrType\' в таблице \'Commodities\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableCommodities.CntrTypeColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public int CntrTypesCount {
-                get {
-                    try {
-                        return ((int)(this[this.tableCommodities.CntrTypesCountColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'CntrTypesCount\' в таблице \'Commodities\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableCommodities.CntrTypesCountColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string Measures {
-                get {
-                    try {
-                        return ((string)(this[this.tableCommodities.MeasuresColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Measures\' в таблице \'Commodities\' равно DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableCommodities.MeasuresColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsCommodityNull() {
-                return this.IsNull(this.tableCommodities.CommodityColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetCommodityNull() {
-                this[this.tableCommodities.CommodityColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsHSCodeNull() {
-                return this.IsNull(this.tableCommodities.HSCodeColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetHSCodeNull() {
-                this[this.tableCommodities.HSCodeColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsIsIMONull() {
-                return this.IsNull(this.tableCommodities.IsIMOColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetIsIMONull() {
-                this[this.tableCommodities.IsIMOColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsIMONull() {
-                return this.IsNull(this.tableCommodities.IMOColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetIMONull() {
-                this[this.tableCommodities.IMOColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsUNNONull() {
-                return this.IsNull(this.tableCommodities.UNNOColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetUNNONull() {
-                this[this.tableCommodities.UNNOColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsCntrTypeNull() {
-                return this.IsNull(this.tableCommodities.CntrTypeColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetCntrTypeNull() {
-                this[this.tableCommodities.CntrTypeColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsCntrTypesCountNull() {
-                return this.IsNull(this.tableCommodities.CntrTypesCountColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetCntrTypesCountNull() {
-                this[this.tableCommodities.CntrTypesCountColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsMeasuresNull() {
-                return this.IsNull(this.tableCommodities.MeasuresColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetMeasuresNull() {
-                this[this.tableCommodities.MeasuresColumn] = global::System.Convert.DBNull;
+            public void SetMeasurementNull() {
+                this[this.tabledtBL.MeasurementColumn] = global::System.Convert.DBNull;
             }
         }
         
@@ -2450,40 +1889,6 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public dtBLRow Row {
-                get {
-                    return this.eventRow;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataRowAction Action {
-                get {
-                    return this.eventAction;
-                }
-            }
-        }
-        
-        /// <summary>
-        ///Row event argument class
-        ///</summary>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-        public class CommoditiesRowChangeEvent : global::System.EventArgs {
-            
-            private CommoditiesRow eventRow;
-            
-            private global::System.Data.DataRowAction eventAction;
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public CommoditiesRowChangeEvent(CommoditiesRow row, global::System.Data.DataRowAction action) {
-                this.eventRow = row;
-                this.eventAction = action;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public CommoditiesRow Row {
                 get {
                     return this.eventRow;
                 }

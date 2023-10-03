@@ -165,8 +165,10 @@
 
     private async Task RemoveItem_Click(CommodityCatalog item)
     {
-         // if (item is not null)
-         //     Items?.Remove(item);
+        // if (item is not null)
+        //     Items?.Remove(item);
+
+        return;
 
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",

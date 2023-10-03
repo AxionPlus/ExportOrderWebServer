@@ -25,7 +25,7 @@
         }
 
         .GoodWeight * .mud-input.mud-input-outlined {
-            width: 100px;
+            width: 130px;
         }
 
     .IMOWeight {
@@ -40,9 +40,6 @@
         .IMOWeight * .mud-input.mud-input-outlined {
             width: 70px;
         }
-
-    
-
         
     .mud-input-control.wrapper-input.NoHeader {
         margin-top: 1px;
@@ -246,18 +243,6 @@
     public bool IsNewItem {get; set; }
 
 
-    private async Task<IEnumerable<string>> ShipperSearch(string value, CancellationToken token)
-    {
-        //var result = await HttpClient.GetFromJsonAsync<IEnumerable<string>>($"webapi/AmericanStates/searchWithDelay/{value ?? string.Empty}", token);
-        return null!;
-
-    }
-    private async Task<IEnumerable<string>> ConsigneeSearch(string value, CancellationToken token)
-    {
-        // var result = await HttpClient.GetFromJsonAsync<IEnumerable<string>>($"webapi/AmericanStates/searchWithDelay/{value ?? string.Empty}", token);
-        return null!;
-    }
-
     private async Task GetCustomer_Click(string _documentCustomer)
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
@@ -277,14 +262,14 @@
                 case "Shipper":
                     Value!.Shipper!.Name = customer.Name;
                     Value.Shipper!.NameEn = customer.NameEn;
-                    Value.Shipper!.CountryRUS = customer.Country.RUS;
+                    Value.Shipper!.CountryRUS = customer.Country!.RUS;
                     Value.Shipper!.CountryENG = customer.Country.ENG;
                     break;
 
                 case "Consignee":                    
                     Value!.Consignee!.Name = customer.Name;
                     Value.Consignee!.NameEn = customer.NameEn;
-                    Value.Consignee!.CountryRUS = customer.Country.RUS;
+                    Value.Consignee!.CountryRUS = customer.Country!.RUS;
                     Value.Consignee!.CountryENG = customer.Country.ENG;
                     break;
             }

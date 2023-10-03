@@ -93,15 +93,17 @@ public class CarrierProvider : ICarrierProvider
             }
 
             item.CreateUser = User!;
-            db.Entry(item).State = EntityState.Added;
+         
 
-            foreach (var record in item.CarrierDetails)
+            foreach (var record in item.CarrierDetails)                  
                 db.Entry(record).State = EntityState.Added;
-
+            
+            db.Entry(item).State = EntityState.Added;
+            
             var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
-
+          
             return appObjResponse;
         }
     }

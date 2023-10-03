@@ -164,6 +164,7 @@
                 {
                     Snackbar.Add("Saved successfully", Severity.Success);
                     IsNewItem = false;
+                    Id = Item!.Id;
                 }
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
@@ -180,6 +181,7 @@
                 //     Snackbar.Add(response.Error.Last(), Severity.Error);
             }
 
+            await GetItem();
             await InvokeAsync(StateHasChanged);
         }
     }

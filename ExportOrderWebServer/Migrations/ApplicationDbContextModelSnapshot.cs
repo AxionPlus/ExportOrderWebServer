@@ -17,7 +17,7 @@ namespace ExportOrderWebServer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.9")
+                .HasAnnotation("ProductVersion", "7.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -235,15 +235,12 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("NameEn")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("UnLocode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -492,10 +489,10 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<long>("ExportOrderRecordId")
                         .HasColumnType("bigint");
 
-                    b.Property<double>("GrossWt")
+                    b.Property<double?>("GrossWt")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("NetWt")
+                    b.Property<double?>("NetWt")
                         .HasColumnType("double precision");
 
                     b.Property<string>("PackageName")

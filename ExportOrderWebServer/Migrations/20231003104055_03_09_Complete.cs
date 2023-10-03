@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     /// <inheritdoc />
-    public partial class _20_09_MyCompany_add : Migration
+    public partial class _03_09_Complete : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -190,6 +190,7 @@ namespace ExportOrderWebServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: true),
                     NameEn = table.Column<string>(type: "text", nullable: true),
+                    BlTemplate = table.Column<int>(type: "integer", nullable: false),
                     CreateUserId = table.Column<string>(type: "text", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
@@ -210,7 +211,7 @@ namespace ExportOrderWebServer.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    EngName = table.Column<string>(type: "text", nullable: false),
+                    NameEn = table.Column<string>(type: "text", nullable: false),
                     HSCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     IMO = table.Column<string>(type: "text", nullable: true),
                     UNNO = table.Column<string>(type: "text", nullable: true),
@@ -303,8 +304,9 @@ namespace ExportOrderWebServer.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TerminalName = table.Column<string>(type: "text", nullable: false),
-                    Contract = table.Column<string>(type: "text", nullable: false),
+                    Contract = table.Column<string>(type: "text", nullable: true),
                     DateContract = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    POLAgent = table.Column<string>(type: "text", nullable: true),
                     CarrierId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -324,9 +326,9 @@ namespace ExportOrderWebServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    EngName = table.Column<string>(type: "text", nullable: false),
-                    CountryId = table.Column<long>(type: "bigint", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    NameEn = table.Column<string>(type: "text", nullable: true),
+                    CountryId = table.Column<long>(type: "bigint", nullable: true),
                     CreateUserId = table.Column<string>(type: "text", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
@@ -342,8 +344,7 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_Customers_Countries_CountryId",
                         column: x => x.CountryId,
                         principalTable: "Countries",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -352,8 +353,9 @@ namespace ExportOrderWebServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    UnLocode = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    NameEn = table.Column<string>(type: "text", nullable: true),
+                    UnLocode = table.Column<string>(type: "text", nullable: true),
                     CountryId = table.Column<long>(type: "bigint", nullable: false),
                     CreateUserId = table.Column<string>(type: "text", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
@@ -383,7 +385,7 @@ namespace ExportOrderWebServer.Migrations
                     IMO = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
                     Name = table.Column<string>(type: "text", nullable: true),
                     TerminalId = table.Column<string>(type: "text", nullable: true),
-                    FlagId = table.Column<long>(type: "bigint", nullable: false),
+                    FlagId = table.Column<long>(type: "bigint", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     CreateUserId = table.Column<string>(type: "text", nullable: false),
@@ -402,8 +404,7 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_Vessels_Countries_FlagId",
                         column: x => x.FlagId,
                         principalTable: "Countries",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -415,7 +416,7 @@ namespace ExportOrderWebServer.Migrations
                     Seq = table.Column<int>(type: "integer", nullable: false),
                     CommodityName = table.Column<string>(type: "text", nullable: false),
                     CommodityEngName = table.Column<string>(type: "text", nullable: false),
-                    CommodityHSCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    CommodityHSCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
                     IMO = table.Column<string>(type: "text", nullable: true),
                     UNNO = table.Column<string>(type: "text", nullable: true),
                     IsIMO = table.Column<bool>(type: "boolean", nullable: false),
@@ -472,6 +473,7 @@ namespace ExportOrderWebServer.Migrations
                     VoyageTerminal = table.Column<string>(type: "text", nullable: false),
                     LoadingTerminalId = table.Column<long>(type: "bigint", nullable: false),
                     PODId = table.Column<long>(type: "bigint", nullable: false),
+                    PODAgent = table.Column<string>(type: "text", nullable: true),
                     ETA = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     ETS = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
@@ -515,8 +517,8 @@ namespace ExportOrderWebServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Num = table.Column<string>(type: "text", nullable: false),
                     Dated = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    VesselCallId = table.Column<long>(type: "bigint", nullable: false),
-                    CarrierId = table.Column<long>(type: "bigint", nullable: false),
+                    VesselCallId = table.Column<long>(type: "bigint", nullable: true),
+                    CarrierId = table.Column<long>(type: "bigint", nullable: true),
                     PersonId = table.Column<long>(type: "bigint", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
@@ -535,8 +537,7 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_ExportOrders_Carriers_CarrierId",
                         column: x => x.CarrierId,
                         principalTable: "Carriers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ExportOrders_Persons_PersonId",
                         column: x => x.PersonId,
@@ -546,8 +547,7 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_ExportOrders_VesselCalls_VesselCallId",
                         column: x => x.VesselCallId,
                         principalTable: "VesselCalls",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -557,8 +557,8 @@ namespace ExportOrderWebServer.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CntrNum = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
-                    CntrTypeISO = table.Column<string>(type: "character varying(4)", nullable: false),
-                    CntrTareWt = table.Column<double>(type: "double precision", nullable: false),
+                    CntrTypeISO = table.Column<string>(type: "character varying(4)", nullable: true),
+                    CntrTareWt = table.Column<double>(type: "double precision", nullable: true),
                     Seal = table.Column<string>(type: "text", nullable: false),
                     ExportOrderId = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -569,8 +569,7 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_ExportOrder_Records_ContainerTypeSize_CntrTypeISO",
                         column: x => x.CntrTypeISO,
                         principalTable: "ContainerTypeSize",
-                        principalColumn: "ISO",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ISO");
                     table.ForeignKey(
                         name: "FK_ExportOrder_Records_ExportOrders_ExportOrderId",
                         column: x => x.ExportOrderId,
@@ -609,10 +608,11 @@ namespace ExportOrderWebServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Quantity = table.Column<long>(type: "bigint", nullable: false),
-                    NetWt = table.Column<double>(type: "double precision", nullable: false),
-                    GrossWt = table.Column<double>(type: "double precision", nullable: false),
-                    Volume = table.Column<double>(type: "double precision", nullable: false),
+                    PackageQty = table.Column<long>(type: "bigint", nullable: false),
+                    PackageName = table.Column<string>(type: "text", nullable: true),
+                    NetWt = table.Column<double>(type: "double precision", nullable: true),
+                    GrossWt = table.Column<double>(type: "double precision", nullable: true),
+                    Volume = table.Column<double>(type: "double precision", nullable: true),
                     DocumentRecordId = table.Column<int>(type: "integer", nullable: false),
                     ExportOrderRecordId = table.Column<long>(type: "bigint", nullable: false)
                 },

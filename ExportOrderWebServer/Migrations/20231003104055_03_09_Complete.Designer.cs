@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230920163707_20_09_MyCompany_add")]
-    partial class _20_09_MyCompany_add
+    [Migration("20231003104055_03_09_Complete")]
+    partial class _03_09_Complete
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.9")
+                .HasAnnotation("ProductVersion", "7.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -138,6 +138,9 @@ namespace ExportOrderWebServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<int>("BlTemplate")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("timestamp without time zone");
 
@@ -169,11 +172,13 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Contract")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("DateContract")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("POLAgent")
+                        .HasColumnType("text");
 
                     b.Property<string>("TerminalName")
                         .IsRequired()
@@ -233,11 +238,12 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameEn")
                         .HasColumnType("text");
 
                     b.Property<string>("UnLocode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -307,10 +313,6 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
-                    b.Property<string>("EngName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("HSCode")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -323,6 +325,10 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameEn")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -344,7 +350,7 @@ namespace ExportOrderWebServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CountryId")
+                    b.Property<long?>("CountryId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreateTime")
@@ -353,12 +359,10 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
-                    b.Property<string>("EngName")
-                        .IsRequired()
+                    b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
+                    b.Property<string>("NameEn")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -434,7 +438,6 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CommodityHSCode")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
@@ -489,16 +492,19 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<long>("ExportOrderRecordId")
                         .HasColumnType("bigint");
 
-                    b.Property<double>("GrossWt")
+                    b.Property<double?>("GrossWt")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("NetWt")
+                    b.Property<double?>("NetWt")
                         .HasColumnType("double precision");
 
-                    b.Property<long>("Quantity")
+                    b.Property<string>("PackageName")
+                        .HasColumnType("text");
+
+                    b.Property<long>("PackageQty")
                         .HasColumnType("bigint");
 
-                    b.Property<double>("Volume")
+                    b.Property<double?>("Volume")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
@@ -518,7 +524,7 @@ namespace ExportOrderWebServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CarrierId")
+                    b.Property<long?>("CarrierId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreateTime")
@@ -546,7 +552,7 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
-                    b.Property<long>("VesselCallId")
+                    b.Property<long?>("VesselCallId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -575,11 +581,10 @@ namespace ExportOrderWebServer.Migrations
                         .HasMaxLength(11)
                         .HasColumnType("character varying(11)");
 
-                    b.Property<double>("CntrTareWt")
+                    b.Property<double?>("CntrTareWt")
                         .HasColumnType("double precision");
 
                     b.Property<string>("CntrTypeISO")
-                        .IsRequired()
                         .HasColumnType("character varying(4)");
 
                     b.Property<long>("ExportOrderId")
@@ -663,6 +668,9 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<long>("LoadingTerminalId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("PODAgent")
+                        .HasColumnType("text");
+
                     b.Property<long>("PODId")
                         .HasColumnType("bigint");
 
@@ -714,7 +722,7 @@ namespace ExportOrderWebServer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("FlagId")
+                    b.Property<long?>("FlagId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("IMO")
@@ -940,9 +948,7 @@ namespace ExportOrderWebServer.Migrations
                 {
                     b.HasOne("ExportOrderEntites.Catalog.CountryCatalog", "Country")
                         .WithMany()
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CountryId");
 
                     b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
                         .WithMany()
@@ -996,9 +1002,7 @@ namespace ExportOrderWebServer.Migrations
                 {
                     b.HasOne("ExportOrderEntites.Catalog.CarrierCatalog", "Carrier")
                         .WithMany()
-                        .HasForeignKey("CarrierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CarrierId");
 
                     b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
                         .WithMany()
@@ -1010,9 +1014,7 @@ namespace ExportOrderWebServer.Migrations
 
                     b.HasOne("ExportOrderEntites.VesselCall.VesselCallEntity", "VesselCall")
                         .WithMany("ExportOrders")
-                        .HasForeignKey("VesselCallId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("VesselCallId");
 
                     b.Navigation("Carrier");
 
@@ -1027,9 +1029,7 @@ namespace ExportOrderWebServer.Migrations
                 {
                     b.HasOne("ExportOrderEntites.Cntr.CntrTpSz", "CntrType")
                         .WithMany()
-                        .HasForeignKey("CntrTypeISO")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CntrTypeISO");
 
                     b.HasOne("ExportOrderEntites.ExportOrder.ExportOrderEntity", "ExportOrder")
                         .WithMany("Records")
@@ -1092,9 +1092,7 @@ namespace ExportOrderWebServer.Migrations
 
                     b.HasOne("ExportOrderEntites.Catalog.CountryCatalog", "Flag")
                         .WithMany()
-                        .HasForeignKey("FlagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FlagId");
 
                     b.Navigation("CreateUser");
 

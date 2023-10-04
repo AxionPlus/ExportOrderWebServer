@@ -185,13 +185,30 @@
     private async Task ViewReportExpOrder_Click(long id)
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
-        await JSRuntime.InvokeVoidAsync("open", path);
+        try
+        {            
+            await JSRuntime.InvokeVoidAsync("open", path);
+        }
+        catch(Exception ex)
+        {
+            string msg = ex.Message;
+            return;
+        }
     }
 
     private async Task ViewReportBL_Click(long id)
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
-        await JSRuntime.InvokeVoidAsync("open", path);
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("open", path);
+        }
+        catch(Exception ex)
+        {
+            string msg = ex.Message;
+            return;
+        }
     }
 
     #region SEARCHERS

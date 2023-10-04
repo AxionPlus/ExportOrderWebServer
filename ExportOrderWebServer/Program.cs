@@ -59,6 +59,12 @@ builder.Services.AddTransient<IExportOrderProvider, ExportOrderProvider>();
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    builder.WebHost.UseUrls(new[] { "http://0.0.0.0:7070" });
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -68,6 +74,8 @@ else
 {
     app.UseExceptionHandler("/Error");
 }
+
+
 
 
 app.UseStaticFiles();

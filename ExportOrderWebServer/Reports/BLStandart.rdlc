@@ -148,96 +148,6 @@
     <ReportSection>
       <Body>
         <ReportItems>
-          <Textbox Name="ShippedBy">
-            <CanGrow>true</CanGrow>
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>RECEIVED by the Carrier from the Shipper, as far as ascertained by reasonable means of checking, in apparent good order and condition unless otherwise stated herein, the total number or quantity of Containers or other packages or units indicated in the box entitled "Carrier's Receipt" for carriage from the Port of Loading (or the Place of Receipt, if mentioned above) to the Port of Discharge (or the Place of Delivery, if mentioned above),such carriage being always subject to the terms, rights, defences, provisions, conditions, exceptions,limitations, and liberties hereof  and the Merchant's attention is drawn in particular to the Carrier's liberties in respect of on deck stowage and the carrying vessel. Where the bill of lading is non-negotiable the Carrier may give delivery of the Goods to the named consignee upon reasonable proof of identity and without requiring surrender of an original bill of lading. Where the bill of lading is negotiable, the Merchant is obliged to surrender one original, duly endorsed, in exchange for the Goods.  The Carrier accepts a duty of reasonable care to check that any such document which the Merchant surrenders as a bill of lading is genuine and original.  If the Carrier complies with this duty, it will be entitled to deliver the Goods against what it reasonably believes to be a genuine and original bill of lading, such delivery discharging the Carrier’s delivery obligations. In accepting this bill of lading, any local customs or privileges to the contrary notwithstanding, the Merchant agrees to be bound by all Terms and Conditions stated herein whether written, printed,stamped or incorporated on the face or reverse side hereof, as fully as if they were all signed by the Merchant.
-IN WITNESS WHEREOF the number of original Bills of Lading stated on this side have been signed and wherever one original Bill of Lading has been surrendered any others shall be void.</Value>
-                    <Style>
-                      <FontFamily>Tahoma</FontFamily>
-                      <FontSize>5pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style />
-              </Paragraph>
-            </Paragraphs>
-            <Top>22.4cm</Top>
-            <Left>11.2cm</Left>
-            <Height>4.4cm</Height>
-            <Width>8.7cm</Width>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-              <PaddingLeft>2pt</PaddingLeft>
-              <PaddingRight>2pt</PaddingRight>
-              <PaddingTop>2pt</PaddingTop>
-              <PaddingBottom>2pt</PaddingBottom>
-            </Style>
-          </Textbox>
-          <Textbox Name="Shippers">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=First(Fields!Shippers.Value, "dsBL")</Value>
-                    <Style />
-                  </TextRun>
-                </TextRuns>
-                <Style />
-              </Paragraph>
-            </Paragraphs>
-            <Top>1.7cm</Top>
-            <Height>3.4cm</Height>
-            <Width>11.2cm</Width>
-            <ZIndex>1</ZIndex>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-              <PaddingLeft>2pt</PaddingLeft>
-              <PaddingRight>2pt</PaddingRight>
-              <PaddingTop>2pt</PaddingTop>
-              <PaddingBottom>2pt</PaddingBottom>
-            </Style>
-          </Textbox>
-          <Textbox Name="BL_Name">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>BILL OF LADING FOR OCEAN TRANSPORT OR MULTIMODAL TRANSPORT</Value>
-                    <Style>
-                      <FontFamily>Tahoma</FontFamily>
-                      <FontSize>8pt</FontSize>
-                      <FontWeight>Bold</FontWeight>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style />
-              </Paragraph>
-            </Paragraphs>
-            <Left>11.2cm</Left>
-            <Height>1.2cm</Height>
-            <Width>6.1cm</Width>
-            <ZIndex>2</ZIndex>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-              <PaddingLeft>2pt</PaddingLeft>
-              <PaddingRight>2pt</PaddingRight>
-              <PaddingTop>2pt</PaddingTop>
-              <PaddingBottom>2pt</PaddingBottom>
-            </Style>
-          </Textbox>
           <Tablix Name="TablixBL">
             <TablixBody>
               <TablixColumns>
@@ -260,13 +170,13 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <Width>1.9cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.4cm</Width>
+                  <Width>1.2cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.9cm</Width>
+                  <Width>1.2cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.7cm</Width>
+                  <Width>1.6cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -323,14 +233,17 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="T_BL_Name1">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
-                                  <Style />
+                                  <Value>BILL OF LADING FOR OCEAN</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style />
@@ -341,14 +254,10 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style>None</Style>
                             </Border>
                             <TopBorder>
-                              <Color>Black</Color>
                               <Style>Solid</Style>
-                              <Width>1pt</Width>
                             </TopBorder>
                             <RightBorder>
-                              <Color>Black</Color>
                               <Style>Solid</Style>
-                              <Width>1pt</Width>
                             </RightBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
@@ -466,8 +375,12 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
-                                  <Style />
+                                  <Value>TRANSPORT OR MULTIMODAL TRANSPORT</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style />
@@ -648,21 +561,20 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox92">
-                          <CanGrow>true</CanGrow>
+                        <Textbox Name="Shippers">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value>=First(Fields!Shippers.Value, "dsBL")</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox92</rd:DefaultName>
+                          <ZIndex>2</ZIndex>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -672,11 +584,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style>Solid</Style>
                               <Width>1pt</Width>
                             </LeftBorder>
-                            <RightBorder>
-                              <Color>Black</Color>
-                              <Style>Solid</Style>
-                              <Width>1pt</Width>
-                            </RightBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -717,6 +624,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style>Solid</Style>
                               <Width>1pt</Width>
                             </BottomBorder>
+                            <LeftBorder>
+                              <Color>Black</Color>
+                              <Style>Solid</Style>
+                              <Width>1pt</Width>
+                            </LeftBorder>
                             <RightBorder>
                               <Color>Black</Color>
                               <Style>Solid</Style>
@@ -2110,7 +2022,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>Measurement</Value>
+                                  <Value>Measure</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2945,7 +2857,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>1.5cm</Height>
+                  <Height>1.4cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -4305,29 +4217,61 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>dsBL</DataSetName>
-            <Height>28.6cm</Height>
+            <Height>28.5cm</Height>
             <Width>19.9cm</Width>
-            <ZIndex>3</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
               </Border>
             </Style>
           </Tablix>
+          <Textbox Name="ShippedBy">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>RECEIVED by the Carrier from the Shipper, as far as ascertained by reasonable means of checking, in apparent good order and condition unless otherwise stated herein, the total number or quantity of Containers or other packages or units indicated in the box entitled "Carrier's Receipt" for carriage from the Port of Loading (or the Place of Receipt, if mentioned above) to the Port of Discharge (or the Place of Delivery, if mentioned above),such carriage being always subject to the terms, rights, defences, provisions, conditions, exceptions,limitations, and liberties hereof  and the Merchant's attention is drawn in particular to the Carrier's liberties in respect of on deck stowage and the carrying vessel. Where the bill of lading is non-negotiable the Carrier may give delivery of the Goods to the named consignee upon reasonable proof of identity and without requiring surrender of an original bill of lading. Where the bill of lading is negotiable, the Merchant is obliged to surrender one original, duly endorsed, in exchange for the Goods.  The Carrier accepts a duty of reasonable care to check that any such document which the Merchant surrenders as a bill of lading is genuine and original.  If the Carrier complies with this duty, it will be entitled to deliver the Goods against what it reasonably believes to be a genuine and original bill of lading, such delivery discharging the Carrier’s delivery obligations. In accepting this bill of lading, any local customs or privileges to the contrary notwithstanding, the Merchant agrees to be bound by all Terms and Conditions stated herein whether written, printed,stamped or incorporated on the face or reverse side hereof, as fully as if they were all signed by the Merchant.
+IN WITNESS WHEREOF the number of original Bills of Lading stated on this side have been signed and wherever one original Bill of Lading has been surrendered any others shall be void.</Value>
+                    <Style>
+                      <FontFamily>Tahoma</FontFamily>
+                      <FontSize>5pt</FontSize>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <Top>22.4cm</Top>
+            <Left>11.2cm</Left>
+            <Height>4.4cm</Height>
+            <Width>8.7cm</Width>
+            <ZIndex>1</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
           <Image Name="Image4">
             <Source>Embedded</Source>
             <Value>Lotka</Value>
             <Sizing>Fit</Sizing>
             <Height>1.2cm</Height>
             <Width>11.2cm</Width>
-            <ZIndex>4</ZIndex>
+            <ZIndex>2</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
               </Border>
             </Style>
           </Image>
-          <Tablix Name="TablixCntrRecords">
+          <Tablix Name="T_Cntr">
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
@@ -4346,10 +4290,10 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <Width>1.9cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.5cm</Width>
+                  <Width>2.9cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.7cm</Width>
+                  <Width>1.3cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -4358,7 +4302,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_HeaderCntr">
+                        <Textbox Name="Textbox36">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4377,11 +4321,12 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Textbox36</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>Solid</Style>
                             </Border>
-                            <PaddingLeft>4pt</PaddingLeft>
+                            <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
@@ -4391,7 +4336,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox1">
+                        <Textbox Name="Textbox38">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4410,15 +4355,21 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox1</rd:DefaultName>
+                          <rd:DefaultName>Textbox38</rd:DefaultName>
                           <Style>
                             <Border>
-                              <Style>Solid</Style>
-                            </Border>
-                            <LeftBorder>
                               <Style>None</Style>
-                            </LeftBorder>
-                            <PaddingLeft>4pt</PaddingLeft>
+                            </Border>
+                            <TopBorder>
+                              <Style>Solid</Style>
+                            </TopBorder>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
@@ -4428,7 +4379,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox2">
+                        <Textbox Name="Textbox40">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4447,15 +4398,21 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox2</rd:DefaultName>
+                          <rd:DefaultName>Textbox40</rd:DefaultName>
                           <Style>
                             <Border>
-                              <Style>Solid</Style>
-                            </Border>
-                            <LeftBorder>
                               <Style>None</Style>
-                            </LeftBorder>
-                            <PaddingLeft>4pt</PaddingLeft>
+                            </Border>
+                            <TopBorder>
+                              <Style>Solid</Style>
+                            </TopBorder>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
@@ -4467,7 +4424,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_HeaderTare">
+                        <Textbox Name="Textbox44">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4486,6 +4443,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Textbox44</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -4509,7 +4467,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_HeaderWeight">
+                        <Textbox Name="Textbox46">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4528,6 +4486,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Textbox46</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -4551,14 +4510,14 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_HeaderMeasures">
+                        <Textbox Name="Textbox48">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>Measurement</Value>
+                                  <Value>Measure</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -4570,6 +4529,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Textbox48</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -4598,7 +4558,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_CntrNum">
+                        <Textbox Name="Cntr">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4612,22 +4572,19 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Cntr</rd:DefaultName>
                           <Style>
                             <Border>
-                              <Style>Solid</Style>
+                              <Style>None</Style>
                             </Border>
-                            <TopBorder>
-                              <Style>None</Style>
-                            </TopBorder>
-                            <BottomBorder>
-                              <Style>None</Style>
-                            </BottomBorder>
-                            <RightBorder>
-                              <Style>None</Style>
-                            </RightBorder>
+                            <LeftBorder>
+                              <Style>Solid</Style>
+                            </LeftBorder>
                             <PaddingLeft>4pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -4638,7 +4595,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_Seals">
+                        <Textbox Name="Seal">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4652,14 +4609,23 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Seal</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
                             </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
+                            <LeftBorder>
+                              <Style>Solid</Style>
+                            </LeftBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <PaddingLeft>4pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
@@ -4669,7 +4635,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_PkgQty">
+                        <Textbox Name="PackageQty1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4689,10 +4655,14 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>PackageQty1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
                             </Border>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -4703,14 +4673,14 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_PkgName">
+                        <Textbox Name="Textbox43">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PackageName.Value</Value>
+                                  <Value />
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -4718,10 +4688,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Left</TextAlign>
+                                <TextAlign>Center</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Textbox43</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -4736,14 +4707,14 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_Tare">
+                        <Textbox Name="CntrTareWt1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CntrTareWt.Value</Value>
+                                  <Value>=Sum(Fields!CntrTareWt.Value)</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -4756,6 +4727,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>CntrTareWt1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -4776,14 +4748,14 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_CgoWeight">
+                        <Textbox Name="GrossWt1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!GrossWt.Value</Value>
+                                  <Value>=Sum(Fields!GrossWt.Value)</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -4796,6 +4768,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>GrossWt1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -4813,7 +4786,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Recs_Measures">
+                        <Textbox Name="Textbox49">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4832,10 +4805,312 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Textbox49</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
                             </Border>
+                            <RightBorder>
+                              <Color>Black</Color>
+                              <Style>Solid</Style>
+                              <Width>1pt</Width>
+                            </RightBorder>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.2cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox15">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox15</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <LeftBorder>
+                              <Style>Solid</Style>
+                            </LeftBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>8pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox16">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox16</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <LeftBorder>
+                              <Style>Solid</Style>
+                            </LeftBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>8pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox17">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox17</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox18">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox18</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox19">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox19</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox20">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox20</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox22">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox22</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
                             <RightBorder>
                               <Style>Solid</Style>
                             </RightBorder>
@@ -4850,11 +5125,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.6cm</Height>
+                  <Height>0.5cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox18">
+                        <Textbox Name="Textbox50">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4869,18 +5144,18 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox18</rd:DefaultName>
+                          <rd:DefaultName>Textbox50</rd:DefaultName>
                           <Style>
                             <Border>
-                              <Style>Solid</Style>
-                            </Border>
-                            <RightBorder>
                               <Style>None</Style>
-                            </RightBorder>
-                            <PaddingLeft>8pt</PaddingLeft>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
@@ -4892,7 +5167,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="PackageQty">
+                        <Textbox Name="PackageQty2">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4913,17 +5188,12 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>PackageQty</rd:DefaultName>
+                          <rd:DefaultName>PackageQty2</rd:DefaultName>
                           <Style>
                             <Border>
-                              <Style>Solid</Style>
+                              <Style>None</Style>
                             </Border>
-                            <LeftBorder>
-                              <Style>None</Style>
-                            </LeftBorder>
-                            <RightBorder>
-                              <Style>None</Style>
-                            </RightBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -4934,7 +5204,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox3">
+                        <Textbox Name="Textbox53">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4945,23 +5215,20 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox3</rd:DefaultName>
+                          <rd:DefaultName>Textbox53</rd:DefaultName>
                           <Style>
                             <Border>
-                              <Style>Solid</Style>
+                              <Style>None</Style>
                             </Border>
-                            <LeftBorder>
-                              <Style>None</Style>
-                            </LeftBorder>
-                            <RightBorder>
-                              <Style>None</Style>
-                            </RightBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -4972,7 +5239,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox23">
+                        <Textbox Name="CntrTareWt">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -4993,15 +5260,12 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox23</rd:DefaultName>
+                          <rd:DefaultName>CntrTareWt</rd:DefaultName>
                           <Style>
                             <Border>
-                              <Style>Solid</Style>
+                              <Style>None</Style>
                             </Border>
-                            <LeftBorder>
-                              <Color>Black</Color>
-                              <Width>1pt</Width>
-                            </LeftBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -5012,7 +5276,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox24">
+                        <Textbox Name="GrossWt">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -5033,20 +5297,12 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox24</rd:DefaultName>
+                          <rd:DefaultName>GrossWt</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
                             </Border>
-                            <TopBorder>
-                              <Style>Solid</Style>
-                            </TopBorder>
-                            <BottomBorder>
-                              <Style>Solid</Style>
-                            </BottomBorder>
-                            <RightBorder>
-                              <Style>Solid</Style>
-                            </RightBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -5057,7 +5313,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox25">
+                        <Textbox Name="Textbox57">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -5076,20 +5332,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox25</rd:DefaultName>
+                          <rd:DefaultName>Textbox57</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
                             </Border>
-                            <TopBorder>
-                              <Style>Solid</Style>
-                            </TopBorder>
-                            <BottomBorder>
-                              <Style>Solid</Style>
-                            </BottomBorder>
-                            <RightBorder>
-                              <Style>Solid</Style>
-                            </RightBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -5117,30 +5364,37 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
               <TablixMembers>
                 <TablixMember>
                   <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
                 </TablixMember>
                 <TablixMember>
-                  <Group Name="CntrNum">
+                  <Group Name="CntrNumber">
                     <GroupExpressions>
+                      <GroupExpression>=Fields!BLnum.Value</GroupExpression>
                       <GroupExpression>=Fields!Cntr.Value</GroupExpression>
                     </GroupExpressions>
                   </Group>
-                  <TablixMembers>
-                    <TablixMember />
-                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <KeepWithGroup>Before</KeepWithGroup>
                 </TablixMember>
                 <TablixMember>
                   <KeepWithGroup>Before</KeepWithGroup>
                 </TablixMember>
               </TablixMembers>
             </TablixRowHierarchy>
+            <RepeatColumnHeaders>true</RepeatColumnHeaders>
+            <RepeatRowHeaders>true</RepeatRowHeaders>
+            <FixedColumnHeaders>true</FixedColumnHeaders>
+            <FixedRowHeaders>true</FixedRowHeaders>
             <DataSetName>dsCntrRecords</DataSetName>
             <PageBreak>
               <BreakLocation>Start</BreakLocation>
             </PageBreak>
-            <Top>28.6cm</Top>
-            <Height>1.6cm</Height>
+            <Top>28.57883cm</Top>
+            <Left>0cm</Left>
+            <Height>1.7cm</Height>
             <Width>19.9cm</Width>
-            <ZIndex>5</ZIndex>
+            <ZIndex>3</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -5148,7 +5402,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>11.91071in</Height>
+        <Height>11.9208in</Height>
         <Style>
           <Border>
             <Style>None</Style>
@@ -5156,7 +5410,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
           </Border>
         </Style>
       </Body>
-      <Width>7.83465in</Width>
+      <Width>7.84853in</Width>
       <Page>
         <PageHeader>
           <Height>0.5cm</Height>

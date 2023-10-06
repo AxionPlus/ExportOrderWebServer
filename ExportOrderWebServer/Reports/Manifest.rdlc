@@ -851,12 +851,6 @@ WT (KGS)</Value>
                             <Border>
                               <Style>None</Style>
                             </Border>
-                            <LeftBorder>
-                              <Style>Solid</Style>
-                            </LeftBorder>
-                            <RightBorder>
-                              <Style>Solid</Style>
-                            </RightBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -929,9 +923,6 @@ WT (KGS)</Value>
                             <Border>
                               <Style>None</Style>
                             </Border>
-                            <LeftBorder>
-                              <Style>Solid</Style>
-                            </LeftBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -1964,11 +1955,6 @@ WT (KGS)</Value>
                                           <Border>
                                             <Style>None</Style>
                                           </Border>
-                                          <LeftBorder>
-                                            <Color>Black</Color>
-                                            <Style>Solid</Style>
-                                            <Width>1pt</Width>
-                                          </LeftBorder>
                                           <PaddingLeft>2pt</PaddingLeft>
                                           <PaddingRight>2pt</PaddingRight>
                                           <PaddingTop>2pt</PaddingTop>

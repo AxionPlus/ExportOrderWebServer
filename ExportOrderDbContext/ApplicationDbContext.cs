@@ -1,5 +1,4 @@
-﻿
-using ExportOrderEntites.MyCompany;
+﻿using ExportOrderEntites.MyCompany;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -27,6 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<ExportOrderEntity> ExportOrders { get; set; }
     public DbSet<MyCompanyEntity> MyCompany { get; set; }
     public DbSet<PersonEntity> Persons { get; set; }
+    public DbSet<CustomOfficeCatalog> CustomOffices { get; set; }
 
     #endregion
 

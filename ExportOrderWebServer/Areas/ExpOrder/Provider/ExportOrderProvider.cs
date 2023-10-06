@@ -27,7 +27,7 @@ public class ExportOrderProvider : IExportOrderProvider
             try
             {
                 appObjResponse.Object = await db.ExportOrders.Include(eo => eo.Person)
-                                                             .Include(eo => eo.Carrier)!.ThenInclude(c => c.CarrierDetails)
+                                                             .Include(eo => eo.Carrier)!.ThenInclude(c => c!.CarrierDetails)
                                                              .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)
                                                              .Include(eo => eo.Records)!.ThenInclude(r => r.Contents)
                                                                                         .ThenInclude(c => c.DocumentRecord)

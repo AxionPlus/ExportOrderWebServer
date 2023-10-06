@@ -24,7 +24,7 @@ public class VesselCallConfiguration : IEntityTypeConfiguration<VesselCallEntity
 
         builder.Navigation(s => s.LoadingTerminal).AutoInclude();
 
-        builder.Navigation(s => s.POD).AutoInclude();
+        //builder.Navigation(s => s.POD).AutoInclude();
     }
 }
 

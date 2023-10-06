@@ -3,14 +3,14 @@
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
 
-@if (Item is not null)
+@if (Value is not null)
 {
     <MudForm @ref="@Form" Style="max-width:fit-content">
         <div class="Container-item" style="width: 530px">
             <div class="container-head"></div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 300px" Label="Name" Text="@Item.Name"
-                              TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
+                <MudTextField T="string" Style="width: 300px" Label="Name" Text="@Value.Name"
+                              TextChanged="async (e)=> { Value.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
@@ -21,7 +21,7 @@
                  </MudButton>
              </div>
              <div class="container-content">
-                 <MudAutocomplete T="LocationCatalog" Style="width: 300px" Label="Location" @bind-Value="Item.Location"
+                 <MudAutocomplete T="LocationCatalog" Style="width: 300px" Label="Location" @bind-Value="Value.Location"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchLocation"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -32,10 +32,23 @@
                                   MaxItems="20"
                                   IconSize="Size.Small"
                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
+@*                  <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
                             Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
                      Clear
-                 </MudButton>
+                 </MudButton> *@
+             </div>
+             <div class="container-content">
+@*                  <MudSelect Class="SelectField" T="CustomOfficeCatalog" Label="Customs" @bind-Value="@Value.CustomOffice"
+                            Text="@Value.CustomOffice!.CustomOfficeName"
+                            Style="width:300px" Placeholder="Таможенный пост"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon="">
+                     @if (CustomOffices is not null)
+                        @foreach (var office in CustomOffices)
+                        {
+                            <MudSelectItem Value="@office">@(office.CustomOfficeCode)</MudSelectItem>
+                        }
+                </MudSelect> *@
              </div>
          </div>
      </MudForm>
@@ -48,7 +61,9 @@
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
-    private TerminalCatalog? Item { get; set; }
+    private TerminalCatalog? Value { get; set; }
+
+    private IEnumerable<CustomOfficeCatalog> CustomOffices { get; set; } = new List<CustomOfficeCatalog>();
 
     private bool IsAuth = false;
 
@@ -67,12 +82,12 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-            Item = new();
+            Value = new() { CustomOffice = new() };
         else
         {
             var response = await _terminalProvider.GetItemAsync(Id);
             if (!response.HasError)
-                Item = (TerminalCatalog)response.Object!;
+                Value = (TerminalCatalog)response.Object!;
         }
     }
 
@@ -84,7 +99,7 @@
         {
             if (IsNewItem)
             {
-                var response = await _terminalProvider.NewItemAsync(Item!);
+                var response = await _terminalProvider.NewItemAsync(Value!);
                 if (!response.HasError)
                 {
                     Snackbar.Add("Saved successfully", Severity.Success);
@@ -95,7 +110,7 @@
             }
             else
             {
-                // var response = await _terminalProvider.ModifyItemAsync(Item!);
+                // var response = await _terminalProvider.ModifyItemAsync(Value!);
                 // if (!response.HasError)
                 // {
                 //     await GetItem();
@@ -113,8 +128,8 @@
     {
         if (IsNewItem)
         {
-            Item!.Name = null;
-            Item.Location = null;
+            Value!.Name = null;
+            Value.Location = null;
         }
 
         await Task.Delay(50);

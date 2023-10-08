@@ -1,6 +1,8 @@
 ﻿@page "/vesselcall"
-
 @* @attribute [Authorize] *@
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <PageTitle>Vessel Call</PageTitle>
 
@@ -10,6 +12,12 @@
         <MudSpacer />
         <div class="ToolBar-Title"><span>vessel calls</span></div>
         <MudSpacer />
+
+        <div class="ToolBar-iconbutton" style="margin-right: 20px">
+            <MudTooltip Text="new vessel call">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+            </MudTooltip>
+        </div>
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -22,5 +30,19 @@
 <VesselCallComponent/>
 
 @code {
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions() { FullScreen = true, NoHeader = true, DisableBackdropClick = true };
+        //DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>(null, parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        // if (result.Canceled)
+        //     if (Items!.Count() > 0)
+        //         await GetItems();
+    }
 }

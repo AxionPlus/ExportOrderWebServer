@@ -7,6 +7,8 @@ namespace ExportOrderEntites;
 [Keyless]
 public class FilterParameters
 {
+    public EntityStatus Status { get; set; } = EntityStatus.Pending;
+    public string? Num { get; set; }
     public string? Name { get; set; }
     public string? NameEn { get; set; }
     public string? Country { get; set; }
@@ -17,13 +19,13 @@ public class FilterParameters
     public bool? IsIMO { get; set; }
     [MaxLength(10)]
     public string? HScode { get; set; }
-    public string? VesselName { get; set; }
+    public string? Vessel { get; set; }
     public string? Voyage { get; set; }
-    public string? TerminalName { get; set; }
-    public string? POD { get; set; }    
+    public string? Terminal { get; set; }
+    public string? POD { get; set; }
+    public DateTime? Dated { get; set; }
     public DateTime? ETA { get; set; }
     public DateTime? ETS { get; set; }
-    public bool? IsOnmit { get; set; }
 
     [MaxLength(11)]
     public string? CntrNum { get; set; }
@@ -34,8 +36,4 @@ public class FilterParameters
     public string? Shipper { get; set; }
     public string? Consignee { get; set; }
     public string? CargoDescriptionShort { get; set; }
-
-    public string? ExportOrderNum { get; set; }      // номер поручения
-    public long? VesselCallId { get; set; }
-
 }

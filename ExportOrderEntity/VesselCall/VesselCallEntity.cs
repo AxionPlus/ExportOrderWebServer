@@ -11,15 +11,13 @@ public class VesselCallEntity : Entity
 #pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
 
     [Required] public VesselEntity Vessel { get; set; }
-    [Required] public string VoyageCarrier { get; set; }    // own Voy number
-    [Required] public string VoyageTerminal { get; set; }   // Terminal's Voy number
-
-
-    [Required] public TerminalCatalog LoadingTerminal { get; set; }
-    [Required] public LocationCatalog POD { get; set; }
-    public string? PODAgent { get; set; }
+    [Required] public string VoyageNo { get; set; }
+    [Required] public string VoyageNoTerminal { get; set; }       // Terminal's Voy number
+    [Required] public TerminalCatalog Terminal { get; set; }
     [Required] public DateTime? ETA { get; set; }
     [Required] public DateTime? ETS { get; set; }
+    public ICollection<VesselCallDetail> Details { get; set; } = new List<VesselCallDetail>();
 
-    public IEnumerable<ExportOrderEntity> ExportOrders { get; set; }
+
+    public IEnumerable<ExportOrderEntity> ExportOrders { get; set; }    // ?? delete
 }

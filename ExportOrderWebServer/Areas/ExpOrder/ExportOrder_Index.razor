@@ -1,4 +1,6 @@
 ﻿@page "/exportorder"
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <PageTitle>ExportOrder</PageTitle>
 
@@ -8,6 +10,12 @@
         <MudSpacer />
         <div class="ToolBar-Title"><span>export orders</span></div>
         <MudSpacer />
+
+        <div class="ToolBar-iconbutton" style="margin-right: 20px">
+            <MudTooltip Text="new vessel call">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+            </MudTooltip>
+        </div>
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -20,5 +28,18 @@
 <ExportOrderComponent />
 
 @code {
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+        dialog = await DialogService.ShowAsync<ExportOrder_ItemDialog>(null, parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        // if (!result.Canceled)
+        //     if (Items!.Count() > 0)
+        //         await GetItems();
+    }
 }

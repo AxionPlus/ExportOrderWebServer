@@ -74,7 +74,7 @@
 
             <MudTextField Class="TextField" Style="width: 400px; margin-right: 20px" @bind-Value="@Value!.VesselCall!.Vessel.Name"
                            Label="Vessel Call" Placeholder="Vessel Call"
-                           Text="@(Value.VesselCall!.Vessel.Name is not null ? Value.VesselCall!.Vessel.Name + " / " + Value.VesselCall.VoyageCarrier : "")"
+                           Text="@(Value.VesselCall!.Vessel.Name is not null ? Value.VesselCall!.Vessel.Name + " / " + Value.VesselCall.VoyageNo : "")"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            Required RequiredError=""
                            ReadOnly="!IsNewItem" Clearable="IsNewItem"
@@ -206,7 +206,7 @@
                 </div>
             }
 
-            <MudTable Class="Table" @ref="mudTable" T="ExportOrderRecord" Items="@Value.Records" Context="expOrderRecords"
+            <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecords"
                       Loading="IsLoadingData" Virtualize="true" FixedHeader="true" FixedFooter="true" RowsPerPage="20">
 
                 <HeaderContent>
@@ -356,7 +356,7 @@
 }
 
 @code {
-    private MudForm? Form;
+    //private MudForm? Form;
     private MudTable<ExportOrderRecord>? mudTable;
     private MudTable<DocumentRecord>? mudDocRecordsTable;
 

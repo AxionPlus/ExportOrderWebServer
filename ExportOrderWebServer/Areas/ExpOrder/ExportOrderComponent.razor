@@ -1,5 +1,4 @@
-﻿
-@inject ISnackbar Snackbar
+﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject HttpClient Http
@@ -8,6 +7,7 @@
 @inject IExportOrderProvider _exportOrderProvider
 @inject IVesselProvider _vesselProvider
 @inject IVesselCallProvider _vesselCallProvider
+@inject ILocationProvider _locationProvider
 @inject ICarrierProvider _carrierProvider
 
 <style></style>
@@ -15,31 +15,32 @@
 <MudForm @ref="@FilterForm">
 
     <div class="Container-item">
-        <div class="container-content">
-            <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await AddItem_Click(); })"
-                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary">
-                Add New
-            </MudButton>
-            <MudSpacer />
-            
-            <MudTextField Class="TextField" Placeholder="Number" Style="width: 200px" @bind-Value="@Filter.ExportOrderNum"
+        <div class="container-content">            
+            <MudTextField Class="TextField" Placeholder="Number" Style="width: 200px" @bind-Value="@Filter.Num"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
 
-             <MudAutocomplete Class="Autocomplete" T="string" Style="width: 250px" Value="Filter.VesselName" SearchFunc="@SearchVessel"
+            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 250px" Value="Filter.Vessel" SearchFunc="@SearchVessel"
                               Label="Vessel"
-                              ValueChanged="(e)=> { Filter.VesselName = e; }"
+                              ValueChanged="(e)=> { Filter.Vessel = e; }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon=""
                               ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
 
-            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 250px" Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 200px" Value="Filter.Voyage" SearchFunc="@SearchVoyage"
                               Label="Voyage" 
                               ValueChanged="(e)=> { Filter.Voyage = e; }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon=""
                               ResetValueOnEmptyText="true" Clearable />
+            <MudSpacer />
+
+            <MudAutocomplete Class="Autocomplete" Style="width: 170px" T="string" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
+                             Label="POD" 
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon="" MaxItems="20"
+                             ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
 
             <MudAutocomplete Class="Autocomplete" T="string" Style="width: 250px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
@@ -54,6 +55,27 @@
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
 
+            <MudDatePicker Class="wrapper-input-date" Label="Dated" @bind-Date="Filter.Dated"
+                           Style="width: 130px; height: 40px;"
+                           DateFormat="dd.MM.yy"
+                           ShowWeekNumbers="true"
+                           Variant="Variant.Outlined"
+                           IconSize=Size.Small
+                           AutoClose=true
+                           DisableToolbar=false Clearable />
+            <MudSpacer />
+
+            <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Filter.Status"
+                        ToStringFunc="@(str=>str.ToString())"
+                        Variant="Variant.Outlined" Margin="Margin.Dense">
+                @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                {
+                    <MudSelectItem Value="@status" />
+                }
+            </MudSelect>
+
+            <MudSpacer />
+
             <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
                         Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
                 Search
@@ -62,60 +84,59 @@
     </div>
 
     <div class="Container-table">
-    @if (mudTable != null)
-    {
-        <div class="tableMenu">
+        @if (mudTable != null)
+        {
+            <div class="tableMenu">
             <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)"
+                           Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
-    }
-    <MudTable Class="Table" @ref="mudTable" T="ExportOrderEntity" Items="@Items"
-              Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-        <HeaderContent>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:120px"></MudTh>
-            <MudTh Style="width:120px">Number</MudTh>
-            <MudTh Style="width:100px">Dated</MudTh>
-            <MudTh Style="width:150px">Voyage</MudTh>
-            <MudTh Style="width:300px">Vessel</MudTh>
-            <MudTh Style="text-align:start">Carrier</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>
-                <MudTooltip Text="view details">
-                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
-                                   OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
-                </MudTooltip>
-            </MudTd>
-            <MudTd>
-                <MudTooltip Text="view Report - export order">
-                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
-                                   OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
-                </MudTooltip>
-            </MudTd>
-            <MudTd>
-                <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })"
-                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                            StartIcon="@Icons.Material.Filled.Preview">
-                    View BL
-                </MudButton>
-@*                 <MudTooltip Text="view Report - BL">
-                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
-                                    OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })" />
-                </MudTooltip> *@
-            </MudTd>
-            <MudTd>@context.Num</MudTd>
-            <MudTd>@context.Dated.ToShortDateString()</MudTd>
-            <MudTd>@context.VesselCall!.VoyageCarrier</MudTd>
-            <MudTd>@context.VesselCall!.Vessel.Name</MudTd>
-            <MudTd Style="text-align:start">@context.Carrier!.Name</MudTd>
-        </RowTemplate>
-        <PagerContent></PagerContent>
-    </MudTable>
-
-</div>
+        }
+        <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+            <HeaderContent>
+                <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:120px"></MudTh>
+                <MudTh Style="width:120px">Number</MudTh>
+                <MudTh Style="width:100px">Dated</MudTh>
+                <MudTh Style="width:150px">Vessel</MudTh>
+                <MudTh Style="width:300px">Voyage</MudTh>
+                <MudTh Style="width:200px">POD</MudTh>
+                <MudTh Style="width:300px; text-align:start">Carrier</MudTh>
+                <MudTh Style="width: 80px">Status</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudTooltip Text="view details">
+                        <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
+                    </MudTooltip>
+                </MudTd>
+                <MudTd>
+                    <MudTooltip Text="view Report - export order">
+                        <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
+                                       OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
+                    </MudTooltip>
+                </MudTd>
+                <MudTd>
+                    <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })"
+                                Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                StartIcon="@Icons.Material.Filled.Preview">
+                        View BL
+                    </MudButton>
+                </MudTd>
+                <MudTd>@context.Num</MudTd>
+                <MudTd>@context.Dated</MudTd>
+                <MudTd>@context.Vessel</MudTd>
+                <MudTd>@context.Voyage</MudTd>
+                <MudTd>@context.POD</MudTd>
+                <MudTd Style="text-align:start">@context.Carrier</MudTd>
+                <MudTd>@context.Status.ToString()</MudTd>
+            </RowTemplate>
+            <PagerContent></PagerContent>
+        </MudTable>
+    </div>
 
 </MudForm>
 
@@ -123,12 +144,12 @@
 
 @code {
     private MudForm? FilterForm;
-    private MudTable<ExportOrderEntity>? mudTable;
+    private MudTable<ExportOrderComponentDTO>? mudTable;
 
     [CascadingParameter]
     MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public IEnumerable<ExportOrderEntity>? Items { get; set; } = new List<ExportOrderEntity>();
+    public IEnumerable<ExportOrderComponentDTO>? Items { get; set; } = new List<ExportOrderComponentDTO>();
 
     private FilterParameters Filter { get; set; } = new();
     private bool IsLoadingData {get; set; } = false;
@@ -143,28 +164,13 @@
 
         var response = await _exportOrderProvider.GetItemsAsync(Filter);
         if (!response.HasError)
-            Items = ((IEnumerable<ExportOrderEntity>)response.Object!).ToArray();
+            Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
 
         await Task.Delay(500);
 
         await InvokeAsync(StateHasChanged);
 
         IsLoadingData = false;
-    }
-
-    private async Task AddItem_Click()
-    {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        dialog = await DialogService.ShowAsync<ExportOrderItem_Dialog>(null, parameters, options);
-
-        DialogResult result = await dialog.Result;
-
-        if (!result.Canceled)
-            if (Items!.Count() > 0)
-                await GetItems();
     }
 
     private async Task ShowItem_Click(long id)
@@ -174,7 +180,7 @@
 
         DialogParameters parameters = new DialogParameters { ["Id"] = id };
         DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        var dialog = await DialogService.ShowAsync<ExportOrderItem_Dialog>(null, parameters, options);
+        var dialog = await DialogService.ShowAsync<ExportOrder_ItemDialog>(null, parameters, options);
 
         DialogResult result = await dialog.Result;
 
@@ -211,6 +217,7 @@
         }
     }
 
+
     #region SEARCHERS
 
     private async Task<IEnumerable<string>> SearchVessel(string value)
@@ -237,6 +244,16 @@
             return Enumerable.Empty<string>();
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchPort(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
+        var result = await _locationProvider.GetNamesEn();
+        
+        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchCarrier(string value)

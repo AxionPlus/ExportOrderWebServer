@@ -1,5 +1,6 @@
 ﻿using ExportOrderEntites.MyCompany;
 using Microsoft.EntityFrameworkCore;
+using static MudBlazor.CategoryTypes;
 
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
@@ -55,9 +56,9 @@ public class ExportOrderProvider : IExportOrderProvider
 
             //var BLitem = await db.ExportOrders.Include(x => x.Records)!.ThenInclude(r => r.CntrType).AsNoTracking().FirstOrDefaultAsync(s => s.Id == eoId);
 
-            var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.LoadingTerminal)
+            var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.Terminal)
                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
-                                            .Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Country)
+                                            .Include(x => x.VesselCall).ThenInclude(vc => vc!.Details).ThenInclude(d => d.POD).ThenInclude(p => p!.Country)
                                             .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
                                             .Include(x => x.Person)
                                             .Include(x => x.Documents)!.ThenInclude(d => d.Records)
@@ -73,22 +74,24 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 VesselName = source.VesselCall!.Vessel.Name!,
                                                 VesselFlag = source.VesselCall.Vessel.Flag!.RUS,
                                                 VesselFlagEn = source.VesselCall.Vessel.Flag.ENG,
-                                                Voyage = source.VesselCall.VoyageCarrier,
+                                                Voyage = source.VesselCall.VoyageNo,
                                                 DateOfLoading = source.VesselCall.ETA!.Value.ToString("dd.MM.yyyy"),
                                                 BLDate = source.VesselCall.ETS!.Value.ToString("dd.MM.yyyy"),
-                                                POD = source.VesselCall.POD.Name + ", " + source.VesselCall.POD.Country.RUS,
-                                                PODEn = source.VesselCall.POD.NameEn + ", " + source.VesselCall.POD.Country.ENG,
-                                                PODAgent = source.VesselCall.PODAgent,
+                                                POD = source.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == source.VesselCall.Id)!.POD!.Name! + ", " +
+                                                        source.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == source.VesselCall.Id)!.POD!.Country.RUS,
+                                                PODEn = source.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == source.VesselCall.Id)!.POD!.NameEn! + ", " +
+                                                        source.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == source.VesselCall.Id)!.POD!.Country.ENG,
+                                                PODAgent = source.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == source.VesselCall.Id)!.AgentPOD,
                                                 Measurement = source.Records.FirstOrDefault()!.Contents.FirstOrDefault()!.Volume > 0 ? "CBM" : "KG",
                                                 TotalCntrCount = source.Records.Count,
                                                 TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
                                                 TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
                                                 //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ?
                                                 //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
-                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.Contract,
+                                                Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.Terminal.Name)!.Contract,
                                                 //ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract != null ?
                                                 //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
-                                                ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
+                                                ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
                                                 MyCompanyName = myCompany!.Name!,
                                                 Person = source.Person!.Name + " т. " + source.Person.Phone,
                                                 exportOrderRecordsDTO = eoRecords(source.Records!)
@@ -106,9 +109,9 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             var db = await _db;
 
-            var Items = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.LoadingTerminal)
+            var Items = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.Terminal)
                                  .Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
-                                 .Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Country)
+                                 //.Include(x => x.VesselCall).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod.Country)
                                  .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
                                  .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
                                  .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
@@ -142,33 +145,46 @@ public class ExportOrderProvider : IExportOrderProvider
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-            var db = await _db;
-
-            var items = await db.ExportOrders.ToListAsync();
+            var db = await _db;            
 
             if (parameters.GetType() == typeof(FilterParameters))
             {
                 var filter = (FilterParameters)parameters;
 
-                if (!string.IsNullOrEmpty(filter.ExportOrderNum))
-                    items = items.Where(s => s.Num == filter.ExportOrderNum).ToList();
+                var exportOrders = await db.ExportOrders
+                                                    .Include(eo => eo.VesselCall).ThenInclude(vc => vc!.Vessel)
+                                                    .Include(eo => eo.VesselCall).ThenInclude(vc => vc!.Terminal)
+                                                    .Include(eo => eo.VesselCall).ThenInclude(vc => vc!.Details).ThenInclude(d => d.POD)
+                                                    .Include(eo => eo.Carrier)
+                                                    .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated: true)
+                                                    .AsNoTracking()
+                                                    .ToListAsync();
 
-                if (!string.IsNullOrEmpty(filter.CntrNum))
-                    items = items.Where(s => s.Records!.FirstOrDefault()!.CntrNum == filter.CntrNum).ToList();
+                var ItemsDTO = eoComponentRecord(exportOrders);
+
+
+                if (!string.IsNullOrEmpty(filter.Num))
+                    ItemsDTO = ItemsDTO.Where(s => s.Num == filter.Num).ToList();
+
+                //if (!string.IsNullOrEmpty(filter.CntrNum))
+                //    items = items.Where(s => s.Records!.FirstOrDefault()!.CntrNum == filter.CntrNum).ToList();
+
+                if (!string.IsNullOrEmpty(filter.Vessel))
+                    ItemsDTO = ItemsDTO.Where(s => s.Vessel == filter.Vessel).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Voyage))
-                    items = items.Where(s => s.VesselCall!.VoyageCarrier == filter.Voyage).ToList();
+                    ItemsDTO = ItemsDTO.Where(s => s.Voyage == filter.Voyage).ToList();
 
-                if (!string.IsNullOrEmpty(filter.VesselName))
-                    items = items.Where(s => s.VesselCall!.Vessel.Name == filter.VesselName).ToList();
+                if (!string.IsNullOrEmpty(filter.POD))
+                    ItemsDTO = ItemsDTO.Where(s => s.POD== filter.POD).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Carrier))
-                    items = items.Where(s => s.Carrier!.Name == filter.Carrier).ToList();
+                    ItemsDTO = ItemsDTO.Where(s => s.Carrier == filter.Carrier).ToList();
 
-                if (filter.VesselCallId > 0)
-                    items = items.Where(s => s.VesselCall!.Id == filter.VesselCallId).ToList();
+                if (filter.Status >= 0)
+                    ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
 
-                appObjResponse.Object = items.ToArray();
+                appObjResponse.Object = ItemsDTO.ToArray();
             }
 
             return appObjResponse;
@@ -210,6 +226,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 }
 
                 item.CreateUser = User!;
+                item.Status = EntityStatus.Pending;
 
                 db.Entry(item).State = EntityState.Added;
                 db.Entry(item.Carrier!).State = EntityState.Unchanged;
@@ -260,9 +277,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
             return Item!;
         }
-    }
-
-    
+    }    
 
 
     #region AUXIALARY
@@ -321,10 +336,12 @@ public class ExportOrderProvider : IExportOrderProvider
         foreach (var Item in _mRecords)
         {
             bLDTO.BLDate = Item.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy");
-            bLDTO.Voyage = Item.VesselCall!.VoyageCarrier;
+            bLDTO.Voyage = Item.VesselCall!.VoyageNo;
             bLDTO.VesselName = Item.VesselCall!.Vessel.Name!;
             bLDTO.VesselFlagEn = Item.VesselCall.Vessel.Flag!.ENG;
-            bLDTO.PODEn = Item.VesselCall.POD.NameEn + ", " + Item.VesselCall.POD.Country.ENG;
+            //bLDTO.PODEn = Item.VesselCall.POD.NameEn + ", " + Item.VesselCall.POD.Country.ENG;
+            bLDTO.PODEn = Item.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == Item.VesselCall.Id)!.POD!.NameEn + ", " +
+                            Item.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == Item.VesselCall.Id)!.POD!.Country.ENG;
             bLDTO.TotalCntrCount = Item.Records.Count;
             bLDTO.TotalGrossWeight = Item.Records.Sum(r => r.Contents.Sum(c => c.GrossWt));
             bLDTO.TotalTareWeight = Item.Records.Sum(r => r.CntrTareWt);
@@ -364,6 +381,33 @@ public class ExportOrderProvider : IExportOrderProvider
         }
 
         return BLDTO_List;
+    };
+
+    Func<IEnumerable<ExportOrderEntity>, IEnumerable<ExportOrderComponentDTO>> eoComponentRecord = (Records) =>
+    {
+        var RecordsDTO = new List<ExportOrderComponentDTO>();        
+
+        foreach (var record in Records)
+        {
+            foreach (var detail in record.VesselCall!.Details)
+            {
+                var recordDTO = new ExportOrderComponentDTO()
+                {
+                    Id = record.Id,
+                    Num = record.Num,
+                    Dated = record.Dated.ToShortDateString(),
+                    Vessel = record.VesselCall!.Vessel.Name!,
+                    Voyage = record.VesselCall.VoyageNo,
+                    POD = record.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == record.VesselCall.Id)!.POD!.Name!,
+                    Carrier = record.Carrier!.NameEn,
+                    Status = record.Status,
+                };
+
+                RecordsDTO.Add(recordDTO);
+            }            
+        }
+
+        return RecordsDTO;
     };
 
     #endregion

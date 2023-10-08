@@ -84,7 +84,7 @@
             <div class="container-content" style="margin-bottom: 15px">
                 <div style="width:300px"></div>
                 <MudSpacer />
-                <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px" Label="Loading Terminal" @bind-Value="Item.LoadingTerminal"
+                <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px" Label="Loading Terminal" @bind-Value="Item.Terminal"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchTerminal"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -98,15 +98,15 @@
                 <div style="width:100px; margin-left: 20px"></div>
             </div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 300px;" Label="Voyage Carrier" Text="@Item.VoyageCarrier"
-                              TextChanged="async (e)=> { Item.VoyageCarrier = e.ToUpper(); }"
+                <MudTextField T="string" Style="width: 300px;" Label="Voyage Carrier" Text="@Item.VoyageNo"
+                              TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                 <MudSpacer />
-                <MudTextField T="string" Style="width: 300px" Label="Voyage Terminal" Text="@Item.VoyageTerminal"
-                              TextChanged="async (e)=> { Item.VoyageTerminal = e.ToUpper(); }"
+                <MudTextField T="string" Style="width: 300px" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
+                              TextChanged="async (e)=> { Item.VoyageNoTerminal = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
@@ -115,7 +115,7 @@
                 <div style="width: 100px; margin-left: 20px"></div>
             </div>
             <div class="container-content">
-                <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 300px" Label="Port of Discharge" @bind-Value="Item.POD"
+@*                 <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 300px" Label="Port of Discharge" @bind-Value="Item.POD"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchPOD"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -133,7 +133,7 @@
                               Required RequiredError=""
                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
                 <MudSpacer />
-                <div style="width: 100px; margin-left: 20px"></div>
+                <div style="width: 100px; margin-left: 20px"></div> *@
             </div>
             <div class="container-content" style="align-items:start">
                  <MudTable Class="Table" @ref="mudTable" Items="@CarrierItems" T="VesselCallCarrierDTO" Loading="IsLoadingData"
@@ -279,7 +279,7 @@
 
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        dialog = await DialogService.ShowAsync<ExportOrderItem_Dialog>(null, parameters, options);
+        dialog = await DialogService.ShowAsync<ExportOrder_ItemDialog>(null, parameters, options);
 
         DialogResult result = await dialog.Result;
 

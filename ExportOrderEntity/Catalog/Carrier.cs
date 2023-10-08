@@ -17,10 +17,10 @@ public class CarrierTerminalDetails
     [Key]
     public long Id { get; set; }
 #pragma warning disable CS8618
-    public string TerminalName { get; set; }
+    public string TerminalName { get; set; }        // change to TerminalId
     public string? Contract { get; set; }
     public DateTime? DateContract { get; set; }
-    public string? POLAgent { get; set; }    
+    public string? AgentPOL { get; set; }    
 
 
     [JsonIgnore]

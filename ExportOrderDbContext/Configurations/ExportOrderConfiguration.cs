@@ -22,13 +22,11 @@ public class ExportOrderConfiguration : IEntityTypeConfiguration<ExportOrderEnti
                .HasColumnType("xid")
                .HasConversion(converter);
 
-        builder.Navigation(s => s.Records).AutoInclude();
+        //builder.Navigation(s => s.Records).AutoInclude();
+        
+        //builder.Navigation(s => s.Carrier).AutoInclude();
 
-        //builder.Navigation(s => s.Documents).AutoInclude();
-
-        builder.Navigation(s => s.Carrier).AutoInclude();
-
-        builder.Navigation(s => s.VesselCall).AutoInclude();
+        //builder.Navigation(s => s.VesselCall).AutoInclude();
 
 
         builder.HasMany(s=>s.Documents).WithMany(s=>s.ExportOrders).UsingEntity(j => j.ToTable("ExportOrders_Documents"));
@@ -50,9 +48,6 @@ public class ExportOrderRecordConfiguration : IEntityTypeConfiguration<ExportOrd
 
 
         builder.ToTable("ExportOrder_Records");
-
-
-        //builder.HasOne(s => s.CntrType);
 
         builder.Navigation(s => s.CntrType).AutoInclude();
 

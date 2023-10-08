@@ -30,7 +30,7 @@
             <MudSpacer />
 
             <div class="ToolBar-Title">
-                <span>@($"Export Order: \t { Header }")</span>
+                <span>@($"Export Order: \t {Item!.Status!.ToString()}")</span>
             </div>
 
             <MudSpacer />
@@ -66,7 +66,7 @@
     <MudForm @ref="@Form" Disabled="@(!IsNewItem)">
         @if (Item != null)
         {
-            <ExportOrderItem_Component @bind-Value="Item" IsNewItem="IsNewItem" />
+            <ExportOrder_ItemComponent @bind-Value="Item" IsNewItem="IsNewItem" />
         }
     </MudForm>
 
@@ -83,7 +83,6 @@
     public bool IsNewItem { get; set; } = false;
 
     private ExportOrderEntity? Item { get; set; }
-    private string Header = "new";
     private bool IsAuth = false;
 
 
@@ -101,17 +100,15 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-            Item = new() { Carrier = new(), VesselCall = new() { Vessel = new() }, Person = new() };
+            Item = new() { Carrier = new(), VesselCall = new() { Vessel = new() }, Person = new(), Status = EntityStatus.New };
         else
         {
             var response = await _exportOrderProvider.GetItemAsync(Id);
             if (!response.HasError)
                 Item = (ExportOrderEntity)response.Object!;
 
-            if (Item is not null)
-                Header = Item!.Status!.ToString();
-
-            //IsNewItem = false;
+            // if (Item is not null)
+            //     IsNewItem = false;
         }
     }
 

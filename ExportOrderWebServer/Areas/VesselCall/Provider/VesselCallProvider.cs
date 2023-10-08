@@ -1,4 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Office.Interop.Excel;
+using System.Linq;
+using static MudBlazor.CategoryTypes;
 
 namespace ExportOrderWebServer.Areas.VesselCall.Provider;
 
@@ -28,6 +31,35 @@ public class VesselCallProvider : IVesselCallProvider
         return appObjResponse;
     }
 
+    public async Task<AppObjectResponse> GetItemAsync(string name)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            if (name.Contains('&'))
+            {
+                var vesselName = name.Split('&')[0];
+                var voyageNo = name.Split('&')[1];
+
+                var vesselCalls = await db.VesselCalls
+                                                    .Include(vc => vc.Vessel)
+                                                    .Include(vc => vc.Terminal)
+                                                    .Include(vc => vc.Details).ThenInclude(d => d.POD)
+                                                    .AsSplitQuery()
+                                                    .ToListAsync();
+                if (appObjResponse.Object is null)
+                    appObjResponse.ErrorAdd($"There is no voayeg {vesselName} {voyageNo}");
+            }
+            else
+                appObjResponse.ErrorAdd("Wrong request");
+
+            return appObjResponse;
+        }
+    }
+
     public async Task<AppObjectResponse> GetItemsAsync()
     {
         appObjResponse = new();
@@ -53,21 +85,30 @@ public class VesselCallProvider : IVesselCallProvider
                 var filter = (FilterParameters)parameters;
 
                 var vesselCalls = await db.VesselCalls
-                                    .Where(s => filter.ETA.HasValue ? s.ETA!.Value >= filter.ETA.Value : true)
-                                    .Where(s => filter.ETS.HasValue ? s.ETS!.Value >= filter.ETS.Value : true)
-                                    .ToListAsync();
+                                                    .Include(vc => vc.Vessel)
+                                                    .Include(vc => vc.Terminal)
+                                                    .Include(vc => vc.Details).ThenInclude(d => d.POD)
+                                                    .Where(vc => filter.ETA.HasValue ? vc.ETA!.Value >= filter.ETA.Value : true)
+                                                    .Where(vc => filter.ETS.HasValue ? vc.ETS!.Value >= filter.ETS.Value : true)
+                                                    .AsSplitQuery()
+                                                    .ToListAsync();
+                
+                var vesselCallsDTO = vcRecords(vesselCalls);
 
+                if (!string.IsNullOrEmpty(filter.Vessel))
+                    vesselCallsDTO = vesselCallsDTO.Where(s => s.VesselName == filter.Vessel).ToList();
 
-                if (!string.IsNullOrEmpty(filter.VesselName))
-                    vesselCalls = vesselCalls.Where(s => s.Vessel.Name == filter.VesselName).ToList();
+                if (!string.IsNullOrEmpty(filter.Voyage))
+                    vesselCallsDTO = vesselCallsDTO.Where(s => s.VoyageNo == filter.Voyage).ToList();
 
-                if (!string.IsNullOrEmpty(filter.TerminalName))
-                    vesselCalls = vesselCalls.Where(s => s.LoadingTerminal.Name == filter.TerminalName).ToList();
+                if (!string.IsNullOrEmpty(filter.Terminal))
+                    vesselCallsDTO = vesselCallsDTO.Where(s => s.Terminal == filter.Terminal).ToList();
 
                 if (!string.IsNullOrEmpty(filter.POD))
-                    vesselCalls = vesselCalls.Where(s => s.POD.Name == filter.POD).ToList();
+                    vesselCallsDTO = vesselCallsDTO.Where(s => s.POD == filter.POD).ToList();
+                    //vesselCallsDTO = vesselCallsDTO.Where(s => s.Details.FirstOrDefault(d => d.VesselCall!.Id == s.Id)!.POD!.Name == filter.POD).ToList();
 
-                appObjResponse.Object = vesselCalls.ToArray();
+                appObjResponse.Object = vesselCallsDTO.ToArray();
             }            
 
             return appObjResponse;
@@ -93,15 +134,21 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .Where(s => s.ETA!.Value == item.ETA!.Value).FirstOrDefaultAsync();
             if (itemExistCheck != null)
             {
-                appObjResponse.ErrorAdd($"Vessel {item.Vessel.Name} with ETA {item.ETA!.Value.ToString("d")} is exists already.");
+                appObjResponse.ErrorAdd($"Vessel {item.Vessel.Name} with ETA {item.ETA!.Value.ToString("dd.MM.yy")} is exists already.");
                 return appObjResponse;
             }
 
             item.CreateUser = User!;
 
+            foreach (var detail in item.Details)
+            {
+                db.Entry(detail).State = EntityState.Added;
+                db.Entry(detail.POD!).State = EntityState.Unchanged;
+            }
+
+
             db.Entry(item.Vessel).State = EntityState.Unchanged;
-            db.Entry(item.LoadingTerminal).State = EntityState.Unchanged;
-            db.Entry(item.POD).State = EntityState.Unchanged;
+            db.Entry(item.Terminal).State = EntityState.Unchanged;
             db.Entry(item).State = EntityState.Added;
 
             var bug = db.ChangeTracker.DebugView.LongView;
@@ -149,9 +196,36 @@ public class VesselCallProvider : IVesselCallProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.VesselCalls.Select(s => s.VoyageCarrier!).ToListAsync();
+            return await db.VesselCalls.Select(s => s.VoyageNo!).ToListAsync();
         }
     }
+
+    Func<IEnumerable<VesselCallEntity>, IEnumerable<VesselCallDTO>> vcRecords = (Records) =>
+    {
+        var RecordsDTO = new List<VesselCallDTO>();
+
+        foreach (var record in Records)
+        {
+            foreach (var detail in record.Details)                
+            {
+                var recordDTO = new VesselCallDTO()
+                {
+                    Id = detail.Id,
+                    VesselName = record.Vessel.Name,
+                    VoyageNo = record.VoyageNo,
+                    VoyageNoTerminal = record.VoyageNoTerminal,
+                    ETA = record.ETA,
+                    ETS = record.ETS,
+                    POD = detail.POD!.NameEn,
+                    AgentPOD = detail.AgentPOD,
+                };
+
+                RecordsDTO.Add(recordDTO);
+            };
+        }        
+        
+        return RecordsDTO;
+    };
 
     public async Task<IEnumerable<VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId)
     {
@@ -190,6 +264,8 @@ public class VesselCallProvider : IVesselCallProvider
             return CarriersGroup;
         }
     }
+
+
 
     #endregion
 }

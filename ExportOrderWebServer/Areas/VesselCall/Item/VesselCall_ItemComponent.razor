@@ -1,0 +1,234 @@
+﻿@inject ISnackbar Snackbar
+
+@inject IVesselProvider _vesselProvider
+@inject ITerminalProvider _terminalProvider
+@inject ILocationProvider _locationProvider
+
+
+<div class="Container-item" style="width: 760px">
+    <div class="container-content">
+        <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px" @bind-Value="Value!.Vessel"
+                         ToStringFunc="@(e => e != null ? e.Name : "")"
+                         SearchFunc="@SearchVessel"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Required RequiredError=""
+                          CloseIcon="" OpenIcon=""
+                          ResetValueOnEmptyText="true"
+                          MaxItems="20"
+                          IconSize="Size.Small"
+                          ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+         <MudSpacer />
+         <MudTextField T="string" Style="width: 300px;" Label="Voyage Carrier" Text="@Value.VoyageNo"
+                       TextChanged="async (e)=> { Value.VoyageNo = e.ToUpper(); }"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       Immediate="true"
+                                Required RequiredError=""
+                       ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+         <MudSpacer />
+         <MudTextField T="string" Style="width: 300px" Label="Voyage Terminal" Text="@Value.VoyageNoTerminal"
+                       TextChanged="async (e)=> { Value.VoyageNoTerminal = e.ToUpper(); }"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       Immediate="true"
+                                Required RequiredError=""
+                       ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+         <MudSpacer />
+         <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px" Label="Loading Terminal" @bind-Value="Value.Terminal"
+                          ToStringFunc="@(e => e != null ? e.Name : "")"
+                          SearchFunc="@SearchTerminal"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Required RequiredError=""
+                          CloseIcon="" OpenIcon=""
+                          ResetValueOnEmptyText="true"
+                          MaxItems="20"
+                          IconSize="Size.Small"
+                          ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+         <MudSpacer />
+    </div>
+
+    <div class="container-content">
+        <MudDatePicker Class="wrapper-input-date" Label="ETA" @bind-Date="Value.ETA"
+                       Style="width: 148px; height: 40px; margin-right: 2px"
+                       DateFormat="dd.MM.yy"
+                       ShowWeekNumbers="true"
+                       Variant="Variant.Outlined"
+                       IconSize=Size.Small
+                       AutoClose=true
+                       DisableToolbar=false
+                       Required
+                       ReadOnly="!IsNewItem"
+                       Clearable />
+        <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Value.ETS"
+                       Style="width: 148px; height: 40px; margin-left: 2px"
+                       DateFormat="dd.MM.yy"
+                       ShowWeekNumbers="true"
+                       Variant="Variant.Outlined"
+                       IconSize=Size.Small
+                       AutoClose=true
+                       DisableToolbar=false
+                       Required
+                       ReadOnly="!IsNewItem"
+                       Clearable />         
+    </div>
+
+    <div class="Container-table">
+         <MudTable Class="Table" Items="@Value.Details" Loading="IsLoadingData">
+             <HeaderContent>
+                 <MudTh Style="width:30px">
+                     <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetailItem" Disabled="@IsLoadingData" />
+                 </MudTh>
+                 <MudTh Style="width: 300px">PORT</MudTh>
+                 <MudTh Style="width: 300px">Agent</MudTh>
+             </HeaderContent>
+             <RowTemplate>
+                 <MudTd>
+                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" Href=@($"/container/") Disabled="@IsLoadingData" />
+                 </MudTd>
+                 <MudTd DataLabel="Port">
+                     <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 300px" Label="Port of Discharge" @bind-Value="context.POD"
+                                      ToStringFunc="@(e => e != null ? e.Name : "")"
+                                      SearchFunc="@SearchPOD"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Required RequiredError=""
+                                      CloseIcon="" OpenIcon=""
+                                      ResetValueOnEmptyText="true"
+                                      MaxItems="20"
+                                      IconSize="Size.Small"
+                                      ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                 </MudTd>
+                 <MudTd DataLabel="Agent">
+                     <MudTextField T="string" Style="width: 300px;" Label="POD Agent" Text="@context.AgentPOD"
+                                   TextChanged="async (e)=> { context.AgentPOD = e.ToUpper(); }"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   Immediate="true"
+                                   Required RequiredError=""
+                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                 </MudTd>
+             </RowTemplate>
+         </MudTable>
+     </div>
+
+
+     @* <div class="container-content" style="align-items:start">
+         <MudTable Class="Table" @ref="mudTable" Items="@CarrierItems" T="VesselCallCarrierDTO" Loading="IsLoadingData"
+                   Virtualize="true" RowsPerPage="10" Context="carriers" ReadOnly="!IsNewItem">
+
+             <HeaderContent>
+                 <MudTh Style="width: 120px"></MudTh>
+                 <MudTh Style="width: 235px">Carrier</MudTh>
+                 <MudTh Style="width: 40px"></MudTh>
+                 <MudTh Style="width: 135px">Export Order</MudTh>
+                 <MudTh Style="width: 80px">Dated</MudTh>
+             </HeaderContent>
+
+             <RowTemplate>
+                 <MudTd>
+                     <MudButton Class="Button" Style="width: 100px" OnClick="@(async()=> await ManifestReport_Click(carriers.CarrierId))"
+                                Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary"
+                                StartIcon="@Icons.Material.Filled.Print">
+                         Manifest
+                     </MudButton>
+                 </MudTd>
+                 <MudTd>@carriers.CarrierNameEn</MudTd>
+                 <MudTd>
+                     <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(carriers.IsShowRecords ? "transform: rotate(180deg);" : "")"
+                                    Size="@Size.Small" OnClick="(_)=>{carriers.IsShowRecords = !carriers.IsShowRecords;}" />
+                 </MudTd>
+
+             </RowTemplate>
+
+             <ChildRowContent>
+                 @if (carriers.IsShowRecords)
+                {
+                    <MudTr>
+                        <td colspan="2"></td>
+                        <td colspan="3">
+                            <MudTable Class="sub-Table" T="VesselCallRecordDTO" Context="carrierExpOrders" Items="@carriers.RecordsDTO">
+                                <RowTemplate>
+                                    <MudTd Style="width:40px">
+                                        <MudIconButton Icon="@Icons.Material.Filled.FindInPage"
+                                                       Size="@Size.Small" OnClick="ViewExportOrder_Click" />
+                                    </MudTd>
+                                    <MudTd Style="width:135px">@carrierExpOrders.ExportOrderNum</MudTd>
+                                    <MudTd Style="width:80px">@carrierExpOrders.ExportOrderDate!.Value.ToString("dd.MM.yy")</MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        </td>
+                    </MudTr>
+                }
+            </ChildRowContent>
+
+        </MudTable>
+
+        <MudSpacer />
+        <MudButton Class="Button" Style="width: 100px" OnClick="AddExportOrderItem_Click"
+                   Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Add">
+            New Export Order
+        </MudButton>
+    </div> *@
+</div>
+
+@code {
+    [Parameter]
+    public VesselCallEntity? Value { get; set; }
+    [Parameter]
+    public EventCallback<VesselCallEntity> ValueChanged { get; set; }
+    [Parameter]
+    public bool IsNewItem { get; set; }
+
+    bool IsLoadingData = false;
+
+
+    private void AddDetailItem()
+    {
+        Value!.Details.Add(new());
+    }
+
+
+
+    #region SEARCH FUNCTIONS
+
+    private async Task<IEnumerable<VesselEntity>> SearchVessel(string value)
+    {
+        var Vessels = new List<VesselEntity>();
+
+        var response = await _vesselProvider.GetItemsAsync();
+        if (!response.HasError)
+            Vessels = ((IEnumerable<VesselEntity>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Vessels;
+
+        return Vessels.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    private async Task<IEnumerable<TerminalCatalog>> SearchTerminal(string value)
+    {
+        var Terminals = new List<TerminalCatalog>();
+
+        var response = await _terminalProvider.GetItemsAsync();
+        if (!response.HasError)
+            Terminals = ((IEnumerable<TerminalCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Terminals;
+
+        return Terminals.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    private async Task<IEnumerable<LocationCatalog>> SearchPOD(string value)
+    {
+        var Ports = new List<LocationCatalog>();
+
+        var response = await _locationProvider.GetItemsAsync();
+        if (!response.HasError)
+            Ports = ((IEnumerable<LocationCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Ports;
+
+        return Ports.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    #endregion
+}

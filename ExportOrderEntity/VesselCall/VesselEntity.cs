@@ -9,6 +9,6 @@ public class VesselEntity: Entity
     [MaxLength(10)]
     public string? IMO { get; set; }
     public string? Name { get; set; }    
-    public string? TerminalId { get; set; }
+    public string? TerminalId { get; set; }         // Принятый Терминалом Идентификатор судна
     public CountryCatalog? Flag { get; set; }
 }

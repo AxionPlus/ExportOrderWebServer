@@ -1,5 +1,8 @@
 ﻿@page "/country"
 
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
 <PageTitle>Country</PageTitle>
 
 <div class="ToolBar-container">
@@ -8,6 +11,12 @@
         <MudSpacer />
         <div class="ToolBar-Title"><span>countries</span></div>
         <MudSpacer />
+
+        <div class="ToolBar-iconbutton" style="margin-right: 20px">
+            <MudTooltip Text="new vessel call">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+            </MudTooltip>
+        </div>
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -17,8 +26,25 @@
     </MudToolBar>
 </div>
 
-<CountryComponent />
+<CountryComponent @ref="component" />
+@* <CountryComponent @ref="component" IsLoadingData="@IsLoadingData" /> *@
 
 @code {
+    public CountryComponent? component;
 
+    //private bool IsLoadingData { get; set; } = false;
+
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Country_ItemDialog>("New Country", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (!result.Canceled)
+            await component!.GetItems();
+    }
 }

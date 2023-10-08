@@ -137,7 +137,7 @@
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
-    private async Task GetItems()
+    public async Task GetItems()
     {
         IsLoadingData = true;
 
@@ -147,9 +147,9 @@
 
         await Task.Delay(500);
 
-        await InvokeAsync(StateHasChanged);
-
         IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ShowItem_Click(string VesselVoyage)
@@ -157,16 +157,11 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["Voyage"] = VesselVoyage };
-        //DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
-        //dialog = await DialogService.ShowAsync<VesselCallItem_Dialog>("Vessel Call", parameters, options);
-
         DialogOptions options = new DialogOptions() { FullScreen = true, CloseOnEscapeKey = true, DisableBackdropClick = true, NoHeader = true };
         dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>(null, parameters, options);       
 
         DialogResult result = await dialog.Result;
     }
-
-
 
     private async Task RemoveItem_Click(VesselCallDTO item)
     {

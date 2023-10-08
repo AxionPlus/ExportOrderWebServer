@@ -92,6 +92,7 @@ public class TerminalProvider : ITerminalProvider
             item.CreateUser = User!;
 
             db.Entry(item.Location!).State = EntityState.Unchanged;
+            db.Entry(item.Customs!).State = EntityState.Unchanged;
             db.Entry(item).State = EntityState.Added;
 
             var bug = db.ChangeTracker.DebugView.LongView;
@@ -116,8 +117,21 @@ public class TerminalProvider : ITerminalProvider
         }
     }
 
-    public async Task<IEnumerable<string>> GetNamesEn()
+    public Task<IEnumerable<string>> GetNamesEn()
     {
         throw new NotImplementedException();
     }
+
+    public async Task<IEnumerable<CustomsCatalog>> GetCustomsOfficesAsync()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var Item = db.CustomsOffices.AsNoTracking().ToList();
+
+            return Item!;
+        }
+    }
+    
 }

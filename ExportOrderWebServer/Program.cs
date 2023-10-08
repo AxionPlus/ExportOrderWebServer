@@ -1,3 +1,4 @@
+using ExportOrderWebServer.Areas.Customs.Provider;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,7 @@ builder.Services.AddTransient<ICarrierProvider, CarrierProvider>();
 builder.Services.AddTransient<ICommodityProvider, CommodityProvider>();
 builder.Services.AddTransient<ICountryProvider, CountryProvider>();
 builder.Services.AddTransient<ICustomerProvider, CustomerProvider>();
+builder.Services.AddTransient<ICustomsProvider, CustomsOfficeProvider>();
 builder.Services.AddTransient<ILocationProvider, LocationProvider>();
 builder.Services.AddTransient<ITerminalProvider, TerminalProvider>();
 builder.Services.AddTransient<IVesselProvider, VesselProvider>();

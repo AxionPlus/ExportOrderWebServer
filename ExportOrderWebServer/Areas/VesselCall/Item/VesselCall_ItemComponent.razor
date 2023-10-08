@@ -71,7 +71,7 @@
     </div>
 
     <div class="Container-table">
-         <MudTable Class="Table" Items="@Value.Details" Loading="IsLoadingData">
+         <MudTable Class="Table" @ref="mudTable" Items="@Value.Details" Loading="IsLoadingData">
              <HeaderContent>
                  <MudTh Style="width:30px">
                      <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetailItem" Disabled="@IsLoadingData" />
@@ -81,7 +81,8 @@
              </HeaderContent>
              <RowTemplate>
                  <MudTd>
-                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" Href=@($"/container/") Disabled="@IsLoadingData" />
+                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemoveDetail_Click(context); })"
+                                    Disabled="@IsLoadingData" />
                  </MudTd>
                  <MudTd DataLabel="Port">
                      <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 300px" Label="Port of Discharge" @bind-Value="context.POD"
@@ -168,7 +169,9 @@
     </div> *@
 </div>
 
-@code {
+ @code {
+    private MudTable<VesselCallDetail>? mudTable;
+
     [Parameter]
     public VesselCallEntity? Value { get; set; }
     [Parameter]
@@ -184,6 +187,12 @@
         Value!.Details.Add(new());
     }
 
+    private async Task RemoveDetail_Click(VesselCallDetail item)
+    {
+        await Task.Delay(50);
+        if (Value!.Details.Contains(item))
+            Value.Details.Remove(item);
+    }
 
 
     #region SEARCH FUNCTIONS

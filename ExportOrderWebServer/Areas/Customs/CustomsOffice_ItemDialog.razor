@@ -1,0 +1,134 @@
+﻿@inject ISnackbar Snackbar
+
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject ICustomsProvider _customsProvider
+
+@if (Item is not null)
+{
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="!IsNewItem">
+        <div class="Container-item">
+            <div class="container-head"></div>
+            <div class="container-content">
+                 <MudTextField T="string" Style="width: 150px" Label="Код" @bind-Value="@Item.CustomsCode"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
+                 <MudSpacer />
+                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
+                             Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
+                      Save
+                 </MudButton>
+             </div>
+             <div class="container-content">
+                 <MudTextField T="string" Style="width: 350px" Label="Таможенный пост" Text="@Item.CustomsOffice"
+                               TextChanged="@(async (e)=> { Item.CustomsOffice = e.ToUpper(); })"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
+             </div>
+             <div class="container-content">
+                 <MudTextField T="string" Style="width: 350px" Label="Таможенный орган" Text="@Item.CustomsDapartment"
+                               TextChanged="@(async (e)=> { Item.CustomsDapartment = e.ToUpper(); })"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
+                 <MudSpacer />
+                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
+                            Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
+                     Clear
+                 </MudButton>
+             </div>
+             <div class="container-content">
+                 <MudTextField T="string" Style="width: 500px" Label="Объяснение - статья ТК" @bind-Value-v="@Item.CustomsArticle"
+                               Placeholder="в соответствии со статьей 323 ТК ЕАЭС"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
+             </div>
+        </div>
+    </MudForm>
+}
+
+@code {
+    private MudForm? Form { get; set; }
+
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+    [Parameter]
+    public long Id { get; set; } = 0;
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
+
+    private CustomsCatalog? Item { get; set; }
+
+    private bool IsAuth = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItem();
+
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        {
+            IsAuth = true;
+        }
+    }
+
+    private async Task GetItem()
+    {
+        if (IsNewItem)
+            Item = new();
+        else
+        {
+            var response = await _customsProvider.GetItemAsync(Id);
+            if (!response.HasError)
+                Item = (CustomsCatalog)response.Object!;
+        }
+    }
+    
+    public async Task SaveItem_Click()
+    {
+        await Form!.Validate();
+
+        if (Form.IsValid)
+        {
+            if (IsNewItem)
+            {
+                var response = await _customsProvider.NewItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Saved successfully", Severity.Success);
+                    IsNewItem = false;
+                }
+                else
+                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+            }
+            else
+            {
+                // var response = await _customsProvider.ModifyItemAsync(Item!);
+                // if (!response.HasError)
+                // {
+                //     await GetItem();
+                //     Snackbar.Add("Save Successed", Severity.Success);
+                // }
+                // else
+                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+            }
+
+            await InvokeAsync(StateHasChanged);
+
+            MudDialog!.Close();
+        }
+    }
+
+    public async Task ClearItem_Click()
+    {
+        if (IsNewItem)
+        {
+            Item!.CustomsCode = string.Empty;
+            Item.CustomsOffice = string.Empty;
+            Item.CustomsDapartment = string.Empty;
+            Item.CustomsArticle = string.Empty;
+        }
+
+        await Task.Delay(50);
+        //await InvokeAsync(StateHasChanged);
+    }
+
+}

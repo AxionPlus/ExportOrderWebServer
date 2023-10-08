@@ -1,11 +1,12 @@
 ﻿@inject ISnackbar Snackbar
+
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICountryProvider _countryProvider
 
 @if (Item is not null)
 {
     <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="!IsNewItem">
-        <div class="Container-item" style="width: 530px">
+        <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
                 <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.RUS"
@@ -31,12 +32,15 @@
                     Clear
                 </MudButton>
             </div>
-            </div>
+        </div>
     </MudForm>    
 }
 
 @code {
     private MudForm? Form { get; set; }
+    
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public long Id { get; set; } = 0;
     [Parameter]
@@ -100,15 +104,17 @@
             }
 
             await InvokeAsync(StateHasChanged);
-        }
+
+            MudDialog!.Close();
+        }        
     }
 
     public async Task ClearItem_Click()
     {
         if (IsNewItem)
         {
-            Item!.RUS = null;
-            Item.ENG= null;
+            Item!.RUS = string.Empty;
+            Item.ENG= string.Empty;
         }
 
         await Task.Delay(50);

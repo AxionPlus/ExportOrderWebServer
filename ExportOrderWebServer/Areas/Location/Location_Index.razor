@@ -1,5 +1,7 @@
 ﻿@page "/location"
 
+@inject IDialogService DialogService
+
 <PageTitle>Location</PageTitle>
 
 <div class="ToolBar-container">
@@ -8,6 +10,12 @@
         <MudSpacer />
         <div class="ToolBar-Title"><span>locations</span></div>
         <MudSpacer />
+
+        <div class="ToolBar-iconbutton" style="margin-right: 20px">
+            <MudTooltip Text="new vessel call">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+            </MudTooltip>
+        </div>
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -17,8 +25,22 @@
     </MudToolBar>
 </div>
 
-<LocationComponent />
+<LocationComponent @ref="component" />
 
 @code {
+    public LocationComponent? component;
 
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<LocationItem_Dialog>("New Location", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (!result.Canceled)
+            await component!.GetItems();
+    }
 }

@@ -8,25 +8,27 @@
     @* </AuthorizeView> *@
 
     @* <AuthorizeView Roles="Admin, TopManager, LogDept, ExpDept, FinDept"> *@
-        <MudNavLink Href="/exportOrder" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink>
-        @* <MudNavLink Href="/eo" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink> *@
-        <MudNavLink Href="/document" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Description">Documents</MudNavLink>
+    <MudNavLink Href="/exportOrder" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink>
+    <MudNavLink Href="/document" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Description">Documents</MudNavLink>
+    <MudDivider Class="my-2" />
+    <MudNavGroup Title="Vessel Calls" Icon="@Icons.Material.Filled.Archive" Expanded="false">
+        <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Anchor">Vessel</MudNavLink>
+        <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Catalogues" Icon="@Icons.Material.Filled.Archive" Expanded="false">
+        <MudNavLink Href="/carrier" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Carrier</MudNavLink>
+        <MudNavLink Href="/commodity" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Commodity</MudNavLink>        
+        <MudNavLink Href="/country" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Country</MudNavLink>
+        <MudNavLink Href="/customer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Customer</MudNavLink>
+        <MudNavLink Href="/customsoffice" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Customs Office</MudNavLink>
         <MudDivider Class="my-2" />
-        <MudNavGroup Title="Vessel Calls" Icon="@Icons.Material.Filled.Archive" Expanded="false">
-            <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Anchor">Vessel</MudNavLink>
-            <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
-        </MudNavGroup>
-        <MudNavGroup Title="Catalogues" Icon="@Icons.Material.Filled.Archive" Expanded="false">
-            <MudNavLink Href="/carrier" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Carrier</MudNavLink>
-            <MudNavLink Href="/commodity" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Commodity</MudNavLink>        
-            <MudNavLink Href="/country" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Country</MudNavLink>
-            <MudNavLink Href="/customer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Customer</MudNavLink>
-            <MudDivider Class="my-2" />
-            <MudNavLink Href="/location" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.LocationOn">Location</MudNavLink>
-            <MudNavLink Href="/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Terminal</MudNavLink>
-            <MudDivider Class="my-2" />
-            <MudNavLink Href="/containerType" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Container Types</MudNavLink>
-        </MudNavGroup>
+        <MudNavLink Href="/location" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.LocationOn">Location</MudNavLink>
+        <MudNavLink Href="/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Terminal</MudNavLink>
+        <MudDivider Class="my-2" />
+        <MudNavLink Href="/containerType" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Container Types</MudNavLink>
+    </MudNavGroup>
+    <MudDivider Class="my-2" />
+    <MudNavLink Href="/mycompany" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Opacity">My Company</MudNavLink>
     @* </AuthorizeView> *@
 
 </MudNavMenu>

@@ -23,7 +23,6 @@
             }
             <MudSpacer />
 
-            @* <div class="ToolBar-Title"><span>@($"{Voyage!.Split('&')[0]} // {Voyage.Split('&')[1]}")</span></div> *@
             <div class="ToolBar-Title"><span>VESSEL CALL</span></div>
             <MudSpacer />
 
@@ -97,7 +96,6 @@
         if (Form.IsValid)
             if (IsNewItem)
             {
-                //await HttpCustom.POST("LeasingAgreement/NewItem", AgreementItem);
                 await _vesselCallProvider.NewItemAsync(Item!);
 
                 Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";

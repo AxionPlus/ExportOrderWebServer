@@ -1,36 +1,29 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
-@inject ITerminalProvider _terminalProvider
-@inject ILocationProvider _locationProvider
-
-<style>
-</style>
+@inject ICustomsProvider _customsOfficeProvider
 
 <MudContainer MaxWidth="MaxWidth.Medium">
     <div class="Container-item">
         <div class="container-content">
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 200px" SearchFunc="@SearchNames"
-                             Value="Filter.Name"
-                             ValueChanged="(e)=> { Filter.Name = e; }"
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Code" Style="width: 300px" @bind-Value="@Filter.Num" SearchFunc="@SearchCodes"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon=""
                              ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Location" Style="width: 300px" SearchFunc="@SearchLocations"
-                              Value="Filter.Location"
-                              ValueChanged="(e)=> { Filter.Location = e; }"
+             <MudSpacer />
+             <MudAutocomplete Class="Autocomplete" T="string" Label="Office Name" Style="width: 300px" SearchFunc="@SearchNames"
+                              Value="Filter.Name"
+                              ValueChanged="(e)=> { Filter.Name = e; }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               CloseIcon="" OpenIcon=""
                               ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
-                        Variant="Variant.Filled" Color="Color.Secondary">
-                Search
-            </MudButton>
-         </div>
-    </div> 
-
-    <div class="Container-table">
+             <MudSpacer />
+             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                        Variant="Variant.Filled" Color="Color.Secondary"
+                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+        </div>
+    </div>
+    
+     <div class="Container-table">
          @if (mudTable != null)
         {
             <div class="tableMenu">
@@ -40,26 +33,26 @@
             </div>
         }
 
-        <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+        <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CustomsCatalog" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
             <HeaderContent>
                 <MudTh Style="width:30px"></MudTh>
                 <MudTh Style="width:30px"></MudTh>
-                <MudTh Style="width:200px">
-                    <MudTableSortLabel SortBy="new Func<TerminalCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
+                <MudTh Style="width:400px">
+                    <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsCode!)">Код тамож.органа</MudTableSortLabel>
                 </MudTh>
-                <MudTh Style="width:300px">
-                    <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name!)">Location</MudTableSortLabel>
+                <MudTh Style="width:400px">
+                    <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsOffice!)">Таможенный пост</MudTableSortLabel>
                 </MudTh>
-                <MudTh Style="width:400px">Таможенный пост</MudTh>
+                <MudTh></MudTh>
             </HeaderContent>
 
             <RowTemplate>
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
-                <MudTd>@context.Name</MudTd>
-                <MudTd>@context.Location!.Name</MudTd>
-                <MudTd>@($"({context.CustomOffice!.CustomOfficeCode}) {context.CustomOffice!.CustomOfficeName}")</MudTd>
+                <MudTd>@context.CustomsCode</MudTd>
+                <MudTd>@context.CustomsOffice</MudTd>
+                <MudTd></MudTd>
             </RowTemplate>
 
             <PagerContent></PagerContent>
@@ -72,12 +65,13 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudTable<TerminalCatalog>? mudTable;
+    private MudTable<CustomsCatalog>? mudTable;
 
-    private IEnumerable<TerminalCatalog>? Items { get; set; } = new List<TerminalCatalog>();
+    private IEnumerable<CustomsCatalog>? Items { get; set; } = new List<CustomsCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
-    bool IsLoadingData = false;
+    [Parameter]
+    public bool IsLoadingData { get; set; } = false;
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -86,9 +80,9 @@
     {
         IsLoadingData = true;
 
-        var response = await _terminalProvider.GetItemsAsync(Filter);
+        var response = await _customsOfficeProvider.GetItemsAsync(Filter);
         if (!response.HasError)
-            Items = ((IEnumerable<TerminalCatalog>)response.Object!).ToArray();
+            Items = ((IEnumerable<CustomsCatalog>)response.Object!).ToArray();
 
         await Task.Delay(500);
 
@@ -103,22 +97,22 @@
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("Terminal", parameters, options);
+        dialog = await DialogService.ShowAsync<CustomsOffice_ItemDialog>("Customs Office", parameters, options);
 
         DialogResult result = await dialog.Result;
     }
 
-    private async Task RemoveItem_Click(TerminalCatalog item)
+    private async Task RemoveItem_Click(CustomsCatalog item)
     {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Terminal:<br/>{item.Name}<br/>",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Customs Office:<br/>{item.CustomsOffice}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _terminalProvider.RemoveItemAsync(item);
+                var response = await _customsOfficeProvider.RemoveItemAsync(item);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
@@ -131,12 +125,12 @@
 
     #region SEARCH FUNCTIONS
 
-    private async Task<IEnumerable<string>> SearchNames(string value)
+    private async Task<IEnumerable<string>> SearchCodes(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();
 
-        var result = await _terminalProvider.GetNames();
+        var result = await _customsOfficeProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -144,12 +138,12 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchLocations(string value)
+    private async Task<IEnumerable<string>> SearchNames(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();
 
-        var result = await _locationProvider.GetNames();
+        var result = await _customsOfficeProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();

@@ -6,13 +6,9 @@
 <style>
 </style>
 
-<MudForm @ref="@FilterForm">
+<MudContainer MaxWidth="MaxWidth.Medium">
     <div class="Container-item">
         <div class="container-content">
-            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                       Variant="Variant.Filled" Color="Color.Primary"
-                       OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
-            <MudSpacer />
             <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchNames"
                              Value="Filter.Name"
                              ValueChanged="(e)=> { Filter.Name = e; }"
@@ -81,12 +77,11 @@
     </MudTable>
 </div>
 
-</MudForm>
+</MudContainer>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudForm? FilterForm;
     private MudTable<LocationCatalog>? mudTable;
 
     private IEnumerable<LocationCatalog>? Items { get; set; } = new List<LocationCatalog>();
@@ -97,7 +92,7 @@
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
-    private async Task GetItems()
+    public async Task GetItems()
     {
         IsLoadingData = true;
 
@@ -107,9 +102,9 @@
 
         await Task.Delay(500);
 
-        await InvokeAsync(StateHasChanged);
-
         IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ShowItem_Click(long Id)
@@ -121,21 +116,6 @@
         dialog = await DialogService.ShowAsync<LocationItem_Dialog>("Location", parameters, options);
 
         DialogResult result = await dialog.Result;
-    }
-
-    private async Task AddItem_Click()
-    {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<LocationItem_Dialog>("New Location", parameters, options);
-
-        DialogResult result = await dialog.Result;
-
-        if (result.Canceled)
-            if (Items!.Count() > 0)
-                await GetItems();
     }
 
     private async Task RemoveItem_Click(LocationCatalog item)

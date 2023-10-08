@@ -1,15 +1,14 @@
-﻿@page "/terminal"
+﻿@page "/customsoffice"
 
-@* @inject ISnackbar Snackbar *@
 @inject IDialogService DialogService
 
-<PageTitle>Terminals</PageTitle>
+<PageTitle>CustomOffices</PageTitle>
 
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
         <MudSpacer />
-        <div class="ToolBar-Title"><span>terminals</span></div>
+        <div class="ToolBar-Title"><span>custom offices</span></div>
         <MudSpacer />
 
         <div class="ToolBar-iconbutton" style="margin-right: 20px">
@@ -26,10 +25,10 @@
     </MudToolBar>
 </div>
 
-<TerminalComponent @ref="component" />
+<CustomsOfficeComponent @ref="component" />
 
 @code {
-    public TerminalComponent? component;
+    public CustomsOfficeComponent? component;
 
     private async Task AddItem_Click()
     {
@@ -37,7 +36,7 @@
 
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
+        dialog = await DialogService.ShowAsync<CustomsOffice_ItemDialog>("New Custom Office", parameters, options);
 
         DialogResult result = await dialog.Result;
 

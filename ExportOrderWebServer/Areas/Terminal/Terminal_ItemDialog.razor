@@ -3,25 +3,33 @@
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
 
+<style>
+    .Container-item > .container-content {
+        justify-content: unset;
+    }
+</style>
+
 @if (Value is not null)
 {
     <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="Container-item" style="width: 530px">
+        <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 300px" Label="Name" Text="@Value.Name"
+                <MudTextField T="string" Style="width: 150px; margin-right:10px" Label="Short Name" Text="@Value.Name"
                               TextChanged="async (e)=> { Value.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
+
+                <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
                             Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
-                     Save
-                 </MudButton>
+                    Save
+                </MudButton>
              </div>
+
              <div class="container-content">
-                 <MudAutocomplete T="LocationCatalog" Style="width: 300px" Label="Location" @bind-Value="Value.Location"
+                 <MudAutocomplete T="LocationCatalog" Style="width: 350px" @bind-Value="Value.Location"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchLocation"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -32,30 +40,34 @@
                                   MaxItems="20"
                                   IconSize="Size.Small"
                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-@*                  <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
-                            Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
-                     Clear
-                 </MudButton> *@
+
              </div>
-             <div class="container-content">
-@*                  <MudSelect Class="SelectField" T="CustomOfficeCatalog" Label="Customs" @bind-Value="@Value.CustomOffice"
-                            Text="@Value.CustomOffice!.CustomOfficeName"
-                            Style="width:300px" Placeholder="Таможенный пост"
+@*             <div class="container-content" style="padding-bottom:unset">
+                <h6 style="margin-bottom:unset">Таможенный пост</h6>
+            </div> *@
+            <div class="container-content">
+                <MudSelect Class="SelectField" T="CustomOfficeCatalog" Label="Таможенный пост" @bind-Value="@Value.CustomOffice"
+                            Style="width:350px" Placeholder="Таможенный пост"
+                            ToStringFunc="@(str=>str is not null ? str.CustomOfficeName : string.Empty)"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon="">
-                     @if (CustomOffices is not null)
+                    @if (CustomOffices is not null)
                         @foreach (var office in CustomOffices)
                         {
-                            <MudSelectItem Value="@office">@(office.CustomOfficeCode)</MudSelectItem>
+                            <MudSelectItem Value="@office">@($"({office.CustomOfficeCode}) {office.CustomOfficeName}")</MudSelectItem>
                         }
-                </MudSelect> *@
-             </div>
+                </MudSelect>
+            </div>
+            
          </div>
      </MudForm>
 }
 
 @code {
     private MudForm? Form { get; set; }
+
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public long Id { get; set; } = 0;
     [Parameter]
@@ -63,13 +75,15 @@
 
     private TerminalCatalog? Value { get; set; }
 
-    private IEnumerable<CustomOfficeCatalog> CustomOffices { get; set; } = new List<CustomOfficeCatalog>();
+    private IEnumerable<CustomsCatalog> CustomOffices { get; set; } = new List<CustomsCatalog>();
 
     private bool IsAuth = false;
 
 
     protected override async Task OnInitializedAsync()
     {
+        CustomOffices = await _terminalProvider.GetCustomsOfficesAsync();
+
         await GetItem();
 
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
@@ -82,7 +96,7 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-            Value = new() { CustomOffice = new() };
+            Value = new();
         else
         {
             var response = await _terminalProvider.GetItemAsync(Id);
@@ -121,6 +135,8 @@
             }
 
             await InvokeAsync(StateHasChanged);
+
+            MudDialog!.Close();
         }
     }
 

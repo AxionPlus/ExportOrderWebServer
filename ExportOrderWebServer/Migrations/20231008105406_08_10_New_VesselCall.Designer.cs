@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231003104055_03_09_Complete")]
-    partial class _03_09_Complete
+    [Migration("20231008105406_08_10_New_VesselCall")]
+    partial class _08_10_New_VesselCall
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,6 +168,9 @@ namespace ExportOrderWebServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("AgentPOL")
+                        .HasColumnType("text");
+
                     b.Property<long>("CarrierId")
                         .HasColumnType("bigint");
 
@@ -176,9 +179,6 @@ namespace ExportOrderWebServer.Migrations
 
                     b.Property<DateTime?>("DateContract")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("POLAgent")
-                        .HasColumnType("text");
 
                     b.Property<string>("TerminalName")
                         .IsRequired()
@@ -218,6 +218,30 @@ namespace ExportOrderWebServer.Migrations
                     b.HasIndex("CreateUserId");
 
                     b.ToTable("Countries");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.Catalog.CustomOfficeCatalog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CustomOfficeCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomOfficeName")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("MyCompanyEntityId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MyCompanyEntityId");
+
+                    b.ToTable("CustomOffices");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.Catalog.LocationCatalog", b =>
@@ -269,6 +293,9 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
+                    b.Property<long?>("CustomOfficeId")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("LocationId")
                         .HasColumnType("bigint");
 
@@ -278,6 +305,8 @@ namespace ExportOrderWebServer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreateUserId");
+
+                    b.HasIndex("CustomOfficeId");
 
                     b.HasIndex("LocationId");
 
@@ -643,6 +672,50 @@ namespace ExportOrderWebServer.Migrations
                     b.ToTable("Persons");
                 });
 
+            modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AgentPOD")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreateUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long?>("PODId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<long?>("VesselCallId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("PODId");
+
+                    b.HasIndex("VesselCallId");
+
+                    b.ToTable("VesselCallDetail");
+                });
+
             modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallEntity", b =>
                 {
                     b.Property<long>("Id")
@@ -665,17 +738,11 @@ namespace ExportOrderWebServer.Migrations
                         .IsRequired()
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<long>("LoadingTerminalId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("PODAgent")
-                        .HasColumnType("text");
-
-                    b.Property<long>("PODId")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
+
+                    b.Property<long>("TerminalId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
@@ -686,11 +753,11 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<long>("VesselId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("VoyageCarrier")
+                    b.Property<string>("VoyageNo")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("VoyageTerminal")
+                    b.Property<string>("VoyageNoTerminal")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -698,9 +765,7 @@ namespace ExportOrderWebServer.Migrations
 
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("LoadingTerminalId");
-
-                    b.HasIndex("PODId");
+                    b.HasIndex("TerminalId");
 
                     b.HasIndex("VesselId");
 
@@ -903,6 +968,13 @@ namespace ExportOrderWebServer.Migrations
                     b.Navigation("CreateUser");
                 });
 
+            modelBuilder.Entity("ExportOrderEntites.Catalog.CustomOfficeCatalog", b =>
+                {
+                    b.HasOne("ExportOrderEntites.MyCompany.MyCompanyEntity", null)
+                        .WithMany("CustomsOffices")
+                        .HasForeignKey("MyCompanyEntityId");
+                });
+
             modelBuilder.Entity("ExportOrderEntites.Catalog.LocationCatalog", b =>
                 {
                     b.HasOne("ExportOrderEntites.Catalog.CountryCatalog", "Country")
@@ -926,11 +998,17 @@ namespace ExportOrderWebServer.Migrations
                         .WithMany()
                         .HasForeignKey("CreateUserId");
 
+                    b.HasOne("ExportOrderEntites.Catalog.CustomOfficeCatalog", "CustomOffice")
+                        .WithMany()
+                        .HasForeignKey("CustomOfficeId");
+
                     b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId");
 
                     b.Navigation("CreateUser");
+
+                    b.Navigation("CustomOffice");
 
                     b.Navigation("Location");
                 });
@@ -1049,21 +1127,38 @@ namespace ExportOrderWebServer.Migrations
                         .HasForeignKey("MyCompanyEntityId");
                 });
 
+            modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallDetail", b =>
+                {
+                    b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "POD")
+                        .WithMany()
+                        .HasForeignKey("PODId");
+
+                    b.HasOne("ExportOrderEntites.VesselCall.VesselCallEntity", "VesselCall")
+                        .WithMany("Details")
+                        .HasForeignKey("VesselCallId");
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("POD");
+
+                    b.Navigation("VesselCall");
+                });
+
             modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallEntity", b =>
                 {
                     b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId");
 
-                    b.HasOne("ExportOrderEntites.Catalog.TerminalCatalog", "LoadingTerminal")
+                    b.HasOne("ExportOrderEntites.Catalog.TerminalCatalog", "Terminal")
                         .WithMany()
-                        .HasForeignKey("LoadingTerminalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "POD")
-                        .WithMany()
-                        .HasForeignKey("PODId")
+                        .HasForeignKey("TerminalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1075,9 +1170,7 @@ namespace ExportOrderWebServer.Migrations
 
                     b.Navigation("CreateUser");
 
-                    b.Navigation("LoadingTerminal");
-
-                    b.Navigation("POD");
+                    b.Navigation("Terminal");
 
                     b.Navigation("Vessel");
                 });
@@ -1172,11 +1265,15 @@ namespace ExportOrderWebServer.Migrations
 
             modelBuilder.Entity("ExportOrderEntites.MyCompany.MyCompanyEntity", b =>
                 {
+                    b.Navigation("CustomsOffices");
+
                     b.Navigation("Persons");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallEntity", b =>
                 {
+                    b.Navigation("Details");
+
                     b.Navigation("ExportOrders");
                 });
 #pragma warning restore 612, 618

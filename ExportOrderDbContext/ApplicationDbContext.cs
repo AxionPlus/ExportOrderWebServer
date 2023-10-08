@@ -6,7 +6,7 @@ namespace ExportOrderDbContext;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
 {
-    public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=AxionExportOrderNew;Pooling=true;";
+    public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=AxionExportOrder;Pooling=true;";
 
     #region DataBASES
     // Catalogues
@@ -17,6 +17,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CarrierCatalog> Carriers { get; set; }
     public DbSet<CarrierTerminalDetails> CarrierDetails { get; set; }
     public DbSet<CustomerCatalog> Customers { get; set; }
+    public DbSet<CustomsCatalog> CustomsOffices { get; set; }
 
     // Entities
     public DbSet<CntrTpSz> ContainerTypeSize { get; set; }
@@ -25,8 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<DocumentEntity> Documents { get; set; }
     public DbSet<ExportOrderEntity> ExportOrders { get; set; }
     public DbSet<MyCompanyEntity> MyCompany { get; set; }
-    public DbSet<PersonEntity> Persons { get; set; }
-    public DbSet<CustomOfficeCatalog> CustomOffices { get; set; }
+    public DbSet<PersonEntity> Persons { get; set; }    
 
     #endregion
 
@@ -67,7 +67,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
         modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
-                
+        modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Customs).AutoInclude();
+
 
         #endregion
 

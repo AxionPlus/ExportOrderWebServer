@@ -1,0 +1,180 @@
+﻿@page "/mycompany"
+
+@inject ISnackbar Snackbar
+@inject IMyCompanyProvider _myCompanyProvider
+
+<PageTitle>My Company</PageTitle>
+
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudForm @ref="Form" ReadOnly="!IsNewItem">
+        <div class="ToolBar-container">
+            <MudToolBar Class="ToolBar ToolBar-new">
+                <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+                <MudSpacer />
+                <div class="ToolBar-Title"><span>my company</span></div>
+                <MudSpacer />
+
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="save company">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="@IsLoadingData" OnClick="SaveItem_Click" />
+                    </MudTooltip>
+                </div>
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="edit company">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
+                    </MudTooltip>
+                </div>
+                <div class="ToolBar-iconbutton">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+                </div>
+                <div class="ToolBar-iconbutton">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+                </div>
+            </MudToolBar>
+        </div>
+
+        @if (Item is not null)
+        {
+            <div class="Container-item">
+                <div class="container-content">
+                    <MudTextField T="string" Style="width: 400px;" Label="Наименование компании" @bind-Value="@Item.Name"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Required RequiredError=""
+                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                    <MudSpacer />
+                </div>
+
+            </div>
+
+            <div class="Container-table">
+                <MudTable Class="Table" @ref="mudTable" Items="@Item.Persons" Loading="IsLoadingData">
+                    <HeaderContent>
+                        <MudTh Style="width:30px">
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddPerson_Click" Disabled="@IsLoadingData" />
+                        </MudTh>
+                        <MudTh Style="width: 300px">ФИО</MudTh>
+                        <MudTh Style="width: 300px">Телефон</MudTh>
+                        <MudTh Style="width: 300px">Данные паспорта</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemovePerson_Click(context); })"
+                                            Disabled="@IsLoadingData" />
+                        </MudTd>
+                         <MudTd DataLabel="Name">
+                             <MudTextField T="string" Style="width: 300px;" @bind-Value="@context.Name"
+                                           Placeholder="И.О. Фамилия"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                                           Immediate="true" Required RequiredError=""
+                                           Clearable="IsNewItem" />
+                         </MudTd>
+                         <MudTd DataLabel="Phone">
+                             <MudTextField T="string" Style="width: 300px;" @bind-Value="@context.Phone"
+                                           Placeholder="+7 000 000 0000"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                                           Immediate="true" Required RequiredError=""
+                                           Clearable="IsNewItem" />
+                         </MudTd>
+                         <MudTd DataLabel="PassportData">
+                             <MudTextField T="string" Style="width: 600px;" @bind-Value="@context.Document"
+                                           Placeholder="+7 000 000 0000"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                                           Immediate="true" Required RequiredError=""
+                                           Clearable="IsNewItem" />
+                         </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+        }
+
+    </MudForm>
+</MudContainer>
+
+@code {
+    private MudForm? Form { get; set; }
+    private MudTable<PersonEntity>? mudTable;
+    private MyCompanyEntity? Item { get; set; } = new();
+    private bool IsLoadingData { get; set; } = false;
+    private bool IsNewItem { get; set; } = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        bool IsItemNull = await _myCompanyProvider.IsMyCompanyItemNullAsync();
+
+        if (IsItemNull)
+            Item = new() { Persons = new List<PersonEntity>() { new PersonEntity() } };
+        else
+        {
+            uint lastId = await _myCompanyProvider.LastVersionMyCompanyAsync();
+            await GetItem(lastId);
+        }
+    }
+
+    private async Task GetItem(uint id)
+    {
+        IsLoadingData = true;
+
+        var response = await _myCompanyProvider.GetItemAsync(id);
+        if (!response.HasError)
+            Item = (MyCompanyEntity)response.Object!;
+        else
+            Snackbar.Add($"{response.Error.First()}", Severity.Error);
+
+        await Task.Delay(500);
+        IsLoadingData = false;
+    }
+
+    public async Task SaveItem_Click()
+    {
+        IsLoadingData = true;
+        await Form!.Validate();
+
+        if (Form.IsValid)
+            if (IsNewItem)
+            {
+                await _myCompanyProvider.NewItemAsync(Item!);
+
+                await GetItem(Item!.Id);
+
+                Snackbar.Add("Save Successed", Severity.Success);
+            }
+            else
+            {
+                // var result = await _myCompanyProvider.ModifyItemAsync(Item);
+                // if (!result.HasError)
+                // {
+                //     await GetItem();
+
+                //     Snackbar.Add("Save Successed", Severity.Success);
+                // }
+                // else
+                //     Snackbar.Add($"{result.Error.First()}", Severity.Error);
+
+            }
+
+        IsNewItem = false;
+        await Task.Delay(1500);
+        IsLoadingData = false;
+    }
+
+    public async Task EditItem_Click()
+    {
+        await Task.Delay(50);
+        IsNewItem = true;
+    }
+
+    private void AddPerson_Click()
+    {
+        Item!.Persons!.Add(new());
+    }
+
+    private async Task RemovePerson_Click(PersonEntity item)
+    {
+        await Task.Delay(50);
+
+        if (Item!.Persons!.Contains(item))
+            Item!.Persons!.Remove(item);
+    }
+}

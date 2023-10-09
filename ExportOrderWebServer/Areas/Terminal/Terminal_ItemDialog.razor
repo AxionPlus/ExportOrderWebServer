@@ -46,15 +46,15 @@
                 <h6 style="margin-bottom:unset">Таможенный пост</h6>
             </div> *@
             <div class="container-content">
-                <MudSelect Class="SelectField" T="CustomOfficeCatalog" Label="Таможенный пост" @bind-Value="@Value.CustomOffice"
+                <MudSelect Class="SelectField" T="CustomsCatalog" Label="Таможенный пост" @bind-Value="@Value.Customs"
                             Style="width:350px" Placeholder="Таможенный пост"
-                            ToStringFunc="@(str=>str is not null ? str.CustomOfficeName : string.Empty)"
+                            ToStringFunc="@(str=>str is not null ? str.CustomsOffice : string.Empty)"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon="">
                     @if (CustomOffices is not null)
                         @foreach (var office in CustomOffices)
                         {
-                            <MudSelectItem Value="@office">@($"({office.CustomOfficeCode}) {office.CustomOfficeName}")</MudSelectItem>
+                            <MudSelectItem Value="@office">@($"({office.CustomsCode}) {office.CustomsOffice}")</MudSelectItem>
                         }
                 </MudSelect>
             </div>

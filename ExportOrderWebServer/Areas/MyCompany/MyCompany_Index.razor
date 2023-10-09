@@ -5,26 +5,45 @@
 
 <PageTitle>My Company</PageTitle>
 
+<style>
+    .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
+        padding: 6px 6px 6px 12px;
+        text-align:left;
+    }
+</style>
 
 <MudContainer MaxWidth="MaxWidth.Large">
-    <MudForm @ref="Form" ReadOnly="!IsNewItem">
+    <MudForm @ref="Form" ReadOnly="IsFormReadOnly">
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">
                 <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
                 <MudSpacer />
+
                 <div class="ToolBar-Title"><span>my company</span></div>
                 <MudSpacer />
-
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="save company">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="@IsLoadingData" OnClick="SaveItem_Click" />
-                    </MudTooltip>
-                </div>
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="edit company">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
-                    </MudTooltip>
-                </div>
+                
+                @if (IsFormReadOnly)
+                {
+                    <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                        <MudTooltip Text="add company">
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Add" OnClick="AddNewItem_Click" />
+                        </MudTooltip>
+                    </div>
+                    <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                        <MudTooltip Text="edit company">
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
+                        </MudTooltip>
+                    </div>
+                }
+                else
+                {
+                    <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                        <MudTooltip Text="save company">
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="@IsLoadingData" OnClick="SaveItem_Click" />
+                        </MudTooltip>
+                    </div>
+                }
+                
                 <div class="ToolBar-iconbutton">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
                 </div>
@@ -34,95 +53,118 @@
             </MudToolBar>
         </div>
 
-        @if (Item is not null)
-        {
-            <div class="Container-item">
-                <div class="container-content">
-                    <MudTextField T="string" Style="width: 400px;" Label="Наименование компании" @bind-Value="@Item.Name"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Immediate="true" Required RequiredError=""
-                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+        <div class="Container-item">
+            <div class="container-content">
+                <MudTextField Class="wrapper-input" T="string" Style="width: 400px;" Placeholder="Наименование компании" @bind-Value="@Item!.Name"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Required RequiredError=""
+                              Clearable="!IsFormReadOnly" />
+            </div>
+        </div>
+
+        <div class="Container-table">
+            @if (mudTable != null)
+            {
+                <div class="tableMenu">
                     <MudSpacer />
+                    <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+                    <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Item.Persons!.Count())</span>
                 </div>
+            }
+            <MudTable Class="Table" @ref="mudTable" Items="@Item.Persons" Loading="IsLoadingData">
+                <HeaderContent>
+                    <MudTh Style="width:40px">
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddPerson_Click" Disabled="@IsLoadingData" />
+                    </MudTh>
+                    <MudTh Style="width: 166px">ФИО</MudTh>
+                    <MudTh Style="width: 166px">Телефон</MudTh>
+                    <MudTh Style="width: 670px; text-align:start; padding-left: 20px">Данные паспорта</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemovePerson_Click(context); })"
+                                        Disabled="@IsLoadingData" />
+                    </MudTd>
+                    <MudTd DataLabel="Name">
+                        <MudTextField T="string" Style="width: 150px;" @bind-Value="@context.Name"
+                                      Placeholder="И.О. Фамилия"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Immediate="true" Required RequiredError=""
+                                      Clearable="!IsFormReadOnly" />
+                    </MudTd>
+                    <MudTd DataLabel="Phone">
+                        <MudTextField T="string" Style="width: 150px;" @bind-Value="@context.Phone"
+                                      Placeholder="+7 000 000 0000"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Immediate="true" Required RequiredError=""
+                                      Clearable="!IsFormReadOnly" />
+                    </MudTd>
+                    <MudTd DataLabel="PassportData">
+                        <MudTextField T="string" Style="width: 650px;" @bind-Value="@context.Document"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Immediate="true" Required RequiredError=""
+                                      Clearable="!IsFormReadOnly" />
+                    </MudTd>
+                    <MudTd></MudTd>
+                </RowTemplate>
+            </MudTable>
+        </div>
 
-            </div>
-
-            <div class="Container-table">
-                <MudTable Class="Table" @ref="mudTable" Items="@Item.Persons" Loading="IsLoadingData">
-                    <HeaderContent>
-                        <MudTh Style="width:30px">
-                            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddPerson_Click" Disabled="@IsLoadingData" />
-                        </MudTh>
-                        <MudTh Style="width: 300px">ФИО</MudTh>
-                        <MudTh Style="width: 300px">Телефон</MudTh>
-                        <MudTh Style="width: 300px">Данные паспорта</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemovePerson_Click(context); })"
-                                            Disabled="@IsLoadingData" />
-                        </MudTd>
-                         <MudTd DataLabel="Name">
-                             <MudTextField T="string" Style="width: 300px;" @bind-Value="@context.Name"
-                                           Placeholder="И.О. Фамилия"
-                                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                                           Immediate="true" Required RequiredError=""
-                                           Clearable="IsNewItem" />
-                         </MudTd>
-                         <MudTd DataLabel="Phone">
-                             <MudTextField T="string" Style="width: 300px;" @bind-Value="@context.Phone"
-                                           Placeholder="+7 000 000 0000"
-                                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                                           Immediate="true" Required RequiredError=""
-                                           Clearable="IsNewItem" />
-                         </MudTd>
-                         <MudTd DataLabel="PassportData">
-                             <MudTextField T="string" Style="width: 600px;" @bind-Value="@context.Document"
-                                           Placeholder="+7 000 000 0000"
-                                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                                           Immediate="true" Required RequiredError=""
-                                           Clearable="IsNewItem" />
-                         </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </div>
-        }
+        <OverlayLoadingData Visible="@IsLoadingData" />
 
     </MudForm>
 </MudContainer>
 
-@code {
+
+
+ @code {
     private MudForm? Form { get; set; }
     private MudTable<PersonEntity>? mudTable;
     private MyCompanyEntity? Item { get; set; } = new();
     private bool IsLoadingData { get; set; } = false;
-    private bool IsNewItem { get; set; } = false;
+    private bool IsNewItem { get; set; }
+    private bool IsFormReadOnly { get; set; } = true;
 
+
+    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     protected override async Task OnInitializedAsync()
     {
-        bool IsItemNull = await _myCompanyProvider.IsMyCompanyItemNullAsync();
+        bool IsItemNull = await _myCompanyProvider.IsItemNullAsync();
 
         if (IsItemNull)
+        {
+            IsNewItem = true;
+            IsFormReadOnly = false;
             Item = new() { Persons = new List<PersonEntity>() { new PersonEntity() } };
+        }
         else
         {
-            uint lastId = await _myCompanyProvider.LastVersionMyCompanyAsync();
-            await GetItem(lastId);
+            IsNewItem = false;
+            await GetItem();
         }
     }
 
-    private async Task GetItem(uint id)
+    private async Task AddNewItem_Click()
+    {
+        await Task.Delay(50);
+        IsNewItem = true;
+        IsFormReadOnly = false;
+        Item = new() { Persons = new List<PersonEntity>() { new PersonEntity() } };
+    }
+
+    private async Task GetItem()
     {
         IsLoadingData = true;
 
-        var response = await _myCompanyProvider.GetItemAsync(id);
+        var response = await _myCompanyProvider.GetLastItemAsync();
         if (!response.HasError)
             Item = (MyCompanyEntity)response.Object!;
         else
             Snackbar.Add($"{response.Error.First()}", Severity.Error);
 
-        await Task.Delay(500);
+        await Task.Delay(50);
         IsLoadingData = false;
     }
 
@@ -136,25 +178,25 @@
             {
                 await _myCompanyProvider.NewItemAsync(Item!);
 
-                await GetItem(Item!.Id);
+                await GetItem();
 
                 Snackbar.Add("Save Successed", Severity.Success);
             }
             else
             {
-                // var result = await _myCompanyProvider.ModifyItemAsync(Item);
-                // if (!result.HasError)
-                // {
-                //     await GetItem();
-
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add($"{result.Error.First()}", Severity.Error);
-
+                var result = await _myCompanyProvider.ModifyItemAsync(Item!);
+                if (!result.HasError)
+                {
+                    await GetItem();
+                    Snackbar.Add("Save Successed", Severity.Success);
+                }
+                else
+                    Snackbar.Add($"{result.Error.First()}", Severity.Error);
             }
 
         IsNewItem = false;
+        IsFormReadOnly = true;
+
         await Task.Delay(1500);
         IsLoadingData = false;
     }
@@ -162,7 +204,7 @@
     public async Task EditItem_Click()
     {
         await Task.Delay(50);
-        IsNewItem = true;
+        IsFormReadOnly = false;
     }
 
     private void AddPerson_Click()

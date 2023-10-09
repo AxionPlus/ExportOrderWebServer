@@ -89,7 +89,7 @@ public class CustomsProvider : ICustomsProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            //var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
             var itemExistCheck = await db.CustomsOffices.Where(s => s.CustomsOffice == item!.CustomsOffice).FirstOrDefaultAsync();
@@ -99,7 +99,7 @@ public class CustomsProvider : ICustomsProvider
                 return appObjResponse;
             }
 
-            //item.CreateUser = User!;
+            item.CreateUser = User!;
 
             db.Entry(item).State = EntityState.Added;
 

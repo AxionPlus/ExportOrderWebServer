@@ -9,6 +9,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=AxionExportOrder;Pooling=true;";
 
     #region DataBASES
+
     // Catalogues
     public DbSet<CountryCatalog> Countries { get; set; }
     public DbSet<LocationCatalog> Locations { get; set; }

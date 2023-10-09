@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     /// <inheritdoc />
-    public partial class _08_10_New_VesselCall : Migration
+    public partial class _08_10_Customs_MyCompany : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -61,6 +61,22 @@ namespace ExportOrderWebServer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ContainerTypeSize", x => x.ISO);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomsOffices",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CustomsCode = table.Column<string>(type: "text", nullable: true),
+                    CustomsOffice = table.Column<string>(type: "text", nullable: true),
+                    CustomsDapartment = table.Column<string>(type: "text", nullable: true),
+                    CustomsArticle = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomsOffices", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -278,26 +294,6 @@ namespace ExportOrderWebServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomOffices",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CustomOfficeCode = table.Column<string>(type: "text", nullable: true),
-                    CustomOfficeName = table.Column<string>(type: "text", nullable: true),
-                    MyCompanyEntityId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomOffices", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CustomOffices_MyCompany_MyCompanyEntityId",
-                        column: x => x.MyCompanyEntityId,
-                        principalTable: "MyCompany",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Persons",
                 columns: table => new
                 {
@@ -305,6 +301,7 @@ namespace ExportOrderWebServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: true),
                     Phone = table.Column<string>(type: "text", nullable: true),
+                    Document = table.Column<string>(type: "text", nullable: true),
                     MyCompanyEntityId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -464,7 +461,7 @@ namespace ExportOrderWebServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: true),
                     LocationId = table.Column<long>(type: "bigint", nullable: true),
-                    CustomOfficeId = table.Column<long>(type: "bigint", nullable: true),
+                    CustomsId = table.Column<long>(type: "bigint", nullable: true),
                     CreateUserId = table.Column<string>(type: "text", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
@@ -477,9 +474,9 @@ namespace ExportOrderWebServer.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Terminals_CustomOffices_CustomOfficeId",
-                        column: x => x.CustomOfficeId,
-                        principalTable: "CustomOffices",
+                        name: "FK_Terminals_CustomsOffices_CustomsId",
+                        column: x => x.CustomsId,
+                        principalTable: "CustomsOffices",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Terminals_Locations_LocationId",
@@ -764,11 +761,6 @@ namespace ExportOrderWebServer.Migrations
                 column: "CreateUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CustomOffices_MyCompanyEntityId",
-                table: "CustomOffices",
-                column: "MyCompanyEntityId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_DocumentRecord_DocumentId",
                 table: "DocumentRecord",
                 column: "DocumentId");
@@ -834,9 +826,9 @@ namespace ExportOrderWebServer.Migrations
                 column: "CreateUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Terminals_CustomOfficeId",
+                name: "IX_Terminals_CustomsId",
                 table: "Terminals",
-                column: "CustomOfficeId");
+                column: "CustomsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Terminals_LocationId",
@@ -948,19 +940,19 @@ namespace ExportOrderWebServer.Migrations
                 name: "VesselCalls");
 
             migrationBuilder.DropTable(
+                name: "MyCompany");
+
+            migrationBuilder.DropTable(
                 name: "Terminals");
 
             migrationBuilder.DropTable(
                 name: "Vessels");
 
             migrationBuilder.DropTable(
-                name: "CustomOffices");
+                name: "CustomsOffices");
 
             migrationBuilder.DropTable(
                 name: "Locations");
-
-            migrationBuilder.DropTable(
-                name: "MyCompany");
 
             migrationBuilder.DropTable(
                 name: "Countries");

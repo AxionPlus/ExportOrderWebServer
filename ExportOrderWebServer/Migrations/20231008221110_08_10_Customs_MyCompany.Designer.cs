@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231008105406_08_10_New_VesselCall")]
-    partial class _08_10_New_VesselCall
+    [Migration("20231008221110_08_10_Customs_MyCompany")]
+    partial class _08_10_Customs_MyCompany
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,7 +220,7 @@ namespace ExportOrderWebServer.Migrations
                     b.ToTable("Countries");
                 });
 
-            modelBuilder.Entity("ExportOrderEntites.Catalog.CustomOfficeCatalog", b =>
+            modelBuilder.Entity("ExportOrderEntites.Catalog.CustomsCatalog", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -228,20 +228,21 @@ namespace ExportOrderWebServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("CustomOfficeCode")
+                    b.Property<string>("CustomsArticle")
                         .HasColumnType("text");
 
-                    b.Property<string>("CustomOfficeName")
+                    b.Property<string>("CustomsCode")
                         .HasColumnType("text");
 
-                    b.Property<long?>("MyCompanyEntityId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("CustomsDapartment")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomsOffice")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MyCompanyEntityId");
-
-                    b.ToTable("CustomOffices");
+                    b.ToTable("CustomsOffices");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.Catalog.LocationCatalog", b =>
@@ -293,7 +294,7 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
-                    b.Property<long?>("CustomOfficeId")
+                    b.Property<long?>("CustomsId")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("LocationId")
@@ -306,7 +307,7 @@ namespace ExportOrderWebServer.Migrations
 
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("CustomOfficeId");
+                    b.HasIndex("CustomsId");
 
                     b.HasIndex("LocationId");
 
@@ -656,6 +657,9 @@ namespace ExportOrderWebServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Document")
+                        .HasColumnType("text");
+
                     b.Property<long?>("MyCompanyEntityId")
                         .HasColumnType("bigint");
 
@@ -968,13 +972,6 @@ namespace ExportOrderWebServer.Migrations
                     b.Navigation("CreateUser");
                 });
 
-            modelBuilder.Entity("ExportOrderEntites.Catalog.CustomOfficeCatalog", b =>
-                {
-                    b.HasOne("ExportOrderEntites.MyCompany.MyCompanyEntity", null)
-                        .WithMany("CustomsOffices")
-                        .HasForeignKey("MyCompanyEntityId");
-                });
-
             modelBuilder.Entity("ExportOrderEntites.Catalog.LocationCatalog", b =>
                 {
                     b.HasOne("ExportOrderEntites.Catalog.CountryCatalog", "Country")
@@ -998,9 +995,9 @@ namespace ExportOrderWebServer.Migrations
                         .WithMany()
                         .HasForeignKey("CreateUserId");
 
-                    b.HasOne("ExportOrderEntites.Catalog.CustomOfficeCatalog", "CustomOffice")
+                    b.HasOne("ExportOrderEntites.Catalog.CustomsCatalog", "Customs")
                         .WithMany()
-                        .HasForeignKey("CustomOfficeId");
+                        .HasForeignKey("CustomsId");
 
                     b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "Location")
                         .WithMany()
@@ -1008,7 +1005,7 @@ namespace ExportOrderWebServer.Migrations
 
                     b.Navigation("CreateUser");
 
-                    b.Navigation("CustomOffice");
+                    b.Navigation("Customs");
 
                     b.Navigation("Location");
                 });
@@ -1265,8 +1262,6 @@ namespace ExportOrderWebServer.Migrations
 
             modelBuilder.Entity("ExportOrderEntites.MyCompany.MyCompanyEntity", b =>
                 {
-                    b.Navigation("CustomsOffices");
-
                     b.Navigation("Persons");
                 });
 

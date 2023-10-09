@@ -19,12 +19,14 @@
              <MudSpacer />
              <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
                         Variant="Variant.Filled" Color="Color.Secondary"
-                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+                        OnClick="@(async () => { await GetItems(); })">
+                Search
+             </MudButton>
         </div>
     </div>
     
-     <div class="Container-table">
-         @if (mudTable != null)
+    <div class="Container-table">
+        @if (mudTable != null)
         {
             <div class="tableMenu">
                 <MudSpacer />
@@ -39,7 +41,7 @@
                 <MudTh Style="width:30px"></MudTh>
                 <MudTh Style="width:30px"></MudTh>
                 <MudTh Style="width:400px">
-                    <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsCode!)">Код тамож.органа</MudTableSortLabel>
+                    <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsCode!)">Код таможенного органа</MudTableSortLabel>
                 </MudTh>
                 <MudTh Style="width:400px">
                     <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsOffice!)">Таможенный пост</MudTableSortLabel>

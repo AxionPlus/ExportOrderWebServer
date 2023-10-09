@@ -146,7 +146,6 @@ public class VesselCallProvider : IVesselCallProvider
                 db.Entry(detail.POD!).State = EntityState.Unchanged;
             }
 
-
             db.Entry(item.Vessel).State = EntityState.Unchanged;
             db.Entry(item.Terminal).State = EntityState.Unchanged;
             db.Entry(item).State = EntityState.Added;

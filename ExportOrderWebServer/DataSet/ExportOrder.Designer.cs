@@ -2101,6 +2101,8 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnPakages;
             
+            private global::System.Data.DataColumn columnCntrTare;
+            
             private global::System.Data.DataColumn columnNet;
             
             private global::System.Data.DataColumn columnGross;
@@ -2164,6 +2166,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn CntrTareColumn {
+                get {
+                    return this.columnCntrTare;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public global::System.Data.DataColumn NetColumn {
                 get {
                     return this.columnNet;
@@ -2215,12 +2225,13 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public DocumentsRow AddDocumentsRow(string Document, int Pakages, double Net, double Gross) {
+            public DocumentsRow AddDocumentsRow(string Document, int Pakages, double CntrTare, double Net, double Gross) {
                 DocumentsRow rowDocumentsRow = ((DocumentsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         null,
                         Document,
                         Pakages,
+                        CntrTare,
                         Net,
                         Gross};
                 rowDocumentsRow.ItemArray = columnValuesArray;
@@ -2255,6 +2266,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columndocSeq = base.Columns["docSeq"];
                 this.columnDocument = base.Columns["Document"];
                 this.columnPakages = base.Columns["Pakages"];
+                this.columnCntrTare = base.Columns["CntrTare"];
                 this.columnNet = base.Columns["Net"];
                 this.columnGross = base.Columns["Gross"];
             }
@@ -2268,6 +2280,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnDocument);
                 this.columnPakages = new global::System.Data.DataColumn("Pakages", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPakages);
+                this.columnCntrTare = new global::System.Data.DataColumn("CntrTare", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnCntrTare);
                 this.columnNet = new global::System.Data.DataColumn("Net", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnNet);
                 this.columnGross = new global::System.Data.DataColumn("Gross", typeof(double), null, global::System.Data.MappingType.Element);
@@ -3418,6 +3432,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public double CntrTare {
+                get {
+                    try {
+                        return ((double)(this[this.tableDocuments.CntrTareColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'CntrTare\' в таблице \'Documents\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableDocuments.CntrTareColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public double Net {
                 get {
                     try {
@@ -3470,6 +3500,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetPakagesNull() {
                 this[this.tableDocuments.PakagesColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsCntrTareNull() {
+                return this.IsNull(this.tableDocuments.CntrTareColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetCntrTareNull() {
+                this[this.tableDocuments.CntrTareColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

@@ -5,7 +5,7 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="!IsNewItem">
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
         <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
@@ -30,13 +30,13 @@
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
                  <MudSpacer />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
+                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" OnClick="ClearItem_Click"
                             Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
                      Clear
                  </MudButton>
              </div>
              <div class="container-content">
-                 <MudTextField T="string" Style="width: 500px" Label="Объяснение - статья ТК" @bind-Value-v="@Item.CustomsArticle"
+                 <MudTextField T="string" Style="width: 500px" Label="Объяснение - статья ТК" @bind-Value="@Item.CustomsArticle"
                                Placeholder="в соответствии со статьей 323 ТК ЕАЭС"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
@@ -56,7 +56,7 @@
     public bool IsNewItem { get; set; } = false;
 
     private CustomsCatalog? Item { get; set; }
-
+    private bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
 
     protected override async Task OnInitializedAsync()
@@ -81,7 +81,7 @@
                 Item = (CustomsCatalog)response.Object!;
         }
     }
-    
+
     public async Task SaveItem_Click()
     {
         await Form!.Validate();
@@ -128,7 +128,6 @@
         }
 
         await Task.Delay(50);
-        //await InvokeAsync(StateHasChanged);
     }
 
 }

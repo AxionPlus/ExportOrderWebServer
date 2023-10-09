@@ -59,7 +59,7 @@
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
                 <MudTd>@context.Name</MudTd>
                 <MudTd>@context.Location!.Name</MudTd>
-                <MudTd>@($"({context.CustomOffice!.CustomOfficeCode}) {context.CustomOffice!.CustomOfficeName}")</MudTd>
+                <MudTd>@($"({context.Customs!.CustomsCode}) {context.Customs!.CustomsOffice}")</MudTd>
             </RowTemplate>
 
             <PagerContent></PagerContent>

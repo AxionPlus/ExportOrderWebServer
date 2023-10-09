@@ -75,6 +75,7 @@ public class ExportOrderController : ControllerBase
                                                                                           Seq = 1,
                                                                                           Document = g.Key,
                                                                                           Pakages = g.Sum(q => q.PackageQty),
+                                                                                          CntrTare = g.Sum(tr => tr.CntrTareWt),
                                                                                           Net = g.Sum(net => net.NetWt),
                                                                                           Gross = g.Sum(gr => gr.GrossWt)
                                                                                       }).ToList();            

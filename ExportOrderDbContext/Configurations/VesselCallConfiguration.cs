@@ -1,5 +1,4 @@
 ﻿
-using ExportOrderEntites.VesselCall;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -14,22 +13,22 @@ public class VesselCallConfiguration : IEntityTypeConfiguration<VesselCallEntity
                         v => BitConverter.GetBytes(v));
 
         builder
-         .Property(s => s.Version)
-         .HasColumnName("xmin")
-         .HasColumnType("xid")
-         .HasConversion(converter);
+             .Property(s => s.Version)
+             .HasColumnName("xmin")
+             .HasColumnType("xid")
+             .HasConversion(converter);
 
-        builder.HasOne(s => s.Vessel);
-        builder.HasOne(s => s.Terminal);
+        //builder.HasOne(s => s.Vessel);
+        //builder.HasOne(s => s.Terminal);
 
-        //builder.HasMany(s => s.Details).WithOne(s => s.VesselCall);
+        builder.HasMany(s => s.Details);
     }
 }
 
 
 public class VesselCallDetailConfiguration : IEntityTypeConfiguration<VesselCallDetail>
 {
-    public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<VesselCallDetail> builder)
+    public void Configure(EntityTypeBuilder<VesselCallDetail> builder)
     {
         var converter = new ValueConverter<byte[], long>(
                  v => BitConverter.ToInt64(v, 0),
@@ -39,7 +38,7 @@ public class VesselCallDetailConfiguration : IEntityTypeConfiguration<VesselCall
             .Property(s => s.Version)
             .HasColumnName("xmin")
             .HasColumnType("xid")
-        .HasConversion(converter);
+            .HasConversion(converter);
 
         builder.ToTable("VesselCall_Details");
     }

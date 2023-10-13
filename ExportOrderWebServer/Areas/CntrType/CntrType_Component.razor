@@ -17,6 +17,11 @@
         padding-top: unset;
     }
 
+    .Table * .mud-table-cell * .mud-input > input.mud-input-root-outlined {
+        text-align:center;
+        padding: 4px 4px 1px 4px;
+    }
+
 </style>
 
 <div class="Container-table">
@@ -24,12 +29,12 @@
     {
         <div class="tableMenu">
             <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+@*             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" /> *@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
     
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CntrTpSz" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">
         <HeaderContent>
             <MudTh Style="width:200px">
                 <MudButton Class="Button" OnClick="@(async()=>{ await PathInput(); })"
@@ -38,12 +43,11 @@
                     Upload New List
                 </MudButton>
             </MudTh>
-            <MudTh Style="width:30px"><MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(async()=>{ await AddItem_Click(); })" /></MudTh>
-            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:60px"><MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(async()=>{ await AddItem_Click(); })" /></MudTh>
             <MudTh Style="width:80px"><MudTableSortLabel SortBy="new Func<CntrTpSz, object>(x=>x.ISO!)">ISO</MudTableSortLabel></MudTh>
             <MudTh Style="width:80px"><MudTableSortLabel SortBy="new Func<CntrTpSz, object>(x=>x.Normolize!)">Type</MudTableSortLabel></MudTh>
-            <MudTh Style="width:200px">
-                @if (IsSaveBtnVisible)
+            <MudTh Style="width:100px">
+                @if (!IsSaveBtnDisabled)
                 {
                     <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await SaveItem_Click(NewItems!); })"
                                Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary"
@@ -60,7 +64,6 @@
                 <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" 
                                OnClick="@(async()=>{ await RemoveItem_Click(context); })" />
             </MudTd>
-            <MudTd></MudTd>
             <MudTd>
                 <MudTextField Class="TextField" T="string" Variant="Variant.Outlined" Required RequiredError="" Disabled="@(context.ISO is not null)"
                               Text="@context.ISO"
@@ -74,7 +77,6 @@
                                                             context.Normolize = e.ToUpper(); })" />
             </MudTd>
             <MudTd></MudTd>
-            <MudTd></MudTd>
         </RowTemplate>
 
         <PagerContent></PagerContent>
@@ -86,12 +88,12 @@
 
  @code {
     private MudTable<CntrTpSz>? mudTable;
-    //private IEnumerable<CntrTpSz>? Items { get; set; } = new List<CntrTpSz>();
+    
     private List<CntrTpSz>? Items { get; set; } = new List<CntrTpSz>();
     private List<CntrTpSz>? NewItems { get; set; } = new List<CntrTpSz>();
 
-    bool IsLoadingData = false;
-    bool IsSaveBtnVisible = false;
+    private bool IsLoadingData { get; set; } = false;
+    private bool IsSaveBtnDisabled = true;
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -124,7 +126,7 @@
         Items!.Add(new());
         NewItems!.Add(new());
 
-        IsSaveBtnVisible = true;
+        IsSaveBtnDisabled = false;
     }
 
     private async Task RemoveItem_Click(CntrTpSz item)
@@ -159,7 +161,7 @@
         //await GetItems();
     }
 
-    private async Task SaveItem_Click(List<CntrTpSz> newItems)
+    public async Task SaveItem_Click(List<CntrTpSz> newItems)
     {
         await Task.Delay(50);
 
@@ -170,7 +172,7 @@
             Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
 
         NewItems = new List<CntrTpSz>();
-        IsSaveBtnVisible = false;
+        IsSaveBtnDisabled = true;
 
         await GetItems();
     }
@@ -179,17 +181,16 @@
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
         DialogOptions dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-
         dialog = DialogService.Show<PathInputCntrType_Dialog>("INPUT: List of Container Types", dialogOptions);
 
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            var newItems = new List<CntrTpSz>();
+            var newItems = new List<CntrTpSz>();        
 
             if (result.Data is not null)
             {
-                newItems = (List<CntrTpSz>)result.Data;
+                NewItems = (List<CntrTpSz>)result.Data;
 
                 await SaveItem_Click(newItems);
             }

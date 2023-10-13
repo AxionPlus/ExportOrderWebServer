@@ -3,14 +3,27 @@
 @inject IVesselProvider _vesselProvider
 @inject ICountryProvider _countryProvider
 
-<style>
-
-</style>
+<style></style>
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="Container-item" style="width: 550px">
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+        <div class="ToolBar-container">
+            <MudToolBar Class="ToolBar ToolBar-new">
+                <div class="ToolBar-iconbutton" style="margin-left: 20px">
+                    <MudTooltip Text="Edit terminal">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                    </MudTooltip>
+                </div>
+                <MudSpacer />
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="Save terminal">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                    </MudTooltip>
+                </div>
+            </MudToolBar>
+        </div>
+        <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
                 <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
@@ -18,11 +31,7 @@
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" AutoFocus="true"
                               Required RequiredError=""
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
-                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
-                    Save
-                </MudButton>
+                              Clearable="!IsFormReadOnly" />
              </div>
             <div class="container-content">
                 <MudAutocomplete T="CountryCatalog" Style="width: 280px" Label="Flag" @bind-Value="Item.Flag"
@@ -35,40 +44,35 @@
                                  Placeholder="Country"
                                  MaxItems="20"
                                  IconSize="Size.Small"
-                                 ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                <MudSpacer />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
-                           Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
-                    Clear
-                </MudButton>
+                                 Clearable="!IsFormReadOnly" />
             </div>
             <div class="container-content">
                 <MudTextField T="string" Style="width: 150px; margin-right: 10px" Label="IMO no" @bind-Text="@Item.IMO"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" MaxLength="10"
                               Required RequiredError=""
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                              Clearable="!IsFormReadOnly" />
             </div>
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 150px" Label="Terminal Id" @bind-Text="@Item.TerminalId"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true"
-                               Required RequiredError=""
-                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-             </div>
-         </div>
-     </MudForm>
+            <div class="container-content">
+                <MudTextField T="string" Style="width: 150px" Label="Terminal code" @bind-Text="@Item.TerminalCode"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"
+                              Required RequiredError=""
+                              Clearable="!IsFormReadOnly" />
+            </div>
+        </div>
+    </MudForm>
 }
 
 @code {
     private MudForm? Form { get; set; }
     [Parameter]
-    public long Id { get; set; } = 0;
+    public long Id { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
     private VesselEntity? Item { get; set; }
-
+    private bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
 
 
@@ -86,7 +90,10 @@
     private async Task GetItem()
     {
         if (IsNewItem)
+        {
             Item = new();
+            IsFormReadOnly = false;
+        }        
         else
         {
             var response = await _vesselProvider.GetItemAsync(Id);
@@ -106,46 +113,38 @@
                 var response = await _vesselProvider.NewItemAsync(Item!);
                 if (!response.HasError)
                 {
-                    Snackbar.Add("Saved successfully", Severity.Success);
-                    IsNewItem = false;
+                    Id = Item!.Id;
+                    Snackbar.Add("Saved successfully", Severity.Success);                    
                 }
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
             }
             else
             {
-                // var response = await _vesselProvider.ModifyItemAsync(Item!);
-                // if (!response.HasError)
-                // {
-                //     await GetItem();
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+                var response = await _vesselProvider.ModifyItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Save Successed", Severity.Success);
+                }
+                else
+                    Snackbar.Add(response.Error.Last(), Severity.Error);
             }
 
-            await InvokeAsync(StateHasChanged);
+            IsNewItem = false;
+            IsFormReadOnly = true;
+
+            await GetItem();            
         }
     }
 
-    public async Task ClearItem_Click()
+    private async Task EditItem_Click()
     {
-        if (IsNewItem)
-        {
-            Item!.Name = null;
-            Item.IMO = null;
-            Item.TerminalId = null;
-            Item.Flag = null;
-        }
-
         await Task.Delay(50);
+        IsFormReadOnly = false;
     }
 
     private async Task<IEnumerable<CountryCatalog>> SearchCountry(string value)
     {
-        // if (string.IsNullOrWhiteSpace(value))
-        //     return Enumerable.Empty<CountryCatalog>();
-
         var Countries = new List<CountryCatalog>();
 
         var response = await _countryProvider.GetItemsAsync();

@@ -75,7 +75,56 @@ public class CommodityProvider : ICommodityProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CommodityCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.Commodities.FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.Name != item.Name)
+                {
+                    var itemExistCheck = await db.Commodities.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.Name} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Name = item.Name;
+                modifyItem!.NameEn = item.NameEn;
+                modifyItem!.HSCode = item.HSCode;
+                modifyItem!.IMO = item.IMO;
+                modifyItem!.UNNO = item.UNNO;
+                modifyItem!.IsIMO = item.IsIMO;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(CommodityCatalog item)
@@ -108,7 +157,8 @@ public class CommodityProvider : ICommodityProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(CommodityCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<string>> GetNames()

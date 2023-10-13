@@ -14,11 +14,6 @@
 
     <div class="Container-item">
         <div class="container-content">
-            <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await AddItem_Click(); })"
-                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary">
-                Add New
-            </MudButton>
-            <MudSpacer />
             <MudTextField Class="TextField" Placeholder="Document" Style="width: 270px" @bind-Value="@Filter.Document"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
             <MudSpacer />
@@ -87,9 +82,10 @@
 @code {
     private MudForm? FilterForm;
     private MudTable<DocumentEntity>? mudTable;
-    [CascadingParameter]
-    MudDialogInstance? MudDialog { get; set; }
-    [Parameter]
+
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    
+    [Parameter] // ???
     public IEnumerable<DocumentEntity>? Items { get; set; } = new List<DocumentEntity>();
     [Parameter]
     public bool IsSelectable { get; set; } = false;
@@ -102,7 +98,7 @@
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
-    private async Task GetItems()
+    public async Task GetItems()
     {        
         IsLoadingData = true;
 
@@ -112,21 +108,9 @@
 
         await Task.Delay(500);
 
-        await InvokeAsync(StateHasChanged);
-
         IsLoadingData = false;
-    }
 
-    private async Task AddItem_Click()
-    {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        IDialogReference dialog = await DialogService.ShowAsync<DocumentItem_Dialog>(null, parameters, options);
-        DialogResult result = await dialog.Result;
-
-        if (!result.Canceled)
-            if (Items!.Count() > 0)
-                await GetItems();
+        await InvokeAsync(StateHasChanged);        
     }
 
     private async Task RemoveItem_Click(DocumentEntity item)
@@ -160,7 +144,7 @@
 
         var parameters = new DialogParameters { ["Id"] = id, ["IsNewItem"] = false };
         var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        var dialog = await DialogService.ShowAsync<DocumentItem_Dialog>(null, parameters, options);
+        var dialog = await DialogService.ShowAsync<Document_ItemDialog>(null, parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

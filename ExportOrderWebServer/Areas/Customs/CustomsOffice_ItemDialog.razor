@@ -6,40 +6,46 @@
 @if (Item is not null)
 {
     <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+        <div class="ToolBar-container">
+            <MudToolBar Class="ToolBar ToolBar-new">
+                <div class="ToolBar-iconbutton" style="margin-left: 20px">
+                    <MudTooltip Text="Edit office">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                    </MudTooltip>
+                </div>
+                <MudSpacer />
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="Save office">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                    </MudTooltip>
+                </div>                
+            </MudToolBar>
+        </div>
+
         <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
                  <MudTextField T="string" Style="width: 150px" Label="Код" @bind-Value="@Item.CustomsCode"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
-                 <MudSpacer />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
-                             Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
-                      Save
-                 </MudButton>
+                               Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />                 
              </div>
              <div class="container-content">
                  <MudTextField T="string" Style="width: 350px" Label="Таможенный пост" Text="@Item.CustomsOffice"
                                TextChanged="@(async (e)=> { Item.CustomsOffice = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
+                               Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
              </div>
              <div class="container-content">
                  <MudTextField T="string" Style="width: 350px" Label="Таможенный орган" Text="@Item.CustomsDapartment"
                                TextChanged="@(async (e)=> { Item.CustomsDapartment = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
-                 <MudSpacer />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" OnClick="ClearItem_Click"
-                            Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
-                     Clear
-                 </MudButton>
+                               Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
              </div>
              <div class="container-content">
                  <MudTextField T="string" Style="width: 500px" Label="Объяснение - статья ТК" @bind-Value="@Item.CustomsArticle"
                                Placeholder="в соответствии со статьей 323 ТК ЕАЭС"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable="IsNewItem" />
+                               Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
              </div>
         </div>
     </MudForm>
@@ -51,7 +57,7 @@
     [CascadingParameter]
     private MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public long Id { get; set; } = 0;
+    public long Id { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
@@ -73,7 +79,10 @@
     private async Task GetItem()
     {
         if (IsNewItem)
+        {
+            IsFormReadOnly = false;
             Item = new();
+        }        
         else
         {
             var response = await _customsProvider.GetItemAsync(Id);
@@ -93,41 +102,35 @@
                 var response = await _customsProvider.NewItemAsync(Item!);
                 if (!response.HasError)
                 {
+                    Id = Item!.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);
-                    IsNewItem = false;
                 }
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
             }
             else
             {
-                // var response = await _customsProvider.ModifyItemAsync(Item!);
-                // if (!response.HasError)
-                // {
-                //     await GetItem();
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+                var response = await _customsProvider.ModifyItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Save Successed", Severity.Success);
+                }
+                else
+                    Snackbar.Add(response.Error.Last(), Severity.Error);
             }
 
-            await InvokeAsync(StateHasChanged);
+            IsNewItem = false;
+            IsFormReadOnly = true;
 
-            MudDialog!.Close();
+            await GetItem();
+
+            //MudDialog!.Close();
         }
     }
 
-    public async Task ClearItem_Click()
+    public async Task EditItem_Click()
     {
-        if (IsNewItem)
-        {
-            Item!.CustomsCode = string.Empty;
-            Item.CustomsOffice = string.Empty;
-            Item.CustomsDapartment = string.Empty;
-            Item.CustomsArticle = string.Empty;
-        }
-
         await Task.Delay(50);
+        IsFormReadOnly = false;
     }
-
 }

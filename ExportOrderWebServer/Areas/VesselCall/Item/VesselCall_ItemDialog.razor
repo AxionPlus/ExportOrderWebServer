@@ -1,66 +1,226 @@
 ﻿@inject ISnackbar Snackbar
 @inject IVesselCallProvider _vesselCallProvider
 
-<MudContainer MaxWidth="MaxWidth.Large">
+@inject IVesselProvider _vesselProvider
+@inject ITerminalProvider _terminalProvider
+@inject ILocationProvider _locationProvider
 
-    <div class="ToolBar-container">
-        <MudToolBar Class="ToolBar ToolBar-new">
-            @if (MudDialog is not null)
-            {
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Text="EXIT">
-                        <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseDialog_Click" />
-                    </MudTooltip>
-                </div>
-            }
-            @if (!IsNewItem)
-            {
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Text="REFRESH" Delay="2000" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
-                    </MudTooltip>
-                </div>
-            }
-            <MudSpacer />
+<style>
 
-            <div class="ToolBar-Title"><span>VESSEL CALL</span></div>
-            <MudSpacer />
+    /* .VesseCall_Port * .wrapper-input * .mud-input > input.mud-input-root-outlined {
+        text-align:start;
+    } */
 
-            <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                <MudTooltip Text="SAVE" Delay="2000" Duration="1000">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" Disabled="@IsLoadingData" />
-                </MudTooltip>
-            </div>            
-            <div class="ToolBar-iconbutton">
-                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
-            </div>
-            <div class="ToolBar-iconbutton">
-                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-            </div>
-        </MudToolBar>
-    </div>
-    @if (Item is not null)
-    {
-        <MudForm @ref="Form">
-            <VesselCall_ItemComponent @bind-Value="@Item" IsNewItem="@IsNewItem" />
-        </MudForm>
+    .VesseCall_Port * .mud-input > input.mud-input-root-outlined {
+        text-align: start;
     }
-    <OverlayLoadingData Visible="@(IsLoadingData|| Item is null)" />
-</MudContainer>
+
+    .DatePicker .mud-input > input.mud-input-root-outlined, .DatePicker * div.mud-input-slot.mud-input-root-outlined {
+        padding: 8px 0px 4px 8px;
+        font-size: 0.92rem;
+        font-weight: 500;
+    }
+
+    .DatePicker.Dense .mud-input > input.mud-input-root-outlined, .DatePicker.Dense * div.mud-input-slot.mud-input-root-outlined {
+        padding: 3px 0px 1px 4px;
+        font-size: 0.92rem;
+        font-weight: 500;
+    }
+
+    .DatePicker.Dense > div.mud-input-control {
+        margin: auto;
+    }
+
+    .DatePicker .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .DatePicker .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
+        transform: translate(14px,-12px) scale(.70);
+        font-weight: 400;
+    }
+
+    .DatePicker .mud-input-label-outlined {
+        transform: translate(14px,9px) scale(0.9);
+        background-color: var(--containerBackGround)
+    }
+
+    .DatePicker > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .DatePicker > .mud-input-control-input-container > .mud-input-label-inputcontrol {
+        font-weight: 500;
+    }
+
+    .DatePicker * .mud-icon-size-small {
+        font-size: 1.1rem;
+    }
+
+    .DatePicker * .mud-icon-button-size-small {
+        padding: 1px;
+    }
+
+</style>
+
+@if (Item is not null)
+{
+    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
+
+        <div class="ToolBar-container">
+            <MudToolBar Class="ToolBar ToolBar-new">
+                <div class="ToolBar-iconbutton" style="margin-left: 20px">
+                    <MudTooltip Text="Edit Vessel Call">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                    </MudTooltip>
+                </div>
+                <MudSpacer />
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="Save terminal">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                    </MudTooltip>
+                </div>
+            </MudToolBar>
+        </div>
+
+        <div class="Container-item">
+
+            <div class="container-content">
+                <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 260px" @bind-Value="Item!.Vessel"
+                                 ToStringFunc="@(e => e != null ? e.Name : "")"
+                                 SearchFunc="@SearchVessel"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                              Required RequiredError=""
+                                  CloseIcon="" OpenIcon=""
+                                  ResetValueOnEmptyText="true"
+                                  MaxItems="20"
+                                  IconSize="Size.Small"
+                                  Clearable="!IsFormReadOnly" />
+                 <MudSpacer />
+                 <MudTextField T="string" Style="width: 260px;" Label="Voyage" Text="@Item.VoyageNo"
+                               TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true"
+                                        Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+             </div>
+
+             <div class="container-content">
+                 <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 260px" Label="Load Terminal" @bind-Value="Item.Terminal"
+                                  ToStringFunc="@(e => e != null ? e.Name : "")"
+                                  SearchFunc="@SearchTerminal"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                              Required RequiredError=""
+                                  CloseIcon="" OpenIcon=""
+                                  ResetValueOnEmptyText="true"
+                                  MaxItems="20"
+                                  IconSize="Size.Small"
+                                  Clearable="!IsFormReadOnly" />
+                 <MudSpacer />
+                 <MudTextField T="string" Style="width: 260px;" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
+                               TextChanged="async (e)=> { Item.VoyageNoTerminal = e.ToUpper(); }"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true"
+                                        Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+
+             </div>
+
+             <div class="container-content" style="justify-content:flex-start">
+                 <MudDatePicker Class="DatePicker" Label="ETA" @bind-Date="Item.ETA"
+                                Style="width: 128px; height: 30px; margin-right: 4px"
+                                DateFormat="dd.MM.yy"
+                                ShowWeekNumbers="true"
+                                Variant="Variant.Outlined"
+                                IconSize=Size.Small
+                                AutoClose=true
+                                DisableToolbar=true
+                                          Required
+                                Clearable="!IsFormReadOnly" />
+                 <MudDatePicker Class="DatePicker" Label="ETS" @bind-Date="Item.ETS"
+                                Style="width: 128px; height: 30px"
+                                DateFormat="dd.MM.yy"
+                                ShowWeekNumbers="true"
+                                Variant="Variant.Outlined"
+                                IconSize=Size.Small
+                                AutoClose=true
+                                DisableToolbar=true
+                                          Required
+                                Clearable="!IsFormReadOnly" />
+             </div>
+
+             @*         @if (Item.Details != null)
+        { *@
+             <div class="Container-table">
+                 @*                 @if (mudTable != null)
+            {
+            <div class="tableMenu">
+            <MudSpacer />
+            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Item.Details!.Count())</span>
+            </div>
+            } *@
+                 <MudTable Class="Table" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
+                     <HeaderContent>
+                         <MudTh Style="width:30px">
+                             <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetailItem" Disabled="@(IsLoadingData || IsFormReadOnly)" />
+                         </MudTh>
+                         <MudTh Style="width: 260px">PORT of discharge</MudTh>
+                         <MudTh Style="width: 260px">Agent</MudTh>
+                     </HeaderContent>
+                     <RowTemplate>
+                         <MudTd>
+                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemoveDetail_Click(context); })"
+                                            Disabled="@IsLoadingData" />
+                         </MudTd>
+                         <MudTd DataLabel="Port">
+                             <MudAutocomplete Class="VesseCall_Port" T="LocationCatalog" Style="width: 250px; text-align:start" @bind-Value="context.POD"
+                                              ToStringFunc="@(e => e != null ? e.Name : "")"
+                                              SearchFunc="@SearchPOD"
+                                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                              Required RequiredError=""
+                                              CloseIcon="" OpenIcon=""
+                                              ResetValueOnEmptyText="true"
+                                              MaxItems="20"
+                                              IconSize="Size.Small"
+                                              Clearable="!IsFormReadOnly" />
+                         </MudTd>
+                         <MudTd DataLabel="Agent">
+                             <MudTextField T="string" Style="width: 250px;" Text="@context.AgentPOD"
+                                           TextChanged="async (e)=> { context.AgentPOD = e.ToUpper(); }"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                                           Immediate="true"
+                                                        Required RequiredError=""
+                                           Clearable="!IsFormReadOnly" />
+                         </MudTd>
+                     </RowTemplate>
+                 </MudTable>
+             </div>
+             @* } *@
+
+         </div>
+
+     </MudForm>
+}
+
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     private MudForm? Form { get; set; }
-
-    bool IsLoadingData = false;
-
-    private VesselCallEntity? Item { get; set; }
+    private MudTable<VesselCallDetail>? mudTable;
 
     [Parameter]
     public string? Voyage { get; set; }     //   VesselNam + & + Voyage
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
+    private VesselCallEntity? Item { get; set; }
+
+    bool IsLoadingData = false;
+    public bool IsFormReadOnly { get; set; } = true;
+
+
+    //private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     protected override async Task OnInitializedAsync()
     {
@@ -69,10 +229,11 @@
 
     private async Task GetItem()
     {
-        IsLoadingData = true;
-
         if (IsNewItem)
-            Item = new();
+        {
+            Item = new() { Details = new List<VesselCallDetail>() { new VesselCallDetail() }  };
+            IsFormReadOnly = false;
+        }        
         else
         {
             var response = await _vesselCallProvider.GetItemAsync(Voyage!);
@@ -80,52 +241,108 @@
                 Item = (VesselCallEntity)response.Object!;
             else
                 Snackbar.Add($"{response.Error.First()}", Severity.Error);
-
-            //await GetVesselCallCarriersAsync
         }
-
-        await Task.Delay(1000);
-        IsLoadingData = false;
     }
 
-    public async Task SaveItem()
+    public async Task SaveItem_Click()
     {
         IsLoadingData = true;
         await Form!.Validate();
 
         if (Form.IsValid)
+        {
             if (IsNewItem)
             {
                 await _vesselCallProvider.NewItemAsync(Item!);
-
-                Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
-
-                await GetItem();
+                //Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
                 Snackbar.Add("Save Successed", Severity.Success);
             }
             else
             {
-                // var result = await _vesselCallProvider.ModifyItemAsync(Item);
-                // if (!result.HasError)
-                // {
-                //     Voyage = $"{Item.Vessel?.Name}&{Item.VoyageNo}";
-                //     await GetItem();
-
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add($"{result.Error.First()}", Severity.Error);
-
+                var result = await _vesselCallProvider.ModifyItemAsync(Item!);
+                if (!result.HasError)
+                {
+                    //Voyage = $"{Item.Vessel?.Name}&{Item.VoyageNo}";
+                    Snackbar.Add("Save Successed", Severity.Success);
+                }
+                else
+                    Snackbar.Add($"{result.Error.First()}", Severity.Error);
             }
+        }
+        else
+            return;
 
         IsNewItem = false;
+        IsFormReadOnly = true;
+
+        Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
+        await GetItem();
+
         await Task.Delay(1500);
         IsLoadingData = false;
     }
 
-    public async Task CloseDialog_Click()
+    private async Task EditItem_Click()
     {
         await Task.Delay(50);
-        MudDialog!.Close();
+        IsFormReadOnly = false;
     }
+
+    private void AddDetailItem()
+    {
+        Item!.Details.Add(new());
+    }
+
+    private async Task RemoveDetail_Click(VesselCallDetail item)
+    {
+        await Task.Delay(50);
+        if (Item!.Details.Contains(item))
+            Item.Details.Remove(item);
+    }
+
+    #region SEARCH FUNCTIONS
+
+    private async Task<IEnumerable<VesselEntity>> SearchVessel(string value)
+    {
+        var Vessels = new List<VesselEntity>();
+
+        var response = await _vesselProvider.GetItemsAsync();
+        if (!response.HasError)
+            Vessels = ((IEnumerable<VesselEntity>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Vessels;
+
+        return Vessels.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    private async Task<IEnumerable<TerminalCatalog>> SearchTerminal(string value)
+    {
+        var Terminals = new List<TerminalCatalog>();
+
+        var response = await _terminalProvider.GetItemsAsync();
+        if (!response.HasError)
+            Terminals = ((IEnumerable<TerminalCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Terminals;
+
+        return Terminals.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    private async Task<IEnumerable<LocationCatalog>> SearchPOD(string value)
+    {
+        var Ports = new List<LocationCatalog>();
+
+        var response = await _locationProvider.GetItemsAsync();
+        if (!response.HasError)
+            Ports = ((IEnumerable<LocationCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Ports;
+
+        return Ports.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    #endregion
 }

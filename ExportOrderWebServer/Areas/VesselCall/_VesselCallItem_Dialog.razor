@@ -136,7 +136,7 @@
                 <div style="width: 100px; margin-left: 20px"></div> *@
             </div>
             <div class="container-content" style="align-items:start">
-                 <MudTable Class="Table" @ref="mudTable" Items="@CarrierItems" T="VesselCallCarrierDTO" Loading="IsLoadingData"
+                 <MudTable Class="Table" @ref="mudTable" Items="@CarrierItems" T="_VesselCallCarrierDTO" Loading="IsLoadingData"
                            Virtualize="true" RowsPerPage="10" Context="carriers" ReadOnly="!IsNewItem">
                     
                     <HeaderContent>
@@ -199,7 +199,7 @@
 
 @code {
     private MudForm? Form { get; set; }
-    private MudTable<VesselCallCarrierDTO>? mudTable;
+    private MudTable<_VesselCallCarrierDTO>? mudTable;
 
     [Parameter]
     public long Id { get; set; } = 0;
@@ -207,7 +207,7 @@
     public bool IsNewItem { get; set; } = false;
 
     private VesselCallEntity? Item { get; set; }
-    private IEnumerable<VesselCallCarrierDTO> CarrierItems { get; set; } = new List<VesselCallCarrierDTO>();
+    private IEnumerable<_VesselCallCarrierDTO> CarrierItems { get; set; } = new List<_VesselCallCarrierDTO>();
 
     private bool IsAuth = false;
     private bool IsLoadingData { get; set; } = false;

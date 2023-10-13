@@ -6,77 +6,72 @@
 
 </style>
 
-<MudForm @ref="@FilterForm">
-    <div class="Container-item">
-        <div class="container-content">
-            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                       Variant="Variant.Filled" Color="Color.Primary"
-                       OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
+<div class="Container-item">
+    <div class="container-content">
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
+                            Value="Filter.Name"
+                            ValueChanged="(e)=> { Filter.Name = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
-                             Value="Filter.Name"
-                             ValueChanged="(e)=> { Filter.Name = e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="Name En" Style="width: 400px" SearchFunc="@SearchNamesEn"
-                              Value="Filter.NameEn"
-                              ValueChanged="(e)=> { Filter.NameEn = e; }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              CloseIcon="" OpenIcon=""
-                              ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary"
-                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
-         </div>
-     </div>
- 
-    <div class="Container-table">
-         @if (mudTable != null)
-        {
-            <div class="tableMenu">
-                <MudSpacer />
-                <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-                <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-            </div>
-        }
-
-        <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CarrierCatalog" Context="carrier"
-                  Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-
-            <HeaderContent>
-                <MudTh Style="width:30px"></MudTh>
-                <MudTh Style="width:30px"></MudTh>
-                <MudTh Style="width:400px">
-                    <MudTableSortLabel SortBy="new Func<CarrierCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
-                </MudTh>
-                <MudTh Style="width:400px">
-                    <MudTableSortLabel SortBy="new Func<CarrierCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
-                </MudTh>
-                <MudTh></MudTh>
-            </HeaderContent>
-
-            <RowTemplate>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(carrier.Id); })"></MudIconButton></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(carrier); })"></MudIconButton></MudTd>
-                <MudTd>@carrier.Name</MudTd>
-                <MudTd>@carrier.NameEn</MudTd>
-                <MudTd></MudTd>
-            </RowTemplate>
-
-            <PagerContent></PagerContent>
-
-        </MudTable>
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Name En" Style="width: 400px" SearchFunc="@SearchNamesEn"
+                            Value="Filter.NameEn"
+                            ValueChanged="(e)=> { Filter.NameEn = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+            <MudSpacer />
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                    Variant="Variant.Filled" Color="Color.Secondary"
+                    OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+        </div>
     </div>
+    
+@if (Items!.Count() > 0)
+{
+    <div class="Container-table">
+        @if (mudTable != null)
+    {
+        <div class="tableMenu">
+            <MudSpacer />
+            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+        </div>
+    }
 
-</MudForm>
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CarrierCatalog" Context="carrier"
+                Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+
+        <HeaderContent>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:400px">
+                <MudTableSortLabel SortBy="new Func<CarrierCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:400px">
+                <MudTableSortLabel SortBy="new Func<CarrierCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
+            </MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(carrier.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(carrier); })"></MudIconButton></MudTd>
+            <MudTd>@carrier.Name</MudTd>
+            <MudTd>@carrier.NameEn</MudTd>
+            <MudTd></MudTd>
+        </RowTemplate>
+
+        <PagerContent></PagerContent>
+
+    </MudTable>
+</div>
+}
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudForm? FilterForm;
     private MudTable<CarrierCatalog>? mudTable;
 
     private IEnumerable<CarrierCatalog>? Items { get; set; } = new List<CarrierCatalog>();
@@ -87,7 +82,7 @@
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
-    private async Task GetItems()
+    public async Task GetItems()
     {
         IsLoadingData = true;
 
@@ -97,9 +92,9 @@
 
         await Task.Delay(500);
 
-        await InvokeAsync(StateHasChanged);
-
         IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ShowItem_Click(long Id)
@@ -108,24 +103,12 @@
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CarrierItem_Dialog>("Carrier", parameters, options);
-
-        DialogResult result = await dialog.Result;
-    }
-
-    private async Task AddItem_Click()
-    {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CarrierItem_Dialog>("New Carrier", parameters, options);
+        dialog = await DialogService.ShowAsync<Carrier_ItemDialog>("Carrier", parameters, options);
 
         DialogResult result = await dialog.Result;
 
         if (result.Canceled)
-            if (Items!.Count() > 0)
-                await GetItems();
+            await GetItems();
     }
 
     private async Task RemoveItem_Click(CarrierCatalog item)

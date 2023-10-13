@@ -19,7 +19,24 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="!IsNewItem">
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+
+        <div class="ToolBar-container">
+            <MudToolBar Class="ToolBar ToolBar-new">
+                <div class="ToolBar-iconbutton" style="margin-left: 20px">
+                    <MudTooltip Text="Edit office">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                    </MudTooltip>
+                </div>
+                <MudSpacer />
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="Save office">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                    </MudTooltip>
+                </div>
+            </MudToolBar>
+        </div>
+
         <div class="Container-item">
 
             <div class="container-content">
@@ -28,11 +45,7 @@
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
-                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
-                     Save
-                 </MudButton>
+                               Clearable="!IsFormReadOnly" />
              </div>
 
             <div class="container-content">
@@ -41,11 +54,7 @@
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true"
                                Required RequiredError=""
-                               ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                 <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
-                            Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
-                     Clear
-                 </MudButton>
+                               Clearable="!IsFormReadOnly" />
              </div>
 
              <div class="container-content">
@@ -60,13 +69,12 @@
             </div>
 
             <div class="Container-table">
-                <MudTable Class="Table" @ref="mudTable" T="CarrierTerminalDetails" Items="@Item.CarrierDetails" Context="details"
-                          Virtualize="true" RowsPerPage="5">
+                <MudTable Class="Table" @ref="mudTable" Items="@Item.CarrierDetails" Virtualize="true" RowsPerPage="5">
                    
                    <HeaderContent>
                        <MudTh Style="width:30px">
                             <div class="controlIconButtons">
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetails_Click" Size="Size.Small" Disabled="!IsNewItem"></MudIconButton>
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetails_Click" Size="Size.Small" Disabled="IsFormReadOnly"></MudIconButton>
                             </div>
                        </MudTh>
                        <MudTh Style="width:150px">Terminal</MudTh>
@@ -76,22 +84,22 @@
                    </HeaderContent>
 
                    <RowTemplate>
-                       <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(details); })" /></MudTd>
+                       <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(context); })" /></MudTd>
                        <MudTd>
                             <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" SearchFunc="@SearchTerminalNames"
-                                             Value="details.TerminalName"
-                                             ValueChanged="(e)=> { details.TerminalName = e; }"
+                                             Value="context.TerminalName"
+                                             ValueChanged="(e)=> { context.TerminalName = e; }"
                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                              CloseIcon="" OpenIcon=""
-                                             ResetValueOnEmptyText="true" Clearable />
+                                             ResetValueOnEmptyText="true" Clearable="!IsFormReadOnly" />
                        </MudTd>
                        <MudTd>
-                            <MudTextField Class="TextField" T="string" @bind-Value="details.Contract"
+                            <MudTextField Class="TextField" T="string" @bind-Value="context.Contract"
                                           Style="width: 100px"
                                           Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
                        </MudTd>
                        <MudTd>
-                            <MudDatePicker Class="DatePicker" @bind-Date="@details.DateContract"
+                            <MudDatePicker Class="DatePicker" @bind-Date="@context.DateContract"
                                            Style="width: 115px"
                                            DateFormat="dd.MM.yy"
                                            ShowWeekNumbers="true"
@@ -99,18 +107,19 @@
                                            IconSize=Size.Small
                                            AutoClose=true
                                            DisableToolbar=false
-                                           Required                                            
-                                           Clearable />
+                                           Required
+                                           Clearable="!IsFormReadOnly" />
                        </MudTd>
-                         <MudTd>
-                             <MudTextField Class="TextField" T="string" @bind-Value="details.AgentPOL"
-                                           Style="width: 150px"
-                                           Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
-                         </MudTd>
+                       <MudTd>
+                           <MudTextField Class="TextField" Style="width: 150px" T="string" @bind-Value="context.AgentPOL"                                           
+                                         Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
+                       </MudTd>
                    </RowTemplate>
                </MudTable>
             </div>
+
         </div>
+
     </MudForm>
 }
 
@@ -118,13 +127,15 @@
     private MudForm? Form { get; set; }
     private MudTable<CarrierTerminalDetails>? mudTable;
 
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public long Id { get; set; } = 0;
+    public long Id { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
     private CarrierCatalog? Item { get; set; }
-
+    private bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
 
 
@@ -142,7 +153,10 @@
     private async Task GetItem()
     {
         if (IsNewItem)
+        {
+            IsFormReadOnly = false;
             Item = new();
+        }        
         else
         {
             var response = await _carrierProvider.GetItemAsync(Id);
@@ -151,7 +165,7 @@
         }
     }
 
-    public async Task SaveItem_Click()
+    private async Task SaveItem_Click()
     {
         await Form!.Validate();
 
@@ -162,44 +176,36 @@
                 var response = await _carrierProvider.NewItemAsync(Item!);
                 if (!response.HasError)
                 {
-                    Snackbar.Add("Saved successfully", Severity.Success);
-                    IsNewItem = false;
                     Id = Item!.Id;
+                    Snackbar.Add("Saved successfully", Severity.Success);                    
                 }
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
             }
             else
             {
-                // var response = await _countryProvider.ModifyItemAsync(Item!);
-                // if (!response.HasError)
-                // {
-                //     await GetItem();
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+                var response = await _carrierProvider.ModifyItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Save Successed", Severity.Success);
+                }
+                else
+                    Snackbar.Add(response.Error.Last(), Severity.Error);
             }
 
+            IsNewItem = false;
+            IsFormReadOnly = true;
+
             await GetItem();
-            await InvokeAsync(StateHasChanged);
+            //await InvokeAsync(StateHasChanged);
         }
     }
 
-    public async Task ClearItem_Click()
+    private async Task EditItem_Click()
     {
-        if (IsNewItem)
-        {
-            Item!.Name = null;
-            Item.NameEn = null;
-
-            // foreach (var details in Item.CarrierDetails)
-            //     await RemoveDetails_Click(details);
-        }
-
         await Task.Delay(50);
+        IsFormReadOnly = false;
     }
-
 
     #region DETAILS
 

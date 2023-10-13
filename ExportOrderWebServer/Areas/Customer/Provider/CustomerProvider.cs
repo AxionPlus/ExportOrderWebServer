@@ -22,7 +22,7 @@ public class CustomerProvider : ICustomerProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Customers.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            appObjResponse.Object = await db.Customers.Include(cu => cu.Country).AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;
@@ -48,7 +48,7 @@ public class CustomerProvider : ICustomerProvider
         {
             var db = await _db;
 
-            var Customers = await db.Customers.ToListAsync();
+            var Customers = await db.Customers.Include(cu => cu.Country).ToListAsync();
 
             if (parameters.GetType() == typeof(FilterParameters))
             {
@@ -61,7 +61,7 @@ public class CustomerProvider : ICustomerProvider
                     Customers = Customers.Where(s => s.NameEn == filter.NameEn).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Country))
-                    Customers = Customers.Where(s => s.Country.RUS == filter.Country).ToList();
+                    Customers = Customers.Where(s => s.Country!.RUS == filter.Country).ToList();
             }
 
             appObjResponse.Object = Customers.ToArray();
@@ -72,7 +72,54 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CustomerCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.Customers.Include(cu => cu.Country).FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.Name != item.Name)
+                {
+                    var itemExistCheck = await db.Customers.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.Name} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Name = item.Name;
+                modifyItem!.NameEn = item.NameEn;
+
+                if (!modifyItem.Country!.Id.Equals(item.Country!.Id))
+                    modifyItem.Country = item.Country!;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(CustomerCatalog item)
@@ -107,7 +154,8 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(CustomerCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<string>> GetNames()

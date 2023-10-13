@@ -14,7 +14,6 @@ public class VesselProvider : IVesselProvider
     }
 
 
-
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
         appObjResponse = new();
@@ -68,9 +67,58 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
+    public async Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {   
+                var modifyItem = await db.Vessels.Include(ve => ve.Flag).FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.Name != item.Name)
+                {
+                    var itemExistCheck = await db.Terminals.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.Name} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.IMO = item.IMO;
+                modifyItem!.Name = item.Name;
+                modifyItem!.TerminalCode = item.TerminalCode;
+
+                if (!modifyItem!.Flag!.Id.Equals(item.Flag!.Id))
+                    modifyItem!.Flag = item.Flag;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(VesselEntity item)
@@ -91,8 +139,8 @@ public class VesselProvider : IVesselProvider
             }
 
             item.CreateUser = User!;
-            //db.Entry(User).State = EntityState.Unchanged;
-            db.Entry(item.Flag).State = EntityState.Unchanged;
+
+            db.Entry(item.Flag!).State = EntityState.Unchanged;
 
             db.Entry(item).State = EntityState.Added;
 
@@ -104,9 +152,10 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(VesselEntity item)
+    public async Task<AppObjectResponse> RemoveItemAsync(VesselEntity item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public Task<IEnumerable<string>> GetNames()

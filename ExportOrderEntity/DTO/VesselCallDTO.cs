@@ -6,7 +6,6 @@ public class VesselCallDTO
     public string? VesselName { get; set; }
     public string? VoyageNo { get; set; }               // own Voy number
     public string? VoyageNoTerminal { get; set; }       // Terminal's Voy number
-    //public string? POL { get; set; }                    // Порт погрузки
     public string? Terminal { get; set; }               // Терминал порта погрузки
     public DateTime? ETA { get; set; }                  // Дата подхода
     public DateTime? ETS { get; set; }                  // Дата отдхода

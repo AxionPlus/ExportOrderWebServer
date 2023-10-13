@@ -4,26 +4,27 @@
 
 <PageTitle>Location</PageTitle>
 
-<div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
-        <MudSpacer />
-        <div class="ToolBar-Title"><span>locations</span></div>
-        <MudSpacer />
-
-        <div class="ToolBar-iconbutton" style="margin-right: 20px">
-            <MudTooltip Text="new vessel call">
-                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
-            </MudTooltip>
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-        </div>
-    </MudToolBar>
-</div>
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>locations</span></div>
+            <MudSpacer />
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="add a new location">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+</MudContainer>
 
 <LocationComponent @ref="component" />
 
@@ -36,11 +37,11 @@
 
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<LocationItem_Dialog>("New Location", parameters, options);
+        dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Location", parameters, options);
 
         DialogResult result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result.Canceled)
             await component!.GetItems();
     }
 }

@@ -10,5 +10,5 @@ public class LocationCatalog : CatalogEntity
     public string? NameEn { get; set; }
     public string? UnLocode { get; set; }
 
-    public CountryCatalog Country { get; set; }
+    public CountryCatalog? Country { get; set; }
 }

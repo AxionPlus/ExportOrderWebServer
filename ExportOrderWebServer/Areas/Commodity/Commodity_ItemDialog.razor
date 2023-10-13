@@ -5,7 +5,24 @@
 @if (Item is not null)
 {
     <MudContainer MaxWidth="MaxWidth.Large">
-        <MudForm @ref="@Form" Disabled="!IsNewItem">
+        <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
+
+            <div class="ToolBar-container">
+                <MudToolBar Class="ToolBar ToolBar-new">
+                    <div class="ToolBar-iconbutton" style="margin-left: 20px">
+                        <MudTooltip Text="Edit terminal">
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                        </MudTooltip>
+                    </div>
+                    <MudSpacer />
+                    <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                        <MudTooltip Text="Save terminal">
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                        </MudTooltip>
+                    </div>
+                </MudToolBar>
+            </div>
+
             <div class="Container-item">
                 <div class="container-head"></div>
                 <div class="container-content">
@@ -15,7 +32,7 @@
                                   MaxLength="10" Mask="@( IsNewItem? new PatternMask("0000000000") : null)"
                                   AutoFocus="true" Immediate="true"
                                   Required RequiredError=""
-                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                                   Clearable="!IsFormReadOnly" />
                     <div class="wrapper-checkBox" style="width:200px; justify-content: flex-end;">
                         <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.Start" @bind-Checked="@Item.IsIMO"></MudCheckBox>
                     </div>
@@ -26,22 +43,17 @@
                                       Variant="Variant.Outlined" Margin="Margin.Dense"
                                       MaxLength="3" 
                                       Required RequiredError=""
-                                       ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                                       Clearable="!IsFormReadOnly" />
                         <MudTextField T="string" Style="width:195px" Label="UNNO" @bind-Value="@Item.UNNO"
                                       Variant="Variant.Outlined" Margin="Margin.Dense"
                                       MaxLength="6" Mask="@( IsNewItem? new PatternMask("UN0000") : null)"
                                       Required RequiredError=""
-                         ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                                       Clearable="!IsFormReadOnly" />
                     }
                     else
                     {
                         <div style="width:400px"></div>
                     }
-                    <MudSpacer />
-                    <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
-                              Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
-                         Save
-                    </MudButton>
                 </div>
                 <div class="container-content">             
                     <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
@@ -50,7 +62,7 @@
                                   Lines="3"
                                   Immediate="true"
                                   Required RequiredError=""
-                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                                   Clearable="!IsFormReadOnly" />
                     <MudSpacer/>
                     <MudTextField T="string" Style="width: 400px; margin-left: 10px" Label="Name En" Text="@Item.NameEn"
                                    TextChanged="(e)=> { Item.NameEn = e.ToUpper(); StateHasChanged();}"
@@ -58,13 +70,8 @@
                                    Lines="3"
                                    Immediate="true"
                                    Required RequiredError=""
-                                   ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-                    <MudSpacer />
-                    <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="ClearItem_Click"
-                               Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" >
-                         Clear
-                    </MudButton>
-                </div>
+                                   Clearable="!IsFormReadOnly" />
+                 </div>
             </div>
         </MudForm>
     </MudContainer>
@@ -73,12 +80,12 @@
 @code {
     private MudForm? Form { get; set; }    
     [Parameter]
-    public long Id { get; set; } = 0;
+    public long Id { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
     private CommodityCatalog? Item { get; set; }
-
+    private bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
 
 
@@ -96,7 +103,10 @@
     private async Task GetItem()
     {
         if (IsNewItem)
+        {
             Item = new();
+            IsFormReadOnly = false;
+        }        
         else
         {
             var response = await _commodityProvider.GetItemAsync(Id);
@@ -115,41 +125,37 @@
             {
                 var response = await _commodityProvider.NewItemAsync(Item!);
                 if (!response.HasError)
-                {                    
+                {
+                    Id = Item!.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);
-                    IsNewItem = false;                    
-                }                
+                }
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
             }
             else
             {
-                // var response = await _commodityProvider.ModifyItemAsync(Item!);
-                // if (!response.HasError)
-                // {
-                //     await GetItem();
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+                var response = await _commodityProvider.ModifyItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Save Successed", Severity.Success);
+                }
+                else
+                    Snackbar.Add(response.Error.Last(), Severity.Error);
             }
-
-                  
         }
-        await InvokeAsync(StateHasChanged);
+        else
+            return;
+
+        IsNewItem = false;
+        IsFormReadOnly = true;
+
+        await GetItem();
     }
 
-    public async Task ClearItem_Click()
+    private async Task EditItem_Click()
     {
-        if (IsNewItem)
-        {
-            Item!.HSCode = null;
-            Item.Name = null;
-            Item.NameEn = null;
-            //await InvokeAsync(StateHasChanged);
-        }
-
         await Task.Delay(50);
+        IsFormReadOnly = false;
     }
 
     Func<string, string?> HSCodeValidation = (str) =>

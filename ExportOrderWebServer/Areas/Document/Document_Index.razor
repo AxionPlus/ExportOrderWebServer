@@ -1,5 +1,7 @@
 ﻿@page "/Document"
 
+@inject IDialogService DialogService
+
 <PageTitle>Documents</PageTitle>
 
 <div class="ToolBar-container">
@@ -8,6 +10,11 @@
         <MudSpacer />
         <div class="ToolBar-Title"><span>documents</span></div>
         <MudSpacer />
+        <div class="ToolBar-iconbutton" style="margin-right: 20px">
+            <MudTooltip Text="add a new Document">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+            </MudTooltip>
+        </div>
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -17,8 +24,19 @@
     </MudToolBar>
 </div>
 
-<DocumentComponent />
+<DocumentComponent @ref="component" />
 
 @code {
+    public DocumentComponent? component;
 
+    private async Task AddItem_Click()
+    {
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+        IDialogReference dialog = await DialogService.ShowAsync<Document_ItemDialog>(null, parameters, options);
+        DialogResult result = await dialog.Result;
+
+        if (!result.Canceled)
+            await component!.GetItems();
+    }
 }

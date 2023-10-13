@@ -8,46 +8,41 @@
     }
 </style>
 
-<MudForm @ref="@FilterForm">
-
-    <div class="Container-item">
-        <div class="container-content">
-            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Primary" 
-                        OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
-            <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="HS code" Style="width: 180px" SearchFunc="@SearchHScodes"
-                                Value="Filter.HScode"
-                                ValueChanged="(e)=> { Filter.HScode = e; }"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                AutoFocus=true
-                                MaxLength="10"
-                                CloseIcon="" OpenIcon=""
-                                ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
-                                Value="Filter.Name"
-                                ValueChanged="(e)=> { Filter.Name =e; }"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                CloseIcon="" OpenIcon=""
-                                ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 400px" SearchFunc="@SearchNamesEn"
-                                Value="Filter.NameEn"
-                                ValueChanged="(e)=> { Filter.NameEn =e; }"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                CloseIcon="" OpenIcon=""
-                                ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-            <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Checked="@Filter.IsIMO"></MudCheckBox>
-            <MudSpacer />
-            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary" 
-                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
-        </div>
+<div class="Container-item">
+    <div class="container-content">
+        <MudAutocomplete Class="Autocomplete" T="string" Label="HS code" Style="width: 180px" SearchFunc="@SearchHScodes"
+                            Value="Filter.HScode"
+                            ValueChanged="(e)=> { Filter.HScode = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            AutoFocus=true
+                            MaxLength="10"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
+                            Value="Filter.Name"
+                            ValueChanged="(e)=> { Filter.Name =e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 400px" SearchFunc="@SearchNamesEn"
+                            Value="Filter.NameEn"
+                            ValueChanged="(e)=> { Filter.NameEn =e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Checked="@Filter.IsIMO"></MudCheckBox>
+        <MudSpacer />
+        <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                    Variant="Variant.Filled" Color="Color.Secondary"  OnClick="@(async () => { await GetItems(); })">
+            Search
+        </MudButton>
     </div>
+</div>
 
-    <div class="Container-table">
+<div class="Container-table">
     @if (mudTable != null)
     {
         <div class="tableMenu">
@@ -57,8 +52,7 @@
         </div>
     }
 
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CommodityCatalog"
-                Loading="IsLoadingData" Virtualize="true" RowsPerPage="20" >
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20" >
 
         <HeaderContent>
             @if (!IsSelectable)
@@ -67,7 +61,7 @@
             }                    
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width: 130px">
-                <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.HSCode)">HS code</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.HSCode!)">HS code</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:400px">
                     <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
@@ -101,13 +95,11 @@
     </MudTable>
 </div>
 
-</MudForm>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    private MudForm? FilterForm;
     private MudTable<CommodityCatalog>? mudTable;
 
     [Parameter]
@@ -121,7 +113,7 @@
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
-    private async Task GetItems()
+    public async Task GetItems()
     {
         IsLoadingData = true;
 
@@ -131,24 +123,8 @@
 
         await Task.Delay(500);
 
-        await InvokeAsync(StateHasChanged);
-
         IsLoadingData = false;
-    }
-
-    private async Task AddItem_Click()
-    {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CommodityItem_Dialog>("New Commodity", parameters, options);
-
-        DialogResult result = await dialog.Result;
-
-        if (result.Canceled)
-            if (Items!.Count() > 0)
-                await GetItems();        
+        await InvokeAsync(StateHasChanged);        
     }
 
     private async Task ShowItem_Click(long Id)
@@ -160,16 +136,16 @@
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CommodityItem_Dialog>("Commodity", parameters, options);
+        dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("Commodity", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await GetItems();
     }
 
     private async Task RemoveItem_Click(CommodityCatalog item)
     {
-        // if (item is not null)
-        //     Items?.Remove(item);
-
-        return;
-
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
                           (MarkupString)$"<b>Do you want to remove commodity?</b> <br/>HS code:<br/>{item.HSCode}<br/>",
@@ -192,46 +168,46 @@
     private async Task SelectItem_Click(CommodityCatalog item)
     {
         await Task.Delay(50);
-        MudDialog.Close(item);
+        MudDialog!.Close(item);
     }
 
     #region SEARCH FUNCTIONS
 
     private async Task<IEnumerable<string>> SearchHScodes(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _commodityProvider.GetHScodes();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchNames(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _commodityProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchNamesEn(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _commodityProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }

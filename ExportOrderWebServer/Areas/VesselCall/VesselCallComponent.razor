@@ -66,6 +66,7 @@
                 <MudSelectItem Value="@status" />
             }
         </MudSelect>
+        <MudSpacer />
         <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
                     Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
              Search
@@ -84,7 +85,7 @@
     }    
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">    
         <HeaderContent>
-            @if (!IsSelected)
+            @if (!IsSelectable)
             {
                 <MudTh Style="width: 30px"></MudTh>
             }            
@@ -98,10 +99,12 @@
             <MudTh>Status</MudTh>
         </HeaderContent>
         <RowTemplate>
-            @if (!IsSelected)
+            @if (!IsSelectable)
             {
                 <MudTd Style="margin-right:20px">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click($"{context.VesselName}&{context.VoyageNo}"); })" />                
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click($"{context.VesselName}&{context.VoyageNo}"); })" />
+                </MudTd>
+                <MudTd Style="margin-right:20px">
                     <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })" />
                 </MudTd>
             }
@@ -128,7 +131,7 @@
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public bool IsSelected { get; set; } = false;
+    public bool IsSelectable { get; set; } = false;
 
     private IEnumerable<VesselCallDTO>? Items { get; set; } = new List<VesselCallDTO>();
     private FilterParameters Filter { get; set; } = new();
@@ -145,7 +148,7 @@
         if (!response.HasError)
             Items = ((IEnumerable<VesselCallDTO>)response.Object!).ToArray();
 
-        await Task.Delay(500);
+        await Task.Delay(50);
 
         IsLoadingData = false;
 
@@ -157,31 +160,35 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["Voyage"] = VesselVoyage };
-        DialogOptions options = new DialogOptions() { FullScreen = true, CloseOnEscapeKey = true, DisableBackdropClick = true, NoHeader = true };
-        dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>(null, parameters, options);       
+        //DialogOptions options = new DialogOptions() { FullScreen = true, CloseOnEscapeKey = true, DisableBackdropClick = true, NoHeader = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>("Vessel Call", parameters, options);
 
         DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await GetItems();
     }
 
     private async Task RemoveItem_Click(VesselCallDTO item)
     {
-        // bool? msgResult = await DialogService.ShowMessageBox(
-        //                   "REMOVE  Record",
-        //                   (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel Call:<br/>{item.Vessel.Name}<br/>",
-        //                   yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox(
+                          "REMOVE  Record",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel Call:<br/>{item.VesselName}<br/>",
+                          yesText: "YES", cancelText: "NO");
 
-        // if (msgResult.HasValue)
-        //     if (msgResult.Value)
-        //     {
-        //         var response = await _vesselCallProvider.RemoveItemAsync(item);
+        if (msgResult.HasValue)
+            if (msgResult.Value)
+            {
+                var response = await _vesselCallProvider.RemoveItemDTOAsync(item);
 
-        //         if (!response.HasError)
-        //             Snackbar.Add($"Deleted Successfully", Severity.Success);
-        //         else
-        //             Snackbar.Add($"Unable to delete", Severity.Warning);
-        //     }
+                if (!response.HasError)
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                else
+                    Snackbar.Add($"Unable to delete", Severity.Warning);
+            }
 
-        // await GetItems();
+        await GetItems();
     }
 
 
@@ -195,9 +202,6 @@
 
     private async Task<IEnumerable<string>> SearchVessel(string value)
     {
-        // if (string.IsNullOrWhiteSpace(value))
-        //     return Enumerable.Empty<string>();
-
         var result = await _vesselProvider.GetNamesEn();
 
         if (result.Count() == 0)
@@ -205,28 +209,25 @@
 
         if (string.IsNullOrWhiteSpace(value))
             return result;
-
-        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchPort(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _locationProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
     
     private async Task<IEnumerable<string>> SearchTerminal(string value)
     {
-        // if (string.IsNullOrWhiteSpace(value))
-        //     return Enumerable.Empty<string>();
-
         var result = await _terminalProvider.GetNames();
 
         if (result.Count() == 0)
@@ -234,8 +235,8 @@
         
         if (string.IsNullOrWhiteSpace(value))
             return result;
-
-        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     #endregion

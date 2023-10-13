@@ -1,30 +1,32 @@
 ﻿@page "/terminal"
 
-@* @inject ISnackbar Snackbar *@
+@* @attribute [Authorize] *@
 @inject IDialogService DialogService
 
 <PageTitle>Terminals</PageTitle>
 
-<div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
-        <MudSpacer />
-        <div class="ToolBar-Title"><span>terminals</span></div>
-        <MudSpacer />
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>terminals</span></div>
+            <MudSpacer />
 
-        <div class="ToolBar-iconbutton" style="margin-right: 20px">
-            <MudTooltip Text="new vessel call">
-                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
-            </MudTooltip>
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-        </div>
-    </MudToolBar>
-</div>
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="add new Terminal">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+</MudContainer>
 
 <TerminalComponent @ref="component" />
 

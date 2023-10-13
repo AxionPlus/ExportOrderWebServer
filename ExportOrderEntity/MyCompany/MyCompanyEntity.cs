@@ -1,17 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ExportOrderEntites.MyCompany;
+﻿namespace ExportOrderEntites.MyCompany;
 
 public class MyCompanyEntity : Entity
 {
     public string? Name { get; set; }
     public IList<PersonEntity>? Persons { get; set; } = new List<PersonEntity>();
-
-    //public int VersionNo { get; set; }
-    //public EntityStatus Status { get; set; } = EntityStatus.New;
-    //public ApplicationUser? ConfirmedBy { get; set; }
-    //public DateTime? ConfirmedDate { get; set; }
-
 }
 
 public class PersonEntity : CatalogEntity

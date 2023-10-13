@@ -1,30 +1,50 @@
 ﻿@page "/commodity"
 
+@* @attribute [Authorize] *@
+@inject IDialogService DialogService
+
 <PageTitle>Commodity</PageTitle>
 
-<div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
-        <MudSpacer />
-        <div class="ToolBar-Title"><span>commodities</span></div>
-        <MudSpacer />
-@*         <div class="ToolBar-iconbutton">
-            <MudTooltip Text="new commodity">
-                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="NewItem" />
-            </MudTooltip>
-        </div>
-        <div class="ToolBar-iconbutton" style="width: 20px"></div> *@
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-        </div>
-    </MudToolBar>
-</div>
+<MudContainer MaxWidth="MaxWidth.Large">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>commodities</span></div>
+            <MudSpacer />
 
-<CommodityComponent />
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="add new Commodity">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
 
-@code {    
+    <CommodityComponent @ref="component" />
 
+</MudContainer>
+
+@code {
+    public CommodityComponent? component;
+
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("New Commodity", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await component!.GetItems();
+    }
 }

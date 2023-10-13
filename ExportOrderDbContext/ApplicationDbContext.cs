@@ -34,7 +34,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        //templateData = new TemplateData();
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
     }
 
@@ -61,18 +60,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
         modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
         modelBuilder.ApplyConfiguration(new VesselConfiguration());
+        modelBuilder.ApplyConfiguration(new MyCompanyConfiguration());        
+        modelBuilder.ApplyConfiguration(new VesselCallDetailConfiguration());        
         
-        
-        #region AutoIUNCLUDE
+        #region AutoINCLUDE
 
-        modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
-        modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
-        modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
-        modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Customs).AutoInclude();
-
+        //modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
+        //modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
+        //modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
+        //modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Customs).AutoInclude();
 
         #endregion
-
 
     }
 }

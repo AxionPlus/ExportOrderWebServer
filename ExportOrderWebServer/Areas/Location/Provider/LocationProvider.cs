@@ -22,7 +22,7 @@ public class LocationProvider : ILocationProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Locations.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            appObjResponse.Object = await db.Locations.Include(lo => lo.Country).AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;
@@ -48,7 +48,7 @@ public class LocationProvider : ILocationProvider
         {
             var db = await _db;
 
-            var Locations = await db.Locations.ToListAsync();
+            var Locations = await db.Locations.Include(lo => lo.Country).ToListAsync();
 
             if (parameters.GetType() == typeof(FilterParameters))
             {
@@ -61,7 +61,7 @@ public class LocationProvider : ILocationProvider
                     Locations = Locations.Where(s => s.UnLocode == filter.UNLocode).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Country))
-                    Locations = Locations.Where(s => s.Country.RUS == filter.Country).ToList();
+                    Locations = Locations.Where(s => s.Country!.RUS == filter.Country).ToList();
             }
 
             appObjResponse.Object = Locations.ToArray();
@@ -72,7 +72,58 @@ public class LocationProvider : ILocationProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(LocationCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.Locations.Include(lo => lo.Country).FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.Name != item.Name)
+                {
+                    var itemExistCheck = await db.Locations
+                                                         .Where(s => s.Name!.ToUpper() == item.Name!.ToUpper())
+                                                         .FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.Name} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Name = item.Name;
+                modifyItem!.NameEn = item.NameEn;
+                modifyItem!.UnLocode = item.UnLocode;
+
+                if (!modifyItem.Country!.Id.Equals(item.Country!.Id))
+                    modifyItem!.Country = item.Country;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(LocationCatalog item)
@@ -107,7 +158,8 @@ public class LocationProvider : ILocationProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(LocationCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<string>> GetNames()

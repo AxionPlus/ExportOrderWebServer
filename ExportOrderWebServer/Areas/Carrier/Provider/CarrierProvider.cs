@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Eventing.Reader;
+using System.Runtime.Serialization.DataContracts;
 
 namespace ExportOrderWebServer.Areas.Carrier.Provider;
 
@@ -13,7 +14,6 @@ public class CarrierProvider : ICarrierProvider
     {
         _dbContext = dbContext;
     }
-
 
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
@@ -71,7 +71,71 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CarrierCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.Carriers.Include(car => car.CarrierDetails).FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.Name != item.Name)
+                {
+                    var itemExistCheck = await db.Carriers.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.Name} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Name = item.Name;
+                modifyItem!.NameEn = item.NameEn;
+                modifyItem!.BlTemplate = item.BlTemplate;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                // compaire new item with existed
+                foreach (var modifyDetail in modifyItem.CarrierDetails!)
+                    if (!item.CarrierDetails!.Any(s => s.Id == modifyDetail.Id))
+                        modifyItem.CarrierDetails!.Remove(modifyDetail);
+                    else
+                    {
+                        modifyDetail.Id = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.Id;
+                        modifyDetail.TerminalName = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.TerminalName;
+                        modifyDetail.Contract = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.Contract;
+                        modifyDetail.DateContract = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.DateContract;
+                        modifyDetail.AgentPOL = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOL;
+                    }
+
+                // compaire existed item with new
+                foreach (var itemDetail in item.CarrierDetails!)
+                    if (!modifyItem.CarrierDetails.Any(s => s.Id == itemDetail.Id))
+                    {   
+                        db.Entry(itemDetail).State = EntityState.Added;
+                        modifyItem.CarrierDetails.Add(itemDetail);
+                    }
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(CarrierCatalog item)
@@ -92,10 +156,9 @@ public class CarrierProvider : ICarrierProvider
                 return appObjResponse;
             }
 
-            item.CreateUser = User!;
-         
+            item.CreateUser = User!;         
 
-            foreach (var record in item.CarrierDetails)                  
+            foreach (var record in item.CarrierDetails)
                 db.Entry(record).State = EntityState.Added;
             
             db.Entry(item).State = EntityState.Added;
@@ -110,7 +173,8 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(CarrierCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<string>> GetNames()

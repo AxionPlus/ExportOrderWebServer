@@ -33,50 +33,51 @@
              <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
                         Variant="Variant.Filled" Color="Color.Secondary"
                         OnClick="@(async () => { await GetItems(); })">Search</MudButton>
-         </div>
-     </div>
+        </div>
+    </div>
  
-    <div class="Container-table">
-     @if (mudTable != null)
+    @if (Items!.Count() > 0)
     {
-        <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+        <div class="Container-table">
+            @if (mudTable != null)
+            {
+                <div class="tableMenu">
+                    <MudSpacer />
+                    <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+                    <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+                </div>
+            }
+            <MudTable Class="Table" @ref="mudTable" Items="@Items" T="LocationCatalog" Context="location"
+            Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+
+                <HeaderContent>
+                    <MudTh Style="width:30px"></MudTh>
+                    <MudTh Style="width:30px"></MudTh>
+                    <MudTh Style="width:120px">
+                        <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.UnLocode!)">UN Locode</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh Style="width:400px">
+                        <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh Style="width:300px">
+                        <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+
+                <RowTemplate>
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(location.Id); })"></MudIconButton></MudTd>
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(location); })"></MudIconButton></MudTd>
+                    <MudTd>@location.UnLocode</MudTd>
+                    <MudTd>@location.Name</MudTd>            
+                    <MudTd>@location.Country!.RUS</MudTd>
+                </RowTemplate>
+
+                <PagerContent></PagerContent>
+
+            </MudTable>
         </div>
     }
-
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="LocationCatalog" Context="location"
-              Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-
-        <HeaderContent>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:120px">
-                <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.UnLocode)">UN Locode</MudTableSortLabel>
-            </MudTh>
-            <MudTh Style="width:400px">
-                <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name)">Name Ru</MudTableSortLabel>
-            </MudTh>
-            <MudTh Style="width:300px">
-                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
-            </MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-
-        <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(location.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(location); })"></MudIconButton></MudTd>
-            <MudTd>@location.UnLocode</MudTd>
-            <MudTd>@location.Name</MudTd>            
-            <MudTd>@location.Country.RUS</MudTd>
-        </RowTemplate>
-
-        <PagerContent></PagerContent>
-
-    </MudTable>
-</div>
-
 </MudContainer>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
@@ -113,9 +114,12 @@
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<LocationItem_Dialog>("Location", parameters, options);
+        dialog = await DialogService.ShowAsync<Location_ItemDialog>("Location", parameters, options);
 
         DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await GetItems();
     }
 
     private async Task RemoveItem_Click(LocationCatalog item)

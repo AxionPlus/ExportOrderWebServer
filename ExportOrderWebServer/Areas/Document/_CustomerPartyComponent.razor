@@ -58,7 +58,7 @@
     {
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, DisableBackdropClick = true };
         //var dialog = await DialogService.ShowAsync<ItemCustomerComponent>("NEW CUSTOMER", options);
-        var dialog = await DialogService.ShowAsync<CustomerItem_Dialog>("NEW CUSTOMER", options);
+        var dialog = await DialogService.ShowAsync<Customer_ItemDialog>("NEW CUSTOMER", options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

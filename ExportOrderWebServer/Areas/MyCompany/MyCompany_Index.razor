@@ -156,8 +156,6 @@
 
     private async Task GetItem()
     {
-        IsLoadingData = true;
-
         var response = await _myCompanyProvider.GetLastItemAsync();
         if (!response.HasError)
             Item = (MyCompanyEntity)response.Object!;
@@ -165,7 +163,6 @@
             Snackbar.Add($"{response.Error.First()}", Severity.Error);
 
         await Task.Delay(50);
-        IsLoadingData = false;
     }
 
     public async Task SaveItem_Click()
@@ -177,27 +174,22 @@
             if (IsNewItem)
             {
                 await _myCompanyProvider.NewItemAsync(Item!);
-
-                await GetItem();
-
                 Snackbar.Add("Save Successed", Severity.Success);
             }
             else
             {
                 var result = await _myCompanyProvider.ModifyItemAsync(Item!);
                 if (!result.HasError)
-                {
-                    await GetItem();
                     Snackbar.Add("Save Successed", Severity.Success);
-                }
                 else
                     Snackbar.Add($"{result.Error.First()}", Severity.Error);
             }
 
         IsNewItem = false;
         IsFormReadOnly = true;
+        await GetItem();
 
-        await Task.Delay(1500);
+        await Task.Delay(1000);
         IsLoadingData = false;
     }
 

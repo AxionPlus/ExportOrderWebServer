@@ -4,32 +4,47 @@
 @inject ILocationProvider _locationProvider
 
 <style>
-    .Container-item > .container-content {
+/*     .Container-item > .container-content {
         justify-content: unset;
+    } */
+
+    .SelectField * .mud-input-slot.mud-input-root-outlined.mud-input-root-adorned-end {
+        text-align:left;
     }
 </style>
 
-@if (Value is not null)
+@if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content">
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+
+        <div class="ToolBar-container">
+            <MudToolBar Class="ToolBar ToolBar-new">
+                <div class="ToolBar-iconbutton" style="margin-left: 20px">
+                    <MudTooltip Text="Edit terminal">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                    </MudTooltip>
+                </div>
+                <MudSpacer />
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="Save terminal">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                    </MudTooltip>
+                </div>
+            </MudToolBar>
+        </div>
+
         <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 150px; margin-right:10px" Label="Short Name" Text="@Value.Name"
-                              TextChanged="async (e)=> { Value.Name = e.ToUpper(); }"
+                <MudTextField T="string" Style="width: 250px; margin-right:10px" Label="Short Name" Text="@Item.Name"
+                              TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
-                              ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-
-                <MudButton Class="Button" Style="width: 100px; margin-left: 10px" Disabled="!IsNewItem" OnClick="SaveItem_Click"
-                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
-                    Save
-                </MudButton>
-             </div>
-
-             <div class="container-content">
-                 <MudAutocomplete T="LocationCatalog" Style="width: 350px" @bind-Value="Value.Location"
+                              Clearable="!IsFormReadOnly" />
+            </div>
+            <div class="container-content">
+                 <MudAutocomplete T="LocationCatalog" Style="width: 250px" Label="Location" @bind-Value="Item.Location"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchLocation"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -39,28 +54,25 @@
                                   Placeholder="Location"
                                   MaxItems="20"
                                   IconSize="Size.Small"
-                                  ReadOnly="!IsNewItem" Clearable="IsNewItem" />
-
-             </div>
-@*             <div class="container-content" style="padding-bottom:unset">
-                <h6 style="margin-bottom:unset">Таможенный пост</h6>
-            </div> *@
+                                  Clearable="!IsFormReadOnly" />
+            </div>
             <div class="container-content">
-                <MudSelect Class="SelectField" T="CustomsCatalog" Label="Таможенный пост" @bind-Value="@Value.Customs"
-                            Style="width:350px" Placeholder="Таможенный пост"
+                <MudSelect Class="SelectField" T="CustomsCatalog" Label="Таможенный пост" @bind-Value="@Item.Customs"
+                            Style="width:500px; text-align:left" Placeholder="Таможенный пост"
                             ToStringFunc="@(str=>str is not null ? str.CustomsOffice : string.Empty)"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon="">
+                            CloseIcon="" OpenIcon=""
+                            Clearable="!IsFormReadOnly">
                     @if (CustomOffices is not null)
                         @foreach (var office in CustomOffices)
                         {
                             <MudSelectItem Value="@office">@($"({office.CustomsCode}) {office.CustomsOffice}")</MudSelectItem>
                         }
                 </MudSelect>
-            </div>
-            
-         </div>
-     </MudForm>
+            </div>            
+        </div>
+
+    </MudForm>
 }
 
 @code {
@@ -69,14 +81,13 @@
     [CascadingParameter]
     private MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public long Id { get; set; } = 0;
+    public long Id { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
-    private TerminalCatalog? Value { get; set; }
-
+    private TerminalCatalog? Item { get; set; }
     private IEnumerable<CustomsCatalog> CustomOffices { get; set; } = new List<CustomsCatalog>();
-
+    private bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
 
 
@@ -96,16 +107,19 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-            Value = new();
+        {
+            Item = new();
+            IsFormReadOnly = false;
+        }        
         else
         {
             var response = await _terminalProvider.GetItemAsync(Id);
             if (!response.HasError)
-                Value = (TerminalCatalog)response.Object!;
+                Item = (TerminalCatalog)response.Object!;
         }
     }
 
-    public async Task SaveItem_Click()
+    private async Task SaveItem_Click()
     {
         await Form!.Validate();
 
@@ -113,49 +127,39 @@
         {
             if (IsNewItem)
             {
-                var response = await _terminalProvider.NewItemAsync(Value!);
+                var response = await _terminalProvider.NewItemAsync(Item!);
                 if (!response.HasError)
                 {
+                    Id = Item!.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);
-                    IsNewItem = false;
                 }
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
             }
             else
             {
-                // var response = await _terminalProvider.ModifyItemAsync(Value!);
-                // if (!response.HasError)
-                // {
-                //     await GetItem();
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add(response.Error.Last(), Severity.Error);
+                var response = await _terminalProvider.ModifyItemAsync(Item!);
+                if (!response.HasError)                    
+                    Snackbar.Add("Save Successed", Severity.Success);
+                else
+                    Snackbar.Add(response.Error.Last(), Severity.Error);
             }
 
-            await InvokeAsync(StateHasChanged);
+            IsNewItem = false;
+            IsFormReadOnly = true;
 
-            MudDialog!.Close();
+            await GetItem();
         }
     }
 
-    public async Task ClearItem_Click()
+    private async Task EditItem_Click()
     {
-        if (IsNewItem)
-        {
-            Value!.Name = null;
-            Value.Location = null;
-        }
-
         await Task.Delay(50);
+        IsFormReadOnly = false;
     }
 
     private async Task<IEnumerable<LocationCatalog>> SearchLocation(string value)
     {
-        // if (string.IsNullOrWhiteSpace(value))
-        //     return Enumerable.Empty<CountryCatalog>();
-
         var Locations = new List<LocationCatalog>();
 
         var response = await _locationProvider.GetItemsAsync();
@@ -165,6 +169,6 @@
         if (string.IsNullOrWhiteSpace(value))
             return Locations;
 
-        return Locations.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return Locations.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 }

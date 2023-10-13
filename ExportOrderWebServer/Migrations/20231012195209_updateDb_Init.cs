@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     /// <inheritdoc />
-    public partial class _08_10_Customs_MyCompany : Migration
+    public partial class updateDb_Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -61,35 +61,6 @@ namespace ExportOrderWebServer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ContainerTypeSize", x => x.ISO);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CustomsOffices",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CustomsCode = table.Column<string>(type: "text", nullable: true),
-                    CustomsOffice = table.Column<string>(type: "text", nullable: true),
-                    CustomsDapartment = table.Column<string>(type: "text", nullable: true),
-                    CustomsArticle = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomsOffices", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MyCompany",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MyCompany", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -267,6 +238,29 @@ namespace ExportOrderWebServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CustomsOffices",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CustomsCode = table.Column<string>(type: "text", nullable: true),
+                    CustomsOffice = table.Column<string>(type: "text", nullable: true),
+                    CustomsDapartment = table.Column<string>(type: "text", nullable: true),
+                    CustomsArticle = table.Column<string>(type: "text", nullable: true),
+                    CreateUserId = table.Column<string>(type: "text", nullable: true),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomsOffices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomsOffices_AspNetUsers_CreateUserId",
+                        column: x => x.CreateUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Documents",
                 columns: table => new
                 {
@@ -294,23 +288,24 @@ namespace ExportOrderWebServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Persons",
+                name: "MyCompany",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: true),
-                    Phone = table.Column<string>(type: "text", nullable: true),
-                    Document = table.Column<string>(type: "text", nullable: true),
-                    MyCompanyEntityId = table.Column<long>(type: "bigint", nullable: true)
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
+                    CreateUserId = table.Column<string>(type: "text", nullable: true),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Persons", x => x.Id);
+                    table.PrimaryKey("PK_MyCompany", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Persons_MyCompany_MyCompanyEntityId",
-                        column: x => x.MyCompanyEntityId,
-                        principalTable: "MyCompany",
+                        name: "FK_MyCompany_AspNetUsers_CreateUserId",
+                        column: x => x.CreateUserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
 
@@ -373,7 +368,7 @@ namespace ExportOrderWebServer.Migrations
                     Name = table.Column<string>(type: "text", nullable: true),
                     NameEn = table.Column<string>(type: "text", nullable: true),
                     UnLocode = table.Column<string>(type: "text", nullable: true),
-                    CountryId = table.Column<long>(type: "bigint", nullable: false),
+                    CountryId = table.Column<long>(type: "bigint", nullable: true),
                     CreateUserId = table.Column<string>(type: "text", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
@@ -389,8 +384,7 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_Locations_Countries_CountryId",
                         column: x => x.CountryId,
                         principalTable: "Countries",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -401,7 +395,7 @@ namespace ExportOrderWebServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     IMO = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
                     Name = table.Column<string>(type: "text", nullable: true),
-                    TerminalId = table.Column<string>(type: "text", nullable: true),
+                    TerminalCode = table.Column<string>(type: "text", nullable: true),
                     FlagId = table.Column<long>(type: "bigint", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
@@ -451,6 +445,34 @@ namespace ExportOrderWebServer.Migrations
                         principalTable: "Documents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Persons",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    Phone = table.Column<string>(type: "text", nullable: true),
+                    Document = table.Column<string>(type: "text", nullable: true),
+                    MyCompanyEntityId = table.Column<long>(type: "bigint", nullable: true),
+                    CreateUserId = table.Column<string>(type: "text", nullable: true),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Persons", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Persons_AspNetUsers_CreateUserId",
+                        column: x => x.CreateUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Persons_MyCompany_MyCompanyEntityId",
+                        column: x => x.MyCompanyEntityId,
+                        principalTable: "MyCompany",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -566,38 +588,39 @@ namespace ExportOrderWebServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "VesselCallDetail",
+                name: "VesselCall_Details",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    VesselCallId = table.Column<long>(type: "bigint", nullable: true),
+                    VesselCallId = table.Column<long>(type: "bigint", nullable: false),
                     PODId = table.Column<long>(type: "bigint", nullable: true),
                     AgentPOD = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    Version = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     CreateUserId = table.Column<string>(type: "text", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VesselCallDetail", x => x.Id);
+                    table.PrimaryKey("PK_VesselCall_Details", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_VesselCallDetail_AspNetUsers_CreateUserId",
+                        name: "FK_VesselCall_Details_AspNetUsers_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_VesselCallDetail_Locations_PODId",
+                        name: "FK_VesselCall_Details_Locations_PODId",
                         column: x => x.PODId,
                         principalTable: "Locations",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_VesselCallDetail_VesselCalls_VesselCallId",
+                        name: "FK_VesselCall_Details_VesselCalls_VesselCallId",
                         column: x => x.VesselCallId,
                         principalTable: "VesselCalls",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -761,6 +784,11 @@ namespace ExportOrderWebServer.Migrations
                 column: "CreateUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CustomsOffices_CreateUserId",
+                table: "CustomsOffices",
+                column: "CreateUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DocumentRecord_DocumentId",
                 table: "DocumentRecord",
                 column: "DocumentId");
@@ -816,6 +844,16 @@ namespace ExportOrderWebServer.Migrations
                 column: "CreateUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MyCompany_CreateUserId",
+                table: "MyCompany",
+                column: "CreateUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Persons_CreateUserId",
+                table: "Persons",
+                column: "CreateUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Persons_MyCompanyEntityId",
                 table: "Persons",
                 column: "MyCompanyEntityId");
@@ -836,18 +874,18 @@ namespace ExportOrderWebServer.Migrations
                 column: "LocationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VesselCallDetail_CreateUserId",
-                table: "VesselCallDetail",
+                name: "IX_VesselCall_Details_CreateUserId",
+                table: "VesselCall_Details",
                 column: "CreateUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VesselCallDetail_PODId",
-                table: "VesselCallDetail",
+                name: "IX_VesselCall_Details_PODId",
+                table: "VesselCall_Details",
                 column: "PODId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VesselCallDetail_VesselCallId",
-                table: "VesselCallDetail",
+                name: "IX_VesselCall_Details_VesselCallId",
+                table: "VesselCall_Details",
                 column: "VesselCallId");
 
             migrationBuilder.CreateIndex(
@@ -910,7 +948,7 @@ namespace ExportOrderWebServer.Migrations
                 name: "ExportOrders_Documents");
 
             migrationBuilder.DropTable(
-                name: "VesselCallDetail");
+                name: "VesselCall_Details");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

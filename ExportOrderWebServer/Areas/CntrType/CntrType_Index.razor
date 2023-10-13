@@ -2,25 +2,35 @@
 
 <PageTitle>ContainerTypes</PageTitle>
 
-<div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
-        <MudSpacer />
-        <div class="ToolBar-Title"><span>types of container</span></div>
-        <MudSpacer />
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-        </div>
-    </MudToolBar>
-</div>
-
-<MudForm @ref="@Form" Style="max-width: max-content; margin: auto">
-    <CntrType_Component />
-</MudForm>
+<MudContainer MaxWidth="MaxWidth.Small">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>types of container</span></div>
+            <MudSpacer />
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+    <MudForm Style="max-width: fit-content; margin: auto">
+        <CntrType_Component />
+    </MudForm>
+</MudContainer>
 
 @code {
-    private MudForm? Form;
+    //private MudForm? Form;
+
+    // private List<CntrTpSz>? Items { get; set; } = new List<CntrTpSz>();
+    // private List<CntrTpSz>? NewItems { get; set; } = new List<CntrTpSz>();
+
+    // private async Task SaveItem_Click(List<CntrTpSz> newItems)
+    // {
+    //     if (Items != null)
+    //         await component!.SaveItem_Click(Items);
+    // }
 }

@@ -37,26 +37,37 @@ public class VesselCallProvider : IVesselCallProvider
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-            var db = await _db;
+            try
+            {            
+                var db = await _db;
 
-            if (name.Contains('&'))
-            {
-                var vesselName = name.Split('&')[0];
-                var voyageNo = name.Split('&')[1];
+                if (name.Contains('&'))
+                {
+                    var vesselName = name.Split('&')[0];
+                    var voyageNo = name.Split('&')[1];
 
-                var vesselCalls = await db.VesselCalls
-                                                    .Include(vc => vc.Vessel)
-                                                    .Include(vc => vc.Terminal)
-                                                    .Include(vc => vc.Details).ThenInclude(d => d.POD)
-                                                    .AsSplitQuery()
-                                                    .ToListAsync();
-                if (appObjResponse.Object is null)
-                    appObjResponse.ErrorAdd($"There is no voayeg {vesselName} {voyageNo}");
+                    appObjResponse.Object = await db.VesselCalls
+                                                                .Include(vc => vc.Vessel)
+                                                                .Include(vc => vc.Terminal)
+                                                                .Include(vc => vc.Details).ThenInclude(d => d.POD)
+                                                                .Where(vc => vc.Vessel.Name!.ToUpper() == vesselName.ToUpper() &&
+                                                                        vc.VoyageNo.ToUpper() == voyageNo.ToUpper())
+                                                                .FirstOrDefaultAsync();
+
+                    if (appObjResponse.Object is null)
+                        appObjResponse.ErrorAdd($"There is no voyage: {vesselName} {voyageNo}");                    
+                }
+                else
+                    appObjResponse.ErrorAdd("Wrong request");
+
+                return appObjResponse;
             }
-            else
-                appObjResponse.ErrorAdd("Wrong request");
-
-            return appObjResponse;
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
+                return appObjResponse;
+            }
         }
     }
 
@@ -117,7 +128,95 @@ public class VesselCallProvider : IVesselCallProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(VesselCallEntity item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.VesselCalls
+                                                    .Include(vc => vc.Vessel)
+                                                    .Include(vc => vc.Terminal)
+                                                    .Include(vc => vc.Details).ThenInclude(d => d.POD)
+                                                    .FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                string modifyVoyage = $"{modifyItem!.Vessel?.Name}&{modifyItem.VoyageNo}";
+                string itemVoyage = $"{item!.Vessel?.Name}&{item.VoyageNo}";
+
+                if (modifyVoyage != itemVoyage)
+                {
+                    var itemExistCheck = await db.VesselCalls.Where(s => s.Vessel!.Name!.ToUpper() == item.Vessel!.Name!.ToUpper())
+                                                            .Where(s => s.VoyageNo.ToUpper() == item.VoyageNo.ToUpper())
+                                                            .FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {itemVoyage} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.VoyageNo = item.VoyageNo;
+                modifyItem!.VoyageNoTerminal = item.VoyageNoTerminal;
+                modifyItem!.ETA = item.ETA;
+                modifyItem!.ETS = item.ETS;
+
+                if (!modifyItem.Vessel!.Id.Equals(item.Vessel!.Id))
+                    modifyItem!.Vessel = item.Vessel;
+                if (!modifyItem.Terminal!.Id.Equals(item.Terminal!.Id))
+                    modifyItem!.Terminal = item.Terminal;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                // compaire new item with existed
+                foreach (var modifyDetail in modifyItem.Details!)
+                    if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
+                        modifyItem.Details!.Remove(modifyDetail);
+                    else
+                    {
+                        modifyDetail.CreateUser = User!;
+                        modifyDetail.CreateTime = DateTime.Now;
+                        modifyDetail.AgentPOD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOD;
+
+                        if (!modifyDetail.POD!.Id.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD!.Id))
+                            modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
+                    }
+
+                // compaire existed item with new
+                foreach (var itemDetail in item.Details!)
+                    if (!modifyItem.Details.Any(s => s.Id == itemDetail.Id))
+                    {
+                        itemDetail.CreateUser = User!;
+                        itemDetail.CreateTime = DateTime.Now;                        
+                        
+                        db.Entry(itemDetail.POD!).State = EntityState.Unchanged;
+                        db.Entry(itemDetail.CreateUser).State = EntityState.Unchanged;
+
+                        db.Entry(itemDetail).State = EntityState.Added;
+                        modifyItem.Details.Add(itemDetail);
+                    }
+
+                db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(VesselCallEntity item)
@@ -126,11 +225,15 @@ public class VesselCallProvider : IVesselCallProvider
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
+            try
+            {
+            
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
-            var itemExistCheck = await db.VesselCalls.Where(s => s.Vessel.Name == item.Vessel.Name)
+            var itemExistCheck = await db.VesselCalls
+                                                    .Where(s => s.Vessel.Name == item.Vessel.Name)
                                                     .Where(s => s.ETA!.Value == item.ETA!.Value).FirstOrDefaultAsync();
             if (itemExistCheck != null)
             {
@@ -142,12 +245,16 @@ public class VesselCallProvider : IVesselCallProvider
 
             foreach (var detail in item.Details)
             {
-                db.Entry(detail).State = EntityState.Added;
+                detail.CreateUser = User!;
+                detail.CreateTime = DateTime.Now;
+
                 db.Entry(detail.POD!).State = EntityState.Unchanged;
+                db.Entry(detail).State = EntityState.Added;                
             }
 
             db.Entry(item.Vessel).State = EntityState.Unchanged;
             db.Entry(item.Terminal).State = EntityState.Unchanged;
+
             db.Entry(item).State = EntityState.Added;
 
             var bug = db.ChangeTracker.DebugView.LongView;
@@ -155,12 +262,24 @@ public class VesselCallProvider : IVesselCallProvider
             await db.SaveChangesAsync();
 
             return appObjResponse;
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return appObjResponse;
+            }
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(VesselCallEntity item)
+    public Task<AppObjectResponse> RemoveItemAsync(VesselCallEntity item)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<AppObjectResponse> RemoveItemDTOAsync(VesselCallDTO item)
+    {
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<string>> GetNames()
@@ -172,7 +291,7 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<IEnumerable<string>> GetNamesEn()
+    public Task<IEnumerable<string>> GetNamesEn()
     {
         throw new NotImplementedException();
     }
@@ -213,6 +332,7 @@ public class VesselCallProvider : IVesselCallProvider
                     VesselName = record.Vessel.Name,
                     VoyageNo = record.VoyageNo,
                     VoyageNoTerminal = record.VoyageNoTerminal,
+                    Terminal = record.Terminal.Name,
                     ETA = record.ETA,
                     ETS = record.ETS,
                     POD = detail.POD!.NameEn,
@@ -226,7 +346,8 @@ public class VesselCallProvider : IVesselCallProvider
         return RecordsDTO;
     };
 
-    public async Task<IEnumerable<VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId)
+    // DELETE
+    public async Task<IEnumerable<_VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -246,7 +367,7 @@ public class VesselCallProvider : IVesselCallProvider
                             .ToListAsync();            
 
             var CarriersGroup = eoItems.GroupBy(e => e.CarrierNameEn)
-                                  .Select(g => new VesselCallCarrierDTO()
+                                  .Select(g => new _VesselCallCarrierDTO()
                                   {
                                       VesselCallId = g.FirstOrDefault()!.VesselCallId,
                                       CarrierId = g.FirstOrDefault()!.CarrierId,

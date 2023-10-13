@@ -2,67 +2,65 @@
 @inject IDialogService DialogService
 @inject ICustomsProvider _customsOfficeProvider
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    <div class="Container-item">
-        <div class="container-content">
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Code" Style="width: 300px" @bind-Value="@Filter.Num" SearchFunc="@SearchCodes"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="Office Name" Style="width: 300px" SearchFunc="@SearchNames"
-                              Value="Filter.Name"
-                              ValueChanged="(e)=> { Filter.Name = e; }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              CloseIcon="" OpenIcon=""
-                              ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary"
-                        OnClick="@(async () => { await GetItems(); })">
-                Search
-             </MudButton>
-        </div>
+
+<div class="Container-item">
+    <div class="container-content">
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Code" Style="width: 200px" @bind-Value="@Filter.Num" SearchFunc="@SearchCodes"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Office Name" Style="width: 500px" SearchFunc="@SearchNames"
+                        Value="Filter.Name"
+                        ValueChanged="(e)=> { Filter.Name = e; }"
+                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                        CloseIcon="" OpenIcon=""
+                        ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                Variant="Variant.Filled" Color="Color.Secondary"
+                OnClick="@(async () => { await GetItems(); })">
+            Search
+        </MudButton>
     </div>
+</div>
     
-    <div class="Container-table">
-        @if (mudTable != null)
-        {
-            <div class="tableMenu">
-                <MudSpacer />
-                <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-                <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-            </div>
-        }
+<div class="Container-table">
+    @if (mudTable != null)
+    {
+        <div class="tableMenu">
+            <MudSpacer />
+            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+        </div>
+    }
 
-        <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CustomsCatalog" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CustomsCatalog" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
-            <HeaderContent>
-                <MudTh Style="width:30px"></MudTh>
-                <MudTh Style="width:30px"></MudTh>
-                <MudTh Style="width:400px">
-                    <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsCode!)">Код таможенного органа</MudTableSortLabel>
-                </MudTh>
-                <MudTh Style="width:400px">
-                    <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsOffice!)">Таможенный пост</MudTableSortLabel>
-                </MudTh>
-                <MudTh></MudTh>
-            </HeaderContent>
+        <HeaderContent>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:200px">
+                <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsCode!)">Код поста</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:500px">
+                <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsOffice!)">Таможенный пост</MudTableSortLabel>
+            </MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
 
-            <RowTemplate>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
-                <MudTd>@context.CustomsCode</MudTd>
-                <MudTd>@context.CustomsOffice</MudTd>
-                <MudTd></MudTd>
-            </RowTemplate>
+        <RowTemplate>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
+            <MudTd>@context.CustomsCode</MudTd>
+            <MudTd>@context.CustomsOffice</MudTd>
+            <MudTd></MudTd>
+        </RowTemplate>
 
-            <PagerContent></PagerContent>
+        <PagerContent></PagerContent>
 
-        </MudTable>
-    </div>
-
-</MudContainer>
+    </MudTable>
+</div>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
@@ -102,6 +100,9 @@
         dialog = await DialogService.ShowAsync<CustomsOffice_ItemDialog>("Customs Office", parameters, options);
 
         DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await GetItems();
     }
 
     private async Task RemoveItem_Click(CustomsCatalog item)
@@ -129,26 +130,26 @@
 
     private async Task<IEnumerable<string>> SearchCodes(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _customsOfficeProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchNames(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _customsOfficeProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }

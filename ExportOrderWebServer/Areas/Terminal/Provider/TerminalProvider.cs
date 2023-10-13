@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using static MudBlazor.Icons;
 
 namespace ExportOrderWebServer.Areas.Terminal.Provider;
 
@@ -22,7 +23,7 @@ public class TerminalProvider : ITerminalProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Terminals.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            appObjResponse.Object = await db.Terminals.Include(t => t.Location).Include(t => t.Customs).AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;
@@ -48,7 +49,7 @@ public class TerminalProvider : ITerminalProvider
         {
             var db = await _db;
 
-            var Terminals = await db.Terminals.ToListAsync();
+            var Terminals = await db.Terminals.Include(t => t.Location).Include(t => t.Customs).ToListAsync();
 
             if (parameters.GetType() == typeof(FilterParameters))
             {
@@ -69,7 +70,66 @@ public class TerminalProvider : ITerminalProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(TerminalCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                //var originalItem = await db.Terminals.Include(s => s.Customs).Include(s => s.Location).FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                var modifyItem = await db.Terminals.Include(s => s.Customs).Include(s => s.Location).FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.Name != item.Name)
+                {
+                    var itemExistCheck = await db.Terminals.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.Name} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Name = item.Name;
+
+                if (!modifyItem!.Location!.Id.Equals(item.Location!.Id))
+                    modifyItem!.Location = item.Location;
+
+                if (modifyItem.Customs is not null && item.Customs is not null)
+                    if (!modifyItem.Customs.Id.Equals(item.Customs!.Id))
+                        modifyItem!.Customs = item.Customs;
+
+                if (modifyItem.Customs is not null && item.Customs is null)
+                    modifyItem!.Customs = item.Customs;
+
+                if (modifyItem.Customs is null && item.Customs is not null)
+                    modifyItem!.Customs = item.Customs;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(TerminalCatalog item)
@@ -91,8 +151,12 @@ public class TerminalProvider : ITerminalProvider
 
             item.CreateUser = User!;
 
-            db.Entry(item.Location!).State = EntityState.Unchanged;
-            db.Entry(item.Customs!).State = EntityState.Unchanged;
+            if (item.Location != null)
+                db.Entry(item.Location!).State = EntityState.Unchanged;
+
+            if (item.Customs != null)
+                db.Entry(item.Customs!).State = EntityState.Unchanged;
+
             db.Entry(item).State = EntityState.Added;
 
             var bug = db.ChangeTracker.DebugView.LongView;
@@ -105,7 +169,8 @@ public class TerminalProvider : ITerminalProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(TerminalCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<string>> GetNames()
@@ -133,5 +198,5 @@ public class TerminalProvider : ITerminalProvider
             return Item!;
         }
     }
-    
+
 }

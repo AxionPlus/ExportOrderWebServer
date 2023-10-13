@@ -11,21 +11,17 @@
     
 </style>
 
-<MudForm @ref="@FilterForm">
+@* <MudContainer MaxWidth="MaxWidth.Medium"> *@
     <div class="Container-item">
-        <div class="container-content">
-            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Primary"
-                        OnClick="@(async () => { await AddItem_Click(); })">Add New</MudButton>
-            <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchNames"
+        <div class="container-content" style="max-width:inherit">
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 350px" SearchFunc="@SearchNames"
                                 Value="Filter.Name"
                                 ValueChanged="(e)=> { Filter.Name = e; }"
                                 Variant="Variant.Outlined" Margin="Margin.Dense"
                                 CloseIcon="" OpenIcon=""
                                 ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 300px" SearchFunc="@SearchNamesEn"
+            <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 350px" SearchFunc="@SearchNamesEn"
                                 Value="Filter.NameEn"
                                 ValueChanged="(e)=> { Filter.NameEn = e; }"
                                 Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -41,80 +37,80 @@
                 <MudSpacer />
                 <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
                         Variant="Variant.Filled" Color="Color.Secondary"
-                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
-            </div>
+                        OnClick="@(async () => { await GetItems(); })">
+                    Search
+                </MudButton>
         </div>
+    </div>
 
-    <div class="Container-table">
-    @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+     @if (Items!.Count() > 0)
+     {
+        <div class="Container-table">
+            @if (mudTable != null)
+            {
+                <div class="tableMenu">
+                    <MudSpacer />
+                    <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+                    <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+                </div>
+            }
+
+            <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+                <HeaderContent>
+                    @if (!IsSelectable)
+                    {
+                        <MudTh Style="width:30px"></MudTh>
+                    }
+                    <MudTh Style="width:30px"></MudTh>
+                    <MudTh Style="width:515px">
+                        <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh Style="width:515px">
+                        <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
+                    </MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    @if (!IsSelectable)
+                    {
+                        <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" /></MudTd>
+                        <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })" /></MudTd>
+                    }
+                    else
+                    {
+                        <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })" /></MudTd>
+                    }
+                    <MudTd Class="Tcell_Name">@context.Name</MudTd>
+                    <MudTd>@context.NameEn</MudTd>
+                    <MudTd>@context.Country!.RUS</MudTd>
+                </RowTemplate>
+                <PagerContent></PagerContent>
+            </MudTable>
         </div>
-    }
+     }    
 
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CustomerCatalog"
-                Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-
-        <HeaderContent>
-            @if (!IsSelectable)
-            {
-                <MudTh Style="width:30px"></MudTh>
-            }            
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:515px">
-                <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
-            </MudTh>
-            <MudTh Style="width:515px">
-                <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
-            </MudTh>
-            <MudTh>
-                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
-            </MudTh>
-        </HeaderContent>
-
-        <RowTemplate>
-            @if (!IsSelectable)
-            {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"/></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"/></MudTd>
-            }
-            else
-            {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })"/></MudTd>
-            }
-            <MudTd Class="Tcell_Name">@context.Name</MudTd>
-            <MudTd>@context.NameEn</MudTd>
-            <MudTd>@context.Country!.RUS</MudTd>
-        </RowTemplate>
-
-        <PagerContent></PagerContent>
-
-    </MudTable>
-</div>
-
-</MudForm>
+@* </MudContainer> *@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    private MudForm? FilterForm;
+    [Parameter]
+    public bool IsSelectable { get; set; } = false;
+
     private MudTable<CustomerCatalog>? mudTable;
 
     private IEnumerable<CustomerCatalog>? Items { get; set; } = new List<CustomerCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
-    [Parameter]
-    public bool IsSelectable { get; set; } = false;
     bool IsLoadingData = false;
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
-    private async Task GetItems()
+    public async Task GetItems()
     {
         IsLoadingData = true;
 
@@ -124,9 +120,9 @@
 
         await Task.Delay(500);
 
-        await InvokeAsync(StateHasChanged);
-
         IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);        
     }
 
     private async Task ShowItem_Click(long Id)
@@ -135,24 +131,12 @@
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CustomerItem_Dialog>("Customer", parameters, options);
-
-        DialogResult result = await dialog.Result;
-    }
-
-    private async Task AddItem_Click()
-    {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<CustomerItem_Dialog>("New Customer", parameters, options);
+        dialog = await DialogService.ShowAsync<Customer_ItemDialog>("Customer", parameters, options);
 
         DialogResult result = await dialog.Result;
 
         if (result.Canceled)
-            if (Items!.Count() > 0)
-                await GetItems();
+            await GetItems();
     }
 
     private async Task RemoveItem_Click(CustomerCatalog item)
@@ -186,40 +170,40 @@
     #region SEARCH FUNCTIONS
 
     private async Task<IEnumerable<string>> SearchNames(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
+    {        
         var result = await _customerProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchNamesEn(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _customerProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+        
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchCountries(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _countryProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }

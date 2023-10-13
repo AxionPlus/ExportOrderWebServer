@@ -1,13 +1,21 @@
 ﻿@page "/customer"
 
+@inject IDialogService DialogService
+
 <PageTitle>Customer</PageTitle>
 
-<div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
+<MudContainer MaxWidth="MaxWidth.Large">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
         <MudSpacer />
         <div class="ToolBar-Title"><span>customers</span></div>
         <MudSpacer />
+        <div class="ToolBar-iconbutton" style="margin-right: 20px">
+            <MudTooltip Text="add new Customer">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+            </MudTooltip>
+        </div>
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -15,10 +23,26 @@
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
         </div>
     </MudToolBar>
-</div>
+    </div>
 
-<CustomerComponent />
+    <CustomerComponent @ref="component" />
+</MudContainer>
+
 
 @code {
+    public CustomerComponent? component;
 
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync <Customer_ItemDialog>("New Customer", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await component!.GetItems();
+    }
 }

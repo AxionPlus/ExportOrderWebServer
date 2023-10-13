@@ -8,4 +8,4 @@ global using ExportOrderEntites.Cntr;
 global using ExportOrderEntites.VesselCall;
 global using ExportOrderEntites.Document;
 global using ExportOrderEntites.ExportOrder;
-
+global using ExportOrderEntites.MyCompany;

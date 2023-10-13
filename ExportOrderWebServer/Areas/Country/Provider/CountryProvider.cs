@@ -69,7 +69,51 @@ public class CountryProvider : ICountryProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CountryCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.Countries.FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.RUS != item.RUS)
+                {
+                    var itemExistCheck = await db.Countries
+                                                         .Where(s => s.RUS!.ToUpper() == item.RUS!.ToUpper())
+                                                         .FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.RUS} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.RUS = item.RUS;
+                modifyItem!.ENG = item.ENG;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(CountryCatalog item)
@@ -102,7 +146,8 @@ public class CountryProvider : ICountryProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(CountryCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<string>> GetNames()

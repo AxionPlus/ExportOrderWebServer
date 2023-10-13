@@ -74,13 +74,14 @@ public class MyCompanyProvider : IMyCompanyProvider
                 return appObjResponse;
             }
 
+            item.CreateUser = User!;
+
             foreach (var person in item.Persons!)
             {
                 person.CreateUser = User!;
+                person.CreateTime = DateTime.Now;
                 db.Entry(person).State = EntityState.Added;
-            }
-
-            item.CreateUser = User!;
+            }            
 
             db.Entry(item).State = EntityState.Added;
 
@@ -102,15 +103,15 @@ public class MyCompanyProvider : IMyCompanyProvider
 
             try
             {
-                var modiftyItem = await db.MyCompany.Include(s => s.Persons).FirstOrDefaultAsync(s => s.Id == item.Id);
+                var modifyItem = await db.MyCompany.Include(s => s.Persons).FirstOrDefaultAsync(s => s.Id == item.Id);
 
-                if (modiftyItem is null)
+                if (modifyItem is null)
                 {
                     appObjResponse.ErrorAdd("Item not found");
                     return appObjResponse;
                 }
 
-                if (modiftyItem.Name != item.Name)
+                if (modifyItem.Name != item.Name)
                 {
                     var itemExistCheck = await db.MyCompany
                                                          .Where(s => s.Name!.ToUpper() == item.Name!.ToUpper())
@@ -123,33 +124,40 @@ public class MyCompanyProvider : IMyCompanyProvider
                     }
                 }
 
-                db.ChangeTracker.Clear();
-
-                modiftyItem = await db.MyCompany.Include(s => s.Persons).FirstOrDefaultAsync(s => s.Id == item.Id);
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-                modiftyItem!.CreateUser = User!;
-                modiftyItem!.Name = item.Name;
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Name = item.Name;
 
-                foreach (var modiftyItemPerson in modiftyItem.Persons!)
-                    if (!item.Persons!.Any(s => s.Id == modiftyItemPerson.Id))
-                        modiftyItem.Persons!.Remove(modiftyItemPerson);
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                // compaire new item with existed
+                foreach (var modifyItemPerson in modifyItem.Persons!)
+                    if (!item.Persons!.Any(s => s.Id == modifyItemPerson.Id))
+                        modifyItem.Persons!.Remove(modifyItemPerson);
                     else
                     {
-                        modiftyItemPerson.Name = item.Persons!.FirstOrDefault(s => s.Id == modiftyItemPerson.Id)!.Name;
-                        modiftyItemPerson.Phone= item.Persons!.FirstOrDefault(s => s.Id == modiftyItemPerson.Id)!.Phone;
-                        modiftyItemPerson.Document = item.Persons!.FirstOrDefault(s => s.Id == modiftyItemPerson.Id)!.Document;
+                        modifyItemPerson.CreateUser = User;
+                        modifyItemPerson.CreateTime = DateTime.Now;
+                        modifyItemPerson.Name = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Name;
+                        modifyItemPerson.Phone= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Phone;
+                        modifyItemPerson.Document = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Document;
                     }
 
+                // compaire existed item with new
                 foreach (var itemPerson in item.Persons!)
-                    if (!modiftyItem.Persons.Any(s => s.Id == itemPerson.Id))
+                    if (!modifyItem.Persons.Any(s => s.Id == itemPerson.Id))
                     {
                         itemPerson.CreateUser = User!;
-                        //db.Entry(itemPerson.CreateUser).State = EntityState.Unchanged;
+                        itemPerson.CreateTime = DateTime.Now;
+                        db.Entry(itemPerson.CreateUser).State = EntityState.Unchanged;
 
                         db.Entry(itemPerson).State = EntityState.Added;
-                        modiftyItem.Persons.Add(itemPerson);
+                        modifyItem.Persons.Add(itemPerson);
                     }
+
+                db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
 

@@ -5,12 +5,11 @@ namespace ExportOrderEntites.DTO;
 public class ExportOrderComponentDTO
 {
     [Key]
-    public long Id { get; set; }                // ?? delete
+    public long Id { get; set; }
 
 #pragma warning disable CS8618
     
     public string Num { get; set; }
-    //public long VesselCallId { get; set; }
     public string Dated { get; set; }
     public string Vessel { get; set; }
     public string Voyage { get; set; }

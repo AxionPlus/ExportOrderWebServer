@@ -6,67 +6,64 @@
 
 </style>
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    <div class="Container-item">
-        <div class="container-content">
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchNames"
-                             Value="Filter.Name"
-                             ValueChanged="(e)=> { Filter.Name = e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 300px" SearchFunc="@SearchNamesEn"
-                              Value="Filter.NameEn"
-                              ValueChanged="(e)=> { Filter.NameEn = e; }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              CloseIcon="" OpenIcon=""
-                              ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary" 
-                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+<div class="Container-item">
+    <div class="container-content">
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchNames"
+                            Value="Filter.Name"
+                            ValueChanged="(e)=> { Filter.Name = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+            <MudSpacer />
+            <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 300px" SearchFunc="@SearchNamesEn"
+                            Value="Filter.NameEn"
+                            ValueChanged="(e)=> { Filter.NameEn = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+            <MudSpacer />
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                    Variant="Variant.Filled" Color="Color.Secondary" 
+                    OnClick="@(async () => { await GetItems(); })">Search</MudButton>
+    </div>
+</div>
+
+<div class="Container-table">
+        @if (mudTable != null)
+    {
+        <div class="tableMenu">
+            <MudSpacer />
+            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
-    </div>
+    }
 
-    <div class="Container-table">
-         @if (mudTable != null)
-        {
-            <div class="tableMenu">
-                <MudSpacer />
-                <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-                <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-            </div>
-        }
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
-        <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CountryCatalog" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+        <HeaderContent>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:400px">
+                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Name Ru</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:400px">
+                <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.ENG)">Name En</MudTableSortLabel>
+            </MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
 
-            <HeaderContent>
-                <MudTh Style="width:30px"></MudTh>
-                <MudTh Style="width:30px"></MudTh>
-                <MudTh Style="width:400px">
-                    <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Name Ru</MudTableSortLabel>
-                </MudTh>
-                <MudTh Style="width:400px">
-                    <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.ENG)">Name En</MudTableSortLabel>
-                </MudTh>
-                <MudTh></MudTh>
-            </HeaderContent>
+        <RowTemplate>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
+            <MudTd>@context.RUS</MudTd>
+            <MudTd>@context.ENG</MudTd>
+            <MudTd></MudTd>
+        </RowTemplate>
 
-            <RowTemplate>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
-                <MudTd>@context.RUS</MudTd>
-                <MudTd>@context.ENG</MudTd>
-                <MudTd></MudTd>
-            </RowTemplate>
+        <PagerContent></PagerContent>
 
-            <PagerContent></PagerContent>
-
-        </MudTable>
-    </div>
-
-</MudContainer>
+    </MudTable>
+</div>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
@@ -106,6 +103,9 @@
         dialog = await DialogService.ShowAsync<Country_ItemDialog>("Country", parameters, options);
 
         DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await GetItems();
     }
 
     private async Task RemoveItem_Click(CountryCatalog item)

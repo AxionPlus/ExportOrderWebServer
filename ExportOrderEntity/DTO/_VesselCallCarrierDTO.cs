@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.DTO;
 
-public class VesselCallCarrierDTO
+public class _VesselCallCarrierDTO
 {
     //[Key]
     public long VesselCallId { get; set; }
@@ -22,6 +22,6 @@ public class VesselCallRecordDTO
     public DateTime? ExportOrderDate { get; set; }
 
     [JsonIgnore]
-    public VesselCallCarrierDTO? vesselCallCarrierDTO { get; set; }
+    public _VesselCallCarrierDTO? vesselCallCarrierDTO { get; set; }
 
 }

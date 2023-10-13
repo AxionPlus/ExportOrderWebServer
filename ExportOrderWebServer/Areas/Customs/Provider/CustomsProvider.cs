@@ -77,9 +77,55 @@ public class CustomsProvider : ICustomsProvider
         }
     }
 
-    public Task<AppObjectResponse> ModifyItemAsync(CustomsCatalog item)
+    public async Task<AppObjectResponse> ModifyItemAsync(CustomsCatalog item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.CustomsOffices.FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.CustomsOffice != item.CustomsOffice)
+                {
+                    var itemExistCheck = await db.CustomsOffices
+                                                         .Where(s => s.CustomsOffice!.ToUpper() == item.CustomsOffice!.ToUpper())
+                                                         .FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.CustomsOffice} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.CustomsCode = item.CustomsCode;
+                modifyItem!.CustomsOffice = item.CustomsOffice;
+                modifyItem!.CustomsDapartment = item.CustomsDapartment;
+                modifyItem!.CustomsArticle = item.CustomsArticle;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(CustomsCatalog item)
@@ -114,23 +160,32 @@ public class CustomsProvider : ICustomsProvider
     public async Task<AppObjectResponse> RemoveItemAsync(CustomsCatalog item)
     {
         appObjResponse = new();
-
+        try
+        { 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
             // check an Existing item
             var itemExistCheck = await db.CustomsOffices.Where(s => s.Id == item!.Id).FirstOrDefaultAsync();
+
             if (itemExistCheck != null)
             {
+                //db.Entry(item.CreateUser).State = EntityState.Detached;
                 db.Entry(item).State = EntityState.Deleted;
-                return appObjResponse;
-            }           
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+                var bug = db.ChangeTracker.DebugView.LongView;
+                await db.SaveChangesAsync();
+            }
+            else
+                appObjResponse.ErrorAdd("Record wasn't deleted");
 
-            await db.SaveChangesAsync();
-
+            return appObjResponse;
+        }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
             return appObjResponse;
         }
     }

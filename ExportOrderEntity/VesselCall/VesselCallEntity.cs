@@ -1,7 +1,4 @@
-﻿
-
-using System.ComponentModel.DataAnnotations;
-using ExportOrderEntites.ExportOrder;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ExportOrderEntites.VesselCall;
 
@@ -16,7 +13,7 @@ public class VesselCallEntity : Entity
     [Required] public TerminalCatalog Terminal { get; set; }
     [Required] public DateTime? ETA { get; set; }
     [Required] public DateTime? ETS { get; set; }
-    public ICollection<VesselCallDetail> Details { get; set; } = new List<VesselCallDetail>();
+    public IList<VesselCallDetail> Details { get; set; } = new List<VesselCallDetail>();
 
 
     public IEnumerable<ExportOrderEntity> ExportOrders { get; set; }    // ?? delete

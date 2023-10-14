@@ -155,7 +155,7 @@ public class CommodityProvider : ICommodityProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(CommodityCatalog item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
         return appObjResponse;

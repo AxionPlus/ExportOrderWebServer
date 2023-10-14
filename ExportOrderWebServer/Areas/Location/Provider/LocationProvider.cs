@@ -156,7 +156,7 @@ public class LocationProvider : ILocationProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(LocationCatalog item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
         return appObjResponse;

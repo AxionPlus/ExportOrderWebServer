@@ -167,7 +167,7 @@ public class TerminalProvider : ITerminalProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(TerminalCatalog item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
         return appObjResponse;

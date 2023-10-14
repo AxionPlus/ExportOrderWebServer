@@ -58,7 +58,7 @@
 
                 <RowTemplate>
                     <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })"></MudIconButton></MudTd>
                     <MudTd>@context.Name</MudTd>
                     <MudTd>@context.Location!.Name</MudTd>
                     <MudTd>@(context.Customs is not null ? $"({context.Customs!.CustomsCode}) {context.Customs!.CustomsOffice}" : "--")</MudTd>
@@ -114,17 +114,17 @@
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(TerminalCatalog item)
+    private async Task RemoveItem_Click(string name, long id)
     {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Terminal:<br/>{item.Name}<br/>",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Terminal:<br/>{name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _terminalProvider.RemoveItemAsync(item);
+                var response = await _terminalProvider.RemoveItemAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);

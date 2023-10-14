@@ -157,7 +157,7 @@ public class CustomsProvider : ICustomsProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(CustomsCatalog item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
         try
@@ -167,12 +167,12 @@ public class CustomsProvider : ICustomsProvider
             var db = await _db;
 
             // check an Existing item
-            var itemExistCheck = await db.CustomsOffices.Where(s => s.Id == item!.Id).FirstOrDefaultAsync();
+            var existedItem = await db.CustomsOffices.Where(s => s.Id == id).FirstOrDefaultAsync();
 
-            if (itemExistCheck != null)
+            if (existedItem != null)
             {
                 //db.Entry(item.CreateUser).State = EntityState.Detached;
-                db.Entry(item).State = EntityState.Deleted;
+                db.Entry(existedItem).State = EntityState.Deleted;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
                 await db.SaveChangesAsync();

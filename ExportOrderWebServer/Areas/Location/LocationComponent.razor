@@ -47,8 +47,7 @@
                     <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
                 </div>
             }
-            <MudTable Class="Table" @ref="mudTable" Items="@Items" T="LocationCatalog" Context="location"
-            Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+            <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
                 <HeaderContent>
                     <MudTh Style="width:30px"></MudTh>
@@ -66,11 +65,11 @@
                 </HeaderContent>
 
                 <RowTemplate>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(location.Id); })"></MudIconButton></MudTd>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(location); })"></MudIconButton></MudTd>
-                    <MudTd>@location.UnLocode</MudTd>
-                    <MudTd>@location.Name</MudTd>            
-                    <MudTd>@location.Country!.RUS</MudTd>
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })"></MudIconButton></MudTd>
+                    <MudTd>@context.UnLocode</MudTd>
+                    <MudTd>@context.Name</MudTd>            
+                    <MudTd>@context.Country!.RUS</MudTd>
                 </RowTemplate>
 
                 <PagerContent></PagerContent>
@@ -122,17 +121,17 @@
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(LocationCatalog item)
+    private async Task RemoveItem_Click(string name, long id)
     {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Location:<br/>{item.Name}<br/>",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Location:<br/>{name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _locationProvider.RemoveItemAsync(item);
+                var response = await _locationProvider.RemoveItemAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);

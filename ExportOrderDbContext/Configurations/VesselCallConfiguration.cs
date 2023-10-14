@@ -18,9 +18,6 @@ public class VesselCallConfiguration : IEntityTypeConfiguration<VesselCallEntity
              .HasColumnType("xid")
              .HasConversion(converter);
 
-        //builder.HasOne(s => s.Vessel);
-        //builder.HasOne(s => s.Terminal);
-
         builder.HasMany(s => s.Details);
     }
 }

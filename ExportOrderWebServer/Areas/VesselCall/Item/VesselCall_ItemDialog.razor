@@ -7,10 +7,6 @@
 
 <style>
 
-    /* .VesseCall_Port * .wrapper-input * .mud-input > input.mud-input-root-outlined {
-        text-align:start;
-    } */
-
     .VesseCall_Port * .mud-input > input.mud-input-root-outlined {
         text-align: start;
     }
@@ -254,7 +250,6 @@
             if (IsNewItem)
             {
                 await _vesselCallProvider.NewItemAsync(Item!);
-                //Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
                 Snackbar.Add("Save Successed", Severity.Success);
             }
             else
@@ -262,7 +257,6 @@
                 var result = await _vesselCallProvider.ModifyItemAsync(Item!);
                 if (!result.HasError)
                 {
-                    //Voyage = $"{Item.Vessel?.Name}&{Item.VoyageNo}";
                     Snackbar.Add("Save Successed", Severity.Success);
                 }
                 else
@@ -270,7 +264,7 @@
             }
         }
         else
-            return;
+            Snackbar.Add("Fill up all reqired fields", Severity.Error);
 
         IsNewItem = false;
         IsFormReadOnly = true;

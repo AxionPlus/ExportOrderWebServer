@@ -144,7 +144,7 @@ public class CountryProvider : ICountryProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(CountryCatalog item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
         return appObjResponse;

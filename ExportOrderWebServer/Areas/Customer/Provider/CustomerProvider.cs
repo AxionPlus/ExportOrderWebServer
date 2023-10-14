@@ -152,7 +152,7 @@ public class CustomerProvider : ICustomerProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(CustomerCatalog item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
         return appObjResponse;

@@ -112,9 +112,87 @@ public class DocumentProvider : IDocumentProvider
         throw new NotImplementedException();
     }
 
-    public Task<AppObjectResponse> ModifyItemAsync(DocumentEntity item)
+    public async Task<AppObjectResponse> ModifyItemAsync(DocumentEntity item)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.Documents.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == item.Id);
+
+                if (modifyItem!.Name != item.Name)
+                {
+                    var itemExistCheck = await db.Documents.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.Name} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Name = item.Name;
+                modifyItem!.Type = item.Type;
+                modifyItem!.Description = item.Description;
+                modifyItem!.ContarctNo = item.ContarctNo;
+                modifyItem!.Shipper = item.Shipper;
+                modifyItem!.Consignee = item.Consignee;
+
+                db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;                
+
+                // compaire new item with existed
+                foreach (var modifyRecord in modifyItem.Records)
+                    if (!item.Records.Any(s => s.Id == modifyRecord.Id))
+                    {
+                        db.Entry(modifyRecord).State = EntityState.Deleted;
+                        //modifyItem.Records.Remove(modifyRecord);
+                    }                        
+                    else
+                    {
+                        modifyRecord.Id = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.Id;
+                        modifyRecord.Seq = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.Seq;
+                        modifyRecord.CommodityName = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityName;
+                        modifyRecord.CommodityEngName = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityEngName;
+                        modifyRecord.CommodityHSCode = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityHSCode;
+                        modifyRecord.IMO= item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IMO;
+                        modifyRecord.UNNO = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.UNNO;
+                        modifyRecord.IsIMO = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IsIMO;
+                        modifyRecord.NetWt = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.NetWt;
+                        modifyRecord.GrossWt = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.GrossWt;
+                    }
+
+                // compaire existed item with new
+                foreach (var itemRecord in item.Records)
+                    if (!modifyItem.Records.Any(s => s.Id == itemRecord.Id))
+                    {
+                        db.Entry(itemRecord).State = EntityState.Added;
+                        modifyItem.Records.Add(itemRecord);
+                    }
+
+                db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(DocumentEntity item)
@@ -127,39 +205,73 @@ public class DocumentProvider : IDocumentProvider
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
             try
             {
+                // check an Existing item
+                var itemExistCheck = await db.Documents.Where(s => s.Name == item.Name).FirstOrDefaultAsync();
+                if (itemExistCheck != null)
+                {
+                    appObjResponse.ErrorAdd($"Document {item.Name} is exists already.");
+                    return appObjResponse;
+                }
 
-     
-            // check an Existing item
-            var itemExistCheck = await db.Documents.Where(s => s.Name == item.Name).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
-            {
-                appObjResponse.ErrorAdd($"Document {item.Name} is exists already.");
-                return appObjResponse;
-            }
+                item.CreateUser = User!;
 
-            item.CreateUser = User!;
-                var counrDoc = await db.Documents.CountAsync();
-                item.Id = counrDoc+10;
-            db.Entry(item).State = EntityState.Added;
+                db.Entry(item).State = EntityState.Added;
 
-            foreach (var record in item.Records)
-                db.Entry(record).State = EntityState.Added;
+                foreach (var record in item.Records)
+                    db.Entry(record).State = EntityState.Added;
 
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+                var bug = db.ChangeTracker.DebugView.LongView;
 
-            await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 var error = ex.Message;
+                appObjResponse.ErrorAdd(error);
+                return appObjResponse;
             }
+
             return appObjResponse;
         }
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(DocumentEntity item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        try
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+                // check an Existing item
+                var existedItem = await db.Documents.Where(s => s.Id == id).FirstOrDefaultAsync();
+
+                if (existedItem is null)
+                {
+                    appObjResponse.ErrorAdd("Record wasn't deleted");
+                    return appObjResponse;
+                }
+
+                foreach (var Record in existedItem.Records)
+                    db.Entry(Record).State = EntityState.Deleted;
+
+                db.Entry(existedItem).State = EntityState.Deleted;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+                await db.SaveChangesAsync();
+
+                return appObjResponse;
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            appObjResponse.ErrorAdd(msg);
+            return appObjResponse;
+        }
     }
 }
+

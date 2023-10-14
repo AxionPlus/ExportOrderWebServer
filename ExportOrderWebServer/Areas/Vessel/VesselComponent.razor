@@ -40,7 +40,7 @@
         </div>
     }
 
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Context="vessel" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
     <HeaderContent>
         <MudTh Style="width:30px"></MudTh>
@@ -55,12 +55,12 @@
     </HeaderContent>
 
     <RowTemplate>
-        <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(vessel.Id); })"></MudIconButton></MudTd>
-        <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(vessel); })"></MudIconButton></MudTd>
-        <MudTd>@vessel.Name</MudTd>            
-        <MudTd>@vessel.IMO</MudTd>
-        <MudTd>@vessel.Flag!.RUS</MudTd>
-        <MudTd>@vessel.TerminalCode</MudTd>
+        <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
+        <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })"></MudIconButton></MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.IMO</MudTd>
+        <MudTd>@context.Flag!.RUS</MudTd>
+        <MudTd>@context.TerminalCode</MudTd>
         <MudTd></MudTd>
     </RowTemplate>
 
@@ -112,17 +112,17 @@
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(VesselEntity item)
+    private async Task RemoveItem_Click(string name, long id)
     {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel:<br/>{item.Name}<br/>",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel:<br/>{name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _vesselProvider.RemoveItemAsync(item);
+                var response = await _vesselProvider.RemoveItemAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);

@@ -27,29 +27,26 @@
 
             <MudSpacer />
 
-            <div class="ToolBar-Title"><span>@($"Document : {Header}")</span></div>
+            <div class="ToolBar-Title"><span>@($"Document")</span></div>
 
             <MudSpacer />
 
-            @if (IsNewItem)
+            @if (IsFormReadOnly)
             {
-                <div class="ToolBar-iconbutton">
+                <div class="ToolBar-iconbutton" style="margin-right:20px">
+                    <MudTooltip Class="ExitIconButton" Text="edit" Delay="500" Duration="1000">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
+                    </MudTooltip>
+                </div>
+            }
+            else
+            {
+                <div class="ToolBar-iconbutton" style="margin-right:20px">
                     <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
                     </MudTooltip>
                 </div>
-                <div class="ToolBar-iconbutton" style="width: 20px"></div>
             }
-
-@*             @if(IsAuth)
-            { *@
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Class="ExitIconButton" Text="edit" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
-                    </MudTooltip>                
-                </div>
-                <div class="ToolBar-iconbutton" style="width: 20px"></div>
-@*             } *@
 
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
@@ -60,29 +57,29 @@
         </MudToolBar>
     </div>
 
-    <MudForm @ref="@Form">        
+    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <Document_ItemComponent @bind-Value="Item" IsNewItem="IsNewItem" />
+            <Document_ItemComponent @bind-Value="Item" IsNewItem="IsNewItem" IsFormReadOnly="IsFormReadOnly" />
         }
     </MudForm>
 
 </MudContainer>
 
-
 @code {
     private MudForm? Form { get; set; }
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public long Id { get; set; }
     [Parameter]
-    public bool IsNewItem { get; set; } = false;
+    public bool IsNewItem { get; set; } = false;       
 
     private DocumentEntity? Item { get; set; }
-    private DocumentType Type { get; set; }
-    private string Header = "new";
+    private DocumentType Type { get; set; }  
     private bool IsAuth = false;
+    public bool IsFormReadOnly { get; set; } = true;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -92,15 +89,15 @@
     private async Task GetItem()
     {
         if (IsNewItem)
+        {
             Item = new() { Shipper = new(), Consignee = new() };
+            IsFormReadOnly = false;            
+        }        
         else
         {
             var response = await _documentProvider.GetItemAsync(Id);
             if (!response.HasError)
                 Item = (DocumentEntity)response.Object!;
-
-            if (Item is not null)
-                Header = Item!.Name!;
         }
     }
 
@@ -113,34 +110,44 @@
             {
                 var response = await _documentProvider.NewItemAsync(Item!);
                 if (!response.HasError)
-                {
-                    IsNewItem = false;
-                    //await GetItem();
                     Snackbar.Add("Saved Successfully", Severity.Success);
-                }
                 else
+                {
                     Snackbar.Add("No Success", Severity.Error);
+                    return;
+                }                
             }
             else
             {
-                // var response = await _documentProvider.ModifyItemAsync(Item!);
-                // if (!response.HasError)
-                // {
-                //     await GetItem();
-                //     Snackbar.Add("Save Successed", Severity.Success);
-                // }
-                // else
-                //     Snackbar.Add("Not Successed", Severity.Error);
+                var response = await _documentProvider.ModifyItemAsync(Item!);
+                if (!response.HasError)
+                    Snackbar.Add("Save Successed", Severity.Success);
+                else
+                {
+                    Snackbar.Add("Not Successed", Severity.Error);
+                    return;
+                }                
             }
         else
+        {
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
+            return;
+        }        
 
+        IsNewItem = false;
+        IsFormReadOnly = true;
+
+        Id = Item!.Id;
+
+        await GetItem();
+
+        await Task.Delay(1500);
     }
 
     public async Task EditItem()
     {
         await Task.Delay(10);
-        IsNewItem = true;
+        IsFormReadOnly = false;
     }
 
     public async Task CloseDialog_Click()

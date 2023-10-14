@@ -152,7 +152,7 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(VesselEntity item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
         return appObjResponse;

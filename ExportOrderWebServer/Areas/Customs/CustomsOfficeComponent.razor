@@ -51,7 +51,7 @@
 
         <RowTemplate>
             <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.CustomsOffice!, context.Id); })"></MudIconButton></MudTd>
             <MudTd>@context.CustomsCode</MudTd>
             <MudTd>@context.CustomsOffice</MudTd>
             <MudTd></MudTd>
@@ -105,17 +105,17 @@
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(CustomsCatalog item)
+    private async Task RemoveItem_Click(string name, long id)
     {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Customs Office:<br/>{item.CustomsOffice}<br/>",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Customs Office:<br/>{name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _customsOfficeProvider.RemoveItemAsync(item);
+                var response = await _customsOfficeProvider.RemoveItemAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);

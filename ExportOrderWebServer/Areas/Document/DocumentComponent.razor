@@ -10,9 +10,8 @@
 
 </style>
 
-<MudForm @ref="@FilterForm">
 
-    <div class="Container-item">
+<div class="Container-item">
         <div class="container-content">
             <MudTextField Class="TextField" Placeholder="Document" Style="width: 270px" @bind-Value="@Filter.Document"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
@@ -33,7 +32,7 @@
         </div>
     </div>
 
-    <div class="Container-table">
+<div class="Container-table">
     @if (mudTable != null)
     {
         <div class="tableMenu">
@@ -42,9 +41,8 @@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
-    <MudTable Class="Table MultiSelection" @ref="mudTable" T="DocumentEntity" Items="@Items" @bind-SelectedItems="SelectedItems"
+    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" @bind-SelectedItems="SelectedItems"
               MultiSelection="IsSelectable" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-
         <HeaderContent>
             @if (!IsSelectable)
             {
@@ -57,14 +55,14 @@
             <MudTh>Consignee</MudTh>
         </HeaderContent>
         <RowTemplate>
-            @if (!IsSelectable)
+            @if (IsSelectable)
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" /></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async()=>{ await RemoveItem_Click(context); })" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SendItems_Click(); })" /></MudTd>
             }
             else
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SendItems_Click(); })" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })" /></MudTd>
             }            
             <MudTd>@context.Type.ToString()</MudTd>
             <MudTd>@context.Name</MudTd>
@@ -75,23 +73,17 @@
     </MudTable>
 </div>
 
-</MudForm>
-
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudForm? FilterForm;
     private MudTable<DocumentEntity>? mudTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    
-    [Parameter] // ???
-    public IEnumerable<DocumentEntity>? Items { get; set; } = new List<DocumentEntity>();
     [Parameter]
     public bool IsSelectable { get; set; } = false;
+
+    public IEnumerable<DocumentEntity>? Items { get; set; } = new List<DocumentEntity>();
     private HashSet<DocumentEntity> SelectedItems = new HashSet<DocumentEntity>();
-
-
     private FilterParameters Filter { get; set; } = new();
     bool IsLoadingData = false;
 
@@ -113,20 +105,20 @@
         await InvokeAsync(StateHasChanged);        
     }
 
-    private async Task RemoveItem_Click(DocumentEntity item)
+    private async Task RemoveItem_Click(string name, long id)
     {
         // if (item is not null)
         //     Items?.Remove(item);
 
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Declaration:<br/>{item.Name}<br/>",
+                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Declaration:<br/>{name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _documentProvider.RemoveItemAsync(item);
+                var response = await _documentProvider.RemoveItemAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
@@ -139,10 +131,10 @@
 
     private async Task ShowItem_Click(long id)
     {
-        if (MudDialog is not null)
-            MudDialog.Close(DialogResult.Ok(id));
+        // if (MudDialog is not null)
+        //     MudDialog.Close(DialogResult.Ok(id));
 
-        var parameters = new DialogParameters { ["Id"] = id, ["IsNewItem"] = false };
+        var parameters = new DialogParameters { ["Id"] = id };
         var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
         var dialog = await DialogService.ShowAsync<Document_ItemDialog>(null, parameters, options);
         var result = await dialog.Result;

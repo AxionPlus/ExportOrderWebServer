@@ -262,9 +262,10 @@ public class ExportOrderProvider : IExportOrderProvider
         return appObjResponse;
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(ExportOrderEntity item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<PersonEntity>> GetPersonAsync()

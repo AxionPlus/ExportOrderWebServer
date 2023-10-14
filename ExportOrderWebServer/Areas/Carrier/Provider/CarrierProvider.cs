@@ -171,7 +171,7 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(CarrierCatalog item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
         return appObjResponse;

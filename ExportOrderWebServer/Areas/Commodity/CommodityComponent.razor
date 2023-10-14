@@ -76,7 +76,7 @@
             @if (!IsSelectable)
             {
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"/></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })"/></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.HSCode!, context.Id); })"/></MudTd>
             }
             else
             {
@@ -144,17 +144,17 @@
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(CommodityCatalog item)
+    private async Task RemoveItem_Click(string name, long id)
     {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove commodity?</b> <br/>HS code:<br/>{item.HSCode}<br/>",
+                          (MarkupString)$"<b>Do you want to remove commodity?</b> <br/>HS code:<br/>{name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _commodityProvider.RemoveItemAsync(item);
+                var response = await _commodityProvider.RemoveItemAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);

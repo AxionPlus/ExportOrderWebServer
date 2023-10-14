@@ -271,9 +271,10 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(VesselCallEntity item)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        return appObjResponse;
     }
 
     public async Task<AppObjectResponse> RemoveItemDTOAsync(VesselCallDTO item)

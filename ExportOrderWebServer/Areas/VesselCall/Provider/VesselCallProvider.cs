@@ -45,17 +45,19 @@ public class VesselCallProvider : IVesselCallProvider
                 {
                     var vesselName = name.Split('&')[0];
                     var voyageNo = name.Split('&')[1];
+                    var pod = name.Split('&')[2];
 
                     appObjResponse.Object = await db.VesselCalls
                                                                 .Include(vc => vc.Vessel)
                                                                 .Include(vc => vc.Terminal)
-                                                                .Include(vc => vc.Details).ThenInclude(d => d.POD)
+                                                                .Include(vc => vc.Details.Where(d => d.POD!.NameEn == pod)).ThenInclude(d => d.POD)
                                                                 .Where(vc => vc.Vessel.Name!.ToUpper() == vesselName.ToUpper() &&
-                                                                        vc.VoyageNo.ToUpper() == voyageNo.ToUpper())
+                                                                             vc.VoyageNo.ToUpper() == voyageNo.ToUpper()
+                                                                 )
                                                                 .FirstOrDefaultAsync();
 
                     if (appObjResponse.Object is null)
-                        appObjResponse.ErrorAdd($"There is no voyage: {vesselName} {voyageNo}");                    
+                        appObjResponse.ErrorAdd($"There is no voyage for this Port: {vesselName} / {voyageNo} / {pod}");                    
                 }
                 else
                     appObjResponse.ErrorAdd("Wrong request");
@@ -385,7 +387,6 @@ public class VesselCallProvider : IVesselCallProvider
             return CarriersGroup;
         }
     }
-
 
 
     #endregion

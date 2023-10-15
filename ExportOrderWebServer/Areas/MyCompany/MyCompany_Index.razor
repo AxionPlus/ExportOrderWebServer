@@ -74,9 +74,9 @@
             <MudTable Class="Table" @ref="mudTable" Items="@Item.Persons" Loading="IsLoadingData">
                 <HeaderContent>
                     <MudTh Style="width:40px">
-                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddPerson_Click" Disabled="@IsLoadingData" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddPerson_Click" Disabled="@(IsFormReadOnly || IsLoadingData)" />
                     </MudTh>
-                    <MudTh Style="width: 166px">ФИО</MudTh>
+                    <MudTh Style="width: 216px">ФИО</MudTh>
                     <MudTh Style="width: 166px">Телефон</MudTh>
                     <MudTh Style="width: 670px; text-align:start; padding-left: 20px">Данные паспорта</MudTh>
                     <MudTh></MudTh>
@@ -84,10 +84,10 @@
                 <RowTemplate>
                     <MudTd>
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemovePerson_Click(context); })"
-                                        Disabled="@IsLoadingData" />
+                                       Disabled="@(IsFormReadOnly || IsLoadingData)" />
                     </MudTd>
                     <MudTd DataLabel="Name">
-                        <MudTextField T="string" Style="width: 150px;" @bind-Value="@context.Name"
+                        <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.Name"
                                       Placeholder="И.О. Фамилия"
                                       Variant="Variant.Outlined" Margin="Margin.Dense"
                                       Immediate="true" Required RequiredError=""
@@ -189,7 +189,7 @@
         IsFormReadOnly = true;
         await GetItem();
 
-        await Task.Delay(1000);
+        await Task.Delay(500);
         IsLoadingData = false;
     }
 

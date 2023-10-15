@@ -226,9 +226,11 @@ public class ExportOrderProvider : IExportOrderProvider
                 }
 
                 item.CreateUser = User!;
+                item.CreateTime = DateTime.Now;
                 item.Status = EntityStatus.Pending;
 
                 db.Entry(item).State = EntityState.Added;
+
                 db.Entry(item.Carrier!).State = EntityState.Unchanged;
                 db.Entry(item.VesselCall!).State = EntityState.Unchanged;
                 db.Entry(item.Person!).State = EntityState.Unchanged;
@@ -255,6 +257,7 @@ public class ExportOrderProvider : IExportOrderProvider
             catch (Exception ex)
             {
                 string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
                 return appObjResponse;
             }
         }

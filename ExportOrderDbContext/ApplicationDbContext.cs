@@ -58,10 +58,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.ApplyConfiguration(new DocumentConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
-        modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
         modelBuilder.ApplyConfiguration(new VesselConfiguration());
-        modelBuilder.ApplyConfiguration(new MyCompanyConfiguration());        
+        modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
         modelBuilder.ApplyConfiguration(new VesselCallDetailConfiguration());        
+        modelBuilder.ApplyConfiguration(new MyCompanyConfiguration());               
         
         #region AutoINCLUDE
 

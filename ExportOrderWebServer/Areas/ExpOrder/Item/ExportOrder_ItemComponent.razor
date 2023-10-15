@@ -4,6 +4,7 @@
 @inject IExportOrderProvider _exportOrderProvider
 @inject ICntrTypeProvider _cntrTypeProvider
 @inject ICarrierProvider _carrierProvider
+@inject IVesselCallProvider _vesselCallProvider
 
 <style>
 
@@ -63,21 +64,20 @@
             <MudTextField Class="TextField" Style="width: 180px; margin-right: 20px" T="string" Label="Number" Value="@Value!.Num"
                           ValueChanged="async (e) => { Value.Num = e.ToUpper(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                          Required RequiredError=""
-                          ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                          Required RequiredError="" Clearable="!IsFormReadOnly" />
 
             <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="@Value.Dated"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                           DateFormat="dd.MM.yy" IconSize=Size.Small
-                           ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                           DateFormat="dd.MM.yy" IconSize=Size.Small Clearable="!IsFormReadOnly" />
             <MudSpacer />
 
             <MudTextField Class="TextField" Style="width: 400px; margin-right: 20px" @bind-Value="@Value!.VesselCall!.Vessel.Name"
                            Label="Vessel Call" Placeholder="Vessel Call"
-                           Text="@(Value.VesselCall!.Vessel.Name is not null ? Value.VesselCall!.Vessel.Name + " / " + Value.VesselCall.VoyageNo : "")"
+                           Text="@(Value.VesselCall!.Vessel.Name is not null ? Value.VesselCall!.Vessel.Name + " / " +
+                                                                               Value.VesselCall.VoyageNo + " / " +
+                                                                               Value.VesselCall.Details.FirstOrDefault()!.POD!.NameEn: "")"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                           Required RequiredError=""
-                           ReadOnly="!IsNewItem" Clearable="IsNewItem"
+                           Required RequiredError="" Clearable="!IsFormReadOnly"
                            Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Waves" OnAdornmentClick="GetVesselCall_Click" />
 
             <MudAutocomplete T="CarrierCatalog" Style="width: 350px" Label="Carrier" @bind-Value="Value.Carrier"
@@ -90,15 +90,15 @@
                              Placeholder="Carrier"
                              MaxItems="20"
                              IconSize="Size.Small"
-                             ReadOnly="!IsNewItem" Clearable="IsNewItem" />
+                             Clearable="!IsFormReadOnly" />
             <MudSpacer />
 
             <div style="margin-right:20px">
                  <MudSelect Class="SelectField" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
-                            Text="@Value.Person!.Name"
+                            Text="@(Value.Person!.Name is not null ? Value.Person!.Name : "")"
                             Style="width:180px" Placeholder="И.О. Фамилия"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon="">
+                            CloseIcon="" OpenIcon="" Clearable="!IsFormReadOnly">
                      @if (Persons is not null)
                         @foreach (var person in Persons)
                         {
@@ -116,16 +116,16 @@
                     <div class="controlIconButtons">
                         @if (DocumentItems.Count > 0)
                         {
-                            <MudCheckBox Class="wrapper-checkBox" Dense="true" Size="Size.Small" @bind-Checked="@MultiSelectionTreeItemData" />
+                            <MudCheckBox Class="wrapper-checkBox" Dense="true" Size="Size.Small" @bind-Checked="@MultiSelectionTreeItemData" Disabled="IsFormReadOnly"/>
                         }
                         else
                         {
                             <div style="width: 10px"></div>
                         }
                         <MudSpacer />
-                        <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="AddDocument_Click"></MudIconButton>
-                        <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small"></MudIconButton>
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="RemoveDocument"></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddDocument_Click"></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Disabled="IsFormReadOnly"></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="RemoveDocument"></MudIconButton>
                     </div>
 
                     <MudPaper Width="450px" Elevation="0" Style="height:246px;overflow: auto;">
@@ -143,7 +143,7 @@
                             </ItemTemplate>
                         </MudTreeView> *@
 
-                    <MudTreeView MultiSelection="@MultiSelectionTreeItemData" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
+                        <MudTreeView MultiSelection="@MultiSelectionTreeItemData" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
                                      Dense="true" Hover="true">
                             <ItemTemplate>
                                 <MudTreeViewItem Value="@context"
@@ -195,7 +195,7 @@
             @if (mudTable != null)
             {
                 <div class="tableMenu">
-                    <MudButton Class="Button" Size="Size.Small" OnClick="UploadFile"
+                    <MudButton Class="Button" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="UploadFile"
                                 Variant="Variant.Filled" Color="Color.Dark" 
                                 StartIcon="@Icons.Material.Filled.UploadFile">
                         Upload New List
@@ -212,7 +212,7 @@
                 <HeaderContent>
                     <MudTh Style="width:40px;">
                         <div class="controlIconButtons">
-                            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddContainerRecord_Click" Size="Size.Small" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="IsFormReadOnly" OnClick="AddContainerRecord_Click" Size="Size.Small" />
                         </div>
                     </MudTh>
                     <MudTh Style="width: 120px">Nr</MudTh>
@@ -229,7 +229,7 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Disabled="IsFormReadOnly"
                                        OnClick="@(async ()=>{ await RemoveContainerRecord(expOrderRecords);})" />
                     </MudTd>
                     <MudTd>
@@ -356,18 +356,18 @@
 }
 
 @code {
-    //private MudForm? Form;
     private MudTable<ExportOrderRecord>? mudTable;
     private MudTable<DocumentRecord>? mudDocRecordsTable;
 
-    [CascadingParameter]
-    MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public ExportOrderEntity? Value { get; set; }
     [Parameter]
     public EventCallback<ExportOrderEntity> ValueChanged { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; }
+    [Parameter]
+    public bool IsFormReadOnly { get; set; }
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
@@ -395,7 +395,7 @@
         //     document.Records = DocumentRecordItems.ToList();
         // }
 
-                //DocumentRecordItems.Add(docRecord);    
+        //DocumentRecordItems.Add(docRecord);    
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -546,8 +546,17 @@
         var result = await dialog.Result;
 
         if (!result.Canceled)
-        {            
-            Value!.VesselCall = (VesselCallEntity)result.Data;
+        {
+            //var _vesselCallDTO = (VesselCallDTO)result.Data;
+            //var Voyage = $"{_vesselCallDTO.VesselName}&{_vesselCallDTO.VoyageNo}";
+
+            string Voyage = (string)result.Data;            
+
+            var response = await _vesselCallProvider.GetItemAsync(Voyage);
+            if (!response.HasError)
+                Value!.VesselCall = (VesselCallEntity)response.Object!;
+            else
+                Snackbar.Add($"{response.Error.First()}", Severity.Error);
         }
 
         await InvokeAsync(StateHasChanged);
@@ -555,16 +564,29 @@
 
     private async Task<IEnumerable<CarrierCatalog>> SearchCarrier(string value)
     {
+        string? terminal = string.Empty;
+
+        if (Value.VesselCall.Terminal is not null)
+            terminal = Value!.VesselCall!.Terminal.Name;
+        
+        if (terminal is null)
+            return Enumerable.Empty<CarrierCatalog>();
+
         var Carriers = new List<CarrierCatalog>();
 
         var response = await _carrierProvider.GetItemsAsync();
         if (!response.HasError)
-            Carriers = ((IEnumerable<CarrierCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+            Carriers = ((IEnumerable<CarrierCatalog>)response.Object!).ToList();
+
+        //var carrierDetails = carriers.SelectMany(c => c.CarrierDetails).Where(d => d.TerminalName == Value.VesselCall.Terminal.Name).ToList();
+
+        //return Carriers.OrderBy(x => x.Name).Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        Carriers = Carriers.OrderBy(x => x.Name).Where(x => x.CarrierDetails.Where(d => d.TerminalName == terminal).ToList().Count > 0).ToList();
 
         if (string.IsNullOrWhiteSpace(value))
             return Carriers;
 
-        return Carriers.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return Carriers.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();        
     }
 
     #endregion

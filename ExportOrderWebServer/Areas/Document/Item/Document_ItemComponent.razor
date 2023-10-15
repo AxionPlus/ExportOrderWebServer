@@ -241,6 +241,7 @@
     [Parameter]
     public bool IsFormReadOnly { get; set; }
 
+
     private async Task GetCustomer_Click(string ShipperOrConsignee)
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
@@ -330,25 +331,37 @@
 
     #region PatternMask
 
-    public PatternMask MaskDocumentName = new PatternMask("########/d#m#y#/#######")
-    {
+    public PatternMask MaskDocumentName = new PatternMask("########/d#m###/#######")
+    {        
         MaskChars = new[] {
                 new MaskChar('#', @"[0-9]"),
                 new MaskChar('d', @"[0-3]"),
                 new MaskChar('m', @"[0-1]"),
-                new MaskChar('y', @"[0-2]"),
         }
     };
 
     public PatternMask MaskWt = new PatternMask("# ### ###,###")
-        {
-            MaskChars = new[] { new MaskChar('#', @"[0-9]") }
-        };
+    {
+        MaskChars = new[] { new MaskChar('#', @"[0-9]") }
+    };
 
-    public PatternMask MaskVol = new PatternMask("##,##")
-        {
-            MaskChars = new[] { new MaskChar('#', @"[0-9]") }
-        };
+    public PatternMask MaskVol = new PatternMask("### ###,###")
+    {
+        MaskChars = new[] { new MaskChar('#', @"[0-9]") }
+    };
+
+    // Func<string, string> maskCharYear = (monthChar) =>
+    // {
+    //     switch (monthChar)
+    //     {
+    //         case "0":
+    //             return $"@\"[0-9]\"";
+    //         case "1":
+    //             return $"@\"[0-2]\"";
+    //         default:
+    //             return $"@\"[0-9]\"";
+    //     }
+    // };
 
 
     //public IMask mask = new RegexMask(@"^[0-9]\d{0,5} ',' [0-9]\d{0,2}$");

@@ -37,7 +37,7 @@ public class CarrierProvider : ICarrierProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Carriers.ToListAsync();
+            appObjResponse.Object = await db.Carriers.Include(c => c.CarrierDetails).ToListAsync();
             return appObjResponse;
         }
     }

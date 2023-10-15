@@ -13,8 +13,14 @@
 
 <div class="Container-item">
         <div class="container-content">
-            <MudTextField Class="TextField" Placeholder="Document" Style="width: 270px" @bind-Value="@Filter.Document"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" Value="Filter.Document" SearchFunc="@SearchDocument"                             
+                             ValueChanged="(e)=> { Filter.Document = e; }"
+                             Placeholder="Декларация"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             Dense = "true" AutoFocus="true"
+                             MinCharacters="4"
+                             ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
             <MudTextField Class="TextField" Placeholder="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
@@ -102,7 +108,7 @@
 
         IsLoadingData = false;
 
-        await InvokeAsync(StateHasChanged);        
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task RemoveItem_Click(string name, long id)
@@ -148,4 +154,22 @@
         await Task.Delay(50);
         MudDialog!.Close(SelectedItems);
     }
+
+    #region SEARCHERS
+
+    private async Task<IEnumerable<string>> SearchDocument(string value)
+    {
+        var result = await _documentProvider.GetNames();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    #endregion
+
 }

@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Office.Interop.Excel;
-using static MudBlazor.CategoryTypes;
 
 namespace ExportOrderWebServer.Areas.Document.Provider;
 
@@ -102,9 +100,13 @@ public class DocumentProvider : IDocumentProvider
         }
     }
 
-    public Task<IEnumerable<string>> GetNames()
+    public async Task<IEnumerable<string>> GetNames()
     {
-        throw new NotImplementedException();
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+            return await db.Documents.Select(s => s.Name!).ToListAsync();
+        }
     }
 
     public Task<IEnumerable<string>> GetNamesEn()

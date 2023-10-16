@@ -547,14 +547,15 @@
 
         if (!result.Canceled)
         {
-            //var _vesselCallDTO = (VesselCallDTO)result.Data;
-            //var Voyage = $"{_vesselCallDTO.VesselName}&{_vesselCallDTO.VoyageNo}";
-
-            string Voyage = (string)result.Data;            
+            string Voyage = (string)result.Data;
+            //string pod = Voyage.Split('&')[2];
 
             var response = await _vesselCallProvider.GetItemAsync(Voyage);
             if (!response.HasError)
+            {
                 Value!.VesselCall = (VesselCallEntity)response.Object!;
+                //Value!.IdPOD = Value.VesselCall.Details.FirstOrDefault(d => d.POD!.NameEn == pod)!.POD!.Id;
+            }                
             else
                 Snackbar.Add($"{response.Error.First()}", Severity.Error);
         }
@@ -566,7 +567,7 @@
     {
         string? terminal = string.Empty;
 
-        if (Value.VesselCall.Terminal is not null)
+        if (Value!.VesselCall!.Terminal is not null)
             terminal = Value!.VesselCall!.Terminal.Name;
         
         if (terminal is null)

@@ -1,6 +1,5 @@
 ﻿using ExportOrderEntites.MyCompany;
 using Microsoft.EntityFrameworkCore;
-using static MudBlazor.CategoryTypes;
 
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
@@ -27,18 +26,21 @@ public class ExportOrderProvider : IExportOrderProvider
 
             try
             {
-                appObjResponse.Object = await db.ExportOrders.Include(eo => eo.Person)
+                appObjResponse.Object = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.Terminal)
+                                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel)
+                                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.Details).ThenInclude(d => d.POD)
+                                                             .Include(eo => eo.Person)
                                                              .Include(eo => eo.Carrier)!.ThenInclude(c => c!.CarrierDetails)
                                                              .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)
-                                                             .Include(eo => eo.Records)!.ThenInclude(r => r.Contents)
-                                                                                        .ThenInclude(c => c.DocumentRecord)
-                                                                                        .ThenInclude(dr => dr.Document)
+                                                             .Include(eo => eo.Records)!.ThenInclude(r => r.CntrType)
+                                                             .Include(eo => eo.Records)!.ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
                                                              .AsNoTracking()
                                                              .FirstOrDefaultAsync(s => s.Id == id);
             }
             catch (Exception ex)
             {
                 string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
                 return appObjResponse;
             }
         }
@@ -46,7 +48,7 @@ public class ExportOrderProvider : IExportOrderProvider
         return appObjResponse;
     }
 
-    public async Task<ExportOrderDTO> GetItemDTOAsync(long eoId)
+    public async Task<ExportOrderDTO> GetItemDTOAsync(long Id)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -54,7 +56,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
             var myCompany = await db.MyCompany.AsNoTracking().FirstOrDefaultAsync();
 
-            //var BLitem = await db.ExportOrders.Include(x => x.Records)!.ThenInclude(r => r.CntrType).AsNoTracking().FirstOrDefaultAsync(s => s.Id == eoId);
+            //var BLitem = await db.ExportOrders.Include(x => x.Records)!.ThenInclude(r => r.CntrType).AsNoTracking().FirstOrDefaultAsync(s => s.Id == Id);
 
             var Item = await db.ExportOrders.Include(x => x.VesselCall).ThenInclude(vc => vc!.Terminal)
                                             .Include(x => x.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
@@ -96,7 +98,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 Person = source.Person!.Name + " т. " + source.Person.Phone,
                                                 exportOrderRecordsDTO = eoRecords(source.Records!)
                                             })
-                                            .FirstOrDefaultAsync(x => x.Id == eoId);
+                                            .FirstOrDefaultAsync(x => x.Id == Id);
 
             return Item!;
         }
@@ -145,7 +147,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-            var db = await _db;            
+            var db = await _db;
 
             if (parameters.GetType() == typeof(FilterParameters))
             {
@@ -155,9 +157,12 @@ public class ExportOrderProvider : IExportOrderProvider
                                                     .Include(eo => eo.VesselCall).ThenInclude(vc => vc!.Vessel)
                                                     .Include(eo => eo.VesselCall).ThenInclude(vc => vc!.Terminal)
                                                     .Include(eo => eo.VesselCall).ThenInclude(vc => vc!.Details).ThenInclude(d => d.POD)
+                                                    //.Include(eo => eo.VesselCall).ThenInclude(vc => vc!.Details.Where(d => d.POD.Id == 1)).ThenInclude(d => d.POD)
                                                     .Include(eo => eo.Carrier)
                                                     .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated: true)
-                                                    .AsNoTracking()
+                                                    //.Where(eo => eo.VesselCall.Details.Where(d => d.POD.Id == eo.IdPOD).Count() > 0)                                                    
+                                                    //.AsNoTracking()
+                                                    .AsQueryable()
                                                     .ToListAsync();
 
                 var ItemsDTO = eoComponentRecord(exportOrders);
@@ -228,6 +233,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 item.CreateUser = User!;
                 item.CreateTime = DateTime.Now;
                 item.Status = EntityStatus.Pending;
+                //item.IdPOD = item.VesselCall.Details.FirstOrDefault().POD.Id;
 
                 db.Entry(item).State = EntityState.Added;
 
@@ -402,13 +408,14 @@ public class ExportOrderProvider : IExportOrderProvider
                     Dated = record.Dated.ToShortDateString(),
                     Vessel = record.VesselCall!.Vessel.Name!,
                     Voyage = record.VesselCall.VoyageNo,
-                    POD = record.VesselCall.Details.FirstOrDefault(d => d.VesselCall!.Id == record.VesselCall.Id)!.POD!.Name!,
+                    //POD = record.VesselCall.Details.FirstOrDefault(d => d.POD.Id == record.Id)!.POD!.Name!,
+                    POD = detail.POD!.Name!,
                     Carrier = record.Carrier!.NameEn,
                     Status = record.Status,
                 };
 
                 RecordsDTO.Add(recordDTO);
-            }            
+            }
         }
 
         return RecordsDTO;

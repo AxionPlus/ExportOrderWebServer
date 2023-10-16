@@ -13,9 +13,25 @@
 <style></style>
 
 <div class="Container-item">
-    <div class="container-content">            
+    <div class="container-content">
+        <MudTextField Class="TextField" Placeholder="Container" Style="width: 250px" @bind-Value="@Filter.CntrNum"
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+
+        <MudSpacer />
+
         <MudTextField Class="TextField" Placeholder="Number" Style="width: 200px" @bind-Value="@Filter.Num"
-                        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+
+        <MudSpacer />
+
+        <MudDatePicker Class="wrapper-input-date" Label="Dated" @bind-Date="Filter.Dated"
+                        Style="width: 130px; height: 40px;"
+                        DateFormat="dd.MM.yy"
+                        ShowWeekNumbers="true"
+                        Variant="Variant.Outlined"
+                        IconSize=Size.Small
+                        AutoClose=true
+                        DisableToolbar=false Clearable />
         <MudSpacer />
 
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 250px" Value="Filter.Vessel" SearchFunc="@SearchVessel"
@@ -47,20 +63,7 @@
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon=""
                             ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
 
-        <MudTextField Class="TextField" Placeholder="Container" Style="width: 200px" @bind-Value="@Filter.CntrNum"
-                        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-        <MudSpacer />
-
-        <MudDatePicker Class="wrapper-input-date" Label="Dated" @bind-Date="Filter.Dated"
-                        Style="width: 130px; height: 40px;"
-                        DateFormat="dd.MM.yy"
-                        ShowWeekNumbers="true"
-                        Variant="Variant.Outlined"
-                        IconSize=Size.Small
-                        AutoClose=true
-                        DisableToolbar=false Clearable />
         <MudSpacer />
 
         <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Filter.Status"
@@ -98,11 +101,12 @@
             <MudTh Style="width:120px"></MudTh>
             <MudTh Style="width:120px">Number</MudTh>
             <MudTh Style="width:100px">Dated</MudTh>
-            <MudTh Style="width:150px">Vessel</MudTh>
-            <MudTh Style="width:300px">Voyage</MudTh>
+            <MudTh Style="width:200px">Vessel</MudTh>
+            <MudTh Style="width:150px">Voyage</MudTh>
             <MudTh Style="width:200px">POD</MudTh>
-            <MudTh Style="width:300px; text-align:start">Carrier</MudTh>
+            <MudTh Style="width:200px; text-align:start">Carrier</MudTh>
             <MudTh Style="width: 80px">Status</MudTh>
+            <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>
@@ -131,6 +135,7 @@
             <MudTd>@context.POD</MudTd>
             <MudTd Style="text-align:start">@context.Carrier</MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
+            <MudTd></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -155,12 +160,14 @@
     {
         IsLoadingData = true;
 
-        var response = await _exportOrderProvider.GetItemsAsync(Filter);
+        //var response = await _exportOrderProvider.GetItemsAsync(Filter);
+        var response = await _exportOrderProvider.GetItemsDTOAsync(Filter, 1);
+
         if (!response.HasError)
             Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
 
-        await Task.Delay(500);
-        
+        await Task.Delay(500);        
+
         IsLoadingData = false;
 
         await InvokeAsync(StateHasChanged);

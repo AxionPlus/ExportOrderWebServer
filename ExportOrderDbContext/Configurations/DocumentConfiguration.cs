@@ -39,7 +39,5 @@ public class DocumentConfiguration : IEntityTypeConfiguration<DocumentEntity>
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
                     v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
 
-
-        //builder.Navigation(s => s.CreateUser).AutoInclude();  // ???
     }
 }

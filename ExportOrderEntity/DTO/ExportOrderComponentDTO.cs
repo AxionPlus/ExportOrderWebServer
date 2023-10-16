@@ -9,11 +9,11 @@ public class ExportOrderComponentDTO
 
 #pragma warning disable CS8618
     
-    public string Num { get; set; }
-    public string Dated { get; set; }
-    public string Vessel { get; set; }
-    public string Voyage { get; set; }
-    public string POD { get; set; }    
+    public string? Num { get; set; }
+    public string? Dated { get; set; }
+    public string? Vessel { get; set; }
+    public string? Voyage { get; set; }
+    public string? POD { get; set; }    
     public string? Carrier { get; set; }
     public EntityStatus Status { get; set; }
 }

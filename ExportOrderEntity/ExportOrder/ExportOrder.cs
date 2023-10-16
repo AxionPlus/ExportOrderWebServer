@@ -41,4 +41,7 @@ public class ExportOrderEntity : Entity
             return Documents.Select(x => x.Consignee).ToList()!;
         }
     }
+
+    [NotMapped]
+    public long? IdPOD { get; set; }  // поле связи с VesselCallDetails
 }

@@ -71,11 +71,11 @@
                            DateFormat="dd.MM.yy" IconSize=Size.Small Clearable="!IsFormReadOnly" />
             <MudSpacer />
 
-            <MudTextField Class="TextField" Style="width: 400px; margin-right: 20px" @bind-Value="@Value!.VesselCall!.Vessel.Name"
+            <MudTextField Class="TextField" Style="width: 400px; margin-right: 20px" @bind-Value="@Value!.VesselCallDetail!.VesselCall!.Vessel.Name"
                            Label="Vessel Call" Placeholder="Vessel Call"
-                           Text="@(Value.VesselCall!.Vessel.Name is not null ? Value.VesselCall!.Vessel.Name + " / " +
-                                                                               Value.VesselCall.VoyageNo + " / " +
-                                                                               Value.VesselCall.Details.FirstOrDefault()!.POD!.NameEn: "")"
+                           Text="@(Value.VesselCallDetail!.VesselCall!.Vessel.Name is not null ? Value.VesselCallDetail!.VesselCall!.Vessel.Name + " / " +
+                                                                               Value.VesselCallDetail!.VesselCall.VoyageNo + " / " +
+                                                                               Value.VesselCallDetail!.VesselCall.Details.FirstOrDefault()!.POD!.NameEn: "")"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            Required RequiredError="" Clearable="!IsFormReadOnly"
                            Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Waves" OnAdornmentClick="GetVesselCall_Click" />
@@ -338,9 +338,7 @@
                         <MudTd></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px">
                             <h6>
-@*                                 @(Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt)) is not null ? 
-                                    Value.Records.Sum(s => s.Contents.Sum(c => c.NetWt!.Value)).ToString("000 000.000") : "-") *@
-                                @(Value.Records.Sum(s => s.Contents.Where(c => c.NetWt is not null).Sum(c => c.NetWt!.Value)).ToString("000 000.000"))
+                                @(Value.Records.Sum(s => s.Contents.Where(c => c.NetWt is not null).Sum(c => c.NetWt!.Value)).ToString("### ###.000"))
                             </h6>
                         </MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px">
@@ -553,7 +551,7 @@
             var response = await _vesselCallProvider.GetItemAsync(Voyage);
             if (!response.HasError)
             {
-                Value!.VesselCall = (VesselCallEntity)response.Object!;
+                Value!.VesselCallDetail!.VesselCall = (VesselCallEntity)response.Object!;
                 //Value!.IdPOD = Value.VesselCall.Details.FirstOrDefault(d => d.POD!.NameEn == pod)!.POD!.Id;
             }                
             else
@@ -567,8 +565,8 @@
     {
         string? terminal = string.Empty;
 
-        if (Value!.VesselCall!.Terminal is not null)
-            terminal = Value!.VesselCall!.Terminal.Name;
+        if (Value!.VesselCallDetail!.VesselCall!.Terminal is not null)
+            terminal = Value!.VesselCallDetail!.VesselCall!.Terminal.Name;
         
         if (terminal is null)
             return Enumerable.Empty<CarrierCatalog>();

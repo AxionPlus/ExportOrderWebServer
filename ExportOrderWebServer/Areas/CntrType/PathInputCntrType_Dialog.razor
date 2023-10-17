@@ -19,7 +19,7 @@
 </div>
 <div>
     <div class="wrapper-button">
-        <MudFab StartIcon="@Icons.Material.Filled.Save" Label="Save" Color="Color.Primary" Size="Size.Small" Disabled="@btnIsDisabled"
+        <MudFab StartIcon="@Icons.Material.Filled.Upload" Label="Upload" Color="Color.Primary" Size="Size.Small" Disabled="@btnIsDisabled"
                 OnClick="@(async () => { await UploadData(); })" />
     </div>
 </div>
@@ -67,6 +67,7 @@
                     else
                         return;
                 }
+
                 records.Add(new CntrTpSz()
                 {
                     ISO = cntrISO,

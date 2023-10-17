@@ -42,7 +42,5 @@ public class ExportOrderRecordConfiguration : IEntityTypeConfiguration<ExportOrd
         builder.ToTable("ExportOrder_Records");
 
         builder.Navigation(s => s.CntrType).AutoInclude();
-
-        builder.Navigation(s => s.Contents).AutoInclude();
     }
 }

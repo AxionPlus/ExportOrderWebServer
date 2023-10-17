@@ -119,7 +119,6 @@ public class VesselCallProvider : IVesselCallProvider
 
                 if (!string.IsNullOrEmpty(filter.POD))
                     vesselCallsDTO = vesselCallsDTO.Where(s => s.POD == filter.POD).ToList();
-                    //vesselCallsDTO = vesselCallsDTO.Where(s => s.Details.FirstOrDefault(d => d.VesselCall!.Id == s.Id)!.POD!.Name == filter.POD).ToList();
 
                 appObjResponse.Object = vesselCallsDTO.ToArray();
             }            
@@ -350,43 +349,43 @@ public class VesselCallProvider : IVesselCallProvider
     };
 
     // DELETE
-    public async Task<IEnumerable<_VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId)
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
+    //public async Task<IEnumerable<_VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId)
+    //{
+    //    using (var _db = _dbContext.CreateDbContextAsync())
+    //    {
+    //        var db = await _db;
 
-            var eoItems = await db.ExportOrders.AsNoTracking().Include(eo => eo.Carrier)
-                            .Where(eo => eo.VesselCall!.Id == vslCallId)
-                            .Select(eo => new 
-                            {
-                                VesselCallId = eo.VesselCall!.Id,
-                                CarrierId = eo.Carrier!.Id,
-                                CarrierNameEn = eo.Carrier!.NameEn,
-                                ExportOrderId = eo.Id,
-                                ExportOrderNum = eo.Num,
-                                ExportOrderDate = eo.Dated,
-                            })
-                            .ToListAsync();            
+    //        var eoItems = await db.ExportOrders.AsNoTracking().Include(eo => eo.Carrier)
+    //                        .Where(eo => eo.VesselCall!.Id == vslCallId)
+    //                        .Select(eo => new 
+    //                        {
+    //                            VesselCallId = eo.VesselCall!.Id,
+    //                            CarrierId = eo.Carrier!.Id,
+    //                            CarrierNameEn = eo.Carrier!.NameEn,
+    //                            ExportOrderId = eo.Id,
+    //                            ExportOrderNum = eo.Num,
+    //                            ExportOrderDate = eo.Dated,
+    //                        })
+    //                        .ToListAsync();            
 
-            var CarriersGroup = eoItems.GroupBy(e => e.CarrierNameEn)
-                                  .Select(g => new _VesselCallCarrierDTO()
-                                  {
-                                      VesselCallId = g.FirstOrDefault()!.VesselCallId,
-                                      CarrierId = g.FirstOrDefault()!.CarrierId,
-                                      CarrierNameEn = g.Key,
-                                      RecordsDTO = g.Select(r => new VesselCallRecordDTO()
-                                      {
-                                        ExportOrderId = r.ExportOrderId,
-                                        ExportOrderNum = r.ExportOrderNum,
-                                        ExportOrderDate = r.ExportOrderDate,
-                                        //vesselCallCarrierDTO = g,
-                                      }).ToList()
-                                  }).ToList();
+    //        var CarriersGroup = eoItems.GroupBy(e => e.CarrierNameEn)
+    //                              .Select(g => new _VesselCallCarrierDTO()
+    //                              {
+    //                                  VesselCallId = g.FirstOrDefault()!.VesselCallId,
+    //                                  CarrierId = g.FirstOrDefault()!.CarrierId,
+    //                                  CarrierNameEn = g.Key,
+    //                                  RecordsDTO = g.Select(r => new VesselCallRecordDTO()
+    //                                  {
+    //                                    ExportOrderId = r.ExportOrderId,
+    //                                    ExportOrderNum = r.ExportOrderNum,
+    //                                    ExportOrderDate = r.ExportOrderDate,
+    //                                    //vesselCallCarrierDTO = g,
+    //                                  }).ToList()
+    //                              }).ToList();
 
-            return CarriersGroup;
-        }
-    }
+    //        return CarriersGroup;
+    //    }
+    //}
 
 
     #endregion

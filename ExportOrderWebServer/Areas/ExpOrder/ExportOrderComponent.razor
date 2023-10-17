@@ -160,8 +160,7 @@
     {
         IsLoadingData = true;
 
-        //var response = await _exportOrderProvider.GetItemsAsync(Filter);
-        var response = await _exportOrderProvider.GetItemsDTOAsync(Filter, 1);
+        var response = await _exportOrderProvider.GetItemsAsync(Filter);
 
         if (!response.HasError)
             Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
@@ -191,6 +190,7 @@
     private async Task ViewReportExpOrder_Click(long id)
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
+        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Voyage={voyage}";
         try
         {            
             await JSRuntime.InvokeVoidAsync("open", path);

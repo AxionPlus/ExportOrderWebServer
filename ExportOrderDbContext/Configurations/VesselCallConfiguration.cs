@@ -37,6 +37,8 @@ public class VesselCallDetailConfiguration : IEntityTypeConfiguration<VesselCall
             .HasColumnType("xid")
             .HasConversion(converter);
 
+        builder.HasMany(s => s.ExportOrders);
+
         builder.ToTable("VesselCall_Details");
     }
 }

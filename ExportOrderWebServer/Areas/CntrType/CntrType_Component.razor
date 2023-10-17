@@ -88,7 +88,7 @@
 
  @code {
     private MudTable<CntrTpSz>? mudTable;
-    
+
     private List<CntrTpSz>? Items { get; set; } = new List<CntrTpSz>();
     private List<CntrTpSz>? NewItems { get; set; } = new List<CntrTpSz>();
 
@@ -139,26 +139,27 @@
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                CntrTpSz itemExistCheck = new();
-                
-                itemExistCheck = Items!.Where(s => s.ISO == item.ISO).FirstOrDefault()!;
-                if (itemExistCheck !=null)
-                    Items!.Remove(item);
-                
-                itemExistCheck = NewItems!.Where(s => s.ISO == item.ISO).FirstOrDefault()!;
-                if (itemExistCheck != null)
-                    NewItems!.Remove(itemExistCheck);
+                // CntrTpSz itemExistCheck = new();
 
-                // var response = await _cntrTypeProvider.RemoveItemAsync(item);
+                // itemExistCheck = Items!.Where(s => s.ISO == item.ISO).FirstOrDefault()!;
+                // if (itemExistCheck !=null)
+                //     Items!.Remove(item);
 
-                // if (!response.HasError)
-                //     Snackbar.Add($"Deleted Successfully", Severity.Success);
-                // else
-                //     Snackbar.Add($"Unable to delete", Severity.Warning);
+                // itemExistCheck = NewItems!.Where(s => s.ISO == item.ISO).FirstOrDefault()!;
+                // if (itemExistCheck != null)
+                //     NewItems!.Remove(itemExistCheck);
+
+                var response = await _cntrTypeProvider.RemoveItemAsync(item);
+
+                if (!response.HasError)
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                else
+                    Snackbar.Add($"Unable to delete", Severity.Warning);
 
             }
 
-        //await GetItems();
+        await GetItems();
+        //await InvokeAsync(StateHasChanged);
     }
 
     public async Task SaveItem_Click(List<CntrTpSz> newItems)
@@ -184,18 +185,12 @@
         dialog = DialogService.Show<PathInputCntrType_Dialog>("INPUT: List of Container Types", dialogOptions);
 
         var result = await dialog.Result;
-        if (!result.Canceled)
+
+        if (!result.Canceled && result.Data is not null)
         {
-            var newItems = new List<CntrTpSz>();        
+            NewItems = (List<CntrTpSz>)result.Data;
 
-            if (result.Data is not null)
-            {
-                NewItems = (List<CntrTpSz>)result.Data;
-
-                await SaveItem_Click(newItems);
-            }
-
-            await InvokeAsync(StateHasChanged);
+            await SaveItem_Click(NewItems);
         }
     }
 }

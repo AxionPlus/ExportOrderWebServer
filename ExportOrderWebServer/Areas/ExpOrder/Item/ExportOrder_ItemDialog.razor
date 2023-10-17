@@ -103,7 +103,7 @@
     {
         if (IsNewItem)
         {
-            Item = new() { Carrier = new(), VesselCall = new() { Vessel = new() }, Person = new(), Status = EntityStatus.New };
+            Item = new() { Carrier = new(), VesselCallDetail = new() { VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
             IsFormReadOnly = false;
         }        
         else

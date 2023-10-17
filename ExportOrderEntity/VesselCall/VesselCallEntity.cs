@@ -16,5 +16,5 @@ public class VesselCallEntity : Entity
     public IList<VesselCallDetail> Details { get; set; } = new List<VesselCallDetail>();
 
 
-    public IEnumerable<ExportOrderEntity> ExportOrders { get; set; }    // ?? delete
+    //public IEnumerable<ExportOrderEntity> ExportOrders { get; set; }    // ?? delete
 }

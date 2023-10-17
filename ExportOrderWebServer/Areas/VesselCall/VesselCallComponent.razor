@@ -193,10 +193,10 @@
     }
 
 
-    private async Task SelectItem_Click(string voyage)
+    private async Task SelectItem_Click(string voyagePOD)      // change to VesselCallDetailId
     {
         await Task.Delay(50);
-        MudDialog!.Close(voyage);
+        MudDialog!.Close(voyagePOD);
     }
 
     #region SEARCH FUNCTIONS

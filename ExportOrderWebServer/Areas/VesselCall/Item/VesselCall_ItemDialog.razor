@@ -205,7 +205,9 @@
     private MudTable<VesselCallDetail>? mudTable;
 
     [Parameter]
-    public string? Voyage { get; set; }     //   VesselNam + & + Voyage
+    public long Id { get; set; }
+    [Parameter]
+    public string? Voyage { get; set; }     //   VesselName + & + Voyage
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
@@ -232,6 +234,8 @@
         else
         {
             var response = await _vesselCallProvider.GetItemAsync(Voyage!);
+            //var response = await _vesselCallProvider.GetItemAsync(Id);
+
             if (!response.HasError)
                 Item = (VesselCallEntity)response.Object!;
             else
@@ -269,6 +273,7 @@
         IsFormReadOnly = true;
 
         Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
+        //Id = Item!.Id;
         await GetItem();
 
         await Task.Delay(1500);

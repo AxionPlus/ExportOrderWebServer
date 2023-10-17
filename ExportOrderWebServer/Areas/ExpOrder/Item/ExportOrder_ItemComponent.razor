@@ -78,7 +78,7 @@
                                                                                Value.VesselCallDetail!.VesselCall.Details.FirstOrDefault()!.POD!.NameEn: "")"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            Required RequiredError="" Clearable="!IsFormReadOnly"
-                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Waves" OnAdornmentClick="GetVesselCall_Click" />
+                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Waves" OnAdornmentClick="GetVesselCallDetail_Click" />
 
             <MudAutocomplete T="CarrierCatalog" Style="width: 350px" Label="Carrier" @bind-Value="Value.Carrier"
                              ToStringFunc="@(e => e != null ? e.Name : "")"
@@ -536,7 +536,7 @@
 
     #region SEARCH
 
-    private async Task GetVesselCall_Click()
+    private async Task GetVesselCallDetail_Click()
     {
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
@@ -545,10 +545,10 @@
 
         if (!result.Canceled)
         {
-            string Voyage = (string)result.Data;
+            string VoyagePOD = (string)result.Data;
             //string pod = Voyage.Split('&')[2];
 
-            var response = await _vesselCallProvider.GetItemAsync(Voyage);
+            var response = await _vesselCallProvider.GetVesselCallDetailItemAsync(VoyagePOD);
             if (!response.HasError)
             {
                 Value!.VesselCallDetail!.VesselCall = (VesselCallEntity)response.Object!;

@@ -25,13 +25,17 @@ public class VesselCallProvider : IVesselCallProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.VesselCalls.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            appObjResponse.Object = await db.VesselCalls
+                                                        .Include(vc => vc.Vessel)
+                                                        .Include(vc => vc.Terminal)
+                                                        .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
+                                                        .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;
     }
 
-    public async Task<AppObjectResponse> GetItemAsync(string name)
+    public async Task<AppObjectResponse> GetItemAsync(string voyage)
     {
         appObjResponse = new();
 
@@ -41,23 +45,22 @@ public class VesselCallProvider : IVesselCallProvider
             {            
                 var db = await _db;
 
-                if (name.Contains('&'))
+                if (voyage.Contains('&'))
                 {
-                    var vesselName = name.Split('&')[0];
-                    var voyageNo = name.Split('&')[1];
-                    var pod = name.Split('&')[2];
+                    var vesselName = voyage.Split('&')[0];
+                    var voyageNo = voyage.Split('&')[1];
 
                     appObjResponse.Object = await db.VesselCalls
                                                                 .Include(vc => vc.Vessel)
                                                                 .Include(vc => vc.Terminal)
-                                                                .Include(vc => vc.Details.Where(d => d.POD!.NameEn == pod)).ThenInclude(d => d.POD)
+                                                                .Include(vc => vc.Details).ThenInclude(d => d.POD)
                                                                 .Where(vc => vc.Vessel.Name!.ToUpper() == vesselName.ToUpper() &&
                                                                              vc.VoyageNo.ToUpper() == voyageNo.ToUpper()
                                                                  )
                                                                 .FirstOrDefaultAsync();
 
                     if (appObjResponse.Object is null)
-                        appObjResponse.ErrorAdd($"There is no voyage for this Port: {vesselName} / {voyageNo} / {pod}");                    
+                        appObjResponse.ErrorAdd($"There is no voyage: {vesselName} / {voyageNo}");
                 }
                 else
                     appObjResponse.ErrorAdd("Wrong request");
@@ -72,6 +75,50 @@ public class VesselCallProvider : IVesselCallProvider
             }
         }
     }
+
+    public async Task<AppObjectResponse> GetVesselCallDetailItemAsync(string voyagePod)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            try
+            {
+                var db = await _db;
+
+                if (voyagePod.Contains('&'))
+                {
+                    var vesselName = voyagePod.Split('&')[0];
+                    var voyageNo = voyagePod.Split('&')[1];
+                    var pod = voyagePod.Split('&')[2];
+
+                    appObjResponse.Object = await db.VesselCalls
+                                                                .Include(vc => vc.Vessel)
+                                                                .Include(vc => vc.Terminal)
+                                                                .Include(vc => vc.Details.Where(d => d.POD!.NameEn == pod)).ThenInclude(d => d.POD)
+                                                                .Where(vc => vc.Vessel.Name!.ToUpper() == vesselName.ToUpper() &&
+                                                                             vc.VoyageNo.ToUpper() == voyageNo.ToUpper()
+                                                                 )
+                                                                .FirstOrDefaultAsync();
+
+                    if (appObjResponse.Object is null)
+                        appObjResponse.ErrorAdd($"There is no voyage for this Port: {vesselName} / {voyageNo} / {pod}");
+                }
+                else
+                    appObjResponse.ErrorAdd("Wrong request");
+
+                return appObjResponse;
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
+                return appObjResponse;
+            }
+        }
+    }
+
+    
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
@@ -250,6 +297,7 @@ public class VesselCallProvider : IVesselCallProvider
                 detail.CreateTime = DateTime.Now;
 
                 db.Entry(detail.POD!).State = EntityState.Unchanged;
+                //db.Entry(detail.ExportOrders!).State = EntityState.Unchanged;
                 db.Entry(detail).State = EntityState.Added;                
             }
 

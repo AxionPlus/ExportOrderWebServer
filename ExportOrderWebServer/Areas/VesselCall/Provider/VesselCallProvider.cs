@@ -92,14 +92,15 @@ public class VesselCallProvider : IVesselCallProvider
                     var voyageNo = voyagePod.Split('&')[1];
                     var pod = voyagePod.Split('&')[2];
 
-                    appObjResponse.Object = await db.VesselCalls
-                                                                .Include(vc => vc.Vessel)
-                                                                .Include(vc => vc.Terminal)
-                                                                .Include(vc => vc.Details.Where(d => d.POD!.NameEn == pod)).ThenInclude(d => d.POD)
-                                                                .Where(vc => vc.Vessel.Name!.ToUpper() == vesselName.ToUpper() &&
-                                                                             vc.VoyageNo.ToUpper() == voyageNo.ToUpper()
-                                                                 )
-                                                                .FirstOrDefaultAsync();
+                    appObjResponse.Object = await db.Set<VesselCallDetail>().AsNoTracking()
+                                                        .Include(vcd => vcd.POD)
+                                                        .Include(vcd => vcd.VesselCall.Terminal)
+                                                        .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
+                                                        .FirstOrDefaultAsync(
+                                                                                vcd => vcd.VesselCall.Vessel.Name == vesselName &&
+                                                                                vcd.VesselCall.VoyageNo == voyageNo &&
+                                                                                vcd.POD!.NameEn == pod
+                                                                            );
 
                     if (appObjResponse.Object is null)
                         appObjResponse.ErrorAdd($"There is no voyage for this Port: {vesselName} / {voyageNo} / {pod}");
@@ -116,9 +117,7 @@ public class VesselCallProvider : IVesselCallProvider
                 return appObjResponse;
             }
         }
-    }
-
-    
+    }    
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {

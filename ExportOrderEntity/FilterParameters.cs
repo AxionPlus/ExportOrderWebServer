@@ -23,7 +23,6 @@ public class FilterParameters
     public string? Voyage { get; set; }
     public string? Terminal { get; set; }
     public string? POD { get; set; }
-    //public long? ExportOrderPODid { get; set; }     // Port of Discharge in ExportOrder Entity
     public DateTime? Dated { get; set; }
     public DateTime? ETA { get; set; }
     public DateTime? ETS { get; set; }

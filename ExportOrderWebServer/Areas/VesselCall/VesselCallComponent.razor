@@ -216,7 +216,7 @@
 
     private async Task<IEnumerable<string>> SearchPort(string value)
     {
-        var result = await _locationProvider.GetNames();
+        var result = await _locationProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();

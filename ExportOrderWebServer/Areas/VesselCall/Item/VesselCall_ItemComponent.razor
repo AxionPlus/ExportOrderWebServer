@@ -1,12 +1,10 @@
 ﻿@inject ISnackbar Snackbar
-
 @inject IVesselProvider _vesselProvider
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
 
-@* <MudForm @ref="@Form" ReadOnly="IsFormReadOnly"> *@
 
-    <div class="Container-item">
+<div class="Container-item">
 
         <div class="container-content">
             <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px" @bind-Value="Value!.Vessel"
@@ -65,7 +63,7 @@
          @if (Value.Details != null)
          {
              <div class="Container-table">
-                 @if (mudTable != null)
+                @if (mudTable != null)
                 {
                     <div class="tableMenu">
                         <MudSpacer />
@@ -112,8 +110,6 @@
          }  
 
     </div>
-
- @* </MudForm> *@
 
  @code {
     private MudForm? Form { get; set; }

@@ -75,10 +75,13 @@
                            Label="Vessel Call" Placeholder="Vessel Call"
                            Text="@(Value.VesselCallDetail!.VesselCall!.Vessel.Name is not null ? Value.VesselCallDetail!.VesselCall!.Vessel.Name + " / " +
                                                                                Value.VesselCallDetail!.VesselCall.VoyageNo + " / " +
-                                                                               Value.VesselCallDetail!.VesselCall.Details.FirstOrDefault()!.POD!.NameEn: "")"
+                                                                               Value.VesselCallDetail.POD!.NameEn : "")"
+                                                                               
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            Required RequiredError="" Clearable="!IsFormReadOnly"
-                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Waves" OnAdornmentClick="GetVesselCallDetail_Click" />
+                           Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.Waves"
+                           OnAdornmentClick="@(async () => { if (!IsFormReadOnly) await GetVesselCallDetail_Click(); })" />
 
             <MudAutocomplete T="CarrierCatalog" Style="width: 350px" Label="Carrier" @bind-Value="Value.Carrier"
                              ToStringFunc="@(e => e != null ? e.Name : "")"
@@ -248,8 +251,7 @@
                         </MudSelect>
                     </MudTd>
                     <MudTd>
-                         <MudNumericField Class="QuantityField" T="double?" @bind-Value="expOrderRecords.CntrTareWt"
-                                          
+                         <MudNumericField Class="QuantityField" T="double?" @bind-Value="expOrderRecords.CntrTareWt"                                          
                                           Variant="Variant.Outlined" Margin="Margin.Dense"
                                           Required RequiredError="" HideSpinButtons="true"/>
                     </MudTd>
@@ -267,13 +269,13 @@
                      <MudTd></MudTd>
                      <MudTd>
                          <MudTextField Class="TextField_Sum" T="string" Text="@(expOrderRecords.Contents.Sum(s => s.NetWt) is not null ? 
-                                                                                    expOrderRecords.Contents.Sum(s => s.NetWt!.Value).ToString("00 000.000") : "-")"
+                                                                                    expOrderRecords.Contents.Sum(s => s.NetWt!.Value).ToString("## ###.###") : "-")"
                                        Style="width: 120px"
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
                      <MudTd>
                          <MudTextField Class="TextField_Sum" T="string"
-                                       Text="@(expOrderRecords.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("00 000.000"))"
+                                       Text="@(expOrderRecords.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("## ###.###"))"
 
                                        Style="width: 120px"
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
@@ -289,7 +291,7 @@
                         <MudTr>
                             <td colspan="4"></td>
                             <td colspan="6">
-                                <MudTable Class="sub-Table" T="ContainerContent" Context="CntrContent" Items="@expOrderRecords.Contents">
+                                <MudTable Class="sub-Table" @ref="mudCntrContentTable" Context="CntrContent" Items="@expOrderRecords.Contents">
                                     <RowTemplate>
 
                                         <MudTd Style="width:300px; padding-right:12px; text-align:end">@CntrContent.DocumentRecord.Document.Name</MudTd>
@@ -330,7 +332,7 @@
                     {
                         <td></td>
                         <td colspan="2">
-                            <MudTd><h6>Total containers: @Value.Records!.Count().ToString("000")</h6></MudTd>
+                            <MudTd><h6>Total containers: @Value.Records!.Count().ToString("###")</h6></MudTd>
                         </td>
                         <MudTd Style="text-align:center"><h6>@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6></MudTd>
                         <td colspan="2"></td>
@@ -338,12 +340,12 @@
                         <MudTd></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px">
                             <h6>
-                                @(Value.Records.Sum(s => s.Contents.Where(c => c.NetWt is not null).Sum(c => c.NetWt!.Value)).ToString("### ###.000"))
+                                @(Value.Records.Sum(s => s.Contents.Where(c => c.NetWt is not null).Sum(c => c.NetWt!.Value)).ToString("### ###.###"))
                             </h6>
                         </MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px">
                             <h6>
-                                @(Value.Records.Sum(s => s.Contents.Where(c => c.GrossWt is not null).Sum(c => c.GrossWt!.Value)).ToString("000 000.000"))
+                                @(Value.Records.Sum(s => s.Contents.Where(c => c.GrossWt is not null).Sum(c => c.GrossWt!.Value)).ToString("### ###.###"))
                             </h6>
                         </MudTd>
                     }
@@ -355,6 +357,7 @@
 
 @code {
     private MudTable<ExportOrderRecord>? mudTable;
+    private MudTable<ContainerContent>? mudCntrContentTable;
     private MudTable<DocumentRecord>? mudDocRecordsTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -385,15 +388,7 @@
 
         foreach (var document in DocumentItems)
             foreach (var docRecord in document.Records)
-                DocumentRecordItems.Add(docRecord);
-
-        // foreach (var document in DocumentItems)
-        // {
-        //     DocumentRecordItems = Value.Documents.FirstOrDefault(d => d.Id == document.Id).Records.ToHashSet();
-        //     document.Records = DocumentRecordItems.ToList();
-        // }
-
-        //DocumentRecordItems.Add(docRecord);    
+                DocumentRecordItems.Add(docRecord);  
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -453,14 +448,20 @@
 
         if (Value.Documents.Count() == 0) return;
 
+        //var parameters = new DialogParameters() { ["ExportOrder"] = Value, ["Documents"] = Value.Documents };
         var parameters = new DialogParameters() { ["Documents"] = Value.Documents };
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
-        var dialog = await DialogService.ShowAsync<ExportOrder_ContainerContentComponent>("Container record", parameters, options);
+        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("New Container Record", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
         {
-            //await InvokeAsync(StateHasChanged);
+            if (result.Data is null)
+                return;
+
+            var exportOrderRecord = (ExportOrderRecord)result.Data;
+
+            Value.Records.Add(exportOrderRecord);
         }
     }
 
@@ -551,7 +552,7 @@
             var response = await _vesselCallProvider.GetVesselCallDetailItemAsync(VoyagePOD);
             if (!response.HasError)
             {
-                Value!.VesselCallDetail!.VesselCall = (VesselCallEntity)response.Object!;
+                Value!.VesselCallDetail = (VesselCallDetail)response.Object!;
                 //Value!.IdPOD = Value.VesselCall.Details.FirstOrDefault(d => d.POD!.NameEn == pod)!.POD!.Id;
             }                
             else

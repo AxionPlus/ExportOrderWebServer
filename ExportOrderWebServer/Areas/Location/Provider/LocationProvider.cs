@@ -173,7 +173,11 @@ public class LocationProvider : ILocationProvider
 
     public async Task<IEnumerable<string>> GetNamesEn()
     {
-        throw new NotImplementedException();
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+            return await db.Locations.Select(s => s.NameEn!).ToListAsync();
+        }
     }
 
     #region AUXILARY METHODS

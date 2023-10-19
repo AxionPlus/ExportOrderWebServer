@@ -51,7 +51,7 @@ public class DocumentProvider : IDocumentProvider
         return appObjResponse;
     }
 
-    public Task<AppObjectResponse> GetItemsAsync()
+    public async Task<AppObjectResponse> GetItemsAsync()
     {
         throw new NotImplementedException();
     }
@@ -275,5 +275,15 @@ public class DocumentProvider : IDocumentProvider
             return appObjResponse;
         }
     }
-}
 
+    public async Task<IEnumerable<DocumentEntity>> GetDocumentItemsAsync()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var result = await db.Documents.AsNoTracking().ToListAsync();
+            return result;
+        }
+    }
+}

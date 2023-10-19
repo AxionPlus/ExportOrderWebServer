@@ -166,7 +166,7 @@
 
         var parameters = new DialogParameters() { ["Documents"] = Item.Documents };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
-        var dialog = await DialogService.ShowAsync<ExportOrder_ContainerContentComponent>("Container record", parameters, options);
+        var dialog = await DialogService.ShowAsync<_ExportOrder_ContainerContentComponent>("Container record", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

@@ -30,7 +30,7 @@
             <MudSpacer />
 
             <div class="ToolBar-Title">
-                <span>@($"Export Order: \t {Item!.Status!.ToString()}")</span>
+                <span>@($"Export Order: \t {Header}")</span>
             </div>
 
             <MudSpacer />
@@ -86,6 +86,7 @@
     private ExportOrderEntity? Item { get; set; }
     public bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
+    private string? Header { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -103,14 +104,17 @@
     {
         if (IsNewItem)
         {
-            Item = new() { Carrier = new(), VesselCallDetail = new() { VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
+            Item = new() { Carrier = new(), VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
             IsFormReadOnly = false;
         }        
         else
         {
             var response = await _exportOrderProvider.GetItemAsync(Id);
             if (!response.HasError)
+            {
                 Item = (ExportOrderEntity)response.Object!;
+                Header = Item!.Status!.ToString();
+            }            
         }
     }
 

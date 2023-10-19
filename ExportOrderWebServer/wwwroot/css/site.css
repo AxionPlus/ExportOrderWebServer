@@ -380,7 +380,8 @@ body {
             margin-right: -3px;
             margin-inline-end: 3px;
             margin-inline-start: unset;
-            margin-top: 4px;
+            /*margin-top: 4px;*/
+            margin-top: 2px;
         }
 
     .wrapper-input * .mud-icon-size-small {

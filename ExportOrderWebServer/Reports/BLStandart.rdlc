@@ -513,13 +513,12 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="PackageQty">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PackageQty.Value</Value>
+                                  <Value>=Sum(Fields!PackageQty.Value)</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -584,7 +583,6 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="CntrTareWt">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -624,7 +622,6 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="GrossWt">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>

@@ -1,5 +1,8 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
 @inject IVesselCallProvider _vesselCallProvider
 @inject IVesselProvider _vesselProvider
 @inject ITerminalProvider _terminalProvider
@@ -12,6 +15,18 @@
     .wrapper-input-date > .mud-input-control {
         margin-top:unset;
     }
+
+    .mud-input-control.mud-input-control-boolean-input {
+        width: 22px;
+    }
+
+    .Table.MultiSelection * table tr > th:first-child {
+        width: 38px;
+    }
+
+/*     .Table.MultiSelection * table tr > th:nth-child(2n+1){
+        width: 180px;
+    } */
  </style>
 
 
@@ -24,20 +39,20 @@
                           CloseIcon="" OpenIcon="" MaxItems="20"
                           ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
-        <MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 150px" @bind-Value="Filter.Voyage"
+        <MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 130px" @bind-Value="Filter.Voyage"
                        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable></MudTextField>
         <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
-                         Style="width: 150px"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon="" MaxItems="20"
-                         ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
         <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
-                         Style="width: 170px"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon="" MaxItems="20"
-                         ResetValueOnEmptyText="true" Clearable />
+                          Style="width: 200px"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          CloseIcon="" OpenIcon="" MaxItems="20"
+                          ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
+                          Style="width: 130px"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          CloseIcon="" OpenIcon="" MaxItems="20"
+                          ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
         <MudDatePicker Class="wrapper-input-date" Label="From" @bind-Date="Filter.ETA"
                         Style="width: 130px; height: 40px;"
@@ -82,28 +97,42 @@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }    
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">    
+    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData"
+              Virtualize="true" RowsPerPage="30" >
+
         <HeaderContent>
             @if (!IsSelectable)
             {
-                <MudTh Style="width: 30px"></MudTh>
+                <td colspan="2">
+                    <MudTh Style="width: 180px">
+                        <MudButton Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(); })"
+                                   Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.Preview">
+                            View Manifest
+                        </MudButton>
+                    </MudTh>
+                </td>                
+            }
+            else
+            {
+                <MudTh Style="width: 42px"></MudTh>
             }            
-            <MudTh Style="width: 30px"></MudTh>
-            <MudTh Style="width: 300px">Vessel</MudTh>
-            <MudTh Style="width: 250px">Voyage</MudTh>
-            <MudTh Style="width: 200px">Terminal</MudTh>
-            <MudTh Style="width: 200px">POD</MudTh>
-            <MudTh Style="width: 130px">ETA</MudTh>
-            <MudTh Style="width: 130px">ETS</MudTh>
-            <MudTh>Status</MudTh>
+            <MudTh Style="width:270px">Vessel</MudTh>
+            <MudTh Style="width:200px">Voyage</MudTh>
+            <MudTh Style="width:270px">POD</MudTh>
+            <MudTh Style="width:200px">Terminal</MudTh>
+            <MudTh Style="width:130px">ETA</MudTh>
+            <MudTh Style="width:130px">ETS</MudTh>
+            <MudTh Style="width: 80px">Status</MudTh>
+            <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             @if (!IsSelectable)
             {
-                <MudTd Style="margin-right:20px">
+                <MudTd Style="width:90px">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click($"{context.VesselName}&{context.VoyageNo}"); })" />
                 </MudTd>
-                <MudTd Style="margin-right:20px">
+                <MudTd Style="width:90px">
                     <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })" />
                 </MudTd>
             }
@@ -116,11 +145,12 @@
             }
             <MudTd>@context.VesselName</MudTd>
             <MudTd>@context.VoyageNo</MudTd>
-            <MudTd>@context.Terminal</MudTd>
             <MudTd>@context.POD</MudTd>
+            <MudTd>@context.Terminal</MudTd>
             <MudTd>@(context.ETA.HasValue ? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
             <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>            
             <MudTd>@context.Status.ToString()</MudTd>
+            <MudTd></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -128,14 +158,15 @@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
-@code {
-    private MudTable<VesselCallDTO>? mudTable;
+    @code {
+    private MudTable<VesselCallDetailDTO>? mudTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public bool IsSelectable { get; set; } = false;
+    public bool IsSelectable { get; set; } = false;    
 
-    private IEnumerable<VesselCallDTO>? Items { get; set; } = new List<VesselCallDTO>();
+    private IEnumerable<VesselCallDetailDTO>? Items { get; set; } = new List<VesselCallDetailDTO>();
+    //private HashSet<VesselCallDetailDTO> SelectedItems = new HashSet<VesselCallDetailDTO>();
     private FilterParameters Filter { get; set; } = new();
     private bool IsLoadingData = false;
 
@@ -148,7 +179,7 @@
 
         var response = await _vesselCallProvider.GetItemsAsync(Filter);
         if (!response.HasError)
-            Items = ((IEnumerable<VesselCallDTO>)response.Object!).ToArray();
+            Items = ((IEnumerable<VesselCallDetailDTO>)response.Object!).ToArray();
 
         await Task.Delay(50);
 
@@ -171,7 +202,7 @@
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(VesselCallDTO item)
+    private async Task RemoveItem_Click(VesselCallDetailDTO item)
     {
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE  Record",
@@ -197,6 +228,34 @@
     {
         await Task.Delay(50);
         MudDialog!.Close(voyagePOD);
+    }
+
+    private async Task ManifestsReport_Click()
+    {
+        // int voyageCount = SelectedItems.Select(s => new { voyage = s.VesselName + "&" + s.VoyageNo }).GroupBy(g => g.voyage).Count();
+        // if (voyageCount != 1) return;
+
+        // string voyage = SelectedItems.Select(s => s.VesselName + "*" + s.VoyageNo).FirstOrDefault()!;
+
+        // ------------------------------------
+
+        //HashSet<long> vesselCallDetailIds = SelectedItems.Select(s => s.Id).ToHashSet();
+        // ------------------------------------
+        //var vesselCallDetailIds = SelectedItems.Select(s => s.Id).ToList();
+        // ------------------------------------
+
+        if (Items is null) return;
+
+        int voyageCount = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage).Count();
+        if (voyageCount != 1) return;
+
+        string voyage = Items.Select(s => s.VesselName + "*" + s.VoyageNo).FirstOrDefault()!;
+
+        await Task.Delay(100);
+        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslCallId={Id}&carrierId={cId}";
+        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?Voyage={voyage}";
+        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifests?Ids={vesselCallDetailIds}";
+        await JSRuntime.InvokeVoidAsync("open", path);
     }
 
     #region SEARCH FUNCTIONS

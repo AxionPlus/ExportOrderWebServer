@@ -190,30 +190,13 @@
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
         //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Voyage={voyage}";
-        try
-        {            
-            await JSRuntime.InvokeVoidAsync("open", path);
-        }
-        catch(Exception ex)
-        {
-            string msg = ex.Message;
-            return;
-        }
+        await JSRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task ViewReportBL_Click(long id)
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
-
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("open", path);
-        }
-        catch(Exception ex)
-        {
-            string msg = ex.Message;
-            return;
-        }
+        await JSRuntime.InvokeVoidAsync("open", path);        
     }
 
 

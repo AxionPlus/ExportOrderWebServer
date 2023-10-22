@@ -325,7 +325,7 @@ public class VesselCallProvider : IVesselCallProvider
         return appObjResponse;
     }
 
-    public async Task<AppObjectResponse> RemoveItemDTOAsync(VesselCallDTO item)
+    public async Task<AppObjectResponse> RemoveItemDTOAsync(VesselCallDetailDTO item)
     {
         appObjResponse = new();
         return appObjResponse;
@@ -367,15 +367,15 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    Func<IEnumerable<VesselCallEntity>, IEnumerable<VesselCallDTO>> vcRecords = (Records) =>
+    Func<IEnumerable<VesselCallEntity>, IEnumerable<VesselCallDetailDTO>> vcRecords = (Records) =>
     {
-        var RecordsDTO = new List<VesselCallDTO>();
+        var RecordsDTO = new List<VesselCallDetailDTO>();
 
         foreach (var record in Records)
         {
             foreach (var detail in record.Details)                
             {
-                var recordDTO = new VesselCallDTO()
+                var recordDTO = new VesselCallDetailDTO()
                 {
                     Id = detail.Id,
                     VesselName = record.Vessel.Name,

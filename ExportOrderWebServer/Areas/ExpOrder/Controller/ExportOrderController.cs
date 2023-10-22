@@ -66,8 +66,8 @@ public class ExportOrderController : ControllerBase
             var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
             var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
             var dsCommodities = dsRecords?.GroupBy(r => r.CommodityName).Select(g => new {
-                                                                                             Commodity = g.Key +
-                                                                                                        " (" + g.FirstOrDefault()!.HSCode + ") " +
+                                                                                             Commodity = g.Key + " (" +
+                                                                                                        g.FirstOrDefault()!.HSCode + ") " +
                                                                                                         g.FirstOrDefault()!.IMO + " " + g.FirstOrDefault()!.UNNO,
                                                                                           }).ToList();
 
@@ -258,9 +258,9 @@ public class ExportOrderController : ControllerBase
 
     [HttpGet]
     [Route("ViewReportManifest")]
-    public async Task<IActionResult> ManifestReport(long vslCallId, long carrierId)
+    public async Task<IActionResult> ManifestReport(string Voyage)
     {
-        var Items = await _exportOrderProvider.GetManifestItemsAsync(vslCallId, carrierId);
+        var Items = await _exportOrderProvider.GetManifestAsync(Voyage);
 
         try
         {
@@ -307,8 +307,8 @@ public class ExportOrderController : ControllerBase
             };
 
             #endregion
-            
-            localReport.AddDataSource("dsBsL", Items);             
+
+            localReport.AddDataSource("dsBsL", Items);
 
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
 
@@ -319,6 +319,138 @@ public class ExportOrderController : ControllerBase
             string message = ex.Message;
             return Ok();
         }
-
     }
+
+
+    //[HttpGet]
+    //[Route("ViewReportManifests")]
+    //public async Task<IActionResult> ManifestReport(List<long> Ids)
+    //{
+    //    var Items = await _exportOrderProvider.GetManifestItemsAsync(Ids);
+
+    //    try
+    //    {
+    //        string mimeType = "";
+    //        int extension = 1;
+    //        string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
+
+    //        LocalReport localReport = new LocalReport(pathReport);
+
+    //        #region PARAMETERS
+
+    //        // Count
+    //        var Full20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
+    //        var Full40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
+
+    //        var Empty20 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
+    //        var Empty40 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
+
+    //        // Sum Weight
+    //        var SumFull20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWt);
+    //        var SumFull40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWt);
+
+    //        // Sum Tare
+    //        var SumFull20Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
+    //        var SumFull40Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
+
+    //        var SumEmpty20Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
+    //        var SumEmpty40Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
+
+    //        Dictionary<string, string> parameters = new Dictionary<string, string>()
+    //        {
+    //            { "Full20Qty", Full20.ToString() },
+    //            { "Full40Qty", Full40.ToString() },
+    //            { "Empty20Qty", Empty20.ToString() },
+    //            { "Empty40Qty", Empty40.ToString() },
+
+    //            { "Full20TareWt", SumFull20Tare is not null ? SumFull20Tare.ToString()! : "0" },
+    //            { "Full40TareWt", SumFull40Tare is not null ? SumFull40Tare.ToString()! : "0" },
+    //            { "Empty20TareWt", SumEmpty20Tare is not null ? SumEmpty20Tare.ToString()! : "0" },
+    //            { "Empty40TareWt", SumEmpty40Tare is not null ? SumEmpty40Tare.ToString()! : "0" },
+
+    //            { "Full20GrossWt", SumFull20 is not null ? SumFull20.ToString()! : "0"},
+    //            { "Full40GrossWt", SumFull40 is not null ? SumFull40.ToString()! : "0"},
+    //        };
+
+    //        #endregion
+
+    //        localReport.AddDataSource("dsBsL", Items);
+
+    //        ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
+
+    //        return File(result.MainStream, "application/pdf");
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        string message = ex.Message;
+    //        return Ok();
+    //    }
+    //}
+
+
+    //[HttpGet]
+    //[Route("ViewReportManifest")]
+    //public async Task<IActionResult> ManifestReport(long vslCallId, long carrierId)
+    //{
+    //    var Items = await _exportOrderProvider.GetManifestItemsAsync(vslCallId, carrierId);
+
+    //    try
+    //    {
+    //        string mimeType = "";
+    //        int extension = 1;
+    //        string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
+
+    //        LocalReport localReport = new LocalReport(pathReport);
+
+    //        #region PARAMETERS
+
+    //        // Count
+    //        var Full20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
+    //        var Full40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
+
+    //        var Empty20 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
+    //        var Empty40 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
+
+    //        // Sum Weight
+    //        var SumFull20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWt);
+    //        var SumFull40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWt);
+
+    //        // Sum Tare
+    //        var SumFull20Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
+    //        var SumFull40Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
+
+    //        var SumEmpty20Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
+    //        var SumEmpty40Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
+
+    //        Dictionary<string, string> parameters = new Dictionary<string, string>()
+    //        {
+    //            { "Full20Qty", Full20.ToString() },
+    //            { "Full40Qty", Full40.ToString() },
+    //            { "Empty20Qty", Empty20.ToString() },
+    //            { "Empty40Qty", Empty40.ToString() },
+
+    //            { "Full20TareWt", SumFull20Tare is not null ? SumFull20Tare.ToString()! : "0" },
+    //            { "Full40TareWt", SumFull40Tare is not null ? SumFull40Tare.ToString()! : "0" },
+    //            { "Empty20TareWt", SumEmpty20Tare is not null ? SumEmpty20Tare.ToString()! : "0" },
+    //            { "Empty40TareWt", SumEmpty40Tare is not null ? SumEmpty40Tare.ToString()! : "0" },
+
+    //            { "Full20GrossWt", SumFull20 is not null ? SumFull20.ToString()! : "0"},
+    //            { "Full40GrossWt", SumFull40 is not null ? SumFull40.ToString()! : "0"},
+    //        };
+
+    //        #endregion
+
+    //        localReport.AddDataSource("dsBsL", Items);             
+
+    //        ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
+
+    //        return File(result.MainStream, "application/pdf");
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        string message = ex.Message;
+    //        return Ok();
+    //    }
+
+    //}
 }

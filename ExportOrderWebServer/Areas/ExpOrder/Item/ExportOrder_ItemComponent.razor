@@ -54,6 +54,10 @@
         margin-bottom: 2px;
     }
 
+    .infoSC {
+        margin-bottom: 3px;
+    }
+
 </style>
 
 @if (Value is not null)
@@ -98,7 +102,7 @@
 
             <div style="margin-right:20px">
                  <MudSelect Class="SelectField" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
-                            Text="@(Value.Person!.Name is not null ? Value.Person!.Name : "")"
+                            Text="@(Value.Person is not null ? Value.Person.Name : "")"
                             Style="width:180px" Placeholder="И.О. Фамилия"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon="" Clearable="!IsFormReadOnly">
@@ -176,17 +180,18 @@
                         </MudTreeView>
                     </MudPaper>
                 </div>
-            <div class="documents-info" style="margin-left: 20px; min-width:fit-content; max-width:fit-content">
-                <h5>Shippers:</h5>
+            <div class="documents-info" style="margin-left: 20px; max-width:fit-content">
+                <h5 class="infoSC">Shippers:</h5>
                 @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
                 {
-                    @(string.Join("/ ", shipper));
+                    <div style="padding-left:10px">@(shipper);</div>
                 }
                 <br />
-                <h5>Consignees:</h5>
+                <h5 class="infoSC">Consignees:</h5>
+                @* @(string.Join("; ", Value.Consignees.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))); *@
                 @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
                 {
-                    @(string.Join("; ", consignee));
+                    <div style="padding-left:10px">@(consignee);</div>
                 }                
             </div>
         </div>
@@ -330,9 +335,11 @@
                 <FooterContent>
                     @if (Value.Records!.Count > 0)
                     {
-                        <td></td>
                         <td colspan="2">
-                            <MudTd><h6>Total containers: @Value.Records!.Count().ToString("###")</h6></MudTd>
+                            <MudTd Style="text-align:end"><h6>Total containers:</h6></MudTd>
+                        </td>
+                        <td style="justify-content:center">
+                            <MudTd Style="text-align:center"><h6>@Value.Records!.Count().ToString("###")</h6></MudTd>
                         </td>
                         <MudTd Style="text-align:center"><h6>@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6></MudTd>
                         <td colspan="2"></td>
@@ -377,6 +384,11 @@
 
     bool IsLoadingData = false;
     bool IsItemSelected { get; set; }
+
+    bool MultiSelectionTreeItemData = false;
+    private HashSet<DocumentEntity>? SelectedDocumentValues { get; set; }
+    private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
+    private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
 
 
     protected override async void OnInitialized()
@@ -592,15 +604,6 @@
     #endregion
 
     #region  TreeItems
-
-    bool MultiSelectionTreeItemData = false;
-
-    private HashSet<DocumentEntity>? SelectedDocumentValues { get; set; }
-
-    private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
-
-    private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
-
 
     // private TreeItemData ActivatedValue { get; set; }
 

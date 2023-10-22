@@ -1,7 +1,7 @@
 ﻿
 namespace ExportOrderEntites.DTO;
 
-public class BLDTO
+public class ManifestDTO
 {
 
 #pragma warning disable CS8618
@@ -27,7 +27,7 @@ public class BLDTO
     public string? PackageName { get; set; }
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
-    public double? Volume { get; set; }    
+    public double? Volume { get; set; }
     public string Commodity { get; set; }
     public string IMO { get; set; }
     public string UNNO { get; set; }

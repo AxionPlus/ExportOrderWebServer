@@ -1,6 +1,6 @@
 ﻿namespace ExportOrderEntites.DTO;
 
-public class VesselCallDTO
+public class VesselCallDetailDTO
 {
     public long Id { get; set; }
     public string? VesselName { get; set; }

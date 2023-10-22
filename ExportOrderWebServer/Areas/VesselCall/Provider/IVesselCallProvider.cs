@@ -8,6 +8,6 @@ public interface IVesselCallProvider : IEntityProvider<VesselCallEntity>
     Task<IEnumerable<string>> GetPODs();
     Task<IEnumerable<string>> GetVoyagesCarrier();
     //Task<IEnumerable<_VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId);
-    Task<AppObjectResponse> RemoveItemDTOAsync(VesselCallDTO item);
+    Task<AppObjectResponse> RemoveItemDTOAsync(VesselCallDetailDTO item);
 
 }

@@ -4827,7 +4827,7 @@ WT (KGS)</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!VesselName.Value, "dsBsL") &amp; ", " &amp;
+                      <Value>=First(Fields!VesselName.Value, "dsBsL") &amp; " / " &amp;
 First(Fields!Voyage.Value, "dsBsL") &amp;
 ":   page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
                       <Style>

@@ -167,7 +167,7 @@ public class LocationProvider : ILocationProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Locations.Select(s => s.Name!).ToListAsync();
+            return await db.Locations.OrderBy(s => s.Name).Select(s => s.Name!).ToListAsync();
         }
     }
 
@@ -176,7 +176,7 @@ public class LocationProvider : ILocationProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Locations.Select(s => s.NameEn!).ToListAsync();
+            return await db.Locations.OrderBy(s => s.NameEn).Select(s => s.NameEn!).ToListAsync();
         }
     }
 

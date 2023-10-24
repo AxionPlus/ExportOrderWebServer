@@ -1136,7 +1136,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.4cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1469,7 +1469,7 @@
             <RepeatRowHeaders>true</RepeatRowHeaders>
             <DataSetName>dsCntrRecords</DataSetName>
             <Top>13.5cm</Top>
-            <Height>2.7cm</Height>
+            <Height>2.6cm</Height>
             <Width>19.8cm</Width>
             <Style>
               <Border>
@@ -3074,7 +3074,7 @@
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>7.00295in</Height>
+        <Height>6.33858in</Height>
         <Style>
           <Border>
             <Style>None</Style>
@@ -3085,7 +3085,7 @@
       <Width>7.83465in</Width>
       <Page>
         <PageHeader>
-          <Height>0.5cm</Height>
+          <Height>1cm</Height>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
             <Textbox Name="Header">
@@ -3109,6 +3109,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
+              <Top>0.5cm</Top>
               <Left>11cm</Left>
               <Height>0.5cm</Height>
               <Width>8.8cm</Width>
@@ -3133,8 +3134,8 @@
           </Style>
         </PageHeader>
         <PageFooter>
-          <Height>2cm</Height>
-          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <Height>2.6cm</Height>
+          <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
             <Textbox Name="Label_TotalCntrs">
               <KeepTogether>true</KeepTogether>
@@ -3152,7 +3153,8 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0cm</Top>
+              <Top>0.3175cm</Top>
+              <Left>0cm</Left>
               <Height>0.5cm</Height>
               <Width>6cm</Width>
               <Style>
@@ -3183,6 +3185,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
+              <Top>0.3175cm</Top>
               <Left>6cm</Left>
               <Height>0.5cm</Height>
               <Width>1.3cm</Width>
@@ -3215,7 +3218,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.5cm</Top>
+              <Top>0.8175cm</Top>
               <Left>7.3cm</Left>
               <Height>0.5cm</Height>
               <Width>7.7cm</Width>
@@ -3247,7 +3250,8 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1cm</Top>
+              <Top>1.3175cm</Top>
+              <Left>0cm</Left>
               <Height>0.5cm</Height>
               <Width>3.6cm</Width>
               <ZIndex>3</ZIndex>
@@ -3280,11 +3284,14 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1cm</Top>
+              <Top>1.3175cm</Top>
               <Left>3.6cm</Left>
               <Height>0.5cm</Height>
               <Width>2.4cm</Width>
               <ZIndex>4</ZIndex>
+              <Visibility>
+                <Hidden>true</Hidden>
+              </Visibility>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -3312,7 +3319,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.5cm</Top>
+              <Top>1.8175cm</Top>
               <Height>0.5cm</Height>
               <Width>3.6cm</Width>
               <ZIndex>5</ZIndex>
@@ -3343,7 +3350,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1cm</Top>
+              <Top>1.3175cm</Top>
               <Left>6cm</Left>
               <Height>0.5cm</Height>
               <Width>3.7cm</Width>
@@ -3377,7 +3384,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.5cm</Top>
+              <Top>1.8175cm</Top>
               <Left>12cm</Left>
               <Height>0.5cm</Height>
               <Width>7.8cm</Width>

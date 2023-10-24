@@ -168,7 +168,7 @@ public class VesselProvider : IVesselProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Vessels.Select(s => s.Name!).ToListAsync();
+            return await db.Vessels.OrderBy(s => s.Name).Select(s => s.Name!).ToListAsync();
         }
     }
 

@@ -230,12 +230,15 @@
 
     private async Task<IEnumerable<string>> SearchPort(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
+        var result = await _locationProvider.GetNames();
 
-        var result = await _locationProvider.GetNamesEn();
-        
-        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchCarrier(string value)

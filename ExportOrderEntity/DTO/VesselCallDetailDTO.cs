@@ -3,6 +3,7 @@
 public class VesselCallDetailDTO
 {
     public long Id { get; set; }
+    public long VesselCallId { get; set; }              // поле связи
     public string? VesselName { get; set; }
     public string? VoyageNo { get; set; }               // own Voy number
     public string? VoyageNoTerminal { get; set; }       // Terminal's Voy number

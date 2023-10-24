@@ -74,6 +74,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>BillOfLading.xsd</DependentUpon>
     </Compile>
+    <Compile Update="DataSet\BLsafetrans.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BLsafetrans.xsd</DependentUpon>
+    </Compile>
     <Compile Update="DataSet\ExportOrder.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -93,6 +98,11 @@
       <Generator>MSDataSetGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="DataSet\BLsafetrans.xsd">
+      <SubType>Designer</SubType>
+      <LastGenOutput>BLsafetrans.Designer.cs</LastGenOutput>
+      <Generator>MSDataSetGenerator</Generator>
+    </None>
     <None Update="DataSet\ExportOrder.xsd">
       <SubType>Designer</SubType>
       <LastGenOutput>ExportOrder.Designer.cs</LastGenOutput>
@@ -105,7 +115,7 @@
       <Generator>MSDataSetGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Reports\BLStandart.rdlc">
+    <None Update="Reports\BLstandard.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

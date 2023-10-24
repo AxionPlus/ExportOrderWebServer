@@ -213,7 +213,7 @@
 
     private VesselCallEntity? Item { get; set; }
 
-    bool IsLoadingData = false;
+    private bool IsLoadingData = false;
     public bool IsFormReadOnly { get; set; } = true;
 
 
@@ -233,8 +233,8 @@
         }        
         else
         {
-            var response = await _vesselCallProvider.GetItemAsync(Voyage!);
-            //var response = await _vesselCallProvider.GetItemAsync(Id);
+            //var response = await _vesselCallProvider.GetItemAsync(Voyage!);
+            var response = await _vesselCallProvider.GetItemAsync(Id);
 
             if (!response.HasError)
                 Item = (VesselCallEntity)response.Object!;
@@ -272,11 +272,11 @@
         IsNewItem = false;
         IsFormReadOnly = true;
 
-        Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
-        //Id = Item!.Id;
+        //Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
+        Id = Item!.Id;
         await GetItem();
 
-        await Task.Delay(1500);
+        await Task.Delay(500);
         IsLoadingData = false;
     }
 

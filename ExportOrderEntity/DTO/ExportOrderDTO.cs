@@ -9,8 +9,9 @@ public class ExportOrderDTO
 
 #pragma warning disable CS8618
     public string Num { get; set; }
-    public long VesselCallId { get; set; }
-    public long CarrierId { get; set; }
+    public string BLtemplate { get; set; }
+    //public long VesselCallId { get; set; }
+    //public long CarrierId { get; set; }
     public string Dated { get; set; }
     public string? CarrierNameEn { get; set; }
     public string VesselName { get; set; }

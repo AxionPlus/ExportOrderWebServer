@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Data;
+using static MudBlazor.Icons;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -106,11 +107,16 @@ public class ExportOrderController : ControllerBase
     {
         var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
 
+        string blTemplate = "BLstandard.rdlc";
+
+        if (!string.IsNullOrEmpty(Item.BLtemplate))
+            blTemplate = "BL" + Item.BLtemplate + ".rdlc";
+
         try
         {
             string mimeType = "";
             int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "BLStandart.rdlc");
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", blTemplate);
 
             LocalReport localReport = new LocalReport(pathReport);
 
@@ -209,6 +215,7 @@ public class ExportOrderController : ControllerBase
             var dsItem = Items.Select(x => new
             { 
                 x.Num,
+                x.BLDate,
                 POLAgent = x.CarrierNameEn,
                 x.PODAgent,
                 x.VesselName,
@@ -227,7 +234,22 @@ public class ExportOrderController : ControllerBase
             }).ToList();
 
             // список контейнеров
-            var dsCntrRecords = Records.Select(r => new 
+            //var dsCntrRecords = Records.Select(r => new 
+            //{
+            //    r.BLnum,
+            //    r.Cntr,
+            //    r.CntrType,
+            //    r.Seal,
+            //    r.PackageQty,
+            //    r.PackageName,
+            //    r.CntrTareWt,
+            //    r.GrossWt,
+            //    r.Volume,                
+            //}).ToList();
+
+
+            // список контейнеров
+            var dsCntrRecords = Records.Select(r => new
             {
                 r.BLnum,
                 r.Cntr,
@@ -237,7 +259,8 @@ public class ExportOrderController : ControllerBase
                 r.PackageName,
                 r.CntrTareWt,
                 r.GrossWt,
-                r.Volume,                
+                r.Volume,
+                r.CommodityEngName,
             }).ToList();
 
             localReport.AddDataSource("dsBL", dsItem);

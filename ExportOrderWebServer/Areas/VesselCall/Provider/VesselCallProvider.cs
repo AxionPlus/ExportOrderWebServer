@@ -30,6 +30,9 @@ public class VesselCallProvider : IVesselCallProvider
                                                         .Include(vc => vc.Terminal)
                                                         .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
                                                         .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            
+            if (appObjResponse.Object is null)
+                appObjResponse.ErrorAdd($"There is no voyage you choose.");
         }
 
         return appObjResponse;
@@ -378,6 +381,7 @@ public class VesselCallProvider : IVesselCallProvider
                 var recordDTO = new VesselCallDetailDTO()
                 {
                     Id = detail.Id,
+                    VesselCallId = detail.VesselCall.Id,
                     VesselName = record.Vessel.Name,
                     VoyageNo = record.VoyageNo,
                     VoyageNoTerminal = record.VoyageNoTerminal,
@@ -386,6 +390,7 @@ public class VesselCallProvider : IVesselCallProvider
                     ETS = record.ETS,
                     POD = detail.POD!.NameEn,
                     AgentPOD = detail.AgentPOD,
+                    Status = detail.Status,
                 };
 
                 RecordsDTO.Add(recordDTO);

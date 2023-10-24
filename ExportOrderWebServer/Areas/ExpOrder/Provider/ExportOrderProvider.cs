@@ -75,6 +75,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 Id = source.Id,
                                                 Num = source.Num,
                                                 Dated = source.Dated.ToString("dd.MM.yyyy"),
+                                                BLtemplate = source.Carrier!.BlTemplate.ToString(),
                                                 CarrierNameEn = source.Carrier!.NameEn,
                                                 VesselName = source.VesselCallDetail!.VesselCall!.Vessel.Name!,
                                                 VesselFlag = source.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
@@ -418,11 +419,12 @@ public class ExportOrderProvider : IExportOrderProvider
                 item.CreateUser = User!;
                 item.CreateTime = DateTime.Now;
                 item.Status = EntityStatus.Pending;
+                item.VesselCallDetail!.Status = EntityStatus.Pending;   // added
 
                 db.Entry(item).State = EntityState.Added;
 
                 db.Entry(item.Carrier!).State = EntityState.Unchanged;
-                db.Entry(item.VesselCallDetail!).State = EntityState.Unchanged;
+                db.Entry(item.VesselCallDetail!).State = EntityState.Modified; // Unchanged
                 db.Entry(item.Person!).State = EntityState.Unchanged;
 
                 // Documents

@@ -130,7 +130,8 @@
             @if (!IsSelectable)
             {
                 <MudTd Style="width:90px">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click($"{context.VesselName}&{context.VoyageNo}"); })" />
+                    @* <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click($"{context.VesselName}&{context.VoyageNo}"); })" /> *@
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.VesselCallId); })" />
                 </MudTd>
                 <MudTd Style="width:90px">
                     <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })" />
@@ -188,11 +189,12 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task ShowItem_Click(string VesselVoyage)
+    private async Task ShowItem_Click(long vesselCallId)    // (string VesselVoyage)
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
-        DialogParameters parameters = new DialogParameters { ["Voyage"] = VesselVoyage };
+        //DialogParameters parameters = new DialogParameters { ["Voyage"] = VesselVoyage };
+        DialogParameters parameters = new DialogParameters { ["Id"] = vesselCallId };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>("Vessel Call", parameters, options);
 

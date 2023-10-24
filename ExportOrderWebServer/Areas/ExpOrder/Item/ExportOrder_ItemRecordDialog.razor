@@ -174,12 +174,7 @@
     private void AddContainerContent_Click()
     {
         if (Item is not null)
-        {            
-            //var content = new ContainerContent() { DocumentRecord = new() { Document = new() } } ;
-            //Item.Contents.Add(content);
-
             Item.Contents.Add(new ContainerContent() { DocumentRecord = new() { Document = new() } });
-        }
     }
 
     private void RemoveContainerContent_Click(ContainerContent item)

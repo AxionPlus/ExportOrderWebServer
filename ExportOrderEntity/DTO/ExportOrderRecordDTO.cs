@@ -28,7 +28,7 @@ public class ExportOrderRecordDTO
     public string Consignee { get; set; }
     public string ConsigneeEn { get; set; }
     public string CommodityName { get; set; }
-    public string CommodityEngName { get; set; }
+    public string CommodityNameEn { get; set; }
     public string HSCode { get; set; }
     public string IMO { get; set; }
     public string UNNO { get; set; }

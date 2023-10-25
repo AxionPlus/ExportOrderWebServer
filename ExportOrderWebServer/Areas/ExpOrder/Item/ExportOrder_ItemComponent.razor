@@ -522,6 +522,16 @@
                 var records = uploadResult!._ExportOrderRecords!.ToList();
                 var documents = uploadResult!._Documents!.ToList();
 
+                // Remove old documents from the page
+                foreach (var documentItem in DocumentItems)
+                {
+                    foreach (var documentRecordItem in DocumentRecordItems)
+                        DocumentRecordItems.Remove(documentRecordItem);
+
+                    DocumentItems.Remove(documentItem);
+                }
+
+                // Add new documents to the page
                 foreach (var document in documents)
                 {
                     DocumentItems.Add(document);

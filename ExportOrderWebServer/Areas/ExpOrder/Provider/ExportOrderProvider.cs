@@ -525,53 +525,54 @@ public class ExportOrderProvider : IExportOrderProvider
 
     #region AUXIALARY
 
-    Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
-    {
-        var eoRecordsDTO = new List<ExportOrderRecordDTO>();
-        var eoRecordDTO = new ExportOrderRecordDTO();
+    //Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
+    //{
+    //    var eoRecordsDTO = new List<ExportOrderRecordDTO>();
+    //    var eoRecordDTO = new ExportOrderRecordDTO();
 
-        uint indexRec = 0;
+    //    uint indexRec = 0;
 
-        foreach (var record in _eoRecords)
-        {
-            ++indexRec;
-            eoRecordDTO.Seq = indexRec.ToString();
-            eoRecordDTO.CntrTareWt = record.CntrTareWt;
-            eoRecordDTO.Seal = record.Seal;
-            eoRecordDTO.CntrType = record.CntrType!.Normolize!;
+    //    foreach (var record in _eoRecords)
+    //    {
+    //        ++indexRec;
+    //        eoRecordDTO.Seq = indexRec.ToString();
+    //        eoRecordDTO.CntrTareWt = record.CntrTareWt;
+    //        eoRecordDTO.Seal = record.Seal;
+    //        eoRecordDTO.CntrType = record.CntrType!.Normolize!;
 
-            foreach (var content in record.Contents)
-            {
-                eoRecordDTO.Cntr = record.CntrNum;
+    //        foreach (var content in record.Contents)
+    //        {
+    //            eoRecordDTO.Cntr = record.CntrNum;
                 
-                eoRecordDTO.PackageQty = content.PackageQty;
-                eoRecordDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
-                eoRecordDTO.NetWt = content.NetWt;
-                eoRecordDTO.GrossWt = content.GrossWt;
-                eoRecordDTO.Volume = content.Volume;
+    //            eoRecordDTO.PackageQty = content.PackageQty;
+    //            eoRecordDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
+    //            eoRecordDTO.NetWt = content.NetWt;
+    //            eoRecordDTO.GrossWt = content.GrossWt;
+    //            eoRecordDTO.Volume = content.Volume;
 
-                eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
-                eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
-                eoRecordDTO.ShipperEn = content.DocumentRecord.Document.Shipper!.NameEn!;
-                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;
-                eoRecordDTO.ConsigneeEn = content.DocumentRecord.Document.Consignee!.NameEn!;
+    //            eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
+    //            eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
+    //            eoRecordDTO.ShipperEn = content.DocumentRecord.Document.Shipper!.NameEn!;
+    //            eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;
+    //            eoRecordDTO.ConsigneeEn = content.DocumentRecord.Document.Consignee!.NameEn!;
 
-                eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
-                eoRecordDTO.CommodityEngName = content.DocumentRecord.CommodityEngName;
-                eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode!;
-                eoRecordDTO.IMO = content.DocumentRecord.IsIMO ? "IMO:" + content.DocumentRecord.IMO! : "";
-                eoRecordDTO.UNNO = content.DocumentRecord.IsIMO ? "UN:" + content.DocumentRecord.UNNO! : "";
-                eoRecordDTO.IsIMO = content.DocumentRecord.IsIMO;
+    //            eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
+    //            eoRecordDTO.CommodityEngName = content.DocumentRecord.CommodityEngName;
+    //            eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode!;
+    //            eoRecordDTO.IMO = content.DocumentRecord.IsIMO ? "IMO:" + content.DocumentRecord.IMO! : "";
+    //            eoRecordDTO.UNNO = content.DocumentRecord.IsIMO ? "UN:" + content.DocumentRecord.UNNO! : "";
+    //            eoRecordDTO.IsIMO = content.DocumentRecord.IsIMO;
 
-                eoRecordsDTO.Add(eoRecordDTO);
-                eoRecordDTO = new ExportOrderRecordDTO();
-            }
-        }
+    //            eoRecordsDTO.Add(eoRecordDTO);
+    //            eoRecordDTO = new ExportOrderRecordDTO();
+    //        }
+    //    }
 
-        return eoRecordsDTO.ToArray();
-    };
+    //    return eoRecordsDTO.ToArray();
+    //};
 
     //DELETE
+
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<BLDTO>> blRecords = (_mRecords) =>
     {
         var BLDTO_List = new List<BLDTO>();
@@ -593,15 +594,14 @@ public class ExportOrderProvider : IExportOrderProvider
             foreach (var record in Item.Records)
             {
                 bLDTO.Seq = ++indexRec;
+                bLDTO.BLNum = Item.Num;
                 bLDTO.Seal = record.Seal;
+                bLDTO.Cntr = record.CntrNum;
+                bLDTO.CntrType = record.CntrType!.Normolize!;       // used for calculation of Totals in Report's Parameters
                 bLDTO.CntrTareWt = record.CntrTareWt;
 
                 foreach (var content in record.Contents)
                 {
-                    bLDTO.BLNum = Item.Num;
-                    bLDTO.Cntr = record.CntrNum;
-                    bLDTO.CntrType = record.CntrType!.Normolize!;       // used for calculation of Totals in Report's Parameters
-
                     bLDTO.Commodity = content.DocumentRecord.CommodityEngName;
                     bLDTO.PackageQty = content.PackageQty;
                     bLDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
@@ -623,6 +623,52 @@ public class ExportOrderProvider : IExportOrderProvider
         }
 
         return BLDTO_List;
+    };
+
+    Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
+    {
+        var eoRecordsDTO = new List<ExportOrderRecordDTO>();
+        var eoRecordDTO = new ExportOrderRecordDTO();
+
+        uint indexRec = 0;
+
+        foreach (var record in _eoRecords)
+        {
+            ++indexRec;
+            eoRecordDTO.Seq = indexRec.ToString();
+            eoRecordDTO.CntrTareWt = record.CntrTareWt;
+            eoRecordDTO.Seal = record.Seal;
+            eoRecordDTO.CntrType = record.CntrType!.Normolize!;
+
+            foreach (var content in record.Contents)
+            {
+                eoRecordDTO.Cntr = record.CntrNum;
+
+                eoRecordDTO.PackageQty = content.PackageQty;
+                eoRecordDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
+                eoRecordDTO.NetWt = content.NetWt;
+                eoRecordDTO.GrossWt = content.GrossWt;
+                eoRecordDTO.Volume = content.Volume;
+
+                eoRecordDTO.DocumentName = content.DocumentRecord.Document.Name!;
+                eoRecordDTO.Shipper = content.DocumentRecord.Document.Shipper!.Name!;
+                eoRecordDTO.ShipperEn = content.DocumentRecord.Document.Shipper!.NameEn!;
+                eoRecordDTO.Consignee = content.DocumentRecord.Document.Consignee!.Name!;
+                eoRecordDTO.ConsigneeEn = content.DocumentRecord.Document.Consignee!.NameEn!;
+
+                eoRecordDTO.CommodityName = content.DocumentRecord.CommodityName;
+                eoRecordDTO.CommodityNameEn = content.DocumentRecord.CommodityEngName;
+                eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode!;
+                eoRecordDTO.IMO = content.DocumentRecord.IsIMO ? "IMO:" + content.DocumentRecord.IMO! : "";
+                eoRecordDTO.UNNO = content.DocumentRecord.IsIMO ? "UN:" + content.DocumentRecord.UNNO! : "";
+                eoRecordDTO.IsIMO = content.DocumentRecord.IsIMO;
+
+                eoRecordsDTO.Add(eoRecordDTO);
+                eoRecordDTO = new ExportOrderRecordDTO();
+            }
+        }
+
+        return eoRecordsDTO.ToArray();
     };
 
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<ManifestDTO>> mRecords = (_mRecords) =>

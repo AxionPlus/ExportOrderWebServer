@@ -468,6 +468,7 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -1235,7 +1236,6 @@
                 <TablixMember>
                   <Group Name="CntrNumber">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!BLnum.Value</GroupExpression>
                       <GroupExpression>=Fields!Cntr.Value</GroupExpression>
                     </GroupExpressions>
                   </Group>
@@ -3712,7 +3712,6 @@ OR MULTIMODAL TRANSPORT</Value>
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
-                          <rd:Selected>true</rd:Selected>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>

@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Data;
 using static MudBlazor.Icons;
+using static MudBlazor.CategoryTypes;
+using System.Linq;
+using static MudBlazor.Colors;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -131,49 +134,23 @@ public class ExportOrderController : ControllerBase
 
             var Items = new List<ExportOrderDTO>() { Item };
             var Records = Item.exportOrderRecordsDTO;
+            //StringBuilder sb = new StringBuilder();
 
-            var ShipperList = Records.Select(x => x.ShipperEn).Distinct().ToList();
-            var ConsigneeList = Records.Select(x => x.ConsigneeEn).Distinct().ToList();
-            var NotifyList = Records.Select(x => x.ConsigneeEn).Distinct().ToList();
-
-            StringBuilder sb = new StringBuilder();
-
-            string Shippers = "";
-            foreach (var item in ShipperList)
-                Shippers = sb.Append(item + "\n").ToString();
-
-            Shippers = Shippers.Trim(); sb.Clear();
-
-            string Consignees = "";
-            foreach (var item in ConsigneeList)
-                Consignees = sb.Append(item + "\n").ToString();
-
-            Consignees = Consignees.Trim(); sb.Clear();
-
-            string NotifyParties = "";
-            foreach (var item in ConsigneeList)
-                NotifyParties = sb.Append(item + "\n").ToString();
-
-            NotifyParties = NotifyParties.Trim(); sb.Clear();
-
+            string Shippers = string.Join("\n", Records.Select(x => x.ShipperEn).Distinct().ToList());            
+            string Consignees = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
+            string NotifyParties = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
 
             // список товаров
-            var CommoditiesGroup = Records.GroupBy(c => c.CommodityEngName)
-                                                    .Select(g => new
-                                                    {
-                                                        Commodity = string.Join(" ",                                                    
-                                                            g.FirstOrDefault()!.CommodityEngName,
-                                                            g.FirstOrDefault()!.IMO,
-                                                            g.FirstOrDefault()!.UNNO).Trim(),
-                                                    }).ToList();
-            
-            // список типов контейнеров
-            var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)
-                                        .Select(g => new
-                                        {
-                                            CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key),
-                                        }).ToList();
+            var CommoditiesGroup = Records.GroupBy(c => c.CommodityNameEn)
+                                           .Select(g => new
+                                           {
+                                               Commodity = ( g.FirstOrDefault()!.CommodityNameEn + " " +
+                                                             g.FirstOrDefault()!.IMO + " " +
+                                                             g.FirstOrDefault()!.UNNO
+                                                           ).Trim()
+                                           }).ToList();
 
+            string Commodities = string.Join("\n", CommoditiesGroup.Select(cg => cg.Commodity));
 
             #region GROUP WITH 2 KEYS
             //var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName, c.CntrType })
@@ -199,17 +176,14 @@ public class ExportOrderController : ControllerBase
             //                                      }).ToList();
             #endregion
 
-            string Commodities = "";
-            foreach (var item in CommoditiesGroup)
-                Commodities = sb.Append(item.Commodity + "\n").ToString();
+            // список типов контейнеров
+            var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)
+                                        .Select(g => new
+                                        {
+                                            CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key),
+                                        }).ToList();
 
-            sb.Clear();
-
-            string CntrTypes = "";
-            foreach(var item in CntrTypesGroup)
-                CntrTypes = sb.Append(item.CntrTypes + "\n").ToString();
-
-            sb.Clear();
+            string CntrTypes = string.Join("\n", CntrTypesGroup.Select(ctg => ctg.CntrTypes));
 
             // общие данные
             var dsItem = Items.Select(x => new
@@ -234,9 +208,28 @@ public class ExportOrderController : ControllerBase
             }).ToList();
 
             // список контейнеров
-            //var dsCntrRecords = Records.Select(r => new 
+            var dsCntrRecords = Records.GroupBy(r => r.Cntr)
+                                            .Select(g => new
+                                            {
+                                                Cntr = g.Key,
+                                                CntrType = g.Select(gr => gr.CntrType).FirstOrDefault()!,
+                                                Seal = g.Select(gr => gr.Seal).FirstOrDefault()!,
+                                                CntrTareWt = g.Select(gr => gr.CntrTareWt).FirstOrDefault()!,
+                                                PackageQty = (uint)g.Sum(gr => gr.PackageQty),                                                
+                                                GrossWt = g.Sum(gr => gr.GrossWt),
+                                                Volume = g.Sum(gr => gr.Volume),
+                                                PackageName = g.GroupBy(gpk => gpk.PackageName).Count() > 1 ?
+                                                              string.Join(", ", g.Select(gr => gr.PackageName)) :
+                                                              g.Select(gr => gr.PackageName).FirstOrDefault(),
+                                                CommodityNameEn = g.GroupBy(gcom => gcom.CommodityNameEn).Count() > 1 ?
+                                                                  string.Join("; ", g.Select(gr => gr.CommodityNameEn)) :
+                                                                  g.Select(gr => gr.CommodityNameEn).FirstOrDefault()
+                                            })                            
+                                            .ToList();
+
+            #region OLD список контейнеров
+            //var dsCntrRecords = Records.Select(r => new
             //{
-            //    r.BLnum,
             //    r.Cntr,
             //    r.CntrType,
             //    r.Seal,
@@ -244,24 +237,10 @@ public class ExportOrderController : ControllerBase
             //    r.PackageName,
             //    r.CntrTareWt,
             //    r.GrossWt,
-            //    r.Volume,                
+            //    r.Volume,
+            //    r.CommodityNameEn,
             //}).ToList();
-
-
-            // список контейнеров
-            var dsCntrRecords = Records.Select(r => new
-            {
-                r.BLnum,
-                r.Cntr,
-                r.CntrType,
-                r.Seal,
-                r.PackageQty,
-                r.PackageName,
-                r.CntrTareWt,
-                r.GrossWt,
-                r.Volume,
-                r.CommodityEngName,
-            }).ToList();
+            #endregion
 
             localReport.AddDataSource("dsBL", dsItem);
             localReport.AddDataSource("dsCntrRecords", dsCntrRecords);

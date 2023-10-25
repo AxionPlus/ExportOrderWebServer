@@ -101,8 +101,8 @@
           <DataField>PackageQty</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="CommodityEngName">
-          <DataField>CommodityEngName</DataField>
+        <Field Name="CommodityNameEn">
+          <DataField>CommodityNameEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="CntrTareWt">
@@ -489,6 +489,7 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -561,6 +562,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="PackageQty">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -579,6 +581,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>PackageQty</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -593,14 +596,14 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="CommodityEngName">
+                        <Textbox Name="CommodityNameEn">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CommodityEngName.Value</Value>
+                                  <Value>=Fields!CommodityNameEn.Value</Value>
                                   <Style>
                                     <FontFamily>Calibri</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -612,7 +615,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>CommodityEngName</rd:DefaultName>
+                          <rd:DefaultName>CommodityNameEn</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -627,7 +630,7 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Cntr_GrossWt">
+                        <Textbox Name="GrossWt">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -638,7 +641,7 @@
                                   <Style>
                                     <FontFamily>Calibri</FontFamily>
                                     <FontSize>9pt</FontSize>
-                                    <Format>#,0;(#,0)</Format>
+                                    <Format>#,0.000;(#,0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -647,6 +650,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>GrossWt</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -807,7 +811,7 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox17">
+                        <Textbox Name="Textbox2">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -827,7 +831,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox17</rd:DefaultName>
+                          <rd:DefaultName>Textbox2</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -878,7 +882,7 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox2">
+                        <Textbox Name="Textbox4">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -898,7 +902,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox2</rd:DefaultName>
+                          <rd:DefaultName>Textbox4</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -914,7 +918,7 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox19">
+                        <Textbox Name="Textbox5">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -934,7 +938,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox19</rd:DefaultName>
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -993,7 +997,7 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Cntr_TotalPackageQty">
+                        <Textbox Name="PackageQty1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1014,6 +1018,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>PackageQty1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1064,7 +1069,8 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Cntr_TotalGrossWt">
+                        <Textbox Name="GrossWt1">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -1075,7 +1081,7 @@
                                     <FontFamily>Calibri</FontFamily>
                                     <FontSize>9pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>#,0;(#,0)</Format>
+                                    <Format>#,0.000;(#,0.000)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1084,6 +1090,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>GrossWt1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1099,7 +1106,7 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Cntr_TotalTareWt">
+                        <Textbox Name="CntrTareWt1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1120,6 +1127,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>CntrTareWt1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2466,7 +2474,7 @@
                                 <Color>Black</Color>
                                 <Width>1pt</Width>
                               </RightBorder>
-                              <PaddingLeft>2pt</PaddingLeft>
+                              <PaddingLeft>4pt</PaddingLeft>
                               <PaddingRight>2pt</PaddingRight>
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
@@ -3154,7 +3162,6 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.3175cm</Top>
-              <Left>0cm</Left>
               <Height>0.5cm</Height>
               <Width>6cm</Width>
               <Style>
@@ -3251,7 +3258,6 @@
                 </Paragraph>
               </Paragraphs>
               <Top>1.3175cm</Top>
-              <Left>0cm</Left>
               <Height>0.5cm</Height>
               <Width>3.6cm</Width>
               <ZIndex>3</ZIndex>

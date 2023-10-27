@@ -12,9 +12,6 @@ public class ManifestDTO
     public string BLDate { get; set; }                          // дата коносамента (added for BL)
     public string POLEn { get; set; } = "NOVOROSSIYSK";
     public string PODEn { get; set; }
-    public int? TotalCntrCount { get; set; }
-    public double? TotalGrossWeight { get; set; }
-    public double? TotalTareWeight { get; set; }
 
     // RECORDS
     public uint Seq { get; set; }               // Record index for RDLC Report    
@@ -22,17 +19,12 @@ public class ManifestDTO
     public string CntrType { get; set; }
     public double? CntrTareWt { get; set; }
     public string Seal { get; set; }
-
-    public uint PackageQty { get; set; }
-    public string? PackageName { get; set; }
-    public double? NetWt { get; set; }
-    public double? GrossWt { get; set; }
-    public double? Volume { get; set; }
-    public string Commodity { get; set; }
-    public string IMO { get; set; }
-    public string UNNO { get; set; }
-    public bool IsIMO { get; set; }
-
-    public string Shipper { get; set; }
-    public string Consignee { get; set; }
+    public uint PackageQtys { get; set; }
+    public string? PackageNames { get; set; }
+    public double? NetWts { get; set; }
+    public double? GrossWts { get; set; }
+    public double? Volumes { get; set; }
+    public string Commodities { get; set; }
+    public string Shippers { get; set; }
+    public string Consignees { get; set; }
 }

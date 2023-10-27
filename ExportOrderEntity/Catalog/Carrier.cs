@@ -32,5 +32,8 @@ public enum BLTemplate
     standard,
     ametist,
     certa_lam,
-    safetrans
+    safetrans,
+    sinokor,
+    soling,
+    transsinergia,
 }

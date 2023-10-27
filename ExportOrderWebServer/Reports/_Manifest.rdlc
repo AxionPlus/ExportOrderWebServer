@@ -45,6 +45,18 @@
           <DataField>PODEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="TotalCntrCount">
+          <DataField>TotalCntrCount</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="TotalGrossWeight">
+          <DataField>TotalGrossWeight</DataField>
+          <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
+        <Field Name="TotalTareWeight">
+          <DataField>TotalTareWeight</DataField>
+          <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
         <Field Name="Seq">
           <DataField>Seq</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -65,6 +77,10 @@
           <DataField>CntrTareWt</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
         </Field>
+        <Field Name="Commodity">
+          <DataField>Commodity</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="Commodities">
           <DataField>Commodities</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -72,6 +88,10 @@
         <Field Name="PackageQtys">
           <DataField>PackageQtys</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="PackageName">
+          <DataField>PackageName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="PackageNames">
           <DataField>PackageNames</DataField>
@@ -88,6 +108,26 @@
         <Field Name="Volumes">
           <DataField>Volumes</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
+        <Field Name="IMO">
+          <DataField>IMO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="UNNO">
+          <DataField>UNNO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="IsIMO">
+          <DataField>IsIMO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Shipper">
+          <DataField>Shipper</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Consignee">
+          <DataField>Consignee</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="Shippers">
           <DataField>Shippers</DataField>
@@ -125,13 +165,13 @@
                   <Width>1cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.4cm</Width>
+                  <Width>2.6cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.5cm</Width>
+                  <Width>2cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1.4cm</Width>
@@ -327,7 +367,8 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Voyage">
+                        <Textbox Name="Voyage1">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -343,6 +384,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Voyage1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -359,7 +401,8 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="BLDate">
+                        <Textbox Name="BLDate1">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -375,6 +418,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>BLDate1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -391,7 +435,7 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="VesselFlagEn">
+                        <Textbox Name="VesselFlagEn1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -408,6 +452,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>VesselFlagEn1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -424,7 +469,8 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="POLEn">
+                        <Textbox Name="POLEn1">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -440,6 +486,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>POLEn1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -456,7 +503,7 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="PODEn">
+                        <Textbox Name="PODEn1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -473,6 +520,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>PODEn1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -713,7 +761,7 @@ WT (KGS)</Value>
                           <TablixBody>
                             <TablixColumns>
                               <TablixColumn>
-                                <Width>11.5cm</Width>
+                                <Width>11.2cm</Width>
                               </TablixColumn>
                             </TablixColumns>
                             <TablixRows>
@@ -722,14 +770,14 @@ WT (KGS)</Value>
                                 <TablixCells>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="Commodities">
+                                      <Textbox Name="CommodityEngName2">
                                         <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
                                               <TextRun>
-                                                <Value>=Fields!Commodities.Value</Value>
+                                                <Value>=Fields!Commodity.Value</Value>
                                                 <Style>
                                                   <FontFamily>Consolas</FontFamily>
                                                   <FontSize>8pt</FontSize>
@@ -739,7 +787,7 @@ WT (KGS)</Value>
                                             <Style />
                                           </Paragraph>
                                         </Paragraphs>
-                                        <rd:DefaultName>Commodities</rd:DefaultName>
+                                        <rd:DefaultName>CommodityEngName</rd:DefaultName>
                                         <Style>
                                           <Border>
                                             <Style>None</Style>
@@ -767,7 +815,7 @@ WT (KGS)</Value>
                                 <Group Name="CommodityGroup">
                                   <GroupExpressions>
                                     <GroupExpression>=Fields!BLNum.Value</GroupExpression>
-                                    <GroupExpression>=Fields!Commodities.Value</GroupExpression>
+                                    <GroupExpression>=Fields!Commodity.Value</GroupExpression>
                                   </GroupExpressions>
                                 </Group>
                                 <KeepTogether>true</KeepTogether>
@@ -799,7 +847,7 @@ WT (KGS)</Value>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!GrossWts.Value)</Value>
+                                  <Value>=Sum(Fields!GrossWt.Value)</Value>
                                   <Style>
                                     <FontFamily>consolas</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -867,7 +915,7 @@ WT (KGS)</Value>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!GrossWts.Value) + Sum(Fields!CntrTareWt.Value)</Value>
+                                  <Value>=Sum(Fields!GrossWt.Value) + Sum(Fields!CntrTareWt.Value)</Value>
                                   <Style>
                                     <FontFamily>consolas</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -913,13 +961,13 @@ WT (KGS)</Value>
                                 <Width>1cm</Width>
                               </TablixColumn>
                               <TablixColumn>
-                                <Width>2.4cm</Width>
+                                <Width>2.6cm</Width>
                               </TablixColumn>
                               <TablixColumn>
                                 <Width>1cm</Width>
                               </TablixColumn>
                               <TablixColumn>
-                                <Width>2.5cm</Width>
+                                <Width>2cm</Width>
                               </TablixColumn>
                               <TablixColumn>
                                 <Width>1.4cm</Width>
@@ -1654,7 +1702,7 @@ WT (KGS)</Value>
                                 <TablixCells>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="Seq">
+                                      <Textbox Name="Seq2">
                                         <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
@@ -1665,7 +1713,6 @@ WT (KGS)</Value>
                                                 <Style>
                                                   <FontFamily>Consolas</FontFamily>
                                                   <FontSize>8pt</FontSize>
-                                                  <Format>0;(0)</Format>
                                                 </Style>
                                               </TextRun>
                                             </TextRuns>
@@ -1674,6 +1721,7 @@ WT (KGS)</Value>
                                             </Style>
                                           </Paragraph>
                                         </Paragraphs>
+                                        <rd:DefaultName>Seq1</rd:DefaultName>
                                         <Style>
                                           <Border>
                                             <Style>None</Style>
@@ -1688,7 +1736,8 @@ WT (KGS)</Value>
                                   </TablixCell>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="Cntr">
+                                      <Textbox Name="Cntr3">
+                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -1706,6 +1755,7 @@ WT (KGS)</Value>
                                             </Style>
                                           </Paragraph>
                                         </Paragraphs>
+                                        <rd:DefaultName>Cntr2</rd:DefaultName>
                                         <Style>
                                           <Border>
                                             <Style>None</Style>
@@ -1720,7 +1770,8 @@ WT (KGS)</Value>
                                   </TablixCell>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="CntrType">
+                                      <Textbox Name="CntrType2">
+                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -1753,7 +1804,7 @@ WT (KGS)</Value>
                                   </TablixCell>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="Seal">
+                                      <Textbox Name="Seal2">
                                         <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
@@ -1788,16 +1839,16 @@ WT (KGS)</Value>
                                   <TablixCell>
                                     <CellContents>
                                       <Textbox Name="PackageQty">
+                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
                                               <TextRun>
-                                                <Value>=Fields!PackageQtys.Value</Value>
+                                                <Value>=Sum(Fields!PackageQty.Value)</Value>
                                                 <Style>
                                                   <FontFamily>Consolas</FontFamily>
                                                   <FontSize>8pt</FontSize>
-                                                  <Format>0;(0)</Format>
                                                 </Style>
                                               </TextRun>
                                             </TextRuns>
@@ -1855,7 +1906,8 @@ WT (KGS)</Value>
                                   </TablixCell>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="SVC">
+                                      <Textbox Name="Textbox130">
+                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -1873,6 +1925,7 @@ WT (KGS)</Value>
                                             </Style>
                                           </Paragraph>
                                         </Paragraphs>
+                                        <rd:DefaultName>Textbox129</rd:DefaultName>
                                         <Style>
                                           <Border>
                                             <Style>None</Style>
@@ -1887,13 +1940,13 @@ WT (KGS)</Value>
                                   </TablixCell>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="CntrGrossWts">
+                                      <Textbox Name="CntrGrossWt">
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
                                               <TextRun>
-                                                <Value>=Sum(Fields!GrossWts.Value)</Value>
+                                                <Value>=Sum(Fields!GrossWt.Value)</Value>
                                                 <Style>
                                                   <FontFamily>Consolas</FontFamily>
                                                   <FontSize>8pt</FontSize>
@@ -1920,7 +1973,7 @@ WT (KGS)</Value>
                                   </TablixCell>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="CntrTareWts">
+                                      <Textbox Name="CntrTareWt">
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -1959,7 +2012,7 @@ WT (KGS)</Value>
                                           <Paragraph>
                                             <TextRuns>
                                               <TextRun>
-                                                <Value>=Fields!GrossWts.Value + Fields!CntrTareWt.Value</Value>
+                                                <Value>=Fields!GrossWt.Value + Fields!CntrTareWt.Value</Value>
                                                 <Style>
                                                   <FontFamily>Consolas</FontFamily>
                                                   <FontSize>8pt</FontSize>
@@ -4096,9 +4149,9 @@ WT (KGS)</Value>
                   <TablixMembers>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>6.2cm</Size>
+                        <Size>6.7cm</Size>
                         <CellContents>
-                          <Textbox Name="Label_BLno">
+                          <Textbox Name="Textbox443">
                             <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
@@ -4115,6 +4168,7 @@ WT (KGS)</Value>
                                 <Style />
                               </Paragraph>
                             </Paragraphs>
+                            <rd:DefaultName>Textbox443</rd:DefaultName>
                             <Style>
                               <Border>
                                 <Style>None</Style>
@@ -4167,9 +4221,10 @@ WT (KGS)</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>6.2cm</Size>
+                        <Size>6.7cm</Size>
                         <CellContents>
-                          <Textbox Name="BLNum">
+                          <Textbox Name="BLNum3">
+                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -4186,6 +4241,7 @@ WT (KGS)</Value>
                                 <Style />
                               </Paragraph>
                             </Paragraphs>
+                            <rd:DefaultName>BLNum3</rd:DefaultName>
                             <Style>
                               <Border>
                                 <Style>None</Style>
@@ -4196,7 +4252,6 @@ WT (KGS)</Value>
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
-                          <rd:Selected>true</rd:Selected>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>
@@ -4204,7 +4259,7 @@ WT (KGS)</Value>
                           <TablixHeader>
                             <Size>3.3cm</Size>
                             <CellContents>
-                              <Textbox Name="VesselName">
+                              <Textbox Name="VesselName1">
                                 <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
@@ -4221,6 +4276,7 @@ WT (KGS)</Value>
                                     <Style />
                                   </Paragraph>
                                 </Paragraphs>
+                                <rd:DefaultName>VesselName1</rd:DefaultName>
                                 <Style>
                                   <Border>
                                     <Style>None</Style>
@@ -4241,7 +4297,7 @@ WT (KGS)</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>6.2cm</Size>
+                        <Size>6.7cm</Size>
                         <CellContents>
                           <Textbox Name="Textbox345">
                             <CanGrow>true</CanGrow>
@@ -4334,106 +4390,39 @@ WT (KGS)</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>9.5cm</Size>
+                        <Size>10cm</Size>
                         <CellContents>
-                          <Tablix Name="TablixShipper">
-                            <TablixBody>
-                              <TablixColumns>
-                                <TablixColumn>
-                                  <Width>3.16667cm</Width>
-                                </TablixColumn>
-                                <TablixColumn>
-                                  <Width>3.16667cm</Width>
-                                </TablixColumn>
-                                <TablixColumn>
-                                  <Width>3.16667cm</Width>
-                                </TablixColumn>
-                              </TablixColumns>
-                              <TablixRows>
-                                <TablixRow>
-                                  <Height>1.9cm</Height>
-                                  <TablixCells>
-                                    <TablixCell>
-                                      <CellContents>
-                                        <Textbox Name="ShCn">
-                                          <CanGrow>true</CanGrow>
-                                          <CanShrink>true</CanShrink>
-                                          <KeepTogether>true</KeepTogether>
-                                          <Paragraphs>
-                                            <Paragraph>
-                                              <TextRuns>
-                                                <TextRun>
-                                                  <Label>Shipper</Label>
-                                                  <Value>="S: " &amp; Fields!Shippers.Value</Value>
-                                                  <Style>
-                                                    <FontFamily>Consolas</FontFamily>
-                                                    <FontSize>8pt</FontSize>
-                                                  </Style>
-                                                </TextRun>
-                                                <TextRun>
-                                                  <Value xml:space="preserve">
-</Value>
-                                                  <Style>
-                                                    <FontFamily>Consolas</FontFamily>
-                                                    <FontSize>8pt</FontSize>
-                                                  </Style>
-                                                </TextRun>
-                                                <TextRun>
-                                                  <Label>Consignee</Label>
-                                                  <Value>="C: " &amp; Fields!Consignees.Value</Value>
-                                                  <Style>
-                                                    <FontFamily>Consolas</FontFamily>
-                                                    <FontSize>8pt</FontSize>
-                                                  </Style>
-                                                </TextRun>
-                                              </TextRuns>
-                                              <Style />
-                                            </Paragraph>
-                                          </Paragraphs>
-                                          <Style>
-                                            <Border>
-                                              <Style>None</Style>
-                                            </Border>
-                                            <PaddingLeft>2pt</PaddingLeft>
-                                            <PaddingRight>2pt</PaddingRight>
-                                            <PaddingTop>2pt</PaddingTop>
-                                            <PaddingBottom>2pt</PaddingBottom>
-                                          </Style>
-                                        </Textbox>
-                                        <ColSpan>3</ColSpan>
-                                      </CellContents>
-                                    </TablixCell>
-                                    <TablixCell />
-                                    <TablixCell />
-                                  </TablixCells>
-                                </TablixRow>
-                              </TablixRows>
-                            </TablixBody>
-                            <TablixColumnHierarchy>
-                              <TablixMembers>
-                                <TablixMember />
-                                <TablixMember />
-                                <TablixMember />
-                              </TablixMembers>
-                            </TablixColumnHierarchy>
-                            <TablixRowHierarchy>
-                              <TablixMembers>
-                                <TablixMember>
-                                  <Group Name="ShipperGroup">
-                                    <GroupExpressions>
-                                      <GroupExpression>=Fields!BLNum.Value</GroupExpression>
-                                      <GroupExpression>=Fields!Shippers.Value</GroupExpression>
-                                    </GroupExpressions>
-                                  </Group>
-                                </TablixMember>
-                              </TablixMembers>
-                            </TablixRowHierarchy>
+                          <Textbox Name="ShipperConsignee">
+                            <CanGrow>true</CanGrow>
+                            <KeepTogether>true</KeepTogether>
+                            <Paragraphs>
+                              <Paragraph>
+                                <TextRuns>
+                                  <TextRun>
+                                    <Value>="S: " &amp; Fields!Shipper.Value &amp; Chr(10) &amp;  Chr(10) &amp;
+"C: " &amp; Fields!Consignee.Value</Value>
+                                    <Style>
+                                      <FontFamily>Consolas</FontFamily>
+                                      <FontSize>8pt</FontSize>
+                                    </Style>
+                                  </TextRun>
+                                </TextRuns>
+                                <Style />
+                              </Paragraph>
+                            </Paragraphs>
                             <Style>
                               <Border>
                                 <Style>None</Style>
                               </Border>
+                              <BottomBorder>
+                                <Style>Solid</Style>
+                              </BottomBorder>
+                              <PaddingLeft>2pt</PaddingLeft>
+                              <PaddingRight>12pt</PaddingRight>
+                              <PaddingTop>2pt</PaddingTop>
+                              <PaddingBottom>2pt</PaddingBottom>
                             </Style>
-                          </Tablix>
+                          </Textbox>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>
@@ -4447,7 +4436,7 @@ WT (KGS)</Value>
                 </TablixMember>
                 <TablixMember>
                   <TablixHeader>
-                    <Size>6.2cm</Size>
+                    <Size>6.7cm</Size>
                     <CellContents>
                       <Textbox Name="Textbox827">
                         <CanGrow>true</CanGrow>
@@ -4763,7 +4752,7 @@ WT (KGS)</Value>
             </TablixRowHierarchy>
             <DataSetName>dsBsL</DataSetName>
             <Height>7.95cm</Height>
-            <Width>28cm</Width>
+            <Width>28.2cm</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -4774,7 +4763,7 @@ WT (KGS)</Value>
         <Height>3.16929in</Height>
         <Style />
       </Body>
-      <Width>11.02362in</Width>
+      <Width>11.10236in</Width>
       <Page>
         <PageHeader>
           <Height>0.5cm</Height>
@@ -4844,6 +4833,7 @@ First(Fields!Voyage.Value, "dsBsL") &amp;
                   </Style>
                 </Paragraph>
               </Paragraphs>
+              <Top>0cm</Top>
               <Left>20cm</Left>
               <Height>0.45cm</Height>
               <Width>8cm</Width>

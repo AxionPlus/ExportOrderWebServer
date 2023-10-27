@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <None Remove="Reports\ExportOrder.rdlc" />
-    <None Remove="Reports\Manifest.rdlc" />
+    <None Remove="Reports\_Manifest.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,7 +37,7 @@
     <EmbeddedResource Include="Reports\ExportOrder.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Reports\Manifest.rdlc" />
+    <EmbeddedResource Include="Reports\_Manifest.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,15 +69,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="DataSet\_BillOfLading.Designer.cs">
+    <Compile Update="DataSet\BillOfLading.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>_BillOfLading.xsd</DependentUpon>
-    </Compile>
-    <Compile Update="DataSet\BLsafetrans.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>BLsafetrans.xsd</DependentUpon>
+      <DependentUpon>BillOfLading.xsd</DependentUpon>
     </Compile>
     <Compile Update="DataSet\ExportOrder.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -92,16 +87,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DataSet\_BillOfLading.xsd">
+    <None Update="DataSet\BillOfLading.xsd">
       <SubType>Designer</SubType>
-      <LastGenOutput>_BillOfLading.Designer.cs</LastGenOutput>
+      <LastGenOutput>BillOfLading.Designer.cs</LastGenOutput>
       <Generator>MSDataSetGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DataSet\BLsafetrans.xsd">
-      <SubType>Designer</SubType>
-      <LastGenOutput>BLsafetrans.Designer.cs</LastGenOutput>
-      <Generator>MSDataSetGenerator</Generator>
     </None>
     <None Update="DataSet\ExportOrder.xsd">
       <SubType>Designer</SubType>
@@ -113,6 +103,15 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Manifest.Designer.cs</LastGenOutput>
       <Generator>MSDataSetGenerator</Generator>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\BLametist.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\BLcerta_lam.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\BLsafetrans.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Reports\BLstandard.rdlc">

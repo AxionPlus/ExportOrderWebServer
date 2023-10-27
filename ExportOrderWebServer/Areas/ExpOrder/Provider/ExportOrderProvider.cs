@@ -674,50 +674,45 @@ public class ExportOrderProvider : IExportOrderProvider
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<ManifestDTO>> mRecords = (_mRecords) =>
     {
         var ItemsDTO = new List<ManifestDTO>();
-        var itemDTO = new ManifestDTO();
 
         foreach (var Item in _mRecords)
         {
-            itemDTO.BLDate = Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy");
-            itemDTO.Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo;
-            itemDTO.VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!;
-            itemDTO.VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG;
-            itemDTO.PODEn = Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG;
-            itemDTO.TotalCntrCount = Item.Records.Count;
-            itemDTO.TotalGrossWeight = Item.Records.Sum(r => r.Contents.Sum(c => c.GrossWt));
-            itemDTO.TotalTareWeight = Item.Records.Sum(r => r.CntrTareWt);
-
             uint indexRec = 0;
 
             foreach (var record in Item.Records)
             {
+                var itemDTO = new ManifestDTO();
+
                 itemDTO.Seq = ++indexRec;
+                itemDTO.BLNum = Item.Num;
+                itemDTO.BLDate = Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy");
+                itemDTO.Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo;
+                itemDTO.VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!;
+                itemDTO.VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG;
+                itemDTO.PODEn = Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG;
+
+                itemDTO.Cntr = record.CntrNum;
+                itemDTO.CntrType = record.CntrType!.Normolize!;
                 itemDTO.Seal = record.Seal;
                 itemDTO.CntrTareWt = record.CntrTareWt;
 
-                foreach (var content in record.Contents)
-                {
-                    itemDTO.BLNum = Item.Num;
-                    itemDTO.Cntr = record.CntrNum;
-                    itemDTO.CntrType = record.CntrType!.Normolize!;       // used for calculation of Totals in Report's Parameters
+                itemDTO.PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty);
+                itemDTO.PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order());
+                itemDTO.NetWts = record.Contents.Sum(c => c.NetWt);
+                itemDTO.GrossWts = record.Contents.Sum(c => c.GrossWt);
+                itemDTO.Volumes = record.Contents.Sum(c => c.Volume);
 
-                    itemDTO.Commodity = content.DocumentRecord.CommodityEngName;
-                    itemDTO.PackageQty = content.PackageQty;
-                    itemDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
+                itemDTO.Commodities = string.Join("; ", record.Contents.Select(rc => (
+                                                                                        rc.DocumentRecord.CommodityEngName + " " +
+                                                                                        rc.DocumentRecord.IMO + " " +
+                                                                                        rc.DocumentRecord.UNNO
+                                                                                      ).Trim())
+                                                                                      .Distinct().Order());
 
-                    itemDTO.NetWt = content.NetWt;
-                    itemDTO.GrossWt = content.GrossWt;
-                    itemDTO.Volume = content.Volume;
-                    itemDTO.IMO = content.DocumentRecord.IMO!;
-                    itemDTO.UNNO = content.DocumentRecord.UNNO!;
-                    itemDTO.IsIMO = content.DocumentRecord.IsIMO!;
+                itemDTO.Shippers = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Distinct());
+                itemDTO.Consignees = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct());
 
-                    itemDTO.Shipper = content.DocumentRecord.Document.Shipper!.NameEn!;
-                    itemDTO.Consignee = content.DocumentRecord.Document.Consignee!.NameEn!;
-
-                    ItemsDTO.Add(itemDTO);
-                    itemDTO = new ManifestDTO();
-                }
+                ItemsDTO.Add(itemDTO);
             }
         }
 

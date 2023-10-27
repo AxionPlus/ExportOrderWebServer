@@ -246,7 +246,7 @@
         //var vesselCallDetailIds = SelectedItems.Select(s => s.Id).ToList();
         // ------------------------------------
 
-        if (Items is null) return;
+        if (Items is null) return;        
 
         int voyageCount = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage).Count();
         if (voyageCount != 1) return;
@@ -254,7 +254,6 @@
         string voyage = Items.Select(s => s.VesselName + "*" + s.VoyageNo).FirstOrDefault()!;
 
         await Task.Delay(100);
-        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslCallId={Id}&carrierId={cId}";
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?Voyage={voyage}";
         //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifests?Ids={vesselCallDetailIds}";
         await JSRuntime.InvokeVoidAsync("open", path);

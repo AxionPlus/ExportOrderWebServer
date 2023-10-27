@@ -2,10 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Data;
-using static MudBlazor.Icons;
-using static MudBlazor.CategoryTypes;
-using System.Linq;
-using static MudBlazor.Colors;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -110,23 +106,26 @@ public class ExportOrderController : ControllerBase
     {
         var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
 
-        string blTemplate = "BLstandard.rdlc";
+        string reportFileName = "BLstandard.rdlc";
 
         if (!string.IsNullOrEmpty(Item.BLtemplate))
-            blTemplate = "BL" + Item.BLtemplate + ".rdlc";
+        {
+            if (Item.BLtemplate == "ametist" || Item.BLtemplate == "certa_lam" || Item.BLtemplate == "safetrans")
+                reportFileName = "BL" + Item.BLtemplate + ".rdlc";
+        }        
 
         try
         {
             string mimeType = "";
             int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", blTemplate);
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", reportFileName);
 
             LocalReport localReport = new LocalReport(pathReport);
 
             #region PARAMETERS
             Dictionary<string, string> parameters = new Dictionary<string, string>()
             {
-                { "report", "new" },
+                { "BLTemplate", Item.BLtemplate },
             };
             #endregion
 
@@ -134,7 +133,6 @@ public class ExportOrderController : ControllerBase
 
             var Items = new List<ExportOrderDTO>() { Item };
             var Records = Item.exportOrderRecordsDTO;
-            //StringBuilder sb = new StringBuilder();
 
             string Shippers = string.Join("\n", Records.Select(x => x.ShipperEn).Distinct().ToList());            
             string Consignees = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
@@ -218,12 +216,14 @@ public class ExportOrderController : ControllerBase
                                                 PackageQty = (uint)g.Sum(gr => gr.PackageQty),                                                
                                                 GrossWt = g.Sum(gr => gr.GrossWt),
                                                 Volume = g.Sum(gr => gr.Volume),
-                                                PackageName = g.GroupBy(gpk => gpk.PackageName).Count() > 1 ?
-                                                              string.Join(", ", g.Select(gr => gr.PackageName)) :
-                                                              g.Select(gr => gr.PackageName).FirstOrDefault(),
-                                                CommodityNameEn = g.GroupBy(gcom => gcom.CommodityNameEn).Count() > 1 ?
-                                                                  string.Join("; ", g.Select(gr => gr.CommodityNameEn)) :
-                                                                  g.Select(gr => gr.CommodityNameEn).FirstOrDefault()
+                                                PackageNames = string.Join(", ", g.Select(gr => gr.PackageName).Distinct()),
+                                                //PackageNames = g.GroupBy(gpk => gpk.PackageName).Count() > 1 ?
+                                                //              string.Join(", ", g.Select(gr => gr.PackageName)) :
+                                                //              g.Select(gr => gr.PackageName).FirstOrDefault(),
+                                                //CntrCommodities = g.GroupBy(gcom => gcom.CommodityNameEn).Count() > 1 ?
+                                                //                  string.Join("; ", g.Select(gr => gr.CommodityNameEn)) :
+                                                //                  g.Select(gr => gr.CommodityNameEn).FirstOrDefault()
+                                                CntrCommodities = string.Join("; ", g.Select(gr => gr.CommodityNameEn).Distinct())
                                             })                            
                                             .ToList();
 
@@ -248,8 +248,9 @@ public class ExportOrderController : ControllerBase
             #endregion
              
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
-
+            
             return File(result.MainStream, "application/pdf");
+                        
         }
         catch (Exception ex)
         {
@@ -275,22 +276,22 @@ public class ExportOrderController : ControllerBase
             #region PARAMETERS
 
             // Count
-            var Full20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
-            var Full40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
+            var Full20 = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
+            var Full40 = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
 
-            var Empty20 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
-            var Empty40 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
+            var Empty20 = Items.Where(it => it.GrossWts is null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
+            var Empty40 = Items.Where(it => it.GrossWts is null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
 
             // Sum Weight
-            var SumFull20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWt);
-            var SumFull40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWt);
+            var SumFull20 = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWts);
+            var SumFull40 = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWts);
 
             // Sum Tare
-            var SumFull20Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
-            var SumFull40Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
+            var SumFull20Tare = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
+            var SumFull40Tare = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
 
-            var SumEmpty20Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
-            var SumEmpty40Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
+            var SumEmpty20Tare = Items.Where(it => it.GrossWts is null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
+            var SumEmpty40Tare = Items.Where(it => it.GrossWts is null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
 
             Dictionary<string, string> parameters = new Dictionary<string, string>()
             {
@@ -323,136 +324,4 @@ public class ExportOrderController : ControllerBase
         }
     }
 
-
-    //[HttpGet]
-    //[Route("ViewReportManifests")]
-    //public async Task<IActionResult> ManifestReport(List<long> Ids)
-    //{
-    //    var Items = await _exportOrderProvider.GetManifestItemsAsync(Ids);
-
-    //    try
-    //    {
-    //        string mimeType = "";
-    //        int extension = 1;
-    //        string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
-
-    //        LocalReport localReport = new LocalReport(pathReport);
-
-    //        #region PARAMETERS
-
-    //        // Count
-    //        var Full20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
-    //        var Full40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
-
-    //        var Empty20 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
-    //        var Empty40 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
-
-    //        // Sum Weight
-    //        var SumFull20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWt);
-    //        var SumFull40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWt);
-
-    //        // Sum Tare
-    //        var SumFull20Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
-    //        var SumFull40Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
-
-    //        var SumEmpty20Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
-    //        var SumEmpty40Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
-
-    //        Dictionary<string, string> parameters = new Dictionary<string, string>()
-    //        {
-    //            { "Full20Qty", Full20.ToString() },
-    //            { "Full40Qty", Full40.ToString() },
-    //            { "Empty20Qty", Empty20.ToString() },
-    //            { "Empty40Qty", Empty40.ToString() },
-
-    //            { "Full20TareWt", SumFull20Tare is not null ? SumFull20Tare.ToString()! : "0" },
-    //            { "Full40TareWt", SumFull40Tare is not null ? SumFull40Tare.ToString()! : "0" },
-    //            { "Empty20TareWt", SumEmpty20Tare is not null ? SumEmpty20Tare.ToString()! : "0" },
-    //            { "Empty40TareWt", SumEmpty40Tare is not null ? SumEmpty40Tare.ToString()! : "0" },
-
-    //            { "Full20GrossWt", SumFull20 is not null ? SumFull20.ToString()! : "0"},
-    //            { "Full40GrossWt", SumFull40 is not null ? SumFull40.ToString()! : "0"},
-    //        };
-
-    //        #endregion
-
-    //        localReport.AddDataSource("dsBsL", Items);
-
-    //        ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
-
-    //        return File(result.MainStream, "application/pdf");
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string message = ex.Message;
-    //        return Ok();
-    //    }
-    //}
-
-
-    //[HttpGet]
-    //[Route("ViewReportManifest")]
-    //public async Task<IActionResult> ManifestReport(long vslCallId, long carrierId)
-    //{
-    //    var Items = await _exportOrderProvider.GetManifestItemsAsync(vslCallId, carrierId);
-
-    //    try
-    //    {
-    //        string mimeType = "";
-    //        int extension = 1;
-    //        string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
-
-    //        LocalReport localReport = new LocalReport(pathReport);
-
-    //        #region PARAMETERS
-
-    //        // Count
-    //        var Full20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
-    //        var Full40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
-
-    //        var Empty20 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
-    //        var Empty40 = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
-
-    //        // Sum Weight
-    //        var SumFull20 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWt);
-    //        var SumFull40 = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWt);
-
-    //        // Sum Tare
-    //        var SumFull20Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
-    //        var SumFull40Tare = Items.Where(it => it.GrossWt is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
-
-    //        var SumEmpty20Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
-    //        var SumEmpty40Tare = Items.Where(it => it.GrossWt is null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
-
-    //        Dictionary<string, string> parameters = new Dictionary<string, string>()
-    //        {
-    //            { "Full20Qty", Full20.ToString() },
-    //            { "Full40Qty", Full40.ToString() },
-    //            { "Empty20Qty", Empty20.ToString() },
-    //            { "Empty40Qty", Empty40.ToString() },
-
-    //            { "Full20TareWt", SumFull20Tare is not null ? SumFull20Tare.ToString()! : "0" },
-    //            { "Full40TareWt", SumFull40Tare is not null ? SumFull40Tare.ToString()! : "0" },
-    //            { "Empty20TareWt", SumEmpty20Tare is not null ? SumEmpty20Tare.ToString()! : "0" },
-    //            { "Empty40TareWt", SumEmpty40Tare is not null ? SumEmpty40Tare.ToString()! : "0" },
-
-    //            { "Full20GrossWt", SumFull20 is not null ? SumFull20.ToString()! : "0"},
-    //            { "Full40GrossWt", SumFull40 is not null ? SumFull40.ToString()! : "0"},
-    //        };
-
-    //        #endregion
-
-    //        localReport.AddDataSource("dsBsL", Items);             
-
-    //        ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
-
-    //        return File(result.MainStream, "application/pdf");
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string message = ex.Message;
-    //        return Ok();
-    //    }
-
-    //}
 }

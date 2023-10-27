@@ -183,22 +183,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
               <PaddingBottom>2pt</PaddingBottom>
             </Style>
           </Textbox>
-          <Image Name="ImageLotka">
-            <Source>Embedded</Source>
-            <Value>Lotka</Value>
-            <Sizing>Fit</Sizing>
-            <Height>1.2cm</Height>
-            <Width>11.1cm</Width>
-            <ZIndex>1</ZIndex>
-            <Visibility>
-              <Hidden>=Not (Parameters!BLTemplate.Value = "lotka")</Hidden>
-            </Visibility>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-            </Style>
-          </Image>
           <Textbox Name="LogoStandard">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
@@ -220,33 +204,18 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
             </Paragraphs>
             <Height>1.2cm</Height>
             <Width>11.1cm</Width>
-            <ZIndex>2</ZIndex>
+            <ZIndex>1</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
               </Border>
+              <BackgroundColor>CornflowerBlue</BackgroundColor>
               <PaddingLeft>2pt</PaddingLeft>
               <PaddingRight>2pt</PaddingRight>
               <PaddingTop>2pt</PaddingTop>
               <PaddingBottom>2pt</PaddingBottom>
             </Style>
           </Textbox>
-          <Image Name="ImageTSG">
-            <Source>Embedded</Source>
-            <Value>TransSinergia</Value>
-            <Sizing>FitProportional</Sizing>
-            <Height>1.2cm</Height>
-            <Width>11.1cm</Width>
-            <ZIndex>3</ZIndex>
-            <Visibility>
-              <Hidden>=Not (Parameters!BLTemplate.Value = "transsinergia")</Hidden>
-            </Visibility>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-            </Style>
-          </Image>
           <Tablix Name="TablixCntr">
             <TablixBody>
               <TablixColumns>
@@ -1347,7 +1316,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
             <Top>28.5cm</Top>
             <Height>1.7cm</Height>
             <Width>19.8cm</Width>
-            <ZIndex>4</ZIndex>
+            <ZIndex>2</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -2443,25 +2412,20 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                       <TablixHeader>
                         <Size>11.1cm</Size>
                         <CellContents>
-                          <Textbox Name="TextboxLogo">
+                          <Textbox Name="Textbox10">
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
                                 <TextRuns>
                                   <TextRun>
-                                    <Value>=IIf(Parameters!BLTemplate.Value = "sinokor", "SINIKOR", "")</Value>
-                                    <Style>
-                                      <FontFamily>Palatino Linotype</FontFamily>
-                                      <FontSize>24pt</FontSize>
-                                      <Color>Blue</Color>
-                                    </Style>
+                                    <Value />
+                                    <Style />
                                   </TextRun>
                                 </TextRuns>
-                                <Style>
-                                  <TextAlign>Center</TextAlign>
-                                </Style>
+                                <Style />
                               </Paragraph>
                             </Paragraphs>
+                            <rd:DefaultName>Textbox10</rd:DefaultName>
                             <Style>
                               <Border>
                                 <Style>None</Style>
@@ -2489,7 +2453,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Size>3cm</Size>
                             <CellContents>
                               <Textbox Name="Label_BLName1">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2526,7 +2489,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                 <Size>1.8cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox2">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -2564,7 +2526,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                     <Size>1cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox3">
-                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -2641,7 +2602,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                             <Size>1.3cm</Size>
                                             <CellContents>
                                               <Textbox Name="Textbox4">
-                                                <CanGrow>true</CanGrow>
                                                 <KeepTogether>true</KeepTogether>
                                                 <Paragraphs>
                                                   <Paragraph>
@@ -2693,7 +2653,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Size>5.8cm</Size>
                             <CellContents>
                               <Textbox Name="Label_BLName2">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2917,7 +2876,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>8.7cm</Size>
                             <CellContents>
                               <Textbox Name="BookingNum">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3010,7 +2968,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>8.7cm</Size>
                             <CellContents>
                               <Textbox Name="POLAgent">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3103,7 +3060,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>8.7cm</Size>
                             <CellContents>
                               <Textbox Name="PODAgent">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -4311,7 +4267,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Size>1.3cm</Size>
                                         <CellContents>
                                           <Textbox Name="Measurement">
-                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -4361,7 +4316,6 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>14.1cm</Size>
                         <CellContents>
                           <Textbox Name="NoteShippedOnDeck">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -4407,7 +4361,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>1.8cm</Size>
                             <CellContents>
                               <Textbox Name="Textbox607">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -4447,7 +4400,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>2.6cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox608">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -4487,7 +4439,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Size>1.3cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox610">
-                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -4533,7 +4484,6 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>14.1cm</Size>
                         <CellContents>
                           <Textbox Name="NoteWeight">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -4584,7 +4534,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>1.8cm</Size>
                             <CellContents>
                               <Textbox Name="Textbox597">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -4629,7 +4578,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>2.6cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox598">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -4674,7 +4622,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Size>1.3cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox600">
-                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -4725,7 +4672,6 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>19.8cm</Size>
                         <CellContents>
                           <Textbox Name="NoteDeclaredByShipper">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -4774,7 +4720,6 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>2.5cm</Size>
                         <CellContents>
                           <Textbox Name="Label_Freight">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -4823,7 +4768,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>1.49206cm</Size>
                             <CellContents>
                               <Textbox Name="Label_Rate">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -4867,7 +4811,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>1.49206cm</Size>
                                 <CellContents>
                                   <Textbox Name="Label_Unit">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -4911,7 +4854,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Size>5.61588cm</Size>
                                     <CellContents>
                                       <Textbox Name="Label_Currency">
-                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -4955,7 +4897,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Size>4.8cm</Size>
                                         <CellContents>
                                           <Textbox Name="Label_Prepaid">
-                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -4999,7 +4940,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                             <Size>3.9cm</Size>
                                             <CellContents>
                                               <Textbox Name="Label_Collect">
-                                                <CanGrow>true</CanGrow>
                                                 <KeepTogether>true</KeepTogether>
                                                 <Paragraphs>
                                                   <Paragraph>
@@ -5053,7 +4993,6 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>2.5cm</Size>
                         <CellContents>
                           <Textbox Name="Freight">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -5102,7 +5041,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>1.49206cm</Size>
                             <CellContents>
                               <Textbox Name="Rate">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -5146,7 +5084,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>1.49206cm</Size>
                                 <CellContents>
                                   <Textbox Name="Unit">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -5190,7 +5127,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Size>5.61588cm</Size>
                                     <CellContents>
                                       <Textbox Name="Currency">
-                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -5234,7 +5170,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Size>4.8cm</Size>
                                         <CellContents>
                                           <Textbox Name="Prepaid">
-                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -5278,7 +5213,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                             <Size>3.9cm</Size>
                                             <CellContents>
                                               <Textbox Name="Collect">
-                                                <CanGrow>true</CanGrow>
                                                 <KeepTogether>true</KeepTogether>
                                                 <Paragraphs>
                                                   <Paragraph>
@@ -5332,7 +5266,6 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>5.48412cm</Size>
                         <CellContents>
                           <Textbox Name="Label_TotalCntrsCount">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -5381,7 +5314,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>5.61588cm</Size>
                             <CellContents>
                               <Textbox Name="Label_POLEn2">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -6389,30 +6321,13 @@ OR MULTIMODAL TRANSPORT</Value>
             <DataSetName>dsBL</DataSetName>
             <Height>28.5cm</Height>
             <Width>19.87938cm</Width>
-            <ZIndex>5</ZIndex>
+            <ZIndex>3</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
               </Border>
             </Style>
           </Tablix>
-          <Image Name="ImageSoling">
-            <Source>Embedded</Source>
-            <Value>Soling</Value>
-            <Sizing>Fit</Sizing>
-            <Left>3cm</Left>
-            <Height>1.2cm</Height>
-            <Width>5.5cm</Width>
-            <ZIndex>6</ZIndex>
-            <Visibility>
-              <Hidden>=Not (Parameters!BLTemplate.Value = "soling")</Hidden>
-            </Visibility>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-            </Style>
-          </Image>
         </ReportItems>
         <Height>11.88976in</Height>
         <Style>
@@ -6428,7 +6343,7 @@ OR MULTIMODAL TRANSPORT</Value>
           <Height>0.5cm</Height>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
-            <Textbox Name="HeaderPager">
+            <Textbox Name="Header">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>

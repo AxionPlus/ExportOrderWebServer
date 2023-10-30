@@ -63,14 +63,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.ApplyConfiguration(new VesselCallDetailConfiguration());        
         modelBuilder.ApplyConfiguration(new MyCompanyConfiguration());               
         
-        #region AutoINCLUDE
-
-        //modelBuilder.Entity<CustomerCatalog>().Navigation(s => s.Country).AutoInclude();
-        //modelBuilder.Entity<LocationCatalog>().Navigation(s => s.Country).AutoInclude();
-        //modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Location).AutoInclude();
-        //modelBuilder.Entity<TerminalCatalog>().Navigation(s => s.Customs).AutoInclude();
-
-        #endregion
-
     }
 }

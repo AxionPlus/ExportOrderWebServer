@@ -109,6 +109,7 @@ public class CustomsProvider : ICustomsProvider
                 modifyItem!.CustomsCode = item.CustomsCode;
                 modifyItem!.CustomsOffice = item.CustomsOffice;
                 modifyItem!.CustomsDapartment = item.CustomsDapartment;
+                modifyItem!.CustomsEmail = item.CustomsEmail;
                 modifyItem!.CustomsArticle = item.CustomsArticle;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;

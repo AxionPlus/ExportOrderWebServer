@@ -1,9 +1,5 @@
-﻿using ExportOrderEntites.ExportOrder;
-using ExportOrderWebServer.UploadFile;
-using MudBlazor;
+﻿using ExportOrderWebServer.UploadFile;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -14,10 +10,7 @@ public class ExcelService : IDisposable
     private string? FilePath { get; set; }
     private readonly uint ExcelAppPid;
     private readonly IDocumentProvider _documentProvider;
-
-    //private ExportOrderEntity ExportOder = new ExportOrderEntity();
     private IEnumerable<CntrTpSz> CntrTypes = new List<CntrTpSz>();
-    //private IEnumerable<DocumentEntity> Documents = new List<DocumentEntity>();
     
     private Excel.Application? ExcelApp;
     private Excel.Workbooks? Workbooks;
@@ -41,9 +34,8 @@ public class ExcelService : IDisposable
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
-    //public async Task<UploadResult> ReadUploadingFile()
+
     public async Task<(List<ExportOrderRecord>, List<DocumentEntity>)> ReadUploadingFile()
-    //public async Task<IEnumerable<ExportOrderRecord>> ReadUploadingFile()
     {
         if (!File.Exists(FilePath)) return (new List<ExportOrderRecord>(), new List<DocumentEntity>());
         Workbook = Workbooks?.Open(FilePath, 0, true);
@@ -113,7 +105,6 @@ public class ExcelService : IDisposable
                     };
 
                     newRecord.Contents.Add(content);
-
 
 
                     // Documents

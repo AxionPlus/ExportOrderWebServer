@@ -1,7 +1,5 @@
 ﻿using ExportOrderEntites.MyCompany;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Office.Interop.Excel;
-using Microsoft.VisualBasic;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
 
@@ -61,7 +59,7 @@ public class ExportOrderProvider : IExportOrderProvider
             //var voyageNo = Voyage.Split('&')[1];
             //var pod = Voyage.Split('&')[2];
 
-            var Item = await db.ExportOrders.Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal)
+            var Item = await db.ExportOrders.Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal.Customs)
                                             .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
                                             .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.POD).ThenInclude(p => p!.Country)
                                             .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
@@ -74,9 +72,10 @@ public class ExportOrderProvider : IExportOrderProvider
                                             {
                                                 Id = source.Id,
                                                 Num = source.Num,
-                                                Dated = source.Dated.ToString("dd.MM.yyyy"),
+                                                Dated = source.Dated.ToString("dd.MM.yyyy hh:mm:ss"),
                                                 BLtemplate = source.Carrier!.BlTemplate.ToString(),
                                                 CarrierNameEn = source.Carrier!.NameEn,
+                                                TerminalName = source.VesselCallDetail!.VesselCall.Terminal.Name,
                                                 VesselName = source.VesselCallDetail!.VesselCall!.Vessel.Name!,
                                                 VesselFlag = source.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
                                                 VesselFlagEn = source.VesselCallDetail!.VesselCall!.Vessel.Flag.ENG,
@@ -85,10 +84,13 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 BLDate = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
                                                 POD = source.VesselCallDetail!.POD!.Name + ", " + source.VesselCallDetail!.POD!.Country!.RUS,
                                                 PODEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.ENG,
+                                                PODwithCountryRus = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.RUS,
                                                 PODAgent = source.VesselCallDetail!.AgentPOD,
                                                 Measurement = source.Records.FirstOrDefault()!.Contents.FirstOrDefault()!.Volume > 0 ? "CBM" : "KG",
                                                 TotalCntrCount = source.Records.Count,
+                                                TotalPackages = source.Records.Sum(r => r.Contents.Sum(c => c.PackageQty)),
                                                 TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
+                                                TotalNetWeight = source.Records.Sum(r => r.Contents.Sum(c => c.NetWt)),
                                                 TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
                                                 //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ?
                                                 //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
@@ -96,8 +98,11 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 //ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract != null ?
                                                 //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
-                                                MyCompanyName = myCompany!.Name!,
+                                                CustomsOfficeCode = source.VesselCallDetail!.VesselCall.Terminal.Customs!.CustomsCode,
+                                                CustomsOfficeName = source.VesselCallDetail!.VesselCall.Terminal.Customs!.CustomsOffice,
+                                                MyCompanyName = myCompany!.Name!,                                                
                                                 Person = source.Person!.Name + " т. " + source.Person.Phone,
+                                                PersonXml = source.Person!.Name + " телефон: " + source.Person.Phone,
                                                 exportOrderRecordsDTO = eoRecords(source.Records!)
                                             })
                                             .FirstOrDefaultAsync(x => x.Id == Id);
@@ -543,7 +548,7 @@ public class ExportOrderProvider : IExportOrderProvider
     //        foreach (var content in record.Contents)
     //        {
     //            eoRecordDTO.Cntr = record.CntrNum;
-                
+
     //            eoRecordDTO.PackageQty = content.PackageQty;
     //            eoRecordDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
     //            eoRecordDTO.NetWt = content.NetWt;
@@ -571,7 +576,6 @@ public class ExportOrderProvider : IExportOrderProvider
     //    return eoRecordsDTO.ToArray();
     //};
 
-    //DELETE
 
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<BLDTO>> blRecords = (_mRecords) =>
     {

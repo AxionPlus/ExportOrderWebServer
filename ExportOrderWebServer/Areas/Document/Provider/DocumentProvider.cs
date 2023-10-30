@@ -211,7 +211,7 @@ public class DocumentProvider : IDocumentProvider
                 var itemExistCheck = await db.Documents.Where(s => s.Name == item.Name).FirstOrDefaultAsync();
                 if (itemExistCheck != null)
                 {
-                    appObjResponse.ErrorAdd($"Document {item.Name} is exists already.");
+                    appObjResponse.ErrorAdd($"Document: \n {item.Name} \n is exists already.");
                     return appObjResponse;
                 }
 

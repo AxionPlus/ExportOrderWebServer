@@ -122,6 +122,7 @@
   <ItemGroup>
     <Folder Include="Areas\BillOfLading\Controller\" />
     <Folder Include="Areas\BillOfLading\Provider\" />
+    <Folder Include="wwwroot\Xml\" />
   </ItemGroup>
 
 </Project>

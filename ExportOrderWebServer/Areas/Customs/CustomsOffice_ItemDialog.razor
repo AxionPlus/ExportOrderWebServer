@@ -1,5 +1,4 @@
 ﻿@inject ISnackbar Snackbar
-
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICustomsProvider _customsProvider
 
@@ -38,6 +37,12 @@
              <div class="container-content">
                  <MudTextField T="string" Style="width: 350px" Label="Таможенный орган" Text="@Item.CustomsDapartment"
                                TextChanged="@(async (e)=> { Item.CustomsDapartment = e.ToUpper(); })"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
+             </div>
+             <div class="container-content">
+                 <MudTextField T="string" Style="width: 350px;" @bind-Value="@Item!.CustomsEmail"
+                               Label="e-mail для отправки xml файла" Placeholder="mail@mail.ru"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
              </div>

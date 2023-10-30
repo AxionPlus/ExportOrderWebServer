@@ -178,8 +178,8 @@
             </RowTemplate>
 
             <ChildRowContent>
-                @if (context.IsShowWT_Details)
-                {
+@*                 @if (context.IsShowWT_Details)
+                { *@
                     @* <MudTr Class=@(!context.IsShowWT_Details ? "d-none" : "splitRow")> *@
                     <MudTr>
                         <td colspan="5" />
@@ -189,7 +189,7 @@
                                     <div class="numField_Label">Net</div>
                                     <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt"
                                                      Variant="Variant.Outlined" MaxLength="10"
-                                                     Format="N3" HideSpinButtons="true" />
+                                                     Format="N3" HideSpinButtons="true" Required RequiredError="" />
                                 </div>
                                 <div class="IMOWeight" hidden="@(context.IsIMO==false)">
                                     <div class="numField_Label">IMO</div>
@@ -203,7 +203,7 @@
                                     <div class="numField_Label">Gross</div>
                                     <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt"
                                                      Variant="Variant.Outlined" MaxLength="10"
-                                                     Format="N3" HideSpinButtons="true" />
+                                                    Format="N3" HideSpinButtons="true" Required RequiredError="" />
                                 </div>
                                 <div class="IMOWeight" hidden="@(context.IsIMO==false)">
                                     <div class="numField_Label">UNNO</div>
@@ -215,7 +215,7 @@
                         </td>
                         <td></td>
                     </MudTr>
-                }
+               @*  } *@
             </ChildRowContent>
 
         </MudTable>

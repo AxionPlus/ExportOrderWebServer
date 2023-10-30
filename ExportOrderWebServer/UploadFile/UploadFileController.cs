@@ -118,77 +118,8 @@ public class UploadFileController : ControllerBase
     //}
     #endregion
 
-    #region Old uploader
-    [HttpPost]
-    [Route("UploadExpOrderRecords")]
-    //public async Task<IEnumerable<ExportOrderRecord>> UploadExpOrderRecords([FromForm] IEnumerable<IFormFile> files)
-    //{
-    //    string filePath = string.Empty;
-
-    //    var items = new List<ExportOrderRecord>();
-
-    //    var ExportOrderRecords = new List<ExportOrderRecord>();
-    //    //var documents = new List<DocumentEntity>();
-
-
-    //    var cntrTypes = await _cntrTypeProvider.GetCntrTypes();
-    //    var documents = await _documentProvider.GetDocumentsAsync();
-    //    //var exportOrder = new ExportOrderEntity();
-
-    //    //exportOrder.Id = eoId;
-
-
-    //    //var eoAppResponse = await _exportOrderProvider.GetItemAsync(eoId);
-    //    //if (!eoAppResponse.HasError)
-    //    //    exportOrder = (ExportOrderEntity)eoAppResponse.Object!;
-
-    //    foreach (var file in files)
-    //        if (file != null)
-    //        {
-    //            //string dirName = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "Temp");
-    //            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-    //            filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
-
-    //            using (var stream = new FileStream(filePath, FileMode.Create))
-    //            {
-    //                file.CopyTo(stream);
-    //            }
-    //        }
-
-    //    using (var exl = new ExcelService(filePath, cntrTypes, documents))
-    //    {
-    //        var uploadingRecords = exl.ReadUploadingFile();
-    //        items.AddRange(uploadingRecords);
-    //    }
-
-    //    items = items.DistinctBy(s => s.Id).ToList();
-
-    //    //var appresponse = await _exportOrderProvider.AddUploadedFileItemsAsync(items);
-
-    //    //if (!appresponse.HasError)
-    //    //{
-    //    //    return new UploadedResult()
-    //    //    {
-    //    //        CntrCount = items.Count(),
-    //    //        CntrContentCount = items.SelectMany(s => s.Contents).ToList().DistinctBy(x => x.DocumentRecord?.Id).Count()
-    //    //    };
-    //    //}
-    //    //else
-    //    //{
-    //    //    return new UploadedResult()
-    //    //    {
-    //    //        Errors = appresponse.Error.ToArray(),
-    //    //    };
-    //    //}
-
-    //    return items;
-    //}
-
-    #endregion
-
     [HttpPost]
     [Route("UploadExportOrder")]
-    //public async Task<IEnumerable<ExportOrderRecord>> UploadExportOrder([FromForm] IEnumerable<IFormFile> files)
     public async Task<UploadResult> UploadExportOrder([FromForm] IEnumerable<IFormFile> files)
     {
         string filePath = string.Empty;
@@ -198,7 +129,6 @@ public class UploadFileController : ControllerBase
         foreach (var file in files)
             if (file != null)
             {
-                //string dirName = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "Temp");
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                 filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
 

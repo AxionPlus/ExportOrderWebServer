@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Data;
+using System.IO;
+using ExportOrderWebServer.Service;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -324,4 +326,39 @@ public class ExportOrderController : ControllerBase
         }
     }
 
+    [HttpGet]
+    [Route("SaveXMLfile")]
+    public async Task<IActionResult> SaveXMLfile(long Id)
+    {
+        try
+        {
+            var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
+
+            await Task.Delay(100);
+
+            if (Item is null) return Empty;
+
+            string FileName = $"{Item.Num}_Customs";
+            string dirName = Path.Combine(_webHostEnvironment.WebRootPath, "Xml");
+            string filePath = Path.Combine(dirName, $"{FileName}.xml");
+
+            if (System.IO.File.Exists(filePath))
+                filePath = Path.Combine(dirName, $"{FileName}_{Path.GetRandomFileName()}.xml");
+
+            using (var xml = new XmlService(filePath, Item))
+            {   
+                var buffer = await xml.CreateXMLfile();
+
+                if (buffer != Array.Empty<byte>())
+                    return File(buffer, "application/xml", $"{FileName}.xml");
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return Empty;
+        }
+
+        return Ok();
+    }
 }

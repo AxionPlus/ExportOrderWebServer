@@ -10,10 +10,9 @@ public class ExportOrderDTO
 #pragma warning disable CS8618
     public string Num { get; set; }
     public string BLtemplate { get; set; }
-    //public long VesselCallId { get; set; }
-    //public long CarrierId { get; set; }
     public string Dated { get; set; }
     public string? CarrierNameEn { get; set; }
+    public string? TerminalName { get; set; }
     public string VesselName { get; set; }
     public string VesselFlag { get; set; }
     public string VesselFlagEn { get; set; }    
@@ -24,15 +23,21 @@ public class ExportOrderDTO
     public string POLEn { get; set; } = "NOVOROSSIYSK";
     public string POD { get; set; }
     public string PODEn { get; set; }
+    public string PODwithCountryRus { get; set; }
     public string? PODAgent { get; set; }
     public string? Measurement { get; set;}
     public int TotalCntrCount { get; set; }
+    public double? TotalPackages { get; set; }
     public double? TotalGrossWeight { get; set; }
+    public double? TotalNetWeight { get; set; }
     public double? TotalTareWeight { get; set; }
     public string? Contract { get; set; }
     public string? ContractDate { get; set; }
+    public string? CustomsOfficeCode { get; set; }
+    public string? CustomsOfficeName { get; set; }
     public string? MyCompanyName { get; set; }
     public string? Person { get; set; }
+    public string? PersonXml { get; set; }
 
     public IEnumerable<ExportOrderRecordDTO> exportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
 }

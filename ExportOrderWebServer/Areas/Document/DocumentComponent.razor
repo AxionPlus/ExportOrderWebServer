@@ -1,5 +1,7 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 @inject IDocumentProvider _documentProvider
 
 <style>
@@ -53,21 +55,26 @@
             {
                 <MudTh Style="width:30px"></MudTh>
             }                
-            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:30px">
+                @if (IsSelectable)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@(async()=>{ await TakeItem_Click(); })" />
+                }
+            </MudTh>
             <MudTh Style="width:50px">Type</MudTh>
             <MudTh Style="width:100px">Name</MudTh>
             <MudTh>Shipper</MudTh>
             <MudTh>Consignee</MudTh>
         </HeaderContent>
         <RowTemplate>
-            @if (IsSelectable)
+            @if (!IsSelectable)
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SendItems_Click(); })" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async()=>{ await OpenItem_Click(context.Id); })" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })" /></MudTd>
             }
             else
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" /></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })" /></MudTd>
+                <MudTd></MudTd>                
             }            
             <MudTd>@context.Type.ToString()</MudTd>
             <MudTd>@context.Name</MudTd>
@@ -141,17 +148,34 @@
 
         var parameters = new DialogParameters { ["Id"] = id };
         var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Document_ItemDialog>(null, parameters, options);
+        var dialog = await DialogService.ShowAsync<Document_ItemDialog>(string.Empty, parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
             await GetItems();
     }
 
-    private async Task SendItems_Click()
+    private async Task OpenItem_Click(long id)
     {
+        await JSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank");
+    }
+
+    private async Task TakeItem_Click()
+    {
+        if (SelectedItems.Count == 0)
+        {
+            Snackbar.Add($"Nothing was selected. Try again or exit without a selection.", Severity.Warning);
+            return;
+        }        
+
         await Task.Delay(50);
-        MudDialog!.Close(SelectedItems);
+
+        if (MudDialog != null)
+            MudDialog!.Close(SelectedItems);
+        else
+            await JSRuntime.InvokeVoidAsync("window.close", SelectedItems);
+
+        //await JSRuntime.InvokeVoidAsync("window.close", Newtonsoft.Json.JsonConvert.SerializeObject(SelectedItems));
     }
 
     #region SEARCHERS

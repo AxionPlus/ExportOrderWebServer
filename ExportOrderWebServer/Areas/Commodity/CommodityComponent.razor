@@ -42,7 +42,9 @@
     </div>
 </div>
 
-<div class="Container-table">
+@if (Items!.Count() > 0)
+{
+    <div class="Container-table">
     @if (mudTable != null)
     {
         <div class="tableMenu">
@@ -58,17 +60,24 @@
             @if (!IsSelectable)
             {
                 <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:30px"></MudTh>
             }                    
-            <MudTh Style="width:30px"></MudTh>
+            else
+            {
+                <MudTh Style="width:30px">
+                    <MudTooltip Text="add new">
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" OnClick="AddItem_Click" />
+                    </MudTooltip>
+                </MudTh>
+            }
             <MudTh Style="width: 130px">
                 <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.HSCode!)">HS code</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:400px">
+            <MudTh Style="width:430px">
                     <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:400px">Name En</MudTh>
+            <MudTh Style="width:430px">Name En</MudTh>
             <MudTh Style="width:65px">Is IMO</MudTh>
-            <MudTh Style="width:65px">IMO</MudTh>
             <MudTh Style="width:65px">UNNO</MudTh>
         </HeaderContent>
 
@@ -79,13 +88,16 @@
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.HSCode!, context.Id); })"/></MudTd>
             }
             else
-            {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })" /></MudTd>
+            {                
+                <MudTd>
+                    <MudTooltip Text="select">
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@(async()=>{ await SelectItem_Click(context); })" />
+                    </MudTooltip>
+                </MudTd>                
             }
             <MudTd>@context.HSCode</MudTd>
             <MudTd>@context.Name</MudTd>
-            <MudTd>@context.NameEn</MudTd>
-            <MudTd>@context.IsIMO</MudTd>
+            <MudTd>@context.NameEn</MudTd>            
             <MudTd>@context.IMO</MudTd>
             <MudTd>@context.UNNO</MudTd>
         </RowTemplate>
@@ -94,7 +106,7 @@
 
     </MudTable>
 </div>
-
+}
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
@@ -137,6 +149,20 @@
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("Commodity", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await GetItems();
+    }
+
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("New Commodity", parameters, options);
 
         DialogResult result = await dialog.Result;
 

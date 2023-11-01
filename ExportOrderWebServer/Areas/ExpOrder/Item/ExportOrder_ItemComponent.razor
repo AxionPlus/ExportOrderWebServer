@@ -1,6 +1,9 @@
 ﻿
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService;
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
 @inject IExportOrderProvider _exportOrderProvider
 @inject ICntrTypeProvider _cntrTypeProvider
 @inject ICarrierProvider _carrierProvider
@@ -130,7 +133,7 @@
                             <div style="width: 10px"></div>
                         }
                         <MudSpacer />
-                        <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddDocument_Click"></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddDocuments_Click"></MudIconButton>
                         <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Disabled="IsFormReadOnly"></MudIconButton>
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="RemoveDocument"></MudIconButton>
                     </div>
@@ -197,18 +200,19 @@
         </div>
     </div>
 
-    <div class="Container-item" style="height:300px">
-        <div class="container-head">CONTAINER RECORDS</div>        
-        <div class="Container-table">
+    <div class="Container-item" style="height:200px">
+        <div class="container-head">CONTAINER RECORDS</div>
+        <div class="container-content">
+            <div class="Container-table">
             @if (mudTable != null)
             {
                 <div class="tableMenu">
-                    <MudButton Class="Button" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="UploadFile"
-                                Variant="Variant.Filled" Color="Color.Dark" 
-                                StartIcon="@Icons.Material.Filled.UploadFile">
+                    <MudSpacer />
+                    <MudButton Class="Button" Size="Size.Small" Style="margin-inline:20px" Disabled="IsFormReadOnly" OnClick="UploadFile"
+                               Variant="Variant.Filled" Color="Color.Dark"
+                               StartIcon="@Icons.Material.Filled.UploadFile">
                         Upload New List
                     </MudButton>
-                    <MudSpacer />
                     <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
                     <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
                 </div>
@@ -233,7 +237,6 @@
                     <MudTh Style="width: 120px">NET</MudTh>
                     <MudTh Style="width: 120px">GROSS</MudTh>
                     <MudTh Style="width: 30px"></MudTh>
-                    <MudTh></MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>
@@ -335,14 +338,10 @@
                 <FooterContent>
                     @if (Value.Records!.Count > 0)
                     {
-                        <td colspan="2">
-                            <MudTd Style="text-align:end"><h6>Total containers:</h6></MudTd>
-                        </td>
-                        <td style="justify-content:center">
-                            <MudTd Style="text-align:center"><h6>@Value.Records!.Count().ToString("###")</h6></MudTd>
-                        </td>
+                        <MudTd colspan="2" Style="text-align:end"><h6>Total containers:</h6></MudTd>
+                        <MudTd Style="text-align:center"><h6>@Value.Records!.Count().ToString("###")</h6></MudTd>
                         <MudTd Style="text-align:center"><h6>@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6></MudTd>
-                        <td colspan="2"></td>
+                        <MudTd colspan="2"></MudTd>
                         <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.PackageQty)).ToString()</h6></MudTd>
                         <MudTd></MudTd>
                         <MudTd Style="text-align:end; padding-right: 8px">
@@ -355,9 +354,11 @@
                                 @(Value.Records.Sum(s => s.Contents.Where(c => c.GrossWt is not null).Sum(c => c.GrossWt!.Value)).ToString("### ###.###"))
                             </h6>
                         </MudTd>
+                        <MudTd></MudTd>
                     }
                 </FooterContent>                
             </MudTable>
+        </div>
         </div>
     </div>
 }
@@ -407,11 +408,13 @@
 
     #region DOCUMENTS
 
-    async Task AddDocument_Click()
+    async Task AddDocuments_Click()
     {
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, DisableBackdropClick = true };
-        var dialog = await DialogService.ShowAsync<DocumentComponent>("ADD DOCUMENT", parameters, options);
+        var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+        //var dialog = await DialogService.ShowAsync<DocumentComponent>("ADD DOCUMENT", parameters, options);        
+        var dialog = await DialogService.ShowAsync<Document_Index>("Select DOCUMENTS", parameters, options);
+
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -430,6 +433,38 @@
                     DocumentRecordItems.Add(docRecord);
             }
         }
+    }
+
+    async Task AddDocument_Click()
+    {
+        await JSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents?IsSelectable={true}", "_blank");
+
+        var result = await ValueTask.FromResult(JSRuntime);
+
+        if (result is not null)
+        {
+            var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
+        }
+
+        // var result = await ValueTask.FromResult(JSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents/{true}", "_blank"));
+
+        // if (result.IsCompletedSuccessfully)
+        // {
+        //     var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
+        //     //var documents = (HashSet<DocumentEntity>)result.Data;
+
+        //     Value!.Documents!.AddRange(documents);
+
+        //     await ValueChanged.InvokeAsync(Value);
+
+        //     foreach (var document in documents)
+        //     {
+        //         DocumentItems.Add(document);
+
+        //         foreach (var docRecord in document.Records)
+        //             DocumentRecordItems.Add(docRecord);
+        //     }
+        // }
     }
 
     private async Task RemoveDocument()
@@ -460,9 +495,8 @@
 
         if (Value.Documents.Count() == 0) return;
 
-        //var parameters = new DialogParameters() { ["ExportOrder"] = Value, ["Documents"] = Value.Documents };
         var parameters = new DialogParameters() { ["Documents"] = Value.Documents };
-        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
+        var options = new DialogOptions { CloseButton = true, DisableBackdropClick = true, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("New Container Record", parameters, options);
         var result = await dialog.Result;
 

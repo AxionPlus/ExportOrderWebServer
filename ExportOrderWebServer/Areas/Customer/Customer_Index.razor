@@ -2,9 +2,10 @@
 
 @inject IDialogService DialogService
 
-<PageTitle>Customer</PageTitle>
+<PageTitle>Customers</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large">
+
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
@@ -26,6 +27,7 @@
     </div>
 
     <CustomerComponent @ref="component" />
+
 </MudContainer>
 
 

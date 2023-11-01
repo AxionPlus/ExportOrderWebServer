@@ -3,17 +3,9 @@
 @inject ICustomerProvider _customerProvider
 @inject ICountryProvider _countryProvider
 
-<style>
-    
-    .Table * .Tcell_Name {
-        text-align: start;
-    }
-    
-</style>
 
-@* <MudContainer MaxWidth="MaxWidth.Medium"> *@
-    <div class="Container-item">
-        <div class="container-content" style="max-width:inherit">
+<div class="Container-item">
+        <div class="container-content">
             <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 350px" SearchFunc="@SearchNames"
                                 Value="Filter.Name"
                                 ValueChanged="(e)=> { Filter.Name = e; }"
@@ -34,19 +26,19 @@
                                 Variant="Variant.Outlined" Margin="Margin.Dense"
                                 CloseIcon="" OpenIcon=""
                                 ResetValueOnEmptyText="true" Clearable />
-                <MudSpacer />
-                <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary"
-                        OnClick="@(async () => { await GetItems(); })">
-                    Search
-                </MudButton>
+            <MudSpacer />
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                    Variant="Variant.Filled" Color="Color.Secondary"
+                    OnClick="@(async () => { await GetItems(); })">
+                Search
+            </MudButton>
         </div>
     </div>
 
-     @if (Items!.Count() > 0)
-     {
-        <div class="Container-table">
-            @if (mudTable != null)
+@if (Items!.Count() > 0)
+{
+   <div class="Container-table">
+        @if (mudTable != null)
             {
                 <div class="tableMenu">
                     <MudSpacer />
@@ -55,43 +47,55 @@
                 </div>
             }
 
-            <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-                <HeaderContent>
-                    @if (!IsSelectable)
-                    {
-                        <MudTh Style="width:30px"></MudTh>
-                    }
-                    <MudTh Style="width:30px"></MudTh>
-                    <MudTh Style="width:515px">
-                        <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
-                    </MudTh>
-                    <MudTh Style="width:515px">
-                        <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
-                    </MudTh>
-                    <MudTh>
-                        <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
-                    </MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    @if (!IsSelectable)
-                    {
-                        <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" /></MudTd>
-                        <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.NameEn!, context.Id); })" /></MudTd>
-                    }
-                    else
-                    {
-                        <MudTd><MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context); })" /></MudTd>
-                    }
-                    <MudTd Class="Tcell_Name">@context.Name</MudTd>
-                    <MudTd>@context.NameEn</MudTd>
-                    <MudTd>@context.Country!.RUS</MudTd>
-                </RowTemplate>
-                <PagerContent></PagerContent>
-            </MudTable>
-        </div>
-     }    
+       <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
-@* </MudContainer> *@
+           <HeaderContent>
+               @if (!IsSelectable)
+               {
+                   <MudTh Style="width:30px"></MudTh>
+                   <MudTh Style="width:30px"></MudTh>
+               }
+               else
+               {
+                   <MudTh Style="width:30px">
+                       <MudTooltip Text="add new">
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" OnClick="AddItem_Click" />
+                       </MudTooltip>
+                   </MudTh>
+               }
+               <MudTh Style="width:515px">
+                   <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
+               </MudTh>
+               <MudTh Style="width:515px">
+                   <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
+               </MudTh>
+               <MudTh>
+                   <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
+               </MudTh>
+           </HeaderContent>
+           <RowTemplate>
+               @if (!IsSelectable)
+               {
+                   <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" /></MudTd>
+                   <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.NameEn!, context.Id); })" /></MudTd>
+               }
+               else
+               {
+                   <MudTd>
+                        <MudTooltip Text="select">
+                            <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@(async()=>{ await SelectItem_Click(context); })" />
+                        </MudTooltip>
+                   </MudTd>
+               }
+               <MudTd Style="text-align: start">@context.Name</MudTd>
+               <MudTd Style="text-align: start">@context.NameEn</MudTd>
+               <MudTd>@context.Country!.RUS</MudTd>
+           </RowTemplate>
+           <PagerContent></PagerContent>
+       </MudTable>
+   </div>
+}    
+
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
@@ -132,6 +136,20 @@
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<Customer_ItemDialog>("Customer", parameters, options);
+
+        DialogResult result = await dialog.Result;
+
+        if (result.Canceled)
+            await GetItems();
+    }
+
+    private async Task AddItem_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Customer_ItemDialog>("New Customer", parameters, options);
 
         DialogResult result = await dialog.Result;
 

@@ -1,18 +1,44 @@
-﻿@page "/Document"
+﻿@page "/documents"
+@* @page "/documents/{IsSelectable}" *@
 
 @inject IDialogService DialogService
+@inject NavigationManager Navigation
+@inject IJSRuntime jsRuntime
 
 <PageTitle>Documents</PageTitle>
 
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+        @if (MudDialog != null)
+        {
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Text="EXIT">
+                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseDialog_Click" />
+                </MudTooltip>
+            </div>
+        }
+        else
+        {
+            if (!IsSelectable)
+            {
+                <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            }
+            else
+            {
+                <div class="ToolBar-iconbutton">
+                    <MudTooltip Text="EXIT">
+                        <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseWindow" />
+                    </MudTooltip>
+                </div>
+            }
+        }        
         <MudSpacer />
         <div class="ToolBar-Title"><span>documents</span></div>
         <MudSpacer />
         <div class="ToolBar-iconbutton" style="margin-right: 20px">
             <MudTooltip Text="add a new Document">
-                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+                @* <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" /> *@
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="OpenNewItem_Click" />
             </MudTooltip>
         </div>
         <div class="ToolBar-iconbutton">
@@ -24,19 +50,40 @@
     </MudToolBar>
 </div>
 
-<DocumentComponent @ref="component" />
+<DocumentComponent @ref="component" IsSelectable="IsSelectable" />
 
 @code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public bool IsSelectable { get; set; } = false;
+
     public DocumentComponent? component;
 
-    private async Task AddItem_Click()
-    {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        IDialogReference dialog = await DialogService.ShowAsync<Document_ItemDialog>(null, parameters, options);
-        DialogResult result = await dialog.Result;
+    // private async Task AddItem_Click()
+    // {
+    //     DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+    //     DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+    //     IDialogReference dialog = await DialogService.ShowAsync<Document_ItemDialog>(null, parameters, options);
+    //     DialogResult result = await dialog.Result;
 
-        if (!result.Canceled)
-            await component!.GetItems();
+    //     if (!result.Canceled)
+    //         await component!.GetItems();
+    // }
+
+    private async Task OpenNewItem_Click()
+    {
+        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?IsNewItem={true}", "_blank");
+    }
+
+    public async Task CloseDialog_Click()
+    {
+        await Task.Delay(50);
+        MudDialog!.Close(DialogResult.Cancel());
+    }
+
+    public void CloseWindow()
+    {
+        jsRuntime.InvokeVoidAsync("window.close");
     }
 }

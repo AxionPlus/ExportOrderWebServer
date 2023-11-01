@@ -66,11 +66,6 @@ public class DocumentProvider : IDocumentProvider
 
             var documents = await db.Documents.Include(d => d.Records).ToListAsync();
 
-            //var documentNum = parameters as string;
-            //if (parameters.GetType() == typeof(string))
-            //    if (!string.IsNullOrWhiteSpace(documentNum))                    
-            //        appObjResponse.Object = documents.Where(s => s.Name == documentNum);
-
             if (parameters.GetType() == typeof(string))
                 if (!string.IsNullOrWhiteSpace(parameters as string))
                     appObjResponse.Object = documents.Where(s => s.Name == parameters as string);

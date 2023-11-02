@@ -348,6 +348,8 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnMeasurement;
             
+            private global::System.Data.DataColumn columnBLtemplate;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public dtBLDataTable() {
@@ -519,6 +521,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn BLtemplateColumn {
+                get {
+                    return this.columnBLtemplate;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -556,7 +566,7 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public dtBLRow AdddtBLRow(
                         string Num, 
-                        System.DateTime BLDate, 
+                        string BLDate, 
                         string VesselName, 
                         string Voyage, 
                         string POLEn, 
@@ -571,7 +581,8 @@ namespace ExportOrderWebServer.DataSet {
                         int TotalCntrCount, 
                         double TotalTareWeight, 
                         double TotalGrossWeight, 
-                        string Measurement) {
+                        string Measurement, 
+                        string BLtemplate) {
                 dtBLRow rowdtBLRow = ((dtBLRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Num,
@@ -590,7 +601,8 @@ namespace ExportOrderWebServer.DataSet {
                         TotalCntrCount,
                         TotalTareWeight,
                         TotalGrossWeight,
-                        Measurement};
+                        Measurement,
+                        BLtemplate};
                 rowdtBLRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowdtBLRow);
                 return rowdtBLRow;
@@ -630,6 +642,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnTotalTareWeight = base.Columns["TotalTareWeight"];
                 this.columnTotalGrossWeight = base.Columns["TotalGrossWeight"];
                 this.columnMeasurement = base.Columns["Measurement"];
+                this.columnBLtemplate = base.Columns["BLtemplate"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -637,7 +650,7 @@ namespace ExportOrderWebServer.DataSet {
             private void InitClass() {
                 this.columnNum = new global::System.Data.DataColumn("Num", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnNum);
-                this.columnBLDate = new global::System.Data.DataColumn("BLDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
+                this.columnBLDate = new global::System.Data.DataColumn("BLDate", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnBLDate);
                 this.columnVesselName = new global::System.Data.DataColumn("VesselName", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnVesselName);
@@ -669,6 +682,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnTotalGrossWeight);
                 this.columnMeasurement = new global::System.Data.DataColumn("Measurement", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnMeasurement);
+                this.columnBLtemplate = new global::System.Data.DataColumn("BLtemplate", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnBLtemplate);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1186,10 +1201,10 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public System.DateTime BLDate {
+            public string BLDate {
                 get {
                     try {
-                        return ((global::System.DateTime)(this[this.tabledtBL.BLDateColumn]));
+                        return ((string)(this[this.tabledtBL.BLDateColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
                         throw new global::System.Data.StrongTypingException("Значение для столбца \'BLDate\' в таблице \'dtBL\' равно DBNull.", e);
@@ -1442,6 +1457,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public string BLtemplate {
+                get {
+                    try {
+                        return ((string)(this[this.tabledtBL.BLtemplateColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'BLtemplate\' в таблице \'dtBL\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtBL.BLtemplateColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsNumNull() {
                 return this.IsNull(this.tabledtBL.NumColumn);
             }
@@ -1642,6 +1673,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetMeasurementNull() {
                 this[this.tabledtBL.MeasurementColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsBLtemplateNull() {
+                return this.IsNull(this.tabledtBL.BLtemplateColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetBLtemplateNull() {
+                this[this.tabledtBL.BLtemplateColumn] = global::System.Convert.DBNull;
             }
         }
         

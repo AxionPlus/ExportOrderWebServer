@@ -196,14 +196,16 @@
     private async Task ViewReportExpOrder_Click(long id)
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
-        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Voyage={voyage}";
         await JSRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task ViewReportBL_Click(long id)
     {
+        TimeSpan timeSpan = new TimeSpan(0,0,1);
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
-        await JSRuntime.InvokeVoidAsync("open", path);        
+        await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
+        //await JSRuntime.InvokeVoidAsync("open", path);
+        
     }
 
     private async Task SaveXMLfile_Click(long id)

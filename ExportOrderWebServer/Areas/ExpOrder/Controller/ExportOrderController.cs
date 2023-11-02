@@ -119,10 +119,14 @@ public class ExportOrderController : ControllerBase
         try
         {
             string mimeType = "";
-            int extension = 1;
+            int extension = (int)(DateTime.Now.Ticks >> 10);
+            //int extension = 1;
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", reportFileName);
 
             LocalReport localReport = new LocalReport(pathReport);
+
+            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            //Encoding.GetEncoding("windows-1252");
 
             #region PARAMETERS
             Dictionary<string, string> parameters = new Dictionary<string, string>()
@@ -144,7 +148,7 @@ public class ExportOrderController : ControllerBase
             var CommoditiesGroup = Records.GroupBy(c => c.CommodityNameEn)
                                            .Select(g => new
                                            {
-                                               Commodity = ( g.FirstOrDefault()!.CommodityNameEn + " " +
+                                               Commodity = ( g.Key + " " +
                                                              g.FirstOrDefault()!.IMO + " " +
                                                              g.FirstOrDefault()!.UNNO
                                                            ).Trim()
@@ -204,7 +208,8 @@ public class ExportOrderController : ControllerBase
                 x.TotalCntrCount,
                 x.TotalTareWeight,
                 x.TotalGrossWeight,
-                x.Measurement
+                x.Measurement,
+                x.BLtemplate
             }).ToList();
 
             // список контейнеров
@@ -250,13 +255,17 @@ public class ExportOrderController : ControllerBase
             #endregion
              
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
-            
+
+            //parameters
+            //await Task.Delay(500);
+
             return File(result.MainStream, "application/pdf");
-                        
+            
         }
         catch (Exception ex)
         {
-            string message = ex.Message;
+            string msg = ex.Message;
+            Console.WriteLine(msg);
             return Ok();
         }
     }
@@ -266,11 +275,14 @@ public class ExportOrderController : ControllerBase
     public async Task<IActionResult> ManifestReport(string Voyage)
     {
         var Items = await _exportOrderProvider.GetManifestAsync(Voyage);
+        
+        if (Items.Count() == 0) return Empty;
 
         try
         {
             string mimeType = "";
-            int extension = 1;
+            int extension = (int)(DateTime.Now.Ticks >> 10);
+            //int extension = 1;
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
 
             LocalReport localReport = new LocalReport(pathReport);
@@ -317,11 +329,14 @@ public class ExportOrderController : ControllerBase
 
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
 
+            await Task.Delay(1000);
+
             return File(result.MainStream, "application/pdf");
         }
         catch (Exception ex)
         {
-            string message = ex.Message;
+            string msg = ex.Message;
+            Console.WriteLine(msg);
             return Ok();
         }
     }

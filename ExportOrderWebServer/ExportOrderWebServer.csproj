@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <None Remove="Reports\ExportOrder.rdlc" />
-    <None Remove="Reports\_Manifest.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,7 +36,6 @@
     <EmbeddedResource Include="Reports\ExportOrder.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Reports\_Manifest.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
@@ -117,12 +115,16 @@
     <None Update="Reports\BLstandard.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Reports\Manifest.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Areas\BillOfLading\Controller\" />
     <Folder Include="Areas\BillOfLading\Provider\" />
     <Folder Include="wwwroot\Xml\" />
+    <Folder Include="Resources\" />
   </ItemGroup>
 
 </Project>

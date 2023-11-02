@@ -1,4 +1,5 @@
 ﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IVesselProvider _vesselProvider
 @inject ICountryProvider _countryProvider
@@ -33,8 +34,8 @@
                               Required RequiredError=""
                               Clearable="!IsFormReadOnly" />
              </div>
-            <div class="container-content">
-                <MudAutocomplete T="CountryCatalog" Style="width: 280px" Label="Flag" @bind-Value="Item.Flag"
+            <div class="container-content" style="justify-content: flex-start">
+                <MudAutocomplete T="CountryCatalog" Style="width: 280px; margin-right:20px" Label="Flag" @bind-Value="Item.Flag"
                                  ToStringFunc="@(e => e != null ? e.RUS : "")"
                                  SearchFunc="@SearchCountry"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -45,6 +46,9 @@
                                  MaxItems="20"
                                  IconSize="Size.Small"
                                  Clearable="!IsFormReadOnly" />
+                 <MudTooltip Text="Add new Country">
+                     <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddFlag_Click" />
+                 </MudTooltip>
             </div>
             <div class="container-content">
                 <MudTextField T="string" Style="width: 150px; margin-right: 10px" Label="IMO no" @bind-Text="@Item.IMO"
@@ -141,6 +145,17 @@
     {
         await Task.Delay(50);
         IsFormReadOnly = false;
+    }
+
+    private async Task AddFlag_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Country_ItemDialog>("New Country", parameters, options);
+
+        DialogResult result = await dialog.Result;
     }
 
     private async Task<IEnumerable<CountryCatalog>> SearchCountry(string value)

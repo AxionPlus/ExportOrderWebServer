@@ -248,8 +248,11 @@
 
         if (Items is null) return;        
 
-        int voyageCount = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage).Count();
-        if (voyageCount != 1) return;
+        // int voyageCount = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage).Count();
+        // if (voyageCount != 1) return;
+                        
+        var voyageGroup = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage);
+        if (voyageGroup.Count() != 1) return;
 
         string voyage = Items.Select(s => s.VesselName + "*" + s.VoyageNo).FirstOrDefault()!;
 

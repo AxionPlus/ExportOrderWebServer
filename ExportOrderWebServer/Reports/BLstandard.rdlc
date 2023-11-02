@@ -23,7 +23,7 @@
         </Field>
         <Field Name="BLDate">
           <DataField>BLDate</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="VesselName">
           <DataField>VesselName</DataField>
@@ -83,6 +83,10 @@
         </Field>
         <Field Name="Measurement">
           <DataField>Measurement</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="BLtemplate">
+          <DataField>BLtemplate</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -183,70 +187,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
               <PaddingBottom>2pt</PaddingBottom>
             </Style>
           </Textbox>
-          <Image Name="ImageLotka">
-            <Source>Embedded</Source>
-            <Value>Lotka</Value>
-            <Sizing>Fit</Sizing>
-            <Height>1.2cm</Height>
-            <Width>11.1cm</Width>
-            <ZIndex>1</ZIndex>
-            <Visibility>
-              <Hidden>=Not (Parameters!BLTemplate.Value = "lotka")</Hidden>
-            </Visibility>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-            </Style>
-          </Image>
-          <Textbox Name="LogoStandard">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value />
-                    <Style>
-                      <FontFamily>Palatino Linotype</FontFamily>
-                      <FontSize>24pt</FontSize>
-                      <Color>Blue</Color>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style>
-                  <TextAlign>Center</TextAlign>
-                </Style>
-              </Paragraph>
-            </Paragraphs>
-            <Height>1.2cm</Height>
-            <Width>11.1cm</Width>
-            <ZIndex>2</ZIndex>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-              <PaddingLeft>2pt</PaddingLeft>
-              <PaddingRight>2pt</PaddingRight>
-              <PaddingTop>2pt</PaddingTop>
-              <PaddingBottom>2pt</PaddingBottom>
-            </Style>
-          </Textbox>
-          <Image Name="ImageTSG">
-            <Source>Embedded</Source>
-            <Value>TransSinergia</Value>
-            <Sizing>FitProportional</Sizing>
-            <Height>1.2cm</Height>
-            <Width>11.1cm</Width>
-            <ZIndex>3</ZIndex>
-            <Visibility>
-              <Hidden>=Not (Parameters!BLTemplate.Value = "transsinergia")</Hidden>
-            </Visibility>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-            </Style>
-          </Image>
           <Tablix Name="TablixCntr">
             <TablixBody>
               <TablixColumns>
@@ -1347,7 +1287,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
             <Top>28.5cm</Top>
             <Height>1.7cm</Height>
             <Width>19.8cm</Width>
-            <ZIndex>4</ZIndex>
+            <ZIndex>1</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -2449,7 +2389,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Paragraph>
                                 <TextRuns>
                                   <TextRun>
-                                    <Value>=IIf(Parameters!BLTemplate.Value = "sinokor", "SINIKOR", "")</Value>
+                                    <Value>=IIf(Fields!BLtemplate.Value = "sinokor", "SINOKOR", "")</Value>
                                     <Style>
                                       <FontFamily>Palatino Linotype</FontFamily>
                                       <FontSize>24pt</FontSize>
@@ -6389,30 +6329,13 @@ OR MULTIMODAL TRANSPORT</Value>
             <DataSetName>dsBL</DataSetName>
             <Height>28.5cm</Height>
             <Width>19.87938cm</Width>
-            <ZIndex>5</ZIndex>
+            <ZIndex>2</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
               </Border>
             </Style>
           </Tablix>
-          <Image Name="ImageSoling">
-            <Source>Embedded</Source>
-            <Value>Soling</Value>
-            <Sizing>Fit</Sizing>
-            <Left>3cm</Left>
-            <Height>1.2cm</Height>
-            <Width>5.5cm</Width>
-            <ZIndex>6</ZIndex>
-            <Visibility>
-              <Hidden>=Not (Parameters!BLTemplate.Value = "soling")</Hidden>
-            </Visibility>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-            </Style>
-          </Image>
         </ReportItems>
         <Height>11.88976in</Height>
         <Style>
@@ -6636,14 +6559,6 @@ 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</ImageData>
-    </EmbeddedImage>
-    <EmbeddedImage Name="Sinokor">
-      <MIMEType>image/jpeg</MIMEType>
-      <ImageData>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</ImageData>
     </EmbeddedImage>
     <EmbeddedImage Name="TransSinergia">
       <MIMEType>image/jpeg</MIMEType>

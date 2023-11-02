@@ -1787,13 +1787,13 @@ WT (KGS)</Value>
                                   </TablixCell>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="PackageQty">
+                                      <Textbox Name="PackageQtys">
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
                                               <TextRun>
-                                                <Value>=Fields!PackageQtys.Value</Value>
+                                                <Value>=Sum(Fields!PackageQtys.Value)</Value>
                                                 <Style>
                                                   <FontFamily>Consolas</FontFamily>
                                                   <FontSize>8pt</FontSize>
@@ -1806,7 +1806,7 @@ WT (KGS)</Value>
                                             </Style>
                                           </Paragraph>
                                         </Paragraphs>
-                                        <rd:DefaultName>PackageQty</rd:DefaultName>
+                                        <rd:DefaultName>PackageQtys</rd:DefaultName>
                                         <Style>
                                           <Border>
                                             <Style>None</Style>
@@ -4196,7 +4196,6 @@ WT (KGS)</Value>
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
-                          <rd:Selected>true</rd:Selected>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>

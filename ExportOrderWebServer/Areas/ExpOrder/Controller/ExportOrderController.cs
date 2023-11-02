@@ -119,8 +119,8 @@ public class ExportOrderController : ControllerBase
         try
         {
             string mimeType = "";
-            int extension = (int)(DateTime.Now.Ticks >> 10);
-            //int extension = 1;
+           // int extension = (int)(DateTime.Now.Ticks >> 10);
+            int extension = 1;
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", reportFileName);
 
             LocalReport localReport = new LocalReport(pathReport);
@@ -192,6 +192,7 @@ public class ExportOrderController : ControllerBase
             // общие данные
             var dsItem = Items.Select(x => new
             { 
+               
                 x.Num,
                 x.BLDate,
                 POLAgent = x.CarrierNameEn,
@@ -253,9 +254,9 @@ public class ExportOrderController : ControllerBase
             localReport.AddDataSource("dsCntrRecords", dsCntrRecords);
 
             #endregion
-             
+            
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
-
+       
             //parameters
             //await Task.Delay(500);
 
@@ -286,7 +287,7 @@ public class ExportOrderController : ControllerBase
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
 
             LocalReport localReport = new LocalReport(pathReport);
-
+            
             #region PARAMETERS
 
             // Count
@@ -329,7 +330,7 @@ public class ExportOrderController : ControllerBase
 
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
 
-            await Task.Delay(1000);
+            //await Task.Delay(500);
 
             return File(result.MainStream, "application/pdf");
         }

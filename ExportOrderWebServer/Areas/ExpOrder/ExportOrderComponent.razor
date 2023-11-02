@@ -201,7 +201,7 @@
 
     private async Task ViewReportBL_Click(long id)
     {
-        TimeSpan timeSpan = new TimeSpan(0,0,1);
+        TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
         await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
         //await JSRuntime.InvokeVoidAsync("open", path);

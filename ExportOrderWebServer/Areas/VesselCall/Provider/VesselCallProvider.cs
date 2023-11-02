@@ -284,10 +284,10 @@ public class VesselCallProvider : IVesselCallProvider
             // check an Existing item
             var itemExistCheck = await db.VesselCalls
                                                     .Where(s => s.Vessel.Name == item.Vessel.Name)
-                                                    .Where(s => s.ETA!.Value == item.ETA!.Value).FirstOrDefaultAsync();
+                                                    .Where(s => s.VoyageNo == item.VoyageNo).FirstOrDefaultAsync();
             if (itemExistCheck != null)
             {
-                appObjResponse.ErrorAdd($"Vessel {item.Vessel.Name} with ETA {item.ETA!.Value.ToString("dd.MM.yy")} is exists already.");
+                appObjResponse.ErrorAdd($"Voyage: {item.VoyageNo} for vessel: {item.Vessel.Name} is exists already.");
                 return appObjResponse;
             }
 
@@ -325,13 +325,72 @@ public class VesselCallProvider : IVesselCallProvider
     public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
-        return appObjResponse;
+
+        try
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+                // check an Existing item
+                var existedItem = await db.VesselCalls.Where(s => s.Id == id).FirstOrDefaultAsync();
+
+                if (existedItem is null)
+                {
+                    appObjResponse.ErrorAdd("Record wasn't deleted");
+                    return appObjResponse;
+                }
+
+                db.Entry(existedItem).State = EntityState.Deleted;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+                await db.SaveChangesAsync();
+
+                return appObjResponse;
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            appObjResponse.ErrorAdd(msg);
+            return appObjResponse;
+        }
     }
 
-    public async Task<AppObjectResponse> RemoveItemDTOAsync(VesselCallDetailDTO item)
+    public async Task<AppObjectResponse> RemoveItemDetailsAsync(long id)
     {
         appObjResponse = new();
-        return appObjResponse;
+
+        try
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+                // check an Existing item
+                //var existedItem = await db.VesselCalls.Include(vc => vc.Details).Where(vc => vc.Details.Select(vcd => vcd.Id == id).FirstOrDefault() == id );
+                var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id);
+                    
+                if (existedItem is null)
+                {
+                    appObjResponse.ErrorAdd("Record wasn't deleted");
+                    return appObjResponse;
+                }
+
+                db.Entry(existedItem).State = EntityState.Deleted;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+                await db.SaveChangesAsync();
+
+                return appObjResponse;
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            appObjResponse.ErrorAdd(msg);
+            return appObjResponse;
+        }
     }
 
     public async Task<IEnumerable<string>> GetNames()

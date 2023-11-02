@@ -242,7 +242,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal)
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
                                                         .Include(eo => eo.Carrier)
-                                                        .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated: true)
+                                                        .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated : true)
                                                         .ToListAsync();
 
                 var ItemsDTO = eoComponentRecord(exportOrders);

@@ -134,7 +134,7 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.VesselCallId); })" />
                 </MudTd>
                 <MudTd Style="width:90px">
-                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })" />
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItemDetail_Click(context.Id); })" />
                 </MudTd>
             }
             else
@@ -204,25 +204,25 @@
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(VesselCallDetailDTO item)
+    private async Task RemoveItemDetail_Click(long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel Call:<br/>{item.VesselName}<br/>",
-                          yesText: "YES", cancelText: "NO");
+        // bool? msgResult = await DialogService.ShowMessageBox(
+        //                   "REMOVE  Record",
+        //                   (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel Call:<br/>{item.VesselName}<br/>",
+        //                   yesText: "YES", cancelText: "NO");
 
-        if (msgResult.HasValue)
-            if (msgResult.Value)
-            {
-                var response = await _vesselCallProvider.RemoveItemDTOAsync(item);
+        // if (msgResult.HasValue)
+        //     if (msgResult.Value)
+        //     {
+        //         var response = await _vesselCallProvider.RemoveItemDTOAsync(item);
 
-                if (!response.HasError)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
-                else
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
-            }
+        //         if (!response.HasError)
+        //             Snackbar.Add($"Deleted Successfully", Severity.Success);
+        //         else
+        //             Snackbar.Add($"Unable to delete", Severity.Warning);
+        //     }
 
-        await GetItems();
+        // await GetItems();
     }
 
 

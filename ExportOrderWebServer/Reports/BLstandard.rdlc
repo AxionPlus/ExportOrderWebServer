@@ -2384,17 +2384,15 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                         <Size>11.1cm</Size>
                         <CellContents>
                           <Textbox Name="TextboxLogo">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
                                 <TextRuns>
                                   <TextRun>
-                                    <Value>=Fields!BLtemplate.Value</Value>
+                                    <Value />
                                     <Style>
                                       <FontFamily>Palatino Linotype</FontFamily>
                                       <FontSize>24pt</FontSize>
-                                      <Color>Blue</Color>
                                     </Style>
                                   </TextRun>
                                 </TextRuns>
@@ -3260,7 +3258,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                   <PaddingBottom>2pt</PaddingBottom>
                                 </Style>
                               </Textbox>
-                              <rd:Selected>true</rd:Selected>
                             </CellContents>
                           </TablixHeader>
                         </TablixMember>

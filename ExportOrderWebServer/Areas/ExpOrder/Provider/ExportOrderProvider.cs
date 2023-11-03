@@ -607,7 +607,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 foreach (var content in record.Contents)
                 {
                     bLDTO.Commodity = content.DocumentRecord.CommodityEngName;
-                    bLDTO.PackageQty = content.PackageQty;
+                    bLDTO.PackageQty = content.PackageQty is not null ? (uint)content.PackageQty : 0;
                     bLDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
 
                     bLDTO.NetWt = content.NetWt;
@@ -648,7 +648,7 @@ public class ExportOrderProvider : IExportOrderProvider
             {
                 eoRecordDTO.Cntr = record.CntrNum;
 
-                eoRecordDTO.PackageQty = content.PackageQty;
+                eoRecordDTO.PackageQty = content.PackageQty is not null ? (uint)content.PackageQty : 0;
                 eoRecordDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
                 eoRecordDTO.NetWt = content.NetWt;
                 eoRecordDTO.GrossWt = content.GrossWt;
@@ -700,11 +700,11 @@ public class ExportOrderProvider : IExportOrderProvider
                 itemDTO.Seal = record.Seal;
                 itemDTO.CntrTareWt = record.CntrTareWt;
 
-                itemDTO.PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty);
+                itemDTO.PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty)!;
                 itemDTO.PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order());
-                itemDTO.NetWts = record.Contents.Sum(c => c.NetWt);
-                itemDTO.GrossWts = record.Contents.Sum(c => c.GrossWt);
-                itemDTO.Volumes = record.Contents.Sum(c => c.Volume);
+                itemDTO.NetWeights = record.Contents.Sum(c => c.NetWt);
+                itemDTO.GrossWeights = record.Contents.Sum(c => c.GrossWt);
+                itemDTO.Volumes = record.Contents.Sum(c => c.Volume);                
 
                 itemDTO.Commodities = string.Join("; ", record.Contents.Select(rc => (
                                                                                         rc.DocumentRecord.CommodityEngName + " " +
@@ -713,8 +713,11 @@ public class ExportOrderProvider : IExportOrderProvider
                                                                                       ).Trim())
                                                                                       .Distinct().Order());
 
-                itemDTO.Shippers = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Distinct());
-                itemDTO.Consignees = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct());
+
+                itemDTO.CntrTotalWeight = record.CntrTareWt + (double)record.Contents.Sum(c => c.GrossWt)!;
+
+                itemDTO.Shippers = "S: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Distinct());
+                itemDTO.Consignees = "C: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct());
 
                 ItemsDTO.Add(itemDTO);
             }

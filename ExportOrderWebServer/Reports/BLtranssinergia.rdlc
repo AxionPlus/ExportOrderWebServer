@@ -23,7 +23,7 @@
         </Field>
         <Field Name="BLDate">
           <DataField>BLDate</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="VesselName">
           <DataField>VesselName</DataField>
@@ -83,6 +83,10 @@
         </Field>
         <Field Name="Measurement">
           <DataField>Measurement</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="BLtemplate">
+          <DataField>BLtemplate</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -689,7 +693,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="T_Cntr_Measures">
+                        <Textbox Name="Measures">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2379,40 +2383,16 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                       <TablixHeader>
                         <Size>11.1cm</Size>
                         <CellContents>
-                          <Textbox Name="TBL_Logo">
-                            <KeepTogether>true</KeepTogether>
-                            <Paragraphs>
-                              <Paragraph>
-                                <TextRuns>
-                                  <TextRun>
-                                    <Value>Carta - Lam</Value>
-                                    <Style />
-                                  </TextRun>
-                                </TextRuns>
-                                <Style>
-                                  <TextAlign>Center</TextAlign>
-                                </Style>
-                              </Paragraph>
-                            </Paragraphs>
+                          <Image Name="Logo_TSG">
+                            <Source>Embedded</Source>
+                            <Value>TransSinergia</Value>
+                            <Sizing>FitProportional</Sizing>
                             <Style>
                               <Border>
                                 <Style>None</Style>
                               </Border>
-                              <TopBorder>
-                                <Style>Solid</Style>
-                              </TopBorder>
-                              <LeftBorder>
-                                <Style>Solid</Style>
-                              </LeftBorder>
-                              <RightBorder>
-                                <Style>Solid</Style>
-                              </RightBorder>
-                              <PaddingLeft>2pt</PaddingLeft>
-                              <PaddingRight>2pt</PaddingRight>
-                              <PaddingTop>2pt</PaddingTop>
-                              <PaddingBottom>2pt</PaddingBottom>
                             </Style>
-                          </Textbox>
+                          </Image>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>
@@ -2421,6 +2401,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Size>3cm</Size>
                             <CellContents>
                               <Textbox Name="Label_BLName1">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2457,6 +2438,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                 <Size>1.8cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox2">
+                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -2494,6 +2476,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                     <Size>1cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox3">
+                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -2570,6 +2553,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                             <Size>1.3cm</Size>
                                             <CellContents>
                                               <Textbox Name="Textbox4">
+                                                <CanGrow>true</CanGrow>
                                                 <KeepTogether>true</KeepTogether>
                                                 <Paragraphs>
                                                   <Paragraph>
@@ -2621,6 +2605,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Size>5.8cm</Size>
                             <CellContents>
                               <Textbox Name="Label_BLName2">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2844,6 +2829,7 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>8.7cm</Size>
                             <CellContents>
                               <Textbox Name="BookingNum">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2936,6 +2922,7 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>8.7cm</Size>
                             <CellContents>
                               <Textbox Name="POLAgent">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3028,6 +3015,7 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>8.7cm</Size>
                             <CellContents>
                               <Textbox Name="PODAgent">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3167,6 +3155,7 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>11.1cm</Size>
                         <CellContents>
                           <Textbox Name="Consignees">
+                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3252,6 +3241,7 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>5.48412cm</Size>
                         <CellContents>
                           <Textbox Name="Label_VesselName">
+                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3296,6 +3286,7 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>5.61588cm</Size>
                             <CellContents>
                               <Textbox Name="Label_Voyage">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3339,6 +3330,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="Label_PlaceReceipt">
+                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -3382,6 +3374,7 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>5.48412cm</Size>
                         <CellContents>
                           <Textbox Name="VesselName">
+                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3425,6 +3418,7 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>5.61588cm</Size>
                             <CellContents>
                               <Textbox Name="Voyage">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3467,6 +3461,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="PlaceReceipt">
+                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -3514,6 +3509,7 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>5.48412cm</Size>
                         <CellContents>
                           <Textbox Name="label_POLEn">
+                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3562,6 +3558,7 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>5.61588cm</Size>
                             <CellContents>
                               <Textbox Name="Label_PODEn">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3605,6 +3602,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="label_PlaceDelivery">
+                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -3652,6 +3650,7 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>5.48412cm</Size>
                         <CellContents>
                           <Textbox Name="POLEn">
+                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3694,6 +3693,7 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>5.61588cm</Size>
                             <CellContents>
                               <Textbox Name="PODEn">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3731,6 +3731,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="PlaceDelivery">
+                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -4221,6 +4222,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Size>1.3cm</Size>
                                         <CellContents>
                                           <Textbox Name="Measurement">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -5709,6 +5711,7 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>5.61588cm</Size>
                             <CellContents>
                               <Textbox Name="DateIssue">
+                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -5729,10 +5732,14 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Style>None</Style>
                                   </Border>
                                   <BottomBorder>
+                                    <Color>Black</Color>
                                     <Style>Solid</Style>
+                                    <Width>1pt</Width>
                                   </BottomBorder>
                                   <RightBorder>
+                                    <Color>Black</Color>
                                     <Style>Solid</Style>
+                                    <Width>1pt</Width>
                                   </RightBorder>
                                   <PaddingLeft>2pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
@@ -6315,7 +6322,7 @@ OR MULTIMODAL TRANSPORT</Value>
           <Height>0.5cm</Height>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
-            <Textbox Name="Header">
+            <Textbox Name="HeaderPager">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -6501,6 +6508,16 @@ KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA
 igAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA
 KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACii
 igAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/2Q==</ImageData>
+    </EmbeddedImage>
+    <EmbeddedImage Name="TransSinergia">
+      <MIMEType>image/jpeg</MIMEType>
+      <ImageData>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</ImageData>
     </EmbeddedImage>
   </EmbeddedImages>
   <rd:ReportUnitType>Cm</rd:ReportUnitType>

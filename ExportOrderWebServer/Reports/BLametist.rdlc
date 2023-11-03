@@ -183,39 +183,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
               <PaddingBottom>2pt</PaddingBottom>
             </Style>
           </Textbox>
-          <Textbox Name="LogoStandard">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value />
-                    <Style>
-                      <FontFamily>Palatino Linotype</FontFamily>
-                      <FontSize>24pt</FontSize>
-                      <Color>Blue</Color>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style>
-                  <TextAlign>Center</TextAlign>
-                </Style>
-              </Paragraph>
-            </Paragraphs>
-            <Height>1.2cm</Height>
-            <Width>11.1cm</Width>
-            <ZIndex>1</ZIndex>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-              <BackgroundColor>CornflowerBlue</BackgroundColor>
-              <PaddingLeft>2pt</PaddingLeft>
-              <PaddingRight>2pt</PaddingRight>
-              <PaddingTop>2pt</PaddingTop>
-              <PaddingBottom>2pt</PaddingBottom>
-            </Style>
-          </Textbox>
           <Tablix Name="TablixCntr">
             <TablixBody>
               <TablixColumns>
@@ -1316,7 +1283,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
             <Top>28.5cm</Top>
             <Height>1.7cm</Height>
             <Width>19.8cm</Width>
-            <ZIndex>2</ZIndex>
+            <ZIndex>1</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -2419,18 +2386,27 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Paragraph>
                                 <TextRuns>
                                   <TextRun>
-                                    <Value />
+                                    <Value>AMETIST LLC</Value>
+                                    <ActionInfo>
+                                      <Actions>
+                                        <Action>
+                                          <Hyperlink>http://www.morningstar.com/</Hyperlink>
+                                        </Action>
+                                      </Actions>
+                                    </ActionInfo>
                                     <Style>
                                       <FontStyle>Normal</FontStyle>
-                                      <FontFamily>Arial MT</FontFamily>
-                                      <FontSize>16pt</FontSize>
-                                      <FontWeight>Normal</FontWeight>
+                                      <FontFamily>Times New Roman</FontFamily>
+                                      <FontSize>12pt</FontSize>
+                                      <FontWeight>Bold</FontWeight>
                                       <TextDecoration>None</TextDecoration>
                                       <Color>White</Color>
                                     </Style>
                                   </TextRun>
                                 </TextRuns>
-                                <Style />
+                                <Style>
+                                  <TextAlign>Center</TextAlign>
+                                </Style>
                               </Paragraph>
                             </Paragraphs>
                             <rd:DefaultName>Textbox1</rd:DefaultName>
@@ -2447,13 +2423,13 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <RightBorder>
                                 <Style>Solid</Style>
                               </RightBorder>
+                              <BackgroundColor>CornflowerBlue</BackgroundColor>
                               <PaddingLeft>2pt</PaddingLeft>
                               <PaddingRight>2pt</PaddingRight>
                               <PaddingTop>2pt</PaddingTop>
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
-                          <rd:Selected>true</rd:Selected>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>
@@ -6330,7 +6306,7 @@ OR MULTIMODAL TRANSPORT</Value>
             <DataSetName>dsBL</DataSetName>
             <Height>28.5cm</Height>
             <Width>19.87938cm</Width>
-            <ZIndex>3</ZIndex>
+            <ZIndex>2</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>

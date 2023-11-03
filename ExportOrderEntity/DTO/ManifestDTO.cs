@@ -9,7 +9,7 @@ public class ManifestDTO
     public string VesselName { get; set; }
     public string VesselFlagEn { get; set; }
     public string Voyage { get; set; }
-    public string BLDate { get; set; }                          // дата коносамента (added for BL)
+    public string BLDate { get; set; }          // дата коносамента (added for BL)
     public string POLEn { get; set; } = "NOVOROSSIYSK";
     public string PODEn { get; set; }
 
@@ -17,14 +17,43 @@ public class ManifestDTO
     public uint Seq { get; set; }               // Record index for RDLC Report    
     public string Cntr { get; set; }
     public string CntrType { get; set; }
-    public double? CntrTareWt { get; set; }
+    public double CntrTareWt { get; set; }
     public string Seal { get; set; }
-    public uint PackageQtys { get; set; }
+    public uint? PackageQtys { get; set; }
     public string? PackageNames { get; set; }
-    public double? NetWts { get; set; }
-    public double? GrossWts { get; set; }
+    public double? NetWeights { get; set; }
+    public double? GrossWeights { get; set; }
+    public double CntrTotalWeight { get; set; }    
     public double? Volumes { get; set; }
     public string Commodities { get; set; }
+    //public double CommoditiesTotalWeight { get; set; }
     public string Shippers { get; set; }
     public string Consignees { get; set; }
+}
+
+public class ManifestSummaryDTO
+{
+    // Count
+    public int Full20Count { get; set; }
+    public int Full40Count { get; set; }
+    public int Empty20Count { get; set; }
+    public int Empty40Count { get; set; }
+
+    // Total Full
+    public double Full20Weight { get; set; }
+    public double Full40Weight { get; set; }
+
+    // Total Tare
+    public double Full20Tare { get; set; }
+    public double Full40Tare { get; set; }
+    public double Empty20Tare { get; set; }
+    public double Empty40Tare { get; set; }
+
+    // Grand Total
+    public double Total20 { get; set; }
+    public double Total40 { get; set; }
+    public int TotalCntrs { get; set; }
+    public double TotalWeight { get; set; }
+    public double TotalTare { get; set; }
+    public double Total { get; set; }
 }

@@ -10,7 +10,7 @@ public class ContainerContent
     public long Id { get; set; }
 
 #pragma warning disable CS8618
-    public uint PackageQty { get; set; }
+    public uint? PackageQty { get; set; }
     public string? PackageName { get; set; }
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }

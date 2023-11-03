@@ -259,7 +259,7 @@
                         </MudSelect>
                     </MudTd>
                     <MudTd>
-                         <MudNumericField Class="QuantityField" T="double?" @bind-Value="expOrderRecords.CntrTareWt"                                          
+                         <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecords.CntrTareWt"                                          
                                           Variant="Variant.Outlined" Margin="Margin.Dense"
                                           Required RequiredError="" HideSpinButtons="true"/>
                     </MudTd>
@@ -305,7 +305,7 @@
                                         <MudTd Style="width:300px; padding-right:12px; text-align:end">@CntrContent.DocumentRecord.Document.Name</MudTd>
                                         <MudTd Style="width:30px">@CntrContent.DocumentRecord.Seq</MudTd>
                                         <MudTd>
-                                            <MudNumericField Class="QuantityField" T="uint" @bind-Value="CntrContent.PackageQty"
+                                            <MudNumericField Class="QuantityField" T="uint?" @bind-Value="CntrContent.PackageQty"
                                                              Style="width: 80px"
                                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                                              Required RequiredError="" HideSpinButtons=true />

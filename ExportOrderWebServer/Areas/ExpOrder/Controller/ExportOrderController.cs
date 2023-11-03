@@ -276,60 +276,100 @@ public class ExportOrderController : ControllerBase
     public async Task<IActionResult> ManifestReport(string Voyage)
     {
         var Items = await _exportOrderProvider.GetManifestAsync(Voyage);
-        
+
         if (Items.Count() == 0) return Empty;
 
         try
         {
             string mimeType = "";
-            int extension = (int)(DateTime.Now.Ticks >> 10);
-            //int extension = 1;
+            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
 
             LocalReport localReport = new LocalReport(pathReport);
-            
+
             #region PARAMETERS
-
-            // Count
-            var Full20 = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
-            var Full40 = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
-
-            var Empty20 = Items.Where(it => it.GrossWts is null && it.CntrType.Substring(0, 2) == "20").GroupBy(it => it.Cntr).Count();
-            var Empty40 = Items.Where(it => it.GrossWts is null && it.CntrType.Substring(0, 2) == "40").GroupBy(it => it.Cntr).Count();
-
-            // Sum Weight
-            var SumFull20 = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWts);
-            var SumFull40 = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWts);
-
-            // Sum Tare
-            var SumFull20Tare = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
-            var SumFull40Tare = Items.Where(it => it.GrossWts is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
-
-            var SumEmpty20Tare = Items.Where(it => it.GrossWts is null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.CntrTareWt);
-            var SumEmpty40Tare = Items.Where(it => it.GrossWts is null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.CntrTareWt);
-
             Dictionary<string, string> parameters = new Dictionary<string, string>()
             {
-                { "Full20Qty", Full20.ToString() },
-                { "Full40Qty", Full40.ToString() },
-                { "Empty20Qty", Empty20.ToString() },
-                { "Empty40Qty", Empty40.ToString() },
+                //{ "Full20Qty", Full20 > 0 ? Full20.ToString() : "0" },
+            };
+            #endregion
 
-                { "Full20TareWt", SumFull20Tare is not null ? SumFull20Tare.ToString()! : "0" },
-                { "Full40TareWt", SumFull40Tare is not null ? SumFull40Tare.ToString()! : "0" },
-                { "Empty20TareWt", SumEmpty20Tare is not null ? SumEmpty20Tare.ToString()! : "0" },
-                { "Empty40TareWt", SumEmpty40Tare is not null ? SumEmpty40Tare.ToString()! : "0" },
+            #region DATA SOURCES
 
-                { "Full20GrossWt", SumFull20 is not null ? SumFull20.ToString()! : "0"},
-                { "Full40GrossWt", SumFull40 is not null ? SumFull40.ToString()! : "0"},
+            // Count
+            int full20Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+                                   .Where(it => it.CntrType.Substring(0, 2) == "20")
+                                   .GroupBy(it => it.Cntr).Count();
+            int full40Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+                                   .Where(it => it.CntrType.Substring(0, 2) == "40")
+                                   .GroupBy(it => it.Cntr).Count();
+            int empty20Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                    .Where(it => it.CntrType.Substring(0, 2) == "20")
+                                    .GroupBy(it => it.Cntr).Count();
+            int empty40Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                    .Where(it => it.CntrType.Substring(0, 2) == "40")
+                                    .GroupBy(it => it.Cntr).Count();
+
+            // Sum Full
+            var full20weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWeights);
+            var full40weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWeights);
+
+            // Sum Tare
+            var full20Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+                                  .Where(it => it.CntrType.Substring(0, 2) == "20")
+                                  .Sum(c => c.CntrTareWt);
+            var full40Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+                                  .Where(it => it.CntrType.Substring(0, 2) == "40")
+                                  .Sum(c => c.CntrTareWt);
+            var empty20Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                   .Where(it => it.CntrType.Substring(0, 2) == "20")
+                                   .Sum(c => c.CntrTareWt);
+            var empty40Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                   .Where(it => it.CntrType.Substring(0, 2) == "40")
+                                   .Sum(c => c.CntrTareWt);
+
+            // Total
+            var total20 = (double)full20weight! + full20Tare;
+            var total40 = (double)full40weight! + full40Tare;
+
+            var totalCntrs = full20Count + full40Count + empty20Count + empty40Count;
+            var totalWeight = (double)full20weight + (double)full40weight;
+            var totalTare = Items.Sum(it => it.CntrTareWt);
+            var total = totalWeight + totalTare;
+
+            var dsSummary = new List<ManifestSummaryDTO>()
+            {
+                new ManifestSummaryDTO()
+                {
+                    Full20Count = full20Count,
+                    Full40Count = full40Count,
+                    Empty20Count = empty20Count,
+                    Empty40Count = empty40Count,
+
+                    Full20Weight = (double)full20weight,
+                    Full40Weight = (double)full40weight,
+
+                    Full20Tare = full20Tare,
+                    Full40Tare = full40Tare,
+                    Empty20Tare = empty20Tare,
+                    Empty40Tare = empty40Tare,
+
+                    Total20 = total20,
+                    Total40 = total40,
+                    TotalCntrs = totalCntrs,
+                    TotalWeight = totalWeight,
+                    TotalTare = totalTare,
+                    Total = total,
+                }
             };
 
             #endregion
 
-            localReport.AddDataSource("dsBsL", Items);
+            localReport.AddDataSource("dsManifest", Items);
+            localReport.AddDataSource("dsSummary", dsSummary);
 
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
-
+            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
+            //parameters
             //await Task.Delay(500);
 
             return File(result.MainStream, "application/pdf");

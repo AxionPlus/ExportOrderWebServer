@@ -57,7 +57,7 @@
                         <MudSelectItem Value="@type">@type.Normolize!.ToString()</MudSelectItem>
                     }
              </MudSelect>
-             <MudNumericField Class="QuantityField" T="double?" Label="TARE wt" @bind-Value="Item.CntrTareWt"
+             <MudNumericField Class="QuantityField" T="double" Label="TARE wt" @bind-Value="Item.CntrTareWt"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Required RequiredError="" HideSpinButtons="true" />
              <MudTextField Class="Seal" T="string" Label="SEALS" @bind-Value="@Item.Seal"
@@ -123,11 +123,11 @@
                             </MudSelect>
                         </MudTd>
                         <MudTd>@(context.DocumentRecord is not null ? context.DocumentRecord.CommodityName : "")</MudTd>
-                            <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.PackageQty" Variant="Variant.Outlined" HideSpinButtons Required RequiredError=""></MudNumericField></MudTd>
+                        <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.PackageQty" Variant="Variant.Outlined" HideSpinButtons Required RequiredError=""></MudNumericField></MudTd>
                         <MudTd><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.PackageName" Variant="Variant.Outlined" Required RequiredError=""></MudTextField></MudTd>
-                         <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt" Variant="Variant.Outlined" HideSpinButtons="true" Required RequiredError=""></MudNumericField></MudTd>
-                         <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt" Variant="Variant.Outlined" HideSpinButtons Required RequiredError=""></MudNumericField></MudTd>
-                         <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.Volume" Variant="Variant.Outlined" HideSpinButtons Disabled></MudNumericField></MudTd>
+                        <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt" Variant="Variant.Outlined" HideSpinButtons="true" Required RequiredError=""></MudNumericField></MudTd>
+                        <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt" Variant="Variant.Outlined" HideSpinButtons Required RequiredError=""></MudNumericField></MudTd>
+                        <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.Volume" Variant="Variant.Outlined" HideSpinButtons Disabled></MudNumericField></MudTd>
                         <MudTd></MudTd>
                     </RowTemplate>
                 </MudTable>                

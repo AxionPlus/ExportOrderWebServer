@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Xml;
+﻿using System.Xml;
 
 namespace ExportOrderWebServer.Service;
 
@@ -11,7 +10,7 @@ public class XmlService : IDisposable
     public XmlService(string? filePath, ExportOrderDTO item)
     {
         FilePath = filePath;
-        Item = item;        
+        Item = item;
     }
 
     public async Task<byte[]> CreateXMLfile()
@@ -23,15 +22,16 @@ public class XmlService : IDisposable
         string Shippers = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
         string Consignees = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.ConsigneeEn).Distinct().ToList()!);
 
-        var dsCommodities = Item.exportOrderRecordsDTO?.GroupBy(r => new { r.DocumentName, r.CommodityName } ).Select(g => new {
-            g.Key.DocumentName,
-            HScode = g.Select(g => g.HSCode).FirstOrDefault(),
-            g.Key.CommodityName,
-            CommodityGrossWt = g.Where(c => c.DocumentName == g.Key.DocumentName).Sum(g => g.GrossWt),
-            CommodityNetWt = g.Where(c => c.DocumentName == g.Key.DocumentName).Sum(g => g.NetWt),
-            Cntrs = g.Where(c => c.DocumentName == g.Key.DocumentName).Select(g => g.Cntr).ToList(),
-        }).ToList();
-
+        var dsCommodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.CommodityName } )
+                                                        .Select(g => new
+                                                        {
+                                                            g.Key.DocumentName,
+                                                            HScode = g.Select(g => g.HSCode).FirstOrDefault(),
+                                                            g.Key.CommodityName,
+                                                            CommodityGrossWt = g.Where(c => c.DocumentName == g.Key.DocumentName).Sum(g => g.GrossWt),
+                                                            CommodityNetWt = g.Where(c => c.DocumentName == g.Key.DocumentName).Sum(g => g.NetWt),
+                                                            Cntrs = g.Where(c => c.DocumentName == g.Key.DocumentName).Select(g => g.Cntr).ToList(),
+                                                        }).ToList();
 
         try
         {
@@ -49,7 +49,7 @@ public class XmlService : IDisposable
                 xml.WriteElementString("BorderCustomCode", Item.CustomsOfficeCode);
                 xml.WriteElementString("BorderCustomsOfficeName", Item.CustomsOfficeName);
                 xml.WriteElementString("DocumentNumber", Item.Num);
-                xml.WriteElementString("DocumentDate", reverseDateStringXml(Item.Dated));
+                xml.WriteElementString("DocumentDate", reverseDateStringXml(Item.xmlDated));
                 xml.WriteElementString("GoodsDescription", string.Empty);
                 xml.WriteElementString("TotalPlacesQuantity", Item.exportOrderRecordsDTO!.Sum(r => r.PackageQty).ToString());
                 xml.WriteElementString("TotalVolumeQuantity", Item.exportOrderRecordsDTO!.Sum(r => r.PackageQty).ToString());
@@ -71,10 +71,9 @@ public class XmlService : IDisposable
 
                 xml.WriteStartElement("COMMISSIONSHIPMENTGoods");
 
-                //int counterDT = 0;
                 int counterGoods = 0;
 
-                foreach (var commodity in dsCommodities)
+                foreach (var commodity in dsCommodities!)
                 {
                     xml.WriteStartElement("COMMISSIONSHIPMENTGOODS_ITEM");
                     xml.WriteElementString("GoodsNumericDT", "1");
@@ -104,7 +103,7 @@ public class XmlService : IDisposable
 
             byte[] fileBytes = File.ReadAllBytes(FilePath);
             
-            await Task.Delay(500);
+            await Task.Delay(200);
 
             return fileBytes;
         }

@@ -11,6 +11,7 @@ public class ExportOrderDTO
     public string Num { get; set; }
     public string BLtemplate { get; set; }
     public string Dated { get; set; }
+    public string xmlDated { get; set; }                // дата для xml файла
     public string? CarrierNameEn { get; set; }
     public string? TerminalName { get; set; }
     public string VesselName { get; set; }
@@ -23,6 +24,7 @@ public class ExportOrderDTO
     public string POLEn { get; set; } = "NOVOROSSIYSK";
     public string POD { get; set; }
     public string PODEn { get; set; }
+    public string? PODunlocode { get; set; }
     public string PODwithCountryRus { get; set; }
     public string? PODAgent { get; set; }
     public string? Measurement { get; set;}

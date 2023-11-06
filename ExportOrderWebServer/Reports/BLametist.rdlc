@@ -23,7 +23,7 @@
         </Field>
         <Field Name="BLDate">
           <DataField>BLDate</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="VesselName">
           <DataField>VesselName</DataField>
@@ -2379,7 +2379,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                       <TablixHeader>
                         <Size>11.1cm</Size>
                         <CellContents>
-                          <Textbox Name="Textbox1">
+                          <Textbox Name="TextboxLogo">
                             <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
@@ -2387,13 +2387,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                 <TextRuns>
                                   <TextRun>
                                     <Value>AMETIST LLC</Value>
-                                    <ActionInfo>
-                                      <Actions>
-                                        <Action>
-                                          <Hyperlink>http://www.morningstar.com/</Hyperlink>
-                                        </Action>
-                                      </Actions>
-                                    </ActionInfo>
                                     <Style>
                                       <FontStyle>Normal</FontStyle>
                                       <FontFamily>Times New Roman</FontFamily>
@@ -2409,7 +2402,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                 </Style>
                               </Paragraph>
                             </Paragraphs>
-                            <rd:DefaultName>Textbox1</rd:DefaultName>
                             <Style>
                               <Border>
                                 <Style>None</Style>
@@ -6376,6 +6368,7 @@ OR MULTIMODAL TRANSPORT</Value>
         <PageWidth>21cm</PageWidth>
         <LeftMargin>0.5cm</LeftMargin>
         <RightMargin>0.5cm</RightMargin>
+        <TopMargin>0cm</TopMargin>
         <BottomMargin>0.5cm</BottomMargin>
         <ColumnSpacing>0.13cm</ColumnSpacing>
         <Style>
@@ -6387,25 +6380,10 @@ OR MULTIMODAL TRANSPORT</Value>
       </Page>
     </ReportSection>
   </ReportSections>
-  <ReportParameters>
-    <ReportParameter Name="BLTemplate">
-      <DataType>String</DataType>
-      <Nullable>true</Nullable>
-      <AllowBlank>true</AllowBlank>
-      <Prompt>ReportParameter1</Prompt>
-    </ReportParameter>
-  </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>4</NumberOfColumns>
       <NumberOfRows>12</NumberOfRows>
-      <CellDefinitions>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>0</RowIndex>
-          <ParameterName>BLTemplate</ParameterName>
-        </CellDefinition>
-      </CellDefinitions>
     </GridLayoutDefinition>
   </ReportParametersLayout>
   <EmbeddedImages>

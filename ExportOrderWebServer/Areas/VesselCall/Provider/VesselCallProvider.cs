@@ -150,6 +150,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .Include(vc => vc.Vessel)
                                                     .Include(vc => vc.Terminal)
                                                     .Include(vc => vc.Details).ThenInclude(d => d.POD)
+                                                    //.Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Carrier)
                                                     .Where(vc => filter.ETA.HasValue ? vc.ETA!.Value >= filter.ETA.Value : true)
                                                     .Where(vc => filter.ETS.HasValue ? vc.ETS!.Value >= filter.ETS.Value : true)
                                                     .AsSplitQuery()
@@ -168,6 +169,9 @@ public class VesselCallProvider : IVesselCallProvider
 
                 if (!string.IsNullOrEmpty(filter.POD))
                     vesselCallsDTO = vesselCallsDTO.Where(s => s.POD == filter.POD).ToList();
+
+                //if (!string.IsNullOrEmpty(filter.Carrier))
+                //    vesselCallsDTO = vesselCallsDTO.Where(s => s.CarrierName == filter.Carrier).ToList();
 
                 appObjResponse.Object = vesselCallsDTO.ToArray();
             }            
@@ -278,41 +282,44 @@ public class VesselCallProvider : IVesselCallProvider
             try
             {
             
-            var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                var db = await _db;
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-            // check an Existing item
-            var itemExistCheck = await db.VesselCalls
-                                                    .Where(s => s.Vessel.Name == item.Vessel.Name)
-                                                    .Where(s => s.VoyageNo == item.VoyageNo).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
-            {
-                appObjResponse.ErrorAdd($"Voyage: {item.VoyageNo} for vessel: {item.Vessel.Name} is exists already.");
+                // check an Existing item
+                //var itemExistCheck = await db.VesselCalls
+                //                                        .Where(s => s.Vessel.Name == item.Vessel.Name)
+                //                                        .Where(s => s.VoyageNo == item.VoyageNo).FirstOrDefaultAsync();
+
+                var itemExistCheck = await db.VesselCalls.Where(s => s.Vessel.Name == item.Vessel.Name && s.VoyageNo == item.VoyageNo).FirstOrDefaultAsync();
+
+                if (itemExistCheck != null)
+                {
+                    appObjResponse.ErrorAdd($"Voyage: {item.VoyageNo} for vessel: {item.Vessel.Name} is exists already.");
+                    return appObjResponse;
+                }
+
+                item.CreateUser = User!;
+
+                foreach (var detail in item.Details)
+                {
+                    detail.CreateUser = User!;
+                    detail.CreateTime = DateTime.Now;
+
+                    db.Entry(detail.POD!).State = EntityState.Unchanged;
+                    //db.Entry(detail.ExportOrders!).State = EntityState.Unchanged;
+                    db.Entry(detail).State = EntityState.Added;                
+                }
+
+                db.Entry(item.Vessel).State = EntityState.Unchanged;
+                db.Entry(item.Terminal).State = EntityState.Unchanged;
+
+                db.Entry(item).State = EntityState.Added;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+
                 return appObjResponse;
-            }
-
-            item.CreateUser = User!;
-
-            foreach (var detail in item.Details)
-            {
-                detail.CreateUser = User!;
-                detail.CreateTime = DateTime.Now;
-
-                db.Entry(detail.POD!).State = EntityState.Unchanged;
-                //db.Entry(detail.ExportOrders!).State = EntityState.Unchanged;
-                db.Entry(detail).State = EntityState.Added;                
-            }
-
-            db.Entry(item.Vessel).State = EntityState.Unchanged;
-            db.Entry(item.Terminal).State = EntityState.Unchanged;
-
-            db.Entry(item).State = EntityState.Added;
-
-            var bug = db.ChangeTracker.DebugView.LongView;
-
-            await db.SaveChangesAsync();
-
-            return appObjResponse;
             }
             catch (Exception ex)
             {
@@ -357,7 +364,7 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemDetailsAsync(long id)
+    public async Task<AppObjectResponse> RemoveVesselCallDetailDTOAsync(long id)
     {
         appObjResponse = new();
 
@@ -368,9 +375,9 @@ public class VesselCallProvider : IVesselCallProvider
                 var db = await _db;
 
                 // check an Existing item
-                //var existedItem = await db.VesselCalls.Include(vc => vc.Details).Where(vc => vc.Details.Select(vcd => vcd.Id == id).FirstOrDefault() == id );
-                var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id);
-                    
+                //var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).FirstOrDefaultAsync();
+                var existedItem = db.VesselCalls.Include(vc => vc.Details).Where(vc => vc.Details.Any(vcd => vcd.Id == id)).FirstOrDefaultAsync();
+
                 if (existedItem is null)
                 {
                     appObjResponse.ErrorAdd("Record wasn't deleted");
@@ -378,6 +385,7 @@ public class VesselCallProvider : IVesselCallProvider
                 }
 
                 db.Entry(existedItem).State = EntityState.Deleted;
+                //db.Entry(db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id)).State = EntityState.Deleted;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
                 await db.SaveChangesAsync();
@@ -420,7 +428,7 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<IEnumerable<string>> GetVoyagesCarrier()
+    public async Task<IEnumerable<string>> GetVoyages()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -458,46 +466,6 @@ public class VesselCallProvider : IVesselCallProvider
         
         return RecordsDTO;
     };
-
-    // DELETE
-    //public async Task<IEnumerable<_VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId)
-    //{
-    //    using (var _db = _dbContext.CreateDbContextAsync())
-    //    {
-    //        var db = await _db;
-
-    //        var eoItems = await db.ExportOrders.AsNoTracking().Include(eo => eo.Carrier)
-    //                        .Where(eo => eo.VesselCall!.Id == vslCallId)
-    //                        .Select(eo => new 
-    //                        {
-    //                            VesselCallId = eo.VesselCall!.Id,
-    //                            CarrierId = eo.Carrier!.Id,
-    //                            CarrierNameEn = eo.Carrier!.NameEn,
-    //                            ExportOrderId = eo.Id,
-    //                            ExportOrderNum = eo.Num,
-    //                            ExportOrderDate = eo.Dated,
-    //                        })
-    //                        .ToListAsync();            
-
-    //        var CarriersGroup = eoItems.GroupBy(e => e.CarrierNameEn)
-    //                              .Select(g => new _VesselCallCarrierDTO()
-    //                              {
-    //                                  VesselCallId = g.FirstOrDefault()!.VesselCallId,
-    //                                  CarrierId = g.FirstOrDefault()!.CarrierId,
-    //                                  CarrierNameEn = g.Key,
-    //                                  RecordsDTO = g.Select(r => new VesselCallRecordDTO()
-    //                                  {
-    //                                    ExportOrderId = r.ExportOrderId,
-    //                                    ExportOrderNum = r.ExportOrderNum,
-    //                                    ExportOrderDate = r.ExportOrderDate,
-    //                                    //vesselCallCarrierDTO = g,
-    //                                  }).ToList()
-    //                              }).ToList();
-
-    //        return CarriersGroup;
-    //    }
-    //}
-
 
     #endregion
 }

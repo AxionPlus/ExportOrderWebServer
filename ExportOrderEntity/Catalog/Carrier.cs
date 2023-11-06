@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.Catalog;
@@ -8,7 +10,8 @@ public class CarrierCatalog : CatalogEntity
     public string? Name { get; set; }
     public string? NameEn { get; set; }
     public BLTemplate BlTemplate { get; set; } = 0;
-
+    [NotMapped]
+    public LocationCatalog? Location { get; set; }
     public IList<CarrierTerminalDetails> CarrierDetails { get; set; } = new List<CarrierTerminalDetails>();
 }
 

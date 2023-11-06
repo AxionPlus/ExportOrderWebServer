@@ -7,6 +7,7 @@
 @inject IVesselProvider _vesselProvider
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
+@inject ICarrierProvider _carrierProvider
 
 <style>
     .mud-picker-inline {
@@ -20,9 +21,17 @@
         width: 22px;
     }
 
-    .Table.MultiSelection * table tr > th:first-child {
-        width: 38px;
+    .Container-table .tableMenu .mud-table-cell{
+        padding:unset;
     }
+
+/*     .mud-button-filled{
+        height:30px;
+    } */
+
+/*     .Table.MultiSelection * table tr > th:first-child {
+        width: 38px;
+    } */
 
 /*     .Table.MultiSelection * table tr > th:nth-child(2n+1){
         width: 180px;
@@ -92,26 +101,33 @@
     @if (mudTable != null)
     {
         <div class="tableMenu">
+            @if (!IsSelectable)
+            {
+                <MudButton Style="margin-inline: 20px" Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(); })"
+                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Preview">
+                    View Manifest
+                </MudButton>
+                <MudButton Class="Button" OnClick="@(async()=>{ await SaveExcelFile_Click(); })"
+                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Download">
+                    Fill Bill
+                </MudButton>
+            }
             <MudSpacer />
             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
-    }    
-    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData"
+    }
+    @* MultiSelection="true" *@
+    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData" 
               Virtualize="true" RowsPerPage="30" >
 
         <HeaderContent>
             @if (!IsSelectable)
             {
-                <td colspan="2">
-                    <MudTh Style="width: 180px">
-                        <MudButton Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(); })"
-                                   Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                                   StartIcon="@Icons.Material.Filled.Preview">
-                            View Manifest
-                        </MudButton>
-                    </MudTh>
-                </td>                
+                <MudTh Style="width: 42px"></MudTh>
+                <MudTh Style="width: 42px"></MudTh>
             }
             else
             {
@@ -120,7 +136,7 @@
             <MudTh Style="width:270px">Vessel</MudTh>
             <MudTh Style="width:200px">Voyage</MudTh>
             <MudTh Style="width:270px">POD</MudTh>
-            <MudTh Style="width:200px">Terminal</MudTh>
+            <MudTh Style="width:150px">Terminal</MudTh>
             <MudTh Style="width:130px">ETA</MudTh>
             <MudTh Style="width:130px">ETS</MudTh>
             <MudTh Style="width: 80px">Status</MudTh>
@@ -129,12 +145,11 @@
         <RowTemplate>
             @if (!IsSelectable)
             {
-                <MudTd Style="width:90px">
-                    @* <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click($"{context.VesselName}&{context.VoyageNo}"); })" /> *@
+                <MudTd>                    
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.VesselCallId); })" />
                 </MudTd>
-                <MudTd Style="width:90px">
-                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItemDetail_Click(context.Id); })" />
+                <MudTd Style="width:42px">
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItemDetail_Click(context.Id, context.POD!); })" />
                 </MudTd>
             }
             else
@@ -204,17 +219,17 @@
             await GetItems();
     }
 
-    private async Task RemoveItemDetail_Click(long id)
+    private async Task RemoveItemDetail_Click(long id, string pod)
     {
         // bool? msgResult = await DialogService.ShowMessageBox(
         //                   "REMOVE  Record",
-        //                   (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel Call:<br/>{item.VesselName}<br/>",
+        //                   (MarkupString)$"<b>Do you want to remove record?</b> <br/>For discharge port: <br/>{pod}<br/>",
         //                   yesText: "YES", cancelText: "NO");
 
         // if (msgResult.HasValue)
         //     if (msgResult.Value)
         //     {
-        //         var response = await _vesselCallProvider.RemoveItemDTOAsync(item);
+        //         var response = await _vesselCallProvider.RemoveVesselCallDetailDTOAsync(id);
 
         //         if (!response.HasError)
         //             Snackbar.Add($"Deleted Successfully", Severity.Success);
@@ -234,31 +249,32 @@
 
     private async Task ManifestsReport_Click()
     {
-        // int voyageCount = SelectedItems.Select(s => new { voyage = s.VesselName + "&" + s.VoyageNo }).GroupBy(g => g.voyage).Count();
-        // if (voyageCount != 1) return;
-
-        // string voyage = SelectedItems.Select(s => s.VesselName + "*" + s.VoyageNo).FirstOrDefault()!;
-
-        // ------------------------------------
-
-        //HashSet<long> vesselCallDetailIds = SelectedItems.Select(s => s.Id).ToHashSet();
-        // ------------------------------------
-        //var vesselCallDetailIds = SelectedItems.Select(s => s.Id).ToList();
-        // ------------------------------------
-
         if (Items is null) return;        
 
-        // int voyageCount = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage).Count();
-        // if (voyageCount != 1) return;
-                        
-        var voyageGroup = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage);
+        //var voyageGroup = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage);
+        var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1) return;
 
-        string voyage = Items.Select(s => s.VesselName + "*" + s.VoyageNo).FirstOrDefault()!;
+        //string voyage = Items.Select(s => s.VesselName + "*" + s.VoyageNo).FirstOrDefault()!;
+        long vesselcallid = voyageGroup.FirstOrDefault();
 
         await Task.Delay(100);
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?Voyage={voyage}";
-        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifests?Ids={vesselCallDetailIds}";
+        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?Voyage={voyage}";
+        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslcallid={vesselcallid}";
+        await JSRuntime.InvokeVoidAsync("open", path);
+    }
+
+    private async Task SaveExcelFile_Click()
+    {
+        if (Items is null) return;
+
+        var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
+        if (voyageGroup.Count() != 1) return;
+
+        long vesselcallid = voyageGroup.FirstOrDefault();
+
+        await Task.Delay(100);
+        string path = $"{Navigation.BaseUri}server/ExportOrder/SaveExcelFile?vslcallid={vesselcallid}";
         await JSRuntime.InvokeVoidAsync("open", path);
     }
 
@@ -301,6 +317,19 @@
             return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchCarrier(string value)
+    {
+        var result = await _carrierProvider.GetNames();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
     #endregion

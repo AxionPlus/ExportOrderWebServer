@@ -3,11 +3,9 @@
 public interface IVesselCallProvider : IEntityProvider<VesselCallEntity>
 {
     Task<AppObjectResponse> GetItemAsync(string voyage);
-    Task<AppObjectResponse> GetVesselCallDetailItemAsync(string voyagePOD);
-    
+    Task<AppObjectResponse> GetVesselCallDetailItemAsync(string voyagePOD);    
     Task<IEnumerable<string>> GetPODs();
-    Task<IEnumerable<string>> GetVoyagesCarrier();
-    //Task<IEnumerable<_VesselCallCarrierDTO>> GetVesselCallCarriersAsync(long vslCallId);
-    Task<AppObjectResponse> RemoveItemDetailsAsync(long id);
+    Task<IEnumerable<string>> GetVoyages();
+    Task<AppObjectResponse> RemoveVesselCallDetailDTOAsync(long id);
 
 }

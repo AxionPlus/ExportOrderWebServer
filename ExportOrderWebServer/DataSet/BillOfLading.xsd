@@ -32,7 +32,6 @@
               <xs:element name="TotalTareWeight" msprop:Generator_ColumnPropNameInTable="TotalTareWeightColumn" msprop:Generator_ColumnPropNameInRow="TotalTareWeight" msprop:Generator_UserColumnName="TotalTareWeight" msprop:Generator_ColumnVarNameInTable="columnTotalTareWeight" type="xs:double" minOccurs="0" />
               <xs:element name="TotalGrossWeight" msprop:Generator_ColumnPropNameInTable="TotalGrossWeightColumn" msprop:Generator_ColumnPropNameInRow="TotalGrossWeight" msprop:Generator_UserColumnName="TotalGrossWeight" msprop:Generator_ColumnVarNameInTable="columnTotalGrossWeight" type="xs:double" minOccurs="0" />
               <xs:element name="Measurement" msprop:Generator_ColumnPropNameInTable="MeasurementColumn" msprop:Generator_ColumnPropNameInRow="Measurement" msprop:Generator_UserColumnName="Measurement" msprop:Generator_ColumnVarNameInTable="columnMeasurement" type="xs:string" minOccurs="0" />
-              <xs:element name="BLtemplate" msprop:Generator_ColumnPropNameInRow="BLtemplate" msprop:Generator_ColumnPropNameInTable="BLtemplateColumn" msprop:Generator_ColumnVarNameInTable="columnBLtemplate" msprop:Generator_UserColumnName="BLtemplate" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

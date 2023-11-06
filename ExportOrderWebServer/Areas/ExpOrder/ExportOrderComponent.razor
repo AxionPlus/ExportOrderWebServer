@@ -201,11 +201,23 @@
 
     private async Task ViewReportBL_Click(long id)
     {
-        TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
+        //var status = Items!.Where(it => it.Id == id).Select(it => it.Status).FirstOrDefault();
+
+        // if (status.ToString() == "new")
+        //     Snackbar.Add($"There is no Export Order. Create an Export Order first.", Severity.Warning);
+        // else
+        // {
+        //     //TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
+        //     string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
+        //     await JSRuntime.InvokeVoidAsync("open", path);
+        //     //await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
+        // }
+
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
-        await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
-        //await JSRuntime.InvokeVoidAsync("open", path);
-        
+        await JSRuntime.InvokeVoidAsync("open", path);
+        //TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
+        //await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
+
     }
 
     private async Task SaveXMLfile_Click(long id)
@@ -234,7 +246,7 @@
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();
 
-        var result = await _vesselCallProvider.GetVoyagesCarrier();
+        var result = await _vesselCallProvider.GetVoyages();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();

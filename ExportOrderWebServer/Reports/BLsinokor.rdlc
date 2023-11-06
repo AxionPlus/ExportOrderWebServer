@@ -85,10 +85,6 @@
           <DataField>Measurement</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="BLtemplate">
-          <DataField>BLtemplate</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
       </Fields>
       <rd:DataSetInfo>
         <rd:DataSetName>BillOfLading</rd:DataSetName>
@@ -3698,6 +3694,11 @@ OR MULTIMODAL TRANSPORT</Value>
                               <Border>
                                 <Style>None</Style>
                               </Border>
+                              <TopBorder>
+                                <Color>Black</Color>
+                                <Style>Solid</Style>
+                                <Width>1pt</Width>
+                              </TopBorder>
                               <LeftBorder>
                                 <Color>Black</Color>
                                 <Style>Solid</Style>
@@ -3741,6 +3742,11 @@ OR MULTIMODAL TRANSPORT</Value>
                                   <Border>
                                     <Style>None</Style>
                                   </Border>
+                                  <TopBorder>
+                                    <Color>Black</Color>
+                                    <Style>Solid</Style>
+                                    <Width>1pt</Width>
+                                  </TopBorder>
                                   <RightBorder>
                                     <Color>Black</Color>
                                     <Style>Solid</Style>
@@ -6410,25 +6416,10 @@ OR MULTIMODAL TRANSPORT</Value>
       </Page>
     </ReportSection>
   </ReportSections>
-  <ReportParameters>
-    <ReportParameter Name="BLTemplate">
-      <DataType>String</DataType>
-      <Nullable>true</Nullable>
-      <AllowBlank>true</AllowBlank>
-      <Prompt>ReportParameter1</Prompt>
-    </ReportParameter>
-  </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>4</NumberOfColumns>
       <NumberOfRows>12</NumberOfRows>
-      <CellDefinitions>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>0</RowIndex>
-          <ParameterName>BLTemplate</ParameterName>
-        </CellDefinition>
-      </CellDefinitions>
     </GridLayoutDefinition>
   </ReportParametersLayout>
   <EmbeddedImages>

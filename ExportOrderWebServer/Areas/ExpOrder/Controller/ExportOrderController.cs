@@ -108,20 +108,13 @@ public class ExportOrderController : ControllerBase
     {
         var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
 
-        string reportFileName = "BLstandard.rdlc";
-
-        if (!string.IsNullOrEmpty(Item.BLtemplate))
-        {
-            if (Item.BLtemplate == "ametist" || Item.BLtemplate == "certa_lam" || Item.BLtemplate == "safetrans")
-                reportFileName = "BL" + Item.BLtemplate + ".rdlc";
-        }        
+        string fileName = "BL" + Item.BLtemplate + ".rdlc";
 
         try
         {
             string mimeType = "";
-           // int extension = (int)(DateTime.Now.Ticks >> 10);
-            int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", reportFileName);
+            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
 
             LocalReport localReport = new LocalReport(pathReport);
 
@@ -129,10 +122,10 @@ public class ExportOrderController : ControllerBase
             //Encoding.GetEncoding("windows-1252");
 
             #region PARAMETERS
-            Dictionary<string, string> parameters = new Dictionary<string, string>()
-            {
-                { "BLTemplate", Item.BLtemplate },
-            };
+            //Dictionary<string, string> parameters = new Dictionary<string, string>()
+            //{
+            //    { "BLTemplate", Item.BLtemplate },
+            //};
             #endregion
 
             #region DATA SOURCE
@@ -210,7 +203,6 @@ public class ExportOrderController : ControllerBase
                 x.TotalTareWeight,
                 x.TotalGrossWeight,
                 x.Measurement,
-                x.BLtemplate
             }).ToList();
 
             // список контейнеров
@@ -221,16 +213,10 @@ public class ExportOrderController : ControllerBase
                                                 CntrType = g.Select(gr => gr.CntrType).FirstOrDefault()!,
                                                 Seal = g.Select(gr => gr.Seal).FirstOrDefault()!,
                                                 CntrTareWt = g.Select(gr => gr.CntrTareWt).FirstOrDefault()!,
-                                                PackageQty = (uint)g.Sum(gr => gr.PackageQty),                                                
-                                                GrossWt = g.Sum(gr => gr.GrossWt),
-                                                Volume = g.Sum(gr => gr.Volume),
+                                                PackageQty = (uint)g.Sum(gr => gr.PackageQty),
                                                 PackageNames = string.Join(", ", g.Select(gr => gr.PackageName).Distinct()),
-                                                //PackageNames = g.GroupBy(gpk => gpk.PackageName).Count() > 1 ?
-                                                //              string.Join(", ", g.Select(gr => gr.PackageName)) :
-                                                //              g.Select(gr => gr.PackageName).FirstOrDefault(),
-                                                //CntrCommodities = g.GroupBy(gcom => gcom.CommodityNameEn).Count() > 1 ?
-                                                //                  string.Join("; ", g.Select(gr => gr.CommodityNameEn)) :
-                                                //                  g.Select(gr => gr.CommodityNameEn).FirstOrDefault()
+                                                GrossWt = g.Sum(gr => gr.GrossWt),
+                                                Volume = g.Sum(gr => gr.Volume),                                                                            
                                                 CntrCommodities = string.Join("; ", g.Select(gr => gr.CommodityNameEn).Distinct())
                                             })                            
                                             .ToList();
@@ -255,13 +241,18 @@ public class ExportOrderController : ControllerBase
 
             #endregion
             
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
-       
+            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
+
             //parameters
             //await Task.Delay(500);
 
             return File(result.MainStream, "application/pdf");
-            
+
+            //if (result.TotalPages != 0)
+            //    return File(result.MainStream, "application/pdf");
+            //else
+            //    return Empty;
+
         }
         catch (Exception ex)
         {
@@ -273,9 +264,10 @@ public class ExportOrderController : ControllerBase
 
     [HttpGet]
     [Route("ViewReportManifest")]
-    public async Task<IActionResult> ManifestReport(string Voyage)
+    public async Task<IActionResult> ManifestReport(long vslcallid)    //string Voyage
     {
-        var Items = await _exportOrderProvider.GetManifestAsync(Voyage);
+        //var Items = await _exportOrderProvider.GetManifestItemAsync(Voyage);
+        var Items = await _exportOrderProvider.GetManifestAsync(vslcallid);
 
         if (Items.Count() == 0) return Empty;
 
@@ -395,7 +387,7 @@ public class ExportOrderController : ControllerBase
             if (Item is null) return Empty;
 
             string FileName = $"{Item.Num}_Customs";
-            string dirName = Path.Combine(_webHostEnvironment.WebRootPath, "Xml");
+            string dirName = Path.Combine(_webHostEnvironment.WebRootPath, "TempFiles");
             string filePath = Path.Combine(dirName, $"{FileName}.xml");
 
             if (System.IO.File.Exists(filePath))
@@ -407,6 +399,39 @@ public class ExportOrderController : ControllerBase
 
                 if (buffer != Array.Empty<byte>())
                     return File(buffer, "application/xml", $"{FileName}.xml");
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return Empty;
+        }
+
+        return Ok();
+    }
+
+    [HttpGet]
+    [Route("SaveExcelFile")]
+    public async Task<IActionResult> SaveFillBillFile(long vslcallid)
+    {
+        try
+        {
+            var Items = await _exportOrderProvider.GetFillBillAsync(vslcallid);
+
+            await Task.Delay(100);
+
+            if (Items.Count() == 0) return Empty;
+            //if (Items is null) return Empty;
+
+            string FileName = $"Fillbill_{Items.FirstOrDefault()!.Voyage}";
+            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"TempFiles/{Path.GetRandomFileName()}.xlsx");
+
+            using (var xls = new ExcelCreateService(tempFilePath, Items))
+            {
+                var buffer = await xls.CreateExcelFile();
+
+                if (buffer != Array.Empty<byte>())
+                    return File(buffer, "application/xlsx", $"{FileName}.xlsx");
             }
         }
         catch (Exception ex)

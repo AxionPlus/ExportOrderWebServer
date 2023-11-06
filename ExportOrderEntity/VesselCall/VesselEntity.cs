@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExportOrderEntites.VesselCall;
 
@@ -8,7 +9,11 @@ public class VesselEntity : Entity
 
     [MaxLength(10)]
     public string? IMO { get; set; }
-    public string? Name { get; set; }    
+    public string? Name { get; set; }
     public string? TerminalCode { get; set; }         // Принятый Терминалом Идентификатор судна
     public CountryCatalog? Flag { get; set; }
+    [NotMapped]
+    public string? CaptainFamily { get; set; }            // ФИО капитана
+    [NotMapped]
+    public string? CaptainName { get; set; }            // ФИО капитана
 }

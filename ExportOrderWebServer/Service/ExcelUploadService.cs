@@ -5,7 +5,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Service;
 
-public class ExcelService : IDisposable
+public class ExcelUploadService : IDisposable
 {
     private string? FilePath { get; set; }
     private readonly uint ExcelAppPid;
@@ -22,7 +22,7 @@ public class ExcelService : IDisposable
     private Excel.Range? FilterRange;
 
 
-    public ExcelService(string filePath, IEnumerable<CntrTpSz> cntrTypes, IDocumentProvider documentProvider)
+    public ExcelUploadService(string filePath, IEnumerable<CntrTpSz> cntrTypes, IDocumentProvider documentProvider)
     {
         FilePath = filePath;
         CntrTypes = cntrTypes;

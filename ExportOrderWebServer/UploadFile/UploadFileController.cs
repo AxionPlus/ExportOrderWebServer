@@ -138,7 +138,7 @@ public class UploadFileController : ControllerBase
                 }
             }
 
-        using (var exl = new ExcelService(filePath, cntrTypes, _documentProvider))
+        using (var exl = new ExcelUploadService(filePath, cntrTypes, _documentProvider))
         {
             try
             {            

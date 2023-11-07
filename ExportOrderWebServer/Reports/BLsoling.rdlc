@@ -3152,7 +3152,6 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>11.1cm</Size>
                         <CellContents>
                           <Textbox Name="Consignees">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3192,6 +3191,7 @@ OR MULTIMODAL TRANSPORT</Value>
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
+                          <rd:Selected>true</rd:Selected>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>

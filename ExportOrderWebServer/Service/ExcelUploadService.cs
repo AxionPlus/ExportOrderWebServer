@@ -88,7 +88,7 @@ public class ExcelUploadService : IDisposable
                     CntrNum = itemCntrNum.FirstOrDefault()![colCntrNum],
                     CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == itemCntrNum.FirstOrDefault()![colCntrType].ToUpper())!,
                     CntrTareWt = double.TryParse(itemCntrNum.FirstOrDefault()![colCntrTareWt], out double _Twt) ? _Twt : 0,
-                    Seal = itemCntrNum.FirstOrDefault()![colSeal],
+                    Seal = itemCntrNum.FirstOrDefault()![colSeal] is not null ? itemCntrNum.FirstOrDefault()![colSeal] : "",
                 };
 
                 foreach (var record in itemCntrNum)

@@ -107,28 +107,29 @@ public class ExcelCreateService : IDisposable
 
                 var result = Parallel.For(0, rows, (row, state) =>
                 {
-                    dataBulk[row, 0] = Items.ElementAt(row).Seal;
-                    dataBulk[row, 1] = Items.ElementAt(row).PODEn;
-                    dataBulk[row, 2] = Items.ElementAt(row).PODunlocode!;
-                    dataBulk[row, 3] = Items.ElementAt(row).BLDate;
-                    dataBulk[row, 4] = Items.ElementAt(row).BLNum;
-                    dataBulk[row, 5] = Items.ElementAt(row).Shippers.Substring(4);
-                    dataBulk[row, 6] = Items.ElementAt(row).ShippersCountries;
-                    dataBulk[row, 7] = Items.ElementAt(row).Consignees.Substring(4);
-                    dataBulk[row, 8] = Items.ElementAt(row).ConsigneesCountries;
-                    dataBulk[row, 9] = Items.ElementAt(row).Cntr;
-                    dataBulk[row, 10] = Items.ElementAt(row).Commodities;
-                    dataBulk[row, 11] = Items.ElementAt(row).GrossWeights! == 0 ? Items.ElementAt(row).CntrTareWt : Items.ElementAt(row).GrossWeights!;
-                    dataBulk[row, 12] = Items.ElementAt(row).PackageQtys!;
-                    dataBulk[row, 13] = Items.ElementAt(row).CntrType.Substring(2, 2);
-                    dataBulk[row, 14] = Items.ElementAt(row).CntrType.Substring(0, 2);
-                    dataBulk[row, 15] = Items.ElementAt(row).GrossWeights! == 0 ? 0 : Items.ElementAt(row).CntrTareWt!;
-                    dataBulk[row, 16] = Items.ElementAt(row).IMO;
-                    dataBulk[row, 17] = Items.ElementAt(row).UNNO;
+                    dataBulk[row, 0] = carrier.ElementAt(row).Seal;     //Items
+                    dataBulk[row, 0] = carrier.ElementAt(row).Seal;
+                    dataBulk[row, 1] = carrier.ElementAt(row).PODEn;
+                    dataBulk[row, 2] = carrier.ElementAt(row).PODunlocode!;
+                    dataBulk[row, 3] = carrier.ElementAt(row).BLDate;
+                    dataBulk[row, 4] = carrier.ElementAt(row).BLNum;
+                    dataBulk[row, 5] = carrier.ElementAt(row).Shippers.Substring(4);
+                    dataBulk[row, 6] = carrier.ElementAt(row).ShippersCountries;
+                    dataBulk[row, 7] = carrier.ElementAt(row).Consignees.Substring(4);
+                    dataBulk[row, 8] = carrier.ElementAt(row).ConsigneesCountries;
+                    dataBulk[row, 9] = carrier.ElementAt(row).Cntr;
+                    dataBulk[row, 10] = carrier.ElementAt(row).Commodities;
+                    dataBulk[row, 11] = carrier.ElementAt(row).GrossWeights! == 0 ? carrier.ElementAt(row).CntrTareWt : carrier.ElementAt(row).GrossWeights!;
+                    dataBulk[row, 12] = carrier.ElementAt(row).PackageQtys!;
+                    dataBulk[row, 13] = carrier.ElementAt(row).CntrType.Substring(2, 2);
+                    dataBulk[row, 14] = carrier.ElementAt(row).CntrType.Substring(0, 2);
+                    dataBulk[row, 15] = carrier.ElementAt(row).GrossWeights! == 0 ? 0 : carrier.ElementAt(row).CntrTareWt!;
+                    dataBulk[row, 16] = carrier.ElementAt(row).IMO;
+                    dataBulk[row, 17] = carrier.ElementAt(row).UNNO;
                 });
 
                 Range.Value = dataBulk;
-                dataBulk = null;
+                //dataBulk = null;
                 
                 overallRows = overallRows + rows;   // check, probably use "|"
             }

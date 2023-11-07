@@ -206,13 +206,13 @@
             <div class="Container-table">
             @if (mudTable != null)
             {
-                <div class="tableMenu">
-                    <MudSpacer />
+                <div class="tableMenu">                    
                     <MudButton Class="Button" Size="Size.Small" Style="margin-inline:20px" Disabled="IsFormReadOnly" OnClick="UploadFile"
                                Variant="Variant.Filled" Color="Color.Dark"
                                StartIcon="@Icons.Material.Filled.UploadFile">
                         Upload New List
                     </MudButton>
+                        <MudSpacer />
                     <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
                     <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
                 </div>
@@ -602,7 +602,7 @@
 
         if (!result.Canceled)
         {
-            string VoyagePOD = (string)result.Data;
+            string VoyagePOD = (string)result.Data; // change to vslCallid
             //string pod = Voyage.Split('&')[2];
 
             var response = await _vesselCallProvider.GetVesselCallDetailItemAsync(VoyagePOD);

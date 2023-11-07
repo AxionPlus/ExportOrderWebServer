@@ -73,13 +73,14 @@ public class ExportOrderController : ControllerBase
                                                                                                         g.FirstOrDefault()!.IMO + " " + g.FirstOrDefault()!.UNNO,
                                                                                           }).ToList();
 
+            int dSeq = 0;
             var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
-                                                                                          Seq = 1,
+                                                                                          docSeq = ++dSeq,
                                                                                           Document = g.Key,
                                                                                           Pakages = g.Sum(q => q.PackageQty),
                                                                                           CntrTare = g.Sum(tr => tr.CntrTareWt),
-                                                                                          Net = g.Sum(net => net.NetWt),
-                                                                                          Gross = g.Sum(gr => gr.GrossWt)
+                                                                                          docNet = g.Sum(net => net.NetWt),
+                                                                                          docGross = g.Sum(gr => gr.GrossWt)
                                                                                       }).ToList();            
             
             localReport.AddDataSource("dsItem", dsItem);
@@ -211,7 +212,7 @@ public class ExportOrderController : ControllerBase
                                             {
                                                 Cntr = g.Key,
                                                 CntrType = g.Select(gr => gr.CntrType).FirstOrDefault()!,
-                                                Seal = g.Select(gr => gr.Seal).FirstOrDefault()!,
+                                                Seal = g.Select(gr => gr.Seal).FirstOrDefault()! != string.Empty ? g.Select(gr => gr.Seal).FirstOrDefault()! : "N/A",
                                                 CntrTareWt = g.Select(gr => gr.CntrTareWt).FirstOrDefault()!,
                                                 PackageQty = (uint)g.Sum(gr => gr.PackageQty),
                                                 PackageNames = string.Join(", ", g.Select(gr => gr.PackageName).Distinct()),
@@ -416,12 +417,11 @@ public class ExportOrderController : ControllerBase
     {
         try
         {
-            var Items = await _exportOrderProvider.GetFillBillAsync(vslcallid);
+            var Items = await _exportOrderProvider.GetManifestAsync(vslcallid);
 
             await Task.Delay(100);
 
             if (Items.Count() == 0) return Empty;
-            //if (Items is null) return Empty;
 
             string FileName = $"Fillbill_{Items.FirstOrDefault()!.Voyage}";
             string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"TempFiles/{Path.GetRandomFileName()}.xlsx");

@@ -167,9 +167,9 @@ public class ExportOrderProvider : IExportOrderProvider
                                             .AsSplitQuery()
                                             .ToListAsync();
 
-                var ManifestItems = mRecords(Items);
+                var DTOItems = mRecords(Items);
 
-                return ManifestItems;
+                return DTOItems;
             }
         }
         catch (Exception ex)
@@ -179,38 +179,38 @@ public class ExportOrderProvider : IExportOrderProvider
         }
     }
 
-    public async Task<IEnumerable<ManifestDTO>> GetFillBillAsync(long id)
-    {
-        try
-        {
-            using (var _db = _dbContext.CreateDbContextAsync())
-            {
-                var db = await _db;
+    //public async Task<IEnumerable<ManifestDTO>> GetFillBillAsync(long id)
+    //{
+    //    try
+    //    {
+    //        using (var _db = _dbContext.CreateDbContextAsync())
+    //        {
+    //            var db = await _db;
 
-                var Items = await db.ExportOrders
-                                            .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal).ThenInclude(ter => ter.Customs)
-                                            .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
-                                            .Include(x => x.VesselCallDetail).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod!.Country)
-                                            //.Include(x => x.Carrier)!.ThenInclude(c => c!.Location)
-                                            .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
-                                            .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
-                                            .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
-                                            .AsNoTracking()
-                                            .Where(x => x.VesselCallDetail!.VesselCall!.Id == id)
-                                            .AsSplitQuery()
-                                            .ToListAsync();
+    //            var Items = await db.ExportOrders
+    //                                        .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal).ThenInclude(ter => ter.Customs)
+    //                                        .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
+    //                                        .Include(x => x.VesselCallDetail).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod!.Country)
+    //                                        //.Include(x => x.Carrier)!.ThenInclude(c => c!.Location)
+    //                                        .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
+    //                                        .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
+    //                                        .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
+    //                                        .AsNoTracking()
+    //                                        .Where(x => x.VesselCallDetail!.VesselCall!.Id == id)
+    //                                        .AsSplitQuery()
+    //                                        .ToListAsync();
 
-                var FillBillItems = mRecords(Items);
+    //            var FillBillItems = mRecords(Items);
 
-                return FillBillItems;
-            }
-        }
-        catch (Exception ex)
-        {
-            string message = ex.Message;
-            return Enumerable.Empty<ManifestDTO>();
-        }
-    }
+    //            return FillBillItems;
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        string message = ex.Message;
+    //        return Enumerable.Empty<ManifestDTO>();
+    //    }
+    //}
         
     public Task<AppObjectResponse> GetItemsAsync()
     {
@@ -536,10 +536,9 @@ public class ExportOrderProvider : IExportOrderProvider
 
         foreach (var record in _eoRecords)
         {
-            ++indexRec;
-            eoRecordDTO.Seq = indexRec.ToString();
+            eoRecordDTO.Seq = ++indexRec;
             eoRecordDTO.CntrTareWt = record.CntrTareWt;
-            eoRecordDTO.Seal = record.Seal;
+            eoRecordDTO.Seal = record.Seal is not null ? record.Seal : string.Empty;
             eoRecordDTO.CntrType = record.CntrType!.Normolize!;
 
             foreach (var content in record.Contents)
@@ -611,7 +610,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
                     Cntr = record.CntrNum,
                     CntrType = record.CntrType!.Normolize!,
-                    Seal = record.Seal,
+                    Seal = record.Seal != string.Empty ? record.Seal : "N/A",
                     CntrTareWt = record.CntrTareWt,
 
                     PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty)!,

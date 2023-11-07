@@ -2103,9 +2103,9 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnCntrTare;
             
-            private global::System.Data.DataColumn columnNet;
+            private global::System.Data.DataColumn columndocNet;
             
-            private global::System.Data.DataColumn columnGross;
+            private global::System.Data.DataColumn columndocGross;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
@@ -2174,17 +2174,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn NetColumn {
+            public global::System.Data.DataColumn docNetColumn {
                 get {
-                    return this.columnNet;
+                    return this.columndocNet;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn GrossColumn {
+            public global::System.Data.DataColumn docGrossColumn {
                 get {
-                    return this.columnGross;
+                    return this.columndocGross;
                 }
             }
             
@@ -2225,15 +2225,15 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public DocumentsRow AddDocumentsRow(string Document, int Pakages, double CntrTare, double Net, double Gross) {
+            public DocumentsRow AddDocumentsRow(string Document, int Pakages, double CntrTare, double docNet, double docGross) {
                 DocumentsRow rowDocumentsRow = ((DocumentsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         null,
                         Document,
                         Pakages,
                         CntrTare,
-                        Net,
-                        Gross};
+                        docNet,
+                        docGross};
                 rowDocumentsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowDocumentsRow);
                 return rowDocumentsRow;
@@ -2267,8 +2267,8 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnDocument = base.Columns["Document"];
                 this.columnPakages = base.Columns["Pakages"];
                 this.columnCntrTare = base.Columns["CntrTare"];
-                this.columnNet = base.Columns["Net"];
-                this.columnGross = base.Columns["Gross"];
+                this.columndocNet = base.Columns["docNet"];
+                this.columndocGross = base.Columns["docGross"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -2282,10 +2282,10 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnPakages);
                 this.columnCntrTare = new global::System.Data.DataColumn("CntrTare", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnCntrTare);
-                this.columnNet = new global::System.Data.DataColumn("Net", typeof(double), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnNet);
-                this.columnGross = new global::System.Data.DataColumn("Gross", typeof(double), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnGross);
+                this.columndocNet = new global::System.Data.DataColumn("docNet", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columndocNet);
+                this.columndocGross = new global::System.Data.DataColumn("docGross", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columndocGross);
                 this.Constraints.Add(new global::System.Data.UniqueConstraint("Constraint1", new global::System.Data.DataColumn[] {
                                 this.columndocSeq}, true));
                 this.columndocSeq.AutoIncrement = true;
@@ -3448,33 +3448,33 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public double Net {
+            public double docNet {
                 get {
                     try {
-                        return ((double)(this[this.tableDocuments.NetColumn]));
+                        return ((double)(this[this.tableDocuments.docNetColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Net\' в таблице \'Documents\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'docNet\' в таблице \'Documents\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableDocuments.NetColumn] = value;
+                    this[this.tableDocuments.docNetColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public double Gross {
+            public double docGross {
                 get {
                     try {
-                        return ((double)(this[this.tableDocuments.GrossColumn]));
+                        return ((double)(this[this.tableDocuments.docGrossColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Gross\' в таблице \'Documents\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'docGross\' в таблице \'Documents\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableDocuments.GrossColumn] = value;
+                    this[this.tableDocuments.docGrossColumn] = value;
                 }
             }
             
@@ -3516,26 +3516,26 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsNetNull() {
-                return this.IsNull(this.tableDocuments.NetColumn);
+            public bool IsdocNetNull() {
+                return this.IsNull(this.tableDocuments.docNetColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetNetNull() {
-                this[this.tableDocuments.NetColumn] = global::System.Convert.DBNull;
+            public void SetdocNetNull() {
+                this[this.tableDocuments.docNetColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsGrossNull() {
-                return this.IsNull(this.tableDocuments.GrossColumn);
+            public bool IsdocGrossNull() {
+                return this.IsNull(this.tableDocuments.docGrossColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetGrossNull() {
-                this[this.tableDocuments.GrossColumn] = global::System.Convert.DBNull;
+            public void SetdocGrossNull() {
+                this[this.tableDocuments.docGrossColumn] = global::System.Convert.DBNull;
             }
         }
         

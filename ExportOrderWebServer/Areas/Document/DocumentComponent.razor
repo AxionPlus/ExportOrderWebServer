@@ -1,7 +1,7 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime jSRuntime
 @inject IDocumentProvider _documentProvider
 
 <style>
@@ -49,7 +49,7 @@
         </div>
     }
     <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" @bind-SelectedItems="SelectedItems"
-              MultiSelection="IsSelectable" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+              MultiSelection="IsSelectable" Loading="IsLoadingData" Virtualize="true" RowsPerPage="10">
         <HeaderContent>
             @if (!IsSelectable)
             {
@@ -58,13 +58,21 @@
             <MudTh Style="width:30px">
                 @if (IsSelectable)
                 {
-                    <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@(async()=>{ await TakeItem_Click(); })" />
+                    <MudTooltip Text="upload selected">
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Primary" OnClick="@(async()=>{ await TakeItem_Click(); })" />
+                    </MudTooltip>
                 }
             </MudTh>
             <MudTh Style="width:50px">Type</MudTh>
-            <MudTh Style="width:100px">Name</MudTh>
-            <MudTh>Shipper</MudTh>
-            <MudTh>Consignee</MudTh>
+            <MudTh Style="width:100px">
+                <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Shipper!.Name!)">Shipper</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Consignee!.Name!)">Consignee</MudTableSortLabel>
+            </MudTh>
         </HeaderContent>
         <RowTemplate>
             @if (!IsSelectable)
@@ -78,8 +86,8 @@
             }            
             <MudTd>@context.Type.ToString()</MudTd>
             <MudTd>@context.Name</MudTd>
-            <MudTd>@context.Shipper!.Name</MudTd>
-            <MudTd>@context.Consignee!.Name</MudTd>
+            <MudTd Style="text-align: start">@context.Shipper!.Name</MudTd>
+            <MudTd Style="text-align: start">@context.Consignee!.Name</MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -108,7 +116,7 @@
 
         var response = await _documentProvider.GetItemsAsync(Filter);
         if (!response.HasError)
-            Items = ((IEnumerable<DocumentEntity>)response.Object!).ToArray();
+            Items = ((IEnumerable<DocumentEntity>)response.Object!).OrderBy(d => d.Name).ToArray();
 
         await Task.Delay(500);
 
@@ -141,23 +149,26 @@
         await GetItems();
     }
 
-    private async Task ShowItem_Click(long id)
-    {
-        // if (MudDialog is not null)
-        //     MudDialog.Close(DialogResult.Ok(id));
+    // private async Task ShowItem_Click(long id)
+    // {
+    //     // if (MudDialog is not null)
+    //     //     MudDialog.Close(DialogResult.Ok(id));
 
-        var parameters = new DialogParameters { ["Id"] = id };
-        var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Document_ItemDialog>(string.Empty, parameters, options);
-        var result = await dialog.Result;
+    //     var parameters = new DialogParameters { ["Id"] = id };
+    //     var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+    //     var dialog = await DialogService.ShowAsync<Document_ItemDialog>(string.Empty, parameters, options);
+    //     var result = await dialog.Result;
 
-        if (!result.Canceled)
-            await GetItems();
-    }
+    //     if (!result.Canceled)
+    //         await GetItems();
+    // }
 
     private async Task OpenItem_Click(long id)
     {
-        await JSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank");
+        var result = await ValueTask.FromResult(jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank"));
+
+        // if (result.IsCompletedSuccessfully)
+        //     await GetItems();
     }
 
     private async Task TakeItem_Click()
@@ -173,9 +184,7 @@
         if (MudDialog != null)
             MudDialog!.Close(SelectedItems);
         else
-            await JSRuntime.InvokeVoidAsync("window.close", SelectedItems);
-
-        //await JSRuntime.InvokeVoidAsync("window.close", Newtonsoft.Json.JsonConvert.SerializeObject(SelectedItems));
+            await jSRuntime.InvokeVoidAsync("window.close", SelectedItems);
     }
 
     #region SEARCHERS
@@ -184,13 +193,22 @@
     {
         var result = await _documentProvider.GetNames();
 
+        // if (result.Count() == 0)
+        //     return Enumerable.Empty<string>();
+
+        // if (string.IsNullOrWhiteSpace(value))
+        //     return result;
+        
+        // return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct().Order().ToList();
+
+
         if (string.IsNullOrWhiteSpace(value))
             return result;
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct().Order().ToList();
     }
 
     #endregion

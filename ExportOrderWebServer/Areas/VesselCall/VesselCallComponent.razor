@@ -48,8 +48,15 @@
                           CloseIcon="" OpenIcon="" MaxItems="20"
                           ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
-        <MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 130px" @bind-Value="Filter.Voyage"
-                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable></MudTextField>
+         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+                          Label="Voyage"                          
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          CloseIcon="" OpenIcon=""
+                          ResetValueOnEmptyText="true" Clearable />
+
+         @* ValueChanged="(e)=> { Filter.Voyage = e; }" *@
+        @*<MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 130px" @bind-Value="Filter.Voyage"
+                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable></MudTextField> *@
         <MudSpacer />
         <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
                           Style="width: 200px"
@@ -289,6 +296,19 @@
 
         if (string.IsNullOrWhiteSpace(value))
             return result;
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchVoyage(string value)
+    {
+        var result = await _vesselCallProvider.GetVoyages();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }

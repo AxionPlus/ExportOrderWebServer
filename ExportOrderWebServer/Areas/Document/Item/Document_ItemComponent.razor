@@ -68,13 +68,13 @@
                             Mask="MaskDocumentName"
                             Required RequiredError="" Clearable="!IsFormReadOnly" />
 
-                <MudTextField Class="TextField" Label="Description" Style="width: 360px" @bind-Value="Value.Description"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            Required RequiredError="" Clearable="!IsFormReadOnly" />
+            <MudTextField Class="TextField" Label="Description" Style="width: 360px" @bind-Value="Value.Description"
+                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                        Required RequiredError="" Clearable="!IsFormReadOnly" />
 
-                <MudTextField Class="TextField" Label="Contarct No" Style="width: 360px" @bind-Value="Value.ContarctNo"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            Required RequiredError="" Clearable="!IsFormReadOnly" />
+            <MudTextField Class="TextField" Label="Contarct No" Style="width: 360px" @bind-Value="Value.ContarctNo"
+                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                        Required RequiredError="" Clearable="!IsFormReadOnly" />
         </div>
         <div class="container-content">
             <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Shipper"); } )"
@@ -333,15 +333,15 @@
         }
     };
 
-    public PatternMask MaskWt = new PatternMask("# ### ###,###")
-    {
-        MaskChars = new[] { new MaskChar('#', @"[0-9]") }
-    };
+    // public PatternMask MaskWt = new PatternMask("# ### ###,###")
+    // {
+    //     MaskChars = new[] { new MaskChar('#', @"[0-9]") }
+    // };
 
-    public PatternMask MaskVol = new PatternMask("### ###,###")
-    {
-        MaskChars = new[] { new MaskChar('#', @"[0-9]") }
-    };
+    // public PatternMask MaskVol = new PatternMask("### ###,###")
+    // {
+    //     MaskChars = new[] { new MaskChar('#', @"[0-9]") }
+    // };
 
     // Func<string, string> maskCharYear = (monthChar) =>
     // {
@@ -359,7 +359,8 @@
 
     //public IMask mask = new RegexMask(@"^[0-9]\d{0,5} ',' [0-9]\d{0,2}$");
 
-    IMask mask = new BlockMask(delimiters: ",", new Block('0', 1, 9), new Block('0', 1, 4));
+    //IMask mask = new BlockMask(delimiters: ",", new Block('0', 1, 9), new Block('0', 1, 4));
+
     #endregion
 
 }

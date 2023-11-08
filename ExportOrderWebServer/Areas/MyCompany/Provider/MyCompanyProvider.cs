@@ -1,6 +1,4 @@
-﻿using ExportOrderEntites.MyCompany;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿
 
 namespace ExportOrderWebServer.Areas.MyCompany.Provider;
 
@@ -28,7 +26,6 @@ public class MyCompanyProvider : IMyCompanyProvider
 
         return appObjResponse;
     }
-
 
     public async Task<bool> IsItemNullAsync()
     {
@@ -141,8 +138,14 @@ public class MyCompanyProvider : IMyCompanyProvider
                         modifyItemPerson.CreateUser = User;
                         modifyItemPerson.CreateTime = DateTime.Now;
                         modifyItemPerson.Name = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Name;
+                        modifyItemPerson.FamilyName = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.FamilyName;
+                        modifyItemPerson.SurName= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.SurName;
                         modifyItemPerson.Phone= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Phone;
-                        modifyItemPerson.Document = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Document;
+                        modifyItemPerson.BornYear= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.BornYear;
+                        modifyItemPerson.BornPlace= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.BornPlace;
+                        modifyItemPerson.CompanyName= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.CompanyName;
+                        modifyItemPerson.Address = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Address;
+                        modifyItemPerson.Passport = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Passport;
                     }
 
                 // compaire existed item with new

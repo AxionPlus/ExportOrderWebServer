@@ -9,8 +9,7 @@ public class CarrierCatalog : CatalogEntity
 {
     public string? Name { get; set; }
     public string? NameEn { get; set; }
-    public BLTemplate BlTemplate { get; set; } = 0;
-    [NotMapped]
+    public BLTemplate BlTemplate { get; set; } = 0;    
     public LocationCatalog? Location { get; set; }
     public IList<CarrierTerminalDetails> CarrierDetails { get; set; } = new List<CarrierTerminalDetails>();
 }

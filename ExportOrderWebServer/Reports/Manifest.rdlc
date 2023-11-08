@@ -89,8 +89,8 @@
           <DataField>CntrTotalWeight</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="Commodities">
-          <DataField>Commodities</DataField>
+        <Field Name="CommoditiesEn">
+          <DataField>CommoditiesEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="Shippers">
@@ -806,14 +806,14 @@ WT (KGS)</Value>
                                 <TablixCells>
                                   <TablixCell>
                                     <CellContents>
-                                      <Textbox Name="Commodities">
+                                      <Textbox Name="CommoditiesEn">
                                         <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
                                               <TextRun>
-                                                <Value>=Fields!Commodities.Value</Value>
+                                                <Value>=Fields!CommoditiesEn.Value</Value>
                                                 <Style>
                                                   <FontFamily>Consolas</FontFamily>
                                                   <FontSize>8pt</FontSize>
@@ -823,7 +823,7 @@ WT (KGS)</Value>
                                             <Style />
                                           </Paragraph>
                                         </Paragraphs>
-                                        <rd:DefaultName>Commodities</rd:DefaultName>
+                                        <rd:DefaultName>CommoditiesEn</rd:DefaultName>
                                         <Style>
                                           <Border>
                                             <Style>None</Style>
@@ -851,14 +851,14 @@ WT (KGS)</Value>
                                 <Group Name="CommodityGroup">
                                   <GroupExpressions>
                                     <GroupExpression>=Fields!BLNum.Value</GroupExpression>
-                                    <GroupExpression>=Fields!Commodities.Value</GroupExpression>
+                                    <GroupExpression>=Fields!CommoditiesEn.Value</GroupExpression>
                                   </GroupExpressions>
                                 </Group>
                                 <KeepTogether>true</KeepTogether>
                               </TablixMember>
                             </TablixMembers>
                           </TablixRowHierarchy>
-                          <DataSetName>dsBsL</DataSetName>
+                          <DataSetName>dsManifest</DataSetName>
                           <ZIndex>1</ZIndex>
                           <Style>
                             <Border>
@@ -2067,7 +2067,6 @@ WT (KGS)</Value>
                                           <PaddingBottom>2pt</PaddingBottom>
                                         </Style>
                                       </Textbox>
-                                      <rd:Selected>true</rd:Selected>
                                     </CellContents>
                                   </TablixCell>
                                 </TablixCells>

@@ -350,7 +350,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnCntrTotalWeight;
             
-            private global::System.Data.DataColumn columnCommodities;
+            private global::System.Data.DataColumn columnCommoditiesEn;
             
             private global::System.Data.DataColumn columnShippers;
             
@@ -535,9 +535,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn CommoditiesColumn {
+            public global::System.Data.DataColumn CommoditiesEnColumn {
                 get {
-                    return this.columnCommodities;
+                    return this.columnCommoditiesEn;
                 }
             }
             
@@ -613,7 +613,7 @@ namespace ExportOrderWebServer.DataSet {
                         double GrossWeights, 
                         double Volumes, 
                         string CntrTotalWeight, 
-                        string Commodities, 
+                        string CommoditiesEn, 
                         string Shippers, 
                         string Consignees) {
                 dtBLRow rowdtBLRow = ((dtBLRow)(this.NewRow()));
@@ -636,7 +636,7 @@ namespace ExportOrderWebServer.DataSet {
                         GrossWeights,
                         Volumes,
                         CntrTotalWeight,
-                        Commodities,
+                        CommoditiesEn,
                         Shippers,
                         Consignees};
                 rowdtBLRow.ItemArray = columnValuesArray;
@@ -679,7 +679,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnGrossWeights = base.Columns["GrossWeights"];
                 this.columnVolumes = base.Columns["Volumes"];
                 this.columnCntrTotalWeight = base.Columns["CntrTotalWeight"];
-                this.columnCommodities = base.Columns["Commodities"];
+                this.columnCommoditiesEn = base.Columns["CommoditiesEn"];
                 this.columnShippers = base.Columns["Shippers"];
                 this.columnConsignees = base.Columns["Consignees"];
             }
@@ -723,8 +723,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnVolumes);
                 this.columnCntrTotalWeight = new global::System.Data.DataColumn("CntrTotalWeight", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnCntrTotalWeight);
-                this.columnCommodities = new global::System.Data.DataColumn("Commodities", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnCommodities);
+                this.columnCommoditiesEn = new global::System.Data.DataColumn("CommoditiesEn", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnCommoditiesEn);
                 this.columnShippers = new global::System.Data.DataColumn("Shippers", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnShippers);
                 this.columnConsignees = new global::System.Data.DataColumn("Consignees", typeof(string), null, global::System.Data.MappingType.Element);
@@ -1634,17 +1634,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string Commodities {
+            public string CommoditiesEn {
                 get {
                     try {
-                        return ((string)(this[this.tabledtBL.CommoditiesColumn]));
+                        return ((string)(this[this.tabledtBL.CommoditiesEnColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Commodities\' в таблице \'dtBL\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'CommoditiesEn\' в таблице \'dtBL\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tabledtBL.CommoditiesColumn] = value;
+                    this[this.tabledtBL.CommoditiesEnColumn] = value;
                 }
             }
             
@@ -1898,14 +1898,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsCommoditiesNull() {
-                return this.IsNull(this.tabledtBL.CommoditiesColumn);
+            public bool IsCommoditiesEnNull() {
+                return this.IsNull(this.tabledtBL.CommoditiesEnColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetCommoditiesNull() {
-                this[this.tabledtBL.CommoditiesColumn] = global::System.Convert.DBNull;
+            public void SetCommoditiesEnNull() {
+                this[this.tabledtBL.CommoditiesEnColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

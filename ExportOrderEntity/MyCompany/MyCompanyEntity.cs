@@ -7,8 +7,14 @@ public class MyCompanyEntity : Entity
 }
 
 public class PersonEntity : CatalogEntity
-{    
-    public string? Name { get; set; }   // = "Д.В. Меркульцев";
-    public string? Phone { get; set; }  // = "+7 918 6624251";
-    public string? Document { get; set; }   // паспорт: 0322 137064 ГУ МВД ПО КРАСНОДАРСКОМУ КРАЮ 24.05.2022
+{
+    public string? Name { get; set; }           // Имя
+    public string? FamilyName { get; set; }     // Фамилия    
+    public string? SurName { get; set; }        // Отчетсво
+    public string? Phone { get; set; }          // +7 918 000 0000;
+    public string? BornYear { get; set; }       // Год рождения
+    public string? BornPlace { get; set; }      // Место рождения (КРАСНОДАРСКИЙ КРАЙ)
+    public string? CompanyName { get; set; }    // Место работы
+    public string? Address { get; set; }        // Место жительства
+    public string? Passport { get; set; }       // паспорт: номер, кем и когда выдан
 }

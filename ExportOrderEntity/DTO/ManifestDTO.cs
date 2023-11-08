@@ -41,6 +41,7 @@ public class ManifestDTO
     public string IMO { get; set; }
     public string UNNO { get; set; }
     public string Commodities { get; set; }
+    public string CommoditiesEn { get; set; }
     public string Shippers { get; set; }
     public string ShippersCountries { get; set; }
     public string Consignees { get; set; }

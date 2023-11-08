@@ -31,11 +31,18 @@
                 </div>
             }
 
-            @if (!IsNewItem)
+            @* @if (!IsNewItem) *@
+            @if (IsFormReadOnly)
             {
-                <div class="ToolBar-iconbutton">
+@*                 <div class="ToolBar-iconbutton">
                     <MudTooltip Class="ExitIconButton" Text="REFRESH" Delay="500" Duration="1000">
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
+                    </MudTooltip>
+                </div> *@
+
+                <div class="ToolBar-iconbutton">
+                    <MudTooltip Class="ExitIconButton" Text="copy" Delay="500" Duration="1000">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
                     </MudTooltip>
                 </div>
             }
@@ -133,7 +140,7 @@
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add($"No Success! \n {response.Error.FirstOrDefault()}", Severity.Error);
+                    Snackbar.Add($"No Success! {response.Error.FirstOrDefault()}", Severity.Error);
                     return;
                 }
             }
@@ -144,7 +151,7 @@
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
                 {
-                    Snackbar.Add("Not Successed", Severity.Error);
+                    Snackbar.Add($"Not Successed:\n {string.Join(",\n", response.Error)}", Severity.Error);
                     return;
                 }
             }
@@ -162,6 +169,22 @@
         await GetItem();
 
         await Task.Delay(1500);
+    }
+
+    public async Task CopyItem()
+    {
+        if (Item is not null)
+        {
+            Item.Id = 0;
+
+            foreach (var docRecord in Item.Records)
+                docRecord.Id = 0;
+
+            Item.Name = string.Empty;
+            IsNewItem = true;
+            await Task.Delay(50);
+            IsFormReadOnly = false;
+        }
     }
 
     public async Task EditItem()

@@ -300,6 +300,8 @@ body {
 
 
 /*Mud_INPUT_Controls*/
+
+/*.mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end*/
 .mud-input-control.TextField {
     display: flex;
     flex-direction: row;

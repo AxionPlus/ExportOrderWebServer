@@ -43,8 +43,8 @@
             <MudTh Style="width:200px">
                 <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsCode!)">Код поста</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:500px">
-                <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsOffice!)">Таможенный пост</MudTableSortLabel>
+            <MudTh Style="width:300px">
+                <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.CustomsOfficeShort!)">Таможенный пост</MudTableSortLabel>
             </MudTh>
             <MudTh></MudTh>
         </HeaderContent>
@@ -53,7 +53,7 @@
             <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
             <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.CustomsOffice!, context.Id); })"></MudIconButton></MudTd>
             <MudTd>@context.CustomsCode</MudTd>
-            <MudTd>@context.CustomsOffice</MudTd>
+            <MudTd>@context.CustomsOfficeShort</MudTd>
             <MudTd></MudTd>
         </RowTemplate>
 

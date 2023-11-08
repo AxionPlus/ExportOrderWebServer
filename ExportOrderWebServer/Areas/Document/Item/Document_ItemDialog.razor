@@ -23,6 +23,11 @@
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
                     </MudTooltip>
                 </div>
+                @* <div class="ToolBar-iconbutton" style="margin-left:20px">
+                    <MudTooltip Class="ExitIconButton" Text="copy" Delay="500" Duration="1000">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
+                    </MudTooltip>
+                </div> *@
             }
 
             <MudSpacer />
@@ -60,7 +65,8 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <Document_ItemComponent @bind-Value="Item" IsNewItem="IsNewItem" IsFormReadOnly="IsFormReadOnly" />
+            @*<Document_ItemComponent @bind-Value="Item" IsNewItem="IsNewItem" IsFormReadOnly="IsFormReadOnly" /> *@
+            <Document_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" />
         }
     </MudForm>
 
@@ -124,7 +130,7 @@
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
                 {
-                    Snackbar.Add("Not Successed", Severity.Error);
+                    Snackbar.Add($"Not Successed { response.Error.FirstOrDefault()}", Severity.Error);
                     return;
                 }                
             }

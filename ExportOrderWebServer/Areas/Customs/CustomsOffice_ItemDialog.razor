@@ -29,6 +29,12 @@
                                Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />                 
              </div>
              <div class="container-content">
+                 <MudTextField T="string" Style="width: 150px" Label="Таможенный пост (кратко)" Text="@Item.CustomsOfficeShort"
+                               TextChanged="@(async (e)=> { Item.CustomsOffice = e.ToUpper(); })"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
+             </div>
+             <div class="container-content">
                  <MudTextField T="string" Style="width: 350px" Label="Таможенный пост" Text="@Item.CustomsOffice"
                                TextChanged="@(async (e)=> { Item.CustomsOffice = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"

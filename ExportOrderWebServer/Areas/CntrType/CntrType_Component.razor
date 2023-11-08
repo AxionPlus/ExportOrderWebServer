@@ -43,7 +43,7 @@
                     Upload New List
                 </MudButton>
             </MudTh>
-            <MudTh Style="width:60px"><MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(async()=>{ await AddItem_Click(); })" /></MudTh>
+            <MudTh Style="width:60px"><MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="@(async()=>{ await AddItem_Click(); })" /></MudTh>
             <MudTh Style="width:80px"><MudTableSortLabel SortBy="new Func<CntrTpSz, object>(x=>x.ISO!)">ISO</MudTableSortLabel></MudTh>
             <MudTh Style="width:80px"><MudTableSortLabel SortBy="new Func<CntrTpSz, object>(x=>x.Normolize!)">Type</MudTableSortLabel></MudTh>
             <MudTh Style="width:100px">

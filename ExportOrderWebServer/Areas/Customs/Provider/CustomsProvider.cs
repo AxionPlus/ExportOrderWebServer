@@ -50,7 +50,7 @@ public class CustomsProvider : ICustomsProvider
                     customsOffices = customsOffices.Where(s => s.CustomsCode == filter.Num).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Name))
-                    customsOffices = customsOffices.Where(s => s.CustomsOffice == filter.Name).ToList();
+                    customsOffices = customsOffices.Where(s => s.CustomsOfficeShort == filter.Name).ToList();
             }
 
             appObjResponse.Object = customsOffices.ToArray();
@@ -64,7 +64,7 @@ public class CustomsProvider : ICustomsProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.CustomsOffices.Select(s => s.CustomsOffice!).ToListAsync();
+            return await db.CustomsOffices.Select(s => s.CustomsOfficeShort!).ToListAsync();
         }
     }
 
@@ -108,6 +108,7 @@ public class CustomsProvider : ICustomsProvider
                 modifyItem!.CreateTime = DateTime.Now;
                 modifyItem!.CustomsCode = item.CustomsCode;
                 modifyItem!.CustomsOffice = item.CustomsOffice;
+                modifyItem!.CustomsOfficeShort = item.CustomsOfficeShort;
                 modifyItem!.CustomsDapartment = item.CustomsDapartment;
                 modifyItem!.CustomsEmail = item.CustomsEmail;
                 modifyItem!.CustomsArticle = item.CustomsArticle;

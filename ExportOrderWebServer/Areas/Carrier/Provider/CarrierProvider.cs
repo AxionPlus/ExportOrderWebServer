@@ -191,7 +191,7 @@ public class CarrierProvider : ICarrierProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Carriers.Select(s => s.NameEn!).ToListAsync();
+            return await db.Carriers.OrderBy(S => S.NameEn).Select(s => s.NameEn!).ToListAsync();
         }
     }
 

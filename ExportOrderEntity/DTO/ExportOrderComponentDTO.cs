@@ -10,6 +10,7 @@ public class ExportOrderComponentDTO
 #pragma warning disable CS8618
     
     public string? Num { get; set; }
+    public string? Cntr { get; set; }
     public string? Dated { get; set; }
     public string? Vessel { get; set; }
     public string? Voyage { get; set; }

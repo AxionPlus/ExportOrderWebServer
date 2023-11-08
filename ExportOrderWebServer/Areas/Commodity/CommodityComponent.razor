@@ -6,39 +6,50 @@
     .Commodity * div > .mud-dialog-content {
         padding: 8px 0px;
     }
+
+    .Autocomplete * .mud-input>input.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: 10px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+
+    .Autocomplete * .mud-input-label-outlined.mud-input-label-margin-dense {
+        transform: translate(10px,8px) scale(1);
+    }
+
 </style>
 
 <div class="Container-item">
     <div class="container-content">
-        <MudAutocomplete Class="Autocomplete" T="string" Label="HS code" Style="width: 180px" SearchFunc="@SearchHScodes"
-                            Value="Filter.HScode"
-                            ValueChanged="(e)=> { Filter.HScode = e; }"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            AutoFocus=true
-                            MaxLength="10"
-                            CloseIcon="" OpenIcon=""
-                            ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px" SearchFunc="@SearchNames"
-                            Value="Filter.Name"
-                            ValueChanged="(e)=> { Filter.Name =e; }"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon=""
-                            ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 400px" SearchFunc="@SearchNamesEn"
-                            Value="Filter.NameEn"
-                            ValueChanged="(e)=> { Filter.NameEn =e; }"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon=""
-                            ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-        <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Checked="@Filter.IsIMO"></MudCheckBox>
-        <MudSpacer />
-        <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                    Variant="Variant.Filled" Color="Color.Secondary"  OnClick="@(async () => { await GetItems(); })">
-            Search
-        </MudButton>
+        <MudAutocomplete Class="Autocomplete" T="string" Label="HS code" Style="width: 145px" SearchFunc="@SearchHScodes"
+                             Value="Filter.HScode"
+                             ValueChanged="(e)=> { Filter.HScode = e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             AutoFocus=true
+                             MaxLength="10"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
+         <MudSpacer />
+         <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 380px" SearchFunc="@SearchNames"
+                             Value="Filter.Name"
+                             ValueChanged="(e)=> { Filter.Name =e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
+         <MudSpacer />
+         <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 380px" SearchFunc="@SearchNamesEn"
+                             Value="Filter.NameEn"
+                             ValueChanged="(e)=> { Filter.NameEn =e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
+         <MudSpacer />
+         <MudCheckBox Class="wrapper-checkBox" Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Checked="@Filter.IsIMO"></MudCheckBox>
+         <MudSpacer />
+         <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
+                     Variant="Variant.Filled" Color="Color.Secondary"  OnClick="@(async () => { await GetItems(); })">
+             Search
+         </MudButton>
     </div>
 </div>
 
@@ -66,7 +77,7 @@
             {
                 <MudTh Style="width:30px">
                     <MudTooltip Text="add new">
-                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" OnClick="AddItem_Click" />
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="AddItem_Click" />
                     </MudTooltip>
                 </MudTh>
             }

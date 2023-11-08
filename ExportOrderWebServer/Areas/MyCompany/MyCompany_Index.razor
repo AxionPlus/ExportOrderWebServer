@@ -12,7 +12,7 @@
     }
 </style>
 
-<MudContainer MaxWidth="MaxWidth.Large">
+@* <MudContainer MaxWidth="MaxWidth.Large"> *@
     <MudForm @ref="Form" ReadOnly="IsFormReadOnly">
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">
@@ -76,9 +76,12 @@
                     <MudTh Style="width:40px">
                         <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddPerson_Click" Disabled="@(IsFormReadOnly || IsLoadingData)" />
                     </MudTh>
-                    <MudTh Style="width: 216px">ФИО</MudTh>
+                    <MudTh Style="width: 216px">Фамилия</MudTh>
+                    <MudTh Style="width: 30px"></MudTh>
+                    <MudTh Style="width: 216px">Имя</MudTh>
+                    <MudTh Style="width: 216px">Отчество</MudTh>                    
                     <MudTh Style="width: 166px">Телефон</MudTh>
-                    <MudTh Style="width: 670px; text-align:start; padding-left: 20px">Данные паспорта</MudTh>
+                    <MudTh Style="width: 166px">Компания</MudTh>
                     <MudTh></MudTh>
                 </HeaderContent>
                 <RowTemplate>
@@ -86,9 +89,27 @@
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemovePerson_Click(context); })"
                                        Disabled="@(IsFormReadOnly || IsLoadingData)" />
                     </MudTd>
-                    <MudTd DataLabel="Name">
+                    <MudTd DataLabel="Фамилия">
+                        <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.FamilyName"
+                                      Placeholder="Фамилия"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Immediate="true" Required RequiredError=""
+                                      Clearable="!IsFormReadOnly" />
+                    </MudTd>
+                     <MudTd>
+                         <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(IsShowPersonDetails == true ? "transform: rotate(180deg);" : null)"
+                                        Size="@Size.Small" OnClick="(_)=>{IsShowPersonDetails = !IsShowPersonDetails;}" />
+                         </MudTd>
+                    <MudTd>
                         <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.Name"
-                                      Placeholder="И.О. Фамилия"
+                                   Placeholder="Имя"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Immediate="true" Required RequiredError=""
+                                      Clearable="!IsFormReadOnly" />
+                    </MudTd>
+                    <MudTd DataLabel="Name">
+                        <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.SurName"
+                                      Placeholder="Отчество"
                                       Variant="Variant.Outlined" Margin="Margin.Dense"
                                       Immediate="true" Required RequiredError=""
                                       Clearable="!IsFormReadOnly" />
@@ -100,21 +121,51 @@
                                       Immediate="true" Required RequiredError=""
                                       Clearable="!IsFormReadOnly" />
                     </MudTd>
-                    <MudTd DataLabel="PassportData">
-                        <MudTextField T="string" Style="width: 650px;" @bind-Value="@context.Document"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Immediate="true" Required RequiredError=""
-                                      Clearable="!IsFormReadOnly" />
-                    </MudTd>
                     <MudTd></MudTd>
                 </RowTemplate>
+                <ChildRowContent>
+                    @if (IsShowPersonDetails)
+                    {
+                        <MudTr>
+                             <MudTh Style="width: 332px">Год и место рождения</MudTh>
+                             <MudTh Style="width: 216px">Место жительства</MudTh>
+                             <MudTd DataLabel="year">
+                                 <MudTextField T="string" Style="width: 100px;" @bind-Value="@context.BornYear"                                           
+                                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                                               Immediate="true" Required RequiredError=""
+                                               Clearable="!IsFormReadOnly" />
+                             </MudTd>
+                             <MudTd DataLabel="place">
+                                 <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.BornPlace"
+                                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                                               Immediate="true" Required RequiredError=""
+                                               Clearable="!IsFormReadOnly" />
+                             </MudTd>
+                             <MudTd DataLabel="address">
+                                 <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.Address"
+                                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                                               Immediate="true" Required RequiredError=""
+                                               Clearable="!IsFormReadOnly" />
+                             </MudTd>
+                        </MudTr>
+                        <MudTr>
+                             <MudTh Style="width: 5116px; text-align:start; padding-left: 20px">Данные паспорта</MudTh>
+                             <MudTd DataLabel="PassportData">
+                                 <MudTextField T="string" Style="width: 500px;" @bind-Value="@context.Passport"
+                                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                                               Immediate="true" Required RequiredError=""
+                                               Clearable="!IsFormReadOnly" />
+                             </MudTd>
+                        </MudTr>
+                    }
+                </ChildRowContent>
             </MudTable>
         </div>
 
         <OverlayLoadingData Visible="@IsLoadingData" />
 
     </MudForm>
-</MudContainer>
+@* </MudContainer> *@
 
 
 
@@ -125,7 +176,8 @@
     private bool IsLoadingData { get; set; } = false;
     private bool IsNewItem { get; set; }
     private bool IsFormReadOnly { get; set; } = true;
-
+    private bool IsShowPersonDetails { get; set; } = false;
+    private HashSet<PersonEntity>? Persons { get; set; } = new HashSet<PersonEntity>();
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
@@ -148,10 +200,10 @@
 
     private async Task AddNewItem_Click()
     {
-        await Task.Delay(50);
-        IsNewItem = true;
-        IsFormReadOnly = false;
-        Item = new() { Persons = new List<PersonEntity>() { new PersonEntity() } };
+        // await Task.Delay(50);
+        // IsNewItem = true;
+        // IsFormReadOnly = false;
+        // Item = new() { Persons = new List<PersonEntity>() { new PersonEntity() } };
     }
 
     private async Task GetItem()
@@ -161,6 +213,10 @@
             Item = (MyCompanyEntity)response.Object!;
         else
             Snackbar.Add($"{response.Error.First()}", Severity.Error);
+
+        if (Item is not null)
+            if (Item.Persons!.Count() > 0)
+                Persons = Item.Persons!.ToHashSet();
 
         await Task.Delay(50);
     }

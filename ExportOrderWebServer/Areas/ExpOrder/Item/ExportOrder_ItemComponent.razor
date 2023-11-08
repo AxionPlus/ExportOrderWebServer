@@ -73,7 +73,8 @@
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required RequiredError="" Clearable="!IsFormReadOnly" />
 
-            <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="@Value.Dated"
+            <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="Value.Dated"
+                           DateChanged="async (e) => { Value.Dated = e.HasValue ? e.Value : DateTime.Today; }"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            DateFormat="dd.MM.yy" IconSize=Size.Small Clearable="!IsFormReadOnly" />
             <MudSpacer />

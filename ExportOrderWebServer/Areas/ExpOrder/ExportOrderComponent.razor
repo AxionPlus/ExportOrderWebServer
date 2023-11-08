@@ -14,12 +14,12 @@
 
 <div class="Container-item">
     <div class="container-content">
-        <MudTextField Class="TextField" Placeholder="Container" Style="width: 250px" @bind-Value="@Filter.CntrNum"
-                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+        <MudTextField Class="TextField" Placeholder="Container" Style="width: 160px" @bind-Value="@Filter.CntrNum"
+                      Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="11" Clearable />
 
         <MudSpacer />
 
-        <MudTextField Class="TextField" Placeholder="Number" Style="width: 200px" @bind-Value="@Filter.Num"
+        <MudTextField Class="TextField" Placeholder="Export Order No" Style="width: 160px" @bind-Value="@Filter.Num"
                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
 
         <MudSpacer />
@@ -34,7 +34,7 @@
                         DisableToolbar=false Clearable />
         <MudSpacer />
 
-        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 250px" Value="Filter.Vessel" SearchFunc="@SearchVessel"
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" Value="Filter.Vessel" SearchFunc="@SearchVessel"
                             Label="Vessel"
                             ValueChanged="(e)=> { Filter.Vessel = e; }"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -42,12 +42,12 @@
                             ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
 
-        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 200px" Value="Filter.Voyage" SearchFunc="@SearchVoyage"
-                            Label="Voyage" 
-                            ValueChanged="(e)=> { Filter.Voyage = e; }"
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+                            Label="Voyage"                             
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon=""
                             ResetValueOnEmptyText="true" Clearable />
+         @* ValueChanged="(e)=> { Filter.Voyage = e; }" *@
         <MudSpacer />
 
         <MudAutocomplete Class="Autocomplete" Style="width: 170px" T="string" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
@@ -57,7 +57,7 @@
                             ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
 
-        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 250px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
                             Label="Carrier" 
                             ValueChanged="(e)=> { Filter.Carrier= e; }"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -242,11 +242,11 @@
     }
 
     private async Task<IEnumerable<string>> SearchVoyage(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
+    {        
         var result = await _vesselCallProvider.GetVoyages();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;                      //return Enumerable.Empty<string>();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -269,7 +269,7 @@
 
     private async Task<IEnumerable<string>> SearchCarrier(string value)
     {
-        var result = await _carrierProvider.GetNames();
+        var result = await _carrierProvider.GetNamesEn();
 
         if (string.IsNullOrWhiteSpace(value))
             return result;

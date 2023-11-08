@@ -47,10 +47,10 @@ public class CustomsProvider : ICustomsProvider
                 var filter = (FilterParameters)parameters;
 
                 if (!string.IsNullOrEmpty(filter.Num))
-                    customsOffices = customsOffices.Where(s => s.CustomsCode == filter.Num).ToList();
+                    customsOffices = customsOffices.Where(s => s.Code == filter.Num).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Name))
-                    customsOffices = customsOffices.Where(s => s.CustomsOfficeShort == filter.Name).ToList();
+                    customsOffices = customsOffices.Where(s => s.OfficeShort == filter.Name).ToList();
             }
 
             appObjResponse.Object = customsOffices.ToArray();
@@ -64,7 +64,7 @@ public class CustomsProvider : ICustomsProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.CustomsOffices.Select(s => s.CustomsOfficeShort!).ToListAsync();
+            return await db.CustomsOffices.Select(s => s.OfficeShort!).ToListAsync();
         }
     }
 
@@ -73,7 +73,7 @@ public class CustomsProvider : ICustomsProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.CustomsOffices.Select(s => s.CustomsCode!).ToListAsync();
+            return await db.CustomsOffices.Select(s => s.Code!).ToListAsync();
         }
     }
 
@@ -89,15 +89,15 @@ public class CustomsProvider : ICustomsProvider
             {
                 var modifyItem = await db.CustomsOffices.FirstOrDefaultAsync(s => s.Id == item.Id);
 
-                if (modifyItem!.CustomsOffice != item.CustomsOffice)
+                if (modifyItem!.Office != item.Office)
                 {
                     var itemExistCheck = await db.CustomsOffices
-                                                         .Where(s => s.CustomsOffice!.ToUpper() == item.CustomsOffice!.ToUpper())
+                                                         .Where(s => s.Office!.ToUpper() == item.Office!.ToUpper())
                                                          .FirstOrDefaultAsync();
 
                     if (itemExistCheck is not null)
                     {
-                        appObjResponse.ErrorAdd($" {item.CustomsOffice} exists already");
+                        appObjResponse.ErrorAdd($" {item.Office} exists already");
                         return appObjResponse;
                     }
                 }
@@ -106,12 +106,11 @@ public class CustomsProvider : ICustomsProvider
 
                 modifyItem!.CreateUser = User!;
                 modifyItem!.CreateTime = DateTime.Now;
-                modifyItem!.CustomsCode = item.CustomsCode;
-                modifyItem!.CustomsOffice = item.CustomsOffice;
-                modifyItem!.CustomsOfficeShort = item.CustomsOfficeShort;
-                modifyItem!.CustomsDapartment = item.CustomsDapartment;
-                modifyItem!.CustomsEmail = item.CustomsEmail;
-                modifyItem!.CustomsArticle = item.CustomsArticle;
+                modifyItem!.Code = item.Code;
+                modifyItem!.Office = item.Office;
+                modifyItem!.OfficeShort = item.OfficeShort;
+                modifyItem!.Dapartment = item.Dapartment;
+                modifyItem!.Email = item.Email;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
@@ -140,10 +139,10 @@ public class CustomsProvider : ICustomsProvider
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
-            var itemExistCheck = await db.CustomsOffices.Where(s => s.CustomsOffice == item!.CustomsOffice).FirstOrDefaultAsync();
+            var itemExistCheck = await db.CustomsOffices.Where(s => s.Office == item!.Office).FirstOrDefaultAsync();
             if (itemExistCheck != null)
             {
-                appObjResponse.ErrorAdd($"Таможенный пост уже существует: {item!.CustomsOffice}");
+                appObjResponse.ErrorAdd($"Таможенный пост уже существует: {item!.Office}");
                 return appObjResponse;
             }
 

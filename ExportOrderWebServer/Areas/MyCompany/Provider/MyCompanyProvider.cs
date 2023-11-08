@@ -141,9 +141,9 @@ public class MyCompanyProvider : IMyCompanyProvider
                         modifyItemPerson.FamilyName = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.FamilyName;
                         modifyItemPerson.SurName= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.SurName;
                         modifyItemPerson.Phone= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Phone;
-                        modifyItemPerson.BornYear= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.BornYear;
-                        modifyItemPerson.BornPlace= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.BornPlace;
-                        modifyItemPerson.CompanyName= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.CompanyName;
+                        modifyItemPerson.BirthYear= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.BirthYear;
+                        modifyItemPerson.BirthPlace= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.BirthPlace;
+                        modifyItemPerson.Company= item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Company;
                         modifyItemPerson.Address = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Address;
                         modifyItemPerson.Passport = item.Persons!.FirstOrDefault(s => s.Id == modifyItemPerson.Id)!.Passport;
                     }

@@ -375,7 +375,7 @@
                                   </Style>
                                 </TextRun>
                                 <TextRun>
-                                  <Value> ОТ </Value>
+                                  <Value> от </Value>
                                   <Style>
                                     <FontSize>12pt</FontSize>
                                     <FontWeight>Bold</FontWeight>

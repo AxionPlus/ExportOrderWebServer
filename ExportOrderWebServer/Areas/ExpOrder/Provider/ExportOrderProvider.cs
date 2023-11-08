@@ -1,4 +1,6 @@
 ﻿
+using ExportOrderWebServer.Resources;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
@@ -99,9 +101,6 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 //ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract != null ?
                                                 //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
                                                 ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
-                                                CustomsOfficeCode = source.VesselCallDetail!.VesselCall.Terminal.Customs!.CustomsCode,
-                                                CustomsOfficeName = source.VesselCallDetail!.VesselCall.Terminal.Customs!.CustomsOffice,
-                                                MyCompanyName = myCompany!.Name!,                                                
                                                 Person = source.Person!.Name!.Substring(0, 1) + ". " + 
                                                         source.Person!.SurName!.Substring(0, 1) + "." + 
                                                         source.Person!.FamilyName + "  т. " + 
@@ -122,6 +121,8 @@ public class ExportOrderProvider : IExportOrderProvider
             using (var _db = _dbContext.CreateDbContextAsync())
             {
                 var db = await _db;
+
+                var myCompany = await db.MyCompany.AsNoTracking().LastOrDefaultAsync();
 
                 var Items = await db.ExportOrders
                                             .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal).ThenInclude(ter => ter.Customs)
@@ -495,7 +496,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<ManifestDTO>> mRecords = (_mRecords) =>
     {
-        var ItemsDTO = new List<ManifestDTO>();
+        var ItemsDTO = new List<ManifestDTO>();        
 
         foreach (var Item in _mRecords)
         {
@@ -513,19 +514,19 @@ public class ExportOrderProvider : IExportOrderProvider
                     Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo,
                     VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!,
                     VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG,
-                    //CaptainFamily = Item.VesselCallDetail.VesselCall.Vessel.CaptainFamily,
-                    //CaptainName = Item.VesselCallDetail.VesselCall.Vessel.CaptainName,
-                    CaptainFamily = "Family",                    
-                    CaptainName = "Name",
+                    CaptainFamily = Item.VesselCallDetail.VesselCall.Vessel.CaptainFamily,
+                    CaptainName = Item.VesselCallDetail.VesselCall.Vessel.CaptainName,
+                    //CaptainFamily = "Family",                    
+                    //CaptainName = "Name",
                     PODEn = Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG,
                     PODunlocode = Item.VesselCallDetail!.POD.UnLocode,
-                    CustomsOfiiceCode = Item.VesselCallDetail.VesselCall.Terminal.Customs!.CustomsCode,
+                    CustomsOfiiceCode = Item.VesselCallDetail.VesselCall.Terminal.Customs!.Code,
 
                     CarrierNameEn = Item.Carrier!.NameEn,
-                    //CarrierLocation = Item.Carrier.Location!.Name,
-                    //CarrierCountryEn = Item.Carrier.Location!.Country!.ENG,
-                    CarrierLocation = "Москва",
-                    CarrierCountryEn = "Russia",
+                    CarrierLocation = Item.Carrier.Location!.Name,
+                    CarrierCountryEn = Item.Carrier.Location!.Country!.ENG,
+                    //CarrierLocation = "Москва",
+                    //CarrierCountryEn = "Russia",
                     CarrierContract = Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.Contract,
                     CarrierContractDate = Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
 
@@ -533,6 +534,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     CntrType = record.CntrType!.Normolize!,
                     Seal = record.Seal != string.Empty ? record.Seal : "N/A",
                     CntrTareWt = record.CntrTareWt,
+                    CntrTotalWeight = record.CntrTareWt + (double)record.Contents.Sum(c => c.GrossWt)!,
 
                     PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty)!,
                     PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
@@ -542,26 +544,43 @@ public class ExportOrderProvider : IExportOrderProvider
                     IMO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.IMO).Distinct()),
                     UNNO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.UNNO).Distinct()),
 
-                    Commodities = string.Join("; ", record.Contents.Select(rc => (
+                    Commodities = string.Join("; ", record.Contents.Select(rc =>
+                                                                    (
                                                                       rc.DocumentRecord.CommodityName + " " +
                                                                       rc.DocumentRecord.IMO + " " +
                                                                       rc.DocumentRecord.UNNO
-                                                                    ).Trim())
-                                                                    .Distinct().Order()),
+                                                                    ).
+                                                                    Trim()).Distinct().Order()),
 
-                    CommoditiesEn = string.Join("; ", record.Contents.Select(rc => (
+                    CommoditiesEn = string.Join("; ", record.Contents.Select(rc =>
+                                                                     (
                                                                         rc.DocumentRecord.CommodityEngName + " " +
                                                                         rc.DocumentRecord.IMO + " " +
                                                                         rc.DocumentRecord.UNNO
-                                                                      ).Trim())
-                                                                                  .Distinct().Order()),
-
-                    CntrTotalWeight = record.CntrTareWt + (double)record.Contents.Sum(c => c.GrossWt)!,
+                                                                      )
+                                                                      .Trim()).Distinct().Order()),
+                    
 
                     Shippers = "S: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Distinct()),
                     Consignees = "C: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct()),
                     ShippersCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.CountryENG).Distinct()),
-                    ConsigneesCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.CountryENG).Distinct())
+                    ConsigneesCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.CountryENG).Distinct()),
+
+                    CustomsOfficeCode = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
+                    CustomsOfficeName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Office,
+                    CustomsOfficeShortName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.OfficeShort,
+                    CustomsDapartment = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Dapartment,
+
+                    PersonFamily = Item.Person!.FamilyName,
+                    PersonSurName = Item.Person!.Name! + " " + Item.Person!.SurName,
+                    PersonBirthYear = Item.Person!.BirthYear,
+                    PersonBirthPlace = Item.Person!.BirthPlace,
+                    PersonCompany = Item.Person!.Company,
+                    PersonAddress = Item.Person!.Address,
+                    PersonPass = Item.Person!.Passport,
+                    PersonSign = Item.Person!.Name!.Substring(0, 1) + ". " + Item.Person!.SurName!.Substring(0, 1) + ". " + Item.Person!.FamilyName,
+
+                    DateExplanation = "\"____\"" + Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("MMMM.yyyy") + "г.",
                 };
                 
                 ItemsDTO.Add(itemDTO);

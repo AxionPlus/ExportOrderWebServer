@@ -1,8 +1,6 @@
 ﻿using AspNetCore.Reporting;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using System.Data;
-using System.IO;
 using ExportOrderWebServer.Service;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
@@ -265,9 +263,8 @@ public class ExportOrderController : ControllerBase
 
     [HttpGet]
     [Route("ViewReportManifest")]
-    public async Task<IActionResult> ManifestReport(long vslcallid)    //string Voyage
+    public async Task<IActionResult> ManifestReport(long vslcallid)
     {
-        //var Items = await _exportOrderProvider.GetManifestItemAsync(Voyage);
         var Items = await _exportOrderProvider.GetManifestAsync(vslcallid);
 
         if (Items.Count() == 0) return Empty;
@@ -360,6 +357,80 @@ public class ExportOrderController : ControllerBase
 
             localReport.AddDataSource("dsManifest", Items);
             localReport.AddDataSource("dsSummary", dsSummary);
+
+            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
+            //parameters
+            //await Task.Delay(500);
+
+            return File(result.MainStream, "application/pdf");
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            Console.WriteLine(msg);
+            return Ok();
+        }
+    }
+
+    [HttpGet]
+    [Route("ViewCustomsExplanation")]
+    public async Task<IActionResult> CustomsReport(long vslcallid)
+    {
+        var Items = await _exportOrderProvider.GetManifestAsync(vslcallid);
+
+        if (Items.Count() == 0) return Empty;
+
+        try
+        {
+            string mimeType = "";
+            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Customs.rdlc");
+
+            LocalReport localReport = new LocalReport(pathReport);
+
+            #region DATA SOURCES
+
+            // Customs
+            var dsCustomsDept = Items.GroupBy(g => g.VesselCallId).FirstOrDefault()!
+                                .Select(g => new
+                                {
+                                    g.CustomsOfficeName,
+                                    g.CustomsOfficeShortName,
+                                    g.CustomsDapartment,
+                                    g.DateExplanation,
+                                    VesselVoyage = g.VesselName + ", флаг " + g.VesselFlag + " рейс: " + g.Voyage,
+
+                                }).ToList();
+
+            // Person
+            var dsPerson = Items.GroupBy(g => g.CustomsOfficeCode).FirstOrDefault()!
+                                .Select(g => new
+                                {
+                                    g.PersonFamily,
+                                    g.PersonSurName,
+                                    g.PersonBirthYear,
+                                    g.PersonBirthPlace,
+                                    g.PersonCompany,
+                                    g.PersonAddress,
+                                    g.PersonPass,
+                                }).ToList();
+
+            // General Data (records)
+            var dsRecords = Items.GroupBy(g => g.BLNum)
+                               .Select(g => new
+                               {
+                                   g.Key,
+                                   CntrCount = g.Select(m => m.Cntr).Count(),
+                                   GrossWt = g.Select(m => m.GrossWeights).Sum(),
+                                   CntrTotalWt = g.Sum(m => m.CntrTotalWeight),
+                                   Commodities = string.Join("; ", g.Select(m => m.Commodities).Distinct())
+                               }).ToList();
+
+            #endregion
+
+            localReport.AddDataSource("dsLetter", dsCustomsDept);
+            localReport.AddDataSource("dsPeron", dsPerson);
+            localReport.AddDataSource("dsRecords", dsRecords);
 
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
             //parameters

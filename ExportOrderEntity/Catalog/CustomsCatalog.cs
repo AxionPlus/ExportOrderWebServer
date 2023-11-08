@@ -4,10 +4,9 @@ namespace ExportOrderEntites.Catalog;
 
 public class CustomsCatalog : CatalogEntity
 {
-    public string? CustomsCode { get; set; }            // "10317090";
-    public string? CustomsOffice { get; set; }          // "НОВОРОССИЙСКИЙ ЗАПАДНЫЙ ТАМОЖЕННЫЙ ПОСТ";
-    public string? CustomsOfficeShort { get; set; }     // "ЗАПАДНЫЙ Т/П";
-    public string? CustomsDapartment { get; set; }      // "ОТО И ТК НОВОРОССИЙСК";
-    public string? CustomsEmail { get; set; }           // e-mail для отправки xml файла
-    public string? CustomsArticle { get; set; }         // "в соответствии со статьей 323 ТК ЕАЭС";
+    public string? Code { get; set; }            // "10317090";
+    public string? Office { get; set; }          // "НОВОРОССИЙСКИЙ ЗАПАДНЫЙ ТАМОЖЕННЫЙ ПОСТ";
+    public string? OfficeShort { get; set; }     // "ЗАПАДНЫЙ Т/П";
+    public string? Dapartment { get; set; }      // "ОТО И ТК НОВОРОССИЙСК";
+    public string? Email { get; set; }           // e-mail для отправки xml файла
 }

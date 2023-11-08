@@ -10,8 +10,9 @@ public class ManifestDTO
     public string BLNum { get; set; }
     public string BLDate { get; set; }          // дата коносамента (отхода судна)
     public long VesselCallId { get; set; }
-    public string VesselName { get; set; }
-    public string VesselFlagEn { get; set; }
+    public string? VesselName { get; set; }
+    public string? VesselFlag { get; set; }
+    public string? VesselFlagEn { get; set; }
     public string? CaptainFamily { get; set; }
     public string? CaptainName { get; set; }
     public string Voyage { get; set; }
@@ -22,7 +23,7 @@ public class ManifestDTO
     public string? CarrierContractDate { get; set; }       // Перевозчик город
 
     public string POLEn { get; set; } = "NOVOROSSIYSK";
-    public string PODEn { get; set; }
+    public string? PODEn { get; set; }
     public string? PODunlocode { get; set; }
     public string? CustomsOfiiceCode { get; set; }    // Код таможенного поста в порту погрузки
 
@@ -38,14 +39,31 @@ public class ManifestDTO
     public double? GrossWeights { get; set; }
     public double CntrTotalWeight { get; set; }    
     public double? Volumes { get; set; }
-    public string IMO { get; set; }
-    public string UNNO { get; set; }
-    public string Commodities { get; set; }
-    public string CommoditiesEn { get; set; }
-    public string Shippers { get; set; }
-    public string ShippersCountries { get; set; }
-    public string Consignees { get; set; }
-    public string ConsigneesCountries { get; set; }
+    public string? IMO { get; set; }
+    public string? UNNO { get; set; }
+    public string? Commodities { get; set; }
+    public string? CommoditiesEn { get; set; }
+    public string? Shippers { get; set; }
+    public string? ShippersCountries { get; set; }
+    public string? Consignees { get; set; }
+    public string? ConsigneesCountries { get; set; }
+
+    public string? CustomsOfficeCode { get; set; }
+    public string? CustomsOfficeName { get; set; }
+    public string? CustomsOfficeShortName { get; set; }
+    public string? CustomsDapartment { get; set; } 
+
+
+    public string? PersonSign { get; set; }
+    public string? PersonFamily { get; set; }
+    public string? PersonSurName { get; set; }
+    public string? PersonBirthYear { get; set; }
+    public string? PersonBirthPlace { get; set; }
+    public string? PersonCompany { get; set; }
+    public string? PersonAddress { get; set;}
+    public string? PersonPass { get; set; }
+    public string? DateExplanation { get; set; }
+    
 }
 
 public class ManifestSummaryDTO

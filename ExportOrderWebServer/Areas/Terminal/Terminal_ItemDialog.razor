@@ -59,14 +59,14 @@
             <div class="container-content">
                 <MudSelect Class="SelectField" T="CustomsCatalog" Label="Таможенный пост" @bind-Value="@Item.Customs"
                             Style="width:500px; text-align:left" Placeholder="Таможенный пост"
-                            ToStringFunc="@(str=>str is not null ? str.CustomsOffice : string.Empty)"
+                            ToStringFunc="@(str=>str is not null ? str.Office : string.Empty)"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon=""
                             Clearable="!IsFormReadOnly">
                     @if (CustomOffices is not null)
                         @foreach (var office in CustomOffices)
                         {
-                            <MudSelectItem Value="@office">@($"({office.CustomsCode}) {office.CustomsOffice}")</MudSelectItem>
+                            <MudSelectItem Value="@office">@($"({office.Code}) {office.Office}")</MudSelectItem>
                         }
                 </MudSelect>
             </div>            

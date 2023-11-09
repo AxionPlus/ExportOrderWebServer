@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231016205542_16_10_ExportOrderWithVesselCallDetails")]
-    partial class _16_10_ExportOrderWithVesselCallDetails
+    [Migration("20231108224230_09-11_CustomsLetter")]
+    partial class _0911_CustomsLetter
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.11")
+                .HasAnnotation("ProductVersion", "7.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -147,6 +147,9 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
+                    b.Property<long?>("LocationId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -156,6 +159,8 @@ namespace ExportOrderWebServer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreateUserId");
+
+                    b.HasIndex("LocationId");
 
                     b.ToTable("Carriers");
                 });
@@ -228,22 +233,25 @@ namespace ExportOrderWebServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
-                    b.Property<string>("CustomsArticle")
+                    b.Property<string>("Dapartment")
                         .HasColumnType("text");
 
-                    b.Property<string>("CustomsCode")
+                    b.Property<string>("Email")
                         .HasColumnType("text");
 
-                    b.Property<string>("CustomsDapartment")
+                    b.Property<string>("Office")
                         .HasColumnType("text");
 
-                    b.Property<string>("CustomsOffice")
+                    b.Property<string>("OfficeShort")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -539,7 +547,7 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("PackageName")
                         .HasColumnType("text");
 
-                    b.Property<long>("PackageQty")
+                    b.Property<long?>("PackageQty")
                         .HasColumnType("bigint");
 
                     b.Property<double?>("Volume")
@@ -619,7 +627,7 @@ namespace ExportOrderWebServer.Migrations
                         .HasMaxLength(11)
                         .HasColumnType("character varying(11)");
 
-                    b.Property<double?>("CntrTareWt")
+                    b.Property<double>("CntrTareWt")
                         .HasColumnType("double precision");
 
                     b.Property<string>("CntrTypeISO")
@@ -682,13 +690,25 @@ namespace ExportOrderWebServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BirthPlace")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BirthYear")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Company")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
-                    b.Property<string>("Document")
+                    b.Property<string>("FamilyName")
                         .HasColumnType("text");
 
                     b.Property<long?>("MyCompanyEntityId")
@@ -697,7 +717,13 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
+                    b.Property<string>("Passport")
+                        .HasColumnType("text");
+
                     b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SurName")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -815,6 +841,12 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CaptainFamily")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CaptainName")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("timestamp without time zone");
@@ -981,7 +1013,13 @@ namespace ExportOrderWebServer.Migrations
                         .WithMany()
                         .HasForeignKey("CreateUserId");
 
+                    b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId");
+
                     b.Navigation("CreateUser");
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.Catalog.CarrierTerminalDetails", b =>

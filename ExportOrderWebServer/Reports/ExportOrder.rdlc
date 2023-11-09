@@ -45,8 +45,8 @@
           <DataField>POL</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="POD">
-          <DataField>POD</DataField>
+        <Field Name="PODwithCountryRus">
+          <DataField>PODwithCountryRus</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="Contract">
@@ -815,21 +815,21 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="POD">
+                        <Textbox Name="PODwithCountryRus">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!POD.Value</Value>
+                                  <Value>=Fields!PODwithCountryRus.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>POD</rd:DefaultName>
+                          <rd:DefaultName>PODwithCountryRus</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -841,6 +841,7 @@
                           </Style>
                         </Textbox>
                         <ColSpan>2</ColSpan>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell />
@@ -2556,6 +2557,7 @@
                                   <Style>
                                     <FontFamily>courier New</FontFamily>
                                     <FontSize>9pt</FontSize>
+                                    <Format>0;(0);''</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

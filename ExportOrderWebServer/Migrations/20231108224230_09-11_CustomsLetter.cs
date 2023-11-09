@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     /// <inheritdoc />
-    public partial class _16_10_ExportOrderWithVesselCallDetails : Migration
+    public partial class _0911_CustomsLetter : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -170,28 +170,6 @@ namespace ExportOrderWebServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Carriers",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: true),
-                    NameEn = table.Column<string>(type: "text", nullable: true),
-                    BlTemplate = table.Column<int>(type: "integer", nullable: false),
-                    CreateUserId = table.Column<string>(type: "text", nullable: true),
-                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Carriers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Carriers_AspNetUsers_CreateUserId",
-                        column: x => x.CreateUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Commodities",
                 columns: table => new
                 {
@@ -243,10 +221,11 @@ namespace ExportOrderWebServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CustomsCode = table.Column<string>(type: "text", nullable: true),
-                    CustomsOffice = table.Column<string>(type: "text", nullable: true),
-                    CustomsDapartment = table.Column<string>(type: "text", nullable: true),
-                    CustomsArticle = table.Column<string>(type: "text", nullable: true),
+                    Code = table.Column<string>(type: "text", nullable: true),
+                    Office = table.Column<string>(type: "text", nullable: true),
+                    OfficeShort = table.Column<string>(type: "text", nullable: true),
+                    Dapartment = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
                     CreateUserId = table.Column<string>(type: "text", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
@@ -307,29 +286,6 @@ namespace ExportOrderWebServer.Migrations
                         column: x => x.CreateUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CarrierDetails",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TerminalName = table.Column<string>(type: "text", nullable: false),
-                    Contract = table.Column<string>(type: "text", nullable: true),
-                    DateContract = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    AgentPOL = table.Column<string>(type: "text", nullable: true),
-                    CarrierId = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CarrierDetails", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CarrierDetails_Carriers_CarrierId",
-                        column: x => x.CarrierId,
-                        principalTable: "Carriers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -397,6 +353,8 @@ namespace ExportOrderWebServer.Migrations
                     Name = table.Column<string>(type: "text", nullable: true),
                     TerminalCode = table.Column<string>(type: "text", nullable: true),
                     FlagId = table.Column<long>(type: "bigint", nullable: true),
+                    CaptainFamily = table.Column<string>(type: "text", nullable: true),
+                    CaptainName = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     CreateUserId = table.Column<string>(type: "text", nullable: false),
@@ -454,8 +412,14 @@ namespace ExportOrderWebServer.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: true),
+                    FamilyName = table.Column<string>(type: "text", nullable: true),
+                    SurName = table.Column<string>(type: "text", nullable: true),
                     Phone = table.Column<string>(type: "text", nullable: true),
-                    Document = table.Column<string>(type: "text", nullable: true),
+                    BirthYear = table.Column<string>(type: "text", nullable: true),
+                    BirthPlace = table.Column<string>(type: "text", nullable: true),
+                    Company = table.Column<string>(type: "text", nullable: true),
+                    Address = table.Column<string>(type: "text", nullable: true),
+                    Passport = table.Column<string>(type: "text", nullable: true),
                     MyCompanyEntityId = table.Column<long>(type: "bigint", nullable: true),
                     CreateUserId = table.Column<string>(type: "text", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
@@ -472,6 +436,34 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_Persons_MyCompany_MyCompanyEntityId",
                         column: x => x.MyCompanyEntityId,
                         principalTable: "MyCompany",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Carriers",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    NameEn = table.Column<string>(type: "text", nullable: true),
+                    BlTemplate = table.Column<int>(type: "integer", nullable: false),
+                    LocationId = table.Column<long>(type: "bigint", nullable: true),
+                    CreateUserId = table.Column<string>(type: "text", nullable: true),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Carriers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Carriers_AspNetUsers_CreateUserId",
+                        column: x => x.CreateUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Carriers_Locations_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Locations",
                         principalColumn: "Id");
                 });
 
@@ -505,6 +497,29 @@ namespace ExportOrderWebServer.Migrations
                         column: x => x.LocationId,
                         principalTable: "Locations",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CarrierDetails",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TerminalName = table.Column<string>(type: "text", nullable: false),
+                    Contract = table.Column<string>(type: "text", nullable: true),
+                    DateContract = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    AgentPOL = table.Column<string>(type: "text", nullable: true),
+                    CarrierId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CarrierDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CarrierDetails_Carriers_CarrierId",
+                        column: x => x.CarrierId,
+                        principalTable: "Carriers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -630,7 +645,7 @@ namespace ExportOrderWebServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CntrNum = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
                     CntrTypeISO = table.Column<string>(type: "character varying(4)", nullable: true),
-                    CntrTareWt = table.Column<double>(type: "double precision", nullable: true),
+                    CntrTareWt = table.Column<double>(type: "double precision", nullable: false),
                     Seal = table.Column<string>(type: "text", nullable: false),
                     ExportOrderId = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -680,7 +695,7 @@ namespace ExportOrderWebServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PackageQty = table.Column<long>(type: "bigint", nullable: false),
+                    PackageQty = table.Column<long>(type: "bigint", nullable: true),
                     PackageName = table.Column<string>(type: "text", nullable: true),
                     NetWt = table.Column<double>(type: "double precision", nullable: true),
                     GrossWt = table.Column<double>(type: "double precision", nullable: true),
@@ -751,6 +766,11 @@ namespace ExportOrderWebServer.Migrations
                 name: "IX_Carriers_CreateUserId",
                 table: "Carriers",
                 column: "CreateUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Carriers_LocationId",
+                table: "Carriers",
+                column: "LocationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Commodities_CreateUserId",

@@ -94,12 +94,14 @@ public class VesselProvider : IVesselProvider
 
                 modifyItem!.CreateUser = User!;
                 modifyItem!.CreateTime = DateTime.Now;
-                modifyItem!.IMO = item.IMO;
                 modifyItem!.Name = item.Name;
+                modifyItem!.IMO = item.IMO;                
                 modifyItem!.TerminalCode = item.TerminalCode;
+                modifyItem!.CaptainFamily = item.CaptainFamily;
+                modifyItem!.CaptainName = item.CaptainName;
 
-                if (!modifyItem!.Flag!.Id.Equals(item.Flag!.Id))
-                    modifyItem!.Flag = item.Flag;
+                if (item.Flag is not null)
+                    modifyItem!.Flag = item.Flag;   // if (!modifyItem!.Flag!.Id.Equals(item.Flag!.Id))
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 

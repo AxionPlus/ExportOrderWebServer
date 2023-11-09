@@ -468,7 +468,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnPOL;
             
-            private global::System.Data.DataColumn columnPOD;
+            private global::System.Data.DataColumn columnPODwithCountryRus;
             
             private global::System.Data.DataColumn columnContract;
             
@@ -569,9 +569,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn PODColumn {
+            public global::System.Data.DataColumn PODwithCountryRusColumn {
                 get {
-                    return this.columnPOD;
+                    return this.columnPODwithCountryRus;
                 }
             }
             
@@ -644,7 +644,7 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public dtExportOrderRow AdddtExportOrderRow(long Id, string Num, System.DateTime Dated, string Vessel, string Voyage, System.DateTime DateOfLoading, string POL, string POD, string Contract, string ContractDate, string MyCompanyName, string Person) {
+            public dtExportOrderRow AdddtExportOrderRow(long Id, string Num, System.DateTime Dated, string Vessel, string Voyage, System.DateTime DateOfLoading, string POL, string PODwithCountryRus, string Contract, string ContractDate, string MyCompanyName, string Person) {
                 dtExportOrderRow rowdtExportOrderRow = ((dtExportOrderRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Id,
@@ -654,7 +654,7 @@ namespace ExportOrderWebServer.DataSet {
                         Voyage,
                         DateOfLoading,
                         POL,
-                        POD,
+                        PODwithCountryRus,
                         Contract,
                         ContractDate,
                         MyCompanyName,
@@ -695,7 +695,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnVoyage = base.Columns["Voyage"];
                 this.columnDateOfLoading = base.Columns["DateOfLoading"];
                 this.columnPOL = base.Columns["POL"];
-                this.columnPOD = base.Columns["POD"];
+                this.columnPODwithCountryRus = base.Columns["PODwithCountryRus"];
                 this.columnContract = base.Columns["Contract"];
                 this.columnContractDate = base.Columns["ContractDate"];
                 this.columnMyCompanyName = base.Columns["MyCompanyName"];
@@ -719,8 +719,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnDateOfLoading);
                 this.columnPOL = new global::System.Data.DataColumn("POL", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPOL);
-                this.columnPOD = new global::System.Data.DataColumn("POD", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnPOD);
+                this.columnPODwithCountryRus = new global::System.Data.DataColumn("PODwithCountryRus", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnPODwithCountryRus);
                 this.columnContract = new global::System.Data.DataColumn("Contract", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnContract);
                 this.columnContractDate = new global::System.Data.DataColumn("ContractDate", typeof(string), null, global::System.Data.MappingType.Element);
@@ -2542,17 +2542,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string POD {
+            public string PODwithCountryRus {
                 get {
                     try {
-                        return ((string)(this[this.tabledtExportOrder.PODColumn]));
+                        return ((string)(this[this.tabledtExportOrder.PODwithCountryRusColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'POD\' в таблице \'dtExportOrder\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'PODwithCountryRus\' в таблице \'dtExportOrder\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tabledtExportOrder.PODColumn] = value;
+                    this[this.tabledtExportOrder.PODwithCountryRusColumn] = value;
                 }
             }
             
@@ -2694,14 +2694,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsPODNull() {
-                return this.IsNull(this.tabledtExportOrder.PODColumn);
+            public bool IsPODwithCountryRusNull() {
+                return this.IsNull(this.tabledtExportOrder.PODwithCountryRusColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetPODNull() {
-                this[this.tabledtExportOrder.PODColumn] = global::System.Convert.DBNull;
+            public void SetPODwithCountryRusNull() {
+                this[this.tabledtExportOrder.PODwithCountryRusColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

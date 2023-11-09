@@ -1,5 +1,4 @@
-﻿
-@inject ISnackbar Snackbar
+﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService;
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
@@ -96,24 +95,27 @@
                              SearchFunc="@SearchCarrier"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              Required RequiredError=""
-                             CloseIcon="" OpenIcon=""
+                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
                              ResetValueOnEmptyText="true"
                              Placeholder="Carrier"
-                             MaxItems="20"
-                             IconSize="Size.Small"
+                             MaxItems="20"                             
+                              AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                              AdornmentColor="Color.Primary"
+                              Adornment="Adornment.End"
+                              OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCarrier_Click(); })"
                              Clearable="!IsFormReadOnly" />
             <MudSpacer />
 
             <div style="margin-right:20px">
                  <MudSelect Class="SelectField" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
-                            Text="@(Value.Person is not null ? Value.Person.Name : "")"
+                            Text="@(Value.Person!.FamilyName is not null ? Value.Person.FamilyName : "")"
                             Style="width:180px" Placeholder="И.О. Фамилия"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon="" Clearable="!IsFormReadOnly">
                      @if (Persons is not null)
                         @foreach (var person in Persons)
                         {
-                            <MudSelectItem Value="@person">@person.Name</MudSelectItem>
+                            <MudSelectItem Value="@person">@person.FamilyName</MudSelectItem>
                         }
                 </MudSelect>
             </div>            
@@ -603,20 +605,27 @@
 
         if (!result.Canceled)
         {
-            string VoyagePOD = (string)result.Data; // change to vslCallid
-            //string pod = Voyage.Split('&')[2];
-
-            var response = await _vesselCallProvider.GetVesselCallDetailItemAsync(VoyagePOD);
+            var response = await _vesselCallProvider.GetVesselCallDetailItemAsync((long)result.Data);
             if (!response.HasError)
             {
                 Value!.VesselCallDetail = (VesselCallDetail)response.Object!;
-                //Value!.IdPOD = Value.VesselCall.Details.FirstOrDefault(d => d.POD!.NameEn == pod)!.POD!.Id;
             }                
             else
                 Snackbar.Add($"{response.Error.First()}", Severity.Error);
         }
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddCarrier_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Carrier_ItemDialog>("New Carrier", parameters, options);
+
+        DialogResult result = await dialog.Result;
     }
 
     private async Task<IEnumerable<CarrierCatalog>> SearchCarrier(string value)
@@ -635,9 +644,6 @@
         if (!response.HasError)
             Carriers = ((IEnumerable<CarrierCatalog>)response.Object!).ToList();
 
-        //var carrierDetails = carriers.SelectMany(c => c.CarrierDetails).Where(d => d.TerminalName == Value.VesselCall.Terminal.Name).ToList();
-
-        //return Carriers.OrderBy(x => x.Name).Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
         Carriers = Carriers.OrderBy(x => x.Name).Where(x => x.CarrierDetails.Where(d => d.TerminalName == terminal).ToList().Count > 0).ToList();
 
         if (string.IsNullOrWhiteSpace(value))

@@ -19,13 +19,18 @@ public class ManifestDTO
     public string? CarrierNameEn { get; set; }             // Перевозчик - линия
     public string? CarrierCountryEn { get; set; }          // Перевозчик страна
     public string? CarrierLocation { get; set; }           // Перевозчик город
-    public string? CarrierContract { get; set; }           // Перевозчик город
-    public string? CarrierContractDate { get; set; }       // Перевозчик город
+    public string? CarrierContract { get; set; }           // Перевозчик договор
+    public string? CarrierContractDate { get; set; }       // Перевозчик дата договора
 
     public string POLEn { get; set; } = "NOVOROSSIYSK";
     public string? PODEn { get; set; }
+    public string? PODnCountryEn { get; set; }
     public string? PODunlocode { get; set; }
-    public string? CustomsOfiiceCode { get; set; }    // Код таможенного поста в порту погрузки
+    public string? CustomsOfficeCode { get; set; }    // Код таможенного поста в порту погрузки
+    public string? CustomsOfficeName { get; set; }
+    public string? CustomsOfficeShortName { get; set; }
+    public string? CustomsDapartment { get; set; }
+
 
     // RECORDS
     public uint Seq { get; set; }               // Record index for RDLC Report    
@@ -47,11 +52,6 @@ public class ManifestDTO
     public string? ShippersCountries { get; set; }
     public string? Consignees { get; set; }
     public string? ConsigneesCountries { get; set; }
-
-    public string? CustomsOfficeCode { get; set; }
-    public string? CustomsOfficeName { get; set; }
-    public string? CustomsOfficeShortName { get; set; }
-    public string? CustomsDapartment { get; set; } 
 
 
     public string? PersonSign { get; set; }

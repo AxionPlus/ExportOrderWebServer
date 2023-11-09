@@ -36,7 +36,7 @@ public class ExportOrderDTO
     public string? Contract { get; set; }
     public string? ContractDate { get; set; }
     public string? CustomsOfficeCode { get; set; }
-    public string? CustomsOfficeName { get; set; }
+    public string? CustomsOfficeNameShort { get; set; }
     public string? MyCompanyName { get; set; }
     public string? Person { get; set; }
     public string? PersonXml { get; set; }

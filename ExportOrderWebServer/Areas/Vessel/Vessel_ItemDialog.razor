@@ -27,7 +27,7 @@
         <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
+                <MudTextField T="string" Style="width: 360px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" AutoFocus="true"
@@ -35,7 +35,7 @@
                               Clearable="!IsFormReadOnly" />
              </div>
             <div class="container-content" style="justify-content: flex-start">
-                <MudAutocomplete T="CountryCatalog" Style="width: 280px; margin-right:20px" Label="Flag" @bind-Value="Item.Flag"
+                <MudAutocomplete T="CountryCatalog" Style="width: 280px; margin-right:10px" Label="Flag" @bind-Value="Item.Flag"
                                  ToStringFunc="@(e => e != null ? e.RUS : "")"
                                  SearchFunc="@SearchCountry"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -50,19 +50,31 @@
                      <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddFlag_Click" />
                  </MudTooltip>
             </div>
-            <div class="container-content">
-                <MudTextField T="string" Style="width: 150px; margin-right: 10px" Label="IMO no" @bind-Text="@Item.IMO"
+            <div class="container-content" style="justify-content: flex-start">
+                <MudTextField T="string" Style="width: 130px; margin-right: 20px" Label="IMO no" @bind-Text="@Item.IMO"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" MaxLength="10"
                               Required RequiredError=""
                               Clearable="!IsFormReadOnly" />
-            </div>
-            <div class="container-content">
-                <MudTextField T="string" Style="width: 150px" Label="Terminal code" @bind-Text="@Item.TerminalCode"
+                <MudTextField T="string" Style="width: 130px" Label="Terminal code" @bind-Text="@Item.TerminalCode"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
                               Clearable="!IsFormReadOnly" />
+            </div>
+            <div class="container-content">
+                 <MudTextField T="string" Style="width: 280px" Label="Captain's Family" @bind-Text="@Item.CaptainFamily"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true"
+                               Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+            </div>
+            <div class="container-content">
+                 <MudTextField T="string" Style="width: 360px" Label="Captain's Name" @bind-Text="@Item.CaptainName"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true"
+                               Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
             </div>
         </div>
     </MudForm>

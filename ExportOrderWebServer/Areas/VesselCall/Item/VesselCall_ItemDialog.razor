@@ -1,4 +1,5 @@
 ﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject IVesselCallProvider _vesselCallProvider
 @inject IVesselProvider _vesselProvider
 @inject ITerminalProvider _terminalProvider
@@ -85,12 +86,15 @@
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchVessel"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                              Required RequiredError=""
-                                  CloseIcon="" OpenIcon=""
-                                  ResetValueOnEmptyText="true"
-                                  MaxItems="20"
-                                  IconSize="Size.Small"
-                                  Clearable="!IsFormReadOnly" />
+                                 Required RequiredError=""
+                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                 ResetValueOnEmptyText="true"
+                                 MaxItems="20"                                  
+                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                 AdornmentColor="Color.Primary"
+                                 Adornment="Adornment.End"
+                                 OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddVessel_Click(); })"
+                                 Clearable="!IsFormReadOnly" />
                  <MudSpacer />
                  <MudTextField T="string" Style="width: 260px;" Label="Voyage" Text="@Item.VoyageNo"
                                TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
@@ -144,17 +148,7 @@
                                 Clearable="!IsFormReadOnly" />
              </div>
 
-             @*         @if (Item.Details != null)
-        { *@
              <div class="Container-table">
-                 @*                 @if (mudTable != null)
-            {
-            <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Item.Details!.Count())</span>
-            </div>
-            } *@
                  <MudTable Class="Table" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
                      <HeaderContent>
                          <MudTh Style="width:30px">
@@ -173,11 +167,14 @@
                                               ToStringFunc="@(e => e != null ? e.Name : "")"
                                               SearchFunc="@SearchPOD"
                                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                              Required RequiredError=""
-                                              CloseIcon="" OpenIcon=""
+                                              Required RequiredError=""
+                                              CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                               ResetValueOnEmptyText="true"
-                                              MaxItems="20"
-                                              IconSize="Size.Small"
+                                              MaxItems="20"                                              
+                                              AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                              AdornmentColor="Color.Primary"
+                                              Adornment="Adornment.End"
+                                              OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddPort_Click(); })"
                                               Clearable="!IsFormReadOnly" />
                          </MudTd>
                          <MudTd DataLabel="Agent">
@@ -191,8 +188,6 @@
                      </RowTemplate>
                  </MudTable>
              </div>
-             @* } *@
-
          </div>
 
      </MudForm>
@@ -296,6 +291,28 @@
         await Task.Delay(50);
         if (Item!.Details.Contains(item))
             Item.Details.Remove(item);
+    }
+
+    private async Task AddVessel_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("New Vessel", parameters, options);
+
+        DialogResult result = await dialog.Result;
+    }
+
+    private async Task AddPort_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Location", parameters, options);
+
+        DialogResult result = await dialog.Result;
     }
 
     #region SEARCH FUNCTIONS

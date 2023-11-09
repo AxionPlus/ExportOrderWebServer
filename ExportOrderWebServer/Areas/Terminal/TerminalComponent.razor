@@ -48,7 +48,7 @@
                     <MudTh Style="width:30px"></MudTh>
                     <MudTh Style="width:30px"></MudTh>
                     <MudTh Style="width:200px">
-                        <MudTableSortLabel SortBy="new Func<TerminalCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
+                        <MudTableSortLabel SortBy="new Func<TerminalCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
                     </MudTh>
                     <MudTh Style="width:250px">
                         <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name!)">Location</MudTableSortLabel>
@@ -139,26 +139,26 @@
 
     private async Task<IEnumerable<string>> SearchNames(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
         var result = await _terminalProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<string>> SearchLocations(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
-
+    {        
         var result = await _locationProvider.GetNames();
-
+     
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }

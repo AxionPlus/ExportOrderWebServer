@@ -54,11 +54,14 @@
                                   SearchFunc="@SearchCountry"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
                                   Required RequiredError=""
-                                  CloseIcon="" OpenIcon=""
+                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                   ResetValueOnEmptyText="true"
                                   Placeholder="Country"
-                                  MaxItems="20"
-                                  IconSize="Size.Small"
+                                  MaxItems="20"                                  
+                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                  AdornmentColor="Color.Primary"
+                                  Adornment="Adornment.End"
+                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCountry_Click(); })"
                                   Clearable="!IsFormReadOnly" />
              </div>
          </div>
@@ -148,6 +151,16 @@
         IsFormReadOnly = false;
     }
 
+    private async Task AddCountry_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Country_ItemDialog>("New Country", parameters, options);
+
+        DialogResult result = await dialog.Result;
+    }
 
     private async Task<IEnumerable<CountryCatalog>> SearchCountry(string value)
     {

@@ -24,7 +24,9 @@ public class CarrierProvider : ICarrierProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Carriers.AsNoTracking().Include(s => s.CarrierDetails).FirstOrDefaultAsync(s => s.Id == id);
+            appObjResponse.Object = await db.Carriers.AsNoTracking().Include(s => s.CarrierDetails)
+                                                                    .Include(s => s.Location)
+                                                                    .FirstOrDefaultAsync(s => s.Id == id);
         }
 
         return appObjResponse;
@@ -97,8 +99,19 @@ public class CarrierProvider : ICarrierProvider
                 modifyItem!.CreateUser = User!;
                 modifyItem!.CreateTime = DateTime.Now;
                 modifyItem!.Name = item.Name;
-                modifyItem!.NameEn = item.NameEn;
+                modifyItem!.NameEn = item.NameEn;                
                 modifyItem!.BlTemplate = item.BlTemplate;
+
+                if (item.Location is not null)
+                    modifyItem.Location = item.Location!;
+
+                //if (modifyItem.Location is null)
+                //    modifyItem.Location = item.Location!;
+                //else
+                //    if (!modifyItem.Location!.Id.Equals(item.Location!.Id))
+                //        modifyItem.Location = item.Location!;
+
+                //db.Entry(modifyItem.Location).State = EntityState.Modified;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
@@ -121,7 +134,9 @@ public class CarrierProvider : ICarrierProvider
                     {   
                         db.Entry(itemDetail).State = EntityState.Added;
                         modifyItem.CarrierDetails.Add(itemDetail);
-                    }
+                    }                
+
+                db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
 

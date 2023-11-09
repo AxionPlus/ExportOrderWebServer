@@ -1,5 +1,5 @@
 ﻿
-using Microsoft.Office.Interop.Excel;
+//using Microsoft.Office.Interop.Excel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -67,7 +67,7 @@ public class ExcelCreateService : IDisposable
                                       g.CaptainName,
                                       g.BLDate,
                                       g.POLEn,
-                                      g.CustomsOfiiceCode,
+                                      g.CustomsOfficeCode,
                                    })
                                   .FirstOrDefault();
 
@@ -89,7 +89,7 @@ public class ExcelCreateService : IDisposable
                 WorkSheet.Cells[4, 11].Value = item.BLDate;
                 WorkSheet.Cells[5, 11].Value = item.POLEn;
 
-                WorkSheet.Cells[2, 13].Value = item.CustomsOfiiceCode;
+                WorkSheet.Cells[2, 13].Value = item.CustomsOfficeCode;
 
                 // TABLE                
                 int columns = 18;
@@ -106,32 +106,30 @@ public class ExcelCreateService : IDisposable
                 var dataBulk = new object[rows, columns];
 
                 var result = Parallel.For(0, rows, (row, state) =>
-                {
-                    dataBulk[row, 0] = carrier.ElementAt(row).Seal;     //Items
+                {                    
                     dataBulk[row, 0] = carrier.ElementAt(row).Seal;
-                    dataBulk[row, 1] = carrier.ElementAt(row).PODEn;
+                    dataBulk[row, 1] = carrier.ElementAt(row).PODnCountryEn!;
                     dataBulk[row, 2] = carrier.ElementAt(row).PODunlocode!;
                     dataBulk[row, 3] = carrier.ElementAt(row).BLDate;
                     dataBulk[row, 4] = carrier.ElementAt(row).BLNum;
-                    dataBulk[row, 5] = carrier.ElementAt(row).Shippers.Substring(4);
-                    dataBulk[row, 6] = carrier.ElementAt(row).ShippersCountries;
-                    dataBulk[row, 7] = carrier.ElementAt(row).Consignees.Substring(4);
-                    dataBulk[row, 8] = carrier.ElementAt(row).ConsigneesCountries;
+                    dataBulk[row, 5] = carrier.ElementAt(row).Shippers!.Substring(4);
+                    dataBulk[row, 6] = carrier.ElementAt(row).ShippersCountries!;
+                    dataBulk[row, 7] = carrier.ElementAt(row).Consignees!.Substring(4);
+                    dataBulk[row, 8] = carrier.ElementAt(row).ConsigneesCountries!;
                     dataBulk[row, 9] = carrier.ElementAt(row).Cntr;
-                    dataBulk[row, 10] = carrier.ElementAt(row).Commodities;
+                    dataBulk[row, 10] = carrier.ElementAt(row).Commodities!;
                     dataBulk[row, 11] = carrier.ElementAt(row).GrossWeights! == 0 ? carrier.ElementAt(row).CntrTareWt : carrier.ElementAt(row).GrossWeights!;
                     dataBulk[row, 12] = carrier.ElementAt(row).PackageQtys!;
                     dataBulk[row, 13] = carrier.ElementAt(row).CntrType.Substring(2, 2);
                     dataBulk[row, 14] = carrier.ElementAt(row).CntrType.Substring(0, 2);
                     dataBulk[row, 15] = carrier.ElementAt(row).GrossWeights! == 0 ? 0 : carrier.ElementAt(row).CntrTareWt!;
-                    dataBulk[row, 16] = carrier.ElementAt(row).IMO;
-                    dataBulk[row, 17] = carrier.ElementAt(row).UNNO;
+                    dataBulk[row, 16] = carrier.ElementAt(row).IMO!;
+                    dataBulk[row, 17] = carrier.ElementAt(row).UNNO!;
                 });
 
                 Range.Value = dataBulk;
-                //dataBulk = null;
                 
-                overallRows = overallRows + rows;   // check, probably use "|"
+                overallRows = overallRows + rows;
             }
 
             SaveTempFile();

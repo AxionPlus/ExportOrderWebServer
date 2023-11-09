@@ -2,19 +2,20 @@
 <MudNavMenu>
 
     @* <AuthorizeView Roles="Admin"> *@
-    <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Attribution">Users</MudNavLink>
-    <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Roles</MudNavLink>
+    <MudNavGroup Title="My Company" Icon="@Icons.Material.Filled.PeopleAlt" Expanded="false">
+        <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Attribution">Users</MudNavLink>
+        <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Roles</MudNavLink>
         <MudDivider Class="my-2" />
+        <MudNavLink Href="/mycompany" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleOutline">Company</MudNavLink>
+    </MudNavGroup>    
+    <MudDivider Class="my-2" />
     @* </AuthorizeView> *@
 
     @* <AuthorizeView Roles="Admin, TopManager, LogDept, ExpDept, FinDept"> *@
     <MudNavLink Href="/exportOrder" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink>
     <MudNavLink Href="/documents" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Description">Documents</MudNavLink>
+    <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
     <MudDivider Class="my-2" />
-    <MudNavGroup Title="Vessel Calls" Icon="@Icons.Material.Filled.Archive" Expanded="false">
-        <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Anchor">Vessel</MudNavLink>
-        <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
-    </MudNavGroup>
     <MudNavGroup Title="Catalogues" Icon="@Icons.Material.Filled.Archive" Expanded="false">
         <MudNavLink Href="/carrier" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Carrier</MudNavLink>
         <MudNavLink Href="/commodity" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Commodity</MudNavLink>        
@@ -24,13 +25,11 @@
         <MudDivider Class="my-2" />
         <MudNavLink Href="/location" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.LocationOn">Location</MudNavLink>
         <MudNavLink Href="/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Terminal</MudNavLink>
+        <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Anchor">Vessel</MudNavLink>
         <MudDivider Class="my-2" />
         <MudNavLink Href="/containerType" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Container Types</MudNavLink>
-    </MudNavGroup>
-    <MudDivider Class="my-2" />
-    <MudNavLink Href="/mycompany" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleOutline">My Company</MudNavLink>
+    </MudNavGroup>    
     @* </AuthorizeView> *@
-
 </MudNavMenu>
 
 

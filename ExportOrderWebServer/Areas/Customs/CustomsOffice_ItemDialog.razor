@@ -29,25 +29,25 @@
                                Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />                 
              </div>
              <div class="container-content">
-                 <MudTextField T="string" Style="width: 150px" Label="Таможенный пост (кратко)" Text="@Item.OfficeShort"
+                 <MudTextField T="string" Style="width: 250px" Label="пост (кратко)" Text="@Item.OfficeShort"
+                               TextChanged="@(async (e)=> { Item.OfficeShort = e.ToUpper(); })"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
+             </div>
+             <div class="container-content">
+                 <MudTextField T="string" Style="width: 500px" Label="Таможенный пост" Text="@Item.Office"
                                TextChanged="@(async (e)=> { Item.Office = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
              </div>
              <div class="container-content">
-                 <MudTextField T="string" Style="width: 350px" Label="Таможенный пост" Text="@Item.Office"
-                               TextChanged="@(async (e)=> { Item.Office = e.ToUpper(); })"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
-             </div>
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 350px" Label="Таможенный орган" Text="@Item.Dapartment"
+                 <MudTextField T="string" Style="width: 500px" Label="Таможенный орган" Text="@Item.Dapartment"
                                TextChanged="@(async (e)=> { Item.Dapartment = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />
              </div>
              <div class="container-content">
-                 <MudTextField T="string" Style="width: 350px;" @bind-Value="@Item!.Email"
+                 <MudTextField T="string" Style="width: 500px;" @bind-Value="@Item!.Email"
                                Label="e-mail для отправки xml файла" Placeholder="mail@mail.ru"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true" Required RequiredError="" Clearable="!IsFormReadOnly" />

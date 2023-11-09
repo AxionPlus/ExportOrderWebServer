@@ -54,7 +54,7 @@ public class ExportOrderController : ControllerBase
                 x.Voyage,
                 x.DateOfLoading,
                 x.POL,
-                x.POD,
+                x.PODwithCountryRus,
                 x.Contract,
                 x.ContractDate,
                 x.MyCompanyName,
@@ -64,7 +64,7 @@ public class ExportOrderController : ControllerBase
             var dsRecords = Item.exportOrderRecordsDTO;
 
             var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
-            var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
+            var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
             var dsCommodities = dsRecords?.GroupBy(r => r.CommodityName).Select(g => new {
                                                                                              Commodity = g.Key + " (" +
                                                                                                         g.FirstOrDefault()!.HSCode + ") " +
@@ -278,10 +278,10 @@ public class ExportOrderController : ControllerBase
             LocalReport localReport = new LocalReport(pathReport);
 
             #region PARAMETERS
-            Dictionary<string, string> parameters = new Dictionary<string, string>()
-            {
-                //{ "Full20Qty", Full20 > 0 ? Full20.ToString() : "0" },
-            };
+            //Dictionary<string, string> parameters = new Dictionary<string, string>()
+            //{
+            //    { "Full20Qty", full20Count > 0 ? full20Count.ToString() : "0" },
+            //};
             #endregion
 
             #region DATA SOURCES
@@ -384,7 +384,7 @@ public class ExportOrderController : ControllerBase
         {
             string mimeType = "";
             int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Customs.rdlc");
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "CustomsLetter.rdlc");
 
             LocalReport localReport = new LocalReport(pathReport);
 
@@ -398,8 +398,8 @@ public class ExportOrderController : ControllerBase
                                     g.CustomsOfficeShortName,
                                     g.CustomsDapartment,
                                     g.DateExplanation,
-                                    VesselVoyage = g.VesselName + ", флаг " + g.VesselFlag + " рейс: " + g.Voyage,
-
+                                    VesselVoyage = g.VesselName + ", флаг " + g.VesselFlag + ", рейс: " + g.Voyage,
+                                    g.PersonSign
                                 }).ToList();
 
             // Person
@@ -419,7 +419,7 @@ public class ExportOrderController : ControllerBase
             var dsRecords = Items.GroupBy(g => g.BLNum)
                                .Select(g => new
                                {
-                                   g.Key,
+                                   BLNum = g.Key,
                                    CntrCount = g.Select(m => m.Cntr).Count(),
                                    GrossWt = g.Select(m => m.GrossWeights).Sum(),
                                    CntrTotalWt = g.Sum(m => m.CntrTotalWeight),
@@ -483,8 +483,8 @@ public class ExportOrderController : ControllerBase
     }
 
     [HttpGet]
-    [Route("SaveExcelFile")]
-    public async Task<IActionResult> SaveFillBillFile(long vslcallid)
+    [Route("SaveFillBillExcelFile")]
+    public async Task<IActionResult> SaveFillBill(long vslcallid)
     {
         try
         {

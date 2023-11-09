@@ -99,18 +99,25 @@ public class TerminalProvider : ITerminalProvider
                 modifyItem!.CreateTime = DateTime.Now;
                 modifyItem!.Name = item.Name;
 
-                if (!modifyItem!.Location!.Id.Equals(item.Location!.Id))
-                    modifyItem!.Location = item.Location;
+                if (item.Location is not null)
+                    modifyItem.Location = item.Location!;
 
-                if (modifyItem.Customs is not null && item.Customs is not null)
-                    if (!modifyItem.Customs.Id.Equals(item.Customs!.Id))
-                        modifyItem!.Customs = item.Customs;
+                if (item.Customs is not null)
+                    modifyItem.Customs = item.Customs!;
 
-                if (modifyItem.Customs is not null && item.Customs is null)
-                    modifyItem!.Customs = item.Customs;
 
-                if (modifyItem.Customs is null && item.Customs is not null)
-                    modifyItem!.Customs = item.Customs;
+                //if (!modifyItem!.Location!.Id.Equals(item.Location!.Id))
+                //    modifyItem!.Location = item.Location;
+
+                //if (modifyItem.Customs is not null && item.Customs is not null)
+                //    if (!modifyItem.Customs.Id.Equals(item.Customs!.Id))
+                //        modifyItem!.Customs = item.Customs;
+
+                //if (modifyItem.Customs is not null && item.Customs is null)
+                //    modifyItem!.Customs = item.Customs;
+
+                //if (modifyItem.Customs is null && item.Customs is not null)
+                //    modifyItem!.Customs = item.Customs;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 

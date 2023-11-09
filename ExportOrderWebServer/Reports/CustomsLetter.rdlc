@@ -239,7 +239,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -339,7 +339,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -441,7 +441,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>1cm</Height>
+              <Height>0.8cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -704,7 +704,7 @@
           </TablixMembers>
         </TablixRowHierarchy>
         <DataSetName>dsLetter</DataSetName>
-        <Height>9.2cm</Height>
+        <Height>8.8cm</Height>
         <Width>18.9cm</Width>
         <Style>
           <Border>
@@ -724,7 +724,7 @@
           </TablixColumns>
           <TablixRows>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -789,7 +789,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -854,7 +854,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -919,7 +919,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -984,80 +984,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
-              <TablixCells>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="Textbox106">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>место </Value>
-                              <Style />
-                            </TextRun>
-                            <TextRun>
-                              <Value>рождения</Value>
-                              <Style />
-                            </TextRun>
-                            <TextRun>
-                              <Value>:</Value>
-                              <Style />
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <rd:DefaultName>Textbox106</rd:DefaultName>
-                      <Style>
-                        <Border>
-                          <Style>None</Style>
-                        </Border>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="PersonBirthPlace1">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>=Fields!PersonBirthPlace.Value</Value>
-                              <Style>
-                                <FontWeight>Bold</FontWeight>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <rd:DefaultName>PersonBirthPlace1</rd:DefaultName>
-                      <Style>
-                        <Border>
-                          <Style>None</Style>
-                        </Border>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-              </TablixCells>
-            </TablixRow>
-            <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -1130,7 +1057,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -1206,7 +1133,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Документ, удостоверяющий личность :</Value>
+                              <Value>документ, удостоверяющий личность :</Value>
                               <Style />
                             </TextRun>
                           </TextRuns>
@@ -1231,7 +1158,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>1.2cm</Height>
+              <Height>0.8cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -1242,7 +1169,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>ПАСПОРТ: </Value>
+                              <Value>   ПАСПОРТ: </Value>
                               <Style>
                                 <FontFamily>Times New Roman</FontFamily>
                                 <FontSize>12pt</FontSize>
@@ -1308,14 +1235,13 @@
                 <TablixMember />
                 <TablixMember />
                 <TablixMember />
-                <TablixMember />
               </TablixMembers>
             </TablixMember>
           </TablixMembers>
         </TablixRowHierarchy>
         <DataSetName>dsPeron</DataSetName>
-        <Top>9.2cm</Top>
-        <Height>6cm</Height>
+        <Top>8.8cm</Top>
+        <Height>4.4cm</Height>
         <Width>18.9cm</Width>
         <ZIndex>1</ZIndex>
         <Style>
@@ -1636,7 +1562,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -1744,8 +1670,8 @@
           </TablixMembers>
         </TablixRowHierarchy>
         <DataSetName>dsLetter</DataSetName>
-        <Top>19.3cm</Top>
-        <Height>3.8cm</Height>
+        <Top>17.1cm</Top>
+        <Height>3.7cm</Height>
         <Width>18.9cm</Width>
         <ZIndex>2</ZIndex>
         <Style>
@@ -1887,7 +1813,7 @@
           </TablixMembers>
         </TablixRowHierarchy>
         <DataSetName>dsLetter</DataSetName>
-        <Top>15.2cm</Top>
+        <Top>13.2cm</Top>
         <Height>1.6cm</Height>
         <Width>18.9cm</Width>
         <ZIndex>3</ZIndex>
@@ -1901,7 +1827,7 @@
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>2.4cm</Width>
+              <Width>2.6cm</Width>
             </TablixColumn>
             <TablixColumn>
               <Width>1.3cm</Width>
@@ -1913,15 +1839,15 @@
               <Width>2.2cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>8.4cm</Width>
+              <Width>8cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>2.4cm</Width>
+              <Width>2.6cm</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
             <TablixRow>
-              <Height>1.3cm</Height>
+              <Height>1.2cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -2169,7 +2095,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -2180,7 +2106,9 @@
                           <TextRuns>
                             <TextRun>
                               <Value>=Fields!BLNum.Value</Value>
-                              <Style />
+                              <Style>
+                                <FontSize>9pt</FontSize>
+                              </Style>
                             </TextRun>
                           </TextRuns>
                           <Style>
@@ -2193,12 +2121,13 @@
                         <Border>
                           <Style>Solid</Style>
                         </Border>
-                        <LeftBorder>
-                          <Style>Solid</Style>
-                        </LeftBorder>
-                        <RightBorder>
-                          <Style>Solid</Style>
-                        </RightBorder>
+                        <TopBorder>
+                          <Style>None</Style>
+                        </TopBorder>
+                        <BottomBorder>
+                          <Color>Black</Color>
+                          <Width>1pt</Width>
+                        </BottomBorder>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
@@ -2216,7 +2145,9 @@
                           <TextRuns>
                             <TextRun>
                               <Value>=Sum(Fields!CntrCount.Value)</Value>
-                              <Style />
+                              <Style>
+                                <FontSize>9pt</FontSize>
+                              </Style>
                             </TextRun>
                           </TextRuns>
                           <Style>
@@ -2229,6 +2160,11 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
+                        <BottomBorder>
+                          <Color>Black</Color>
+                          <Style>Solid</Style>
+                          <Width>1pt</Width>
+                        </BottomBorder>
                         <RightBorder>
                           <Style>Solid</Style>
                         </RightBorder>
@@ -2250,6 +2186,7 @@
                             <TextRun>
                               <Value>=Sum(Fields!GrossWt.Value)</Value>
                               <Style>
+                                <FontSize>9pt</FontSize>
                                 <Format>0;(0)</Format>
                               </Style>
                             </TextRun>
@@ -2264,6 +2201,11 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
+                        <BottomBorder>
+                          <Color>Black</Color>
+                          <Style>Solid</Style>
+                          <Width>1pt</Width>
+                        </BottomBorder>
                         <RightBorder>
                           <Style>Solid</Style>
                         </RightBorder>
@@ -2285,6 +2227,7 @@
                             <TextRun>
                               <Value>=Sum(Fields!CntrTotalWt.Value)</Value>
                               <Style>
+                                <FontSize>9pt</FontSize>
                                 <Format>0;(0)</Format>
                               </Style>
                             </TextRun>
@@ -2299,6 +2242,11 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
+                        <BottomBorder>
+                          <Color>Black</Color>
+                          <Style>Solid</Style>
+                          <Width>1pt</Width>
+                        </BottomBorder>
                         <RightBorder>
                           <Style>Solid</Style>
                         </RightBorder>
@@ -2320,7 +2268,9 @@
                           <TextRuns>
                             <TextRun>
                               <Value>=Fields!Commodities.Value</Value>
-                              <Style />
+                              <Style>
+                                <FontSize>9pt</FontSize>
+                              </Style>
                             </TextRun>
                           </TextRuns>
                           <Style>
@@ -2333,6 +2283,11 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
+                        <BottomBorder>
+                          <Color>Black</Color>
+                          <Style>Solid</Style>
+                          <Width>1pt</Width>
+                        </BottomBorder>
                         <RightBorder>
                           <Style>Solid</Style>
                         </RightBorder>
@@ -2353,7 +2308,9 @@
                           <TextRuns>
                             <TextRun>
                               <Value>=Fields!BLNum.Value</Value>
-                              <Style />
+                              <Style>
+                                <FontSize>9pt</FontSize>
+                              </Style>
                             </TextRun>
                           </TextRuns>
                           <Style>
@@ -2366,6 +2323,11 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
+                        <BottomBorder>
+                          <Color>Black</Color>
+                          <Style>Solid</Style>
+                          <Width>1pt</Width>
+                        </BottomBorder>
                         <RightBorder>
                           <Style>Solid</Style>
                         </RightBorder>
@@ -2407,6 +2369,9 @@
                         <Border>
                           <Style>Solid</Style>
                         </Border>
+                        <TopBorder>
+                          <Style>None</Style>
+                        </TopBorder>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
@@ -2439,9 +2404,6 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
-                        <TopBorder>
-                          <Style>Solid</Style>
-                        </TopBorder>
                         <BottomBorder>
                           <Style>Solid</Style>
                         </BottomBorder>
@@ -2481,9 +2443,6 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
-                        <TopBorder>
-                          <Style>Solid</Style>
-                        </TopBorder>
                         <BottomBorder>
                           <Style>Solid</Style>
                         </BottomBorder>
@@ -2523,9 +2482,6 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
-                        <TopBorder>
-                          <Style>Solid</Style>
-                        </TopBorder>
                         <BottomBorder>
                           <Style>Solid</Style>
                         </BottomBorder>
@@ -2564,9 +2520,6 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
-                        <TopBorder>
-                          <Style>Solid</Style>
-                        </TopBorder>
                         <BottomBorder>
                           <Style>Solid</Style>
                         </BottomBorder>
@@ -2602,9 +2555,6 @@
                         <Border>
                           <Style>None</Style>
                         </Border>
-                        <TopBorder>
-                          <Style>Solid</Style>
-                        </TopBorder>
                         <BottomBorder>
                           <Style>Solid</Style>
                         </BottomBorder>
@@ -2651,8 +2601,8 @@
           </TablixMembers>
         </TablixRowHierarchy>
         <DataSetName>dsRecords</DataSetName>
-        <Top>16.8cm</Top>
-        <Height>2.5cm</Height>
+        <Top>14.8cm</Top>
+        <Height>2.3cm</Height>
         <Width>18.9cm</Width>
         <ZIndex>4</ZIndex>
         <Style>
@@ -2662,7 +2612,7 @@
         </Style>
       </Tablix>
     </ReportItems>
-    <Height>9.09449in</Height>
+    <Height>8.18898in</Height>
     <Style />
   </Body>
   <Width>7.44094in</Width>
@@ -2671,7 +2621,7 @@
     <PageWidth>21cm</PageWidth>
     <LeftMargin>1.5cm</LeftMargin>
     <RightMargin>0cm</RightMargin>
-    <TopMargin>1.5cm</TopMargin>
+    <TopMargin>0.5cm</TopMargin>
     <BottomMargin>0.5cm</BottomMargin>
     <ColumnSpacing>0.13cm</ColumnSpacing>
     <Style />

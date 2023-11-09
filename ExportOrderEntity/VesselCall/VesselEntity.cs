@@ -12,5 +12,5 @@ public class VesselEntity : Entity
     public string? TerminalCode { get; set; }         // Принятый Терминалом Идентификатор судна
     public CountryCatalog? Flag { get; set; }    
     public string? CaptainFamily { get; set; }          // Фамилия капитана    
-    public string? CaptainName { get; set; }            // Ими Отч. капитана
+    public string? CaptainName { get; set; }            // Имя Отчество капитана
 }

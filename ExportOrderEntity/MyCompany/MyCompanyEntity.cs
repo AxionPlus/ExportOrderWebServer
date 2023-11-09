@@ -8,9 +8,9 @@ public class MyCompanyEntity : Entity
 
 public class PersonEntity : CatalogEntity
 {
-    public string? Name { get; set; }           // Имя
-    public string? FamilyName { get; set; }     // Фамилия    
+    public string? Name { get; set; }           // Имя    
     public string? SurName { get; set; }        // Отчетсво
+    public string? FamilyName { get; set; }     // Фамилия    
     public string? Phone { get; set; }          // +7 918 000 0000;
     public string? BirthYear { get; set; }       // Год рождения
     public string? BirthPlace { get; set; }      // Место рождения (КРАСНОДАРСКИЙ КРАЙ)

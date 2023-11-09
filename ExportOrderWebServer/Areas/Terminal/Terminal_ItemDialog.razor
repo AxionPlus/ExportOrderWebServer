@@ -1,22 +1,20 @@
 ﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
 
 <style>
-/*     .Container-item > .container-content {
-        justify-content: unset;
-    } */
 
     .SelectField * .mud-input-slot.mud-input-root-outlined.mud-input-root-adorned-end {
         text-align:left;
     }
+
 </style>
 
 @if (Item is not null)
 {
     <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
-
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">
                 <div class="ToolBar-iconbutton" style="margin-left: 20px">
@@ -36,15 +34,15 @@
         <div class="Container-item">
             <div class="container-head"></div>
             <div class="container-content">
-                <MudTextField T="string" Style="width: 250px; margin-right:10px" Label="Short Name" Text="@Item.Name"
+                <MudTextField T="string" Style="width: 150px; margin-right:10px" Label="Short Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError=""
                               Clearable="!IsFormReadOnly" />
             </div>
-            <div class="container-content">
-                 <MudAutocomplete T="LocationCatalog" Style="width: 250px" Label="Location" @bind-Value="Item.Location"
+             <div class="container-content" style="justify-content: flex-start">
+                 <MudAutocomplete T="LocationCatalog" Style="width: 300px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchLocation"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -55,14 +53,17 @@
                                   MaxItems="20"
                                   IconSize="Size.Small"
                                   Clearable="!IsFormReadOnly" />
+                 <MudTooltip Text="Add new Location">
+                     <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddLocation_Click" />
+                 </MudTooltip>
             </div>
             <div class="container-content">
                 <MudSelect Class="SelectField" T="CustomsCatalog" Label="Таможенный пост" @bind-Value="@Item.Customs"
-                            Style="width:500px; text-align:left" Placeholder="Таможенный пост"
-                            ToStringFunc="@(str=>str is not null ? str.Office : string.Empty)"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon=""
-                            Clearable="!IsFormReadOnly">
+                           Style="width:550px; text-align:left" Placeholder="Таможенный пост"
+                           ToStringFunc="@(str=>str is not null ? str.Office : string.Empty)"
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           CloseIcon="" OpenIcon=""
+                           Clearable="!IsFormReadOnly">
                     @if (CustomOffices is not null)
                         @foreach (var office in CustomOffices)
                         {
@@ -71,7 +72,6 @@
                 </MudSelect>
             </div>            
         </div>
-
     </MudForm>
 }
 
@@ -150,6 +150,17 @@
 
             await GetItem();
         }
+    }
+
+    private async Task AddLocation_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Locaion", parameters, options);
+
+        DialogResult result = await dialog.Result;
     }
 
     private async Task EditItem_Click()

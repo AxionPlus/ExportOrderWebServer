@@ -47,7 +47,7 @@ public class XmlService : IDisposable
 
                 xml.WriteStartElement("COMMISSIONSHIPMENT_ITEM");
                 xml.WriteElementString("BorderCustomCode", Item.CustomsOfficeCode);
-                xml.WriteElementString("BorderCustomsOfficeName", Item.CustomsOfficeName);
+                xml.WriteElementString("BorderCustomsOfficeName", Item.CustomsOfficeNameShort);
                 xml.WriteElementString("DocumentNumber", Item.Num);
                 xml.WriteElementString("DocumentDate", reverseDateStringXml(Item.xmlDated));
                 xml.WriteElementString("GoodsDescription", string.Empty);

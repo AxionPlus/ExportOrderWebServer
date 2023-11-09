@@ -41,8 +41,8 @@
           <DataField>POLEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="PODEn">
-          <DataField>PODEn</DataField>
+        <Field Name="PODnCountryEn">
+          <DataField>PODnCountryEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="Seq">
@@ -547,7 +547,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PODEn.Value</Value>
+                                  <Value>=Fields!PODnCountryEn.Value</Value>
                                   <Style>
                                     <FontFamily>Consolas</FontFamily>
                                     <FontSize>8pt</FontSize>

@@ -38,7 +38,6 @@
     } */
  </style>
 
-
 <div class="Container-item">
     <div class="container-head"></div>
     <div class="container-content">
@@ -110,15 +109,20 @@
         <div class="tableMenu">
             @if (!IsSelectable)
             {
-                <MudButton Style="margin-inline: 20px" Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(); })"
+                <MudButton Class="Button" Style="margin-left: 20px" OnClick="@(async()=>{ await ManifestsReport_Click(); })"
                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                            StartIcon="@Icons.Material.Filled.Preview">
                     View Manifest
                 </MudButton>
-                <MudButton Class="Button" OnClick="@(async()=>{ await SaveExcelFile_Click(); })"
+                <MudButton Class="Button" Style="margin-inline: 20px" OnClick="@(async()=>{ await SaveExcelFile_Click(); })"
                            Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
                            StartIcon="@Icons.Material.Filled.Download">
                     Fill Bill
+                </MudButton>
+                <MudButton Class="Button" OnClick="@(async()=>{ await ViewCustomsReport_Click(); })"
+                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Preview">
+                    Customs Explanation
                 </MudButton>
             }
             <MudSpacer />
@@ -162,8 +166,9 @@
             else
             {
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.AddCircle"
-                                   OnClick="@(async()=>{ await SelectItem_Click($"{context.VesselName}&{context.VoyageNo}&{context.POD}"); })" />
+                    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context.Id); })" />
+@*                     <MudIconButton Icon="@Icons.Material.Filled.AddCircle"
+                                   OnClick="@(async()=>{ await SelectItem_Click($"{context.VesselName}&{context.VoyageNo}&{context.POD}"); })" /> *@
                 </MudTd>
             }
             <MudTd>@context.VesselName</MudTd>
@@ -215,7 +220,6 @@
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
-        //DialogParameters parameters = new DialogParameters { ["Voyage"] = VesselVoyage };
         DialogParameters parameters = new DialogParameters { ["Id"] = vesselCallId };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>("Vessel Call", parameters, options);
@@ -248,25 +252,23 @@
     }
 
 
-    private async Task SelectItem_Click(string voyagePOD)      // change to VesselCallDetailId
+    private async Task SelectItem_Click(long vcdId)      // change to VesselCallDetailId
     {
         await Task.Delay(50);
-        MudDialog!.Close(voyagePOD);
+        MudDialog!.Close(vcdId);
     }
 
     private async Task ManifestsReport_Click()
     {
-        if (Items is null) return;        
+        if (Items is null) return;
+        if (Items.FirstOrDefault()!.Status == 0) return;
 
-        //var voyageGroup = Items.Select(s => new { voyage = s.VesselName + "*" + s.VoyageNo }).GroupBy(g => g.voyage);
         var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1) return;
 
-        //string voyage = Items.Select(s => s.VesselName + "*" + s.VoyageNo).FirstOrDefault()!;
         long vesselcallid = voyageGroup.FirstOrDefault();
 
         await Task.Delay(100);
-        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?Voyage={voyage}";
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslcallid={vesselcallid}";
         await JSRuntime.InvokeVoidAsync("open", path);
     }
@@ -274,6 +276,7 @@
     private async Task SaveExcelFile_Click()
     {
         if (Items is null) return;
+        if (Items.FirstOrDefault()!.Status == 0) return;
 
         var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1) return;
@@ -281,7 +284,22 @@
         long vesselcallid = voyageGroup.FirstOrDefault();
 
         await Task.Delay(100);
-        string path = $"{Navigation.BaseUri}server/ExportOrder/SaveExcelFile?vslcallid={vesselcallid}";
+        string path = $"{Navigation.BaseUri}server/ExportOrder/SaveFillBillExcelFile?vslcallid={vesselcallid}";
+        await JSRuntime.InvokeVoidAsync("open", path);
+    }
+
+    private async Task ViewCustomsReport_Click()
+    {
+        if (Items is null) return;
+        if (Items.FirstOrDefault()!.Status == 0) return;
+
+        var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
+        if (voyageGroup.Count() != 1) return;        
+
+        long vesselcallid = voyageGroup.FirstOrDefault();
+
+        await Task.Delay(100);
+        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewCustomsExplanation?vslcallid={vesselcallid}";
         await JSRuntime.InvokeVoidAsync("open", path);
     }
 

@@ -33,27 +33,26 @@
                                   AutoFocus="true" Immediate="true"
                                   Required RequiredError=""
                                    Clearable="!IsFormReadOnly" />
-                    <div class="wrapper-checkBox" style="width:200px; justify-content: flex-end;">
-                        <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.Start" @bind-Checked="@Item.IsIMO"></MudCheckBox>
-                    </div>
                     <MudSpacer />
-                    @if (Item.IsIMO)
-                    {
-                        <MudTextField T="string" Style="width:195px; margin-right:10px" Label="IMO" @bind-Value="@Item.IMO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      MaxLength="3" 
-                                      Required RequiredError=""
-                                       Clearable="!IsFormReadOnly" />
-                        <MudTextField T="string" Style="width:195px" Label="UNNO" @bind-Value="@Item.UNNO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      MaxLength="6" Mask="@( IsNewItem? new PatternMask("UN0000") : null)"
-                                      Required RequiredError=""
-                                       Clearable="!IsFormReadOnly" />
-                    }
-                    else
-                    {
-                        <div style="width:400px"></div>
-                    }
+                     
+                         <div class="wrapper-checkBox" style="width:170px; margin-inline-start:10px; justify-content:start">
+                             <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.Start" @bind-Checked="@Item.IsIMO"></MudCheckBox>
+                         </div>                     
+                         @if (Item.IsIMO)
+                        {
+                            <MudTextField T="string" Style="width:100px; margin-inline:10px" Label="IMO" @bind-Value="@Item.IMO"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                                          MaxLength="3"
+                                          Required RequiredError=""
+                                           Clearable="!IsFormReadOnly" />
+                            <MudTextField T="string" Style="width:100px" Label="UNNO" @bind-Value="@Item.UNNO"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                                          MaxLength="4" Mask="@( IsNewItem? new PatternMask("0000") : null)"
+                                          Required RequiredError=""
+                                          Clearable="!IsFormReadOnly" />
+                        }
+                        else
+                            {<div style="width:220px"></div>}
                 </div>
                 <div class="container-content">             
                     <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"

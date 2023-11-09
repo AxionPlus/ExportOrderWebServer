@@ -326,7 +326,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnPOLEn;
             
-            private global::System.Data.DataColumn columnPODEn;
+            private global::System.Data.DataColumn columnPODnCountryEn;
             
             private global::System.Data.DataColumn columnSeq;
             
@@ -439,9 +439,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn PODEnColumn {
+            public global::System.Data.DataColumn PODnCountryEnColumn {
                 get {
-                    return this.columnPODEn;
+                    return this.columnPODnCountryEn;
                 }
             }
             
@@ -601,7 +601,7 @@ namespace ExportOrderWebServer.DataSet {
                         string BLDate, 
                         string VesselFlagEn, 
                         string POLEn, 
-                        string PODEn, 
+                        string PODnCountryEn, 
                         int Seq, 
                         string Cntr, 
                         string CntrType, 
@@ -624,7 +624,7 @@ namespace ExportOrderWebServer.DataSet {
                         BLDate,
                         VesselFlagEn,
                         POLEn,
-                        PODEn,
+                        PODnCountryEn,
                         Seq,
                         Cntr,
                         CntrType,
@@ -667,7 +667,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnBLDate = base.Columns["BLDate"];
                 this.columnVesselFlagEn = base.Columns["VesselFlagEn"];
                 this.columnPOLEn = base.Columns["POLEn"];
-                this.columnPODEn = base.Columns["PODEn"];
+                this.columnPODnCountryEn = base.Columns["PODnCountryEn"];
                 this.columnSeq = base.Columns["Seq"];
                 this.columnCntr = base.Columns["Cntr"];
                 this.columnCntrType = base.Columns["CntrType"];
@@ -699,8 +699,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnVesselFlagEn);
                 this.columnPOLEn = new global::System.Data.DataColumn("POLEn", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPOLEn);
-                this.columnPODEn = new global::System.Data.DataColumn("PODEn", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnPODEn);
+                this.columnPODnCountryEn = new global::System.Data.DataColumn("PODnCountryEn", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnPODnCountryEn);
                 this.columnSeq = new global::System.Data.DataColumn("Seq", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnSeq);
                 this.columnCntr = new global::System.Data.DataColumn("Cntr", typeof(string), null, global::System.Data.MappingType.Element);
@@ -1442,17 +1442,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string PODEn {
+            public string PODnCountryEn {
                 get {
                     try {
-                        return ((string)(this[this.tabledtBL.PODEnColumn]));
+                        return ((string)(this[this.tabledtBL.PODnCountryEnColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'PODEn\' в таблице \'dtBL\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'PODnCountryEn\' в таблице \'dtBL\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tabledtBL.PODEnColumn] = value;
+                    this[this.tabledtBL.PODnCountryEnColumn] = value;
                 }
             }
             
@@ -1754,14 +1754,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsPODEnNull() {
-                return this.IsNull(this.tabledtBL.PODEnColumn);
+            public bool IsPODnCountryEnNull() {
+                return this.IsNull(this.tabledtBL.PODnCountryEnColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetPODEnNull() {
-                this[this.tabledtBL.PODEnColumn] = global::System.Convert.DBNull;
+            public void SetPODnCountryEnNull() {
+                this[this.tabledtBL.PODnCountryEnColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

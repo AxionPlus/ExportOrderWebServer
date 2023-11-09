@@ -1,7 +1,9 @@
-﻿@inject ISnackbar Snackbar
+﻿
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICarrierProvider _carrierProvider
+@inject ILocationProvider _locationProvider
 
 <style>
     .DatePicker > .mud-input-control {
@@ -38,7 +40,6 @@
         </div>
 
         <div class="Container-item">
-
             <div class="container-content">
                 <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
@@ -47,7 +48,6 @@
                               Required RequiredError=""
                                Clearable="!IsFormReadOnly" />
              </div>
-
             <div class="container-content">
                  <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.NameEn"
                                TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
@@ -56,7 +56,22 @@
                                Required RequiredError=""
                                Clearable="!IsFormReadOnly" />
              </div>
-
+             <div class="container-content" style="justify-content: flex-start">
+                 <MudAutocomplete T="LocationCatalog" Style="width: 300px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
+                                  ToStringFunc="@(e => e != null ? e.Name : "")"
+                                  SearchFunc="@SearchLocation"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Required RequiredError=""
+                                  CloseIcon="" OpenIcon=""
+                                  ResetValueOnEmptyText="true"
+                                  Placeholder="Location"
+                                  MaxItems="20"
+                                  IconSize="Size.Small"
+                                  Clearable="!IsFormReadOnly" />
+                 <MudTooltip Text="Add new Location">
+                     <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddLocation_Click" />
+                 </MudTooltip>
+             </div>
              <div class="container-content">
                  <MudSelect Class="wrapper-input " T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
                             ToStringFunc="@(str=>str.ToString())"
@@ -67,7 +82,6 @@
                     }
                 </MudSelect>
             </div>
-
             <div class="Container-table">
                 <MudTable Class="Table" @ref="mudTable" Items="@Item.CarrierDetails" Virtualize="true" RowsPerPage="5">
                    
@@ -201,6 +215,17 @@
         }
     }
 
+    private async Task AddLocation_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Locaion", parameters, options);
+
+        DialogResult result = await dialog.Result;
+    }
+
     private async Task EditItem_Click()
     {
         await Task.Delay(50);
@@ -249,7 +274,9 @@
 
         await InvokeAsync(StateHasChanged);
     }
+    #endregion
 
+    #region SEARCH FUNCTIONS
     private async Task<IEnumerable<string>> SearchTerminalNames(string value)
     {
         var result = await _carrierProvider.GetTerminalNames();
@@ -262,6 +289,19 @@
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
+    
+    private async Task<IEnumerable<LocationCatalog>> SearchLocation(string value)
+    {
+        var Locations = new List<LocationCatalog>();
 
+        var response = await _locationProvider.GetItemsAsync();
+        if (!response.HasError)
+            Locations = ((IEnumerable<LocationCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Locations;
+
+        return Locations.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
     #endregion
 }

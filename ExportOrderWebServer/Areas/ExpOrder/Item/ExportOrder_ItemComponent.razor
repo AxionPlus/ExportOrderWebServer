@@ -1,12 +1,14 @@
-﻿@inject ISnackbar Snackbar
+﻿
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService;
 @inject NavigationManager Navigation
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime jsRuntime
 
 @inject IExportOrderProvider _exportOrderProvider
 @inject ICntrTypeProvider _cntrTypeProvider
 @inject ICarrierProvider _carrierProvider
 @inject IVesselCallProvider _vesselCallProvider
+@* @using System.Text.Json; *@
 
 <style>
 
@@ -16,6 +18,19 @@
 
     .mud-picker-inline {
         flex: unset;
+    }
+
+    .wrapper-input-date > .mud-input-control {
+        margin-top: 3px;
+    }
+
+    .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end:4px;
+        padding-right:4px;
+    }
+
+    .mud-icon-button {
+        padding:3px;
     }
 
     .sub-Table {
@@ -55,6 +70,11 @@
     .h6 {
         margin-bottom: 2px;
     }
+    
+    .container-content-head {
+        margin-bottom: unset;
+        align-self: center;
+    }
 
     .infoSC {
         margin-bottom: 3px;
@@ -65,32 +85,32 @@
 @if (Value is not null)
 { 
     <div class="Container-item">
-        <div class="container-head">INFO</div>
         <div class="container-content">
-            <MudTextField Class="TextField" Style="width: 180px; margin-right: 20px" T="string" Label="Number" Value="@Value!.Num"
+            <MudTextField Class="TextField" Style="width: 180px; margin-right: 10px" T="string" Label="Number" Value="@Value!.Num"
                           ValueChanged="async (e) => { Value.Num = e.ToUpper(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required RequiredError="" Clearable="!IsFormReadOnly" />
 
-            <MudDatePicker Class="DatePicker" Style="width: 150px" Label="Date" Date="Value.Dated"
-                           DateChanged="async (e) => { Value.Dated = e.HasValue ? e.Value : DateTime.Today; }"
+            <MudDatePicker Class="wrapper-input-date" Style="width: 130px" Label="Date" @bind-Dated="Value.Dated"
+                           
                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                           Required RequiredError=""
                            DateFormat="dd.MM.yy" IconSize=Size.Small Clearable="!IsFormReadOnly" />
             <MudSpacer />
 
-            <MudTextField Class="TextField" Style="width: 400px; margin-right: 20px" @bind-Value="@Value!.VesselCallDetail!.VesselCall!.Vessel.Name"
+            <MudTextField Class="TextField" Style="width: 400px; margin-right: 10px" @bind-Value="@Value!.VesselCallDetail!.VesselCall!.Vessel.Name"
                            Label="Vessel Call" Placeholder="Vessel Call"
                            Text="@(Value.VesselCallDetail!.VesselCall!.Vessel.Name is not null ? Value.VesselCallDetail!.VesselCall!.Vessel.Name + " / " +
                                                                                Value.VesselCallDetail!.VesselCall.VoyageNo + " / " +
-                                                                               Value.VesselCallDetail.POD!.NameEn : "")"
-                                                                               
+                                                                               Value.VesselCallDetail.POD!.NameEn : "")"                                                                               
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            Required RequiredError="" Clearable="!IsFormReadOnly"
-                           Adornment="Adornment.Start"
+                           Adornment="Adornment.Start" IconSize="Size.Small"
+                           AdornmentColor="Color.Primary"
                            AdornmentIcon="@Icons.Material.Filled.Waves"
                            OnAdornmentClick="@(async () => { if (!IsFormReadOnly) await GetVesselCallDetail_Click(); })" />
 
-            <MudAutocomplete T="CarrierCatalog" Style="width: 350px" Label="Carrier" @bind-Value="Value.Carrier"
+             <MudAutocomplete T="CarrierCatalog" Style="width: 220px" Label="Carrier" @bind-Value="Value.Carrier"
                              ToStringFunc="@(e => e != null ? e.Name : "")"
                              SearchFunc="@SearchCarrier"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -99,31 +119,34 @@
                              ResetValueOnEmptyText="true"
                              Placeholder="Carrier"
                              MaxItems="20"                             
-                              AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                              AdornmentIcon="@Icons.Material.Filled.AddCircle" 
                               AdornmentColor="Color.Primary"
                               Adornment="Adornment.End"
                               OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCarrier_Click(); })"
                              Clearable="!IsFormReadOnly" />
             <MudSpacer />
+            
+                <MudSelect Class="SelectField" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
+                        Text="@(Value.Person!.FamilyName is not null ? Value.Person.FamilyName : "")"
+                        Style="width:160px; margin-right:10px" Placeholder="И.О. Фамилия"
+                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                        CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                        Clearable="!IsFormReadOnly"
+                        AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                        AdornmentColor="Color.Primary"
+                        Adornment="Adornment.End"
+                        OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddPerson_Click(); })">
 
-            <div style="margin-right:20px">
-                 <MudSelect Class="SelectField" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
-                            Text="@(Value.Person!.FamilyName is not null ? Value.Person.FamilyName : "")"
-                            Style="width:180px" Placeholder="И.О. Фамилия"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon="" Clearable="!IsFormReadOnly">
-                     @if (Persons is not null)
+                        @if (Persons is not null)
                         @foreach (var person in Persons)
                         {
                             <MudSelectItem Value="@person">@person.FamilyName</MudSelectItem>
                         }
-                </MudSelect>
-            </div>            
+            </MudSelect>            
         </div>
     </div>
 
     <div class="Container-item">
-        <div class="container-head">DOCUMENTS</div>
         <div class="container-content">
                 <div class="documents">
                     <div class="controlIconButtons">
@@ -135,6 +158,8 @@
                         {
                             <div style="width: 10px"></div>
                         }
+                        <MudSpacer />
+                        <h6 class="container-content-head">DOCUMENTS:</h6>
                         <MudSpacer />
                         <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddDocuments_Click"></MudIconButton>
                         <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Disabled="IsFormReadOnly"></MudIconButton>
@@ -194,7 +219,6 @@
                 }
                 <br />
                 <h5 class="infoSC">Consignees:</h5>
-                @* @(string.Join("; ", Value.Consignees.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))); *@
                 @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
                 {
                     <div style="padding-left:10px">@(consignee);</div>
@@ -203,9 +227,7 @@
         </div>
     </div>
 
-    <div class="Container-item" style="height:200px">
-        <div class="container-head">CONTAINER RECORDS</div>
-        <div class="container-content">
+    <div class="container-content" style="height:200px">
             <div class="Container-table">
             @if (mudTable != null)
             {
@@ -215,7 +237,9 @@
                                StartIcon="@Icons.Material.Filled.UploadFile">
                         Upload New List
                     </MudButton>
-                        <MudSpacer />
+                    <MudSpacer />
+                    <h6 class="container-content-head">CONTAINER RECORDS</h6>
+                    <MudSpacer />
                     <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
                     <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
                 </div>
@@ -363,7 +387,6 @@
             </MudTable>
         </div>
         </div>
-    </div>
 }
 
 @code {
@@ -376,8 +399,8 @@
     public ExportOrderEntity? Value { get; set; }
     [Parameter]
     public EventCallback<ExportOrderEntity> ValueChanged { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; }
+    // [Parameter]
+    // public bool IsNewItem { get; set; }
     [Parameter]
     public bool IsFormReadOnly { get; set; }
 
@@ -398,7 +421,7 @@
     protected override async void OnInitialized()
     {
         CntrTypes = await _cntrTypeProvider.GetCntrTypes();
-        Persons = await _exportOrderProvider.GetPersonAsync();
+        Persons = await _exportOrderProvider.GetPersonsAsync();
 
         DocumentItems = Value!.Documents!.ToHashSet();        
 
@@ -414,8 +437,7 @@
     async Task AddDocuments_Click()
     {
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
-        var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        //var dialog = await DialogService.ShowAsync<DocumentComponent>("ADD DOCUMENT", parameters, options);        
+        var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };        
         var dialog = await DialogService.ShowAsync<Document_Index>("Select DOCUMENTS", parameters, options);
 
         var result = await dialog.Result;
@@ -438,18 +460,21 @@
         }
     }
 
+    // NOT USED (DELETE)
     async Task AddDocument_Click()
     {
-        await JSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents?IsSelectable={true}", "_blank");
+        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents?IsSelectable={true}", "_blank");
 
-        var result = await ValueTask.FromResult(JSRuntime);
+        var result = await ValueTask.FromResult(jsRuntime);
 
-        if (result is not null)
-        {
-            var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
-        }
+        // if (result is not null)
+        // {
+        //     var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
+        // }
 
-        // var result = await ValueTask.FromResult(JSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents/{true}", "_blank"));
+
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents/{true}", "_blank"));
 
         // if (result.IsCompletedSuccessfully)
         // {
@@ -532,8 +557,6 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    #endregion
-
     private async Task UploadFile()
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
@@ -545,7 +568,7 @@
 
         if (!result.Canceled)
         {
-            if(result.Data != null)
+            if (result.Data != null)
             {
                 uploadResult = (UploadResult)result.Data;
 
@@ -578,7 +601,7 @@
                         docRecord.Document = document;
                         DocumentRecordItems.Add(docRecord);
                     }
-                }                
+                }
 
                 foreach (var record in records)
                     foreach (var cntrContent in record.Contents)
@@ -592,9 +615,11 @@
                 await ValueChanged.InvokeAsync(Value);
             }
         }
-    }        
+    }
 
-    #region SEARCH
+    #endregion
+    
+    #region SEARCH AND SELECT METHODS
 
     private async Task GetVesselCallDetail_Click()
     {
@@ -628,8 +653,32 @@
         DialogResult result = await dialog.Result;
     }
 
+    private async Task AddPerson_Click()
+    {
+        // //await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}mycompany?IsNewPerson={true}", "_blank"));
+        // await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}mycompany?IsNewPerson={true}", "_blank");
+
+        // var result = await ValueTask.FromResult(jsRuntime);
+
+        // // if (result is not null)
+        // // {            
+        // //     Persons = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<PersonEntity>>(result.ToString());
+        // //     //Persons = JsonSerializer.DeserializeAsync<HashSet<PersonEntity>>(result, (JsonSerializerOptions?)null);
+        // // }
+
+
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Person_ItemDialog>("Select Person", parameters, options);
+
+        DialogResult result = await dialog.Result;
+    }
+
     private async Task<IEnumerable<CarrierCatalog>> SearchCarrier(string value)
     {
+        // check Terminal for this Carrier before select
         string? terminal = string.Empty;
 
         if (Value!.VesselCallDetail!.VesselCall!.Terminal is not null)
@@ -638,6 +687,7 @@
         if (terminal is null)
             return Enumerable.Empty<CarrierCatalog>();
 
+        // select Carrier
         var Carriers = new List<CarrierCatalog>();
 
         var response = await _carrierProvider.GetItemsAsync();

@@ -2,7 +2,7 @@
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject HttpClient Http
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime jsRuntime
 @inject IVesselCallProvider _vesselCallProvider
 @inject IVesselProvider _vesselProvider
 @inject ITerminalProvider _terminalProvider
@@ -10,12 +10,17 @@
 @inject ICarrierProvider _carrierProvider
 
 <style>
+
+    .Container-item > .container-content > .container-content-column {
+        display:flex;
+    }
+
     .mud-picker-inline {
         flex: unset;
     }
     .wrapper-input-date > .mud-input-control {
         margin-top:unset;
-    }
+    }    
 
     .mud-input-control.mud-input-control-boolean-input {
         width: 22px;
@@ -24,10 +29,6 @@
     .Container-table .tableMenu .mud-table-cell{
         padding:unset;
     }
-
-/*     .mud-button-filled{
-        height:30px;
-    } */
 
 /*     .Table.MultiSelection * table tr > th:first-child {
         width: 38px;
@@ -39,46 +40,48 @@
  </style>
 
 <div class="Container-item">
-    <div class="container-head"></div>
     <div class="container-content">
-        <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
-                          Style="width: 270px"
-                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                          CloseIcon="" OpenIcon="" MaxItems="20"
-                          ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
-                          Label="Voyage"                          
-                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                          CloseIcon="" OpenIcon=""
-                          ResetValueOnEmptyText="true" Clearable />
+        <div class="container-content-column" style="width:270px">
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
+                             Style="width: 250px"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon="" MaxItems="20"
+                             ResetValueOnEmptyText="true" Clearable />
+        </div>
+        <div class="container-content-column" style="width:180px">
+             <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+                              Label="Voyage"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              CloseIcon="" OpenIcon=""
+                              ResetValueOnEmptyText="true" Clearable />
+        </div>
+        <div class="container-content-column" style="width:270px">
+             <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
+                              Style="width: 270px"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              CloseIcon="" OpenIcon="" MaxItems="20"
+                              ResetValueOnEmptyText="true" Clearable />
 
-         @* ValueChanged="(e)=> { Filter.Voyage = e; }" *@
-        @*<MudTextField Class="TextField" T="string" Label="Voyage" Style="width: 130px" @bind-Value="Filter.Voyage"
-                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable></MudTextField> *@
+        </div>
         <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
-                          Style="width: 200px"
-                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                          CloseIcon="" OpenIcon="" MaxItems="20"
-                          ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
-                          Style="width: 130px"
-                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                          CloseIcon="" OpenIcon="" MaxItems="20"
-                          ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-        <MudDatePicker Class="wrapper-input-date" Label="From" @bind-Date="Filter.ETA"
-                        Style="width: 130px; height: 40px;"
-                        DateFormat="dd.MM.yy"
-                        ShowWeekNumbers="true"
-                        Variant="Variant.Outlined"
-                        IconSize=Size.Small                            
-                        AutoClose=true
-                        DisableToolbar=false Clearable />
-        <MudSpacer />
-        <MudDatePicker Class="wrapper-input-date" Label="To" @bind-Date="Filter.ETS"
+        <div class="container-content-column" style="width:200px">
+             <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
+                        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+                 Search
+             </MudButton>
+        </div>
+    </div>
+    <div class="container-content">
+        <div class="container-content-column" style="width:270px"></div>
+        <div class="container-content-column" style="width:180px">
+             <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
+                              Style="width: 150px"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              CloseIcon="" OpenIcon="" MaxItems="20"
+                              ResetValueOnEmptyText="true" Clearable />
+        </div>
+        <div class="container-content-column" style="width:270px">
+            <MudDatePicker Class="wrapper-input-date" Label="From" @bind-Date="Filter.ETA"
                         Style="width: 130px; height: 40px;"
                         DateFormat="dd.MM.yy"
                         ShowWeekNumbers="true"
@@ -86,20 +89,29 @@
                         IconSize=Size.Small
                         AutoClose=true
                         DisableToolbar=false Clearable />
-        <MudSpacer />
-        <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="@Filter.Status"
-                    ToStringFunc="@(str=>str.ToString())"
-                    Variant="Variant.Outlined" Margin="Margin.Dense">
-             @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
-            {
-                <MudSelectItem Value="@status" />
-            }
-        </MudSelect>
-        <MudSpacer />
-        <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
-                    Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
-             Search
-         </MudButton>
+            <MudSpacer />
+            <MudDatePicker Class="wrapper-input-date" Label="To" @bind-Date="Filter.ETS"
+                        Style="width: 130px; height: 40px;"
+                        DateFormat="dd.MM.yy"
+                        ShowWeekNumbers="true"
+                        Variant="Variant.Outlined"
+                        IconSize=Size.Small
+                        AutoClose=true
+                        DisableToolbar=false Clearable />
+        </div>
+         <MudSpacer />
+        <div class="container-content-column" style="width:200px">
+            <div class="wrapper-input-select">
+                 <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="@Filter.Status"
+                            ToStringFunc="@(str=>str.ToString())"
+                            Variant="Variant.Outlined" Margin="Margin.Dense">
+                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                    {
+                        <MudSelectItem Value="@status" />
+                    }
+                </MudSelect>
+            </div>
+         </div>
     </div>
 </div>
  
@@ -138,19 +150,19 @@
             @if (!IsSelectable)
             {
                 <MudTh Style="width: 42px"></MudTh>
-                <MudTh Style="width: 42px"></MudTh>
             }
-            else
+            <MudTh Style="width: 42px"></MudTh>
+            <MudTh Style="width:220px">Vessel</MudTh>
+            <MudTh Style="width:150px">Voyage</MudTh>
+            <MudTh Style="width:220px">POD</MudTh>
+            <MudTh Style="width: 90px">Terminal</MudTh>
+            <MudTh Style="width: 90px">ETA</MudTh>
+            <MudTh Style="width: 90px">ETS</MudTh>
+            <MudTh Style="width: 75px">Status</MudTh>
+            @if (!IsSelectable)
             {
                 <MudTh Style="width: 42px"></MudTh>
-            }            
-            <MudTh Style="width:270px">Vessel</MudTh>
-            <MudTh Style="width:200px">Voyage</MudTh>
-            <MudTh Style="width:270px">POD</MudTh>
-            <MudTh Style="width:150px">Terminal</MudTh>
-            <MudTh Style="width:130px">ETA</MudTh>
-            <MudTh Style="width:130px">ETS</MudTh>
-            <MudTh Style="width: 80px">Status</MudTh>
+            }
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -159,16 +171,18 @@
                 <MudTd>                    
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.VesselCallId); })" />
                 </MudTd>
-                <MudTd Style="width:42px">
-                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItemDetail_Click(context.Id, context.POD!); })" />
+                <MudTd>
+                    <MudTooltip Text="Add new ExportOrder">
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircleOutline" Color="Color.Primary" OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })" />
+                    </MudTooltip>                    
                 </MudTd>
             }
             else
             {
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(async()=>{ await SelectItem_Click(context.Id); })" />
-@*                     <MudIconButton Icon="@Icons.Material.Filled.AddCircle"
-                                   OnClick="@(async()=>{ await SelectItem_Click($"{context.VesselName}&{context.VoyageNo}&{context.POD}"); })" /> *@
+                    <MudTooltip Text="Upload">
+                        <MudIconButton Icon="@Icons.Material.Filled.UploadFile" OnClick="@(async()=>{ await SelectItem_Click(context.Id); })" />
+                    </MudTooltip>
                 </MudTd>
             }
             <MudTd>@context.VesselName</MudTd>
@@ -178,6 +192,13 @@
             <MudTd>@(context.ETA.HasValue ? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
             <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>            
             <MudTd>@context.Status.ToString()</MudTd>
+            @if (!IsSelectable)
+            {
+                <MudTd Style="text-align:start">
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Disabled
+                                OnClick="@(async()=>{ await RemoveItemDetail_Click(context.Id, context.POD!); })" />
+                </MudTd>                
+            }
             <MudTd></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -230,6 +251,14 @@
             await GetItems();
     }
 
+    private async Task AddExportOrder_Click(long id)
+    {
+        var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}", "_blank"));
+
+        // if (result.IsCompletedSuccessfully)
+        //     await component!.GetItems();
+    }
+
     private async Task RemoveItemDetail_Click(long id, string pod)
     {
         // bool? msgResult = await DialogService.ShowMessageBox(
@@ -270,7 +299,7 @@
 
         await Task.Delay(100);
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslcallid={vesselcallid}";
-        await JSRuntime.InvokeVoidAsync("open", path);
+        await jsRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task SaveExcelFile_Click()
@@ -285,7 +314,7 @@
 
         await Task.Delay(100);
         string path = $"{Navigation.BaseUri}server/ExportOrder/SaveFillBillExcelFile?vslcallid={vesselcallid}";
-        await JSRuntime.InvokeVoidAsync("open", path);
+        await jsRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task ViewCustomsReport_Click()
@@ -300,7 +329,7 @@
 
         await Task.Delay(100);
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewCustomsExplanation?vslcallid={vesselcallid}";
-        await JSRuntime.InvokeVoidAsync("open", path);
+        await jsRuntime.InvokeVoidAsync("open", path);
     }
 
     #region SEARCH FUNCTIONS

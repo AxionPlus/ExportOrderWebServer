@@ -1,6 +1,7 @@
 ﻿@page "/mycompany"
 
 @inject ISnackbar Snackbar
+@inject IJSRuntime jsRuntime
 @inject IMyCompanyProvider _myCompanyProvider
 
 <PageTitle>My Company</PageTitle>
@@ -13,40 +14,40 @@
 </style>
 
 <MudContainer MaxWidth="MaxWidth.Large">
-    <MudForm @ref="Form" ReadOnly="IsFormReadOnly">
-        <div class="ToolBar-container">
-            <MudToolBar Class="ToolBar ToolBar-new">
-                <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
-                <MudSpacer />
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">            
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
 
-                <div class="ToolBar-Title"><span>my company</span></div>
-                <MudSpacer />
-                
-                @if (IsFormReadOnly)
-                {
-                    <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                        <MudTooltip Text="edit company">
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
-                        </MudTooltip>
-                    </div>
-                }
-                else
-                {
-                    <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                        <MudTooltip Text="save company">
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="@IsLoadingData" OnClick="SaveItem_Click" />
-                        </MudTooltip>
-                    </div>
-                }
-                
-                <div class="ToolBar-iconbutton">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            <div class="ToolBar-Title"><span>my company</span></div>
+            <MudSpacer />
+
+            @if (IsFormReadOnly)
+            {
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="edit company">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
+                    </MudTooltip>
                 </div>
-                <div class="ToolBar-iconbutton">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            }
+            else
+            {
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="save company">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="@IsLoadingData" OnClick="SaveItem_Click" />
+                    </MudTooltip>
                 </div>
-            </MudToolBar>
-        </div>
+            }
+
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>    
+    <MudForm @ref="Form" ReadOnly="IsFormReadOnly">        
 
         <div class="Container-item">
             <div class="container-content">
@@ -66,7 +67,7 @@
                     <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Item.Persons!.Count())</span>
                 </div>
             }
-            <MudTable Class="Table" @ref="mudTable" Items="@Item.Persons" Hover="true" Loading="IsLoadingData">
+            <MudTable Class="Table" @ref="mudTable" Items="@Item.Persons" Hover Loading="IsLoadingData">
                 <HeaderContent>
                     <MudTh Style="width:40px">
                         <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddPerson_Click" Disabled="@(IsFormReadOnly || IsLoadingData)" />
@@ -92,8 +93,8 @@
                                       Clearable="!IsFormReadOnly" />
                     </MudTd>
                      <MudTd>
-                         <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(IsShowPersonDetails == true ? "transform: rotate(180deg);" : null)"
-                                        Size="@Size.Small" OnClick="(_)=>{IsShowPersonDetails = !IsShowPersonDetails;}" />
+                         <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(context.IsShowPersonDetails == true ? "transform: rotate(180deg);" : null)"
+                                        Size="@Size.Small" OnClick="(_)=>{context.IsShowPersonDetails = !context.IsShowPersonDetails;}" />
                          </MudTd>
                     <MudTd>
                         <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.Name"
@@ -126,7 +127,7 @@
                     <MudTd></MudTd>
                 </RowTemplate>
                 <ChildRowContent>
-                    @if (IsShowPersonDetails)
+                    @if (context.IsShowPersonDetails)
                     {                        
                         <MudTr>
                             <td colspan="3"></td>
@@ -177,17 +178,17 @@
     </MudForm>
 </MudContainer>
 
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
-
- @code {
     private MudForm? Form { get; set; }
     private MudTable<PersonEntity>? mudTable;
     private MyCompanyEntity? Item { get; set; } = new();
     private bool IsLoadingData { get; set; } = false;
     private bool IsNewItem { get; set; }
     private bool IsFormReadOnly { get; set; } = true;
-    private bool IsShowPersonDetails { get; set; } = false;
-    private HashSet<PersonEntity>? Persons { get; set; } = new HashSet<PersonEntity>();
+    //private bool IsShowPersonDetails { get; set; } = false;
+    //private HashSet<PersonEntity>? Persons { get; set; } = new HashSet<PersonEntity>();
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
@@ -216,9 +217,9 @@
         else
             Snackbar.Add($"{response.Error.First()}", Severity.Error);
 
-        if (Item is not null)
-            if (Item.Persons!.Count() > 0)
-                Persons = Item.Persons!.ToHashSet();
+        // if (Item is not null)
+        //     if (Item.Persons!.Count() > 0)
+        //         Persons = Item.Persons!.ToHashSet();
 
         await Task.Delay(50);
     }
@@ -226,6 +227,7 @@
     public async Task SaveItem_Click()
     {
         IsLoadingData = true;
+        
         await Form!.Validate();
 
         if (Form.IsValid)
@@ -259,7 +261,7 @@
 
     private void AddPerson_Click()
     {
-        Item!.Persons!.Add(new());
+        Item!.Persons!.Add(new PersonEntity() { IsShowPersonDetails = true });
     }
 
     private async Task RemovePerson_Click(PersonEntity item)
@@ -269,4 +271,20 @@
         if (Item!.Persons!.Contains(item))
             Item!.Persons!.Remove(item);
     }
+
+    public async Task CloseDialog_Click()
+    {
+        await Task.Delay(50);
+        //MudDialog!.Close(DialogResult.Ok(Persons));
+        if (Item is not null)
+            MudDialog!.Close(DialogResult.Ok(Item.Persons));
+        else
+            MudDialog!.Close(DialogResult.Cancel);
+    }
+
+    // public void CloseWindow()
+    // {
+    //     jsRuntime.InvokeVoidAsync("window.close", Persons);
+    // }
+
 }

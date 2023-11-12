@@ -16,11 +16,11 @@
         <MudToolBar Class="ToolBar ToolBar-new">
             @if (MudDialog != null)
             {
-                <div class="ToolBar-iconbutton">
+@*                 <div class="ToolBar-iconbutton">
                     <MudTooltip Text="EXIT">
                         <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseDialog_Click" />
                     </MudTooltip>
-                </div>
+                </div> *@
             }
             else
             {
@@ -100,7 +100,6 @@
     [SupplyParameterFromQuery]
     [Parameter]
     public bool IsNewItem { get; set; } = false;
-    //public bool IsNewItem { get { if (Id == "new") return true; return false; } }
 
     private DocumentEntity? Item { get; set; }
     private DocumentType Type { get; set; }

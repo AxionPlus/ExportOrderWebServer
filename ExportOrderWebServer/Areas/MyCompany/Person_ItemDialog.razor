@@ -1,0 +1,160 @@
+﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IMyCompanyProvider _myCompanyProvider
+
+@if (Item is not null)
+{
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudTextField T="string" Style="width: 200px;" @bind-Value="@Item.FamilyName"
+                              Placeholder="Фамилия"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+
+            </CardHeaderContent>
+            <CardHeaderActions>
+                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+            </CardHeaderActions>
+        </MudCardHeader>
+         <MudCardContent>
+             <div class="container-content">
+                 <MudTextField T="string" Style="width: 200px;" @bind-Value="@Item.Name"
+                               Placeholder="Имя"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+                 <MudTextField T="string" Style="width: 200px;" @bind-Value="@Item.SurName"
+                               Placeholder="Отчество"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+            </div>
+            <MudDivider Class="my-3" />
+            <div class="container-content">
+                 <MudTextField T="string" Style="width: 150px;" @bind-Value="@Item.Phone"
+                               Placeholder="+7 000 000 0000"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+                 <MudTextField T="string" Style="width: 250px;" @bind-Value="@Item.Company"
+                               Placeholder="компания"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+             </div>
+             <div class="container-content">
+                 <h6>год и место рождения:</h6>
+                 <MudTextField T="string" Style="width: 100px;" @bind-Value="@Item.BirthYear"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+                 <MudTextField T="string" Style="width: 515px;" @bind-Value="@Item.BirthPlace"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+             </div>
+             <div class="container-content">
+                 <h6>место жительства:</h6>
+                 <MudTextField T="string" Style="width: 630px;" @bind-Value="@Item.Address"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+             </div>
+             <div class="container-content">
+                 <h6>данные паспорта:</h6>
+                 <MudTextField T="string" Style="width: 630px;" @bind-Value="@Item.Passport"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Immediate="true" Required RequiredError=""
+                               Clearable="!IsFormReadOnly" />
+             </div>
+        </MudCardContent>
+        <MudCardActions>
+
+        </MudCardActions>
+        
+    </MudCard>
+
+    <OverlayLoadingData Visible="@IsLoadingData" />
+}
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    private MudForm? Form { get; set; }
+
+    [Parameter]
+    public long Id { get; set; }
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
+
+    private PersonEntity? Item { get; set; }
+    private bool IsFormReadOnly { get; set; } = true;
+    private bool IsAuth = false;
+
+    private bool IsLoadingData { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetItem();
+
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        {
+            IsAuth = true;
+        }
+    }
+
+    private async Task GetItem()
+    {
+        if (IsNewItem)
+        {
+            IsFormReadOnly = false;
+            Item = new();
+        }
+        else
+        {
+            var response = await _myCompanyProvider.GetPersonItemAsync(Id);
+            if (!response.HasError)
+                Item = (PersonEntity)response.Object!;
+        }
+    }
+
+    private async Task SaveItem_Click()
+    {
+        await Form!.Validate();
+
+        if (Form.IsValid)
+        {
+            if (IsNewItem)
+            {
+                var response = await _myCompanyProvider.NewPersonItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Id = Item!.Id;
+                    Snackbar.Add("Saved successfully", Severity.Success);
+                }
+                else
+                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+            }
+            else
+            {
+                var response = await _myCompanyProvider.ModifyPersonItemAsync(Item!);
+                if (!response.HasError)
+                {
+                    Snackbar.Add("Save Successed", Severity.Success);
+                }
+                else
+                    Snackbar.Add(response.Error.Last(), Severity.Error);
+            }
+
+            IsNewItem = false;
+            IsFormReadOnly = true;
+
+            await GetItem();
+            //await InvokeAsync(StateHasChanged);
+        }
+    }
+
+}

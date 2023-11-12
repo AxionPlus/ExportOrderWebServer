@@ -33,9 +33,9 @@ public class MyCompanyProvider : IMyCompanyProvider
         {
             var db = await _db;
 
-            var com = await db.MyCompany.ToListAsync();
+            var company = await db.MyCompany.ToListAsync();
 
-            return com.Count() == 0;
+            return company.Count() == 0;
         }
     }
 
@@ -110,9 +110,8 @@ public class MyCompanyProvider : IMyCompanyProvider
 
                 if (modifyItem.Name != item.Name)
                 {
-                    var itemExistCheck = await db.MyCompany
-                                                         .Where(s => s.Name!.ToUpper() == item.Name!.ToUpper())
-                                                         .FirstOrDefaultAsync();
+                    var itemExistCheck = await db.MyCompany.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper())
+                                                           .FirstOrDefaultAsync();
 
                     if (itemExistCheck is not null)
                     {
@@ -161,6 +160,127 @@ public class MyCompanyProvider : IMyCompanyProvider
                     }
 
                 db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                appObjResponse.ErrorAdd(ex.Message);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
+    }
+
+    public async Task<AppObjectResponse> GetPersonItemAsync(long id)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            appObjResponse.Object = await db.Persons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        return appObjResponse;
+    }
+
+    public async Task<AppObjectResponse> NewPersonItemAsync(PersonEntity item)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var LastMyCompanyItem = await db.MyCompany.Include(mc => mc.Persons).AsNoTracking().OrderBy(mc => mc.Id).LastOrDefaultAsync();
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+            // check an Existing item
+            var itemExistCheck = await db.Persons.Where(s => s.FamilyName == item!.FamilyName).FirstOrDefaultAsync();
+            if (itemExistCheck != null)
+            {
+                appObjResponse.ErrorAdd($"Person exists already: {item!.FamilyName} ");
+                return appObjResponse;
+            }
+
+            item.CreateUser = User!;
+            item.CreateTime = DateTime.Now;
+
+            db.Entry(item.CreateUser).State = EntityState.Unchanged;
+
+            db.Entry(item).State = EntityState.Added;
+            LastMyCompanyItem!.Persons!.Add(item);
+
+            db.Entry(LastMyCompanyItem).State = EntityState.Modified;
+
+            var bug = db.ChangeTracker.DebugView.LongView;
+
+            await db.SaveChangesAsync();
+
+            return appObjResponse;
+        }
+    }
+
+    public async Task<AppObjectResponse> ModifyPersonItemAsync(PersonEntity item)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.Persons.FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem is null)
+                {
+                    appObjResponse.ErrorAdd("Person not found");
+                    return appObjResponse;
+                }
+
+                if (modifyItem.FamilyName != item.FamilyName)
+                {
+                    var itemExistCheck = await db.Persons.Where(s => s.FamilyName!.ToUpper() == item.FamilyName!.ToUpper())
+                                                         .FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($" {item.FamilyName} exists already");
+                        return appObjResponse;
+                    }
+                }
+
+                var LastMyCompanyItem = await db.MyCompany.Include(mc => mc.Persons).AsNoTracking().OrderBy(mc => mc.Id).LastOrDefaultAsync();
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                item!.CreateUser = User!;
+                item!.CreateTime = DateTime.Now;
+
+                item.Name = item.Name;
+                item.FamilyName = item.FamilyName;
+                item.SurName = item.SurName;
+                item.Phone = item.Phone;
+                item.BirthYear = item.BirthYear;
+                item.BirthPlace = item.BirthPlace;
+                item.Company = item.Company;
+                item.Address = item.Address;
+                item.Passport = item.Passport;
+
+                db.Entry(item.CreateUser).State = EntityState.Unchanged;
+
+                db.Entry(item).State = EntityState.Added;
+                LastMyCompanyItem!.Persons!.Add(item);
+
+                db.Entry(LastMyCompanyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
 

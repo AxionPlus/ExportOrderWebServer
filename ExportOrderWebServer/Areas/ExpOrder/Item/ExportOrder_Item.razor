@@ -1,4 +1,7 @@
-﻿@inject ISnackbar Snackbar
+﻿@page "/exportorder"
+
+@inject ISnackbar Snackbar
+@inject IJSRuntime jsRuntime
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IExportOrderProvider _exportOrderProvider
 
@@ -8,33 +11,16 @@
 
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">
-            @if (MudDialog != null)
-            {
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Text="EXIT">
-                        <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" OnClick="CloseDialog_Click"
-                                       Icon="@Icons.Material.Outlined.ExitToApp" />
-                    </MudTooltip>
-                </div>
-            }
-
-            @if (!IsNewItem)
-            {
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Class="ExitIconButton" Text="REFRESH" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
-                    </MudTooltip>
-                </div>
-            }
-
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Text="EXIT">
+                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseWindow" />
+                </MudTooltip>
+            </div>
             <MudSpacer />
-
             <div class="ToolBar-Title">
                 <span>@($"Export Order: \t {Header}")</span>
             </div>
-
             <MudSpacer />
-
             @if (IsFormReadOnly)
             {
                 @*                     @if (IsAuth)
@@ -54,7 +40,6 @@
                     </MudTooltip>
                 </div>
             }
-
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
             </div>
@@ -73,18 +58,20 @@
 
 </MudContainer>
 
-
 @code {
     private MudForm? Form;
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
+    [SupplyParameterFromQuery]
     [Parameter]
     public long Id { get; set; }
+
+    [SupplyParameterFromQuery]
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
     private ExportOrderEntity? Item { get; set; }
-    public bool IsFormReadOnly { get; set; } = true;
+    public bool IsFormReadOnly { get; set; } = false;   // true
     private bool IsAuth = false;
     private string? Header { get; set; }
 
@@ -105,8 +92,8 @@
         if (IsNewItem)
         {
             Item = new() { Carrier = new(), VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
-            IsFormReadOnly = false;
-        }        
+            //IsFormReadOnly = false;
+        }
         else
         {
             var response = await _exportOrderProvider.GetItemAsync(Id);
@@ -114,7 +101,7 @@
             {
                 Item = (ExportOrderEntity)response.Object!;
                 Header = Item!.Status!.ToString();
-            }            
+            }
         }
     }
 
@@ -132,7 +119,7 @@
                 {
                     Snackbar.Add("No Success", Severity.Error);
                     return;
-                }                
+                }
             }
             else
             {
@@ -143,14 +130,14 @@
                 {
                     Snackbar.Add("Not Successed", Severity.Error);
                     return;
-                }               
+                }
             }
         else
         {
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
             return;
         }
-        
+
         IsNewItem = false;
         IsFormReadOnly = true;
 
@@ -167,10 +154,8 @@
         IsFormReadOnly = false;
     }
 
-    public async Task CloseDialog_Click()
+    public void CloseWindow()
     {
-        await Task.Delay(50);
-        MudDialog!.Close();
+        jsRuntime.InvokeVoidAsync("window.close");
     }
-
 }

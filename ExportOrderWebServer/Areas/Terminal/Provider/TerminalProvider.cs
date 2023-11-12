@@ -200,7 +200,7 @@ public class TerminalProvider : ITerminalProvider
         {
             var db = await _db;
 
-            var Item = db.CustomsOffices.AsNoTracking().ToList();
+            var Item = await db.CustomsOffices.AsNoTracking().ToListAsync();
 
             return Item!;
         }

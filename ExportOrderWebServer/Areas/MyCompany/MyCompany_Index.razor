@@ -93,8 +93,11 @@
                                       Clearable="!IsFormReadOnly" />
                     </MudTd>
                      <MudTd>
-                         <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(context.IsShowPersonDetails == true ? "transform: rotate(180deg);" : null)"
-                                        Size="@Size.Small" OnClick="(_)=>{context.IsShowPersonDetails = !context.IsShowPersonDetails;}" />
+                         @if(!context.IsNewPerson)
+                         {
+                             <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(context.IsShowPersonDetails == true ? "transform: rotate(180deg);" : null)"
+                                            Size="@Size.Small" OnClick="(_)=>{context.IsShowPersonDetails = !context.IsShowPersonDetails;}" />
+                         }
                          </MudTd>
                     <MudTd>
                         <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.Name"
@@ -187,8 +190,6 @@
     private bool IsLoadingData { get; set; } = false;
     private bool IsNewItem { get; set; }
     private bool IsFormReadOnly { get; set; } = true;
-    //private bool IsShowPersonDetails { get; set; } = false;
-    //private HashSet<PersonEntity>? Persons { get; set; } = new HashSet<PersonEntity>();
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
@@ -216,10 +217,6 @@
             Item = (MyCompanyEntity)response.Object!;
         else
             Snackbar.Add($"{response.Error.First()}", Severity.Error);
-
-        // if (Item is not null)
-        //     if (Item.Persons!.Count() > 0)
-        //         Persons = Item.Persons!.ToHashSet();
 
         await Task.Delay(50);
     }
@@ -261,7 +258,7 @@
 
     private void AddPerson_Click()
     {
-        Item!.Persons!.Add(new PersonEntity() { IsShowPersonDetails = true });
+        Item!.Persons!.Add(new PersonEntity() { IsNewPerson = true , IsShowPersonDetails = true});
     }
 
     private async Task RemovePerson_Click(PersonEntity item)

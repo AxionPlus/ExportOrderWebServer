@@ -10,6 +10,11 @@
         text-align:left;
     }
 
+    .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end: 4px;
+        padding-right: 4px;
+    }
+
 </style>
 
 @if (Item is not null)
@@ -32,7 +37,6 @@
         </div>
 
         <div class="Container-item">
-            <div class="container-head"></div>
             <div class="container-content">
                 <MudTextField T="string" Style="width: 150px; margin-right:10px" Label="Short Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
@@ -47,27 +51,27 @@
                                   SearchFunc="@SearchLocation"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
                                   Required RequiredError=""
-                                  CloseIcon="" OpenIcon=""
+                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                   ResetValueOnEmptyText="true"
                                   Placeholder="Location"
                                   MaxItems="20"
-                                  IconSize="Size.Small"
+                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                  AdornmentColor="Color.Primary"
+                                  Adornment="Adornment.End"
+                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddLocation_Click(); })"
                                   Clearable="!IsFormReadOnly" />
-                 <MudTooltip Text="Add new Location">
-                     <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddLocation_Click" />
-                 </MudTooltip>
             </div>
             <div class="container-content">
                 <MudSelect Class="SelectField" T="CustomsCatalog" Label="Таможенный пост" @bind-Value="@Item.Customs"
                            Style="width:550px; text-align:left" Placeholder="Таможенный пост"
-                           ToStringFunc="@(str=>str is not null ? str.Office : string.Empty)"
+                           ToStringFunc="@(str => str is not null ? str.OfficeShort : string.Empty)"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            CloseIcon="" OpenIcon=""
-                           Clearable="!IsFormReadOnly">
+                           Clearable="!IsFormReadOnly" >
                     @if (CustomOffices is not null)
                         @foreach (var office in CustomOffices)
                         {
-                            <MudSelectItem Value="@office">@($"({office.Code}) {office.Office}")</MudSelectItem>
+                            <MudSelectItem Value="@office">@($"({office.Code}) {office.OfficeShort}")</MudSelectItem>
                         }
                 </MudSelect>
             </div>            

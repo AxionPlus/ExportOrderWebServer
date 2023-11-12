@@ -10,6 +10,10 @@
         margin:10px;
     }
 
+    .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end: 4px;
+        padding-right: 4px;
+    }
 </style>
 
 @if (Item is not null)
@@ -54,15 +58,15 @@
                                   SearchFunc="@SearchCountry"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"                               
                                   Required RequiredError=""
-                                  CloseIcon="" OpenIcon=""
+                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                   ResetValueOnEmptyText="true"
                                   Placeholder="Country"
                                   MaxItems="20"
-                                  IconSize="Size.Small"
+                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                  AdornmentColor="Color.Primary"
+                                  Adornment="Adornment.End"
+                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCountry_Click(); })"
                                   Clearable="!IsFormReadOnly" />
-                <MudTooltip Text="Add new Country">
-                    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddCountry_Click" />
-                </MudTooltip>
              </div>
          </div>
     </MudForm>

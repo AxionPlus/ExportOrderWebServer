@@ -3,79 +3,87 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IMyCompanyProvider _myCompanyProvider
 
+<style>
+    .container-content-Person {
+        display:flex;
+    }
+    .container-content-column {
+        display: flex;
+        margin-inline-end: 10px;
+    }
+</style>
+
 @if (Item is not null)
 {
-    <MudCard>
-        <MudCardHeader>
-            <CardHeaderContent>
+    <MudForm @ref="@Form" Style="max-width:fit-content" Disabled="IsFormReadOnly">
+        <div class="Container-item">
+            <div class="container-content Person">        
                 <MudTextField T="string" Style="width: 200px;" @bind-Value="@Item.FamilyName"
                               Placeholder="Фамилия"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-
-            </CardHeaderContent>
-            <CardHeaderActions>
-                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
-            </CardHeaderActions>
-        </MudCardHeader>
-         <MudCardContent>
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 200px;" @bind-Value="@Item.Name"
-                               Placeholder="Имя"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-                 <MudTextField T="string" Style="width: 200px;" @bind-Value="@Item.SurName"
+                              Immediate="true" Required RequiredError="" Clearable />
+                <MudSpacer />
+                <MudTooltip Text="Save person">
+                    <MudIconButton Style="margin-inline-end:20px" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="SaveItem_Click" />
+                </MudTooltip>
+            </div>
+            <div class="container-content Person">
+                <MudTextField T="string" Style="width: 200px;" @bind-Value="@Item.Name"
+                              Placeholder="Имя"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Required RequiredError="" Clearable />
+                 <MudTextField T="string" Style="width: 200px; margin-inline:10px" @bind-Value="@Item.SurName"
                                Placeholder="Отчество"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-            </div>
-            <MudDivider Class="my-3" />
-            <div class="container-content">
-                 <MudTextField T="string" Style="width: 150px;" @bind-Value="@Item.Phone"
+                               Immediate="true" Required RequiredError="" Clearable />
+                 <MudTextField T="string" Style="width: 190px;" @bind-Value="@Item.Phone"
                                Placeholder="+7 000 000 0000"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-                 <MudTextField T="string" Style="width: 250px;" @bind-Value="@Item.Company"
-                               Placeholder="компания"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-             </div>
-             <div class="container-content">
-                 <h6>год и место рождения:</h6>
-                 <MudTextField T="string" Style="width: 100px;" @bind-Value="@Item.BirthYear"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-                 <MudTextField T="string" Style="width: 515px;" @bind-Value="@Item.BirthPlace"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-             </div>
-             <div class="container-content">
-                 <h6>место жительства:</h6>
-                 <MudTextField T="string" Style="width: 630px;" @bind-Value="@Item.Address"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-             </div>
-             <div class="container-content">
-                 <h6>данные паспорта:</h6>
-                 <MudTextField T="string" Style="width: 630px;" @bind-Value="@Item.Passport"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-             </div>
-        </MudCardContent>
-        <MudCardActions>
-
-        </MudCardActions>
-        
-    </MudCard>
+                               Immediate="true" Required RequiredError="" Clearable />
+            </div>
+            <MudDivider Class="my-3" />
+            <div class="container-content Person">
+                <div class="container-content-column" style="width:200px">место работы:</div>
+                <div class="container-content-column" style="width:400px">
+                    <MudTextField T="string" Style="width: 400px;" @bind-Value="@Item.Company"
+                                  Placeholder="компания"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Required RequiredError="" Clearable />
+                </div>
+            </div>
+            <div class="container-content Person">
+                <div class="container-content-column" style="width:200px">год и место рождения:</div>
+                <div class="container-content-column" style="width:630px">
+                     <MudTextField T="string" Style="width: 100px; margin-right:10px" @bind-Value="@Item.BirthYear"
+                                   Placeholder="год"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   Immediate="true" Required RequiredError="" Clearable />
+                     <MudTextField T="string" Style="width: 520px;" @bind-Value="@Item.BirthPlace"
+                                   Placeholder="место"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   Immediate="true" Required RequiredError="" Clearable />
+                </div>
+            </div>
+            <div class="container-content Person">
+                <div class="container-content-column" style="width:200px">место жительства:</div>
+                <div class="container-content-column" style="width:630px">
+                    <MudTextField T="string" Style="width: 630px;" @bind-Value="@Item.Address"
+                                  Placeholder="адрес"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Required RequiredError="" Clearable />
+                </div>
+            </div>
+            <div class="container-content Person">
+                <div class="container-content-column" style="width:200px">данные паспорта:</div>
+                <div class="container-content-column" style="width:630px">
+                    <MudTextField T="string" Style="width: 630px;" @bind-Value="@Item.Passport"
+                                  Placeholder="паспорт"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Required RequiredError="" Clearable />
+                </div>
+            </div>
+        </div>
+    </MudForm>
 
     <OverlayLoadingData Visible="@IsLoadingData" />
 }
@@ -84,21 +92,15 @@
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     private MudForm? Form { get; set; }
 
-    [Parameter]
+    private PersonEntity? Item { get; set; } = new();
+
     public long Id { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
-
-    private PersonEntity? Item { get; set; }
-    private bool IsFormReadOnly { get; set; } = true;
+    private bool IsFormReadOnly { get; set; } = false;
     private bool IsAuth = false;
-
     private bool IsLoadingData { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
-        await GetItem();
-
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
         if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
         {
@@ -106,20 +108,15 @@
         }
     }
 
-    private async Task GetItem()
-    {
-        if (IsNewItem)
-        {
-            IsFormReadOnly = false;
-            Item = new();
-        }
-        else
-        {
-            var response = await _myCompanyProvider.GetPersonItemAsync(Id);
-            if (!response.HasError)
-                Item = (PersonEntity)response.Object!;
-        }
-    }
+    // private async Task GetItem()
+    // {
+    //     if (IsFormReadOnly)
+    //     {
+    //         var response = await _myCompanyProvider.GetPersonItemAsync(Id);
+    //         if (!response.HasError)
+    //             Item = (PersonEntity)response.Object!;
+    //     }
+    // }
 
     private async Task SaveItem_Click()
     {
@@ -127,7 +124,7 @@
 
         if (Form.IsValid)
         {
-            if (IsNewItem)
+            if (Item is not null)
             {
                 var response = await _myCompanyProvider.NewPersonItemAsync(Item!);
                 if (!response.HasError)
@@ -138,23 +135,10 @@
                 else
                     Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
             }
-            else
-            {
-                var response = await _myCompanyProvider.ModifyPersonItemAsync(Item!);
-                if (!response.HasError)
-                {
-                    Snackbar.Add("Save Successed", Severity.Success);
-                }
-                else
-                    Snackbar.Add(response.Error.Last(), Severity.Error);
-            }
 
-            IsNewItem = false;
             IsFormReadOnly = true;
-
-            await GetItem();
-            //await InvokeAsync(StateHasChanged);
         }
     }
 
+    
 }

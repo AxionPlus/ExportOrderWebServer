@@ -4,6 +4,7 @@
 @inject IJSRuntime jsRuntime
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IExportOrderProvider _exportOrderProvider
+@inject IVesselCallProvider _vesselCallProvider
 
 <style></style>
 
@@ -68,10 +69,14 @@
 
     [SupplyParameterFromQuery]
     [Parameter]
+    public long vcdId { get; set; }
+
+    [SupplyParameterFromQuery]
+    [Parameter]
     public bool IsNewItem { get; set; } = false;
 
     private ExportOrderEntity? Item { get; set; }
-    public bool IsFormReadOnly { get; set; } = false;   // true
+    public bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
     private string? Header { get; set; }
 
@@ -89,14 +94,27 @@
 
     private async Task GetItem()
     {
+        var response = new AppObjectResponse();
+        
         if (IsNewItem)
         {
-            Item = new() { Carrier = new(), VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
-            //IsFormReadOnly = false;
+            var vesselCallDetail = new VesselCallDetail();
+
+            response = await _vesselCallProvider.GetVesselCallDetailItemAsync(vcdId);
+            if (!response.HasError)
+            {
+                vesselCallDetail = (VesselCallDetail)response.Object!;
+            }
+            else
+                Snackbar.Add($"{response.Error.First()}", Severity.Error);
+
+            //Item = new() { Carrier = new(), VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
+            Item = new() { Carrier = new(), VesselCallDetail = vesselCallDetail, Person = new(), Status = EntityStatus.New };
+            IsFormReadOnly = false;
         }
         else
         {
-            var response = await _exportOrderProvider.GetItemAsync(Id);
+            response = await _exportOrderProvider.GetItemAsync(Id);
             if (!response.HasError)
             {
                 Item = (ExportOrderEntity)response.Object!;

@@ -1,5 +1,4 @@
-﻿
-@inject ISnackbar Snackbar
+﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICarrierProvider _carrierProvider
@@ -8,6 +7,11 @@
 <style>
     .DatePicker > .mud-input-control {
         margin-top: unset;
+    }
+
+    .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end: 4px;
+        padding-right: 4px;
     }
 
     .Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
@@ -62,15 +66,15 @@
                                   SearchFunc="@SearchLocation"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
                                   Required RequiredError=""
-                                  CloseIcon="" OpenIcon=""
+                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                   ResetValueOnEmptyText="true"
                                   Placeholder="Location"
-                                  MaxItems="20"
-                                  IconSize="Size.Small"
+                                  MaxItems="20"                                  
+                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                  AdornmentColor="Color.Primary"
+                                  Adornment="Adornment.End"
+                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddLocation_Click(); })"
                                   Clearable="!IsFormReadOnly" />
-                 <MudTooltip Text="Add new Location">
-                     <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddLocation_Click" />
-                 </MudTooltip>
              </div>
              <div class="container-content">
                  <MudSelect Class="wrapper-input " T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
@@ -105,7 +109,12 @@
                                              ValueChanged="(e)=> { context.TerminalName = e; }"
                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                              CloseIcon="" OpenIcon=""
-                                             ResetValueOnEmptyText="true" Clearable="!IsFormReadOnly" />
+                                             ResetValueOnEmptyText="true"
+                                             AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                             AdornmentColor="Color.Primary"
+                                             Adornment="Adornment.End"
+                                             OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddTerminal_Click(); })"
+                                             Clearable="!IsFormReadOnly" />
                        </MudTd>
                        <MudTd>
                             <MudTextField Class="TextField" T="string" @bind-Value="context.Contract"
@@ -226,13 +235,22 @@
         DialogResult result = await dialog.Result;
     }
 
+    private async Task AddTerminal_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
+
+        DialogResult result = await dialog.Result;
+    }
+
     private async Task EditItem_Click()
     {
         await Task.Delay(50);
         IsFormReadOnly = false;
     }
-
-    #region DETAILS
 
     private async Task AddDetails_Click()
     {
@@ -274,7 +292,6 @@
 
         await InvokeAsync(StateHasChanged);
     }
-    #endregion
 
     #region SEARCH FUNCTIONS
     private async Task<IEnumerable<string>> SearchTerminalNames(string value)

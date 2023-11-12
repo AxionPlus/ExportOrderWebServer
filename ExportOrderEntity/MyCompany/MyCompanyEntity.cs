@@ -22,4 +22,6 @@ public class PersonEntity : CatalogEntity
 
     [NotMapped]
     public bool IsShowPersonDetails { get; set; } = false;
+    [NotMapped]
+    public bool IsNewPerson { get; set; } = false;
 }

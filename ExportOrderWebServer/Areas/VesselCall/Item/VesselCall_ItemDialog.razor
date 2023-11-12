@@ -11,6 +11,11 @@
         text-align: start;
     }
 
+    .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end: 4px;
+        padding-right: 4px;
+    }
+
     .DatePicker .mud-input > input.mud-input-root-outlined, .DatePicker * div.mud-input-slot.mud-input-root-outlined {
         padding: 8px 0px 4px 8px;
         font-size: 0.92rem;
@@ -109,11 +114,14 @@
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchTerminal"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                              Required RequiredError=""
-                                  CloseIcon="" OpenIcon=""
+                                  Required RequiredError=""
+                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                   ResetValueOnEmptyText="true"
                                   MaxItems="20"
-                                  IconSize="Size.Small"
+                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                  AdornmentColor="Color.Primary"
+                                  Adornment="Adornment.End"
+                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddTerminal_Click(); })"
                                   Clearable="!IsFormReadOnly" />
                  <MudSpacer />
                  <MudTextField T="string" Style="width: 260px;" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
@@ -202,7 +210,7 @@
     [Parameter]
     public long Id { get; set; }
     [Parameter]
-    public string? Voyage { get; set; }     //   VesselName + & + Voyage
+    public string? Voyage { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
@@ -211,8 +219,6 @@
     private bool IsLoadingData = false;
     public bool IsFormReadOnly { get; set; } = true;
 
-
-    //private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     protected override async Task OnInitializedAsync()
     {
@@ -300,6 +306,17 @@
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("New Vessel", parameters, options);
+
+        DialogResult result = await dialog.Result;
+    }
+
+    private async Task AddTerminal_Click()
+    {
+        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
+
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
 
         DialogResult result = await dialog.Result;
     }

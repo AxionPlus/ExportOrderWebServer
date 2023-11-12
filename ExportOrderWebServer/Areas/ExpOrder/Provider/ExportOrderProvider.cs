@@ -382,14 +382,23 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<IEnumerable<PersonEntity>> GetPersonsAsync()
     {
-        using (var _db = _dbContext.CreateDbContextAsync())
+        try
         {
-            var db = await _db;
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
 
-            //var Items = db.Persons.AsNoTracking().ToList();
-            var Items = await db.Persons.AsNoTracking().ToListAsync();
+                var Items = await db.Persons.AsNoTracking().ToListAsync();
 
-            return Items!;
+                return Items!;
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            appObjResponse.ErrorAdd(msg);
+            Console.WriteLine($"{msg}");
+            return Enumerable.Empty<PersonEntity>();
         }
     }
 

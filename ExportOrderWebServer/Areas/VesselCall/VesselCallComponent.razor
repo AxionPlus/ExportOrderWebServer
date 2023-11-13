@@ -302,7 +302,10 @@
 
     private async Task ManifestsReport_Click()
     {
-        if (Items is null) return;
+        // if (Items is null) return;
+        // if (Items.FirstOrDefault()!.Status == 0) return;
+
+        if (Items.Count() == 0) return;
         if (Items.FirstOrDefault()!.Status == 0) return;
 
         var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
@@ -317,7 +320,7 @@
 
     private async Task SaveExcelFile_Click()
     {
-        if (Items is null) return;
+        if (Items.Count() == 0) return;
         if (Items.FirstOrDefault()!.Status == 0) return;
 
         var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
@@ -332,7 +335,7 @@
 
     private async Task ViewCustomsReport_Click()
     {
-        if (Items is null) return;
+        if (Items.Count() == 0) return;
         if (Items.FirstOrDefault()!.Status == 0) return;
 
         var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);

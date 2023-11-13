@@ -45,7 +45,7 @@
 
         <div class="Container-item">
             <div class="container-content">
-                <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
+                <MudTextField T="string" Style="width: 410px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
@@ -53,7 +53,7 @@
                                Clearable="!IsFormReadOnly" />
              </div>
             <div class="container-content">
-                 <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.NameEn"
+                 <MudTextField T="string" Style="width: 410px" Label="Name En" Text="@Item.NameEn"
                                TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true"
@@ -61,7 +61,7 @@
                                Clearable="!IsFormReadOnly" />
              </div>
              <div class="container-content" style="justify-content: flex-start">
-                 <MudAutocomplete T="LocationCatalog" Style="width: 300px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
+                 <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 270px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchLocation"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -75,17 +75,16 @@
                                   Adornment="Adornment.End"
                                   OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddLocation_Click(); })"
                                   Clearable="!IsFormReadOnly" />
-             </div>
-             <div class="container-content">
-                 <MudSelect Class="wrapper-input " T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
+                @* <MudSpacer/> *@
+                 <MudSelect Class="wrapper-input" T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
                             ToStringFunc="@(str=>str.ToString())"
                             Variant="Variant.Outlined" Margin="Margin.Dense">
-                    @foreach (BLTemplate template in Enum.GetValues(typeof(BLTemplate)))
+                     @foreach (BLTemplate template in Enum.GetValues(typeof(BLTemplate)))
                     {
                         <MudSelectItem Value="@template" />
                     }
                 </MudSelect>
-            </div>
+             </div>
             <div class="Container-table">
                 <MudTable Class="Table" @ref="mudTable" Items="@Item.CarrierDetails" Virtualize="true" RowsPerPage="5">
                    

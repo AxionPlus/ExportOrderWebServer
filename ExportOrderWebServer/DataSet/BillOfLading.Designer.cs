@@ -330,6 +330,8 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnPODAgent;
             
+            private global::System.Data.DataColumn columnFinalDestination;
+            
             private global::System.Data.DataColumn columnShippers;
             
             private global::System.Data.DataColumn columnConsignees;
@@ -442,6 +444,14 @@ namespace ExportOrderWebServer.DataSet {
             public global::System.Data.DataColumn PODAgentColumn {
                 get {
                     return this.columnPODAgent;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn FinalDestinationColumn {
+                get {
+                    return this.columnFinalDestination;
                 }
             }
             
@@ -563,6 +573,7 @@ namespace ExportOrderWebServer.DataSet {
                         string PODEn, 
                         string POLAgent, 
                         string PODAgent, 
+                        string FinalDestination, 
                         string Shippers, 
                         string Consignees, 
                         string NotifyParties, 
@@ -582,6 +593,7 @@ namespace ExportOrderWebServer.DataSet {
                         PODEn,
                         POLAgent,
                         PODAgent,
+                        FinalDestination,
                         Shippers,
                         Consignees,
                         NotifyParties,
@@ -621,6 +633,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnPODEn = base.Columns["PODEn"];
                 this.columnPOLAgent = base.Columns["POLAgent"];
                 this.columnPODAgent = base.Columns["PODAgent"];
+                this.columnFinalDestination = base.Columns["FinalDestination"];
                 this.columnShippers = base.Columns["Shippers"];
                 this.columnConsignees = base.Columns["Consignees"];
                 this.columnNotifyParties = base.Columns["NotifyParties"];
@@ -651,6 +664,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnPOLAgent);
                 this.columnPODAgent = new global::System.Data.DataColumn("PODAgent", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPODAgent);
+                this.columnFinalDestination = new global::System.Data.DataColumn("FinalDestination", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnFinalDestination);
                 this.columnShippers = new global::System.Data.DataColumn("Shippers", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnShippers);
                 this.columnConsignees = new global::System.Data.DataColumn("Consignees", typeof(string), null, global::System.Data.MappingType.Element);
@@ -1298,6 +1313,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public string FinalDestination {
+                get {
+                    try {
+                        return ((string)(this[this.tabledtBL.FinalDestinationColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'FinalDestination\' в таблице \'dtBL\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtBL.FinalDestinationColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string Shippers {
                 get {
                     try {
@@ -1534,6 +1565,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetPODAgentNull() {
                 this[this.tabledtBL.PODAgentColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsFinalDestinationNull() {
+                return this.IsNull(this.tabledtBL.FinalDestinationColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetFinalDestinationNull() {
+                this[this.tabledtBL.FinalDestinationColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

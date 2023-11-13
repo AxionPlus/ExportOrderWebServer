@@ -84,15 +84,17 @@
 {
     <div class="Container-item">
         <div class="container-content">
-            <MudTextField Class="TextField" Style="width: 180px; margin-right: 10px" T="string" Label="Number" Value="@Value!.Num"
+            <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px" T="string" Label="Number" Value="@Value!.Num"
                           ValueChanged="async (e) => { Value.Num = e.ToUpper(); }"
-                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                                    Required RequiredError="" Clearable="!IsFormReadOnly" />
+                          Variant="Variant.Outlined" Margin="Margin.Dense"                          
+                          Required RequiredError="" Clearable="!IsFormReadOnly" />
 
-             <MudDatePicker Class="wrapper-input-date" Style="width: 130px" Label="Date" @bind-Dated="Value.Dated"
+             <MudDatePicker Class="wrapper-input-date" Style="width: 130px" Label="Date" @bind-Date="Value.Dated"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Required RequiredError=""
-                            DateFormat="dd.MM.yy" IconSize=Size.Small Clearable="!IsFormReadOnly" />
+                            DateFormat="dd.MM.yy"
+                            Editable="true"
+                            IconSize=Size.Small
+                            Required RequiredError="" Clearable="!IsFormReadOnly" />
              <MudSpacer />
 
              <MudTextField Class="TextField" Style="width: 400px; margin-right: 10px" @bind-Value="@Value!.VesselCallDetail!.VesselCall!.Vessel.Name"
@@ -101,7 +103,7 @@
                                                                                Value.VesselCallDetail!.VesselCall.VoyageNo + " / " +
                                                                                Value.VesselCallDetail.POD!.NameEn : "")"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                                    Required RequiredError="" Clearable="!IsFormReadOnly"
+                           Required RequiredError="" Clearable="!IsFormReadOnly"
                            Adornment="Adornment.Start" IconSize="Size.Small"
                            AdornmentColor="Color.Primary"
                            AdornmentIcon="@Icons.Material.Filled.Waves"

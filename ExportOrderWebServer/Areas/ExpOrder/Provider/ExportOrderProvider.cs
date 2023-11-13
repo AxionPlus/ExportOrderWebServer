@@ -70,8 +70,8 @@ public class ExportOrderProvider : IExportOrderProvider
                                             {
                                                 Id = source.Id,
                                                 Num = source.Num,
-                                                Dated = source.Dated.ToString("dd.MM.yyyy"),
-                                                xmlDated = source.Dated.ToString("dd.MM.yyyy hh:mm:ss"),
+                                                Dated = source.Dated.HasValue ? source.Dated.Value.ToString("dd.MM.yyyy") : DateTime.Today.ToString("dd.MM.yyyy"),
+                                                xmlDated = source.Dated != null ? source.Dated.Value.ToString("dd.MM.yyyy hh:mm:ss") : DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss"),
                                                 BLtemplate = source.Carrier!.BlTemplate.ToString(),
                                                 CustomsOfficeCode = source.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
                                                 CustomsOfficeNameShort = source.VesselCallDetail.VesselCall.Terminal.Customs.OfficeShort,
@@ -86,6 +86,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 POD = source.VesselCallDetail!.POD!.Name + ", " + source.VesselCallDetail!.POD!.Country!.RUS,
                                                 PODEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.ENG,
                                                 PODwithCountryRus = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.RUS,
+                                                FinalDestination = source.VesselCallDetail!.FinalDestination!.NameEn! + ", " + source.VesselCallDetail!.FinalDestination!.Country!.ENG,
                                                 PODAgent = source.VesselCallDetail!.AgentPOD,
                                                 Measurement = source.Records.FirstOrDefault()!.Contents.FirstOrDefault()!.Volume > 0 ? "CBM" : "KG",
                                                 TotalCntrCount = source.Records.Count,
@@ -239,7 +240,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
                     if (itemExistCheck is not null)
                     {
-                        appObjResponse.ErrorAdd($"Export Order No. {item.Num} dtd {item.Dated.ToShortDateString} exists already");
+                        appObjResponse.ErrorAdd($"Export Order No. {item.Num} dtd {item.Dated!.Value.ToShortDateString} exists already");
                         return appObjResponse;
                     }
                 }
@@ -258,7 +259,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 db.ChangeTracker.Clear();
 
-                // ADD A NEW ITEM
+                // RE-WRITE WITH A NEW ITEM
 
                 modifyItem!.CreateUser = User!;
                 modifyItem!.CreateTime = DateTime.Now;
@@ -405,58 +406,6 @@ public class ExportOrderProvider : IExportOrderProvider
 
     #region AUXIALARY
 
-    Func<IEnumerable<ExportOrderEntity>, IEnumerable<BLDTO>> blRecords = (_mRecords) =>
-    {
-        var BLDTO_List = new List<BLDTO>();
-        var bLDTO = new BLDTO();
-
-        foreach (var Item in _mRecords)
-        {
-            bLDTO.BLDate = Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy");
-            bLDTO.Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo;
-            bLDTO.VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!;
-            bLDTO.VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG;
-            bLDTO.PODEn = Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG;
-            bLDTO.TotalCntrCount = Item.Records.Count;
-            bLDTO.TotalGrossWeight = Item.Records.Sum(r => r.Contents.Sum(c => c.GrossWt));
-            bLDTO.TotalTareWeight = Item.Records.Sum(r => r.CntrTareWt);
-
-            uint indexRec = 0;
-
-            foreach (var record in Item.Records)
-            {
-                bLDTO.Seq = ++indexRec;
-                bLDTO.BLNum = Item.Num;
-                bLDTO.Seal = record.Seal;
-                bLDTO.Cntr = record.CntrNum;
-                bLDTO.CntrType = record.CntrType!.Normolize!;       // used for calculation of Totals in Report's Parameters
-                bLDTO.CntrTareWt = record.CntrTareWt;
-
-                foreach (var content in record.Contents)
-                {
-                    bLDTO.Commodity = content.DocumentRecord.CommodityEngName;
-                    bLDTO.PackageQty = content.PackageQty is not null ? (uint)content.PackageQty : 0;
-                    bLDTO.PackageName = content.PackageName is not null ? content.PackageName.ToUpper() : "";
-
-                    bLDTO.NetWt = content.NetWt;
-                    bLDTO.GrossWt = content.GrossWt;
-                    bLDTO.Volume = content.Volume;
-                    bLDTO.IMO = content.DocumentRecord.IMO!;
-                    bLDTO.UNNO = content.DocumentRecord.UNNO!;
-                    bLDTO.IsIMO = content.DocumentRecord.IsIMO!;
-
-                    bLDTO.Shipper = content.DocumentRecord.Document.Shipper!.NameEn!;
-                    bLDTO.Consignee = content.DocumentRecord.Document.Consignee!.NameEn!;
-
-                    BLDTO_List.Add(bLDTO);
-                    bLDTO = new BLDTO();
-                }
-            }
-        }
-
-        return BLDTO_List;
-    };
-
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
     {
         var eoRecordsDTO = new List<ExportOrderRecordDTO>();
@@ -502,11 +451,11 @@ public class ExportOrderProvider : IExportOrderProvider
         return eoRecordsDTO.ToArray();
     };
 
-    Func<IEnumerable<ExportOrderEntity>, IEnumerable<ManifestDTO>> mRecords = (_mRecords) =>
+    Func<IEnumerable<ExportOrderEntity>, IEnumerable<ManifestDTO>> mRecords = (exportOrders) =>
     {
         var ItemsDTO = new List<ManifestDTO>();        
 
-        foreach (var Item in _mRecords)
+        foreach (var Item in exportOrders)
         {
             uint indexRec = 0;
 
@@ -518,7 +467,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
                     Seq = ++indexRec,
                     BLNum = Item.Num,
-                    BLDate = Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
+                    BLDate = Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy") : "---",
                     Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo,
                     VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!,
                     VesselFlag = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
@@ -605,7 +554,7 @@ public class ExportOrderProvider : IExportOrderProvider
             {
                 Id = record.Id,
                 Num = record.Num,
-                Dated = record.Dated.ToShortDateString(),
+                Dated = record.Dated != null ? record.Dated!.Value.ToShortDateString() : "---",
                 Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
                 Voyage = record.VesselCallDetail!.VesselCall.VoyageNo,
                 POD = record.VesselCallDetail!.POD!.Name!,

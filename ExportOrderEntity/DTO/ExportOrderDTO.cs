@@ -10,8 +10,8 @@ public class ExportOrderDTO
 #pragma warning disable CS8618
     public string Num { get; set; }
     public string BLtemplate { get; set; }
-    public string Dated { get; set; }
-    public string xmlDated { get; set; }                // дата для xml файла
+    public string? Dated { get; set; }
+    public string? xmlDated { get; set; }                // дата для xml файла
     public string? CarrierNameEn { get; set; }
     public string? TerminalName { get; set; }
     public string VesselName { get; set; }
@@ -27,6 +27,7 @@ public class ExportOrderDTO
     public string? PODunlocode { get; set; }
     public string PODwithCountryRus { get; set; }
     public string? PODAgent { get; set; }
+    public string? FinalDestination { get; set; }    
     public string? Measurement { get; set;}
     public int TotalCntrCount { get; set; }
     public double? TotalPackages { get; set; }

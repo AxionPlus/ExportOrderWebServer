@@ -114,6 +114,7 @@
             {
                 Item = (ExportOrderEntity)response.Object!;
                 Header = Item!.Status!.ToString();
+                await InvokeAsync(StateHasChanged);
             }            
         }
     }

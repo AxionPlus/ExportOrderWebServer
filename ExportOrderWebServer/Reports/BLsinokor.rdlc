@@ -49,6 +49,10 @@
           <DataField>PODAgent</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="FinalDestination">
+          <DataField>FinalDestination</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="Shippers">
           <DataField>Shippers</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -3219,7 +3223,6 @@ OR MULTIMODAL TRANSPORT</Value>
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
-                          <rd:Selected>true</rd:Selected>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>

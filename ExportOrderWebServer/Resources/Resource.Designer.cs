@@ -69,5 +69,15 @@ namespace ExportOrderWebServer.Resources {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Byte[].
+        /// </summary>
+        internal static byte[] TemplateUploadCntrs {
+            get {
+                object obj = ResourceManager.GetObject("TemplateUploadCntrs", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

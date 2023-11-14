@@ -6,7 +6,7 @@ using ExportOrderWebServer.Service;
 using static MudBlazor.CategoryTypes;
 using ExportOrderEntites.ExportOrder;
 
-namespace ExportOrderWebServer.UploadFile;
+namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
 [AllowAnonymous]
 [Route("file/[controller]")]
@@ -125,7 +125,7 @@ public class UploadFileController : ControllerBase
         string filePath = string.Empty;
 
         var cntrTypes = await _cntrTypeProvider.GetCntrTypes();
-                
+
         foreach (var file in files)
             if (file != null)
             {
@@ -141,7 +141,7 @@ public class UploadFileController : ControllerBase
         using (var exl = new ExcelUploadService(filePath, cntrTypes, _documentProvider))
         {
             try
-            {            
+            {
                 var result = await exl.ReadUploadingFile();
 
                 var ur = new UploadResult()
@@ -157,7 +157,7 @@ public class UploadFileController : ControllerBase
                 var msg = ex.Message;
                 return new UploadResult();    //ExportOrderRecord[0]
             }
-        }  
+        }
     }
 }
 

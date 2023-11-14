@@ -1,4 +1,4 @@
-﻿using ExportOrderWebServer.UploadFile;
+﻿using ExportOrderWebServer.Areas.ExpOrder.Controller;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -98,7 +98,7 @@ public class ExcelUploadService : IDisposable
                     var content = new ContainerContent()
                     {
                         PackageQty = uint.TryParse(record[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
-                        PackageName = record[colPackageName],
+                        PackageName = record[colPackageName] != null ? record[colPackageName].ToUpper() : string.Empty,
                         NetWt = double.TryParse(record[colNet], out double _nwt) ? _nwt : 0,
                         GrossWt = double.TryParse(record[colGross], out double _gwt) ? _gwt : 0,
                         DocumentRecord = await _documentProvider.GetDocumentRecordAsync(record[colDoc], cargoIndex)

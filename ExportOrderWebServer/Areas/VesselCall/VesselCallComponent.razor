@@ -132,24 +132,6 @@
     @if (mudTable != null)
     {
         <div class="tableMenu">
-@*             @if (!IsSelectable)
-            {
-                <MudButton Class="Button" Style="margin-left: 20px" OnClick="@(async()=>{ await ManifestsReport_Click(); })"
-                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Preview">
-                    View Manifest
-                </MudButton>
-                <MudButton Class="Button" Style="margin-inline: 20px" OnClick="@(async()=>{ await SaveExcelFile_Click(); })"
-                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Download">
-                    Fill Bill
-                </MudButton>
-                <MudButton Class="Button" OnClick="@(async()=>{ await ViewCustomsReport_Click(); })"
-                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Preview">
-                    Customs Explanation
-                </MudButton>
-            } *@
             <MudSpacer />
             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>

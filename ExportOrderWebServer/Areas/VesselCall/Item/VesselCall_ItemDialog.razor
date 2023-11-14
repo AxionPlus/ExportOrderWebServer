@@ -141,7 +141,7 @@
                                 IconSize=Size.Small
                                 AutoClose=true
                                 DisableToolbar=true
-                                          Required
+                                Required RequiredError=""
                                 Clearable="!IsFormReadOnly" />
                  <MudDatePicker Class="DatePicker" Label="ETS" @bind-Date="Item.ETS"
                                 Style="width: 128px; height: 30px"
@@ -151,7 +151,7 @@
                                 IconSize=Size.Small
                                 AutoClose=true
                                 DisableToolbar=true
-                                          Required
+                                Required RequiredError=""
                                 Clearable="!IsFormReadOnly" />
              </div>
 
@@ -197,7 +197,7 @@
                                               ToStringFunc="@(e => e != null ? e.Name : "")"
                                               SearchFunc="@SearchPOD"
                                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                                              Required RequiredError=""
+                                              
                                               CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                               ResetValueOnEmptyText="true"
                                               AdornmentIcon="@Icons.Material.Filled.AddCircle"
@@ -279,19 +279,19 @@
                 else
                     Snackbar.Add($"{result.Error.First()}", Severity.Error);
             }
+
+            IsNewItem = false;
+            IsFormReadOnly = true;
+
+            //Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
+            Id = Item!.Id;
+            await GetItem();
+
+            await Task.Delay(500);
+            IsLoadingData = false;
         }
         else
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
-
-        IsNewItem = false;
-        IsFormReadOnly = true;
-
-        //Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
-        Id = Item!.Id;
-        await GetItem();
-
-        await Task.Delay(500);
-        IsLoadingData = false;
     }
 
     private async Task EditItem_Click()

@@ -46,7 +46,8 @@
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
             </div>
         </MudToolBar>
-    </div>    
+    </div>
+
     <MudForm @ref="Form" ReadOnly="IsFormReadOnly">        
 
         <div class="Container-item">
@@ -139,8 +140,8 @@
                                 <MudTd>
                                     <MudTextField T="string" Style="width: 100px;" @bind-Value="@context.BirthYear"
                                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                  Immediate="true" Required RequiredError=""
-                                                   Clearable="!IsFormReadOnly" />
+                                                  Immediate="true" MaxLength="4"
+                                                  Required RequiredError="" Clearable="!IsFormReadOnly" />
                                  </MudTd>
                                 <MudTd>
                                     <MudTextField T="string" Style="width: 515px;" @bind-Value="@context.BirthPlace"
@@ -201,7 +202,7 @@
         {
             IsNewItem = true;
             IsFormReadOnly = false;
-            Item = new() { Persons = new List<PersonEntity>() { new PersonEntity() } };
+            Item = new() { Persons = new List<PersonEntity>() { new PersonEntity() { IsNewPerson = true, IsShowPersonDetails = true } } };
         }
         else
         {

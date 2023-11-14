@@ -1,6 +1,4 @@
 ﻿
-namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
-
 public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;

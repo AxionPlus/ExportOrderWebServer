@@ -29,6 +29,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                         .Include(vc => vc.Vessel)
                                                         .Include(vc => vc.Terminal)
                                                         .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
+                                                        .Include(vc => vc.Details).ThenInclude(vcd => vcd.FinalDestination)
                                                         .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
             
             if (appObjResponse.Object is null)
@@ -181,6 +182,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .Include(vc => vc.Vessel)
                                                     .Include(vc => vc.Terminal)
                                                     .Include(vc => vc.Details).ThenInclude(d => d.POD)
+                                                    .Include(vc => vc.Details).ThenInclude(d => d.FinalDestination)
                                                     .FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 string modifyVoyage = $"{modifyItem!.Vessel?.Name}&{modifyItem.VoyageNo}";
@@ -228,8 +230,11 @@ public class VesselCallProvider : IVesselCallProvider
                         if (!modifyDetail.POD!.Id.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD!.Id))
                             modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
 
-                        if (!modifyDetail.FinalDestination!.Id.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination!.Id))
+                        if (item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination is not null)
                             modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
+                        else
+                            modifyDetail.FinalDestination = null;
+
                     }
 
                 // compaire existed item with new
@@ -240,7 +245,8 @@ public class VesselCallProvider : IVesselCallProvider
                         itemDetail.CreateTime = DateTime.Now;                        
                         
                         db.Entry(itemDetail.POD!).State = EntityState.Unchanged;
-                        db.Entry(itemDetail.FinalDestination!).State = EntityState.Unchanged;
+                        if (itemDetail.FinalDestination is not null)
+                            db.Entry(itemDetail.FinalDestination!).State = EntityState.Unchanged;
                         db.Entry(itemDetail.CreateUser).State = EntityState.Unchanged;
 
                         db.Entry(itemDetail).State = EntityState.Added;
@@ -297,7 +303,8 @@ public class VesselCallProvider : IVesselCallProvider
                     detail.CreateTime = DateTime.Now;
 
                     db.Entry(detail.POD!).State = EntityState.Unchanged;
-                    db.Entry(detail.FinalDestination!).State = EntityState.Unchanged;
+                    if (detail.FinalDestination is not null)
+                        db.Entry(detail.FinalDestination!).State = EntityState.Unchanged;
 
                     db.Entry(detail).State = EntityState.Added;                
                 }

@@ -86,8 +86,8 @@
 
         <div class="Container-item">
 
-            <div class="container-content">
-                <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 260px" @bind-Value="Item!.Vessel"
+            <div class="container-content" style="justify-content:flex-start">
+                <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 260px; margin-right:20px" @bind-Value="Item!.Vessel"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchVessel"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -99,8 +99,7 @@
                                  AdornmentColor="Color.Primary"
                                  Adornment="Adornment.End"
                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddVessel_Click(); })"
-                                 Clearable="!IsFormReadOnly" />
-                 <MudSpacer />
+                                 Clearable="!IsFormReadOnly" />                 
                  <MudTextField T="string" Style="width: 260px;" Label="Voyage" Text="@Item.VoyageNo"
                                TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -109,8 +108,8 @@
                                Clearable="!IsFormReadOnly" />
              </div>
 
-             <div class="container-content">
-                 <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 260px" Label="Load Terminal" @bind-Value="Item.Terminal"
+             <div class="container-content" style="justify-content:flex-start">
+                 <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 260px; margin-right:20px" Label="Load Terminal" @bind-Value="Item.Terminal"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchTerminal"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -123,7 +122,7 @@
                                   Adornment="Adornment.End"
                                   OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddTerminal_Click(); })"
                                   Clearable="!IsFormReadOnly" />
-                 <MudSpacer />
+                 
                  <MudTextField T="string" Style="width: 260px;" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
                                TextChanged="async (e)=> { Item.VoyageNoTerminal = e.ToUpper(); }"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -164,6 +163,7 @@
                          </MudTh>
                          <MudTh Style="width: 260px">PORT of discharge</MudTh>
                          <MudTh Style="width: 260px">Agent</MudTh>
+                         <MudTh Style="width: 260px">FINAL Destination</MudTh>
                      </HeaderContent>
                      <RowTemplate>
                          <MudTd>
@@ -177,8 +177,7 @@
                                               Variant="Variant.Outlined" Margin="Margin.Dense"
                                               Required RequiredError=""
                                               CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                              ResetValueOnEmptyText="true"
-                                              MaxItems="20"                                              
+                                              ResetValueOnEmptyText="true"                               
                                               AdornmentIcon="@Icons.Material.Filled.AddCircle"
                                               AdornmentColor="Color.Primary"
                                               Adornment="Adornment.End"
@@ -190,8 +189,22 @@
                                            TextChanged="async (e)=> { context.AgentPOD = e.ToUpper(); }"
                                            Variant="Variant.Outlined" Margin="Margin.Dense"
                                            Immediate="true"
-                                                        Required RequiredError=""
+                                           Required RequiredError=""
                                            Clearable="!IsFormReadOnly" />
+                         </MudTd>
+                         <MudTd DataLabel="Final">
+                             <MudAutocomplete Class="VesseCall_Port" T="LocationCatalog" Style="width: 250px" @bind-Value="context.FinalDestination"
+                                              ToStringFunc="@(e => e != null ? e.Name : "")"
+                                              SearchFunc="@SearchPOD"
+                                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                                              Required RequiredError=""
+                                              CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                              ResetValueOnEmptyText="true"
+                                              AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                              AdornmentColor="Color.Primary"
+                                              Adornment="Adornment.End"
+                                              OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddPort_Click(); })"
+                                              Clearable="!IsFormReadOnly" />
                          </MudTd>
                      </RowTemplate>
                  </MudTable>

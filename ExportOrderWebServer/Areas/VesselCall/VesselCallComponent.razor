@@ -255,7 +255,7 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["Id"] = vesselCallId };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
         dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>("Vessel Call", parameters, options);
 
         DialogResult result = await dialog.Result;

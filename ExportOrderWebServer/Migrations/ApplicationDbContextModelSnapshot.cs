@@ -576,7 +576,7 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("Dated")
+                    b.Property<DateTime?>("Dated")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Num")
@@ -749,6 +749,9 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CreateUserId")
                         .HasColumnType("text");
 
+                    b.Property<long?>("FinalDestinationId")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("PODId")
                         .HasColumnType("bigint");
 
@@ -767,6 +770,8 @@ namespace ExportOrderWebServer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreateUserId");
+
+                    b.HasIndex("FinalDestinationId");
 
                     b.HasIndex("PODId");
 
@@ -1219,6 +1224,10 @@ namespace ExportOrderWebServer.Migrations
                         .WithMany()
                         .HasForeignKey("CreateUserId");
 
+                    b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "FinalDestination")
+                        .WithMany()
+                        .HasForeignKey("FinalDestinationId");
+
                     b.HasOne("ExportOrderEntites.Catalog.LocationCatalog", "POD")
                         .WithMany()
                         .HasForeignKey("PODId");
@@ -1230,6 +1239,8 @@ namespace ExportOrderWebServer.Migrations
                         .IsRequired();
 
                     b.Navigation("CreateUser");
+
+                    b.Navigation("FinalDestination");
 
                     b.Navigation("POD");
 

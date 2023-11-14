@@ -58,7 +58,7 @@
                     <MudTextField T="string" Style="width: 400px" Label="Name" Text="@Item.Name"
                                   TextChanged=" (e)=> { Item.Name = e.ToUpper(); }"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Lines="3"
+                                  Lines="4"
                                   Immediate="true"
                                   Required RequiredError=""
                                    Clearable="!IsFormReadOnly" />
@@ -66,7 +66,7 @@
                     <MudTextField T="string" Style="width: 400px; margin-left: 10px" Label="Name En" Text="@Item.NameEn"
                                    TextChanged="(e)=> { Item.NameEn = e.ToUpper(); StateHasChanged();}"
                                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   Lines="3"
+                                   Lines="4"
                                    Immediate="true"
                                    Required RequiredError=""
                                    Clearable="!IsFormReadOnly" />

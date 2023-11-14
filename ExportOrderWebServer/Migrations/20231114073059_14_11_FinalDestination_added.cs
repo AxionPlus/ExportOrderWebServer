@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     /// <inheritdoc />
-    public partial class _0911_CustomsLetter : Migration
+    public partial class _14_11_FinalDestination_added : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -412,8 +412,8 @@ namespace ExportOrderWebServer.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: true),
-                    FamilyName = table.Column<string>(type: "text", nullable: true),
                     SurName = table.Column<string>(type: "text", nullable: true),
+                    FamilyName = table.Column<string>(type: "text", nullable: true),
                     Phone = table.Column<string>(type: "text", nullable: true),
                     BirthYear = table.Column<string>(type: "text", nullable: true),
                     BirthPlace = table.Column<string>(type: "text", nullable: true),
@@ -569,6 +569,7 @@ namespace ExportOrderWebServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     VesselCallId = table.Column<long>(type: "bigint", nullable: false),
                     PODId = table.Column<long>(type: "bigint", nullable: true),
+                    FinalDestinationId = table.Column<long>(type: "bigint", nullable: true),
                     AgentPOD = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
@@ -582,6 +583,11 @@ namespace ExportOrderWebServer.Migrations
                         name: "FK_VesselCall_Details_AspNetUsers_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_VesselCall_Details_Locations_FinalDestinationId",
+                        column: x => x.FinalDestinationId,
+                        principalTable: "Locations",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_VesselCall_Details_Locations_PODId",
@@ -603,7 +609,7 @@ namespace ExportOrderWebServer.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Num = table.Column<string>(type: "text", nullable: false),
-                    Dated = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Dated = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     CarrierId = table.Column<long>(type: "bigint", nullable: true),
                     PersonId = table.Column<long>(type: "bigint", nullable: true),
                     VesselCallDetailId = table.Column<long>(type: "bigint", nullable: true),
@@ -896,6 +902,11 @@ namespace ExportOrderWebServer.Migrations
                 name: "IX_VesselCall_Details_CreateUserId",
                 table: "VesselCall_Details",
                 column: "CreateUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VesselCall_Details_FinalDestinationId",
+                table: "VesselCall_Details",
+                column: "FinalDestinationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VesselCall_Details_PODId",

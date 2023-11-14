@@ -227,6 +227,9 @@ public class VesselCallProvider : IVesselCallProvider
 
                         if (!modifyDetail.POD!.Id.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD!.Id))
                             modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
+
+                        if (!modifyDetail.FinalDestination!.Id.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination!.Id))
+                            modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
                     }
 
                 // compaire existed item with new
@@ -237,6 +240,7 @@ public class VesselCallProvider : IVesselCallProvider
                         itemDetail.CreateTime = DateTime.Now;                        
                         
                         db.Entry(itemDetail.POD!).State = EntityState.Unchanged;
+                        db.Entry(itemDetail.FinalDestination!).State = EntityState.Unchanged;
                         db.Entry(itemDetail.CreateUser).State = EntityState.Unchanged;
 
                         db.Entry(itemDetail).State = EntityState.Added;
@@ -293,7 +297,8 @@ public class VesselCallProvider : IVesselCallProvider
                     detail.CreateTime = DateTime.Now;
 
                     db.Entry(detail.POD!).State = EntityState.Unchanged;
-                    //db.Entry(detail.ExportOrders!).State = EntityState.Unchanged;
+                    db.Entry(detail.FinalDestination!).State = EntityState.Unchanged;
+
                     db.Entry(detail).State = EntityState.Added;                
                 }
 

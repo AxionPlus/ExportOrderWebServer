@@ -1,4 +1,7 @@
-﻿@using System.Net.Http
+﻿@using System.Text;
+@using System.Net.Http
+@using System.Net.Http.Headers;
+
 @using MudBlazor;
 @using Microsoft.JSInterop
 
@@ -11,7 +14,6 @@
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 
-
 @* ENTITIES *@
 @using ExportOrderEntites;
 @using ExportOrderEntites.DTO;
@@ -22,7 +24,6 @@
 @using ExportOrderWebServer
 @using ExportOrderWebServer.Shared
 @using ExportOrderWebServer.Components
-@using ExportOrderWebServer.UploadFile;
 
 @* AREAS *@
 @using ExportOrderWebServer.Areas.Carrier;
@@ -32,6 +33,7 @@
 @using ExportOrderWebServer.Areas.Document;
 @using ExportOrderWebServer.Areas.Document.Item;
 @using ExportOrderWebServer.Areas.ExpOrder.Item;
+@using ExportOrderWebServer.Areas.ExpOrder.Controller;
 @using ExportOrderWebServer.Areas.Location;
 @using ExportOrderWebServer.Areas.MyCompany;
 @using ExportOrderWebServer.Areas.Terminal;

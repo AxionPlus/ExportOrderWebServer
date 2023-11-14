@@ -45,7 +45,7 @@
 
         <div class="Container-item">
             <div class="container-content">
-                <MudTextField T="string" Style="width: 410px" Label="Name" Text="@Item.Name"
+                <MudTextField T="string" Style="width: 410px" Label="Name Ru" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
@@ -95,7 +95,7 @@
                             </div>
                        </MudTh>
                        <MudTh Style="width:150px">Terminal</MudTh>
-                       <MudTh Style="width:100px">Contract</MudTh>
+                       <MudTh Style="width:170px">Contract</MudTh>
                        <MudTh Style="width:130px">Dated</MudTh>
                        <MudTh Style="width:150px">Agent</MudTh>
                    </HeaderContent>
@@ -117,7 +117,7 @@
                        </MudTd>
                        <MudTd>
                             <MudTextField Class="TextField" T="string" @bind-Value="context.Contract"
-                                          Style="width: 100px"
+                                          Style="width: 170px"
                                           Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
                        </MudTd>
                        <MudTd>

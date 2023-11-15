@@ -44,6 +44,7 @@ public class ManifestDTO
     public double? GrossWeights { get; set; }
     public double CntrTotalWeight { get; set; }    
     public double? Volumes { get; set; }
+    public bool IsIMO { get; set; } = false;
     public string? IMO { get; set; }
     public string? UNNO { get; set; }
     public string? Commodities { get; set; }

@@ -109,17 +109,26 @@
     @if (!IsSelectable)
     {
         <div class="container-content-column" style="width:220px">
-            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(); })"
+            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(false); })"
+                       Style="margin-bottom:10px"
                         Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                         StartIcon="@Icons.Material.Filled.Preview">
                 View Manifest
             </MudButton>
-            <MudButton Class="Button" Style="margin-top:10px; margin-bottom:10px" OnClick="@(async()=>{ await SaveExcelFile_Click(); })"
+            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(true); })"
+                       Style="margin-bottom:10px"
+                       Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Preview">
+                IMO Manifest
+            </MudButton>
+            <MudButton Class="Button" OnClick="@(async()=>{ await SaveExcelFile_Click(); })"
+                       Style="margin-bottom:10px"
                         Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
                         StartIcon="@Icons.Material.Filled.Download">
                 Fill Bill
             </MudButton>
-            <MudButton Class="Button" Style="margin-bottom:10px" OnClick="@(async()=>{ await ViewCustomsReport_Click(); })"
+            <MudButton Class="Button" OnClick="@(async()=>{ await ViewCustomsReport_Click(); })"
+                       Style="margin-bottom:10px"
                         Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                         StartIcon="@Icons.Material.Filled.Preview">
                 Customs Explanation
@@ -282,11 +291,8 @@
         MudDialog!.Close(vcdId);
     }
 
-    private async Task ManifestsReport_Click()
+    private async Task ManifestsReport_Click(bool _isImo)
     {
-        // if (Items is null) return;
-        // if (Items.FirstOrDefault()!.Status == 0) return;
-
         if (Items.Count() == 0) return;
         if (Items.FirstOrDefault()!.Status == 0) return;
 
@@ -296,7 +302,7 @@
         long vesselcallid = voyageGroup.FirstOrDefault();
 
         await Task.Delay(100);
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslcallid={vesselcallid}";
+        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 

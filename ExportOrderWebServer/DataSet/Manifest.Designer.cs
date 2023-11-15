@@ -330,6 +330,8 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnSeq;
             
+            private global::System.Data.DataColumn columnIsIMO;
+            
             private global::System.Data.DataColumn columnCntr;
             
             private global::System.Data.DataColumn columnCntrType;
@@ -450,6 +452,14 @@ namespace ExportOrderWebServer.DataSet {
             public global::System.Data.DataColumn SeqColumn {
                 get {
                     return this.columnSeq;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn IsIMOColumn {
+                get {
+                    return this.columnIsIMO;
                 }
             }
             
@@ -603,6 +613,7 @@ namespace ExportOrderWebServer.DataSet {
                         string POLEn, 
                         string PODnCountryEn, 
                         int Seq, 
+                        bool IsIMO, 
                         string Cntr, 
                         string CntrType, 
                         string Seal, 
@@ -626,6 +637,7 @@ namespace ExportOrderWebServer.DataSet {
                         POLEn,
                         PODnCountryEn,
                         Seq,
+                        IsIMO,
                         Cntr,
                         CntrType,
                         Seal,
@@ -669,6 +681,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnPOLEn = base.Columns["POLEn"];
                 this.columnPODnCountryEn = base.Columns["PODnCountryEn"];
                 this.columnSeq = base.Columns["Seq"];
+                this.columnIsIMO = base.Columns["IsIMO"];
                 this.columnCntr = base.Columns["Cntr"];
                 this.columnCntrType = base.Columns["CntrType"];
                 this.columnSeal = base.Columns["Seal"];
@@ -703,6 +716,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnPODnCountryEn);
                 this.columnSeq = new global::System.Data.DataColumn("Seq", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnSeq);
+                this.columnIsIMO = new global::System.Data.DataColumn("IsIMO", typeof(bool), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnIsIMO);
                 this.columnCntr = new global::System.Data.DataColumn("Cntr", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnCntr);
                 this.columnCntrType = new global::System.Data.DataColumn("CntrType", typeof(string), null, global::System.Data.MappingType.Element);
@@ -1474,6 +1489,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsIMO {
+                get {
+                    try {
+                        return ((bool)(this[this.tabledtBL.IsIMOColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'IsIMO\' в таблице \'dtBL\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtBL.IsIMOColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string Cntr {
                 get {
                     try {
@@ -1774,6 +1805,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetSeqNull() {
                 this[this.tabledtBL.SeqColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsIsIMONull() {
+                return this.IsNull(this.tabledtBL.IsIMOColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetIsIMONull() {
+                this[this.tabledtBL.IsIMOColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

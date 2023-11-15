@@ -493,6 +493,8 @@ public class ExportOrderProvider : IExportOrderProvider
                     NetWeights = record.Contents.Sum(c => c.NetWt),
                     GrossWeights = record.Contents.Sum(c => c.GrossWt),
                     Volumes = record.Contents.Sum(c => c.Volume),
+                    //IsIMO = record.Contents.Where(c => c.DocumentRecord.IsIMO == true).FirstOrDefault()!.DocumentRecord.IsIMO,
+                    IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(dr => dr.Equals(true)),
                     IMO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.IMO).Distinct()),
                     UNNO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.UNNO).Distinct()),
 

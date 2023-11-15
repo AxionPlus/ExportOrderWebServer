@@ -263,7 +263,7 @@ public class ExportOrderController : ControllerBase
 
     [HttpGet]
     [Route("ViewReportManifest")]
-    public async Task<IActionResult> ManifestReport(long vslcallid)
+    public async Task<IActionResult> ManifestReport(long vslcallid, bool isIMO)
     {
         var Items = await _exportOrderProvider.GetManifestAsync(vslcallid);
 
@@ -272,8 +272,14 @@ public class ExportOrderController : ControllerBase
         try
         {
             string mimeType = "";
-            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
+            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;            
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
+
+            if (isIMO)
+            {
+                pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ManifestIMO.rdlc");
+                Items = Items.Where(s => s.IsIMO == true);
+            }                
 
             LocalReport localReport = new LocalReport(pathReport);
 
@@ -476,6 +482,7 @@ public class ExportOrderController : ControllerBase
         catch (Exception ex)
         {
             string msg = ex.Message;
+            Console.WriteLine($"Error: {ex.Message}");
             return Empty;
         }
 

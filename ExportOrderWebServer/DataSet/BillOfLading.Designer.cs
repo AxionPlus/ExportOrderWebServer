@@ -344,6 +344,8 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnTotalCntrCount;
             
+            private global::System.Data.DataColumn columnTotalPackages;
+            
             private global::System.Data.DataColumn columnTotalTareWeight;
             
             private global::System.Data.DataColumn columnTotalGrossWeight;
@@ -505,6 +507,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn TotalPackagesColumn {
+                get {
+                    return this.columnTotalPackages;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public global::System.Data.DataColumn TotalTareWeightColumn {
                 get {
                     return this.columnTotalTareWeight;
@@ -580,6 +590,7 @@ namespace ExportOrderWebServer.DataSet {
                         string CntrTypes, 
                         string Commodities, 
                         int TotalCntrCount, 
+                        double TotalPackages, 
                         double TotalTareWeight, 
                         double TotalGrossWeight, 
                         string Measurement) {
@@ -600,6 +611,7 @@ namespace ExportOrderWebServer.DataSet {
                         CntrTypes,
                         Commodities,
                         TotalCntrCount,
+                        TotalPackages,
                         TotalTareWeight,
                         TotalGrossWeight,
                         Measurement};
@@ -640,6 +652,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnCntrTypes = base.Columns["CntrTypes"];
                 this.columnCommodities = base.Columns["Commodities"];
                 this.columnTotalCntrCount = base.Columns["TotalCntrCount"];
+                this.columnTotalPackages = base.Columns["TotalPackages"];
                 this.columnTotalTareWeight = base.Columns["TotalTareWeight"];
                 this.columnTotalGrossWeight = base.Columns["TotalGrossWeight"];
                 this.columnMeasurement = base.Columns["Measurement"];
@@ -678,6 +691,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnCommodities);
                 this.columnTotalCntrCount = new global::System.Data.DataColumn("TotalCntrCount", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTotalCntrCount);
+                this.columnTotalPackages = new global::System.Data.DataColumn("TotalPackages", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnTotalPackages);
                 this.columnTotalTareWeight = new global::System.Data.DataColumn("TotalTareWeight", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTotalTareWeight);
                 this.columnTotalGrossWeight = new global::System.Data.DataColumn("TotalGrossWeight", typeof(double), null, global::System.Data.MappingType.Element);
@@ -1425,6 +1440,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public double TotalPackages {
+                get {
+                    try {
+                        return ((double)(this[this.tabledtBL.TotalPackagesColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'TotalPackages\' в таблице \'dtBL\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtBL.TotalPackagesColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public double TotalTareWeight {
                 get {
                     try {
@@ -1649,6 +1680,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetTotalCntrCountNull() {
                 this[this.tabledtBL.TotalCntrCountColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsTotalPackagesNull() {
+                return this.IsNull(this.tabledtBL.TotalPackagesColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetTotalPackagesNull() {
+                this[this.tabledtBL.TotalPackagesColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

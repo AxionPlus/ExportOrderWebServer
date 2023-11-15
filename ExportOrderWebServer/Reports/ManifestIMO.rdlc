@@ -49,6 +49,10 @@
           <DataField>Seq</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
+        <Field Name="IsIMO">
+          <DataField>IsIMO</DataField>
+          <rd:TypeName>System.Boolean</rd:TypeName>
+        </Field>
         <Field Name="Cntr">
           <DataField>Cntr</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -2598,6 +2602,7 @@ WT (KGS)</Value>
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -4337,7 +4342,7 @@ WT (KGS)</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>C A R G O  M A N I F E S T</Value>
+                      <Value>I M O   M A N I F E S T</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>

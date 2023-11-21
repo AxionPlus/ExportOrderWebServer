@@ -1,5 +1,4 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -35,7 +34,7 @@ public class ExcelCreateService : IDisposable
 
         try
         {
-            InitializeExcel();
+            //InitializeExcel();
 
             CreateTempFile(Resource.TemplateFillBill);
 
@@ -70,7 +69,8 @@ public class ExcelCreateService : IDisposable
                                    })
                                   .FirstOrDefault();
 
-                WorkSheet = WorkSheets!.Item[indexCarrier];
+                //WorkSheet = WorkSheets!.Item[indexCarrier];
+                WorkSheet = Workbook!.Sheets[indexCarrier];
                 WorkSheet.Name = item!.CarrierNameEn;
 
                 WorkSheet.Cells[1, 2].Value = item!.VesselName;
@@ -111,9 +111,9 @@ public class ExcelCreateService : IDisposable
                     dataBulk[row, 2] = carrier.ElementAt(row).PODunlocode!;
                     dataBulk[row, 3] = carrier.ElementAt(row).BLDate;
                     dataBulk[row, 4] = carrier.ElementAt(row).BLNum;
-                    dataBulk[row, 5] = carrier.ElementAt(row).Shippers!.Substring(4);
+                    dataBulk[row, 5] = carrier.ElementAt(row).Shippers!.Substring(3);
                     dataBulk[row, 6] = carrier.ElementAt(row).ShippersCountries!;
-                    dataBulk[row, 7] = carrier.ElementAt(row).Consignees!.Substring(4);
+                    dataBulk[row, 7] = carrier.ElementAt(row).Consignees!.Substring(3);
                     dataBulk[row, 8] = carrier.ElementAt(row).ConsigneesCountries!;
                     dataBulk[row, 9] = carrier.ElementAt(row).Cntr;
                     dataBulk[row, 10] = carrier.ElementAt(row).Commodities!;
@@ -149,22 +149,23 @@ public class ExcelCreateService : IDisposable
 
     #region SUPPORT METHODS
 
-    private void InitializeExcel()
-    {
-        ExcelApp = new Excel.Application();
-        Workbooks = ExcelApp.Workbooks;
-        //var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
-    }
+    //private void InitializeExcel()
+    //{
+    //    ExcelApp = new Excel.Application();
+    //    Workbooks = ExcelApp.Workbooks;
+    //    //var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
+    //}
 
     private bool CreateTempFile(byte[]? ResourceFile)
     {
         try
         {
-            File.WriteAllBytes(TempFilePath, ResourceFile!);
+            //File.WriteAllBytes(TempFilePath, ResourceFile!);
+            File.WriteAllBytes(TempFilePath, Resource.TemplateFillBill);
             Resource.ResourceManager.ReleaseAllResources();
-
+            
             Workbook = Workbooks!.Open(TempFilePath);
-            WorkSheets = Workbook!.Worksheets;
+            //WorkSheets = Workbook!.Worksheets;
 
             return true;
         }

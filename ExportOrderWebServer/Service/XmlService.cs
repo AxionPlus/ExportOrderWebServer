@@ -17,17 +17,17 @@ public class XmlService : IDisposable
     { 
         if (string.IsNullOrEmpty(FilePath)) return Array.Empty<byte>();
 
-        string WeightFormat = "########.000";
+        //string WeightFormat = "########.000";
 
         string Shippers = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
         string Consignees = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.ConsigneeEn).Distinct().ToList()!);
 
-        var dsCommodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.CommodityName } )
+        var dsCommodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.Commodity } )
                                                         .Select(g => new
                                                         {
                                                             g.Key.DocumentName,
                                                             HScode = g.Select(g => g.HSCode).FirstOrDefault(),
-                                                            g.Key.CommodityName,
+                                                            g.Key.Commodity,
                                                             CommodityGrossWt = g.Where(c => c.DocumentName == g.Key.DocumentName).Sum(g => g.GrossWt),
                                                             CommodityNetWt = g.Where(c => c.DocumentName == g.Key.DocumentName).Sum(g => g.NetWt),
                                                             Cntrs = g.Where(c => c.DocumentName == g.Key.DocumentName).Select(g => g.Cntr).ToList(),
@@ -49,12 +49,12 @@ public class XmlService : IDisposable
                 xml.WriteElementString("BorderCustomCode", Item.CustomsOfficeCode);
                 xml.WriteElementString("BorderCustomsOfficeName", Item.CustomsOfficeNameShort);
                 xml.WriteElementString("DocumentNumber", Item.Num);
-                xml.WriteElementString("DocumentDate", reverseDateStringXml(Item.xmlDated));
+                xml.WriteElementString("DocumentDate", reverseDateStringXml(Item.xmlDated!));
                 xml.WriteElementString("GoodsDescription", string.Empty);
                 xml.WriteElementString("TotalPlacesQuantity", Item.exportOrderRecordsDTO!.Sum(r => r.PackageQty).ToString());
                 xml.WriteElementString("TotalVolumeQuantity", Item.exportOrderRecordsDTO!.Sum(r => r.PackageQty).ToString());
-                xml.WriteElementString("TotalGrossWeightQuantity", Item.TotalGrossWeight!.Value.ToString(WeightFormat));
-                xml.WriteElementString("TotalNetWeightQuantity", Item.TotalNetWeight!.Value.ToString(WeightFormat));
+                xml.WriteElementString("TotalGrossWeightQuantity", Item.TotalGrossWeight!.Value.ToString("#########.###"));
+                xml.WriteElementString("TotalNetWeightQuantity", Item.TotalNetWeight!.Value.ToString("#########.###"));
                 xml.WriteElementString("Carrier_Name", Item.CarrierNameEn);
                 xml.WriteElementString("Carrier_CountryName", string.Empty);
                 xml.WriteElementString("Consignee_Name", Consignees);
@@ -80,9 +80,9 @@ public class XmlService : IDisposable
                     xml.WriteElementString("GoodsNumeric", (++counterGoods).ToString());
                     xml.WriteElementString("GoodsCode", commodity.HScode);
                     xml.WriteElementString("GTDID", commodity.DocumentName);
-                    xml.WriteElementString("GoodsDescription", commodity.CommodityName);
-                    xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWt!.Value.ToString(WeightFormat));
-                    xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWt!.Value.ToString(WeightFormat));
+                    xml.WriteElementString("GoodsDescription", commodity.Commodity);
+                    xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWt!.Value.ToString("#########.###"));
+                    xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWt!.Value.ToString("#########.###"));
                     xml.WriteElementString("WarehouseName", Item.TerminalName);
 
                     xml.WriteStartElement("COMMISSIONSHIPMENTContainer");

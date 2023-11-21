@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using ExportOrderWebServer.Service;
-using static MudBlazor.CategoryTypes;
-using ExportOrderEntites.ExportOrder;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -14,13 +10,16 @@ namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
 public class UploadFileController : ControllerBase
 {
-    public readonly IExportOrderProvider _exportOrderProvider;
+    //public readonly IExportOrderProvider _exportOrderProvider;    
+    private readonly IWebHostEnvironment _webHostEnvironment;
     public readonly ICntrTypeProvider _cntrTypeProvider;
     public readonly IDocumentProvider _documentProvider;
 
-    public UploadFileController(IExportOrderProvider exportOrderProvider, ICntrTypeProvider cntrTypeProvider, IDocumentProvider documentProvider)
+    //public UploadFileController(IExportOrderProvider exportOrderProvider, ICntrTypeProvider cntrTypeProvider, IDocumentProvider documentProvider)
+    public UploadFileController(IWebHostEnvironment webHostEnvironment, ICntrTypeProvider cntrTypeProvider, IDocumentProvider documentProvider)
     {
-        _exportOrderProvider = exportOrderProvider;
+        //_exportOrderProvider = exportOrderProvider;        
+        _webHostEnvironment = webHostEnvironment;
         _cntrTypeProvider = cntrTypeProvider;
         _documentProvider = documentProvider;
 
@@ -128,10 +127,10 @@ public class UploadFileController : ControllerBase
 
         foreach (var file in files)
             if (file != null)
-            {
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
-
+            {   string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                //filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
+                filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileName);
+                
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     file.CopyTo(stream);
@@ -155,7 +154,7 @@ public class UploadFileController : ControllerBase
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                return new UploadResult();    //ExportOrderRecord[0]
+                return new UploadResult();
             }
         }
     }
@@ -165,7 +164,6 @@ public class UploadResult
 {
     public IEnumerable<ExportOrderRecord>? _ExportOrderRecords { get; set; }
     public IEnumerable<DocumentEntity>? _Documents { get; set; }
-
     public IEnumerable<string> Summary { get; set; } = new List<string>();
 }
 

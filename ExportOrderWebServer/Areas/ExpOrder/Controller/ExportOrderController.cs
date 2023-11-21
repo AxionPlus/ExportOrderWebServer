@@ -65,7 +65,7 @@ public class ExportOrderController : ControllerBase
 
             var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
             var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
-            var dsCommodities = dsRecords?.GroupBy(r => r.CommodityName).Select(g => new {
+            var dsCommodities = dsRecords?.GroupBy(r => r.Commodity).Select(g => new {
                                                                                              Commodity = g.Key + " (" +
                                                                                                         g.FirstOrDefault()!.HSCode + ") " +
                                                                                                         g.FirstOrDefault()!.IMO + " " + g.FirstOrDefault()!.UNNO,
@@ -130,19 +130,18 @@ public class ExportOrderController : ControllerBase
             #region DATA SOURCE
 
             var Items = new List<ExportOrderDTO>() { Item };
-            var Records = Item.exportOrderRecordsDTO;
+            var Records = Item.exportOrderRecordsDTO.ToList();
 
             string Shippers = string.Join("\n", Records.Select(x => x.ShipperEn).Distinct().ToList());            
             string Consignees = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
             string NotifyParties = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
 
             // список товаров
-            var CommoditiesGroup = Records.GroupBy(c => c.CommodityNameEn)
+            var CommoditiesGroup = Records.GroupBy(c => c.CommodityEn)
                                            .Select(g => new
                                            {
-                                               Commodity = ( g.Key + " " +
-                                                             g.FirstOrDefault()!.IMO + " " +
-                                                             g.FirstOrDefault()!.UNNO
+                                               Commodity = ( g.Key + (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO +
+                                                                " UNNO: " + g.FirstOrDefault()!.UNNO : "")
                                                            ).Trim()
                                            }).ToList();
 
@@ -185,7 +184,7 @@ public class ExportOrderController : ControllerBase
             var dsItem = Items.Select(x => new
             { 
                
-                x.Num,
+                x.BLNum,
                 x.BLDate,
                 POLAgent = x.CarrierNameEn,
                 x.PODAgent,
@@ -199,26 +198,41 @@ public class ExportOrderController : ControllerBase
                 CntrTypes,
                 Commodities,
                 x.TotalCntrCount,
+                x.TotalPackages,
                 x.TotalTareWeight,
                 x.TotalGrossWeight,
                 x.Measurement,
             }).ToList();
 
             // список контейнеров
-            var dsCntrRecords = Records.GroupBy(r => r.Cntr)
-                                            .Select(g => new
-                                            {
-                                                Cntr = g.Key,
-                                                CntrType = g.Select(gr => gr.CntrType).FirstOrDefault()!,
-                                                Seal = g.Select(gr => gr.Seal).FirstOrDefault()! != string.Empty ? g.Select(gr => gr.Seal).FirstOrDefault()! : "N/A",
-                                                CntrTareWt = g.Select(gr => gr.CntrTareWt).FirstOrDefault()!,
-                                                PackageQty = (uint)g.Sum(gr => gr.PackageQty),
-                                                PackageNames = string.Join(", ", g.Select(gr => gr.PackageName).Distinct()),
-                                                GrossWt = g.Sum(gr => gr.GrossWt),
-                                                Volume = g.Sum(gr => gr.Volume),                                                                            
-                                                CntrCommodities = string.Join("; ", g.Select(gr => gr.CommodityNameEn).Distinct())
-                                            })                            
-                                            .ToList();
+
+            if (Item.BLtemplate == "nca")
+            {
+                int recCount = Records.Count();
+
+                if (recCount < 20)
+                    for (int i = recCount; i < 20; i++)
+                        Records.Add(new() { Seq = (uint)i + 1, CntrTareWt = null, GrossWt = null });
+            }
+
+            //var dsCntrRecords = Records.GroupBy(r => r.Seq)
+            //                                .Select(g => new
+            //                                {
+            //                                    Cntr = g.Select(gr => gr.Cntr).FirstOrDefault()!,
+            //                                    CntrType = g.Select(gr => gr.CntrType).FirstOrDefault()!,
+            //                                    Seal = g.Select(gr => gr.Seal).FirstOrDefault()! != string.Empty ? g.Select(gr => gr.Seal).FirstOrDefault()! : "N/A",
+            //                                    CntrTareWt = g.Select(gr => gr.CntrTareWt).FirstOrDefault()!,
+            //                                    PackageQtys = (uint)g.Sum(gr => gr.PackageQty)!,
+            //                                    PackageNames = string.Join(", ", g.Select(gr => gr.PackageName).Distinct()),
+            //                                    GrossWts = g.Sum(gr => gr.GrossWt),
+            //                                    Volumes = g.Sum(gr => gr.Volume),                                                                            
+            //                                    CntrCommodities = string.Join("; ", g.Select(gr => gr.CommodityNameEn +
+            //                                                                                    (gr.IsIMO ? " IMO: " + gr.IMO + " UNNO: " + gr.UNNO : "")
+            //                                                                                ).Distinct())
+            //                                })                            
+            //                                .ToList();
+
+            //var dsCntrRecords = Records.GroupBy(r => r.Seq).Select().ToHashSet();
 
             #region OLD список контейнеров
             //var dsCntrRecords = Records.Select(r => new
@@ -236,7 +250,7 @@ public class ExportOrderController : ControllerBase
             #endregion
 
             localReport.AddDataSource("dsBL", dsItem);
-            localReport.AddDataSource("dsCntrRecords", dsCntrRecords);
+            localReport.AddDataSource("dsCntrRecords", Records);
 
             #endregion
             
@@ -260,6 +274,38 @@ public class ExportOrderController : ControllerBase
             return Ok();
         }
     }
+
+    [HttpGet]
+    [Route("ViewReportBLnca")]
+    //public async Task<IActionResult> BLncaReport(long Id)
+    //{
+    //    var Items = await _exportOrderProvider.GetBLDTOAsync(Id);
+
+    //    if (Items.Count() == 0) return Empty;
+
+    //    string fileName = "BLnca.rdlc";
+
+    //    try
+    //    {
+    //        string mimeType = "";
+    //        int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
+    //        string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
+
+    //        LocalReport localReport = new LocalReport(pathReport);          
+
+    //        localReport.AddDataSource("dsBLrecords", Items);
+
+    //        ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
+
+    //        return File(result.MainStream, "application/pdf");
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        string msg = ex.Message;
+    //        Console.WriteLine(msg);
+    //        return Ok();
+    //    }
+    //}
 
     [HttpGet]
     [Route("ViewReportManifest")]
@@ -465,13 +511,11 @@ public class ExportOrderController : ControllerBase
             if (Item is null) return Empty;
 
             string FileName = $"{Item.Num}_Customs";
-            string dirName = Path.Combine(_webHostEnvironment.WebRootPath, "TempFiles");
-            string filePath = Path.Combine(dirName, $"{FileName}.xml");
+            //string dirName = Path.Combine(_webHostEnvironment.WebRootPath);
+            //string tempFilePath = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "TempFiles", $"{FileName}_{Path.GetRandomFileName()}.xml");
+            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xml");
 
-            if (System.IO.File.Exists(filePath))
-                filePath = Path.Combine(dirName, $"{FileName}_{Path.GetRandomFileName()}.xml");
-
-            using (var xml = new XmlService(filePath, Item))
+            using (var xml = new XmlService(tempFilePath, Item))
             {   
                 var buffer = await xml.CreateXMLfile();
 
@@ -502,7 +546,14 @@ public class ExportOrderController : ControllerBase
             if (Items.Count() == 0) return Empty;
 
             string FileName = $"Fillbill_{Items.FirstOrDefault()!.Voyage}";
-            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"TempFiles/{Path.GetRandomFileName()}.xlsx");
+            //string dirName = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "TempFiles");
+            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
+
+            //DirectoryInfo dirInfo = new DirectoryInfo(dirName);
+            //if (!dirInfo.Exists) { dirInfo.Create(); }
+            //dirName = dirInfo.FullName;
+            //string tempFilePath = Path.Combine(dirName, $"{Path.GetRandomFileName()}.xlsx");
+            
 
             using (var xls = new ExcelCreateService(tempFilePath, Items))
             {

@@ -295,7 +295,7 @@
 
     private void AddRecord_Click()
     {
-        Value!.Records!.Add(new() { Seq = Value!.Records.Count() + 1 });
+        Value!.Records!.Add(new() { Seq = Value!.Records.Count() + 1, NetWt = 0, GrossWt = 0  });
     }
 
     private async Task RemoveRecord(DocumentRecord record)

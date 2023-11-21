@@ -1827,22 +1827,22 @@
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>2.6cm</Width>
+              <Width>2.9cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>1.3cm</Width>
+              <Width>1.1cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>2.2cm</Width>
+              <Width>2cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>2.2cm</Width>
+              <Width>2cm</Width>
             </TablixColumn>
             <TablixColumn>
               <Width>8cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>2.6cm</Width>
+              <Width>2.9cm</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -1974,7 +1974,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Вес брутто груза + контейнер кг.</Value>
+                              <Value>Вес брутто груза + конт. кг.</Value>
                               <Style>
                                 <FontSize>8pt</FontSize>
                                 <FontWeight>Bold</FontWeight>
@@ -2337,7 +2337,6 @@
                         <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                     </Textbox>
-                    <rd:Selected>true</rd:Selected>
                   </CellContents>
                 </TablixCell>
               </TablixCells>

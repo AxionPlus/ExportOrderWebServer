@@ -49,6 +49,10 @@
           <DataField>Seq</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
+        <Field Name="IsIMO">
+          <DataField>IsIMO</DataField>
+          <rd:TypeName>System.Boolean</rd:TypeName>
+        </Field>
         <Field Name="Cntr">
           <DataField>Cntr</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -4371,6 +4375,7 @@ WT (KGS)</Value>
         </PageHeader>
         <PageFooter>
           <Height>0.45cm</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
             <Textbox Name="OverallVesselVoyage">
@@ -4378,9 +4383,7 @@ WT (KGS)</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!VesselName.Value, "dsManifest") &amp; " / " &amp;
-First(Fields!Voyage.Value, "dsManifest") &amp;
-":   page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
+                      <Value>="page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
                       <Style>
                         <FontSize>8pt</FontSize>
                         <Color>DarkGreen</Color>

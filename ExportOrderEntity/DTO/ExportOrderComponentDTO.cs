@@ -8,8 +8,7 @@ public class ExportOrderComponentDTO
     public long Id { get; set; }
 
 #pragma warning disable CS8618
-    
-    public string? Num { get; set; }
+        public string? Num { get; set; }
     public string? Cntr { get; set; }
     public string? Dated { get; set; }
     public string? Vessel { get; set; }
@@ -17,4 +16,5 @@ public class ExportOrderComponentDTO
     public string? POD { get; set; }    
     public string? Carrier { get; set; }
     public EntityStatus Status { get; set; }
+    public BLTemplate blTemplate { get; set; }
 }

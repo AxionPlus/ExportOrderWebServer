@@ -211,7 +211,7 @@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
-    @code {
+@code {
     private MudTable<VesselCallDetailDTO>? mudTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -293,11 +293,17 @@
 
     private async Task ManifestsReport_Click(bool _isImo)
     {
-        if (Items.Count() == 0) return;
-        if (Items.FirstOrDefault()!.Status == 0) return;
+        if (Items!.Count() == 0) return;       
 
-        var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
+        var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1) return;
+
+        //if (Items!.FirstOrDefault()!.Status == 0)
+        if (Items!.Any(s => s.Status == 0))
+        {
+            Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
+            return;
+        }
 
         long vesselcallid = voyageGroup.FirstOrDefault();
 
@@ -308,11 +314,16 @@
 
     private async Task SaveExcelFile_Click()
     {
-        if (Items.Count() == 0) return;
-        if (Items.FirstOrDefault()!.Status == 0) return;
+        if (Items!.Count() == 0) return;        
 
-        var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
+        var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1) return;
+
+        if (Items!.Any(s => s.Status == 0))
+        {
+            Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
+            return;
+        }
 
         long vesselcallid = voyageGroup.FirstOrDefault();
 
@@ -323,11 +334,16 @@
 
     private async Task ViewCustomsReport_Click()
     {
-        if (Items.Count() == 0) return;
-        if (Items.FirstOrDefault()!.Status == 0) return;
+        if (Items!.Count() == 0) return;
 
-        var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
+        var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1) return;        
+
+        if (Items!.Any(s => s.Status == 0))
+        {
+            Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
+            return;
+        }
 
         long vesselcallid = voyageGroup.FirstOrDefault();
 
@@ -356,12 +372,12 @@
         var result = await _vesselCallProvider.GetVoyages();
 
         if (string.IsNullOrWhiteSpace(value))
-            return result;
+            return result.Distinct();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
     }
 
     private async Task<IEnumerable<string>> SearchPort(string value)

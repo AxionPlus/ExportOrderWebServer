@@ -99,7 +99,7 @@
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:120px"></MudTh>
-            <MudTh Style="width:120px">Number</MudTh>
+            <MudTh Style="width:150px">Number</MudTh>
             <MudTh Style="width:100px">Dated</MudTh>
             <MudTh Style="width:200px">Vessel</MudTh>
             <MudTh Style="width:150px">Voyage</MudTh>
@@ -128,7 +128,7 @@
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })"
+                <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id, context.blTemplate); })"
                             Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                             StartIcon="@Icons.Material.Filled.Preview">
                     view BL
@@ -149,7 +149,7 @@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
-@code {
+    @code {
     private MudTable<ExportOrderComponentDTO>? mudTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -157,7 +157,6 @@
     public IEnumerable<ExportOrderComponentDTO>? Items { get; set; } = new List<ExportOrderComponentDTO>();
     private FilterParameters Filter { get; set; } = new();
     private bool IsLoadingData {get; set; } = false;
-
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -199,7 +198,7 @@
         await JSRuntime.InvokeVoidAsync("open", path);
     }
 
-    private async Task ViewReportBL_Click(long id)
+    private async Task ViewReportBL_Click(long id, BLTemplate template)
     {
         //var status = Items!.Where(it => it.Id == id).Select(it => it.Status).FirstOrDefault();
 
@@ -213,7 +212,13 @@
         //     //await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
         // }
 
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
+        string path = string.Empty;
+
+        // if (template == BLTemplate.nca)
+        //     path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBLnca?Id={id}";
+        // else
+            path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
+
         await JSRuntime.InvokeVoidAsync("open", path);
         //TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
         //await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
@@ -246,12 +251,12 @@
         var result = await _vesselCallProvider.GetVoyages();
 
         if (string.IsNullOrWhiteSpace(value))
-            return result;                      //return Enumerable.Empty<string>();
+            return result.Distinct();                      //return Enumerable.Empty<string>();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
     }
 
     private async Task<IEnumerable<string>> SearchPort(string value)

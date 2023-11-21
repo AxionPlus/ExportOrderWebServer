@@ -9,6 +9,7 @@ public class ExportOrderDTO
 
 #pragma warning disable CS8618
     public string Num { get; set; }
+    public string BLNum { get; set; }
     public string BLtemplate { get; set; }
     public string? Dated { get; set; }
     public string? xmlDated { get; set; }                // дата для xml файла
@@ -21,16 +22,18 @@ public class ExportOrderDTO
     public string DateOfLoading { get; set; }                   // дата поручения
     public string BLDate { get; set; }                          // дата коносамента (added for BL)
     public string POL { get; set; } = "Новороссийск, Россия";
-    public string POLEn { get; set; } = "NOVOROSSIYSK";
+    public string POLEn { get; set; } = "NOVOROSSIYSK, RUSSIA";
     public string POD { get; set; }
     public string PODEn { get; set; }
     public string? PODunlocode { get; set; }
     public string PODwithCountryRus { get; set; }
-    public string? PODAgent { get; set; }
+    public string? POLAgent { get; set; }
+    public string? PODAgent { get; set; }    
     public string? FinalDestination { get; set; }    
     public string? Measurement { get; set;}
-    public int TotalCntrCount { get; set; }
-    public double? TotalPackages { get; set; }
+
+    public uint TotalCntrCount { get; set; }
+    public uint? TotalPackages { get; set; }
     public double? TotalGrossWeight { get; set; }
     public double? TotalNetWeight { get; set; }
     public double? TotalTareWeight { get; set; }

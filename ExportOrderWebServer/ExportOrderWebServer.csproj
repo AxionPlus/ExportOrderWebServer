@@ -56,6 +56,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.CodeDom" Version="7.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+    <PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
     <PackageReference Include="System.Security.Permissions" Version="7.0.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="6.1.0" />
   </ItemGroup>
@@ -78,6 +79,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>BillOfLading.xsd</DependentUpon>
     </Compile>
+    <Compile Update="DataSet\BLrecords.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BLrecords.xsd</DependentUpon>
+    </Compile>
     <Compile Update="DataSet\CustomsLetter.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -93,6 +99,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Manifest.xsd</DependentUpon>
     </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Update="Resources\Resource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -106,6 +117,11 @@
       <LastGenOutput>BillOfLading.Designer.cs</LastGenOutput>
       <Generator>MSDataSetGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DataSet\BLrecords.xsd">
+      <SubType>Designer</SubType>
+      <LastGenOutput>BLrecords.Designer.cs</LastGenOutput>
+      <Generator>MSDataSetGenerator</Generator>
     </None>
     <None Update="DataSet\CustomsLetter.xsd">
       <SubType>Designer</SubType>
@@ -134,6 +150,12 @@
     <None Update="Reports\BLlotka.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Reports\BLnca.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\_BLnca.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Reports\BLsafetrans.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -155,13 +177,35 @@
     <None Update="Reports\ManifestIMO.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Lotka.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Safetrans.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TemplateFillBill.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TemplateUploadCntrs.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TransSinergia.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\WinAsia.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\TempFiles\" />
+    <Folder Include="Resources\TempFiles\" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Resource.resx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Generator>ResXFileCodeGenerator</Generator>

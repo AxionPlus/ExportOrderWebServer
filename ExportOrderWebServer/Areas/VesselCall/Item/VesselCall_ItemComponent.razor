@@ -82,7 +82,7 @@
                     <RowTemplate>
                         <MudTd>
                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemoveDetail_Click(context); })"
-                                           Disabled="@IsLoadingData" />
+                                       Disabled />
                         </MudTd>
                         <MudTd DataLabel="Port">
                             <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 300px" Label="Port of Discharge" @bind-Value="context.POD"

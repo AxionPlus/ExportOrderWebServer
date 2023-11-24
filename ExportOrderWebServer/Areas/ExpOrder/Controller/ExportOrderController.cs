@@ -25,7 +25,7 @@ public class ExportOrderController : ControllerBase
     [Route("ViewReportExpOrder")]
     public async Task<IActionResult> ExportOrderReport(long Id)
     {
-        var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
+        var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
 
         try
         {
@@ -66,10 +66,11 @@ public class ExportOrderController : ControllerBase
             var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
             var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
             var dsCommodities = dsRecords?.GroupBy(r => r.Commodity).Select(g => new {
-                                                                                             Commodity = g.Key + " (" +
-                                                                                                        g.FirstOrDefault()!.HSCode + ") " +
-                                                                                                        g.FirstOrDefault()!.IMO + " " + g.FirstOrDefault()!.UNNO,
-                                                                                          }).ToList();
+                                                                                        Commodity = g.Key + " (" +
+                                                                                        g.FirstOrDefault()!.HSCode + ") " +
+                                                                                        (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO +
+                                                                                                                    " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
+                                                                                     }).ToList();
 
             int dSeq = 0;
             var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
@@ -105,7 +106,8 @@ public class ExportOrderController : ControllerBase
     [Route("ViewReportBL")]
     public async Task<IActionResult> BLReport(long Id)
     {
-        var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
+        //var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
+        var Item = await _exportOrderProvider.GetBLDTOAsync(Id);
 
         string fileName = "BL" + Item.BLtemplate + ".rdlc";
 
@@ -117,8 +119,8 @@ public class ExportOrderController : ControllerBase
 
             LocalReport localReport = new LocalReport(pathReport);
 
-            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            //Encoding.GetEncoding("windows-1252");
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding.GetEncoding("windows-1252");
 
             #region PARAMETERS
             //Dictionary<string, string> parameters = new Dictionary<string, string>()
@@ -137,15 +139,8 @@ public class ExportOrderController : ControllerBase
             string NotifyParties = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
 
             // список товаров
-            var CommoditiesGroup = Records.GroupBy(c => c.CommodityEn)
-                                           .Select(g => new
-                                           {
-                                               Commodity = ( g.Key + (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO +
-                                                                " UNNO: " + g.FirstOrDefault()!.UNNO : "")
-                                                           ).Trim()
-                                           }).ToList();
 
-            string Commodities = string.Join("\n", CommoditiesGroup.Select(cg => cg.Commodity));
+            string Commodities = string.Join("; ", Records.GroupBy(c => c.CommodityEn).Select(g => g.Key));
 
             #region GROUP WITH 2 KEYS
             //var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName, c.CntrType })
@@ -176,7 +171,8 @@ public class ExportOrderController : ControllerBase
                                         .Select(g => new
                                         {
                                             CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key),
-                                        }).ToList();
+                                        })
+                                        .ToList();
 
             string CntrTypes = string.Join("\n", CntrTypesGroup.Select(ctg => ctg.CntrTypes));
 
@@ -210,29 +206,120 @@ public class ExportOrderController : ControllerBase
             {
                 int recCount = Records.Count();
 
+                int upperBound = 20;
+
                 if (recCount < 20)
-                    for (int i = recCount; i < 20; i++)
+                {
+                    foreach (var record in Records)
+                    {
+                        int extraRowsSeal = 0;
+                        int extraRowsCommodity = 0;
+
+                        switch (record.Seal.Length)
+                        {
+                            case <= 10:
+                                break;
+                            case <= 20:
+                                extraRowsSeal = 1;
+                                break;
+                            case <= 30:
+                                extraRowsSeal = 2;
+                                break;
+                            case <= 40:
+                                extraRowsSeal = 3;
+                                break;
+                            case <= 50:
+                                extraRowsSeal = 4;
+                                break;
+                            case <= 60:
+                                extraRowsSeal = 5;
+                                break;
+                            case <= 70:
+                                extraRowsSeal = 6;
+                                break;
+                            case <= 80:
+                                extraRowsSeal = 7;
+                                break;
+                            case <= 90:
+                                extraRowsSeal = 8;
+                                break;
+                            case <= 100:
+                                extraRowsSeal = 9;
+                                break;
+                            case <= 110:
+                                extraRowsSeal = 10;
+                                break;
+                        }
+
+                        switch (record.CommodityEn.Length)
+                        {
+                            case <= 35:
+                                break;
+                            case <= 70:
+                                extraRowsCommodity = 1;
+                                break;
+                            case <= 105:
+                                extraRowsCommodity = 2;
+                                break;
+                            case <= 140:
+                                extraRowsCommodity = 3;
+                                break;
+                            case <= 175:
+                                extraRowsCommodity = 4;
+                                break;
+                            case <= 210:
+                                extraRowsCommodity = 5;
+                                break;
+                            case <= 245:
+                                extraRowsCommodity = 6;
+                                break;
+                            case <= 280:
+                                extraRowsCommodity = 7;
+                                break;
+                            case <= 315:
+                                extraRowsCommodity = 8;
+                                break;
+                            case <= 350:
+                                extraRowsCommodity = 9;
+                                break;
+                            case <= 385:
+                                extraRowsCommodity = 10;
+                                break;
+                        }
+
+                        if (extraRowsSeal >= extraRowsCommodity)
+                            upperBound -= extraRowsSeal;
+                        else
+                            upperBound -= extraRowsCommodity;
+                    }
+                }
+
+                if (upperBound > 0)
+                    for (int i = 0; i < upperBound; i++)
                         Records.Add(new() { Seq = (uint)i + 1, CntrTareWt = null, GrossWt = null });
+
+                //if (recCount < upperBound)
+                //    for (int i = recCount; i < upperBound; i++)
+                //        Records.Add(new() { Seq = (uint)i + 1, CntrTareWt = null, GrossWt = null });
             }
 
             //var dsCntrRecords = Records.GroupBy(r => r.Seq)
             //                                .Select(g => new
             //                                {
-            //                                    Cntr = g.Select(gr => gr.Cntr).FirstOrDefault()!,
-            //                                    CntrType = g.Select(gr => gr.CntrType).FirstOrDefault()!,
+            //                                    //Seq = g.Select(gr => gr.Seq).FirstOrDefault()!,
+            //                                    g.FirstOrDefault()!.Seq,
+            //                                    g.FirstOrDefault()!.Cntr,
+            //                                    g.FirstOrDefault()!.CntrType,
             //                                    Seal = g.Select(gr => gr.Seal).FirstOrDefault()! != string.Empty ? g.Select(gr => gr.Seal).FirstOrDefault()! : "N/A",
-            //                                    CntrTareWt = g.Select(gr => gr.CntrTareWt).FirstOrDefault()!,
-            //                                    PackageQtys = (uint)g.Sum(gr => gr.PackageQty)!,
-            //                                    PackageNames = string.Join(", ", g.Select(gr => gr.PackageName).Distinct()),
-            //                                    GrossWts = g.Sum(gr => gr.GrossWt),
-            //                                    Volumes = g.Sum(gr => gr.Volume),                                                                            
-            //                                    CntrCommodities = string.Join("; ", g.Select(gr => gr.CommodityNameEn +
-            //                                                                                    (gr.IsIMO ? " IMO: " + gr.IMO + " UNNO: " + gr.UNNO : "")
-            //                                                                                ).Distinct())
-            //                                })                            
+            //                                    g.FirstOrDefault()!.CntrTareWt,
+            //                                    PackageQty = (uint)g.Sum(gr => gr.PackageQty)!,
+            //                                    PackageName = string.Join(", ", g.Select(gr => gr.PackageName).Distinct()),
+            //                                    GrossWt = g.Sum(gr => gr.GrossWt),
+            //                                    Volume = g.Sum(gr => gr.Volume),
+            //                                    CommodityEn = string.Join("; ", g.FirstOrDefault()!.CommodityEn).Distinct()
+            //                                })
             //                                .ToList();
 
-            //var dsCntrRecords = Records.GroupBy(r => r.Seq).Select().ToHashSet();
 
             #region OLD список контейнеров
             //var dsCntrRecords = Records.Select(r => new
@@ -250,10 +337,11 @@ public class ExportOrderController : ControllerBase
             #endregion
 
             localReport.AddDataSource("dsBL", dsItem);
+            //localReport.AddDataSource("dsCntrRecords", dsCntrRecords);
             localReport.AddDataSource("dsCntrRecords", Records);
 
             #endregion
-            
+
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
 
             //parameters
@@ -311,7 +399,7 @@ public class ExportOrderController : ControllerBase
     [Route("ViewReportManifest")]
     public async Task<IActionResult> ManifestReport(long vslcallid, bool isIMO)
     {
-        var Items = await _exportOrderProvider.GetManifestAsync(vslcallid);
+        var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
 
         if (Items.Count() == 0) return Empty;
 
@@ -428,7 +516,7 @@ public class ExportOrderController : ControllerBase
     [Route("ViewCustomsExplanation")]
     public async Task<IActionResult> CustomsReport(long vslcallid)
     {
-        var Items = await _exportOrderProvider.GetManifestAsync(vslcallid);
+        var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
 
         if (Items.Count() == 0) return Empty;
 
@@ -504,14 +592,13 @@ public class ExportOrderController : ControllerBase
     {
         try
         {
-            var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
+            var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
 
             await Task.Delay(100);
 
             if (Item is null) return Empty;
 
             string FileName = $"{Item.Num}_Customs";
-            //string dirName = Path.Combine(_webHostEnvironment.WebRootPath);
             //string tempFilePath = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "TempFiles", $"{FileName}_{Path.GetRandomFileName()}.xml");
             string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xml");
 
@@ -539,7 +626,7 @@ public class ExportOrderController : ControllerBase
     {
         try
         {
-            var Items = await _exportOrderProvider.GetManifestAsync(vslcallid);
+            var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
 
             await Task.Delay(100);
 

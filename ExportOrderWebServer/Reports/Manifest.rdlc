@@ -207,13 +207,13 @@
                   <Width>0.8cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.4cm</Width>
+                  <Width>2.8cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.4cm</Width>
+                  <Width>2cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1cm</Width>
@@ -247,7 +247,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>3.VOYAGE NUMBER</Value>
+                                  <Value>3.VESSEL FLAG</Value>
                                   <Style>
                                     <FontFamily>Consolas</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -315,7 +315,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>5.VESSEL FLAG</Value>
+                                  <Value>5.VOYAGE NUMBER</Value>
                                   <Style>
                                     <FontFamily>Consolas</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -415,13 +415,14 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Voyage">
+                        <Textbox Name="VesselFlag">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Voyage.Value</Value>
+                                  <Value>=Fields!VesselFlagEn.Value</Value>
                                   <Style>
                                     <FontFamily>Consolas</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -479,14 +480,13 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="VesselFlagEn">
-                          <CanGrow>true</CanGrow>
+                        <Textbox Name="Voyage">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VesselFlagEn.Value</Value>
+                                  <Value>=Fields!Voyage.Value</Value>
                                   <Style>
                                     <FontFamily>Consolas</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -4395,6 +4395,7 @@ WT (KGS)</Value>
                   </Style>
                 </Paragraph>
               </Paragraphs>
+              <Top>0cm</Top>
               <Left>20cm</Left>
               <Height>0.45cm</Height>
               <Width>8cm</Width>

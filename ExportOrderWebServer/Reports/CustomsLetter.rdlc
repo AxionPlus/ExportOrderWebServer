@@ -2146,7 +2146,7 @@
                             <TextRun>
                               <Value>=Sum(Fields!CntrCount.Value)</Value>
                               <Style>
-                                <FontSize>9pt</FontSize>
+                                <FontSize>8pt</FontSize>
                               </Style>
                             </TextRun>
                           </TextRuns>
@@ -2186,8 +2186,8 @@
                             <TextRun>
                               <Value>=Sum(Fields!GrossWt.Value)</Value>
                               <Style>
-                                <FontSize>9pt</FontSize>
-                                <Format>0;(0)</Format>
+                                <FontSize>8pt</FontSize>
+                                <Format>0.000;(0.000)</Format>
                               </Style>
                             </TextRun>
                           </TextRuns>
@@ -2227,8 +2227,8 @@
                             <TextRun>
                               <Value>=Sum(Fields!CntrTotalWt.Value)</Value>
                               <Style>
-                                <FontSize>9pt</FontSize>
-                                <Format>0;(0)</Format>
+                                <FontSize>8pt</FontSize>
+                                <Format>0.000;(0.000)</Format>
                               </Style>
                             </TextRun>
                           </TextRuns>
@@ -2342,7 +2342,7 @@
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.6cm</Height>
+              <Height>0.5cm</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -2355,6 +2355,7 @@
                             <TextRun>
                               <Value>ИТОГО</Value>
                               <Style>
+                                <FontSize>9pt</FontSize>
                                 <FontWeight>Bold</FontWeight>
                               </Style>
                             </TextRun>
@@ -2390,6 +2391,7 @@
                             <TextRun>
                               <Value>=Sum(Fields!CntrCount.Value)</Value>
                               <Style>
+                                <FontSize>8pt</FontSize>
                                 <FontWeight>Bold</FontWeight>
                               </Style>
                             </TextRun>
@@ -2428,8 +2430,9 @@
                             <TextRun>
                               <Value>=Sum(Fields!GrossWt.Value)</Value>
                               <Style>
+                                <FontSize>8pt</FontSize>
                                 <FontWeight>Bold</FontWeight>
-                                <Format>0;(0)</Format>
+                                <Format>0.000;(0.000)</Format>
                               </Style>
                             </TextRun>
                           </TextRuns>
@@ -2467,8 +2470,9 @@
                             <TextRun>
                               <Value>=Sum(Fields!CntrTotalWt.Value)</Value>
                               <Style>
+                                <FontSize>8pt</FontSize>
                                 <FontWeight>Bold</FontWeight>
-                                <Format>0;(0)</Format>
+                                <Format>0.000;(0.000)</Format>
                               </Style>
                             </TextRun>
                           </TextRuns>
@@ -2602,7 +2606,7 @@
         </TablixRowHierarchy>
         <DataSetName>dsRecords</DataSetName>
         <Top>14.8cm</Top>
-        <Height>2.3cm</Height>
+        <Height>2.2cm</Height>
         <Width>18.9cm</Width>
         <ZIndex>4</ZIndex>
         <Style>

@@ -850,7 +850,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnGrossWt;
             
-            private global::System.Data.DataColumn columnVolumes;
+            private global::System.Data.DataColumn columnVolume;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
@@ -959,9 +959,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn VolumesColumn {
+            public global::System.Data.DataColumn VolumeColumn {
                 get {
-                    return this.columnVolumes;
+                    return this.columnVolume;
                 }
             }
             
@@ -1002,7 +1002,7 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public dtCntrRecordsRow AdddtCntrRecordsRow(int Seq, string Cntr, string CntrType, double CntrTareWt, string Seal, int PackageQty, string PackageName, string CommodityEn, double GrossWt, double Volumes) {
+            public dtCntrRecordsRow AdddtCntrRecordsRow(int Seq, string Cntr, string CntrType, double CntrTareWt, string Seal, int PackageQty, string PackageName, string CommodityEn, double GrossWt, double Volume) {
                 dtCntrRecordsRow rowdtCntrRecordsRow = ((dtCntrRecordsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Seq,
@@ -1014,7 +1014,7 @@ namespace ExportOrderWebServer.DataSet {
                         PackageName,
                         CommodityEn,
                         GrossWt,
-                        Volumes};
+                        Volume};
                 rowdtCntrRecordsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowdtCntrRecordsRow);
                 return rowdtCntrRecordsRow;
@@ -1046,7 +1046,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnPackageName = base.Columns["PackageName"];
                 this.columnCommodityEn = base.Columns["CommodityEn"];
                 this.columnGrossWt = base.Columns["GrossWt"];
-                this.columnVolumes = base.Columns["Volumes"];
+                this.columnVolume = base.Columns["Volume"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1070,8 +1070,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnCommodityEn);
                 this.columnGrossWt = new global::System.Data.DataColumn("GrossWt", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnGrossWt);
-                this.columnVolumes = new global::System.Data.DataColumn("Volumes", typeof(double), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnVolumes);
+                this.columnVolume = new global::System.Data.DataColumn("Volume", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnVolume);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1905,17 +1905,17 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public double Volumes {
+            public double Volume {
                 get {
                     try {
-                        return ((double)(this[this.tabledtCntrRecords.VolumesColumn]));
+                        return ((double)(this[this.tabledtCntrRecords.VolumeColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Volumes\' в таблице \'dtCntrRecords\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Volume\' в таблице \'dtCntrRecords\' равно DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tabledtCntrRecords.VolumesColumn] = value;
+                    this[this.tabledtCntrRecords.VolumeColumn] = value;
                 }
             }
             
@@ -2029,14 +2029,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsVolumesNull() {
-                return this.IsNull(this.tabledtCntrRecords.VolumesColumn);
+            public bool IsVolumeNull() {
+                return this.IsNull(this.tabledtCntrRecords.VolumeColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetVolumesNull() {
-                this[this.tabledtCntrRecords.VolumesColumn] = global::System.Convert.DBNull;
+            public void SetVolumeNull() {
+                this[this.tabledtCntrRecords.VolumeColumn] = global::System.Convert.DBNull;
             }
         }
         

@@ -93,7 +93,7 @@
         <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
     </div>
     }
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" Hover="true" RowsPerPage="20">
         <HeaderContent>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
@@ -149,7 +149,7 @@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
-    @code {
+@code {
     private MudTable<ExportOrderComponentDTO>? mudTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }

@@ -15,7 +15,7 @@
                         ResetValueOnEmptyText="true" Clearable />
             
         <div style="width: 50px"></div>
-        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px; text-align:center" SearchFunc="@SearchNames"
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px; text-align:center" SearchFunc="@SearchVessel"
                         Value="Filter.Name"
                         ValueChanged="(e)=> { Filter.Name = e; } "
                         Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -136,9 +136,9 @@
 
     #region SEARCH FUNCTIONS
 
-    private async Task<IEnumerable<string>> SearchNames(string value)
+    private async Task<IEnumerable<string>> SearchVessel(string value)
     {
-        var result = await _vesselProvider.GetNames();
+        var result = await _vesselProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();

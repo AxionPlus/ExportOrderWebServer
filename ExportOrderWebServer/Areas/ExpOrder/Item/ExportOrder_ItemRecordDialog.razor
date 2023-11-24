@@ -41,7 +41,23 @@
 
 </style>
 
-<MudForm @ref="@Form" Style="max-width:fit-content" >
+<MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <div class="ToolBar-iconbutton" style="margin-left: 20px">
+                <MudTooltip Text="Edit Container record">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                </MudTooltip>
+            </div>
+            <MudSpacer />
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="Save Container record">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                </MudTooltip>
+            </div>
+        </MudToolBar>
+    </div>
 
     <div class="Container-item">
         <div class="container-content">
@@ -64,10 +80,6 @@
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required RequiredError="" Clearable />
              <MudSpacer />
-             <MudButton Class="Button" Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(Item is null)"
-                        StartIcon="@Icons.Material.Filled.Save" OnClick="SaveItem_Click">
-                 SAVE
-             </MudButton>
         </div>
     </div>
 
@@ -143,18 +155,47 @@
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
+    public long Id { get; set; }
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
+
+    [Parameter]
     public IEnumerable<DocumentEntity>? Documents { get; set; }
 
     public ExportOrderRecord? Item { get; set; }
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
 
+    private bool IsFormReadOnly { get; set; } = true;
 
-    protected override async void OnInitialized()
+
+    
+    protected override async Task OnAfterRenderAsync(bool first)
     {
-        if (Item is null)
-            Item = new();
+        if (first)
+        {
+            CntrTypes = await _cntrTypeProvider.GetCntrTypes();
+        }
+    }
 
-        CntrTypes = await _cntrTypeProvider.GetCntrTypes();
+    //protected override async Task OnInitializedAsync()
+    protected override async void OnInitialized()    
+    {
+        await GetItem();
+    }
+
+    private async Task GetItem()
+    {
+        if (IsNewItem)
+        {
+            IsFormReadOnly = false;
+            Item = new();
+        }
+        else
+        {
+            var response = await _exportOrderProvider.GetExportOrderRecordItemAsync(Id);
+            if (!response.HasError)
+                Item = (ExportOrderRecord)response.Object!;
+        }
     }
 
     private void AddContainerContent_Click()
@@ -174,11 +215,11 @@
 
         if (Form.IsValid)
         {
-            if (Item is not null)
+            if (IsNewItem)
             {
                 bool errDocument = false;
 
-                foreach (var content in Item.Contents)
+                foreach (var content in Item!.Contents)
                 {
                     if (string.IsNullOrEmpty(content.DocumentRecord.Document.Name) || string.IsNullOrEmpty(content.DocumentRecord.CommodityHSCode))
                     {
@@ -194,13 +235,30 @@
             }
             else
             {
-                Snackbar.Add("Not Saved", Severity.Error);
+                var response = await _exportOrderProvider.ModifyExportOrderRecordItemAsync(Item!);
+                if (!response.HasError)
+                    Snackbar.Add("Save Successed", Severity.Success);
+                else
+                {
+                    Snackbar.Add("Not Successed", Severity.Error);
+                    return;
+                }
+
+                //Snackbar.Add("Not Saved", Severity.Error);
+                await GetItem();
             }
         }
         else
             Snackbar.Add("Fill up an all required fields (marked in red)", Severity.Warning);
+
+
     }
 
+    private async Task EditItem_Click()
+    {
+        await Task.Delay(50);
+        IsFormReadOnly = false;
+    }
 
     #region SEARCH METHODS
 

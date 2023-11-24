@@ -137,10 +137,11 @@ public class CommodityProvider : ICommodityProvider
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
-            var itemExistCheck = await db.Commodities.Where(s => s.HSCode == item!.HSCode).FirstOrDefaultAsync();
+            //var itemExistCheck = await db.Commodities.Where(s => s.HSCode == item!.HSCode).FirstOrDefaultAsync();
+            var itemExistCheck = await db.Commodities.Where(s => s.Name == item!.Name).FirstOrDefaultAsync();
             if (itemExistCheck != null)
             {
-                appObjResponse.ErrorAdd($"Commodity exists already. HS code: {item!.HSCode} ");
+                appObjResponse.ErrorAdd($"Commodity exists already.<br>HS code: {item!.HSCode}<br>Name: {item.Name} ");
                 return appObjResponse;
             }
 

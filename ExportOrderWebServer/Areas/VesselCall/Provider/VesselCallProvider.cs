@@ -183,6 +183,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .Include(vc => vc.Terminal)
                                                     .Include(vc => vc.Details).ThenInclude(d => d.POD)
                                                     .Include(vc => vc.Details).ThenInclude(d => d.FinalDestination)
+                                                    .AsNoTracking()
                                                     .FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 string modifyVoyage = $"{modifyItem!.Vessel?.Name}&{modifyItem.VoyageNo}";
@@ -204,12 +205,18 @@ public class VesselCallProvider : IVesselCallProvider
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
                 // DELETE AN EXISTED modifyItemRecords
-                foreach (var modifyRecord in modifyItem.Details)
-                    db.Entry(modifyRecord).State = EntityState.Deleted;
+                //foreach (var modifyRecord in modifyItem.Details)
+                //{
+                //    //db.Entry(modifyRecord.ExportOrders).State = EntityState.Unchanged;
+                //    db.Entry(modifyRecord).State = EntityState.Deleted;
+                //}                    
 
-                await db.SaveChangesAsync();
+                //var delBug = db.ChangeTracker.DebugView.LongView;
+                //await db.SaveChangesAsync();
 
-                db.ChangeTracker.Clear();
+                //db.ChangeTracker.Clear();
+
+
 
                 // RE-WRITE WITH A NEW ITEM
 
@@ -228,72 +235,70 @@ public class VesselCallProvider : IVesselCallProvider
                 if (item.Vessel is not null)
                 {
                     modifyItem!.Vessel = item.Vessel;
-                    db.Entry(modifyItem.Vessel).State = EntityState.Unchanged;
+                    //db.Entry(modifyItem.Vessel).State = EntityState.Unchanged;
                 }
                     
                 if (item.Terminal is not null)
                 {
                     modifyItem!.Terminal = item.Terminal;
-                    db.Entry(modifyItem.Terminal).State = EntityState.Unchanged;
+                    //db.Entry(modifyItem.Terminal).State = EntityState.Unchanged;
                 }                    
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
-                foreach (var detail in item.Details)
-                {
-                    detail.CreateUser = User!;
-                    detail.CreateTime = DateTime.Now;
+                //foreach (var detail in item.Details)
+                //{
+                //    detail.CreateUser = User!;
+                //    detail.CreateTime = DateTime.Now;
 
-                    db.Entry(detail.POD!).State = EntityState.Unchanged;
-                    if (detail.FinalDestination is not null)
-                        db.Entry(detail.FinalDestination!).State = EntityState.Unchanged;
+                //    db.Entry(detail.POD!).State = EntityState.Unchanged;
+                //    if (detail.FinalDestination is not null)
+                //        db.Entry(detail.FinalDestination!).State = EntityState.Unchanged;
 
-                    db.Entry(detail).State = EntityState.Added;
-                    modifyItem.Details.Add(detail);
-                }
+                //    db.Entry(detail).State = EntityState.Added;
+                //    modifyItem.Details.Add(detail);
+                //}
 
 
                 // compaire a new item with an existed
-                //foreach (var modifyDetail in modifyItem.Details!)
-                //    if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
-                //    {
-                //        db.Entry(modifyDetail).State = EntityState.Deleted;
-                //        //modifyItem.Details!.Remove(modifyDetail);
-                //    }                        
-                //    else
-                //    {
-                //        modifyDetail.CreateUser = User!;
-                //        modifyDetail.CreateTime = DateTime.Now;
-                //        modifyDetail.AgentPOD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOD;
+                foreach (var modifyDetail in modifyItem.Details!)
+                    if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
+                    {
+                        //db.Entry(modifyDetail).State = EntityState.Deleted;
+                        ////modifyItem.Details!.Remove(modifyDetail);
+                    }
+                    else
+                    {
+                        modifyDetail.CreateUser = User!;
+                        modifyDetail.CreateTime = DateTime.Now;
+                        modifyDetail.AgentPOD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOD;
 
-                //        if (!modifyDetail.POD!.Id.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD!.Id))
-                //            modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
+                        //if (!modifyDetail.POD!.Id.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD!.Id))
+                        //    modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
 
-                //        //if (item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination is not null)
-                //            modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
-                //        //else
-                //        //    modifyDetail.FinalDestination = null;
+                        modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
+                        //db.Entry(modifyDetail.POD!).State = EntityState.Unchanged;
 
-                //    }
+                        //if (item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination is not null)
+                        modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
+                        //db.Entry(modifyDetail.FinalDestination!).State = EntityState.Unchanged;
+                    }
 
                 // compaire an existed item with a new
-                //foreach (var itemDetail in item.Details!)
-                //    if (!modifyItem.Details.Any(s => s.Id == itemDetail.Id))
-                //    {
-                //        itemDetail.CreateUser = User!;
-                //        itemDetail.CreateTime = DateTime.Now;                        
+                foreach (var itemDetail in item.Details!)
+                    if (!modifyItem.Details.Any(s => s.Id == itemDetail.Id))
+                    {
+                        itemDetail.CreateUser = User!;
+                        itemDetail.CreateTime = DateTime.Now;
 
-                //        //db.Entry(itemDetail.POD!).State = EntityState.Unchanged;
-                //        //if (itemDetail.FinalDestination is not null)
-                //        //    db.Entry(itemDetail.FinalDestination!).State = EntityState.Unchanged;
-                //        //else
-                //        //    db.Entry(itemDetail.FinalDestination!).State = EntityState.Unchanged;
+                        db.Entry(itemDetail.CreateUser).State = EntityState.Unchanged;
+                        db.Entry(itemDetail.POD!).State = EntityState.Unchanged;
+                        if (itemDetail.FinalDestination is not null)
+                            db.Entry(itemDetail.FinalDestination!).State = EntityState.Unchanged;                        
 
-                //        db.Entry(itemDetail.CreateUser).State = EntityState.Unchanged;
-
-                //        db.Entry(itemDetail).State = EntityState.Added;
-                //        modifyItem.Details.Add(itemDetail);
-                //    }
+                        db.Entry(itemDetail).State = EntityState.Added;
+                        modifyItem.Details.Add(itemDetail);
+                    }
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 

@@ -2,9 +2,10 @@
 
 public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
 {
-    Task<ExportOrderDTO> GetItemDTOAsync(long Id);
-    //Task<IEnumerable<BLDTO>> GetBLDTOAsync(long Id);
+    Task<ExportOrderDTO> GetExportOrderDTOAsync(long Id);
     Task<ExportOrderDTO> GetBLDTOAsync(long Id);
-    Task<IEnumerable<ManifestDTO>> GetManifestAsync(long id);
+    Task<IEnumerable<ManifestDTO>> GetManifestDTOAsync(long id);
     Task<IEnumerable<PersonEntity>> GetPersonsAsync();
+    Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id);
+    Task<AppObjectResponse> ModifyExportOrderRecordItemAsync(ExportOrderRecord item);
 }

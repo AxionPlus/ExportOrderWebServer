@@ -49,6 +49,11 @@
             padding: 4px 4px 1px 4px;
         }
 
+
+    .SelectField * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
+        text-align:center;
+    }
+
     .tfoot {
         color: #0a58ca;
     }
@@ -244,37 +249,50 @@
                 </div>
             }
 
-            <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecords"
+            <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecord"
                       Loading="IsLoadingData" Virtualize="true" FixedHeader="true" FixedFooter="true" RowsPerPage="10">
 
                 <HeaderContent>
-                    <MudTh Style="width:40px;">
+                    <MudTh Style="width:50px;">
                         <div class="controlIconButtons">
-                            <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="IsFormReadOnly" OnClick="AddContainerRecord_Click" Size="Size.Small" />
+                            <MudTooltip Text="add new Container record">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="IsFormReadOnly" OnClick="AddContainerRecord_Click" Size="Size.Small" />
+                            </MudTooltip>
                         </div>
+                    </MudTh>
+                    <MudTh Style="width:35px">
+                        <MudTooltip Text="delete All records">
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Disabled
+                                           OnClick="@(async ()=>{ await RemoveAllContainerRecords(Value.Records);})" />
+                        </MudTooltip>
                     </MudTh>
                     <MudTh Style="width: 120px">Nr</MudTh>
                     <MudTh Style="width: 80px">Type</MudTh>
                     <MudTh Style="width: 80px">TareWt</MudTh>
                     <MudTh Style="width: 300px">Seals</MudTh>
                     <MudTh Style="width: 30px"></MudTh>
-                    <MudTh Style="width: 80px">QTY</MudTh>
+                    <MudTh Style="width: 88px">QTY</MudTh>
                     <MudTh Style="width: 120px">Pkg Name</MudTh>
                     <MudTh Style="width: 120px">NET</MudTh>
                     <MudTh Style="width: 120px">GROSS</MudTh>
-                    <MudTh Style="width: 30px"></MudTh>
+                    <MudTh Style="width: 35px"></MudTh>
+                    <MudTh></MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Disabled="IsFormReadOnly"
-                                       OnClick="@(async ()=>{ await RemoveContainerRecord(expOrderRecords);})" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Disabled
+                                       OnClick="@(async ()=>{ await ShowContainerRecord_Click(expOrderRecord.Id);})" />
                     </MudTd>
                     <MudTd>
-                        <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecords.CntrNum"
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly"
+                                       OnClick="@(async ()=>{ await RemoveContainerRecord(expOrderRecord);})" />
+                    </MudTd>
+                    <MudTd>
+                        <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecord.CntrNum"
                                       Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
                      </MudTd>
                      <MudTd>
-                         <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecords.CntrType"
+                         <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
                                     Variant="Variant.Outlined" Margin="Margin.Dense"
                                     CloseIcon="" OpenIcon="">
                              @if (CntrTypes.Count() > 0)
@@ -285,85 +303,69 @@
                         </MudSelect>
                     </MudTd>
                     <MudTd>
-                        <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecords.CntrTareWt"
+                        <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecord.CntrTareWt"
                                          Variant="Variant.Outlined" Margin="Margin.Dense"
                                                           Required RequiredError="" HideSpinButtons="true" />
                      </MudTd>
                      <MudTd>
-                         <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecords.Seal"
-                                       Style="width: 290px"
-                                       Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
+                         <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecord.Seal"
+                                       Style="width: 292px"
+                                       Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
                      <MudTd></MudTd>
                      <MudTd>
-                         <MudTextField Class="QuantityField" T="string" Text="@expOrderRecords.Contents.Sum(s => s.PackageQty).ToString()"
+                         <MudTextField Class="QuantityField" T="string" Text="@expOrderRecord.Contents.Sum(s => s.PackageQty).ToString()"
                                        Style="width: 80px"
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
                      <MudTd></MudTd>
                      <MudTd>
-                         <MudTextField Class="TextField_Sum" T="string" Text="@(expOrderRecords.Contents.Sum(s => s.NetWt) is not null ?
-                                                                                    expOrderRecords.Contents.Sum(s => s.NetWt!.Value).ToString("## ###.###") : "-")"
-                                       Style="width: 120px"
+                         <MudTextField Class="TextField_Sum" T="string" Text="@(expOrderRecord.Contents.Sum(s => s.NetWt) is not null ?
+                                                                                    expOrderRecord.Contents.Sum(s => s.NetWt!.Value).ToString("## ###.###") : "-")"
+                                       
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
                      <MudTd>
                          <MudTextField Class="TextField_Sum" T="string"
-                                       Text="@(expOrderRecords.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("## ###.###"))"
-                                       Style="width: 120px"
+                                       Text="@(expOrderRecord.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("## ###.###"))"
+                                       
                                        Variant="Variant.Outlined" Margin="Margin.Dense" />
                      </MudTd>
                      <MudTd>
-                         <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecords.IsShowCntrContent ? "transform: rotate(180deg);" : null)"
-                                        Size="@Size.Small" OnClick="(_)=>{expOrderRecords.IsShowCntrContent = !expOrderRecords.IsShowCntrContent;}" />
+                         <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecord.IsShowCntrContent ? "transform: rotate(180deg);" : null)"
+                                        Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
                      </MudTd>
+                     <MudTd></MudTd>
                  </RowTemplate>
-                 <ChildRowContent>
-                     @if (expOrderRecords.IsShowCntrContent)
+                <ChildRowContent>
+                    @if (expOrderRecord.IsShowCntrContent)
                     {
                         <MudTr>
-                            <td colspan="4"></td>
+                            <td colspan="5"></td>
                             <td colspan="6">
-                                <MudTable Class="sub-Table" @ref="mudCntrContentTable" Context="CntrContent" Items="@expOrderRecords.Contents">
+                                <MudTable Class="sub-Table" @ref="mudCntrContentTable" Context="CntrContent" Items="@expOrderRecord.Contents">
                                     <RowTemplate>
 
                                         <MudTd Style="width:300px; padding-right:12px; text-align:end">@CntrContent.DocumentRecord.Document.Name</MudTd>
                                         <MudTd Style="width:30px">@CntrContent.DocumentRecord.Seq</MudTd>
-                                        <MudTd>
-                                            <MudNumericField Class="QuantityField" T="uint?" @bind-Value="CntrContent.PackageQty"
-                                                             Style="width: 80px"
-                                                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                                                  Required RequiredError="" HideSpinButtons=true />
-                                     </MudTd>
-                                     <MudTd>
-                                         <MudTextField Class="TextField" T="string" Text="@CntrContent.PackageName"
-                                                       Style="width: 120px; text-align:center"
-                                                       Variant="Variant.Outlined" Margin="Margin.Dense" />
-                                     </MudTd>
-                                     <MudTd>
-                                         <MudNumericField Class="NumericField_Content" T="double?" @bind-Value="CntrContent.NetWt"
-                                                          Style="width: 120px"
-                                                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                                                  Required RequiredError="" HideSpinButtons=true />
-                                     </MudTd>
-                                     <MudTd>
-                                         <MudNumericField Class="NumericField_Content" T="double?" @bind-Value="CntrContent.GrossWt"
-                                                          Style="width: 120px"
-                                                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                                                  Required RequiredError="" HideSpinButtons=true />
-                                     </MudTd>
-                                 </RowTemplate>
-                             </MudTable>
-                         </td>
-                         <td colspan="2"></td>
-                     </MudTr>
+                                        <MudTd Style="width:88px">@CntrContent.PackageQty</MudTd>
+                                        <MudTd Style="width: 120px; text-align:center">@CntrContent.PackageName</MudTd>
+                                        <MudTd Style="width: 120px">@CntrContent.NetWt</MudTd>
+                                        <MudTd Style="width: 120px">@CntrContent.GrossWt</MudTd>
+                                     </RowTemplate>
+                                </MudTable>
+                            </td>
+                            @* <td colspan="1"></td> *@
+                            <MudTd Style="width: 35px"></MudTd>
+                            <MudTd></MudTd>
+                        </MudTr>
                     }
                 </ChildRowContent>
                 <PagerContent></PagerContent>
                 <FooterContent>
                     @if (Value.Records!.Count > 0)
                     {
-                        <MudTd colspan="2" Style="text-align:end"><h6>Total containers:</h6></MudTd>
+                        <MudTd colspan="3" Style="text-align:end"><h6>Total containers:</h6></MudTd>
                         <MudTd Style="text-align:center"><h6>@Value.Records!.Count().ToString("###")</h6></MudTd>
                         <MudTd Style="text-align:center"><h6>@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6></MudTd>
                         <MudTd colspan="2"></MudTd>
@@ -507,6 +509,14 @@
             {
                 DocumentItems.Remove(item);
                 Value!.Documents!.Remove(item);
+
+                //var records = new List<ExportOrderRecord>();
+                //foreach (var content )
+                //var records = Value.Records.Where(er => er.Contents.Select(co => co.DocumentRecord.Document.Id) is not null);
+                var records = Value.Records.Where(er => er.Contents.Where(co => co.DocumentRecord.Document.Id == item.Id) is not null);
+
+                foreach (var record in records )
+                    Value.Records.Remove(record);
             }
 
             SelectedDocumentValues.Clear();
@@ -525,7 +535,7 @@
 
         if (Value.Documents.Count() == 0) return;
 
-        var parameters = new DialogParameters() { ["Documents"] = Value.Documents };
+        var parameters = new DialogParameters() { ["IsNewItem"] = true, ["Documents"] = Value.Documents };
         var options = new DialogOptions { CloseButton = true, DisableBackdropClick = true, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("New Container Record", parameters, options);
         var result = await dialog.Result;
@@ -539,6 +549,16 @@
 
             Value.Records.Add(exportOrderRecord);
         }
+    }
+
+    private async Task ShowContainerRecord_Click(long id)
+    {
+        if (Value!.Documents is null) return;
+
+        var parameters = new DialogParameters() { ["Id"] = id, ["Documents"] = Value.Documents };
+        var options = new DialogOptions { CloseButton = true, DisableBackdropClick = true, MaxWidth = MaxWidth.Large };
+        var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("Edit Container Record", parameters, options);
+        var result = await dialog.Result;
     }
 
     private async Task RemoveContainerRecord(ExportOrderRecord record)
@@ -555,6 +575,25 @@
 
         if (result.Value)
             Value!.Records!.Remove(record);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RemoveAllContainerRecords(List<ExportOrderRecord> records)
+    {
+        if (records.Count() == 0)
+            return;
+
+        bool? result = await DialogService.ShowMessageBox(
+                 "Delete All records",
+                 (MarkupString)$"<b>Do you want to remove all records?<b>",
+                 yesText: "REMOVE", cancelText: "NO");
+
+        if (!result.HasValue) return;
+
+        if (result.Value)
+            foreach (var record in records)
+                Value!.Records!.Remove(record);
 
         await InvokeAsync(StateHasChanged);
     }

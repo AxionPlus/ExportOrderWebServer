@@ -32,11 +32,13 @@ public class ExportOrderDTO
     public string? FinalDestination { get; set; }    
     public string? Measurement { get; set;}
 
+    public string? TotalCommodities { get; set; }
     public uint TotalCntrCount { get; set; }
     public uint? TotalPackages { get; set; }
     public double? TotalGrossWeight { get; set; }
     public double? TotalNetWeight { get; set; }
     public double? TotalTareWeight { get; set; }
+
     public string? Contract { get; set; }
     public string? ContractDate { get; set; }
     public string? CustomsOfficeCode { get; set; }

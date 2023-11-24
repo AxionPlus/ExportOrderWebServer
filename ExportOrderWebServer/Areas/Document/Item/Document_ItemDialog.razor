@@ -119,7 +119,7 @@
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add($"No Success! \n {response.Error.FirstOrDefault()}", Severity.Error);
+                    Snackbar.Add($"No Success!<br>{response.Error.FirstOrDefault()}", Severity.Error);
                     return;
                 }                
             }

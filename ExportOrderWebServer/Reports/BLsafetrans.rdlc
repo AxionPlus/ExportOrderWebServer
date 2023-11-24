@@ -145,8 +145,8 @@
           <DataField>GrossWt</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
         </Field>
-        <Field Name="Volumes">
-          <DataField>Volumes</DataField>
+        <Field Name="Volume">
+          <DataField>Volume</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
         </Field>
       </Fields>
@@ -1170,7 +1170,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.4cm</Height>
+                  <Height>0.2cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1502,7 +1502,7 @@
             <RepeatRowHeaders>true</RepeatRowHeaders>
             <DataSetName>dsCntrRecords</DataSetName>
             <Top>13.5cm</Top>
-            <Height>2.6cm</Height>
+            <Height>2.4cm</Height>
             <Width>19.8cm</Width>
             <Style>
               <Border>
@@ -3102,7 +3102,7 @@
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>6.33858in</Height>
+        <Height>6.25984in</Height>
         <Style>
           <Border>
             <Style>None</Style>
@@ -3122,7 +3122,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="B/L number: " &amp; First(Fields!Num.Value, "dsBL") &amp; Space(10) &amp; "Attachment " &amp; Globals!PageNumber-1 &amp; " of " &amp; Globals!TotalPages-1</Value>
+                      <Value>="B/L number: " &amp; First(Fields!BLNum.Value, "dsBL") &amp; Space(10) &amp; "Attachment " &amp; Globals!PageNumber-1 &amp; " of " &amp; Globals!TotalPages-1</Value>
                       <Style>
                         <FontStyle>Italic</FontStyle>
                         <FontFamily>Tahoma</FontFamily>
@@ -3181,7 +3181,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.3175cm</Top>
+              <Top>0.31748cm</Top>
               <Height>0.5cm</Height>
               <Width>6cm</Width>
               <Style>
@@ -3200,7 +3200,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>Sum(Fields!TotalCntrCount.Value, "dsBL")</Value>
+                      <Value>=Sum(Fields!TotalCntrCount.Value, "dsBL")</Value>
                       <Style>
                         <FontFamily>Calibri</FontFamily>
                         <FontSize>9pt</FontSize>
@@ -3213,7 +3213,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.3175cm</Top>
+              <Top>0.31748cm</Top>
               <Left>6cm</Left>
               <Height>0.5cm</Height>
               <Width>1.3cm</Width>
@@ -3246,7 +3246,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.8175cm</Top>
+              <Top>0.81748cm</Top>
               <Left>7.3cm</Left>
               <Height>0.5cm</Height>
               <Width>7.7cm</Width>
@@ -3278,7 +3278,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.3175cm</Top>
+              <Top>1.31748cm</Top>
               <Height>0.5cm</Height>
               <Width>3.6cm</Width>
               <ZIndex>3</ZIndex>
@@ -3310,7 +3310,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.3175cm</Top>
+              <Top>1.31748cm</Top>
               <Left>3.6cm</Left>
               <Height>0.5cm</Height>
               <Width>2.4cm</Width>
@@ -3345,7 +3345,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.8175cm</Top>
+              <Top>1.81748cm</Top>
               <Height>0.5cm</Height>
               <Width>3.6cm</Width>
               <ZIndex>5</ZIndex>
@@ -3376,7 +3376,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.3175cm</Top>
+              <Top>1.31748cm</Top>
               <Left>6cm</Left>
               <Height>0.5cm</Height>
               <Width>3.7cm</Width>
@@ -3410,7 +3410,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.8175cm</Top>
+              <Top>1.81748cm</Top>
               <Left>12cm</Left>
               <Height>0.5cm</Height>
               <Width>7.8cm</Width>

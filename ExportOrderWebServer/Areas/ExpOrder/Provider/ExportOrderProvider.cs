@@ -1,4 +1,6 @@
 ﻿
+using MudBlazor.Extensions;
+
 public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
@@ -43,7 +45,7 @@ public class ExportOrderProvider : IExportOrderProvider
         return appObjResponse;
     }
         
-    public async Task<ExportOrderDTO> GetItemDTOAsync(long Id)
+    public async Task<ExportOrderDTO> GetExportOrderDTOAsync(long Id)
     {
         try
         {
@@ -160,6 +162,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                     POLAgent = source.Carrier!.CarrierDetails.FirstOrDefault(cd => cd.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.AgentPOL!,
                                     PODAgent = source.VesselCallDetail!.AgentPOD,
                                     Measurement = source.Records.FirstOrDefault()!.Contents.FirstOrDefault()!.Volume > 0 ? "CBM" : "KG",
+                                    //TotalCommodities = string.Join("; ", source.Records.Select(eor => eor.Contents.Select(co => co.DocumentRecord.CommodityEngName))),
                                     TotalCntrCount = (uint)source.Records.Count,
                                     TotalPackages = (uint)source.Records.Sum(r => r.Contents.Sum(c => c.PackageQty))!,
                                     TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
@@ -216,7 +219,7 @@ public class ExportOrderProvider : IExportOrderProvider
     //    }
     //}
 
-    public async Task<IEnumerable<ManifestDTO>> GetManifestAsync(long id)
+    public async Task<IEnumerable<ManifestDTO>> GetManifestDTOAsync(long id)
     {
         try
         {
@@ -353,7 +356,15 @@ public class ExportOrderProvider : IExportOrderProvider
                 // DELETE AN EXISTED modifyItem
 
                 foreach (var modifyRecord in modifyItem.Records)
+                {
+                    foreach (var modifyContent in modifyRecord.Contents)
+                        db.Entry(modifyContent).State = EntityState.Deleted;
+
                     db.Entry(modifyRecord).State = EntityState.Deleted;
+                }                    
+
+                //foreach (var modifyDocument in modifyItem.Documents)
+                //    db.Entry(modifyDocument).State = EntityState.Deleted;
 
                 modifyItem.Documents.Clear();
 
@@ -507,6 +518,115 @@ public class ExportOrderProvider : IExportOrderProvider
     }
 
 
+    public async Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var Result = await db.Set<ExportOrderRecord>()
+                                                              //.Include(eor => eor.ExportOrder)
+                                                              .Include(eor => eor.CntrType)
+                                                              .Include(eor => eor.Contents)
+                                                                  .ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)//.ThenInclude(doc => doc.Records)
+                                                              .AsNoTracking()
+                                                              .FirstOrDefaultAsync(s => s.Id == id);
+
+                var result = db.ExportOrders.Select(eo => eo.Records.FirstOrDefault(eor => eor.Id == id))
+                                                              //.Include(eor => eor.CntrType)
+                                                              //.Include(eor => eor.Contents)//.ThenInclude(con => con.DocumentRecord).ThenInclude(dr => dr.Document)
+                                                              ;
+                                                                            
+                                                                            
+
+                appObjResponse.Object = result;
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
+                return appObjResponse;
+            }
+        }
+
+        return appObjResponse;
+    }
+
+    public async Task<AppObjectResponse> ModifyExportOrderRecordItemAsync(ExportOrderRecord item)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var modifyItem = await db.Set<ExportOrderRecord>()
+                                                                  .Include(eor => eor.Contents) //.ThenInclude(con => con.DocumentRecord)
+                                                                  .AsTracking()
+                                                                  .FirstOrDefaultAsync(s => s.Id == item.Id);
+
+                if (modifyItem!.CntrNum != item.CntrNum)
+                {
+                    var itemExistCheck = await db.Set<ExportOrderRecord>().Where(s => s.CntrNum.ToUpper() == item.CntrNum.ToUpper()).FirstOrDefaultAsync();
+
+                    if (itemExistCheck is not null)
+                    {
+                        appObjResponse.ErrorAdd($"Export Order No. {item.CntrNum} exists already.");
+                        return appObjResponse;
+                    }
+                }
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                // DELETE AN EXISTED modifyItem
+
+                foreach (var modifyContent in modifyItem.Contents)
+                    db.Entry(modifyContent).State = EntityState.Deleted;
+
+                db.Entry(modifyItem).State = EntityState.Deleted;
+
+                var dbBug = db.ChangeTracker.DebugView.LongView;
+                await db.SaveChangesAsync();
+
+                db.ChangeTracker.Clear();
+
+                // RE-WRITE WITH A NEW ITEM
+
+                modifyItem!.CntrNum = item.CntrNum;
+                db.Entry(modifyItem.CntrType!).State = EntityState.Unchanged;
+                modifyItem!.CntrTareWt = item.CntrTareWt;
+                modifyItem.Seal = item.Seal;
+                
+                foreach (var itemContent in item.Contents)
+                {
+                    db.Entry(itemContent).State = EntityState.Added;
+                    modifyItem.Contents.Add(itemContent);
+                }
+
+                db.Entry(modifyItem).State = EntityState.Modified;
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
+
+                return appObjResponse;
+            }
+
+            return appObjResponse;
+        }
+    }
+
     #region AUXIALARY
 
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
@@ -525,6 +645,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
             foreach (var content in record.Contents)
             {
+                //eoRecordDTO.Seq = indexRec;
                 eoRecordDTO.Cntr = record.CntrNum;
 
                 eoRecordDTO.PackageQty = content.PackageQty is not null ? (uint)content.PackageQty : 0;
@@ -542,8 +663,6 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.Commodity = content.DocumentRecord.CommodityName;
                 eoRecordDTO.CommodityEn = content.DocumentRecord.CommodityEngName;
                 eoRecordDTO.HSCode = content.DocumentRecord.CommodityHSCode!;
-                //eoRecordDTO.IMO = content.DocumentRecord.IsIMO ? "IMO:" + content.DocumentRecord.IMO! : "";
-                //eoRecordDTO.UNNO = content.DocumentRecord.IsIMO ? "UN:" + content.DocumentRecord.UNNO! : "";
                 eoRecordDTO.IMO = content.DocumentRecord.IMO!;
                 eoRecordDTO.UNNO = content.DocumentRecord.UNNO!;
                 eoRecordDTO.IsIMO = content.DocumentRecord.IsIMO;
@@ -572,7 +691,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 CntrTareWt = record.CntrTareWt,
                 Seal = record.Seal is not null ? record.Seal : string.Empty,
 
-                PackageQty = (uint)record.Contents.Sum(c => c.PackageQty)!,
+                PackageQty = (uint)record.Contents.Sum(c => c.PackageQty)! > 0 ? (uint)record.Contents.Sum(c => c.PackageQty)! : null, 
                 PackageName = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
                 NetWt = record.Contents.Sum(c => c.NetWt),
                 GrossWt = record.Contents.Sum(c => c.GrossWt),
@@ -584,10 +703,10 @@ public class ExportOrderProvider : IExportOrderProvider
                                 
                 IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(dr => dr.Equals(true)),
 
-                CommodityEn = string.Join("; ", record.Contents.Select(rc => (rc.DocumentRecord.CommodityEngName + 
-                                                                                (rc.DocumentRecord.IsIMO ? " IMO: " + rc.DocumentRecord.IMO + " UNNO: " + rc.DocumentRecord.UNNO : "")
-                                                                             ))
-                                                                             .Distinct().ToList()),
+                CommodityEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.CommodityEngName + 
+                                                                             (rc.DocumentRecord.IsIMO ? " IMO: " + rc.DocumentRecord.IMO +
+                                                                                                        " UNNO: " + rc.DocumentRecord.UNNO : "")
+                                                                       ).Distinct().ToList()),
             };
 
             eoRecordsDTO.Add(eoRecordDTO);
@@ -724,21 +843,33 @@ public class ExportOrderProvider : IExportOrderProvider
                     IMO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.IMO).Distinct()),
                     UNNO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.UNNO).Distinct()),
 
+                    //Commodities = string.Join("; ", record.Contents.Select(rc =>
+                    //                                                (
+                    //                                                  rc.DocumentRecord.CommodityName + " " + (rc.DocumentRecord.IsIMO ? "IMO:" : "") +
+                    //                                                  rc.DocumentRecord.IMO + " " + (rc.DocumentRecord.IsIMO ? "UNNO:" : "") +
+                    //                                                  rc.DocumentRecord.UNNO
+                    //                                                ).
+                    //                                                Trim()).Distinct().Order()),
+
+                    //CommoditiesEn = string.Join("; ", record.Contents.Select(rc =>
+                    //                             (
+                    //                                rc.DocumentRecord.CommodityEngName + " " + (rc.DocumentRecord.IsIMO ? "IMO:" : "") +
+                    //                                rc.DocumentRecord.IMO + " " + (rc.DocumentRecord.IsIMO ? "UNNO:" : "") +
+                    //                                rc.DocumentRecord.UNNO
+                    //                              )
+                    //                              .Trim()).Distinct().Order()),
+
                     Commodities = string.Join("; ", record.Contents.Select(rc =>
-                                                                    (
-                                                                      rc.DocumentRecord.CommodityName + " " + (rc.DocumentRecord.IsIMO ? "IMO:" : "") +
-                                                                      rc.DocumentRecord.IMO + " " + (rc.DocumentRecord.IsIMO ? "UNNO:" : "") +
-                                                                      rc.DocumentRecord.UNNO
-                                                                    ).
-                                                                    Trim()).Distinct().Order()),
+                                                                                (
+                                                                                  rc.DocumentRecord.CommodityName + 
+                                                                                  (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO: " + rc.DocumentRecord.UNNO : "")
+                                                                                )).Distinct().Order()),
 
                     CommoditiesEn = string.Join("; ", record.Contents.Select(rc =>
-                                                                     (
-                                                                        rc.DocumentRecord.CommodityEngName + " " + (rc.DocumentRecord.IsIMO ? "IMO:" : "") +
-                                                                        rc.DocumentRecord.IMO + " " + (rc.DocumentRecord.IsIMO ? "UNNO:" : "") +
-                                                                        rc.DocumentRecord.UNNO
-                                                                      )
-                                                                      .Trim()).Distinct().Order()),                    
+                                                                                (
+                                                                                   rc.DocumentRecord.CommodityEngName + 
+                                                                                   (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO:" + rc.DocumentRecord.UNNO : "")
+                                                                                )).Distinct().Order()),
 
                     Shippers = "S: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Distinct()),
                     Consignees = "C: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct()),
@@ -775,7 +906,6 @@ public class ExportOrderProvider : IExportOrderProvider
 
         foreach (var record in Records)
         {
-
             var recordDTO = new ExportOrderComponentDTO()
             {                
                 Id = record.Id,

@@ -145,8 +145,8 @@
           <DataField>GrossWt</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
         </Field>
-        <Field Name="Volumes">
-          <DataField>Volumes</DataField>
+        <Field Name="Volume">
+          <DataField>Volume</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
         </Field>
       </Fields>

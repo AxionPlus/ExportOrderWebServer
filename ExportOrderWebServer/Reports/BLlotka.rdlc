@@ -17,8 +17,8 @@
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
-        <Field Name="Num">
-          <DataField>Num</DataField>
+        <Field Name="BLNum">
+          <DataField>BLNum</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="BLDate">
@@ -77,6 +77,10 @@
           <DataField>TotalCntrCount</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
+        <Field Name="TotalPackages">
+          <DataField>TotalPackages</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
         <Field Name="TotalTareWeight">
           <DataField>TotalTareWeight</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
@@ -105,6 +109,10 @@
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
+        <Field Name="Seq">
+          <DataField>Seq</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
         <Field Name="Cntr">
           <DataField>Cntr</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -112,6 +120,10 @@
         <Field Name="CntrType">
           <DataField>CntrType</DataField>
           <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="CntrTareWt">
+          <DataField>CntrTareWt</DataField>
+          <rd:TypeName>System.Double</rd:TypeName>
         </Field>
         <Field Name="Seal">
           <DataField>Seal</DataField>
@@ -121,17 +133,13 @@
           <DataField>PackageQty</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="PackageNames">
-          <DataField>PackageNames</DataField>
+        <Field Name="PackageName">
+          <DataField>PackageName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="CntrCommodities">
-          <DataField>CntrCommodities</DataField>
+        <Field Name="CommodityEn">
+          <DataField>CommodityEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="CntrTareWt">
-          <DataField>CntrTareWt</DataField>
-          <rd:TypeName>System.Double</rd:TypeName>
         </Field>
         <Field Name="GrossWt">
           <DataField>GrossWt</DataField>
@@ -555,7 +563,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!PackageQty.Value)</Value>
+                                  <Value>=Fields!PackageQty.Value</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -592,7 +600,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PackageNames.Value</Value>
+                                  <Value>=Fields!PackageName.Value</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -624,7 +632,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!CntrTareWt.Value)</Value>
+                                  <Value>=Fields!CntrTareWt.Value</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -663,7 +671,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!GrossWt.Value)</Value>
+                                  <Value>=Fields!GrossWt.Value</Value>
                                   <Style>
                                     <FontFamily>Tahoma</FontFamily>
                                     <FontSize>9pt</FontSize>
@@ -736,7 +744,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox15">
+                        <Textbox Name="Textbox1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -756,7 +764,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox15</rd:DefaultName>
+                          <rd:DefaultName>Textbox1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -778,7 +786,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox16">
+                        <Textbox Name="Textbox6">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -798,7 +806,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox16</rd:DefaultName>
+                          <rd:DefaultName>Textbox6</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -823,7 +831,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox17">
+                        <Textbox Name="Textbox7">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -843,7 +851,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox17</rd:DefaultName>
+                          <rd:DefaultName>Textbox7</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -865,7 +873,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox18">
+                        <Textbox Name="Textbox8">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -885,7 +893,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox18</rd:DefaultName>
+                          <rd:DefaultName>Textbox8</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -906,7 +914,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox19">
+                        <Textbox Name="Textbox9">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -926,49 +934,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox19</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <BottomBorder>
-                              <Style>Solid</Style>
-                            </BottomBorder>
-                            <RightBorder>
-                              <Style>Solid</Style>
-                            </RightBorder>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox20">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style>
-                                    <FontFamily>Tahoma</FontFamily>
-                                    <FontSize>9pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Center</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox20</rd:DefaultName>
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -990,7 +956,49 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox22">
+                        <Textbox Name="Textbox10">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox10</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox11">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1009,7 +1017,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox22</rd:DefaultName>
+                          <rd:DefaultName>Textbox11</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1215,7 +1223,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox57">
+                        <Textbox Name="Textbox12">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1234,7 +1242,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox57</rd:DefaultName>
+                          <rd:DefaultName>Textbox12</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2370,14 +2378,9 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                 <TablixMember>
                   <Group Name="Num">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!Num.Value</GroupExpression>
+                      <GroupExpression>=Fields!BLNum.Value</GroupExpression>
                     </GroupExpressions>
                   </Group>
-                  <SortExpressions>
-                    <SortExpression>
-                      <Value>=Fields!Num.Value</Value>
-                    </SortExpression>
-                  </SortExpressions>
                   <TablixMembers>
                     <TablixMember>
                       <TablixHeader>
@@ -2681,7 +2684,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                       <Paragraph>
                                         <TextRuns>
                                           <TextRun>
-                                            <Value>=Fields!Num.Value</Value>
+                                            <Value>=Fields!BLNum.Value</Value>
                                             <Style>
                                               <FontFamily>Tahoma</FontFamily>
                                             </Style>
@@ -2865,7 +2868,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                   <Paragraph>
                                     <TextRuns>
                                       <TextRun>
-                                        <Value>=Fields!Num.Value</Value>
+                                        <Value>=Fields!BLNum.Value</Value>
                                         <Style>
                                           <FontFamily>Tahoma</FontFamily>
                                         </Style>
@@ -6366,7 +6369,7 @@ OR MULTIMODAL TRANSPORT</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="B/L number: " &amp; First(Fields!Num.Value, "dsBL") &amp; Space(10) &amp; "Attachment " &amp; Globals!PageNumber-1 &amp; " of " &amp; Globals!TotalPages-1</Value>
+                      <Value>="B/L number: " &amp; First(Fields!BLNum.Value, "dsBL") &amp; Space(10) &amp; "Attachment " &amp; Globals!PageNumber-1 &amp; " of " &amp; Globals!TotalPages-1</Value>
                       <Style>
                         <FontStyle>Italic</FontStyle>
                         <FontFamily>Tahoma</FontFamily>

@@ -65,7 +65,7 @@
             </MudSelect>
             <MudTextField Class="TextField" Label="Name" Style="width: 360px" @bind-Value="Value.Name" 
                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                            Mask="MaskDocumentName"
+                            Mask="MaskDocumentName" 
                             Required RequiredError="" Clearable="!IsFormReadOnly" />
 
             <MudTextField Class="TextField" Label="Description" Style="width: 360px" @bind-Value="Value.Description"
@@ -295,7 +295,7 @@
 
     private void AddRecord_Click()
     {
-        Value!.Records!.Add(new() { Seq = Value!.Records.Count() + 1, NetWt = 0, GrossWt = 0  });
+        Value!.Records!.Add(new() { Seq = Value!.Records.Count() + 1, NetWt = 1, GrossWt = 1  });
     }
 
     private async Task RemoveRecord(DocumentRecord record)

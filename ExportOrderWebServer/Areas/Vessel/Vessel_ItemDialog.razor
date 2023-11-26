@@ -45,15 +45,14 @@
                                  SearchFunc="@SearchCountry"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
                                  Required RequiredError=""
-                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                  ResetValueOnEmptyText="true"
-                                 Placeholder="Country"
-                                 MaxItems="20"
-                                 
-                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                  AdornmentColor="Color.Primary"
-                                  Adornment="Adornment.End"
-                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddFlag_Click(); })"
+                                 Placeholder="Flag"
+                                 MaxItems="20"                                 
+                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                 AdornmentColor="Color.Primary"
+                                 Adornment="Adornment.End"
+                                 OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddFlag_Click(); })"
                                  Clearable="!IsFormReadOnly" />
             </div>
             <div class="container-content" style="justify-content: flex-start">
@@ -69,18 +68,18 @@
                               Clearable="!IsFormReadOnly" />
             </div>
             <div class="container-content">
-                 <MudTextField T="string" Style="width: 280px" Label="Captain's Family" @bind-Text="@Item.CaptainFamily"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true"
-                               Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
+                <MudTextField T="string" Style="width: 280px" Label="Captain's Family" @bind-Text="@Item.CaptainFamily"
+                              Placeholder="Фамилия"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"                               
+                              Clearable="!IsFormReadOnly" />
             </div>
             <div class="container-content">
-                 <MudTextField T="string" Style="width: 360px" Label="Captain's Name" @bind-Text="@Item.CaptainName"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true"
-                               Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
+                <MudTextField T="string" Style="width: 360px" Label="Captain's Name" @bind-Text="@Item.CaptainName"
+                              Placeholder="Имя Отчество"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"                               
+                              Clearable="!IsFormReadOnly" />
             </div>
         </div>
     </MudForm>

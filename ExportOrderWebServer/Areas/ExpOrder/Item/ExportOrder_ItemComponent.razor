@@ -11,6 +11,7 @@
 <style>
 
     .Container-item > .container-content {
+        align-items: flex-start;
         justify-content: flex-start;
     }
 
@@ -31,10 +32,22 @@
         padding: 3px;
     }
 
+    .wrapper-input * .mud-icon-size-small {
+        color:currentColor;
+    }
+
+    .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
+        margin-top: 1px;
+    }
+
     .sub-Table {
         background-color: lightblue;
         transition: none;
         box-shadow: none;
+    }
+
+    .mud-table-sticky-footer * .mud-table-root .mud-table-foot > .mud-table-row {
+        background-color: lightgrey;
     }
 
     .Table * .mud-table-cell {
@@ -49,14 +62,23 @@
             padding: 4px 4px 1px 4px;
         }
 
+    .mud-list-item-gutters {
+        padding-left:4px;
+        padding-right:4px;
+    }
+
+    .mud-list.mud-list-padding {
+        padding-top:2px;
+        padding-bottom:2px;
+    }
 
     .SelectField * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
         text-align:center;
     }
 
-    .tfoot {
+/*     .tfoot {
         color: #0a58ca;
-    }
+    } */
 
     .TextField_Sum * .mud-input > input.mud-input-root-outlined {
         text-align: end;
@@ -88,13 +110,13 @@
 @if (Value is not null)
 {
     <div class="Container-item">
-        <div class="container-content">
+        <div class="container-content" style="padding-bottom:unset">
             <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px" T="string" Label="Number" Value="@Value!.Num"
                           ValueChanged="async (e) => { Value.Num = e.ToUpper(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"                          
                           Required RequiredError="" Clearable="!IsFormReadOnly" />
 
-             <MudDatePicker Class="wrapper-input-date" Style="width: 130px" Label="Date" @bind-Date="Value.Dated"
+             <MudDatePicker Class="wrapper-input-date" Style="width: 130px; height:40px" Label="Date" @bind-Date="Value.Dated"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             DateFormat="dd.MM.yy"
                             Editable="true"
@@ -102,37 +124,41 @@
                             Required RequiredError="" Clearable="!IsFormReadOnly" />
              <MudSpacer />
 
-             <MudTextField Class="TextField" Style="width: 400px; margin-right: 10px" @bind-Value="@Value!.VesselCallDetail!.VesselCall!.Vessel.Name"
+             <MudTextField Class="TextField" T="VesselCallDetail" Style="width: 450px" Value="Value.VesselCallDetail"
                            Label="Vessel Call" Placeholder="Vessel Call"
-                           Text="@(Value.VesselCallDetail!.VesselCall!.Vessel.Name is not null ? Value.VesselCallDetail!.VesselCall!.Vessel.Name + " / " +
-                                                                               Value.VesselCallDetail!.VesselCall.VoyageNo + " / " +
-                                                                               Value.VesselCallDetail.POD!.NameEn : "")"
+                           Text="@(Value.VesselCallDetail is not null ?
+                                        $"{Value.VesselCallDetail!.VesselCall!.Vessel.Name} / {Value.VesselCallDetail!.VesselCall.VoyageNo} / {Value.VesselCallDetail.POD!.NameEn}"
+                                        : string.Empty)"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            Required RequiredError="" Clearable="!IsFormReadOnly"
                            Adornment="Adornment.Start" IconSize="Size.Small"
                            AdornmentColor="Color.Primary"
                            AdornmentIcon="@Icons.Material.Filled.Waves"
                            OnAdornmentClick="@(async () => { if (!IsFormReadOnly) await GetVesselCallDetail_Click(); })" />
+            <MudSpacer />
 
-             <MudAutocomplete T="CarrierCatalog" Style="width: 220px" Label="Carrier" @bind-Value="Value.Carrier"
-                              ToStringFunc="@(e => e != null ? e.Name : "")"
-                              SearchFunc="@SearchCarrier"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                                          Required RequiredError=""
-                              CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                              ResetValueOnEmptyText="true"
-                              Placeholder="Carrier"
-                              MaxItems="20"
-                              AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                              AdornmentColor="Color.Primary"
-                              Adornment="Adornment.End"
-                              OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCarrier_Click(); })"
-                              Clearable="!IsFormReadOnly" />
-             <MudSpacer />
+            <MudAutocomplete T="CarrierCatalog" Style="width: 270px" Label="Carrier" @bind-Value="Value.Carrier"
+                             ToStringFunc="@(e => e != null ? e.Name : "")"
+                             SearchFunc="@SearchCarrier"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             Required RequiredError=""
+                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                             ResetValueOnEmptyText="true"
+                             Placeholder="Carrier"
+                             MaxItems="20"
+                             AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                             AdornmentColor="Color.Primary"
+                             Adornment="Adornment.End"
+                             OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCarrier_Click(); })"
+                             Clearable="!IsFormReadOnly" />
+         </div>
+         <div class="container-content">
+             <MudSelect Class="wrapper-input" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
+                        ToStringFunc="@(str => str is not null ?
+                                                $"{str.FamilyName} {str.Name?.Substring(0, 1)}. {str.SurName?.Substring(0, 1)}."
+                                                : string.Empty)"
 
-             <MudSelect Class="SelectField" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
-                        ToStringFunc="@(str => str is not null ? str.FamilyName : string.Empty)"
-                        Style="width:160px; margin-right:10px" Placeholder="И.О. Фамилия"
+                        Style="width:200px" Placeholder="Person"
                         Variant="Variant.Outlined" Margin="Margin.Dense"
                         CloseIcon="" OpenIcon="" IconSize="Size.Small"
                         Clearable="!IsFormReadOnly"
@@ -144,8 +170,19 @@
                  @if (Persons.Count() > 0)
                     @foreach (var person in Persons)
                     {
-                        <MudSelectItem Value="@person">@person.FamilyName</MudSelectItem>
+                        <MudSelectItem Value="@person">
+                            @($"{person.FamilyName} {person.Name!.Substring(0, 1)}. {person.SurName!.Substring(0, 1)}.")
+                        </MudSelectItem>
                     }
+            </MudSelect>
+            <MudSpacer />
+            <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
+                       ToStringFunc="@(str => str.ToString())"
+                       Variant="Variant.Outlined" Margin="Margin.Dense">
+                @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                {
+                    <MudSelectItem Value="@status" />
+                }
             </MudSelect>
         </div>
     </div>
@@ -193,17 +230,8 @@
                                              EndText="@context.Records.Count().ToString()"
                                              LoadingIconColor="Color.Info"
                                              EndTextTypo="@Typo.caption">
-                                @*                                 <MudDataGrid Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
-                            <Columns>
-                            <PropertyColumn Property="x => x.Seq" />
-                            <PropertyColumn Property="x => x.CommodityHSCode" />
-                            <PropertyColumn Property="x => x.CommodityName" />
-                            </Columns>
-                            </MudDataGrid> *@
                                 <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
                                           Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
-                                    @* Items="context.Records.Where(x => x.Document.Id == context.Id)" *@
-
                                     <RowTemplate>
                                         <MudTd Style="width: 30px">@DocRecords.Seq</MudTd>
                                         <MudTd Style="width: 115px">@DocRecords.CommodityHSCode</MudTd>
@@ -215,17 +243,23 @@
                     </MudTreeView>
                 </MudPaper>
             </div>
-            <div class="documents-info" style="margin-left: 20px; max-width:fit-content">
-                <h5 class="infoSC">Shippers:</h5>
-                @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
+            <div class="documents-info" style="margin-left: 15px; max-width:fit-content">
+                @if (Value.Documents != null)
                 {
-                    <div style="padding-left:10px">@(shipper);</div>
-                }
-                <br />
-                <h5 class="infoSC">Consignees:</h5>
-                @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
-                {
-                    <div style="padding-left:10px">@(consignee);</div>
+                    if (Value.Documents.Count() > 0)
+                    {
+                        <h6 class="infoSC">Shippers:</h6>
+                        @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
+                        {
+                            <div style="padding-left:10px">@(shipper);</div>
+                        }
+                        <br />
+                        <h6 class="infoSC">Consignees:</h6>
+                        @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
+                        {
+                            <div style="padding-left:10px">@(consignee);</div>
+                        }
+                    }
                 }
             </div>
         </div>
@@ -262,12 +296,12 @@
                     </MudTh>
                     <MudTh Style="width:35px">
                         <MudTooltip Text="delete All records">
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Disabled
+                            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" Size="Size.Small" Disabled
                                            OnClick="@(async ()=>{ await RemoveAllContainerRecords(Value.Records);})" />
                         </MudTooltip>
                     </MudTh>
                     <MudTh Style="width: 120px">Nr</MudTh>
-                    <MudTh Style="width: 80px">Type</MudTh>
+                    <MudTh Style="width: 64px">Type</MudTh>
                     <MudTh Style="width: 80px">TareWt</MudTh>
                     <MudTh Style="width: 300px">Seals</MudTh>
                     <MudTh Style="width: 30px"></MudTh>
@@ -294,6 +328,7 @@
                      <MudTd>
                          <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
                                     Variant="Variant.Outlined" Margin="Margin.Dense"
+                                    AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
                                     CloseIcon="" OpenIcon="">
                              @if (CntrTypes.Count() > 0)
                                 @foreach (var type in CntrTypes)
@@ -728,7 +763,9 @@
         // check Terminal for this Carrier before select
         string? terminal = string.Empty;
 
-        if (Value!.VesselCallDetail!.VesselCall!.Terminal is not null)
+        //if (Value!.VesselCallDetail!.VesselCall!.Terminal is not null)
+
+        if (Value!.VesselCallDetail is not null)
             terminal = Value!.VesselCallDetail!.VesselCall!.Terminal.Name;
 
         if (terminal is null)

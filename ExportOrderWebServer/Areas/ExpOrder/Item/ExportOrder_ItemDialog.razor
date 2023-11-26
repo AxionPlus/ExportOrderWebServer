@@ -30,7 +30,7 @@
             <MudSpacer />
 
             <div class="ToolBar-Title">
-                <span>@($"Export Order: \t {Header}")</span>
+                <span>@($"Export Order")</span>
             </div>
 
             <MudSpacer />
@@ -104,7 +104,9 @@
     {
         if (IsNewItem)
         {
-            Item = new() { Carrier = new(), VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
+            //Item = new() { Carrier = new(), VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
+            //Item = new() { VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } } };
+            Item = new();
             IsFormReadOnly = false;
         }        
         else
@@ -113,7 +115,7 @@
             if (!response.HasError)
             {
                 Item = (ExportOrderEntity)response.Object!;
-                Header = Item!.Status!.ToString();
+                //Header = Item!.Status!.ToString();
                 await InvokeAsync(StateHasChanged);
             }            
         }

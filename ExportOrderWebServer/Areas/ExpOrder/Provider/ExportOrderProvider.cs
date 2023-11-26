@@ -302,6 +302,12 @@ public class ExportOrderProvider : IExportOrderProvider
                 if (filter.Status >= 0)
                     ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
 
+
+                ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
+
+                if (!string.IsNullOrEmpty(filter.Voyage))
+                    ItemsDTO = ItemsDTO.OrderBy(s => s.CreateTime);
+
                 appObjResponse.Object = ItemsDTO.ToArray();
             }
 
@@ -382,6 +388,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 modifyItem.Carrier = item.Carrier;
                 modifyItem!.Person = item.Person;
                 modifyItem.VesselCallDetail = item.VesselCallDetail;
+                modifyItem.Status = item.Status;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
                 db.Entry(modifyItem.Carrier!).State = EntityState.Unchanged;
@@ -916,7 +923,8 @@ public class ExportOrderProvider : IExportOrderProvider
                 POD = record.VesselCallDetail!.POD!.Name!,
                 Carrier = record.Carrier!.NameEn,
                 Status = record.Status,
-                blTemplate = record.Carrier!.BlTemplate
+                blTemplate = record.Carrier!.BlTemplate,
+                CreateTime = record.CreateTime,
             };
 
             RecordsDTO.Add(recordDTO);

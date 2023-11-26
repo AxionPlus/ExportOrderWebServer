@@ -98,25 +98,37 @@
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:120px"></MudTh>
-            <MudTh Style="width:150px">Number</MudTh>
-            <MudTh Style="width:100px">Dated</MudTh>
-            <MudTh Style="width:200px">Vessel</MudTh>
-            <MudTh Style="width:150px">Voyage</MudTh>
+            <MudTh Style="width:120px"></MudTh>            
+            <MudTh Style="width:150px">
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Num!)">Number</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:100px">
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Dated!)">Dated</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:200px">
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Vessel!)">Vessel</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:150px">
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Voyage!)">Voyage</MudTableSortLabel>
+            </MudTh>
             <MudTh Style="width:200px">POD</MudTh>
-            <MudTh Style="width:200px; text-align:start">Carrier</MudTh>
-            <MudTh Style="width: 80px">Status</MudTh>
+            <MudTh Style="width:200px; text-align:start">
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Carrier!)">Carrier</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width: 80px">
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
+            </MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>
-                <MudTooltip Text="view details">
+                <MudTooltip Text="view Details">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
                                     OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudTooltip Text="view Report">
+                <MudTooltip Text="view Export Order">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
                                     OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
                 </MudTooltip>
@@ -248,7 +260,7 @@
 
     private async Task<IEnumerable<string>> SearchVoyage(string value)
     {        
-        var result = await _vesselCallProvider.GetVoyages();
+        var result = await _vesselCallProvider.GetVoyages(Filter.Vessel);
 
         if (string.IsNullOrWhiteSpace(value))
             return result.Distinct();                      //return Enumerable.Empty<string>();

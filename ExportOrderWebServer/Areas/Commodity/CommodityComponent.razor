@@ -218,9 +218,9 @@
             return Enumerable.Empty<string>();
 
         if (string.IsNullOrWhiteSpace(value))
-            return result;
+            return result.Distinct();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
     }
 
     private async Task<IEnumerable<string>> SearchNames(string value)
@@ -231,9 +231,9 @@
             return Enumerable.Empty<string>();
 
         if (string.IsNullOrWhiteSpace(value))
-            return result;
+            return result.Distinct();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
     }
 
     private async Task<IEnumerable<string>> SearchNamesEn(string value)
@@ -244,9 +244,9 @@
             return Enumerable.Empty<string>();
 
         if (string.IsNullOrWhiteSpace(value))
-            return result;
+            return result.Distinct();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
     }
 
     #endregion

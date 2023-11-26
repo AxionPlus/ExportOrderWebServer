@@ -362,39 +362,7 @@ public class ExportOrderController : ControllerBase
             return Ok();
         }
     }
-
-    [HttpGet]
-    [Route("ViewReportBLnca")]
-    //public async Task<IActionResult> BLncaReport(long Id)
-    //{
-    //    var Items = await _exportOrderProvider.GetBLDTOAsync(Id);
-
-    //    if (Items.Count() == 0) return Empty;
-
-    //    string fileName = "BLnca.rdlc";
-
-    //    try
-    //    {
-    //        string mimeType = "";
-    //        int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
-    //        string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
-
-    //        LocalReport localReport = new LocalReport(pathReport);          
-
-    //        localReport.AddDataSource("dsBLrecords", Items);
-
-    //        ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
-
-    //        return File(result.MainStream, "application/pdf");
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string msg = ex.Message;
-    //        Console.WriteLine(msg);
-    //        return Ok();
-    //    }
-    //}
-
+    
     [HttpGet]
     [Route("ViewReportManifest")]
     public async Task<IActionResult> ManifestReport(long vslcallid, bool isIMO)

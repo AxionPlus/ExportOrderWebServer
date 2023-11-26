@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Office.Interop.Excel;
-using System.Linq;
-using static MudBlazor.CategoryTypes;
-
+﻿
 namespace ExportOrderWebServer.Areas.VesselCall.Provider;
 
 public class VesselCallProvider : IVesselCallProvider
@@ -161,6 +157,11 @@ public class VesselCallProvider : IVesselCallProvider
                 //if (!string.IsNullOrEmpty(filter.Carrier))
                 //    vesselCallsDTO = vesselCallsDTO.Where(s => s.CarrierName == filter.Carrier).ToList();
 
+                vesselCallsDTO = vesselCallsDTO.OrderByDescending(s => s.CreateTime);
+
+                if (!string.IsNullOrEmpty(filter.Voyage))
+                    vesselCallsDTO = vesselCallsDTO.OrderBy(s => s.CreateTime);
+
                 appObjResponse.Object = vesselCallsDTO.ToArray();
             }            
 
@@ -227,21 +228,16 @@ public class VesselCallProvider : IVesselCallProvider
                 modifyItem!.ETA = item.ETA;
                 modifyItem!.ETS = item.ETS;
 
-                //if (!modifyItem.Vessel!.Id.Equals(item.Vessel!.Id))
-                //    modifyItem!.Vessel = item.Vessel;
-                //if (!modifyItem.Terminal!.Id.Equals(item.Terminal!.Id))
-                //    modifyItem!.Terminal = item.Terminal;
-
                 if (item.Vessel is not null)
                 {
                     modifyItem!.Vessel = item.Vessel;
-                    //db.Entry(modifyItem.Vessel).State = EntityState.Unchanged;
+                    db.Entry(modifyItem.Vessel!).State = EntityState.Unchanged;
                 }
                     
                 if (item.Terminal is not null)
                 {
                     modifyItem!.Terminal = item.Terminal;
-                    //db.Entry(modifyItem.Terminal).State = EntityState.Unchanged;
+                    db.Entry(modifyItem.Terminal!).State = EntityState.Unchanged;
                 }                    
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
@@ -273,15 +269,21 @@ public class VesselCallProvider : IVesselCallProvider
                         modifyDetail.CreateTime = DateTime.Now;
                         modifyDetail.AgentPOD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOD;
 
-                        //if (!modifyDetail.POD!.Id.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD!.Id))
-                        //    modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
-
                         modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
-                        //db.Entry(modifyDetail.POD!).State = EntityState.Unchanged;
+                        db.Entry(modifyDetail.POD!).State = EntityState.Unchanged;
 
-                        //if (item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination is not null)
                         modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
-                        //db.Entry(modifyDetail.FinalDestination!).State = EntityState.Unchanged;
+
+                        if (modifyDetail.FinalDestination != null)
+                            db.Entry(modifyDetail.FinalDestination!).State = EntityState.Unchanged;
+                        else
+                            db.Entry(modifyDetail).Reference("FinalDestination").IsModified = true;
+
+
+                        //db.Entry(modifyDetail).Property("FinalDestination").IsModified = true;
+                        //db.Entry(modifyDetail).Property(s => s.FinalDestination).IsModified = true;
+
+                        db.Entry(modifyDetail).State = EntityState.Modified;
                     }
 
                 // compaire an existed item with a new
@@ -417,14 +419,19 @@ public class VesselCallProvider : IVesselCallProvider
                 var db = await _db;
 
                 // check an Existing item
-                //var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).FirstOrDefaultAsync();
-                var existedItem = db.VesselCalls.Include(vc => vc.Details).Where(vc => vc.Details.Any(vcd => vcd.Id == id)).FirstOrDefaultAsync();
+                var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).Include(vcd => vcd.ExportOrders).FirstOrDefault();                
 
                 if (existedItem is null)
                 {
-                    appObjResponse.ErrorAdd("Record wasn't deleted");
+                    appObjResponse.ErrorAdd("There is no Record to deleted.");
                     return appObjResponse;
                 }
+
+                var existedExportOrders = db.ExportOrders.Where(eo => eo.VesselCallDetail!.Id == id);
+
+                if (existedExportOrders.Count() > 0)
+                    foreach (var exportOrder in existedItem.ExportOrders)
+                        db.Entry(exportOrder).State = EntityState.Deleted;
 
                 db.Entry(existedItem).State = EntityState.Deleted;
                 //db.Entry(db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id)).State = EntityState.Deleted;
@@ -468,12 +475,20 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<IEnumerable<string>> GetVoyages()
+    public async Task<IEnumerable<string>> GetVoyages(string? vessel)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.VesselCalls.Select(s => s.VoyageNo!).ToListAsync();
+
+            var result = new List<string>();
+
+            if (!string.IsNullOrEmpty(vessel))
+                result = await db.VesselCalls.Where(s => s.Vessel.Name == vessel).Select(s => s.VoyageNo!).ToListAsync();
+            else
+                result = await db.VesselCalls.Select(s => s.VoyageNo!).ToListAsync();
+
+            return result;
         }
     }
 
@@ -498,6 +513,7 @@ public class VesselCallProvider : IVesselCallProvider
                     POD = detail.POD!.NameEn,
                     AgentPOD = detail.AgentPOD,
                     Status = detail.Status,
+                    CreateTime = detail.CreateTime,
                 };
 
                 RecordsDTO.Add(recordDTO);

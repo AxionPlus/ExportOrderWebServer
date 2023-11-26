@@ -156,13 +156,19 @@
                 <MudTh Style="width: 42px"></MudTh>
             }
             <MudTh Style="width: 42px"></MudTh>
-            <MudTh Style="width:220px">Vessel</MudTh>
-            <MudTh Style="width:150px">Voyage</MudTh>
+            <MudTh Style="width:220px">
+                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x=>x.VesselName!)">Vessel</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:150px">
+                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x=>x.VoyageNo!)">Voyage</MudTableSortLabel>
+            </MudTh>
             <MudTh Style="width:220px">POD</MudTh>
             <MudTh Style="width: 90px">Terminal</MudTh>
             <MudTh Style="width: 90px">ETA</MudTh>
             <MudTh Style="width: 90px">ETS</MudTh>
-            <MudTh Style="width: 75px">Status</MudTh>
+            <MudTh Style="width: 75px">
+                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
+            </MudTh>
             @if (!IsSelectable)
             {
                 <MudTh Style="width: 42px"></MudTh>
@@ -265,23 +271,23 @@
 
     private async Task RemoveItemDetail_Click(long id, string pod)
     {
-        // bool? msgResult = await DialogService.ShowMessageBox(
-        //                   "REMOVE  Record",
-        //                   (MarkupString)$"<b>Do you want to remove record?</b> <br/>For discharge port: <br/>{pod}<br/>",
-        //                   yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox(
+                          "REMOVE  Record",
+                          (MarkupString)$"<b>Do you want to remove record?</b><br/>For discharge port: {pod}",
+                          yesText: "YES", cancelText: "NO");
 
-        // if (msgResult.HasValue)
-        //     if (msgResult.Value)
-        //     {
-        //         var response = await _vesselCallProvider.RemoveVesselCallDetailDTOAsync(id);
+        if (msgResult.HasValue)
+            if (msgResult.Value)
+            {
+                var response = await _vesselCallProvider.RemoveVesselCallDetailDTOAsync(id);
 
-        //         if (!response.HasError)
-        //             Snackbar.Add($"Deleted Successfully", Severity.Success);
-        //         else
-        //             Snackbar.Add($"Unable to delete", Severity.Warning);
-        //     }
+                if (!response.HasError)
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                else
+                    Snackbar.Add($"Unable to delete", Severity.Warning);
+            }
 
-        // await GetItems();
+        await GetItems();
     }
 
 
@@ -369,7 +375,7 @@
 
     private async Task<IEnumerable<string>> SearchVoyage(string value)
     {
-        var result = await _vesselCallProvider.GetVoyages();
+        var result = await _vesselCallProvider.GetVoyages(Filter.Vessel);
 
         if (string.IsNullOrWhiteSpace(value))
             return result.Distinct();

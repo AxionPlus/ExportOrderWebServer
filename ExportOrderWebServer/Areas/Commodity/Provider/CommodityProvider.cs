@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 
 namespace ExportOrderWebServer.Areas.Commodity.Provider;
 
@@ -137,13 +139,12 @@ public class CommodityProvider : ICommodityProvider
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
-            //var itemExistCheck = await db.Commodities.Where(s => s.HSCode == item!.HSCode).FirstOrDefaultAsync();
-            var itemExistCheck = await db.Commodities.Where(s => s.Name == item!.Name).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
-            {
-                appObjResponse.ErrorAdd($"Commodity exists already.<br>HS code: {item!.HSCode}<br>Name: {item.Name} ");
-                return appObjResponse;
-            }
+            //var itemExistCheck = await db.Commodities.Where(s => s.Name == item!.Name || s.NameEn == item.NameEn).FirstOrDefaultAsync();
+            //if (itemExistCheck != null)
+            //{
+            //    appObjResponse.ErrorAdd($"Commodity exists already.<br>HS code: {item!.HSCode}<br>Name: {item.Name} ");
+            //    return appObjResponse;
+            //}
 
             item.CreateUser = User!;
             db.Entry(item).State = EntityState.Added;

@@ -77,7 +77,7 @@ public class VesselProvider : IVesselProvider
 
             try
             {   
-                var modifyItem = await db.Vessels.Include(ve => ve.Flag).FirstOrDefaultAsync(s => s.Id == item.Id);
+                var modifyItem = await db.Vessels.Include(ve => ve.Flag).AsNoTracking().FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem!.Name != item.Name)
                 {
@@ -95,15 +95,19 @@ public class VesselProvider : IVesselProvider
                 modifyItem!.CreateUser = User!;
                 modifyItem!.CreateTime = DateTime.Now;
                 modifyItem!.Name = item.Name;
-                modifyItem!.IMO = item.IMO;                
+                modifyItem!.IMO = item.IMO;
+                modifyItem!.Flag = item.Flag;
                 modifyItem!.TerminalCode = item.TerminalCode;
                 modifyItem!.CaptainFamily = item.CaptainFamily;
                 modifyItem!.CaptainName = item.CaptainName;
 
-                if (item.Flag is not null)
-                    modifyItem!.Flag = item.Flag;   // if (!modifyItem!.Flag!.Id.Equals(item.Flag!.Id))
+                if (modifyItem!.Flag != null)
+                    db.Entry(modifyItem.Flag).State = EntityState.Unchanged;
+                else
+                    db.Entry(modifyItem).Reference("Flag").IsModified = true;                  
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 

@@ -458,7 +458,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 item.CreateUser = User!;
                 item.CreateTime = DateTime.Now;
                 item.Status = EntityStatus.New;
-                //item.VesselCallDetail!.Status = EntityStatus.Pending;   // added
+                item.VesselCallDetail!.Status = EntityStatus.Pending;   // added
 
                 db.Entry(item).State = EntityState.Added;
 

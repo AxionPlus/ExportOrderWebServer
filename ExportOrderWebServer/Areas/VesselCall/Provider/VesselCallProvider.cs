@@ -55,8 +55,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                                 .Include(vc => vc.Terminal)
                                                                 .Include(vc => vc.Details).ThenInclude(d => d.POD)
                                                                 .Where(vc => vc.Vessel.Name!.ToUpper() == vesselName.ToUpper() &&
-                                                                             vc.VoyageNo.ToUpper() == voyageNo.ToUpper()
-                                                                 )
+                                                                             vc.VoyageNo.ToUpper() == voyageNo.ToUpper())
                                                                 .FirstOrDefaultAsync();
 
                     if (appObjResponse.Object is null)
@@ -210,20 +209,6 @@ public class VesselCallProvider : IVesselCallProvider
 
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-                // DELETE AN EXISTED modifyItemRecords
-                //foreach (var modifyRecord in modifyItem.Details)
-                //{
-                //    //db.Entry(modifyRecord.ExportOrders).State = EntityState.Unchanged;
-                //    db.Entry(modifyRecord).State = EntityState.Deleted;
-                //}                    
-
-                //var delBug = db.ChangeTracker.DebugView.LongView;
-                //await db.SaveChangesAsync();
-
-                //db.ChangeTracker.Clear();
-
-
-
                 // RE-WRITE WITH A NEW ITEM
 
                 modifyItem!.CreateUser = User!;
@@ -247,25 +232,14 @@ public class VesselCallProvider : IVesselCallProvider
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
-                //foreach (var detail in item.Details)
-                //{
-                //    detail.CreateUser = User!;
-                //    detail.CreateTime = DateTime.Now;
-
-                //    db.Entry(detail.POD!).State = EntityState.Unchanged;
-                //    if (detail.FinalDestination is not null)
-                //        db.Entry(detail.FinalDestination!).State = EntityState.Unchanged;
-
-                //    db.Entry(detail).State = EntityState.Added;
-                //    modifyItem.Details.Add(detail);
-                //}
-
-
                 // compaire a new item with an existed
                 foreach (var modifyDetail in modifyItem.Details!)
                     if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
                     {
-                        //db.Entry(modifyDetail).State = EntityState.Deleted;
+                        // check for existing ExportOrders within VesselCallDetail
+                        if (!db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == modifyDetail.Id))
+                            db.Entry(modifyDetail).State = EntityState.Deleted;
+
                         ////modifyItem.Details!.Remove(modifyDetail);
                     }
                     else
@@ -283,10 +257,6 @@ public class VesselCallProvider : IVesselCallProvider
                             db.Entry(modifyDetail.FinalDestination!).State = EntityState.Unchanged;
                         else
                             db.Entry(modifyDetail).Reference("FinalDestination").IsModified = true;
-
-
-                        //db.Entry(modifyDetail).Property("FinalDestination").IsModified = true;
-                        //db.Entry(modifyDetail).Property(s => s.FinalDestination).IsModified = true;
 
                         db.Entry(modifyDetail).State = EntityState.Modified;
                     }
@@ -424,7 +394,7 @@ public class VesselCallProvider : IVesselCallProvider
                 var db = await _db;
 
                 // check an Existing item
-                var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).Include(vcd => vcd.ExportOrders).FirstOrDefault();                
+                var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).Include(vcd => vcd.ExportOrders).FirstOrDefault();
 
                 if (existedItem is null)
                 {
@@ -434,9 +404,23 @@ public class VesselCallProvider : IVesselCallProvider
 
                 var existedExportOrders = db.ExportOrders.Where(eo => eo.VesselCallDetail!.Id == id);
 
+                //if (existedExportOrders.Count() > 0)
+                //    foreach (var exportOrder in existedItem.ExportOrders)
+                //        db.Entry(exportOrder).State = EntityState.Deleted;
+
                 if (existedExportOrders.Count() > 0)
-                    foreach (var exportOrder in existedItem.ExportOrders)
-                        db.Entry(exportOrder).State = EntityState.Deleted;
+                {
+                    appObjResponse.ErrorAdd($"");
+                    return appObjResponse;
+                }
+
+
+                if(db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == id))
+                {
+                    appObjResponse.ErrorAdd($"Vessel Call has an Export Orders issued.");
+                    return appObjResponse;
+                }
+
 
                 db.Entry(existedItem).State = EntityState.Deleted;
                 //db.Entry(db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id)).State = EntityState.Deleted;

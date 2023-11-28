@@ -58,7 +58,7 @@
 
 <div class="Container-item" style="display:flex; flex-direction:row; max-height:fit-content">
     <div class="container-content-column" style="width:250px">
-        <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
+        <MudAutocomplete Class="Autocomplete" T="string" Placeholder="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
                          Style="width: 250px"
                          Variant="Variant.Outlined" Margin="Margin.Dense"
                          CloseIcon="" OpenIcon="" MaxItems="20"
@@ -70,18 +70,18 @@
     </div>
     <div class="container-content-column" style="width:150px">
          <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
-                          Label="Voyage"
+                          Placeholder="Voyage"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           CloseIcon="" OpenIcon=""
                           ResetValueOnEmptyText="true" Clearable />
-         <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
+         <MudAutocomplete Class="Autocomplete" T="string" Placeholder="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
                           Style="width: 150px"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           CloseIcon="" OpenIcon="" MaxItems="20"
                           ResetValueOnEmptyText="true" Clearable />
     </div>
     <div class="container-content-column" style="width:270px">
-        <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
+        <MudAutocomplete Class="Autocomplete" T="string" Placeholder="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
                           Style="width: 270px"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           CloseIcon="" OpenIcon="" MaxItems="20"
@@ -297,7 +297,7 @@
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
+                    Snackbar.Add($"Unable to delete:<br>{response.Error.FirstOrDefault()}", Severity.Warning);
             }
 
         await GetItems();
@@ -317,16 +317,16 @@
         var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1) return;
 
-        //if (Items!.FirstOrDefault()!.Status == 0)
         if (Items!.Any(s => s.Status == 0))
         {
             Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
-            return;
+            await Task.Delay(100);
+            //return;
         }
 
         long vesselcallid = voyageGroup.FirstOrDefault();
 
-        await Task.Delay(100);
+        //await Task.Delay(100);
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }

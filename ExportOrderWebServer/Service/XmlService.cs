@@ -21,7 +21,7 @@ public class XmlService : IDisposable
         //string WeightFormat = "########.000";
 
         string Shippers = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
-        string Consignees = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.ConsigneeEn).Distinct().ToList()!);
+        string Consignees = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Consignee).Distinct().ToList()!);
 
         var dsCommodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.Commodity } )
                                                         .Select(g => new

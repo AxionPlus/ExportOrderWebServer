@@ -3175,7 +3175,7 @@ GROSS WEIGHT (KILOS)</Value>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.2cm</Height>
+                  <Height>0.3cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -3481,7 +3481,7 @@ GROSS WEIGHT (KILOS)</Value>
             <RepeatRowHeaders>true</RepeatRowHeaders>
             <DataSetName>dsCntrRecords</DataSetName>
             <Top>11.9cm</Top>
-            <Height>1.5cm</Height>
+            <Height>1.6cm</Height>
             <Width>19.8cm</Width>
             <ZIndex>1</ZIndex>
             <Style>
@@ -3491,7 +3491,7 @@ GROSS WEIGHT (KILOS)</Value>
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>5.27559in</Height>
+        <Height>5.31496in</Height>
         <Style>
           <Border>
             <Style>None</Style>
@@ -3545,7 +3545,7 @@ GROSS WEIGHT (KILOS)</Value>
           </Style>
         </PageHeader>
         <PageFooter>
-          <Height>6cm</Height>
+          <Height>5.7cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -3893,7 +3893,7 @@ GROSS WEIGHT (KILOS)</Value>
               </Paragraphs>
               <rd:DefaultName>Textbox39</rd:DefaultName>
               <Top>1.5cm</Top>
-              <Height>1cm</Height>
+              <Height>1.1cm</Height>
               <Width>6.8cm</Width>
               <ZIndex>8</ZIndex>
               <Style>
@@ -3936,7 +3936,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox51</rd:DefaultName>
-              <Top>2.5cm</Top>
+              <Top>2.6cm</Top>
               <Height>1.1cm</Height>
               <Width>6.8cm</Width>
               <ZIndex>9</ZIndex>
@@ -3979,7 +3979,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox1</rd:DefaultName>
-              <Top>3.6cm</Top>
+              <Top>3.7cm</Top>
               <Height>2cm</Height>
               <Width>6.8cm</Width>
               <ZIndex>10</ZIndex>
@@ -4035,7 +4035,7 @@ GROSS WEIGHT (KILOS)</Value>
               </Paragraphs>
               <rd:DefaultName>Textbox51</rd:DefaultName>
               <Left>6.8cm</Left>
-              <Height>2.5cm</Height>
+              <Height>2.6cm</Height>
               <Width>13cm</Width>
               <ZIndex>11</ZIndex>
               <Style>
@@ -4076,7 +4076,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox14</rd:DefaultName>
-              <Top>2.5cm</Top>
+              <Top>2.6cm</Top>
               <Left>6.8cm</Left>
               <Height>1.1cm</Height>
               <Width>6cm</Width>
@@ -4127,7 +4127,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox22</rd:DefaultName>
-              <Top>2.5cm</Top>
+              <Top>2.6cm</Top>
               <Left>12.8cm</Left>
               <Height>1.1cm</Height>
               <Width>7cm</Width>
@@ -4160,7 +4160,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox15</rd:DefaultName>
-              <Top>3.6cm</Top>
+              <Top>3.7cm</Top>
               <Left>6.8cm</Left>
               <Height>2cm</Height>
               <Width>6cm</Width>
@@ -4203,7 +4203,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox24</rd:DefaultName>
-              <Top>3.6cm</Top>
+              <Top>3.7cm</Top>
               <Left>12.8cm</Left>
               <Height>2cm</Height>
               <Width>7cm</Width>

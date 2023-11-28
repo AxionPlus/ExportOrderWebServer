@@ -275,13 +275,12 @@ public class ExportOrderProvider : IExportOrderProvider
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal)
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
                                                         .Include(eo => eo.Carrier)
-                                                        //.Include(eo => eo.Carrier).ThenInclude(c => c!.BlTemplate)
                                                         .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated : true)
                                                         .ToListAsync();
 
                 var ItemsDTO = eoComponentRecord(exportOrders);
 
-                //if (!string.IsNullOrEmpty(filter.Num))
+                //if (!string.IsNullOrEmpty(filter.CntrNum))
                 //    ItemsDTO = ItemsDTO.Where(s => s.Cntr == filter.CntrNum).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Num))
@@ -301,7 +300,8 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 if (filter.Status >= 0)
                     ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
-
+                else
+                    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Pending).ToList();
 
                 ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
@@ -457,8 +457,8 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 item.CreateUser = User!;
                 item.CreateTime = DateTime.Now;
-                item.Status = EntityStatus.Pending;
-                item.VesselCallDetail!.Status = EntityStatus.Pending;   // added
+                item.Status = EntityStatus.New;
+                //item.VesselCallDetail!.Status = EntityStatus.Pending;   // added
 
                 db.Entry(item).State = EntityState.Added;
 
@@ -923,7 +923,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 POD = record.VesselCallDetail!.POD!.Name!,
                 Carrier = record.Carrier!.NameEn,
                 Status = record.Status,
-                blTemplate = record.Carrier!.BlTemplate,
+                BlTemplate = record.Carrier!.BlTemplate,
                 CreateTime = record.CreateTime,
             };
 

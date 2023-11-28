@@ -19,7 +19,7 @@
             </div>
             <MudSpacer />
             <div class="ToolBar-Title">
-                <span>@($"Export Order: \t {Header}")</span>
+                <span>Export Order</span>
             </div>
             <MudSpacer />
             @if (IsFormReadOnly)
@@ -78,7 +78,6 @@
     private ExportOrderEntity? Item { get; set; }
     public bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
-    private string? Header { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -118,7 +117,6 @@
             if (!response.HasError)
             {
                 Item = (ExportOrderEntity)response.Object!;
-                Header = Item!.Status!.ToString();
             }
         }
     }

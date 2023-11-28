@@ -19,7 +19,8 @@ public class ExportOrderRecord
     [Required]
     public string Seal { get; set; }        // change to string? and delete [Required]
 
-    public IList<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
+    //public IList<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
+    public List<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
     [JsonIgnore]
     public ExportOrderEntity ExportOrder { get; set; }
 

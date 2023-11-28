@@ -296,7 +296,7 @@
                     </MudTh>
                     <MudTh Style="width:35px">
                         <MudTooltip Text="delete All records">
-                            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" Size="Size.Small" Disabled
+                            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" Size="Size.Small" Disabled="IsFormReadOnly"
                                            OnClick="@(async ()=>{ await RemoveAllContainerRecords(Value.Records);})" />
                         </MudTooltip>
                     </MudTh>
@@ -542,16 +542,21 @@
         {
             foreach (var item in SelectedDocumentValues)
             {
+                //List<ContainerContent> contents = Value!.Records.SelectMany(eor => eor.Contents.Where(co => co.DocumentRecord.Document.Id == item.Id)).ToList();
+
+                var records = Value!.Records.Where(eor => eor.Contents.Any(co => co.DocumentRecord.Document.Id == item.Id)).ToList();
+
+                foreach (var record in records)
+                    if (record.Contents.Count() == 1)
+                        Value.Records.Remove(record);
+                    else
+                    {
+                        var content = record.Contents.Single(co => co.DocumentRecord.Document.Id == item.Id);
+                        record.Contents.Remove(content);
+                    }
+
                 DocumentItems.Remove(item);
                 Value!.Documents!.Remove(item);
-
-                //var records = new List<ExportOrderRecord>();
-                //foreach (var content )
-                //var records = Value.Records.Where(er => er.Contents.Select(co => co.DocumentRecord.Document.Id) is not null);
-                var records = Value.Records.Where(er => er.Contents.Where(co => co.DocumentRecord.Document.Id == item.Id) is not null);
-
-                foreach (var record in records )
-                    Value.Records.Remove(record);
             }
 
             SelectedDocumentValues.Clear();
@@ -624,11 +629,10 @@
                  (MarkupString)$"<b>Do you want to remove all records?<b>",
                  yesText: "REMOVE", cancelText: "NO");
 
-        if (!result.HasValue) return;
-
-        if (result.Value)
-            foreach (var record in records)
-                Value!.Records!.Remove(record);
+        if (!result.HasValue)
+            return;
+        else
+            Value!.Records.RemoveRange(0, Value.Records.Count());
 
         await InvokeAsync(StateHasChanged);
     }

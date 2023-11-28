@@ -16,6 +16,6 @@ public class ExportOrderComponentDTO
     public string? POD { get; set; }    
     public string? Carrier { get; set; }
     public EntityStatus Status { get; set; }
-    public BLTemplate blTemplate { get; set; }
+    public BLTemplate BlTemplate { get; set; }
     public DateTime? CreateTime { get; set; }
 }

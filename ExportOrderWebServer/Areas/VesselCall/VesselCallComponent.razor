@@ -25,21 +25,34 @@
         width: 22px;
     }
 
+    /* NEW */
+    .mud-icon-button-edge-margin-end {
+        margin-right: 2px;
+        margin-inline-end: 2px;
+        margin-inline-start: unset;
+    }
+
+    .mud-select * .mud-input-label-outlined.mud-input-label-margin-dense {
+        transform: translate(4px,8px) scale(1);
+    }
+
+    .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: unset;
+    }
+
+    .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
+        padding: 8px;
+    }
+
+    .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 12px;
+    }
+
+
     .Container-table .tableMenu .mud-table-cell{
         padding:unset;
     }
 
-    /*     .Container-item > .container-content > .container-content-column {
-            display:flex;
-        } */
-
-/*     .Table.MultiSelection * table tr > th:first-child {
-        width: 38px;
-    } */
-
-/*     .Table.MultiSelection * table tr > th:nth-child(2n+1){
-        width: 180px;
-    } */
  </style>
 
 
@@ -75,7 +88,7 @@
                           ResetValueOnEmptyText="true" Clearable />
         <div style="width:270px; display:flex; flex-direction:row">
            <MudDatePicker Class="wrapper-input-date" Label="From" @bind-Date="Filter.ETA"
-                          Style="width: 130px; height: 40px;"
+                          Style="width: 130px;"
                           DateFormat="dd.MM.yy"
                           ShowWeekNumbers="true"
                           Variant="Variant.Outlined"
@@ -84,7 +97,7 @@
                           DisableToolbar=false Clearable />
            <div style="width:10px"></div>
            <MudDatePicker Class="wrapper-input-date" Label="To" @bind-Date="Filter.ETS"
-                          Style="width: 130px; height: 40px;"
+                          Style="width: 130px;"
                           DateFormat="dd.MM.yy"
                           ShowWeekNumbers="true"
                           Variant="Variant.Outlined"
@@ -95,10 +108,10 @@
     </div>
     <div class="container-content-column" style="width:120px">
        <div class="wrapper-input-select">
-           <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="@Filter.Status"
-                       ToStringFunc="@(str=>str.ToString())"
-                       Variant="Variant.Outlined" Margin="Margin.Dense">
-               @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+           <MudSelect Class="wrapper-input" T="EntityStatus?" Style="width:120px" Label="Status" @bind-Value="@Filter.Status"
+                       ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
+                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
+               @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
                {
                    <MudSelectItem Value="@status" />
                }

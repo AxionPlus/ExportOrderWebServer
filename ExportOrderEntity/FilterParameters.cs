@@ -7,7 +7,7 @@ namespace ExportOrderEntites;
 [Keyless]
 public class FilterParameters
 {
-    public EntityStatus Status { get; set; } = EntityStatus.Pending;
+    public EntityStatus? Status { get; set; }// = EntityStatus.New;
     public string? Num { get; set; }
     public string? Name { get; set; }
     public string? NameEn { get; set; }

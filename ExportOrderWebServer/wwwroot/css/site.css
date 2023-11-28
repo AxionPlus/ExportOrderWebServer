@@ -177,9 +177,10 @@ body {
 /*.Table {
 }*/
 
-    .Table * thead {
-        background-color: var(--tableThead);
-    }
+.Table * thead {
+    /*background-color: var(--tableThead);*/
+    background-color: lightblue;
+}
 
     .Table .mud-table-root .mud-table-head .mud-table-cell {
         color: var(--mud-palette-text-primary);
@@ -334,6 +335,10 @@ body {
 .wrapper-input {
 }
 
+/*    .mud-select * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
+        padding-inline-start: 4px;
+    }*/
+
     .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
         padding-top: 5px;
         padding-bottom: 4px;
@@ -379,15 +384,14 @@ body {
     }
 
         .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
-            margin-right: -3px;
-            margin-inline-end: 3px;
+            /*margin-right: -3px;*/
+            /*margin-inline-end: 3px;*/
             margin-inline-start: unset;
-            /*margin-top: 4px;*/
-            margin-top: 2px;
+            /*margin-top: 2px;*/
         }
 
     .wrapper-input * .mud-icon-size-small {
-        color: red;
+        color: red;        
         font-size: 1rem;
     }
 
@@ -402,13 +406,6 @@ body {
 
     .wrapper-input * .mud-input-adornment .mud-icon-button-edge-end {
         margin-inline-end: 3px
-    }
-
-    .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
-        margin-right: -3px;
-        margin-inline-end: 3px;
-        margin-inline-start: unset;
-        margin-top: 4px;
     }
 
     .wrapper-input.NoHeader .mud-input-control {

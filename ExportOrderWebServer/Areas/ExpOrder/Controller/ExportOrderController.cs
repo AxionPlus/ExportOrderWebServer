@@ -106,7 +106,6 @@ public class ExportOrderController : ControllerBase
     [Route("ViewReportBL")]
     public async Task<IActionResult> BLReport(long Id)
     {
-        //var Item = await _exportOrderProvider.GetItemDTOAsync(Id);
         var Item = await _exportOrderProvider.GetBLDTOAsync(Id);
 
         string fileName = "BL" + Item.BLtemplate + ".rdlc";
@@ -295,31 +294,9 @@ public class ExportOrderController : ControllerBase
                 }
 
                 if (upperBound > 0)
-                    for (int i = 0; i < upperBound; i++)
-                        Records.Add(new() { Seq = (uint)i + 1, CntrTareWt = null, GrossWt = null });
-
-                //if (recCount < upperBound)
-                //    for (int i = recCount; i < upperBound; i++)
-                //        Records.Add(new() { Seq = (uint)i + 1, CntrTareWt = null, GrossWt = null });
+                    for (int i = recCount + 1; i <= upperBound; i++)
+                        Records.Add(new() { Seq = (uint)i, CntrTareWt = null, GrossWt = null });
             }
-
-            //var dsCntrRecords = Records.GroupBy(r => r.Seq)
-            //                                .Select(g => new
-            //                                {
-            //                                    //Seq = g.Select(gr => gr.Seq).FirstOrDefault()!,
-            //                                    g.FirstOrDefault()!.Seq,
-            //                                    g.FirstOrDefault()!.Cntr,
-            //                                    g.FirstOrDefault()!.CntrType,
-            //                                    Seal = g.Select(gr => gr.Seal).FirstOrDefault()! != string.Empty ? g.Select(gr => gr.Seal).FirstOrDefault()! : "N/A",
-            //                                    g.FirstOrDefault()!.CntrTareWt,
-            //                                    PackageQty = (uint)g.Sum(gr => gr.PackageQty)!,
-            //                                    PackageName = string.Join(", ", g.Select(gr => gr.PackageName).Distinct()),
-            //                                    GrossWt = g.Sum(gr => gr.GrossWt),
-            //                                    Volume = g.Sum(gr => gr.Volume),
-            //                                    CommodityEn = string.Join("; ", g.FirstOrDefault()!.CommodityEn).Distinct()
-            //                                })
-            //                                .ToList();
-
 
             #region OLD список контейнеров
             //var dsCntrRecords = Records.Select(r => new
@@ -343,9 +320,6 @@ public class ExportOrderController : ControllerBase
             #endregion
 
             ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
-
-            //parameters
-            //await Task.Delay(500);
 
             return File(result.MainStream, "application/pdf");
 

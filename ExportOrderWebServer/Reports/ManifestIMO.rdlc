@@ -454,7 +454,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!BLDate.Value</Value>
+                                  <Value />
                                   <Style>
                                     <FontFamily>Consolas</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -4395,7 +4395,6 @@ WT (KGS)</Value>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0cm</Top>
               <Left>20cm</Left>
               <Height>0.45cm</Height>
               <Width>8cm</Width>

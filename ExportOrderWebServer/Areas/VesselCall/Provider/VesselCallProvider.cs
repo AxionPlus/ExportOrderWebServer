@@ -140,29 +140,34 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .AsSplitQuery()
                                                     .ToListAsync();
                 
-                var vesselCallsDTO = vcRecords(vesselCalls);
+                var vesselCallDetailsDTO = vcRecords(vesselCalls);
 
                 if (!string.IsNullOrEmpty(filter.Vessel))
-                    vesselCallsDTO = vesselCallsDTO.Where(s => s.VesselName == filter.Vessel).ToList();
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.VesselName == filter.Vessel).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Voyage))
-                    vesselCallsDTO = vesselCallsDTO.Where(s => s.VoyageNo == filter.Voyage).ToList();
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.VoyageNo == filter.Voyage).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Terminal))
-                    vesselCallsDTO = vesselCallsDTO.Where(s => s.Terminal == filter.Terminal).ToList();
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Terminal == filter.Terminal).ToList();
 
                 if (!string.IsNullOrEmpty(filter.POD))
-                    vesselCallsDTO = vesselCallsDTO.Where(s => s.POD == filter.POD).ToList();
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.POD == filter.POD).ToList();
+
+                if (filter.Status >= 0)
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == filter.Status).ToList();
+                else
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Pending).ToList();
 
                 //if (!string.IsNullOrEmpty(filter.Carrier))
-                //    vesselCallsDTO = vesselCallsDTO.Where(s => s.CarrierName == filter.Carrier).ToList();
+                //    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.CarrierName == filter.Carrier).ToList();
 
-                vesselCallsDTO = vesselCallsDTO.OrderByDescending(s => s.CreateTime);
+                vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);
 
                 if (!string.IsNullOrEmpty(filter.Voyage))
-                    vesselCallsDTO = vesselCallsDTO.OrderBy(s => s.CreateTime);
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.OrderBy(s => s.CreateTime);
 
-                appObjResponse.Object = vesselCallsDTO.ToArray();
+                appObjResponse.Object = vesselCallDetailsDTO.ToArray();
             }            
 
             return appObjResponse;

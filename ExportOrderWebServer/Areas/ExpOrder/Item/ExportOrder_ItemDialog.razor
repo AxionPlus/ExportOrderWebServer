@@ -64,7 +64,7 @@
         </MudToolBar>
     </div>
 
-    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
+    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly" >
         @if (Item != null)
         {
             <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" />
@@ -73,6 +73,7 @@
 
 </MudContainer>
 
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     private MudForm? Form;
@@ -85,8 +86,8 @@
 
     private ExportOrderEntity? Item { get; set; }
     public bool IsFormReadOnly { get; set; } = true;
+    public bool IsLoadingData { get; set; } = false;
     private bool IsAuth = false;
-    private string? Header { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -122,9 +123,11 @@
 
     public async Task SaveItem()
     {
+        IsLoadingData = true;
         await Form!.Validate();
 
         if (Form.IsValid)
+        {
             if (IsNewItem)
             {
                 var response = await _exportOrderProvider.NewItemAsync(Item!);
@@ -133,6 +136,7 @@
                 else
                 {
                     Snackbar.Add("No Success", Severity.Error);
+                    IsLoadingData = false;
                     return;
                 }                
             }
@@ -144,23 +148,27 @@
                 else
                 {
                     Snackbar.Add("Not Successed", Severity.Error);
+                    IsLoadingData = false;
                     return;
                 }               
             }
+        }
         else
         {
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
+            IsLoadingData = false;
             return;
-        }
-        
-        IsNewItem = false;
-        IsFormReadOnly = true;
+        }        
 
+        IsNewItem = false;
         Id = Item!.Id;
 
         await GetItem();
 
-        await Task.Delay(1000);
+        await Task.Delay(500);
+
+        IsLoadingData = false;
+        IsFormReadOnly = true;
     }
 
     public async Task EditItem()

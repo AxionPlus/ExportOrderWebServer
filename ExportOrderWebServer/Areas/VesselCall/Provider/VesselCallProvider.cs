@@ -239,8 +239,6 @@ public class VesselCallProvider : IVesselCallProvider
                         // check for existing ExportOrders within VesselCallDetail
                         if (!db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == modifyDetail.Id))
                             db.Entry(modifyDetail).State = EntityState.Deleted;
-
-                        ////modifyItem.Details!.Remove(modifyDetail);
                     }
                     else
                     {

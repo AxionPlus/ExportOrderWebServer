@@ -1669,6 +1669,7 @@
             </TablixMember>
           </TablixMembers>
         </TablixRowHierarchy>
+        <KeepTogether>true</KeepTogether>
         <DataSetName>dsLetter</DataSetName>
         <Top>17.1cm</Top>
         <Height>3.7cm</Height>

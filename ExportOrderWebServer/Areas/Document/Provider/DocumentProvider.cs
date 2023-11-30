@@ -167,12 +167,20 @@ public class DocumentProvider : IDocumentProvider
                     }
 
                 // compaire existed item with new
-                foreach (var itemRecord in item.Records)
-                    if (!modifyItem.Records.Any(s => s.Id == itemRecord.Id))
-                    {
-                        db.Entry(itemRecord).State = EntityState.Added;
-                        modifyItem.Records.Add(itemRecord);
-                    }
+                //foreach (var itemRecord in item.Records)
+                //    if (!modifyItem.Records.Any(s => s.Id == itemRecord.Id))
+                //    {
+                //        db.Entry(itemRecord).State = EntityState.Added;
+                //        modifyItem.Records.Add(itemRecord);
+                //    }
+
+
+                // add a new records wich Id == 0 
+                foreach (var itemRecord in item.Records.Where(dr => dr.Id == 0))
+                {
+                    db.Entry(itemRecord).State = EntityState.Added;
+                    modifyItem.Records.Add(itemRecord);
+                }
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 

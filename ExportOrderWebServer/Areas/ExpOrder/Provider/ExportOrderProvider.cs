@@ -538,8 +538,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 var Result = await db.Set<ExportOrderRecord>()
                                                               //.Include(eor => eor.ExportOrder)
                                                               .Include(eor => eor.CntrType)
-                                                              .Include(eor => eor.Contents)
-                                                                  .ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)//.ThenInclude(doc => doc.Records)
+                                                              .Include(eor => eor.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
                                                               .AsNoTracking()
                                                               .FirstOrDefaultAsync(s => s.Id == id);
 
@@ -563,6 +562,38 @@ public class ExportOrderProvider : IExportOrderProvider
         return appObjResponse;
     }
 
+    public async Task<AppObjectResponse> IsExistRecordItemAsync(string recordItemName)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var vesselCall = await db.VesselCalls
+                            .Include(vc => vc.Details)
+                            .ThenInclude(d => d.ExportOrders)
+                            .ThenInclude(eo => eo.Records)
+                            .SelectMany(vc => vc.Details.SelectMany(vcd => vcd.ExportOrders.SelectMany(eo => eo.Records.Select(eor => eor.CntrNum))))
+                            .ToListAsync();
+
+                bool IsExist = vesselCall.Any(cntr => cntr == recordItemName);
+
+                if (IsExist) appObjResponse.ErrorAdd($"Container is exist already: {recordItemName}");
+
+                return appObjResponse;
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
+                return appObjResponse;
+            }
+        }
+
+    }
     public async Task<AppObjectResponse> ModifyExportOrderRecordItemAsync(ExportOrderRecord item)
     {
         appObjResponse = new();
@@ -650,9 +681,11 @@ public class ExportOrderProvider : IExportOrderProvider
             eoRecordDTO.CntrTareWt = record.CntrTareWt;
             eoRecordDTO.Seal = record.Seal is not null ? record.Seal : string.Empty;
 
+            //uint indexContent = 0;
             foreach (var content in record.Contents)
             {
-                //eoRecordDTO.Seq = indexRec;
+                //eoRecordDTO.SeqContent = ++indexContent;
+                eoRecordDTO.SeqContent = content.DocumentRecord.Seq;
                 eoRecordDTO.Cntr = record.CntrNum;
 
                 eoRecordDTO.PackageQty = content.PackageQty is not null ? (uint)content.PackageQty : 0;

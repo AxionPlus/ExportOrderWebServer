@@ -4,7 +4,14 @@ public enum EntityStatus
 {
     New,
     Pending, 
-    Confirmed,
-    Expired,
+    Completed,
     Cancelled
+}
+
+public enum RecordStatus
+{
+    New,
+    Current,
+    Issued,
+    Completed
 }

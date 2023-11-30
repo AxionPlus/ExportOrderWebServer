@@ -291,7 +291,10 @@
             IsLoadingData = false;
         }
         else
+        {
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
+            IsLoadingData = false;
+        }            
     }
 
     private async Task EditItem_Click()

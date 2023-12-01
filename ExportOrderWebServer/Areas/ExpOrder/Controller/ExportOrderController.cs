@@ -375,6 +375,10 @@ public class ExportOrderController : ControllerBase
             int full40Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
                                    .Where(it => it.CntrType.Substring(0, 2) == "40")
                                    .GroupBy(it => it.Cntr).Count();
+            int full45Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+                                   .Where(it => it.CntrType.Substring(0, 2) == "45")
+                                   .GroupBy(it => it.Cntr).Count();
+
             int empty20Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
                                     .Where(it => it.CntrType.Substring(0, 2) == "20")
                                     .GroupBy(it => it.Cntr).Count();
@@ -382,9 +386,14 @@ public class ExportOrderController : ControllerBase
                                     .Where(it => it.CntrType.Substring(0, 2) == "40")
                                     .GroupBy(it => it.Cntr).Count();
 
+            int empty45Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                    .Where(it => it.CntrType.Substring(0, 2) == "45")
+                                    .GroupBy(it => it.Cntr).Count();
+
             // Sum Full
             var full20weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWeights);
             var full40weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWeights);
+            var full45weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "45").Sum(c => c.GrossWeights);
 
             // Sum Tare
             var full20Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
@@ -393,19 +402,26 @@ public class ExportOrderController : ControllerBase
             var full40Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
                                   .Where(it => it.CntrType.Substring(0, 2) == "40")
                                   .Sum(c => c.CntrTareWt);
+            var full45Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+                                  .Where(it => it.CntrType.Substring(0, 2) == "45")
+                                  .Sum(c => c.CntrTareWt);
             var empty20Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
                                    .Where(it => it.CntrType.Substring(0, 2) == "20")
                                    .Sum(c => c.CntrTareWt);
             var empty40Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
                                    .Where(it => it.CntrType.Substring(0, 2) == "40")
                                    .Sum(c => c.CntrTareWt);
+            var empty45Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                   .Where(it => it.CntrType.Substring(0, 2) == "45")
+                                   .Sum(c => c.CntrTareWt);
 
             // Total
             var total20 = (double)full20weight! + full20Tare;
             var total40 = (double)full40weight! + full40Tare;
+            var total45 = (double)full45weight! + full45Tare;
 
-            var totalCntrs = full20Count + full40Count + empty20Count + empty40Count;
-            var totalWeight = (double)full20weight + (double)full40weight;
+            var totalCntrs = full20Count + full40Count + full45Count + empty20Count + empty40Count + empty45Count;
+            var totalWeight = (double)full20weight + (double)full40weight + (double)full45weight;
             var totalTare = Items.Sum(it => it.CntrTareWt);
             var total = totalWeight + totalTare;
 
@@ -415,19 +431,25 @@ public class ExportOrderController : ControllerBase
                 {
                     Full20Count = full20Count,
                     Full40Count = full40Count,
+                    Full45Count = full45Count,
                     Empty20Count = empty20Count,
                     Empty40Count = empty40Count,
+                    Empty45Count = empty45Count,
 
                     Full20Weight = (double)full20weight,
                     Full40Weight = (double)full40weight,
+                    Full45Weight = (double)full45weight,
 
                     Full20Tare = full20Tare,
                     Full40Tare = full40Tare,
+                    Full45Tare = full45Tare,
                     Empty20Tare = empty20Tare,
                     Empty40Tare = empty40Tare,
+                    Empty45Tare = empty45Tare,
 
                     Total20 = total20,
                     Total40 = total40,
+                    Total45 = total45,
                     TotalCntrs = totalCntrs,
                     TotalWeight = totalWeight,
                     TotalTare = totalTare,

@@ -881,25 +881,37 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnFull40Count;
             
+            private global::System.Data.DataColumn columnFull45Count;
+            
             private global::System.Data.DataColumn columnEmpty20Count;
             
             private global::System.Data.DataColumn columnEmpty40Count;
+            
+            private global::System.Data.DataColumn columnEmpty45Count;
             
             private global::System.Data.DataColumn columnFull20Weight;
             
             private global::System.Data.DataColumn columnFull40Weight;
             
+            private global::System.Data.DataColumn columnFull45Weight;
+            
             private global::System.Data.DataColumn columnFull20Tare;
             
             private global::System.Data.DataColumn columnFull40Tare;
+            
+            private global::System.Data.DataColumn columnFull45Tare;
             
             private global::System.Data.DataColumn columnEmpty20Tare;
             
             private global::System.Data.DataColumn columnEmpty40Tare;
             
+            private global::System.Data.DataColumn columnEmpty45Tare;
+            
             private global::System.Data.DataColumn columnTotal20;
             
             private global::System.Data.DataColumn columnTotal40;
+            
+            private global::System.Data.DataColumn columnTotal45;
             
             private global::System.Data.DataColumn columnTotalCntrs;
             
@@ -960,6 +972,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn Full45CountColumn {
+                get {
+                    return this.columnFull45Count;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public global::System.Data.DataColumn Empty20CountColumn {
                 get {
                     return this.columnEmpty20Count;
@@ -971,6 +991,14 @@ namespace ExportOrderWebServer.DataSet {
             public global::System.Data.DataColumn Empty40CountColumn {
                 get {
                     return this.columnEmpty40Count;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn Empty45CountColumn {
+                get {
+                    return this.columnEmpty45Count;
                 }
             }
             
@@ -992,6 +1020,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn Full45WeightColumn {
+                get {
+                    return this.columnFull45Weight;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public global::System.Data.DataColumn Full20TareColumn {
                 get {
                     return this.columnFull20Tare;
@@ -1003,6 +1039,14 @@ namespace ExportOrderWebServer.DataSet {
             public global::System.Data.DataColumn Full40TareColumn {
                 get {
                     return this.columnFull40Tare;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn Full45TareColumn {
+                get {
+                    return this.columnFull45Tare;
                 }
             }
             
@@ -1024,6 +1068,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn Empty45TareColumn {
+                get {
+                    return this.columnEmpty45Tare;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public global::System.Data.DataColumn Total20Column {
                 get {
                     return this.columnTotal20;
@@ -1035,6 +1087,14 @@ namespace ExportOrderWebServer.DataSet {
             public global::System.Data.DataColumn Total40Column {
                 get {
                     return this.columnTotal40;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn Total45Column {
+                get {
+                    return this.columnTotal45;
                 }
             }
             
@@ -1110,16 +1170,22 @@ namespace ExportOrderWebServer.DataSet {
             public dtSummaryRow AdddtSummaryRow(
                         int Full20Count, 
                         int Full40Count, 
+                        int Full45Count, 
                         int Empty20Count, 
                         int Empty40Count, 
+                        int Empty45Count, 
                         double Full20Weight, 
                         double Full40Weight, 
+                        double Full45Weight, 
                         double Full20Tare, 
                         double Full40Tare, 
+                        double Full45Tare, 
                         double Empty20Tare, 
                         double Empty40Tare, 
+                        double Empty45Tare, 
                         double Total20, 
                         double Total40, 
+                        double Total45, 
                         int TotalCntrs, 
                         double TotalWeight, 
                         double TotalTare, 
@@ -1128,16 +1194,22 @@ namespace ExportOrderWebServer.DataSet {
                 object[] columnValuesArray = new object[] {
                         Full20Count,
                         Full40Count,
+                        Full45Count,
                         Empty20Count,
                         Empty40Count,
+                        Empty45Count,
                         Full20Weight,
                         Full40Weight,
+                        Full45Weight,
                         Full20Tare,
                         Full40Tare,
+                        Full45Tare,
                         Empty20Tare,
                         Empty40Tare,
+                        Empty45Tare,
                         Total20,
                         Total40,
+                        Total45,
                         TotalCntrs,
                         TotalWeight,
                         TotalTare,
@@ -1166,16 +1238,22 @@ namespace ExportOrderWebServer.DataSet {
             internal void InitVars() {
                 this.columnFull20Count = base.Columns["Full20Count"];
                 this.columnFull40Count = base.Columns["Full40Count"];
+                this.columnFull45Count = base.Columns["Full45Count"];
                 this.columnEmpty20Count = base.Columns["Empty20Count"];
                 this.columnEmpty40Count = base.Columns["Empty40Count"];
+                this.columnEmpty45Count = base.Columns["Empty45Count"];
                 this.columnFull20Weight = base.Columns["Full20Weight"];
                 this.columnFull40Weight = base.Columns["Full40Weight"];
+                this.columnFull45Weight = base.Columns["Full45Weight"];
                 this.columnFull20Tare = base.Columns["Full20Tare"];
                 this.columnFull40Tare = base.Columns["Full40Tare"];
+                this.columnFull45Tare = base.Columns["Full45Tare"];
                 this.columnEmpty20Tare = base.Columns["Empty20Tare"];
                 this.columnEmpty40Tare = base.Columns["Empty40Tare"];
+                this.columnEmpty45Tare = base.Columns["Empty45Tare"];
                 this.columnTotal20 = base.Columns["Total20"];
                 this.columnTotal40 = base.Columns["Total40"];
+                this.columnTotal45 = base.Columns["Total45"];
                 this.columnTotalCntrs = base.Columns["TotalCntrs"];
                 this.columnTotalWeight = base.Columns["TotalWeight"];
                 this.columnTotalTare = base.Columns["TotalTare"];
@@ -1189,26 +1267,38 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnFull20Count);
                 this.columnFull40Count = new global::System.Data.DataColumn("Full40Count", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnFull40Count);
+                this.columnFull45Count = new global::System.Data.DataColumn("Full45Count", typeof(int), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnFull45Count);
                 this.columnEmpty20Count = new global::System.Data.DataColumn("Empty20Count", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnEmpty20Count);
                 this.columnEmpty40Count = new global::System.Data.DataColumn("Empty40Count", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnEmpty40Count);
+                this.columnEmpty45Count = new global::System.Data.DataColumn("Empty45Count", typeof(int), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnEmpty45Count);
                 this.columnFull20Weight = new global::System.Data.DataColumn("Full20Weight", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnFull20Weight);
                 this.columnFull40Weight = new global::System.Data.DataColumn("Full40Weight", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnFull40Weight);
+                this.columnFull45Weight = new global::System.Data.DataColumn("Full45Weight", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnFull45Weight);
                 this.columnFull20Tare = new global::System.Data.DataColumn("Full20Tare", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnFull20Tare);
                 this.columnFull40Tare = new global::System.Data.DataColumn("Full40Tare", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnFull40Tare);
+                this.columnFull45Tare = new global::System.Data.DataColumn("Full45Tare", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnFull45Tare);
                 this.columnEmpty20Tare = new global::System.Data.DataColumn("Empty20Tare", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnEmpty20Tare);
                 this.columnEmpty40Tare = new global::System.Data.DataColumn("Empty40Tare", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnEmpty40Tare);
+                this.columnEmpty45Tare = new global::System.Data.DataColumn("Empty45Tare", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnEmpty45Tare);
                 this.columnTotal20 = new global::System.Data.DataColumn("Total20", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTotal20);
                 this.columnTotal40 = new global::System.Data.DataColumn("Total40", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTotal40);
+                this.columnTotal45 = new global::System.Data.DataColumn("Total45", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnTotal45);
                 this.columnTotalCntrs = new global::System.Data.DataColumn("TotalCntrs", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTotalCntrs);
                 this.columnTotalWeight = new global::System.Data.DataColumn("TotalWeight", typeof(double), null, global::System.Data.MappingType.Element);
@@ -2024,6 +2114,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public int Full45Count {
+                get {
+                    try {
+                        return ((int)(this[this.tabledtSummary.Full45CountColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Full45Count\' в таблице \'dtSummary\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtSummary.Full45CountColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public int Empty20Count {
                 get {
                     try {
@@ -2051,6 +2157,22 @@ namespace ExportOrderWebServer.DataSet {
                 }
                 set {
                     this[this.tabledtSummary.Empty40CountColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public int Empty45Count {
+                get {
+                    try {
+                        return ((int)(this[this.tabledtSummary.Empty45CountColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Empty45Count\' в таблице \'dtSummary\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtSummary.Empty45CountColumn] = value;
                 }
             }
             
@@ -2088,6 +2210,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public double Full45Weight {
+                get {
+                    try {
+                        return ((double)(this[this.tabledtSummary.Full45WeightColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Full45Weight\' в таблице \'dtSummary\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtSummary.Full45WeightColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public double Full20Tare {
                 get {
                     try {
@@ -2115,6 +2253,22 @@ namespace ExportOrderWebServer.DataSet {
                 }
                 set {
                     this[this.tabledtSummary.Full40TareColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public double Full45Tare {
+                get {
+                    try {
+                        return ((double)(this[this.tabledtSummary.Full45TareColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Full45Tare\' в таблице \'dtSummary\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtSummary.Full45TareColumn] = value;
                 }
             }
             
@@ -2152,6 +2306,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public double Empty45Tare {
+                get {
+                    try {
+                        return ((double)(this[this.tabledtSummary.Empty45TareColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Empty45Tare\' в таблице \'dtSummary\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtSummary.Empty45TareColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public double Total20 {
                 get {
                     try {
@@ -2179,6 +2349,22 @@ namespace ExportOrderWebServer.DataSet {
                 }
                 set {
                     this[this.tabledtSummary.Total40Column] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public double Total45 {
+                get {
+                    try {
+                        return ((double)(this[this.tabledtSummary.Total45Column]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'Total45\' в таблице \'dtSummary\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtSummary.Total45Column] = value;
                 }
             }
             
@@ -2272,6 +2458,18 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsFull45CountNull() {
+                return this.IsNull(this.tabledtSummary.Full45CountColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetFull45CountNull() {
+                this[this.tabledtSummary.Full45CountColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsEmpty20CountNull() {
                 return this.IsNull(this.tabledtSummary.Empty20CountColumn);
             }
@@ -2292,6 +2490,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetEmpty40CountNull() {
                 this[this.tabledtSummary.Empty40CountColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsEmpty45CountNull() {
+                return this.IsNull(this.tabledtSummary.Empty45CountColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetEmpty45CountNull() {
+                this[this.tabledtSummary.Empty45CountColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -2320,6 +2530,18 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsFull45WeightNull() {
+                return this.IsNull(this.tabledtSummary.Full45WeightColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetFull45WeightNull() {
+                this[this.tabledtSummary.Full45WeightColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsFull20TareNull() {
                 return this.IsNull(this.tabledtSummary.Full20TareColumn);
             }
@@ -2340,6 +2562,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetFull40TareNull() {
                 this[this.tabledtSummary.Full40TareColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsFull45TareNull() {
+                return this.IsNull(this.tabledtSummary.Full45TareColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetFull45TareNull() {
+                this[this.tabledtSummary.Full45TareColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -2368,6 +2602,18 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsEmpty45TareNull() {
+                return this.IsNull(this.tabledtSummary.Empty45TareColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetEmpty45TareNull() {
+                this[this.tabledtSummary.Empty45TareColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsTotal20Null() {
                 return this.IsNull(this.tabledtSummary.Total20Column);
             }
@@ -2388,6 +2634,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetTotal40Null() {
                 this[this.tabledtSummary.Total40Column] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsTotal45Null() {
+                return this.IsNull(this.tabledtSummary.Total45Column);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetTotal45Null() {
+                this[this.tabledtSummary.Total45Column] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

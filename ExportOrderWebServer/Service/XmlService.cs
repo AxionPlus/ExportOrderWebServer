@@ -102,8 +102,8 @@ public class XmlService : IDisposable
                     xml.WriteElementString("GoodsCode", commodity.HScode);
                     xml.WriteElementString("GTDID", commodity.DocumentName);
                     xml.WriteElementString("GoodsDescription", commodity.Commodity);
-                    xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWt!.Value.ToString("#########.###", CultureInfo.GetCultureInfo("en-US")));
-                    xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWt!.Value.ToString("#########.###", CultureInfo.GetCultureInfo("en-US")));
+                    xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWt == 0 ? "0" : commodity.CommodityGrossWt!.Value.ToString("#########.###", CultureInfo.GetCultureInfo("en-US")));
+                    xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWt == 0 ? "0" : commodity.CommodityNetWt!.Value.ToString("#########.###", CultureInfo.GetCultureInfo("en-US")));
                     xml.WriteElementString("WarehouseName", Item.TerminalName);
 
                     xml.WriteStartElement("COMMISSIONSHIPMENTContainer");

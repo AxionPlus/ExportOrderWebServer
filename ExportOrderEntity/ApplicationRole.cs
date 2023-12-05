@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿namespace ExportOrderEntites;
 
-namespace ExportOrderEntites
+public class ApplicationRole : IdentityRole
 {
-    public class ApplicationRole:IdentityRole
-    {
-    }
 }

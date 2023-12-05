@@ -1,5 +1,6 @@
 ﻿
 using MudBlazor.Extensions;
+using System.Collections.Generic;
 
 public class ExportOrderProvider : IExportOrderProvider
 {
@@ -361,13 +362,14 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 // DELETE AN EXISTED modifyItem
 
-                foreach (var modifyRecord in modifyItem.Records)
-                {
-                    foreach (var modifyContent in modifyRecord.Contents)
-                        db.Entry(modifyContent).State = EntityState.Deleted;
+                if (modifyItem.Records.Count() > 0)
+                    foreach (var modifyRecord in modifyItem.Records)
+                    {
+                        foreach (var modifyContent in modifyRecord.Contents)
+                            db.Entry(modifyContent).State = EntityState.Deleted;
 
-                    db.Entry(modifyRecord).State = EntityState.Deleted;
-                }                    
+                        db.Entry(modifyRecord).State = EntityState.Deleted;
+                    }                    
 
                 //foreach (var modifyDocument in modifyItem.Documents)
                 //    db.Entry(modifyDocument).State = EntityState.Deleted;
@@ -836,7 +838,12 @@ public class ExportOrderProvider : IExportOrderProvider
 
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<ManifestDTO>> mRecords = (exportOrders) =>
     {
-        var ItemsDTO = new List<ManifestDTO>();        
+        var ItemsDTO = new List<ManifestDTO>();
+
+        try
+        {
+
+        
 
         foreach (var Item in exportOrders)
         {
@@ -938,6 +945,12 @@ public class ExportOrderProvider : IExportOrderProvider
         }
 
         return ItemsDTO;
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return Enumerable.Empty<ManifestDTO>();
+        }
     };
 
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<ExportOrderComponentDTO>> eoComponentRecord = (Records) =>

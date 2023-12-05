@@ -1,9 +1,6 @@
-using ExportOrderWebServer.Areas.Customs.Provider;
-using ExportOrderWebServer.Areas.MyCompany.Provider;
+using ExportOrderWebServer;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,10 +11,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString,
-          optionsBuilder => optionsBuilder.MigrationsAssembly("ExportOrderWebServer")));
+                        optionsBuilder => optionsBuilder.MigrationsAssembly("ExportOrderWebServer")));
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString), ServiceLifetime.Transient);
+                                                            options.UseNpgsql(connectionString), ServiceLifetime.Transient);
 
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 //                .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -38,11 +35,17 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
 });
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddScoped<TokenProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
+builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+builder.Services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJwtBearer(x =>
+    {
+        // options
+    });
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
-
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddHttpClient();
 builder.Services.AddMudServices();
 
@@ -68,7 +71,6 @@ if (!app.Environment.IsDevelopment())
     builder.WebHost.UseUrls(new[] { "http://0.0.0.0:7070" });
 }
 
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -78,8 +80,6 @@ else
 {
     app.UseExceptionHandler("/Error");
 }
-
-
 
 
 app.UseStaticFiles();

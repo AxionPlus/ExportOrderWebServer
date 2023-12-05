@@ -80,7 +80,7 @@ public class TerminalProvider : ITerminalProvider
             {
                 //var originalItem = await db.Terminals.Include(s => s.Customs).Include(s => s.Location).FirstOrDefaultAsync(s => s.Id == item.Id);
 
-                var modifyItem = await db.Terminals.Include(s => s.Customs).Include(s => s.Location).FirstOrDefaultAsync(s => s.Id == item.Id);
+                var modifyItem = await db.Terminals.Include(s => s.Customs).Include(s => s.Location).AsNoTracking().FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem!.Name != item.Name)
                 {
@@ -98,27 +98,23 @@ public class TerminalProvider : ITerminalProvider
                 modifyItem!.CreateUser = User!;
                 modifyItem!.CreateTime = DateTime.Now;
                 modifyItem!.Name = item.Name;
+                modifyItem.Location = item.Location!;
+                modifyItem.Customs = item.Customs!;
 
-                if (item.Location is not null)
-                    modifyItem.Location = item.Location!;
+                db.Entry(modifyItem.Location).State = EntityState.Unchanged;
+                db.Entry(modifyItem.Customs).State = EntityState.Unchanged;
 
-                if (item.Customs is not null)
-                    modifyItem.Customs = item.Customs!;
+                //if (modifyItem!.Location != null)
+                //    db.Entry(modifyItem.Location).State = EntityState.Unchanged;
+                //else
+                //    db.Entry(modifyItem).Reference("Location").IsModified = true;
 
+                //if (modifyItem!.Customs != null)
+                //    db.Entry(modifyItem.Customs).State = EntityState.Unchanged;
+                //else
+                //    db.Entry(modifyItem).Reference("Customs").IsModified = true;
 
-                //if (!modifyItem!.Location!.Id.Equals(item.Location!.Id))
-                //    modifyItem!.Location = item.Location;
-
-                //if (modifyItem.Customs is not null && item.Customs is not null)
-                //    if (!modifyItem.Customs.Id.Equals(item.Customs!.Id))
-                //        modifyItem!.Customs = item.Customs;
-
-                //if (modifyItem.Customs is not null && item.Customs is null)
-                //    modifyItem!.Customs = item.Customs;
-
-                //if (modifyItem.Customs is null && item.Customs is not null)
-                //    modifyItem!.Customs = item.Customs;
-
+                
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
                 db.Entry(modifyItem).State = EntityState.Modified;

@@ -369,13 +369,23 @@ public class ExportOrderController : ControllerBase
             #region DATA SOURCES
 
             // Count
-            int full20Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            //int full20Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            //                       .Where(it => it.CntrType.Substring(0, 2) == "20")
+            //                       .GroupBy(it => it.Cntr).Count();
+            //int full40Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            //                       .Where(it => it.CntrType.Substring(0, 2) == "40")
+            //                       .GroupBy(it => it.Cntr).Count();
+            //int full45Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            //                       .Where(it => it.CntrType.Substring(0, 2) == "45")
+            //                       .GroupBy(it => it.Cntr).Count();
+
+            int full20Count = Items.Where(it => it.GrossWeights > 0)
                                    .Where(it => it.CntrType.Substring(0, 2) == "20")
                                    .GroupBy(it => it.Cntr).Count();
-            int full40Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            int full40Count = Items.Where(it => it.GrossWeights > 0)
                                    .Where(it => it.CntrType.Substring(0, 2) == "40")
                                    .GroupBy(it => it.Cntr).Count();
-            int full45Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            int full45Count = Items.Where(it => it.GrossWeights > 0)
                                    .Where(it => it.CntrType.Substring(0, 2) == "45")
                                    .GroupBy(it => it.Cntr).Count();
 
@@ -385,24 +395,33 @@ public class ExportOrderController : ControllerBase
             int empty40Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
                                     .Where(it => it.CntrType.Substring(0, 2) == "40")
                                     .GroupBy(it => it.Cntr).Count();
-
             int empty45Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
                                     .Where(it => it.CntrType.Substring(0, 2) == "45")
                                     .GroupBy(it => it.Cntr).Count();
 
-            // Sum Full
+            // Sum weights of Full
             var full20weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWeights);
             var full40weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWeights);
             var full45weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "45").Sum(c => c.GrossWeights);
 
             // Sum Tare
-            var full20Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
-                                  .Where(it => it.CntrType.Substring(0, 2) == "20")
-                                  .Sum(c => c.CntrTareWt);
-            var full40Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            //var full20Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            //                      .Where(it => it.CntrType.Substring(0, 2) == "20")
+            //                      .Sum(c => c.CntrTareWt);
+            //var full40Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            //                      .Where(it => it.CntrType.Substring(0, 2) == "40")
+            //                      .Sum(c => c.CntrTareWt);
+            //var full45Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            //                      .Where(it => it.CntrType.Substring(0, 2) == "45")
+            //                      .Sum(c => c.CntrTareWt);
+
+            var full20Tare = Items.Where(it => it.GrossWeights > 0)
+                                   .Where(it => it.CntrType.Substring(0, 2) == "20")
+                                   .Sum(c => c.CntrTareWt);
+            var full40Tare = Items.Where(it => it.GrossWeights > 0)
                                   .Where(it => it.CntrType.Substring(0, 2) == "40")
                                   .Sum(c => c.CntrTareWt);
-            var full45Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
+            var full45Tare = Items.Where(it => it.GrossWeights > 0)
                                   .Where(it => it.CntrType.Substring(0, 2) == "45")
                                   .Sum(c => c.CntrTareWt);
             var empty20Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)

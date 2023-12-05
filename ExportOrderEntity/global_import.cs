@@ -1,4 +1,6 @@
-﻿global using ExportOrderEntites.Catalog;
+﻿global using Microsoft.AspNetCore.Identity;
+
+global using ExportOrderEntites.Catalog;
 global using ExportOrderEntites.Cntr;
 global using ExportOrderEntites.ExportOrder;
 global using ExportOrderEntites.Document;

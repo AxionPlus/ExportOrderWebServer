@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace ExportOrderEntites;
+﻿namespace ExportOrderEntites;
 
 public class ApplicationUser : IdentityUser
 {

@@ -5,8 +5,8 @@
 
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
-        @* <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" /> *@
-        <ShowMainMenuButton Class="ToolBar-IconButton" />
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/Identity/Account/Logout" />
+        @* <ShowMainMenuButton Class="ToolBar-IconButton" /> *@
 
         <MudSpacer />
         <div class="ToolBar-iconbutton">
@@ -19,10 +19,10 @@
 </div>
 
 <br />
-<h1>Hello, User</h1>
-@* <h1>Hello, @ApplicationParameter.ApplicationUser</h1> *@
+@* <h1>Hello, User</h1> *@
+<h1>Hello, @ApplicationParameter.ApplicationUser</h1>
 
-@* <MudButton OnClick="menu_click">Menu</MudButton> *@
+<MudButton OnClick="menu_click">Menu</MudButton>
 
 @* <AuthorizeView Roles="Admin">
     <MudButton OnClick="TEST_click">TEST</MudButton>
@@ -38,9 +38,9 @@
         await ShowMainMenu.InvokeAsync();
     }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-    //     ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
+    }
 }

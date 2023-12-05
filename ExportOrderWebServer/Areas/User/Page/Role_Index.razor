@@ -51,9 +51,9 @@
             </MudTd>
             <MudTd Style="text-align: start">@context</MudTd>
         </RowTemplate>
-@*         <PagerContent>
+        <PagerContent>
             <MudTablePager />
-        </PagerContent> *@
+        </PagerContent>
     </MudTable>
 </div>
 
@@ -74,7 +74,6 @@
     private async Task GetItems()
     {
         IsLoadingData = true;
-        //Items = await UserProvider.GetRolesAsync();
         Roles = await UserProvider.GetRolesAsync();
         IsLoadingData = false;
     }

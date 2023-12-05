@@ -1,5 +1,4 @@
-﻿using ExportOrderEntites.MyCompany;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ExportOrderDbContext;

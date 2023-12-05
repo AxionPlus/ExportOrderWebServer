@@ -2,10 +2,10 @@
 @inject AuthenticationStateProvider authenticationStateProvider;
 
 <PageTitle>Export Order</PageTitle>
-
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
+
 
 <MudLayout>
     <MudDrawer @bind-Open="@_drawerOpen" ClipMode="@DrawerClipMode.Never" Variant="@DrawerVariant.Temporary" Anchor="@Anchor.Start">
@@ -13,24 +13,24 @@
     </MudDrawer>
     <MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="padding-bottom: 15px;">
         <CascadingValue Value=ShowMainMenu>
-@*             <AuthorizeView>
-                <Authorized> *@
+            <AuthorizeView>
+                <Authorized>
                     @Body
-@*                 </Authorized>
+                </Authorized>
                 <NotAuthorized>
                     <LoginRedirect />
                 </NotAuthorized>
-            </AuthorizeView> *@
+            </AuthorizeView>
         </CascadingValue>
     </MudContainer>
 </MudLayout>
+
 
 
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     EventCallback ShowMainMenu => EventCallback.Factory.Create(this, ToggleDrawer);
-
 
     bool _drawerOpen = false;
 
@@ -47,6 +47,6 @@
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        //ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
+        ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
     }
 }

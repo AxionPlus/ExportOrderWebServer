@@ -1,4 +1,6 @@
-﻿<CascadingAuthenticationState>
+﻿@inject TokenProvider TokenProvider
+
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
@@ -12,3 +14,19 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code
+{
+    // [Parameter]
+    // public string AccessToken { get; set; }
+    // [Parameter]
+    // public string AccessUser { get; set; }
+
+    // protected override void OnInitialized()
+    // {
+    //     //Accept the parameter from _Host.cshtml and move into the Token Provider
+    //     TokenProvider.AccessToken = AccessToken;
+    //     TokenProvider.AccessUser = AccessUser;
+    //     base.OnInitialized();
+    // }
+}

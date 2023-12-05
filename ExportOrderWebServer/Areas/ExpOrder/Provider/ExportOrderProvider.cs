@@ -1,7 +1,4 @@
 ﻿
-using MudBlazor.Extensions;
-using System.Collections.Generic;
-
 public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
@@ -242,7 +239,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                             .AsSplitQuery()
                                             .ToListAsync();
 
-                var DTOItems = mRecords(Items);
+                    var DTOItems = mRecords(Items);
 
                 return DTOItems;
             }
@@ -842,109 +839,89 @@ public class ExportOrderProvider : IExportOrderProvider
 
         try
         {
-
-        
-
-        foreach (var Item in exportOrders)
-        {
-            uint indexRec = 0;
-
-            foreach (var record in Item.Records)
+            foreach (var Item in exportOrders)
             {
-                var itemDTO = new ManifestDTO()
+                uint indexRec = 0;
+
+                foreach (var record in Item.Records)
                 {
-                    VesselCallId = Item.VesselCallDetail!.VesselCall!.Id,
+                    var itemDTO = new ManifestDTO()
+                    {
+                        VesselCallId = Item.VesselCallDetail!.VesselCall!.Id,
 
-                    Seq = ++indexRec,
-                    BLNum = Item.Num,
-                    BLDate = Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy") : "---",
-                    Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo,
-                    VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!,
-                    VesselFlag = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
-                    VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG,
-                    CaptainFamily = Item.VesselCallDetail.VesselCall.Vessel.CaptainFamily,
-                    CaptainName = Item.VesselCallDetail.VesselCall.Vessel.CaptainName,
-                    PODEn = Item.VesselCallDetail!.POD!.NameEn,
-                    PODnCountryEn = Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG,
-                    PODunlocode = Item.VesselCallDetail!.POD.UnLocode,
+                        Seq = ++indexRec,
+                        BLNum = Item.Num,
+                        BLDate = Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy") : "---",
+                        Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo,
+                        VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!,
+                        VesselFlag = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
+                        VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG,
+                        CaptainFamily = Item.VesselCallDetail.VesselCall.Vessel.CaptainFamily,
+                        CaptainName = Item.VesselCallDetail.VesselCall.Vessel.CaptainName,
+                        PODEn = Item.VesselCallDetail!.POD!.NameEn,
+                        PODnCountryEn = Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG,
+                        PODunlocode = Item.VesselCallDetail!.POD.UnLocode,
 
-                    CarrierNameEn = Item.Carrier!.NameEn,
-                    CarrierLocation = Item.Carrier.Location!.Name,
-                    CarrierCountryEn = Item.Carrier.Location!.Country!.ENG,
-                    CarrierContract = Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.Contract,
-                    CarrierContractDate = Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
+                        CarrierNameEn = Item.Carrier!.NameEn,
+                        CarrierLocation = Item.Carrier.Location!.Name,
+                        CarrierCountryEn = Item.Carrier.Location!.Country!.ENG,
+                        CarrierContract = Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)) == true ? Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.Contract : "",
+                        CarrierContractDate = Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)) == true ? Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
 
-                    Cntr = record.CntrNum,
-                    CntrType = record.CntrType!.Normolize!,
-                    Seal = record.Seal != string.Empty ? record.Seal : "N/A",
-                    CntrTareWt = record.CntrTareWt,
-                    CntrTotalWeight = record.CntrTareWt + (double)record.Contents.Sum(c => c.GrossWt)!,
+                        Cntr = record.CntrNum,
+                        CntrType = record.CntrType!.Normolize!,
+                        Seal = record.Seal != string.Empty ? record.Seal : "N/A",
+                        CntrTareWt = record.CntrTareWt,
+                        CntrTotalWeight = record.CntrTareWt + (double)record.Contents.Sum(c => c.GrossWt)!,
 
-                    PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty)!,
-                    PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
-                    NetWeights = record.Contents.Sum(c => c.NetWt),
-                    GrossWeights = record.Contents.Sum(c => c.GrossWt),
-                    Volumes = record.Contents.Sum(c => c.Volume),
-                    //IsIMO = record.Contents.Where(c => c.DocumentRecord.IsIMO == true).FirstOrDefault()!.DocumentRecord.IsIMO,
-                    IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(dr => dr.Equals(true)),
-                    IMO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.IMO).Distinct()),
-                    UNNO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.UNNO).Distinct()),
+                        PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty)!,
+                        PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
+                        NetWeights = record.Contents.Sum(c => c.NetWt),
+                        GrossWeights = record.Contents.Sum(c => c.GrossWt),
+                        Volumes = record.Contents.Sum(c => c.Volume),
+                        IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(dr => dr.Equals(true)),
+                        IMO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.IMO).Distinct()),
+                        UNNO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.UNNO).Distinct()),
 
-                    //Commodities = string.Join("; ", record.Contents.Select(rc =>
-                    //                                                (
-                    //                                                  rc.DocumentRecord.CommodityName + " " + (rc.DocumentRecord.IsIMO ? "IMO:" : "") +
-                    //                                                  rc.DocumentRecord.IMO + " " + (rc.DocumentRecord.IsIMO ? "UNNO:" : "") +
-                    //                                                  rc.DocumentRecord.UNNO
-                    //                                                ).
-                    //                                                Trim()).Distinct().Order()),
+                        Commodities = string.Join("; ", record.Contents.Select(rc =>
+                                                                                    (
+                                                                                      rc.DocumentRecord.CommodityName + 
+                                                                                      (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO: " + rc.DocumentRecord.UNNO : "")
+                                                                                    )).Distinct().Order()),
 
-                    //CommoditiesEn = string.Join("; ", record.Contents.Select(rc =>
-                    //                             (
-                    //                                rc.DocumentRecord.CommodityEngName + " " + (rc.DocumentRecord.IsIMO ? "IMO:" : "") +
-                    //                                rc.DocumentRecord.IMO + " " + (rc.DocumentRecord.IsIMO ? "UNNO:" : "") +
-                    //                                rc.DocumentRecord.UNNO
-                    //                              )
-                    //                              .Trim()).Distinct().Order()),
+                        CommoditiesEn = string.Join("; ", record.Contents.Select(rc =>
+                                                                                    (
+                                                                                       rc.DocumentRecord.CommodityEngName + 
+                                                                                       (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO:" + rc.DocumentRecord.UNNO : "")
+                                                                                    )).Distinct().Order()),
 
-                    Commodities = string.Join("; ", record.Contents.Select(rc =>
-                                                                                (
-                                                                                  rc.DocumentRecord.CommodityName + 
-                                                                                  (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO: " + rc.DocumentRecord.UNNO : "")
-                                                                                )).Distinct().Order()),
+                        Shippers = "S: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Distinct()),
+                        Consignees = "C: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct()),
+                        ShippersCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.CountryENG).Distinct()),
+                        ConsigneesCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.CountryENG).Distinct()),
 
-                    CommoditiesEn = string.Join("; ", record.Contents.Select(rc =>
-                                                                                (
-                                                                                   rc.DocumentRecord.CommodityEngName + 
-                                                                                   (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO:" + rc.DocumentRecord.UNNO : "")
-                                                                                )).Distinct().Order()),
+                        CustomsOfficeCode = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
+                        CustomsOfficeName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Office,
+                        CustomsOfficeShortName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.OfficeShort,
+                        CustomsDapartment = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Dapartment,
 
-                    Shippers = "S: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Distinct()),
-                    Consignees = "C: " + string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct()),
-                    ShippersCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.CountryENG).Distinct()),
-                    ConsigneesCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.CountryENG).Distinct()),
+                        PersonFamily = Item.Person!.FamilyName,
+                        PersonSurName = Item.Person!.Name! + " " + Item.Person!.SurName,
+                        PersonBirthYear = Item.Person!.BirthYear,
+                        PersonBirthPlace = Item.Person!.BirthPlace,
+                        PersonCompany = Item.Person!.Company,
+                        PersonAddress = Item.Person!.Address,
+                        PersonPass = Item.Person!.Passport,
+                        PersonSign = Item.Person!.Name!.Substring(0, 1) + ". " + Item.Person!.SurName!.Substring(0, 1) + ". " + Item.Person!.FamilyName,
 
-                    CustomsOfficeCode = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
-                    CustomsOfficeName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Office,
-                    CustomsOfficeShortName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.OfficeShort,
-                    CustomsDapartment = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Dapartment,
-
-                    PersonFamily = Item.Person!.FamilyName,
-                    PersonSurName = Item.Person!.Name! + " " + Item.Person!.SurName,
-                    PersonBirthYear = Item.Person!.BirthYear,
-                    PersonBirthPlace = Item.Person!.BirthPlace,
-                    PersonCompany = Item.Person!.Company,
-                    PersonAddress = Item.Person!.Address,
-                    PersonPass = Item.Person!.Passport,
-                    PersonSign = Item.Person!.Name!.Substring(0, 1) + ". " + Item.Person!.SurName!.Substring(0, 1) + ". " + Item.Person!.FamilyName,
-
-                    DateExplanation = "\"____\" " + Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("MMMM yyyy") + "г.",
-                };
+                        DateExplanation = "\"____\" " + Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("MMMM yyyy") + "г.",
+                    };
                 
-                ItemsDTO.Add(itemDTO);
+                    ItemsDTO.Add(itemDTO);
+                }
             }
-        }
 
-        return ItemsDTO;
+            return ItemsDTO;
         }
         catch (Exception ex)
         {

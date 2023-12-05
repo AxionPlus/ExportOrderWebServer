@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.Eventing.Reader;
-using System.Runtime.Serialization.DataContracts;
-
-namespace ExportOrderWebServer.Areas.Carrier.Provider;
+﻿namespace ExportOrderWebServer.Areas.Carrier.Provider;
 
 public class CarrierProvider : ICarrierProvider
 {
@@ -81,7 +77,7 @@ public class CarrierProvider : ICarrierProvider
 
             try
             {
-                var modifyItem = await db.Carriers.Include(car => car.CarrierDetails).FirstOrDefaultAsync(s => s.Id == item.Id);
+                var modifyItem = await db.Carriers.Include(car => car.CarrierDetails).AsNoTracking().FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem!.Name != item.Name)
                 {
@@ -96,29 +92,20 @@ public class CarrierProvider : ICarrierProvider
 
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-                modifyItem!.CreateUser = User!;
-                modifyItem!.CreateTime = DateTime.Now;
-                modifyItem!.Name = item.Name;
-                modifyItem!.NameEn = item.NameEn;                
-                modifyItem!.BlTemplate = item.BlTemplate;
+                modifyItem.CreateUser = User!;
+                modifyItem.CreateTime = DateTime.Now;
+                modifyItem.Name = item.Name;
+                modifyItem.NameEn = item.NameEn;                
+                modifyItem.BlTemplate = item.BlTemplate;
+                modifyItem.Location = item.Location!;
 
-                if (item.Location is not null)
-                    modifyItem.Location = item.Location!;
-
-                //if (modifyItem.Location is null)
-                //    modifyItem.Location = item.Location!;
-                //else
-                //    if (!modifyItem.Location!.Id.Equals(item.Location!.Id))
-                //        modifyItem.Location = item.Location!;
-
-                //db.Entry(modifyItem.Location).State = EntityState.Modified;
-
+                db.Entry(modifyItem.Location).State = EntityState.Unchanged;
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
                 // compaire new item with existed
                 foreach (var modifyDetail in modifyItem.CarrierDetails!)
                     if (!item.CarrierDetails!.Any(s => s.Id == modifyDetail.Id))
-                        modifyItem.CarrierDetails!.Remove(modifyDetail);
+                        db.Entry(modifyDetail).State = EntityState.Deleted;
                     else
                     {
                         modifyDetail.Id = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.Id;
@@ -210,7 +197,6 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-
     #region AUXILARY
 
     public async Task<AppObjectResponse> RemoveDetailsAsync(CarrierTerminalDetails item)
@@ -248,5 +234,40 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
+    public async Task<AppObjectResponse> GetTerminalNameAsync(long vesselCallid, string name)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var Carrier = await db.ExportOrders.Include(eo => eo.Carrier).ThenInclude(c => c!.CarrierDetails)
+                                               .Include(eo => eo.VesselCallDetail!.VesselCall)
+                                               .Where(eo => eo.VesselCallDetail!.VesselCall.Id == vesselCallid)
+                                               .Select(eo => eo.Carrier).Where(c => c!.CarrierDetails.Any(c => c.TerminalName != name) == true)
+                                               .ToListAsync();
+
+            bool IsExistedTerminal = await db.ExportOrders.Include(eo => eo.Carrier).ThenInclude(c => c!.CarrierDetails)
+                                                .Include(eo => eo.VesselCallDetail!.VesselCall)
+                                                .Where(eo => eo.VesselCallDetail!.VesselCall.Id == vesselCallid)
+                                                .Select(eo => eo.Carrier).Select(c => c!.CarrierDetails.Any(cd => cd.TerminalName == name))
+                                                .FirstOrDefaultAsync();
+
+            if (!IsExistedTerminal)
+            {
+                string carriers = string.Empty;
+
+                if (Carrier.Count() > 0)
+                    carriers = string.Join("; ", Carrier.Select(c => c!.NameEn));
+
+                appObjResponse.ErrorAdd($"At list one of the Carrier has no Agreement with a Terminal nominated for present Voyage<br>Add Terminal to the following Carriers:<br>{carriers}");
+            }
+        }
+
+        return appObjResponse;
+    }
+    
     #endregion
+
 }

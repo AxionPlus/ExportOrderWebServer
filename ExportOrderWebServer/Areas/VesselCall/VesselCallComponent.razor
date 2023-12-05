@@ -398,66 +398,62 @@
     }
 
     private async Task ManifestsReport_Click(bool _isImo)
-    {
-        if (Items!.Count() == 0) return;       
+    {        
+        long vesselcallid = await GetVoyageId();
+        if (vesselcallid == 0) return;
 
-        var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);
-        if (voyageGroup.Count() != 1) return;
-
-        if (Items!.Any(s => s.Status == 0))
-        {
-            Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
-            await Task.Delay(1000);
-            //return;
-        }
-
-        long vesselcallid = voyageGroup.FirstOrDefault();
-
-        //await Task.Delay(100);
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task SaveExcelFile_Click()
     {
-        if (Items!.Count() == 0) return;        
+        long vesselcallid = await GetVoyageId();
+        if (vesselcallid == 0) return;
 
-        var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);
-        if (voyageGroup.Count() != 1) return;
-
-        if (Items!.Any(s => s.Status == 0))
-        {
-            Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
-            await Task.Delay(1000);
-            //return;
-        }
-
-        long vesselcallid = voyageGroup.FirstOrDefault();
-
-        await Task.Delay(100);
         string path = $"{Navigation.BaseUri}server/ExportOrder/SaveFillBillExcelFile?vslcallid={vesselcallid}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task ViewCustomsReport_Click()
     {
-        if (Items!.Count() == 0) return;
+        long vesselcallid = await GetVoyageId();
+        if (vesselcallid == 0) return;
 
-        var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);
-        if (voyageGroup.Count() != 1) return;        
-
-        if (Items!.Any(s => s.Status == 0))
-        {
-            Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
-            await Task.Delay(1000);
-            //return;
-        }
-
-        long vesselcallid = voyageGroup.FirstOrDefault();
-
-        await Task.Delay(100);
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewCustomsExplanation?vslcallid={vesselcallid}";
         await jsRuntime.InvokeVoidAsync("open", path);
+    }
+
+
+    private async Task<long> GetVoyageId()
+    {
+        if (Items!.Count() == 0) return 0;
+
+        if (Items!.Any(s => s.Status == 0))
+            Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
+
+        await Task.Delay(500);
+
+        var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);
+        if (voyageGroup.Count() != 1)
+        {
+            Snackbar.Add($"More then one Voyage selected.<br>Select one Voyage please.", Severity.Warning);
+            return 0;
+        }
+
+        long voyageId = voyageGroup.FirstOrDefault();
+
+        string terminal = Items!.GroupBy(g => g.VesselCallId).Select(g => g.FirstOrDefault()!.Terminal).FirstOrDefault()!;
+
+        var response = await _carrierProvider.GetTerminalNameAsync(voyageId, terminal);
+        if (response.HasError)
+        {
+            Snackbar.Add(response.Error.FirstOrDefault(), Severity.Warning);
+            await Task.Delay(1000);
+            return 0;
+        }
+
+        return voyageId;
     }
 
     #region SEARCH FUNCTIONS

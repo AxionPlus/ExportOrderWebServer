@@ -145,6 +145,8 @@
     </MudForm>
 }
 
+<OverlayLoadingData Visible="@IsLoadingData" />
+
 @code {
     private MudForm? Form { get; set; }
     private MudTable<CarrierTerminalDetails>? mudTable;
@@ -158,6 +160,7 @@
 
     private CarrierCatalog? Item { get; set; }
     private bool IsFormReadOnly { get; set; } = true;
+    private bool IsLoadingData = false;
     private bool IsAuth = false;
 
 
@@ -189,6 +192,8 @@
 
     private async Task SaveItem_Click()
     {
+        IsLoadingData = true;
+
         await Form!.Validate();
 
         if (Form.IsValid)
@@ -216,10 +221,15 @@
             }
 
             IsNewItem = false;
-            IsFormReadOnly = true;
+            IsFormReadOnly = true;            
 
             await GetItem();
-            //await InvokeAsync(StateHasChanged);
+            IsLoadingData = false;
+        }
+        else
+        {
+            Snackbar.Add("Fill up all reqired fields", Severity.Error);
+            IsLoadingData = false;
         }
     }
 
@@ -270,24 +280,11 @@
 
         var response = new AppObjectResponse();
 
-        if (item is null)
-            return;
+        if (item is null) return;
 
         if (msgResult.HasValue)
             if (msgResult.Value)
-            {
-                if (IsNewItem)
-                    Item!.CarrierDetails.Remove(item);
-                else
-                {
-                    response = await _carrierProvider.RemoveDetailsAsync(item);
-
-                    if (!response.HasError)
-                        Snackbar.Add($"Deleted Successfully", Severity.Success);
-                    else
-                        Snackbar.Add($"Unable to delete", Severity.Warning);
-                }
-            }
+                Item!.CarrierDetails.Remove(item);
 
         await InvokeAsync(StateHasChanged);
     }

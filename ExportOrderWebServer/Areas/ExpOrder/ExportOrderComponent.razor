@@ -40,14 +40,10 @@
     <div class="container-content">
         <MudTextField Class="TextField" Placeholder="Container" Style="width: 160px" @bind-Value="@Filter.CntrNum"
                       Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="11" Clearable />
-
         <MudSpacer />
-
         <MudTextField Class="TextField" Placeholder="Export Order No" Style="width: 185px" @bind-Value="@Filter.Num"
                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-
         <MudSpacer />
-
         <MudDatePicker Class="wrapper-input-date" Label="Dated" @bind-Date="Filter.Dated"
                         Style="width: 130px;"
                         DateFormat="dd.MM.yy"
@@ -57,38 +53,33 @@
                         AutoClose=true
                         DisableToolbar=false Clearable />
         <MudSpacer />
-
-         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" Value="Filter.Vessel" SearchFunc="@SearchVessel"
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" Value="Filter.Vessel" SearchFunc="@SearchVessel"
                           Placeholder="Vessel"
                           ValueChanged="(e)=> { Filter.Vessel = e; }"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon=""
-                            ResetValueOnEmptyText="true" Clearable />
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          CloseIcon="" OpenIcon=""
+                          ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
-
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
                           Placeholder="Voyage"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon=""
-                            ResetValueOnEmptyText="true" Clearable />
+                          CloseIcon="" OpenIcon=""
+                          ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
-
         <MudAutocomplete Class="Autocomplete" Style="width: 170px" T="string" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
                           Placeholder="POD"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon="" MaxItems="20"
-                            ResetValueOnEmptyText="true" Clearable />
+                          CloseIcon="" OpenIcon="" MaxItems="20"
+                          ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
-
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
                           Placeholder="Carrier"
                           ValueChanged="(e)=> { Filter.Carrier= e; }"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            CloseIcon="" OpenIcon=""
-                            ResetValueOnEmptyText="true" Clearable />
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          CloseIcon="" OpenIcon=""
+                          ResetValueOnEmptyText="true" Clearable />
 
         <MudSpacer />
-
         <MudSelect Class="wrapper-input select" T="EntityStatus?" Style="width:125px" Label="Status" @bind-Value="Filter.Status"                    
                     ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
                     Variant="Variant.Outlined" Margin="Margin.Dense" Clearable >
@@ -97,9 +88,8 @@
                 <MudSelectItem Value="@status" />
             }
         </MudSelect>
-
         <MudSpacer />
-      <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
+        <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
                     Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
             Search
         </MudButton>
@@ -126,7 +116,7 @@
             <MudTh Style="width:150px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Num!)">Number</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:100px">
+            <MudTh Style="width:80px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Dated!)">Dated</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:200px">

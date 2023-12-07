@@ -127,7 +127,6 @@
         await Form!.Validate();
 
         if (Form.IsValid)
-        {
             if (IsNewItem)
             {
                 var response = await _exportOrderProvider.NewItemAsync(Item!);
@@ -135,7 +134,7 @@
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add("No Success", Severity.Error);
+                    Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
                     IsLoadingData = false;
                     return;
                 }                
@@ -147,12 +146,11 @@
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
                 {
-                    Snackbar.Add("Not Successed", Severity.Error);
+                    Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
                     IsLoadingData = false;
                     return;
                 }               
             }
-        }
         else
         {
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
@@ -167,8 +165,8 @@
 
         await Task.Delay(500);
 
-        IsLoadingData = false;
         IsFormReadOnly = true;
+        IsLoadingData = false;        
     }
 
     public async Task EditItem()
@@ -182,5 +180,4 @@
         await Task.Delay(50);
         MudDialog!.Close();
     }
-
 }

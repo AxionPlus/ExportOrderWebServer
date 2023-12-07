@@ -112,7 +112,7 @@
     <div class="Container-item">
         <div class="container-content" style="padding-bottom:unset">
             <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px" T="string" Label="Number" Value="@Value!.Num"
-                          ValueChanged="async (e) => { Value.Num = e.ToUpper(); }"
+                          ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"                          
                           Required RequiredError="" Clearable="!IsFormReadOnly" />
 
@@ -435,7 +435,7 @@
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
 
     private UploadResult? uploadResult { get; set; }    
-    
+
     bool IsItemSelected { get; set; }
 
     bool MultiSelectionTreeItemData = false;
@@ -651,6 +651,12 @@
                 if (uploadResult._Documents is null)
                 {
                     Snackbar.Add($"Document is null", Severity.Warning);
+                    Snackbar.Add($"{uploadResult.Summary.FirstOrDefault()}", Severity.Warning);
+                    return;
+                }
+
+                if (uploadResult.Summary.Count() > 0)
+                {
                     Snackbar.Add($"{uploadResult.Summary.FirstOrDefault()}", Severity.Warning);
                     return;
                 }

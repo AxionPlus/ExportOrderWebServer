@@ -80,7 +80,7 @@ public class CustomerProvider : ICustomerProvider
 
             try
             {
-                var modifyItem = await db.Customers.Include(cu => cu.Country).FirstOrDefaultAsync(s => s.Id == item.Id);
+                var modifyItem = await db.Customers.Include(cu => cu.Country).AsNoTracking().FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem!.Name != item.Name)
                 {
@@ -99,11 +99,13 @@ public class CustomerProvider : ICustomerProvider
                 modifyItem!.CreateTime = DateTime.Now;
                 modifyItem!.Name = item.Name;
                 modifyItem!.NameEn = item.NameEn;
+                modifyItem.Country = item.Country!;
 
-                if (!modifyItem.Country!.Id.Equals(item.Country!.Id))
-                    modifyItem.Country = item.Country!;
+                //if (!modifyItem.Country!.Id.Equals(item.Country!.Id))
+                //    modifyItem.Country = item.Country!;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+                db.Entry(modifyItem.Country).State = EntityState.Unchanged;
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
@@ -132,10 +134,18 @@ public class CustomerProvider : ICustomerProvider
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
-            var itemExistCheck = await db.Customers.Where(s => s.NameEn == item!.NameEn).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
+            var existItemRu = await db.Customers.Where(s => s.Name!.ToUpper() == item!.Name!.ToUpper()).FirstOrDefaultAsync();
+            if (existItemRu != null)
             {
                 appObjResponse.ErrorAdd($"Customer exists already: {item!.Name}");
+                return appObjResponse;
+            }
+
+            // check an Existing item
+            var existItemEn = await db.Customers.Where(s => s.NameEn!.ToUpper() == item!.NameEn!.ToUpper()).FirstOrDefaultAsync();
+            if (existItemEn != null)
+            {
+                appObjResponse.ErrorAdd($"Customer exists already: {item!.NameEn}");
                 return appObjResponse;
             }
 

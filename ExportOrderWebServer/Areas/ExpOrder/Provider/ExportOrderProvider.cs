@@ -304,7 +304,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
                 if (!string.IsNullOrEmpty(filter.Voyage))
-                    ItemsDTO = ItemsDTO.OrderBy(s => s.CreateTime);
+                    ItemsDTO = ItemsDTO.OrderByDescending(s => s.Dated);
 
                 appObjResponse.Object = ItemsDTO.ToArray();
             }
@@ -350,7 +350,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
                     if (itemExistCheck is not null)
                     {
-                        appObjResponse.ErrorAdd($"Export Order No. {item.Num} dtd {item.Dated!.Value.ToShortDateString} exists already");
+                        appObjResponse.ErrorAdd($"Export Order {item.Num} dtd {item.Dated!.Value.ToShortDateString} exists already");
                         return appObjResponse;
                     }
                 }
@@ -447,10 +447,10 @@ public class ExportOrderProvider : IExportOrderProvider
             try
             {
                 // check an Existing item
-                var itemExistCheck = await db.Set<ExportOrderEntity>().Where(s => s.Num == item.Num).FirstOrDefaultAsync();
+                var itemExistCheck = await db.Set<ExportOrderEntity>().Where(s => s.Num.ToUpper() == item.Num.ToUpper()).FirstOrDefaultAsync();
                 if (itemExistCheck != null)
                 {
-                    appObjResponse.ErrorAdd($"Document {item.Num} is exists already.");
+                    appObjResponse.ErrorAdd($"Export Order {item.Num} exists already.");
                     return appObjResponse;
                 }
 
@@ -940,7 +940,7 @@ public class ExportOrderProvider : IExportOrderProvider
             {                
                 Id = record.Id,
                 Num = record.Num,
-                Dated = record.Dated != null ? record.Dated!.Value.ToShortDateString() : "---",
+                Dated = record.Dated != null ? record.Dated!.Value.ToString("dd.MM.yy") : "---",
                 Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
                 Voyage = record.VesselCallDetail!.VesselCall.VoyageNo,
                 POD = record.VesselCallDetail!.POD!.Name!,

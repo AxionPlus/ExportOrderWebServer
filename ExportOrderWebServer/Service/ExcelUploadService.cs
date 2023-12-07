@@ -60,7 +60,7 @@ public class ExcelUploadService : IDisposable
         var records = new List<ExportOrderRecord>();
         var documents = new List<DocumentEntity>();
 
-        UploadResult uploadResult = new UploadResult();
+        //UploadResult uploadResult = new UploadResult();
 
         try
         {
@@ -106,7 +106,6 @@ public class ExcelUploadService : IDisposable
 
                     newRecord.Contents.Add(content);
 
-
                     // Documents
                     var _Document = await _documentProvider.GetDocumentAsync(record[colDoc]);
 
@@ -138,7 +137,7 @@ public class ExcelUploadService : IDisposable
                     }
 
                     if (documentRecord != null)
-                        document.Records!.Add(documentRecord!);
+                        document.Records!.Add(documentRecord);
                 }
 
                 records.Add(newRecord);

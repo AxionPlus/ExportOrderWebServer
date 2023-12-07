@@ -141,12 +141,18 @@ public class UploadFileController : ControllerBase
         {
             try
             {
+                var summary = new List<string>();
+
                 var result = await exl.ReadUploadingFile();
+
+                if (result.Item1.Select(eor => eor.Contents.Any(co => co.DocumentRecord == null)).FirstOrDefault() == true)
+                    summary.Add("В декларации нет товара, который вы пытаетесь подгрузить.");
 
                 var ur = new UploadResult()
                 {
                     _ExportOrderRecords = result.Item1.ToList(),
                     _Documents = result.Item2.ToList(),
+                    Summary = summary,
                 };
 
                 return ur;

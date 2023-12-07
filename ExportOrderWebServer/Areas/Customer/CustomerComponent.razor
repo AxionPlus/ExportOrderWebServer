@@ -188,29 +188,35 @@
     #region SEARCH FUNCTIONS
 
     private async Task<IEnumerable<string>> SearchNames(string value)
-    {        
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
         var result = await _customerProvider.GetNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
-
-        if (string.IsNullOrWhiteSpace(value))
-            return result;
         else
+        {
+            result = result.Distinct().Order().ToList();
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }
     }
 
     private async Task<IEnumerable<string>> SearchNamesEn(string value)
     {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<string>();
+
         var result = await _customerProvider.GetNamesEn();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
-        
-        if (string.IsNullOrWhiteSpace(value))
-            return result;
         else
+        {
+            result = result.Distinct().Order().ToList();
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }        
     }
 
     private async Task<IEnumerable<string>> SearchCountries(string value)
@@ -223,7 +229,10 @@
         if (string.IsNullOrWhiteSpace(value))
             return result;
         else
+        {
+            result = result.Distinct().Order().ToList();
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }
     }
 
     #endregion

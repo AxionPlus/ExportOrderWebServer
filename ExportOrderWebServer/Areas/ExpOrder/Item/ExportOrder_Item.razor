@@ -59,6 +59,8 @@
 
 </MudContainer>
 
+<OverlayLoadingData Visible="@IsLoadingData" />
+
 @code {
     private MudForm? Form;
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -77,6 +79,7 @@
 
     private ExportOrderEntity? Item { get; set; }
     public bool IsFormReadOnly { get; set; } = true;
+    public bool IsLoadingData { get; set; } = false;
     private bool IsAuth = false;
 
 
@@ -106,9 +109,10 @@
             }
             else
                 Snackbar.Add($"{response.Error.First()}", Severity.Error);
+                            
+            //Item = new() { Carrier = new(), VesselCallDetail = vesselCallDetail, Person = new(), Status = EntityStatus.New };
+            Item = new() { VesselCallDetail = vesselCallDetail };
 
-            //Item = new() { Carrier = new(), VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
-            Item = new() { Carrier = new(), VesselCallDetail = vesselCallDetail, Person = new(), Status = EntityStatus.New };
             IsFormReadOnly = false;
         }
         else
@@ -123,6 +127,8 @@
 
     public async Task SaveItem()
     {
+        IsLoadingData = true;
+
         await Form!.Validate();
 
         if (Form.IsValid)
@@ -133,7 +139,8 @@
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add("No Success", Severity.Error);
+                    Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
+                    IsLoadingData = false;
                     return;
                 }
             }
@@ -144,24 +151,28 @@
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
                 {
-                    Snackbar.Add("Not Successed", Severity.Error);
+                    Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
+                    IsLoadingData = false;
                     return;
                 }
             }
         else
         {
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
+            IsLoadingData = false;
             return;
         }
 
         IsNewItem = false;
-        IsFormReadOnly = true;
 
         Id = Item!.Id;
 
         await GetItem();
 
         await Task.Delay(1000);
+
+        IsFormReadOnly = true;
+        IsLoadingData = false;
     }
 
     public async Task EditItem()

@@ -22,25 +22,18 @@
                 <span>Export Order</span>
             </div>
             <MudSpacer />
-            @if (IsFormReadOnly)
-            {
-                @*                     @if (IsAuth)
-            { *@
-                <div class="ToolBar-iconbutton" style="margin-right:20px">
-                    <MudTooltip Class="ExitIconButton" Text="edit" Delay="500" Duration="1000">
+            <div class="ToolBar-iconbutton" style="margin-right:20px">
+                <MudTooltip Class="ExitIconButton" Text=@(IsFormReadOnly ? "Edit" : "Save") Delay="500" Duration="1000">
+                    @if (IsFormReadOnly)
+                    {
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
-                    </MudTooltip>
-                </div>
-                @* } *@
-            }
-            else
-            {
-                <div class="ToolBar-iconbutton" style="margin-right:20px">
-                    <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
+                    }
+                    else
+                    {
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
-                    </MudTooltip>
-                </div>
-            }
+                    }
+                </MudTooltip>
+            </div>
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
             </div>

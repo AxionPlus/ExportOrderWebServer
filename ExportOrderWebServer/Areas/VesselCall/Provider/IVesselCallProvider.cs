@@ -6,5 +6,5 @@ public interface IVesselCallProvider : IEntityProvider<VesselCallEntity>
     Task<AppObjectResponse> GetVesselCallDetailItemAsync(long vesselCallid);
     Task<IEnumerable<string>> GetPODs();
     Task<IEnumerable<string>> GetVoyages(string? vessel);
-    Task<AppObjectResponse> RemoveVesselCallDetailDTOAsync(long id);
+    Task<AppObjectResponse> RemoveVesselCallDetailAsync(long id);
 }

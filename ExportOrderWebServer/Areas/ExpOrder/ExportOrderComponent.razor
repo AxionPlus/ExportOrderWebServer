@@ -38,7 +38,7 @@
 
 <div class="Container-item">
     <div class="container-content">
-        <MudTextField Class="TextField" Placeholder="Container" Style="width: 160px" @bind-Value="@Filter.CntrNum"
+        <MudTextField Class="TextField" Placeholder="Container" Style="width: 160px" @bind-Value="@Filter.CntrNum" Disabled
                       Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="11" Clearable />
         <MudSpacer />
         <MudTextField Class="TextField" Placeholder="Export Order No" Style="width: 185px" @bind-Value="@Filter.Num"
@@ -106,7 +106,7 @@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" Hover="true" RowsPerPage="20">
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" Hover="true" RowsPerPage="15">
         
         <HeaderContent>
             <MudTh Style="width:30px"></MudTh>
@@ -132,6 +132,7 @@
             <MudTh Style="width: 80px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
             </MudTh>
+            <MudTh Style="width: 35px"></MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -167,6 +168,10 @@
             <MudTd>@context.POD</MudTd>
             <MudTd Style="text-align:start">@context.Carrier</MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
+            <MudTd>
+                <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Delete" Color="Color.Secondary"
+                               OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
+            </MudTd>
             <MudTd></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -175,7 +180,7 @@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
-@code {
+    @code {
     private MudTable<ExportOrderComponentDTO>? mudTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -216,6 +221,37 @@
 
         if (!result.Canceled)
             await GetItems();
+    }
+
+    private async Task RemoveItem_Click(long id, string num)
+    {        
+        bool? result = await DialogService.ShowMessageBox(
+                 "Delete record",
+                 (MarkupString)$"<b>Do you want to remove record with {num}?<b>",
+                 yesText: "REMOVE", cancelText: "NO");
+
+        if (!result.HasValue) return;
+
+        if (result.Value)
+        {
+            IsLoadingData = true;
+
+            var response = await _exportOrderProvider.RemoveItemAsync(id);
+            if (!response.HasError)
+            {
+                Items!.ToList().Remove(Items!.FirstOrDefault(eoc => eoc.Id == id)!);
+                Snackbar.Add($"Deleted successfully", Severity.Success);
+            }
+            else
+                Snackbar.Add($"Record wasn't deleted.<br>{response.Error.First()}", Severity.Warning);                
+        }
+
+        await GetItems();
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
+
     }
 
     private async Task ViewReportExpOrder_Click(long id)

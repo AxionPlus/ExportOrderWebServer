@@ -156,7 +156,7 @@ public class VesselCallProvider : IVesselCallProvider
                 if (filter.Status >= 0)
                     vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == filter.Status).ToList();
                 else
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Pending).ToList();
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
 
                 //if (!string.IsNullOrEmpty(filter.Carrier))
                 //    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.CarrierName == filter.Carrier).ToList();
@@ -381,7 +381,7 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveVesselCallDetailDTOAsync(long id)
+    public async Task<AppObjectResponse> RemoveVesselCallDetailAsync(long id)
     {
         appObjResponse = new();
 
@@ -396,32 +396,27 @@ public class VesselCallProvider : IVesselCallProvider
 
                 if (existedItem is null)
                 {
-                    appObjResponse.ErrorAdd("There is no Record to deleted.");
+                    appObjResponse.ErrorAdd("There is no Record to delete.");
                     return appObjResponse;
                 }
 
-                var existedExportOrders = db.ExportOrders.Where(eo => eo.VesselCallDetail!.Id == id);
+                //var existedExportOrders = db.ExportOrders.Where(eo => eo.VesselCallDetail!.Id == id);
 
                 //if (existedExportOrders.Count() > 0)
-                //    foreach (var exportOrder in existedItem.ExportOrders)
-                //        db.Entry(exportOrder).State = EntityState.Deleted;
-
-                if (existedExportOrders.Count() > 0)
-                {
-                    appObjResponse.ErrorAdd($"");
-                    return appObjResponse;
-                }
+                //{
+                //    appObjResponse.ErrorAdd($"");
+                //    return appObjResponse;
+                //}
 
 
-                if(db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == id))
+                // Find Export Orders in Existing Item
+                if (db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == id))
                 {
                     appObjResponse.ErrorAdd($"Vessel Call has an Export Orders issued.");
                     return appObjResponse;
                 }
 
-
                 db.Entry(existedItem).State = EntityState.Deleted;
-                //db.Entry(db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id)).State = EntityState.Deleted;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
                 await db.SaveChangesAsync();
@@ -450,6 +445,7 @@ public class VesselCallProvider : IVesselCallProvider
     {
         throw new NotImplementedException();
     }
+
 
     #region AUXILARY METHODS
 

@@ -379,7 +379,7 @@
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _vesselCallProvider.RemoveVesselCallDetailDTOAsync(id);
+                var response = await _vesselCallProvider.RemoveVesselCallDetailAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);

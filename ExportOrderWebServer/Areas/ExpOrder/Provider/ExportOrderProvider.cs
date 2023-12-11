@@ -1,4 +1,7 @@
 ﻿
+using NuGet.Packaging;
+using static MudBlazor.CategoryTypes;
+
 public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
@@ -299,7 +302,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 if (filter.Status >= 0)
                     ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
                 else
-                    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Pending).ToList();
+                    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
 
                 ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
@@ -357,8 +360,57 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-                // DELETE AN EXISTED modifyItem
+                // CHECK MODIFYITEM.STATUS in case EntityStatus.ISSUED : save a copy of modifyItem with updated status to EntityStatus.Cancelled
+                //if (modifyItem.Status == EntityStatus.Issued)
+                //{
+                //    // copy modifyItem to a new and save it with a new Status - Cancelled
 
+                //    //var copiedItem = modifyItem;
+                //    var copiedItem = new ExportOrderEntity()
+                //    {
+                //        CreateUser = User!,
+                //        CreateTime = DateTime.Now,
+                //        Status = EntityStatus.Cancelled,
+                //        Num = modifyItem.Num,
+                //        Dated = modifyItem.Dated,
+                //        Carrier = modifyItem.Carrier,
+                //        Person = modifyItem.Person,
+                //        Documents = modifyItem.Documents,
+                //        Records = modifyItem.Records,
+                //        VesselCallDetail = modifyItem.VesselCallDetail,
+                //    };
+
+                //    //db.Entry(copiedItem).State = EntityState.Modified;
+                //    db.Entry(copiedItem).State = EntityState.Added;
+
+                //    db.Entry(copiedItem.CreateUser).State = EntityState.Unchanged;
+                //    db.Entry(copiedItem.Carrier!).State = EntityState.Unchanged;
+                //    db.Entry(copiedItem.Person!).State = EntityState.Unchanged;
+                //    db.Entry(copiedItem.VesselCallDetail!).State = EntityState.Unchanged;
+
+                //    // DOCUMENTS              
+                //    foreach (var document in copiedItem.Documents!)
+                //        db.Entry(document).State = EntityState.Unchanged;
+
+                //    // EXPORT ORDER RECORDS
+                //    foreach (var record in copiedItem.Records)
+                //    {
+                //        db.Entry(record).State = EntityState.Added;
+                //        //db.Entry(record.CntrType!).State = EntityState.Detached;
+
+                //        foreach (var content in record.Contents)
+                //            db.Entry(content).State = EntityState.Added;
+                //    }
+
+                //    var dbBugCopy = db.ChangeTracker.DebugView.LongView;
+                //    await db.SaveChangesAsync();
+
+                //    var dbBugModify = db.ChangeTracker.DebugView.LongView;
+                //    copiedItem = null;
+                //    db.ChangeTracker.Clear();
+                //}
+
+                // DELETE AN EXISTED modifyItem.Records
                 if (modifyItem.Records.Count() > 0)
                     foreach (var modifyRecord in modifyItem.Records)
                     {
@@ -368,9 +420,6 @@ public class ExportOrderProvider : IExportOrderProvider
                         db.Entry(modifyRecord).State = EntityState.Deleted;
                     }                    
 
-                //foreach (var modifyDocument in modifyItem.Documents)
-                //    db.Entry(modifyDocument).State = EntityState.Deleted;
-
                 modifyItem.Documents.Clear();
 
                 var dbBug = db.ChangeTracker.DebugView.LongView;
@@ -379,15 +428,14 @@ public class ExportOrderProvider : IExportOrderProvider
                 db.ChangeTracker.Clear();
 
                 // RE-WRITE WITH A NEW ITEM
-
-                modifyItem!.CreateUser = User!;
-                modifyItem!.CreateTime = DateTime.Now;
-                modifyItem!.Num = item.Num;
-                modifyItem!.Dated = item.Dated;
+                modifyItem.CreateUser = User!;
+                modifyItem.CreateTime = DateTime.Now;
+                modifyItem.Num = item.Num;
+                modifyItem.Dated = item.Dated;
                 modifyItem.Carrier = item.Carrier;
-                modifyItem!.Person = item.Person;
+                modifyItem.Person = item.Person;
                 modifyItem.VesselCallDetail = item.VesselCallDetail;
-                modifyItem.Status = item.Status;
+                modifyItem.Status = modifyItem.Status == EntityStatus.Issued ? EntityStatus.New : item.Status;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
                 db.Entry(modifyItem.Carrier!).State = EntityState.Unchanged;
@@ -417,6 +465,17 @@ public class ExportOrderProvider : IExportOrderProvider
                         db.Entry(itemRecordContent).State = EntityState.Added;
                 }
 
+                // Change Status of VesselCallDetail to Issued
+                // when all of its ExportOrders has status - Issued
+                var eoList = await db.ExportOrders
+                                                  .Include(eo => eo.VesselCallDetail)
+                                                  .Where(eo => eo.VesselCallDetail!.Id == modifyItem.VesselCallDetail!.Id)
+                                                  .AsNoTracking().ToListAsync();
+
+                if (eoList.All(eo => eo.Status.Equals(EntityStatus.Issued)))
+                    modifyItem!.VesselCallDetail!.Status = EntityStatus.Issued;
+
+
                 db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
@@ -427,7 +486,6 @@ public class ExportOrderProvider : IExportOrderProvider
             {
                 string msg = ex.Message;
                 appObjResponse.ErrorAdd(msg);
-
                 return appObjResponse;
             }
 
@@ -457,12 +515,12 @@ public class ExportOrderProvider : IExportOrderProvider
                 item.CreateUser = User!;
                 item.CreateTime = DateTime.Now;
                 item.Status = EntityStatus.New;
-                item.VesselCallDetail!.Status = EntityStatus.Pending;   // added
+                item.VesselCallDetail!.Status = EntityStatus.New;   // Issued
 
                 db.Entry(item).State = EntityState.Added;
 
                 db.Entry(item.Carrier!).State = EntityState.Unchanged;
-                db.Entry(item.VesselCallDetail!).State = EntityState.Modified; // Unchanged
+                db.Entry(item.VesselCallDetail!).State = EntityState.Modified;
                 db.Entry(item.Person!).State = EntityState.Unchanged;
 
                 // Documents
@@ -498,6 +556,59 @@ public class ExportOrderProvider : IExportOrderProvider
     public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
         appObjResponse = new();
+
+        try
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);                                
+
+                // delete Export Order
+                var deleteItem = await db.ExportOrders
+                                                      .Include(eo => eo.VesselCallDetail)
+                                                      .Include(eo => eo.Records).ThenInclude(d => d.Contents)
+                                                      .FirstOrDefaultAsync(s => s.Id == id);
+                
+                if (deleteItem!.Records.Count() > 0)
+                    foreach (var record in deleteItem.Records)
+                    {
+                        if (record.Contents.Count > 0)
+                            foreach (var content in record.Contents)
+                                db.Entry(content).State = EntityState.Deleted;
+
+                        db.Entry(record).State = EntityState.Deleted;
+                    }
+
+                db.Entry(deleteItem).State = EntityState.Deleted;
+
+                var Bug = db.ChangeTracker.DebugView.LongView;
+
+                //var ExpOrdersWithSameVesselCallDetail = await db.ExportOrders
+                //                                                              .Include(eo => eo.VesselCallDetail)
+                //                                                              .Where(eo => eo.VesselCallDetail!.Id.Equals(deleteItem!.VesselCallDetail!.Id)).ToListAsync();
+
+                //if (ExpOrdersWithSameVesselCallDetail is not null)
+                //    if (ExpOrdersWithSameVesselCallDetail.Count() > 1)
+                //        foreach (var detail in ExpOrdersWithSameVesselCallDetail)
+                //        {
+                //            detail.VesselCallDetail!.Status = EntityStatus.New;
+                //            db.Entry(detail.VesselCallDetail!).State = EntityState.Modified;
+                //        }
+
+                //Bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            Console.WriteLine(msg);
+            return appObjResponse;
+        }
+
         return appObjResponse;
     }
 
@@ -753,85 +864,6 @@ public class ExportOrderProvider : IExportOrderProvider
 
         return eoRecordsDTO.ToArray();
     };
-
-    //Func<ExportOrderEntity, IEnumerable<BLDTO>> blRecords = (exportOrder) =>
-    //{
-    //    var ItemsDTO = new List<BLDTO>();
-
-    //    var Shippers = new List<string>();
-    //    var Consignees = new List<string>();
-    //    var NotifyParties = new List<string>();
-
-    //    var GroupContents = exportOrder.Records.GroupBy(er => er.Contents).Select(co => co.FirstOrDefault()!.Contents);
-
-    //    foreach (var content in GroupContents)
-    //    {
-    //        var ContentShipper = content.Select(co => co.DocumentRecord.Document.Shipper!.NameEn).Distinct().ToList();
-    //        var ContentConsignee = content.Select(co => co.DocumentRecord.Document.Consignee!.NameEn).Distinct().ToList();
-    //        var ContentNotify = content.Select(co => co.DocumentRecord.Document.Consignee!.NameEn).Distinct().ToList();
-
-    //        Shippers.Add(string.Join("\n", ContentShipper));
-    //        Consignees.Add(string.Join("\n", ContentConsignee));
-    //        NotifyParties.Add(string.Join("\n", ContentNotify));
-    //    }
-
-    //    string shippers = string.Join(";\n", Shippers.Distinct());
-    //    string consignees = string.Join(";\n", Consignees.Distinct());
-    //    string notifyParties = string.Join(";\n", NotifyParties.Distinct());
-
-    //    foreach (var record in exportOrder.Records)
-    //    {
-    //        var itemDTO = new BLDTO()
-    //        {
-    //            BLNum = exportOrder.Num,
-    //            BLDate = exportOrder.VesselCallDetail!.VesselCall!.ETS.HasValue ? exportOrder.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy") : "---",
-    //            Voyage = exportOrder.VesselCallDetail!.VesselCall!.VoyageNo,
-    //            VesselName = exportOrder.VesselCallDetail!.VesselCall!.Vessel.Name!,
-    //            VesselFlagEn = exportOrder.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG,
-    //            PODEn = exportOrder.VesselCallDetail!.POD!.NameEn + ", " + exportOrder.VesselCallDetail!.POD.Country!.ENG,
-    //            POLAgent = exportOrder.Carrier!.CarrierDetails.FirstOrDefault(cd => cd.TerminalName == exportOrder.VesselCallDetail.VesselCall.Terminal.Name)!.AgentPOL!,
-    //            PODAgent = exportOrder.VesselCallDetail.AgentPOD is not null ? exportOrder.VesselCallDetail.AgentPOD.ToUpper() : string.Empty,
-    //            FinalDestination = exportOrder.VesselCallDetail!.FinalDestination is not null ? exportOrder.VesselCallDetail.FinalDestination.NameEn! : string.Empty,
-    //            //Shippers = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Distinct()),
-    //            //Consignees = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct()),
-    //            //NotifyParties = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Distinct()),
-    //            Shippers = shippers,
-    //            Consignees = consignees,
-    //            NotifyParties = notifyParties,
-
-    //            TotalCntrCount = (uint)exportOrder.Records.Count(),
-    //            TotalPackages = (uint)exportOrder.Records.Sum(er => er.Contents.Sum(c => c.PackageQty))!,
-    //            TotalGrossWeight = exportOrder.Records.Sum(er => er.Contents.Sum(c => c.GrossWt)),
-    //            TotalVolume = exportOrder.Records.Sum(er => er.Contents.Sum(c => c.Volume)),
-    //            Measurement = record.Contents.Any(rc => rc.Volume > 0) ? "CBM" : "KG",
-
-    //            //Cntr Records
-    //            Cntr = record.CntrNum,
-    //            CntrType = record.CntrType!.Normolize!,
-    //            CntrTareWt = record.CntrTareWt,
-    //            Seal = record.Seal != string.Empty ? record.Seal : "N/A",
-
-    //            PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty)!,
-    //            PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
-    //            GrossWts = record.Contents.Sum(c => c.GrossWt),
-    //            Volumes = record.Contents.Sum(c => c.Volume),
-
-    //            IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(dr => dr.Equals(true)),
-    //            IMO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.IMO).Distinct()),
-    //            UNNO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.UNNO).Distinct()),
-
-    //            CntrCommodities = string.Join("; ", record.Contents.Select(rc => ( rc.DocumentRecord.CommodityEngName +
-    //                                                                                (rc.DocumentRecord.IsIMO ?
-    //                                                                                    " IMO:" + rc.DocumentRecord.IMO + " UNNO: " + rc.DocumentRecord.UNNO : "")
-    //                                                                             )
-    //                                                                             .Trim()).Distinct().Order()),
-    //        };
-
-    //        ItemsDTO.Add(itemDTO);
-    //    }
-
-    //    return ItemsDTO;
-    //};
 
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<ManifestDTO>> mRecords = (exportOrders) =>
     {

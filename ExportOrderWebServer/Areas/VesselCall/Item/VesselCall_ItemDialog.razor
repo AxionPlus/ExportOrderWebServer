@@ -11,56 +11,18 @@
         text-align: start;
     }
 
+    .wrapper-input-date * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: 8px;
+    }
+
     .mud-input.mud-input-outlined.mud-input-adorned-end {
         padding-inline-end: 4px;
         padding-right: 4px;
     }
 
-    .DatePicker .mud-input > input.mud-input-root-outlined, .DatePicker * div.mud-input-slot.mud-input-root-outlined {
-        padding: 8px 0px 4px 8px;
-        font-size: 0.92rem;
-        font-weight: 500;
-    }
-
-    .DatePicker.Dense .mud-input > input.mud-input-root-outlined, .DatePicker.Dense * div.mud-input-slot.mud-input-root-outlined {
-        padding: 3px 0px 1px 4px;
-        font-size: 0.92rem;
-        font-weight: 500;
-    }
-
-    .DatePicker.Dense > div.mud-input-control {
-        margin: auto;
-    }
-
-    .DatePicker .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 16px;
-    }
-
-    .DatePicker .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
-        transform: translate(14px,-12px) scale(.70);
-        font-weight: 400;
-    }
-
-    .DatePicker .mud-input-label-outlined {
-        transform: translate(14px,9px) scale(0.9);
-        background-color: var(--containerBackGround)
-    }
-
-    .DatePicker > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 16px;
-    }
-
-    .DatePicker > .mud-input-control-input-container > .mud-input-label-inputcontrol {
-        font-weight: 500;
-    }
-
-    .DatePicker * .mud-icon-size-small {
-        font-size: 1.1rem;
-    }
-
-    .DatePicker * .mud-icon-button-size-small {
-        padding: 1px;
-    }
+    .Table * .mud-table-cell {
+        padding: 5px;
+    } 
 
 </style>
 
@@ -70,17 +32,19 @@
 
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">
-                <div class="ToolBar-iconbutton" style="margin-left: 20px">
-                    <MudTooltip Text="Edit Vessel Call">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
-                    </MudTooltip>
-                </div>
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="Save terminal">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
-                    </MudTooltip>
-                </div>
+                        <MudTooltip Text="@(IsFormReadOnly ? "Edit" : "Save" )">
+                            @if (IsFormReadOnly)
+                            {
+                                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                            }                                
+                            else
+                            {
+                                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                            }                            
+                        </MudTooltip>
+                </div>                
             </MudToolBar>
         </div>
 
@@ -99,13 +63,33 @@
                                  AdornmentColor="Color.Primary"
                                  Adornment="Adornment.End"
                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddVessel_Click(); })"
-                                 Clearable="!IsFormReadOnly" />                 
-                 <MudTextField T="string" Style="width: 260px;" Label="Voyage" Text="@Item.VoyageNo"
+                                 Clearable="!IsFormReadOnly" />
+                 <MudTextField T="string" Style="width: 260px; margin-right:20px" Label="Voyage" Text="@Item.VoyageNo"
                                TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true"
-                                        Required RequiredError=""
+                               Required RequiredError=""
                                Clearable="!IsFormReadOnly" />
+                 <MudDatePicker Class="wrapper-input-date" Label="ETA" @bind-Date="Item.ETA"
+                                Style="width: 125px; margin-right: 4px"
+                                DateFormat="dd.MM.yy"
+                                ShowWeekNumbers="true"
+                                Variant="Variant.Outlined"
+                                IconSize=Size.Small
+                                AutoClose=true
+                                DisableToolbar=true
+                                Required RequiredError=""
+                                Clearable="!IsFormReadOnly" />
+                 <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
+                                Style="width: 125px"
+                                DateFormat="dd.MM.yy"
+                                ShowWeekNumbers="true"
+                                Variant="Variant.Outlined"
+                                IconSize=Size.Small
+                                AutoClose=true
+                                DisableToolbar=true
+                                Required RequiredError=""
+                                Clearable="!IsFormReadOnly" />
              </div>
 
              <div class="container-content" style="justify-content:flex-start">
@@ -132,9 +116,9 @@
 
              </div>
 
-             <div class="container-content" style="justify-content:flex-start">
+@*              <div class="container-content" style="justify-content:flex-start">
                  <MudDatePicker Class="DatePicker" Label="ETA" @bind-Date="Item.ETA"
-                                Style="width: 128px; height: 30px; margin-right: 4px"
+                                Style="width: 115px; height: 30px; margin-right: 4px"
                                 DateFormat="dd.MM.yy"
                                 ShowWeekNumbers="true"
                                 Variant="Variant.Outlined"
@@ -144,7 +128,7 @@
                                 Required RequiredError=""
                                 Clearable="!IsFormReadOnly" />
                  <MudDatePicker Class="DatePicker" Label="ETS" @bind-Date="Item.ETS"
-                                Style="width: 128px; height: 30px"
+                                Style="width: 115px; height: 30px"
                                 DateFormat="dd.MM.yy"
                                 ShowWeekNumbers="true"
                                 Variant="Variant.Outlined"
@@ -153,16 +137,16 @@
                                 DisableToolbar=true
                                 Required RequiredError=""
                                 Clearable="!IsFormReadOnly" />
-             </div>
+             </div> *@
 
              <div class="Container-table">
                  <MudTable Class="Table" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
                      <HeaderContent>
-                         <MudTh Style="width:30px">
+                         <MudTh Style="width:35px">
                              <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetailItem" Disabled="@(IsLoadingData || IsFormReadOnly)" />
                          </MudTh>
                          <MudTh Style="width: 260px">PORT of discharge</MudTh>
-                         <MudTh Style="width: 260px">Agent</MudTh>
+                         <MudTh Style="width: 405px">Agent</MudTh>
                          <MudTh Style="width: 260px">FINAL Destination</MudTh>
                      </HeaderContent>
                      <RowTemplate>
@@ -185,7 +169,7 @@
                                               Clearable="!IsFormReadOnly" />
                          </MudTd>
                          <MudTd DataLabel="Agent">
-                             <MudTextField T="string" Style="width: 250px;" Text="@context.AgentPOD"
+                             <MudTextField T="string" Style="width: 395px;" Text="@context.AgentPOD"
                                            TextChanged="async (e)=> { context.AgentPOD = e.ToUpper(); }"
                                            Variant="Variant.Outlined" Margin="Margin.Dense"
                                            Immediate="true"

@@ -35,25 +35,18 @@
 
             <MudSpacer />
 
-            @if (IsFormReadOnly)
-            {
-                @*                     @if (IsAuth)
-            { *@
-                <div class="ToolBar-iconbutton" style="margin-right:20px">
-                    <MudTooltip Class="ExitIconButton" Text="edit" Delay="500" Duration="1000">
+            <div class="ToolBar-iconbutton" style="margin-right:20px">
+                <MudTooltip Class="ExitIconButton" Text=@(IsFormReadOnly ? "edit" : "save") Delay="500" Duration="1000">
+                    @if (IsFormReadOnly)
+                    {
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
-                    </MudTooltip>
-                </div>
-                @* } *@
-            }
-            else
-            {
-                <div class="ToolBar-iconbutton" style="margin-right:20px">
-                    <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
+                    }                    
+                    else
+                    {
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
-                    </MudTooltip>
-                </div>
-            }
+                    }                    
+                </MudTooltip>
+            </div>
 
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
@@ -124,6 +117,7 @@
     public async Task SaveItem()
     {
         IsLoadingData = true;
+
         await Form!.Validate();
 
         if (Form.IsValid)
@@ -172,6 +166,32 @@
     public async Task EditItem()
     {
         await Task.Delay(10);
+
+        if (Item!.Status == EntityStatus.Issued)
+        {
+            // Item.Id = 0;
+
+            // // DOCUMENTS
+            // foreach (var document in Item.Documents)
+            // {
+            //     document.Id = 0;
+
+            //     foreach (var record in document.Records)
+            //         record.Id = 0;
+            // }
+
+            // // RECORDS
+            // foreach (var record in Item.Records)
+            // {
+            //     record.Id = 0;
+
+            //     foreach (var content in record.Contents)
+            //         content.Id = 0;
+            // }
+
+            // IsNewItem = true;
+        }
+
         IsFormReadOnly = false;
     }
 

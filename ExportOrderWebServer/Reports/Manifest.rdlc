@@ -4796,8 +4796,10 @@ WT (KGS)</Value>
                 </TablixMember>
               </TablixMembers>
             </TablixRowHierarchy>
-            <KeepTogether>true</KeepTogether>
             <DataSetName>dsSummary</DataSetName>
+            <PageBreak>
+              <BreakLocation>Start</BreakLocation>
+            </PageBreak>
             <Top>4.5cm</Top>
             <Height>5cm</Height>
             <Width>28cm</Width>
@@ -4880,7 +4882,6 @@ WT (KGS)</Value>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0cm</Top>
               <Left>20cm</Left>
               <Height>0.45cm</Height>
               <Width>8cm</Width>

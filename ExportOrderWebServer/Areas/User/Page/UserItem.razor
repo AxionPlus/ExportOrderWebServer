@@ -12,53 +12,57 @@
     }
 </style>
 
-<div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/users" />
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetUser" />
-        </div>
-        <MudSpacer />
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-        </div>
-    </MudToolBar>
-</div>
-
-<div class="Container-item">
-    @if (User is not null)
-    {
-        <div class="container-content">
-            <h4>@User.UserName</h4>
-        </div>    
-        <div class="container-content">
-            <div class="FieldContainer" style="width: 300px; margin-inline: 20px;">
-                <MudSelect T="string" MultiSelection="true" @bind-SelectedValues="SelectedRoles"
-                           Variant="Variant.Outlined" Margin="Margin.Dense" Label="Roles">
-                    @if (Roles is not null)
-                        @foreach (var role in Roles)
-                        {
-                            <MudSelectItem T="string" Value="@role"></MudSelectItem>
-                        }
-                </MudSelect>
+<MudContainer MaxWidth="MaxWidth.Small">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/users" />
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetUser" />
             </div>
-            <MudButton Class="Button" Style="max-width: 100px" OnClick="SaveRoles"
-                        Variant="Variant.Filled" Color="Color.Secondary">Save</MudButton>
-        </div>
-        <div class="container-content">
-            <MudChipSet Style="margin-left: 20px">
-                @if (Roles is not null)
-                    @foreach (var value in SelectedRoles)
-                    {
-                        <MudChip Text="@value"></MudChip>
-                    }
-            </MudChipSet>                
-        </div>        
-    }
-</div>
+            <MudSpacer />
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+
+    <div class="Container-item">
+        @if (User is not null)
+        {
+            <div class="container-content">
+                <h4>@User.UserName</h4>
+            </div>
+            <div class="container-content">
+                <div class="FieldContainer" style="width: 300px; margin-inline: 20px;">
+                    <MudSelect T="string" MultiSelection="true" @bind-SelectedValues="SelectedRoles"
+                               Variant="Variant.Outlined" Margin="Margin.Dense" Label="Roles">
+                        @if (Roles is not null)
+                            @foreach (var role in Roles)
+                            {
+                                <MudSelectItem T="string" Value="@role"></MudSelectItem>
+                            }
+                    </MudSelect>
+                </div>
+                <MudButton Class="Button" Style="max-width: 100px" OnClick="SaveRoles"
+                           Variant="Variant.Filled" Color="Color.Secondary">Save</MudButton>
+            </div>
+            <div class="container-content">
+                <MudChipSet Style="margin-left: 20px">
+                    @if (Roles is not null)
+                        @foreach (var value in SelectedRoles)
+                        {
+                            <MudChip Text="@value"></MudChip>
+                        }
+                </MudChipSet>
+            </div>
+        }
+    </div>
+</MudContainer>
+
+
 
 
 @code {

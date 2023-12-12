@@ -5,50 +5,52 @@
 
 <PageTitle>Users</PageTitle>
 
-<div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
-        <MudSpacer />
-        <div class="ToolBar-Title"><span>Application Users</span></div>
-        <MudSpacer />
-@*         <AuthorizeView Roles="Admin">
-            <Authorized>
-                <div class="ToolBar-iconbutton">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddAlert" Href="Identity/Account/Manage/Register" />
-                </div>
-            </Authorized>
-        </AuthorizeView> *@
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+<MudContainer MaxWidth="MaxWidth.Small">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>Application Users</span></div>
+            <MudSpacer />
+@*             <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <div class="ToolBar-iconbutton">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddAlert" Href="Identity/Account/Manage/Register" />
+                    </div>
+                </Authorized>
+            </AuthorizeView> *@
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+
+    <div class="Container-table">
+        <MudTable Class="Table" Items="@Items" Loading="IsLoadingData">
+            <HeaderContent>
+                <MudTh Style="width: 30px"><MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="GetItems" Disabled="IsLoadingData" /></MudTh>
+                <MudTh Style="width: 400px">User Name</MudTh>
+                <MudTh Style="text-align: left">Roles</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Href=@($"/user/{context.UserName}") />
+                </MudTd>
+                <MudTd>@context.UserName</MudTd>
+                <MudTd Style="text-align: left">@(async () => { await GetUserRoles(context); })</MudTd>
+                <MudTd></MudTd>
+                </RowTemplate>
+            </MudTable>
         </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-        </div>
-    </MudToolBar>
-</div>
 
-<div class="Container-table">
-    <MudTable Class="Table" Items="@Items" Loading="IsLoadingData">
-        <HeaderContent>
-            <MudTh Style="width: 30px"><MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="GetItems" Disabled="IsLoadingData" /></MudTh>
-            <MudTh Style="width: 400px">User Name</MudTh>
-            <MudTh Style="text-align: left">Roles</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Href=@($"/user/{context.UserName}") />
-            </MudTd>
-            <MudTd>@context.UserName</MudTd>
-            <MudTd Style="text-align: left">
-                @* @(async () => { await GetUserRoles(context); }) *@
-            </MudTd>
-            <MudTd></MudTd>
-        </RowTemplate>
-    </MudTable>
-</div>
+</MudContainer>
 
 
-@code {
+
+    @code {
     bool IsLoadingData = false;
 
     private IEnumerable<ApplicationUser>? Items { get; set; }
@@ -70,8 +72,12 @@
     {
         SelectedRoles = await UserManager.GetRolesAsync(user);
 
+        var selRoles = SelectedRoles.ToList();
+
         if (SelectedRoles.Count() > 0)
-            return string.Join(", ", SelectedRoles);
+            return string.Join(", ", selRoles);
         else return string.Empty;
+
+        //return string.Join(", ", SelectedRoles.ToList());
     }
 }

@@ -29,15 +29,17 @@
 
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">
-                <div class="ToolBar-iconbutton" style="margin-left: 20px">
-                    <MudTooltip Text="edit Carrier">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
-                    </MudTooltip>
-                </div>
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="save Carrier">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                    <MudTooltip Text=@(IsFormReadOnly ? "Edit" : "Save")>
+                        @if (IsFormReadOnly)
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
+                        }
+                        else
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />
+                        }
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -75,7 +77,7 @@
                                   Adornment="Adornment.End"
                                   OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddLocation_Click(); })"
                                   Clearable="!IsFormReadOnly" />
-                @* <MudSpacer/> *@
+                
                  <MudSelect Class="wrapper-input" T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
                             ToStringFunc="@(str=>str.ToString())"
                             Variant="Variant.Outlined" Margin="Margin.Dense">
@@ -169,7 +171,7 @@
         await GetItem();
 
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
         {
             IsAuth = true;
         }

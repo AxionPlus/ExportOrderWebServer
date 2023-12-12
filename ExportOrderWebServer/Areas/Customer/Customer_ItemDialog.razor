@@ -20,16 +20,18 @@
 {
     <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
         <div class="ToolBar-container">
-            <MudToolBar Class="ToolBar ToolBar-new">
-                <div class="ToolBar-iconbutton" style="margin-left: 20px">
-                    <MudTooltip Text="Edit terminal">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
-                    </MudTooltip>
-                </div>
+            <MudToolBar Class="ToolBar ToolBar-new">                
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="Save terminal">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                    <MudTooltip Text=@(IsFormReadOnly ? "Edit" : "Save")>
+                        @if (IsFormReadOnly)
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
+                        }
+                        else
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />
+                        }
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -40,7 +42,7 @@
                 <MudTextField Class="TextField_Names" T="string" Style="width: 600px" Label="Name" Text="@Item.Name"
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Lines="3"
+                              Immediate="true" Lines="6"
                               Required RequiredError=""
                               Clearable="!IsFormReadOnly" />
              </div>
@@ -48,7 +50,7 @@
                 <MudTextField Class="TextField_Names" T="string" Style="width: 600px" Label="Name En" Text="@Item.NameEn"
                               TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Lines="3"
+                              Immediate="true" Lines="6"
                               Required RequiredError=""
                               Clearable="!IsFormReadOnly" />
              </div>
@@ -61,7 +63,6 @@
                                   CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                   ResetValueOnEmptyText="true"
                                   Placeholder="Country"
-                                  MaxItems="20"
                                   AdornmentIcon="@Icons.Material.Filled.AddCircle"
                                   AdornmentColor="Color.Primary"
                                   Adornment="Adornment.End"
@@ -89,7 +90,7 @@
         await GetItem();
 
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
         {
             IsAuth = true;
         }

@@ -18,27 +18,20 @@
         <MudToolBar Class="ToolBar ToolBar-new">            
             <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
             <MudSpacer />
-
             <div class="ToolBar-Title"><span>my company</span></div>
             <MudSpacer />
-
-            @if (IsFormReadOnly)
-            {
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="edit company">
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text=@(IsFormReadOnly ? "Edit" : "Save")>
+                    @if (IsFormReadOnly)
+                    {
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
-                    </MudTooltip>
-                </div>
-            }
-            else
-            {
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="save company">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="@IsLoadingData" OnClick="SaveItem_Click" />
-                    </MudTooltip>
-                </div>
-            }
-
+                    }
+                    else
+                    {
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />
+                    }                        
+                </MudTooltip>
+            </div>
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
             </div>
@@ -273,7 +266,6 @@
     public async Task CloseDialog_Click()
     {
         await Task.Delay(50);
-        //MudDialog!.Close(DialogResult.Ok(Persons));
         if (Item is not null)
             MudDialog!.Close(DialogResult.Ok(Item.Persons));
         else

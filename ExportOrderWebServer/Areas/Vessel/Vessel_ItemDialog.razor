@@ -15,16 +15,18 @@
 {
     <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
         <div class="ToolBar-container">
-            <MudToolBar Class="ToolBar ToolBar-new">
-                <div class="ToolBar-iconbutton" style="margin-left: 20px">
-                    <MudTooltip Text="Edit terminal">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
-                    </MudTooltip>
-                </div>
+            <MudToolBar Class="ToolBar ToolBar-new">                
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="Save terminal">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                    <MudTooltip Text=@(IsFormReadOnly ? "Edit" : "Save")>
+                        @if (IsFormReadOnly)
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
+                        }
+                        else
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />
+                        }                        
                     </MudTooltip>
                 </div>
             </MudToolBar>

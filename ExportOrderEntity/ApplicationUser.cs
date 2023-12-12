@@ -1,7 +1,9 @@
-﻿namespace ExportOrderEntites;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ExportOrderEntites;
 
 public class ApplicationUser : IdentityUser
 {
-    //public string? Name { get; set; }
-    //public string? Phone { get; set; }
+    [NotMapped]
+    public string? Roles { get; set; }
 }

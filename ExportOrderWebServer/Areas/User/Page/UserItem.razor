@@ -1,6 +1,7 @@
 ﻿@page "/user/{UserName}"
 @* @attribute [Authorize(Roles = "Admin")] *@
 @using Microsoft.AspNetCore.Identity;
+@inject ISnackbar Snackbar
 @inject IUserProvider UserProvider
 @inject UserManager<ApplicationUser> UserManager
 
@@ -95,5 +96,9 @@
     public async Task SaveRoles()
     {
         await UserProvider.RolesToUserAsync(User, SelectedRoles);
+
+        //await GetUser();
+
+        Snackbar.Add($"User saved successfully", Severity.Success);
     }
 }

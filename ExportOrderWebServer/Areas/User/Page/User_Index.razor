@@ -40,7 +40,7 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Href=@($"/user/{context.UserName}") />
                 </MudTd>
                 <MudTd>@context.UserName</MudTd>
-                <MudTd Style="text-align: left">@(async () => { await GetUserRoles(context); })</MudTd>
+                <MudTd Style="text-align: left">@(context.Roles!.Count() > 0 ? string.Join(", ", context.Roles!.ToList()) : string.Empty)</MudTd>
                 <MudTd></MudTd>
                 </RowTemplate>
             </MudTable>
@@ -50,12 +50,10 @@
 
 
 
-    @code {
+ @code {
     bool IsLoadingData = false;
-
-    private IEnumerable<ApplicationUser>? Items { get; set; }
-    private IEnumerable<string> SelectedRoles = new List<string>();
-
+    private IEnumerable<ApplicationUserDTO>? Items { get; set; }
+    
     protected override async Task OnInitializedAsync()
     {
         await GetItems();
@@ -64,20 +62,7 @@
     private async Task GetItems()
     {
         IsLoadingData = true;
-        Items = await UserProvider.GetUsersAsync();
+        Items = await UserProvider.GetUsersDTOAsync();        
         IsLoadingData = false;
-    }
-
-    private async Task<string> GetUserRoles(ApplicationUser user)
-    {
-        SelectedRoles = await UserManager.GetRolesAsync(user);
-
-        var selRoles = SelectedRoles.ToList();
-
-        if (SelectedRoles.Count() > 0)
-            return string.Join(", ", selRoles);
-        else return string.Empty;
-
-        //return string.Join(", ", SelectedRoles.ToList());
     }
 }

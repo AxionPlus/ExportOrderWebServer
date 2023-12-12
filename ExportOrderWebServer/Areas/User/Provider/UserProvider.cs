@@ -20,6 +20,9 @@ public class UserProvider : IUserProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
+
+            var users = await db.Users.AsNoTracking().ToListAsync();
+
             return await db.Users.ToListAsync();
         }
     }
@@ -51,6 +54,8 @@ public class UserProvider : IUserProvider
                     UserName = user.UserName,
                     Roles = userRoleList
                 };
+
+                result.Add(item);
             }
 
             return result;

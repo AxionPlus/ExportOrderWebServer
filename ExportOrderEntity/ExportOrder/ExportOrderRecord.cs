@@ -23,8 +23,6 @@ public class ExportOrderRecord
     public List<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
     [JsonIgnore]
     public ExportOrderEntity ExportOrder { get; set; }
-
-
     [NotMapped]
     public bool IsShowCntrContent { get; set; } = false;
 }

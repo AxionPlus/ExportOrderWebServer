@@ -17,37 +17,34 @@
                     </MudTooltip>
                 </div>
             }
-
-            @if (!IsNewItem)
+            @if (IsFormReadOnly)
             {
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Class="ExitIconButton" Text="REFRESH" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
+                <div class="ToolBar-iconbutton" style="margin-left:20px">
+                    <MudTooltip Class="ExitIconButton" Text="Copy Export Order" Delay="500" Duration="1000">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
                     </MudTooltip>
                 </div>
             }
-
             <MudSpacer />
-
             <div class="ToolBar-Title">
-                <span>@($"Export Order")</span>
-            </div>
-
-            <MudSpacer />
-
-            <div class="ToolBar-iconbutton" style="margin-right:20px">
-                <MudTooltip Class="ExitIconButton" Text=@(IsFormReadOnly ? "edit" : "save") Delay="500" Duration="1000">
-                    @if (IsFormReadOnly)
-                    {
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
-                    }                    
-                    else
-                    {
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
-                    }                    
-                </MudTooltip>
-            </div>
-
+                <span>Export Order</span>
+            </div>            
+            <MudSpacer />            
+            @if (IsEditSaveBtnsVisible)
+            {
+                <div class="ToolBar-iconbutton" style="margin-right:20px">
+                    <MudTooltip Class="ExitIconButton" Delay="500" Duration="1000" Text=@(IsFormReadOnly ? "edit" : "save")>
+                        @if (IsFormReadOnly)
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
+                        }
+                        else
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
+                        }
+                    </MudTooltip>
+                </div>
+            }
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
             </div>
@@ -57,10 +54,10 @@
         </MudToolBar>
     </div>
 
-    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly" >
+    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" />
+            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" InitialStatus="@InitialStatus" />
         }
     </MudForm>
 
@@ -78,28 +75,30 @@
     public bool IsNewItem { get; set; } = false;
 
     private ExportOrderEntity? Item { get; set; }
+
     public bool IsFormReadOnly { get; set; } = true;
     public bool IsLoadingData { get; set; } = false;
     private bool IsAuth = false;
 
+    private string InitialStatus { get; set; } = string.Empty;
+    public bool IsEditSaveBtnsVisible { get; set; } = false;
+    
 
     protected override async Task OnInitializedAsync()
     {
         await GetItem();
 
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("TopManager") || user.User.IsInRole("ExpDept"))
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
         {
             IsAuth = true;
         }
     }
 
-    private async Task GetItem()
+    public async Task GetItem()
     {
         if (IsNewItem)
         {
-            //Item = new() { Carrier = new(), VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } }, Person = new(), Status = EntityStatus.New };
-            //Item = new() { VesselCallDetail = new() { POD = new(), VesselCall = new() { Vessel = new() } } };
             Item = new();
             IsFormReadOnly = false;
         }        
@@ -109,7 +108,13 @@
             if (!response.HasError)
             {
                 Item = (ExportOrderEntity)response.Object!;
-                await InvokeAsync(StateHasChanged);
+
+                InitialStatus = Item.Status.ToString();
+
+                if (Item.Status == EntityStatus.New || Item.Status == EntityStatus.Issued)
+                    IsEditSaveBtnsVisible = true;
+                else
+                    IsEditSaveBtnsVisible = false;
             }            
         }
     }
@@ -160,37 +165,40 @@
         await Task.Delay(500);
 
         IsFormReadOnly = true;
-        IsLoadingData = false;        
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task CopyItem()
+    {
+        if (Item is not null)
+        {
+            Item.Id = 0;
+
+            foreach (var record in Item.Records)
+            {
+                record.Id = 0;
+
+                foreach (var content in record.Contents)
+                    content.Id = 0;
+            }
+
+            Item.Num = Item.Status == EntityStatus.Issued || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
+
+            Item!.Status = EntityStatus.New;
+            InitialStatus = "New";
+            IsEditSaveBtnsVisible = true;
+
+            IsNewItem = true;
+            await Task.Delay(100);
+            IsFormReadOnly = false;
+        }
     }
 
     public async Task EditItem()
     {
-        await Task.Delay(10);
-
-        if (Item!.Status == EntityStatus.Issued)
-        {
-            // Item.Id = 0;
-
-            // // DOCUMENTS
-            // foreach (var document in Item.Documents)
-            // {
-            //     document.Id = 0;
-
-            //     foreach (var record in document.Records)
-            //         record.Id = 0;
-            // }
-
-            // // RECORDS
-            // foreach (var record in Item.Records)
-            // {
-            //     record.Id = 0;
-
-            //     foreach (var content in record.Contents)
-            //         content.Id = 0;
-            // }
-
-            // IsNewItem = true;
-        }
+        await Task.Delay(100);
 
         IsFormReadOnly = false;
     }

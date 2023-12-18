@@ -37,12 +37,24 @@
           <DataField>VesselFlagEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="Shippers">
+          <DataField>Shippers</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Consignees">
+          <DataField>Consignees</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="POLEn">
           <DataField>POLEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="PODnCountryEn">
-          <DataField>PODnCountryEn</DataField>
+        <Field Name="PODandCountryEn">
+          <DataField>PODandCountryEn</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="CommoditiesEn">
+          <DataField>CommoditiesEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="Seq">
@@ -91,18 +103,6 @@
         </Field>
         <Field Name="CntrTotalWeight">
           <DataField>CntrTotalWeight</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="CommoditiesEn">
-          <DataField>CommoditiesEn</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="Shippers">
-          <DataField>Shippers</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="Consignees">
-          <DataField>Consignees</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -575,7 +575,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PODnCountryEn.Value</Value>
+                                  <Value>=Fields!PODandCountryEn.Value</Value>
                                   <Style>
                                     <FontFamily>Consolas</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -879,7 +879,6 @@ WT (KGS)</Value>
                                 <Group Name="CommodityGroup">
                                   <GroupExpressions>
                                     <GroupExpression>=Fields!BLNum.Value</GroupExpression>
-                                    <GroupExpression>=Fields!CommoditiesEn.Value</GroupExpression>
                                   </GroupExpressions>
                                 </Group>
                                 <KeepTogether>true</KeepTogether>
@@ -2126,11 +2125,7 @@ WT (KGS)</Value>
                                 <RepeatOnNewPage>true</RepeatOnNewPage>
                               </TablixMember>
                               <TablixMember>
-                                <Group Name="CntrNum">
-                                  <GroupExpressions>
-                                    <GroupExpression>=Fields!Cntr.Value</GroupExpression>
-                                  </GroupExpressions>
-                                </Group>
+                                <Group Name="CntrNum" />
                                 <TablixMembers>
                                   <TablixMember>
                                     <HideIfNoRows>true</HideIfNoRows>
@@ -2468,7 +2463,7 @@ WT (KGS)</Value>
                                             <Paragraph>
                                               <TextRuns>
                                                 <TextRun>
-                                                  <Label>Shipper</Label>
+                                                  <Label>Shippers</Label>
                                                   <Value>=Fields!Shippers.Value</Value>
                                                   <Style>
                                                     <FontFamily>Consolas</FontFamily>
@@ -2489,7 +2484,7 @@ WT (KGS)</Value>
                                                   </Style>
                                                 </TextRun>
                                                 <TextRun>
-                                                  <Label>Consignee</Label>
+                                                  <Label>Consignees</Label>
                                                   <Value>=Fields!Consignees.Value</Value>
                                                   <Style>
                                                     <FontFamily>Consolas</FontFamily>
@@ -2532,7 +2527,6 @@ WT (KGS)</Value>
                                   <Group Name="ShipperGroup">
                                     <GroupExpressions>
                                       <GroupExpression>=Fields!BLNum.Value</GroupExpression>
-                                      <GroupExpression>=Fields!Shippers.Value</GroupExpression>
                                     </GroupExpressions>
                                   </Group>
                                 </TablixMember>

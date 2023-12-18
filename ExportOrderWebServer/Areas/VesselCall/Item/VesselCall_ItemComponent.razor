@@ -123,7 +123,7 @@
 
     </div>
 
- @code {
+@code {
     private MudForm? Form { get; set; }
     private MudTable<VesselCallDetail>? mudTable;
 
@@ -149,8 +149,16 @@
     private async Task RemoveDetail_Click(VesselCallDetail item)
     {
         await Task.Delay(50);
-        if (Value!.Details.Contains(item))
-            Value.Details.Remove(item);
+
+        if (Value is null) return;
+
+        if (item.ExportOrders.Count() > 0)
+        {
+            Snackbar.Add("В этом рейсе есть поручения.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки.", Severity.Warning);
+            return;
+        }
+
+        Value.Details.Remove(item);
     }
 
     private async Task AddVessel_Click()

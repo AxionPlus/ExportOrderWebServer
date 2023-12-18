@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Text.Json;
 
 namespace ExportOrderDbContext.Configurations;
 
@@ -11,11 +13,6 @@ public class ExportOrderConfiguration : IEntityTypeConfiguration<ExportOrderEnti
                        v => BitConverter.ToInt64(v, 0),
                         v => BitConverter.GetBytes(v));
 
-        //var valueComparer = new ValueComparer<byte[]>(
-        //    (c1, c2) => c1.SequenceEqual(c2),
-        //c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c);
-
-
         builder.Property(s => s.Version)
                .HasColumnName("xmin")
                .HasColumnType("xid")
@@ -25,22 +22,42 @@ public class ExportOrderConfiguration : IEntityTypeConfiguration<ExportOrderEnti
     }
 }
 
+//public class ExportOrderRecordConfiguration : IEntityTypeConfiguration<ExportOrderRecord>
+//{
+//    public void Configure(EntityTypeBuilder<ExportOrderRecord> builder)
+//    {
+//        //var converter = new ValueConverter<byte[], long>(
+//        //               v => BitConverter.ToInt64(v, 0),
+//        //                v => BitConverter.GetBytes(v));
 
-public class ExportOrderRecordConfiguration : IEntityTypeConfiguration<ExportOrderRecord>
+
+//        builder.ToTable("ExportOrder_Records");        
+//    }
+//}
+
+
+public class ExportOrderHistoryConfiguration : IEntityTypeConfiguration<ExportOrderHistory>
 {
-    public void Configure(EntityTypeBuilder<ExportOrderRecord> builder)
+    public void Configure(EntityTypeBuilder<ExportOrderHistory> builder)
     {
-        var converter = new ValueConverter<byte[], long>(
-                       v => BitConverter.ToInt64(v, 0),
-                        v => BitConverter.GetBytes(v));
+        builder.HasMany(s => s.Documents).WithMany(d => d.ExportOrders);
+        builder.HasMany(s => s.Records).WithOne(r => r.ExportOrder);
+    }
+}
 
-        //var valueComparer = new ValueComparer<byte[]>(
-        //    (c1, c2) => c1.SequenceEqual(c2),
-        //c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c);
-
-
-        builder.ToTable("ExportOrder_Records");
-
-        //builder.Navigation(s => s.CntrType).AutoInclude();
+public class ExportOrderRecordHistoryConfiguration : IEntityTypeConfiguration<ExportOrderRecordHistory>
+{
+    public void Configure(EntityTypeBuilder<ExportOrderRecordHistory> builder)
+    {
+        builder
+                .Property(b => b.Contents)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                     v => JsonSerializer.Deserialize<List<ContainerContentHistory>>(v, (JsonSerializerOptions?)null),
+                     new ValueComparer<List<ContainerContentHistory>>(
+                             (c1, c2) => c1.SequenceEqual(c2),
+                             c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                             c => c.ToList()));
     }
 }

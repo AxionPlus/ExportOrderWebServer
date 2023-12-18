@@ -9,7 +9,7 @@ public class DocumentRecord
     [Key]
     public int Id { get; set; }
 #pragma warning disable CS8618
-    public int Seq { get; set; }
+    public int Seq { get; set; }    // change to uint
 
     [Required]
     public string CommodityName { get; set; }

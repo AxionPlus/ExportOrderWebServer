@@ -1,4 +1,5 @@
 ﻿
+using ExportOrderEntites.VesselCall;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -58,5 +59,13 @@ public class VesselConfiguration : IEntityTypeConfiguration<VesselEntity>
          .HasConversion(converter);
 
         builder.Navigation(s => s.Flag).AutoInclude();
+    }
+}
+
+public class VesselCallDetailsHistoryConfiguration : IEntityTypeConfiguration<VesselCallDetailsHistory>
+{
+    public void Configure(EntityTypeBuilder<VesselCallDetailsHistory> builder)
+    {
+        builder.HasMany(s => s.ExportOrders);
     }
 }

@@ -26,6 +26,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                         .Include(vc => vc.Terminal)
                                                         .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
                                                         .Include(vc => vc.Details).ThenInclude(vcd => vcd.FinalDestination)
+                                                        .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)
                                                         .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
             
             if (appObjResponse.Object is null)
@@ -133,7 +134,6 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .Include(vc => vc.Vessel)
                                                     .Include(vc => vc.Terminal)
                                                     .Include(vc => vc.Details).ThenInclude(d => d.POD)
-                                                    //.Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Carrier)
                                                     .Where(vc => filter.ETA.HasValue ? vc.ETA!.Value >= filter.ETA.Value : true)
                                                     .Where(vc => filter.ETS.HasValue ? vc.ETS!.Value >= filter.ETS.Value : true)
                                                     .AsSplitQuery()
@@ -202,7 +202,7 @@ public class VesselCallProvider : IVesselCallProvider
 
                     if (itemExistCheck is not null)
                     {
-                        appObjResponse.ErrorAdd($" {itemVoyage} exists already");
+                        appObjResponse.ErrorAdd($"{itemVoyage} exists already");
                         return appObjResponse;
                     }
                 }
@@ -237,8 +237,13 @@ public class VesselCallProvider : IVesselCallProvider
                     if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
                     {
                         // check for existing ExportOrders within VesselCallDetail
-                        if (!db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == modifyDetail.Id))
+                        if (!db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == modifyDetail.Id))                            
                             db.Entry(modifyDetail).State = EntityState.Deleted;
+                        else
+                        {
+                            appObjResponse.ErrorAdd($"В этом рейсе есть поручения.");
+                            return appObjResponse;
+                        }                            
                     }
                     else
                     {

@@ -1,5 +1,4 @@
-﻿using ExportOrderEntites.Document;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.ExportOrder;
@@ -15,7 +14,6 @@ public class ContainerContent
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
     public double? Volume { get; set; }
-
     public DocumentRecord DocumentRecord { get; set; }
     [JsonIgnore]
     public ExportOrderRecord ExportOrderRecord { get; set; }

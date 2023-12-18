@@ -7,7 +7,7 @@ public class ExcelCreateService : IDisposable
 {
     private readonly string TempFilePath;
     private readonly uint ExcelAppPid;
-    private readonly IEnumerable<ManifestDTO> Items;
+    private readonly IEnumerable<VoyageManifestDTO> Items;  //ManifestDTO
 
     private Excel.Application? ExcelApp;
     private Excel.Workbooks? Workbooks;
@@ -16,7 +16,7 @@ public class ExcelCreateService : IDisposable
     private Excel.Worksheet? WorkSheet;
     private Excel.Range? Range;
 
-    public ExcelCreateService(string tempFilePath, IEnumerable<ManifestDTO> items)
+    public ExcelCreateService(string tempFilePath, IEnumerable<VoyageManifestDTO> items)  //ManifestDTO
     {
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
@@ -107,14 +107,15 @@ public class ExcelCreateService : IDisposable
                 var result = Parallel.For(0, rows, (row, state) =>
                 {                    
                     dataBulk[row, 0] = carrier.ElementAt(row).Seal;
-                    dataBulk[row, 1] = carrier.ElementAt(row).PODnCountryEn!;
+                    dataBulk[row, 1] = carrier.ElementAt(row).PODandCountryEn!;
                     dataBulk[row, 2] = carrier.ElementAt(row).PODunlocode!;
                     dataBulk[row, 3] = carrier.ElementAt(row).BLDate;
                     dataBulk[row, 4] = carrier.ElementAt(row).BLNum;
-                    dataBulk[row, 5] = carrier.ElementAt(row).Shippers!.Substring(3);
-                    dataBulk[row, 6] = carrier.ElementAt(row).ShippersCountries!;
-                    dataBulk[row, 7] = carrier.ElementAt(row).Consignees!.Substring(3);
-                    dataBulk[row, 8] = carrier.ElementAt(row).ConsigneesCountries!;
+                    //dataBulk[row, 5] = carrier.ElementAt(row).Shippers!.Substring(3);
+                    dataBulk[row, 5] = carrier.ElementAt(row).RecordShippers!;
+                    dataBulk[row, 6] = carrier.ElementAt(row).RecordShippersCountries!;
+                    dataBulk[row, 7] = carrier.ElementAt(row).RecordConsignees!;
+                    dataBulk[row, 8] = carrier.ElementAt(row).RecordConsigneesCountries!;
                     dataBulk[row, 9] = carrier.ElementAt(row).Cntr;
                     dataBulk[row, 10] = carrier.ElementAt(row).Commodities!;
                     dataBulk[row, 11] = carrier.ElementAt(row).GrossWeights! == 0 ? carrier.ElementAt(row).CntrTareWt : carrier.ElementAt(row).GrossWeights!;

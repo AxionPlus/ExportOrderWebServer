@@ -158,12 +158,6 @@
     <None Update="Reports\BLnca.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Reports\_BLnca.rdlc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Reports\BLsafetrans.rdlc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Reports\BLsinokor.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -174,6 +168,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Reports\BLtranssinergia.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\BLsafetrans.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Reports\Manifest.rdlc">

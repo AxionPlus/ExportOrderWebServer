@@ -54,13 +54,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.ApplyConfiguration(new MyCompanyConfiguration());
         modelBuilder.ApplyConfiguration(new DocumentConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderConfiguration());
-        modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
+        //modelBuilder.ApplyConfiguration(new ExportOrderRecordConfiguration());
         modelBuilder.ApplyConfiguration(new VesselConfiguration());
         modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
-        modelBuilder.ApplyConfiguration(new VesselCallDetailConfiguration());        
-        modelBuilder.ApplyConfiguration(new MyCompanyConfiguration());               
-        
+        modelBuilder.ApplyConfiguration(new VesselCallDetailConfiguration());
+
+        modelBuilder.ApplyConfiguration(new DocumentHistoryConfiguration());
+        modelBuilder.ApplyConfiguration(new ExportOrderHistoryConfiguration());
+        modelBuilder.ApplyConfiguration(new ExportOrderRecordHistoryConfiguration());
+        modelBuilder.ApplyConfiguration(new VesselCallDetailsHistoryConfiguration());
+
+        #region Tables
+        modelBuilder.Entity<ExportOrderRecord>(entity => { entity.ToTable(name: "ExportOrder_Records"); });
+
+        //modelBuilder.Entity<DocumentHistory>(entity => { entity.ToTable(name: "History_Documents"); });
+        //modelBuilder.Entity<ExportOrderHistory>(entity => { entity.ToTable(name: "History_ExportOrders"); });
+        //modelBuilder.Entity<ExportOrderRecordHistory>(entity => { entity.ToTable(name: "History_ExportOrderRecords"); });
+        //modelBuilder.Entity<VesselCallDetailsHistory>(entity => { entity.ToTable(name: "History_VesselCallDetails"); });
+        #endregion
     }
 }

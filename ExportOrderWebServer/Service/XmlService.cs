@@ -18,31 +18,38 @@ public class XmlService : IDisposable
     { 
         if (string.IsNullOrEmpty(FilePath)) return Array.Empty<byte>();
 
-        string Shippers = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
-        string Consignees = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Consignee).Distinct().ToList()!);
+        string Shippers = string.Join("; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
+        string Consignees = string.Join("; ", Item.exportOrderRecordsDTO?.Select(r => r.Consignee).Distinct().ToList()!);
 
-        //var dsCommodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.Commodity })
-        //                                                .Select(g => new
-        //                                                {
-        //                                                    g.Key.DocumentName,
-        //                                                    HScode = g.Select(g => g.HSCode).FirstOrDefault(),
-        //                                                    g.Key.Commodity,
-        //                                                    CommodityGrossWt = g.Where(c => c.DocumentName == g.Key.DocumentName).Sum(g => g.GrossWt),
-        //                                                    CommodityNetWt = g.Where(c => c.DocumentName == g.Key.DocumentName).Sum(g => g.NetWt),
-        //                                                    Cntrs = g.Where(c => c.DocumentName == g.Key.DocumentName).Select(g => g.Cntr).ToList(),
-        //                                                }).OrderBy(g => g.DocumentName).ToList();
+        //string Shippers = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
+        //string Consignees = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Consignee).Distinct().ToList()!);
 
-        var dsCommodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.SeqContent })
-                                                .Select(g => new
-                                                {
-                                                    g.Key.DocumentName,
-                                                    SeqContent = g.Select(g => g.SeqContent).FirstOrDefault(),
-                                                    Commodity = g.Select(g => g.Commodity).FirstOrDefault(),                                                    
-                                                    HScode = g.Select(g => g.HSCode).FirstOrDefault(),
-                                                    CommodityGrossWt = g.Sum(g => g.GrossWt),
-                                                    CommodityNetWt = g.Sum(g => g.NetWt),
-                                                    Cntrs = g.Select(g => g.Cntr).ToList(),
-                                                }).OrderBy(g => g.DocumentName).ToList();
+        //string Shippers = Item.Shippers!;
+        //string Consignees = Item.Consignees!;
+
+        //var Commodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.SeqContent })
+        //                                        .Select(g => new
+        //                                        {
+        //                                            g.Key.DocumentName,
+        //                                            SeqContent = g.Select(g => g.SeqContent).FirstOrDefault(),
+        //                                            Commodity = g.Select(g => g.Commodity).FirstOrDefault(),
+        //                                            HScode = g.Select(g => g.HSCode).FirstOrDefault(),
+        //                                            CommodityGrossWt = g.Sum(g => g.GrossWt),
+        //                                            CommodityNetWt = g.Sum(g => g.NetWt),
+        //                                            Cntrs = g.Select(g => g.Cntr).ToList(),
+        //                                        }).OrderBy(g => g.DocumentName).ToList();
+
+        var Commodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.SeqContent })
+                                        .Select(g => new
+                                        {
+                                            g.Key.DocumentName,
+                                            g.Key.SeqContent,
+                                            Commodity = g.Select(g => g.Commodity).FirstOrDefault(),
+                                            HScode = g.Select(g => g.HSCode).FirstOrDefault(),
+                                            CommodityGrossWt = g.Sum(g => g.GrossWt),
+                                            CommodityNetWt = g.Sum(g => g.NetWt),
+                                            Cntrs = g.Select(g => g.Cntr).Distinct().ToList(),
+                                        }).OrderBy(g => g.DocumentName).ToList();
 
         try
         {
@@ -86,7 +93,7 @@ public class XmlService : IDisposable
                 int counterDocuments = 0;
                 string document = string.Empty;
 
-                foreach (var commodity in dsCommodities!)
+                foreach (var commodity in Commodities!)
                 {
                     if (!document.Equals(commodity.DocumentName))
                         ++counterDocuments;                         //counterDocuments = 0;

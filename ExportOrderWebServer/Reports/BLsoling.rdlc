@@ -137,8 +137,8 @@
           <DataField>PackageName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="CommodityEn">
-          <DataField>CommodityEn</DataField>
+        <Field Name="RecordCommoditiesEn">
+          <DataField>RecordCommoditiesEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="GrossWt">
@@ -164,37 +164,6 @@
     <ReportSection>
       <Body>
         <ReportItems>
-          <Textbox Name="ShippedBy">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>RECEIVED by the Carrier from the Shipper, as far as ascertained by reasonable means of checking, in apparent good order and condition unless otherwise stated herein, the total number or quantity of Containers or other packages or units indicated in the box entitled "Carrier's Receipt" for carriage from the Port of Loading (or the Place of Receipt, if mentioned above) to the Port of Discharge (or the Place of Delivery, if mentioned above),such carriage being always subject to the terms, rights, defences, provisions, conditions, exceptions,limitations, and liberties hereof  and the Merchant's attention is drawn in particular to the Carrier's liberties in respect of on deck stowage and the carrying vessel. Where the bill of lading is non-negotiable the Carrier may give delivery of the Goods to the named consignee upon reasonable proof of identity and without requiring surrender of an original bill of lading. Where the bill of lading is negotiable, the Merchant is obliged to surrender one original, duly endorsed, in exchange for the Goods.  The Carrier accepts a duty of reasonable care to check that any such document which the Merchant surrenders as a bill of lading is genuine and original.  If the Carrier complies with this duty, it will be entitled to deliver the Goods against what it reasonably believes to be a genuine and original bill of lading, such delivery discharging the Carrier’s delivery obligations. In accepting this bill of lading, any local customs or privileges to the contrary notwithstanding, the Merchant agrees to be bound by all Terms and Conditions stated herein whether written, printed,stamped or incorporated on the face or reverse side hereof, as fully as if they were all signed by the Merchant.
-IN WITNESS WHEREOF the number of original Bills of Lading stated on this side have been signed and wherever one original Bill of Lading has been surrendered any others shall be void.</Value>
-                    <Style>
-                      <FontFamily>Tahoma</FontFamily>
-                      <FontSize>5pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style />
-              </Paragraph>
-            </Paragraphs>
-            <Top>22.4cm</Top>
-            <Left>11.1cm</Left>
-            <Height>4.4cm</Height>
-            <Width>8.7cm</Width>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-              <PaddingLeft>2pt</PaddingLeft>
-              <PaddingRight>2pt</PaddingRight>
-              <PaddingTop>4pt</PaddingTop>
-              <PaddingBottom>2pt</PaddingBottom>
-            </Style>
-          </Textbox>
           <Tablix Name="TablixCntr">
             <TablixBody>
               <TablixColumns>
@@ -700,8 +669,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Measures">
-                          <CanGrow>true</CanGrow>
+                        <Textbox Name="T_Cntr_Measures">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -724,9 +692,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style>None</Style>
                             </Border>
                             <RightBorder>
-                              <Color>Black</Color>
                               <Style>Solid</Style>
-                              <Width>1pt</Width>
                             </RightBorder>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
@@ -743,7 +709,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox1">
+                        <Textbox Name="Textbox12">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -763,7 +729,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox1</rd:DefaultName>
+                          <rd:DefaultName>Textbox12</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -774,6 +740,51 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <LeftBorder>
                               <Style>Solid</Style>
                             </LeftBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>8pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox11">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox11</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <LeftBorder>
+                              <Style>Solid</Style>
+                            </LeftBorder>
+                            <RightBorder>
+                              <Style>Solid</Style>
+                            </RightBorder>
                             <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>8pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
@@ -801,7 +812,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Left</TextAlign>
+                                <TextAlign>Center</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -813,14 +824,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <BottomBorder>
                               <Style>Solid</Style>
                             </BottomBorder>
-                            <LeftBorder>
-                              <Style>Solid</Style>
-                            </LeftBorder>
                             <RightBorder>
                               <Style>Solid</Style>
                             </RightBorder>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>8pt</PaddingLeft>
+                            <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
                             <PaddingBottom>2pt</PaddingBottom>
@@ -861,7 +869,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <RightBorder>
                               <Style>Solid</Style>
                             </RightBorder>
-                            <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -903,6 +910,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <RightBorder>
                               <Style>Solid</Style>
                             </RightBorder>
+                            <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -955,49 +963,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox11">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style>
-                                    <FontFamily>Tahoma</FontFamily>
-                                    <FontSize>9pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Center</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox11</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <BottomBorder>
-                              <Style>Solid</Style>
-                            </BottomBorder>
-                            <RightBorder>
-                              <Style>Solid</Style>
-                            </RightBorder>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox12">
+                        <Textbox Name="Textbox10">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1016,7 +982,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox12</rd:DefaultName>
+                          <rd:DefaultName>Textbox10</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1219,7 +1185,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox57">
+                        <Textbox Name="Textbox13">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1238,7 +1204,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox57</rd:DefaultName>
+                          <rd:DefaultName>Textbox13</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1288,10 +1254,9 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>dsCntrRecords</DataSetName>
-            <Top>28.5cm</Top>
+            <Top>27.7cm</Top>
             <Height>1.7cm</Height>
             <Width>19.8cm</Width>
-            <ZIndex>1</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -1311,7 +1276,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox60">
+                        <Textbox Name="Textbox1">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1325,7 +1290,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox60</rd:DefaultName>
+                          <rd:DefaultName>Textbox1</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1345,7 +1310,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox61">
+                        <Textbox Name="Textbox14">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1359,7 +1324,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox61</rd:DefaultName>
+                          <rd:DefaultName>Textbox14</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1375,11 +1340,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox62">
+                        <Textbox Name="Textbox15">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1396,7 +1361,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox62</rd:DefaultName>
+                          <rd:DefaultName>Textbox15</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1416,7 +1381,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox63">
+                        <Textbox Name="Textbox16">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1430,7 +1395,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox63</rd:DefaultName>
+                          <rd:DefaultName>Textbox16</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1446,11 +1411,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox64">
+                        <Textbox Name="Textbox17">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1464,75 +1429,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox64</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.8cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox65">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox65</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.5cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox66">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox66</rd:DefaultName>
+                          <rd:DefaultName>Textbox17</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1552,7 +1449,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox67">
+                        <Textbox Name="Textbox18">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1566,7 +1463,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox67</rd:DefaultName>
+                          <rd:DefaultName>Textbox18</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1582,11 +1479,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.6cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox68">
+                        <Textbox Name="Textbox19">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1600,75 +1497,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox68</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>2.4cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox69">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox69</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.5cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox70">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox70</rd:DefaultName>
+                          <rd:DefaultName>Textbox19</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1688,7 +1517,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox71">
+                        <Textbox Name="Textbox20">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1702,7 +1531,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox71</rd:DefaultName>
+                          <rd:DefaultName>Textbox20</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1718,11 +1547,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox72">
+                        <Textbox Name="Textbox22">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1736,7 +1565,75 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox72</rd:DefaultName>
+                          <rd:DefaultName>Textbox22</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>2.8cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox23">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox23</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.45cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox24">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox24</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1756,7 +1653,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox73">
+                        <Textbox Name="Textbox25">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1770,7 +1667,75 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox73</rd:DefaultName>
+                          <rd:DefaultName>Textbox25</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.45cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox26">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox26</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.8cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox27">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox27</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1790,7 +1755,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox74">
+                        <Textbox Name="Textbox28">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1804,7 +1769,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox74</rd:DefaultName>
+                          <rd:DefaultName>Textbox28</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1820,11 +1785,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox75">
+                        <Textbox Name="Textbox29">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1838,7 +1803,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox75</rd:DefaultName>
+                          <rd:DefaultName>Textbox29</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1858,7 +1823,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox76">
+                        <Textbox Name="Textbox30">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1872,75 +1837,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox76</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.6cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox77">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox77</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.6cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox78">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox78</rd:DefaultName>
+                          <rd:DefaultName>Textbox30</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1960,7 +1857,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox79">
+                        <Textbox Name="Textbox31">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1974,7 +1871,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox79</rd:DefaultName>
+                          <rd:DefaultName>Textbox31</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1994,7 +1891,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox80">
+                        <Textbox Name="Textbox33">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2008,7 +1905,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox80</rd:DefaultName>
+                          <rd:DefaultName>Textbox33</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2024,11 +1921,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>1.4cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="RightField">
+                        <Textbox Name="Textbox34">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2042,6 +1939,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
+                          <rd:DefaultName>Textbox34</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2057,11 +1955,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.8cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox82">
+                        <Textbox Name="Textbox35">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2075,75 +1973,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox82</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.6cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox83">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox83</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.5cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox84">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox84</rd:DefaultName>
+                          <rd:DefaultName>Textbox35</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2163,7 +1993,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox85">
+                        <Textbox Name="Textbox37">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2177,7 +2007,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox85</rd:DefaultName>
+                          <rd:DefaultName>Textbox37</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2193,11 +2023,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.7cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox86">
+                        <Textbox Name="Textbox39">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2211,41 +2041,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox86</rd:DefaultName>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>1cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox87">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>Textbox87</rd:DefaultName>
+                          <rd:DefaultName>Textbox39</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2265,7 +2061,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox88">
+                        <Textbox Name="Textbox41">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2279,7 +2075,143 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox88</rd:DefaultName>
+                          <rd:DefaultName>Textbox41</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.45cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox42">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox42</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>1.05cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox43">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox43</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.45cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox45">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox45</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>1.05cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox49">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox49</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2299,7 +2231,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox54">
+                        <Textbox Name="Textbox50">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2313,7 +2245,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox54</rd:DefaultName>
+                          <rd:DefaultName>Textbox50</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2329,11 +2261,11 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.6cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox91">
+                        <Textbox Name="Textbox51">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2347,7 +2279,41 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox91</rd:DefaultName>
+                          <rd:DefaultName>Textbox51</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.45cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox52">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox52</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2382,7 +2348,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                       <TablixHeader>
                         <Size>11.1cm</Size>
                         <CellContents>
-                          <Image Name="Logo_Soling">
+                          <Image Name="Image1">
                             <Source>Embedded</Source>
                             <Value>WinAsia</Value>
                             <Sizing>Fit</Sizing>
@@ -2390,9 +2356,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                               <Border>
                                 <Style>None</Style>
                               </Border>
-                              <RightBorder>
-                                <Style>Solid</Style>
-                              </RightBorder>
                               <PaddingLeft>80pt</PaddingLeft>
                               <PaddingRight>80pt</PaddingRight>
                             </Style>
@@ -2405,7 +2368,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Size>3cm</Size>
                             <CellContents>
                               <Textbox Name="Label_BLName1">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2442,7 +2404,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                 <Size>1.8cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox2">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -2480,7 +2441,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                     <Size>1cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox3">
-                                        <CanGrow>true</CanGrow>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -2557,7 +2517,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                                             <Size>1.3cm</Size>
                                             <CellContents>
                                               <Textbox Name="Textbox4">
-                                                <CanGrow>true</CanGrow>
                                                 <KeepTogether>true</KeepTogether>
                                                 <Paragraphs>
                                                   <Paragraph>
@@ -2609,7 +2568,6 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                             <Size>5.8cm</Size>
                             <CellContents>
                               <Textbox Name="Label_BLName2">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2794,6 +2752,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Value>=Fields!Shippers.Value</Value>
                                     <Style>
                                       <FontFamily>Tahoma</FontFamily>
+                                      <FontSize>9pt</FontSize>
                                     </Style>
                                   </TextRun>
                                 </TextRuns>
@@ -2833,7 +2792,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>8.7cm</Size>
                             <CellContents>
                               <Textbox Name="BookingNum">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2842,6 +2800,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Value>=Fields!BLNum.Value</Value>
                                         <Style>
                                           <FontFamily>Tahoma</FontFamily>
+                                          <FontSize>9pt</FontSize>
                                         </Style>
                                       </TextRun>
                                     </TextRuns>
@@ -2862,7 +2821,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Style>Solid</Style>
                                     <Width>1pt</Width>
                                   </RightBorder>
-                                  <PaddingLeft>2pt</PaddingLeft>
+                                  <PaddingLeft>4pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
                                   <PaddingTop>2pt</PaddingTop>
                                   <PaddingBottom>2pt</PaddingBottom>
@@ -2926,7 +2885,6 @@ OR MULTIMODAL TRANSPORT</Value>
                             <Size>8.7cm</Size>
                             <CellContents>
                               <Textbox Name="POLAgent">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -2935,6 +2893,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Value>=Fields!POLAgent.Value</Value>
                                         <Style>
                                           <FontFamily>Tahoma</FontFamily>
+                                          <FontSize>9pt</FontSize>
                                         </Style>
                                       </TextRun>
                                     </TextRuns>
@@ -2955,7 +2914,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Style>Solid</Style>
                                     <Width>1pt</Width>
                                   </RightBorder>
-                                  <PaddingLeft>2pt</PaddingLeft>
+                                  <PaddingLeft>4pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
                                   <PaddingTop>2pt</PaddingTop>
                                   <PaddingBottom>2pt</PaddingBottom>
@@ -3028,6 +2987,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Value>=Fields!PODAgent.Value</Value>
                                         <Style>
                                           <FontFamily>Tahoma</FontFamily>
+                                          <FontSize>9pt</FontSize>
                                         </Style>
                                       </TextRun>
                                     </TextRuns>
@@ -3048,12 +3008,13 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Style>Solid</Style>
                                     <Width>1pt</Width>
                                   </RightBorder>
-                                  <PaddingLeft>2pt</PaddingLeft>
+                                  <PaddingLeft>4pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
                                   <PaddingTop>2pt</PaddingTop>
                                   <PaddingBottom>2pt</PaddingBottom>
                                 </Style>
                               </Textbox>
+                              <rd:Selected>true</rd:Selected>
                             </CellContents>
                           </TablixHeader>
                         </TablixMember>
@@ -3159,6 +3120,7 @@ OR MULTIMODAL TRANSPORT</Value>
                         <Size>11.1cm</Size>
                         <CellContents>
                           <Textbox Name="Consignees">
+                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3167,6 +3129,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Value>=Fields!Consignees.Value</Value>
                                     <Style>
                                       <FontFamily>Tahoma</FontFamily>
+                                      <FontSize>9pt</FontSize>
                                     </Style>
                                   </TextRun>
                                 </TextRuns>
@@ -3178,19 +3141,13 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Style>None</Style>
                               </Border>
                               <TopBorder>
-                                <Color>Black</Color>
                                 <Style>Solid</Style>
-                                <Width>1pt</Width>
                               </TopBorder>
                               <LeftBorder>
-                                <Color>Black</Color>
                                 <Style>Solid</Style>
-                                <Width>1pt</Width>
                               </LeftBorder>
                               <RightBorder>
-                                <Color>Black</Color>
                                 <Style>Solid</Style>
-                                <Width>1pt</Width>
                               </RightBorder>
                               <PaddingLeft>2pt</PaddingLeft>
                               <PaddingRight>2pt</PaddingRight>
@@ -3241,10 +3198,9 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="Label_VesselName">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3286,10 +3242,9 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="Label_Voyage">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3333,7 +3288,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="Label_PlaceReceipt">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -3374,10 +3328,9 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="VesselName">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3386,6 +3339,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Value>=Fields!VesselName.Value</Value>
                                     <Style>
                                       <FontFamily>Tahoma</FontFamily>
+                                      <FontSize>9pt</FontSize>
                                     </Style>
                                   </TextRun>
                                 </TextRuns>
@@ -3407,7 +3361,7 @@ OR MULTIMODAL TRANSPORT</Value>
                               <RightBorder>
                                 <Style>Solid</Style>
                               </RightBorder>
-                              <PaddingLeft>2pt</PaddingLeft>
+                              <PaddingLeft>4pt</PaddingLeft>
                               <PaddingRight>2pt</PaddingRight>
                               <PaddingTop>2pt</PaddingTop>
                               <PaddingBottom>2pt</PaddingBottom>
@@ -3418,10 +3372,9 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="Voyage">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3430,6 +3383,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Value>=Fields!Voyage.Value</Value>
                                         <Style>
                                           <FontFamily>Tahoma</FontFamily>
+                                          <FontSize>9pt</FontSize>
                                         </Style>
                                       </TextRun>
                                     </TextRuns>
@@ -3450,7 +3404,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Style>Solid</Style>
                                     <Width>1pt</Width>
                                   </RightBorder>
-                                  <PaddingLeft>2pt</PaddingLeft>
+                                  <PaddingLeft>4pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
                                   <PaddingTop>2pt</PaddingTop>
                                   <PaddingBottom>2pt</PaddingBottom>
@@ -3464,7 +3418,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="PlaceReceipt">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -3509,10 +3462,9 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="label_POLEn">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3530,23 +3482,8 @@ OR MULTIMODAL TRANSPORT</Value>
                             </Paragraphs>
                             <Style>
                               <Border>
-                                <Style>None</Style>
+                                <Style>Solid</Style>
                               </Border>
-                              <TopBorder>
-                                <Color>Black</Color>
-                                <Style>Solid</Style>
-                                <Width>1pt</Width>
-                              </TopBorder>
-                              <LeftBorder>
-                                <Color>Black</Color>
-                                <Style>Solid</Style>
-                                <Width>1pt</Width>
-                              </LeftBorder>
-                              <RightBorder>
-                                <Color>Black</Color>
-                                <Style>Solid</Style>
-                                <Width>1pt</Width>
-                              </RightBorder>
                               <PaddingLeft>2pt</PaddingLeft>
                               <PaddingRight>2pt</PaddingRight>
                               <PaddingTop>2pt</PaddingTop>
@@ -3558,10 +3495,9 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="Label_PODEn">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3586,6 +3522,11 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Style>Solid</Style>
                                     <Width>1pt</Width>
                                   </TopBorder>
+                                  <BottomBorder>
+                                    <Color>Black</Color>
+                                    <Style>Solid</Style>
+                                    <Width>1pt</Width>
+                                  </BottomBorder>
                                   <RightBorder>
                                     <Color>Black</Color>
                                     <Style>Solid</Style>
@@ -3605,7 +3546,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="label_PlaceDelivery">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -3650,10 +3590,9 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="POLEn">
-                            <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
@@ -3662,6 +3601,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Value>=Fields!POLEn.Value</Value>
                                     <Style>
                                       <FontFamily>Tahoma</FontFamily>
+                                      <FontSize>9pt</FontSize>
                                     </Style>
                                   </TextRun>
                                 </TextRuns>
@@ -3672,11 +3612,6 @@ OR MULTIMODAL TRANSPORT</Value>
                               <Border>
                                 <Style>None</Style>
                               </Border>
-                              <TopBorder>
-                                <Color>Black</Color>
-                                <Style>Solid</Style>
-                                <Width>1pt</Width>
-                              </TopBorder>
                               <LeftBorder>
                                 <Color>Black</Color>
                                 <Style>Solid</Style>
@@ -3687,7 +3622,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Style>Solid</Style>
                                 <Width>1pt</Width>
                               </RightBorder>
-                              <PaddingLeft>2pt</PaddingLeft>
+                              <PaddingLeft>4pt</PaddingLeft>
                               <PaddingRight>2pt</PaddingRight>
                               <PaddingTop>2pt</PaddingTop>
                               <PaddingBottom>2pt</PaddingBottom>
@@ -3698,10 +3633,9 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="PODEn">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -3710,6 +3644,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Value>=Fields!PODEn.Value</Value>
                                         <Style>
                                           <FontFamily>Tahoma</FontFamily>
+                                          <FontSize>9pt</FontSize>
                                         </Style>
                                       </TextRun>
                                     </TextRuns>
@@ -3720,17 +3655,12 @@ OR MULTIMODAL TRANSPORT</Value>
                                   <Border>
                                     <Style>None</Style>
                                   </Border>
-                                  <TopBorder>
-                                    <Color>Black</Color>
-                                    <Style>Solid</Style>
-                                    <Width>1pt</Width>
-                                  </TopBorder>
                                   <RightBorder>
                                     <Color>Black</Color>
                                     <Style>Solid</Style>
                                     <Width>1pt</Width>
                                   </RightBorder>
-                                  <PaddingLeft>2pt</PaddingLeft>
+                                  <PaddingLeft>4pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
                                   <PaddingTop>2pt</PaddingTop>
                                   <PaddingBottom>2pt</PaddingBottom>
@@ -3744,7 +3674,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="PlaceDelivery">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
@@ -3836,7 +3765,7 @@ OR MULTIMODAL TRANSPORT</Value>
                               <Paragraph>
                                 <TextRuns>
                                   <TextRun>
-                                    <Value>Container types</Value>
+                                    <Value>Container, Types</Value>
                                     <Style>
                                       <FontFamily>Tahoma</FontFamily>
                                       <FontSize>7pt</FontSize>
@@ -4235,7 +4164,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                         <Size>1.3cm</Size>
                                         <CellContents>
                                           <Textbox Name="Measurement">
-                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -4744,7 +4672,7 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>1.49206cm</Size>
+                            <Size>1.5cm</Size>
                             <CellContents>
                               <Textbox Name="Label_Rate">
                                 <CanGrow>true</CanGrow>
@@ -4788,7 +4716,7 @@ OR MULTIMODAL TRANSPORT</Value>
                           <TablixMembers>
                             <TablixMember>
                               <TablixHeader>
-                                <Size>1.49206cm</Size>
+                                <Size>1.5cm</Size>
                                 <CellContents>
                                   <Textbox Name="Label_Unit">
                                     <CanGrow>true</CanGrow>
@@ -4832,7 +4760,7 @@ OR MULTIMODAL TRANSPORT</Value>
                               <TablixMembers>
                                 <TablixMember>
                                   <TablixHeader>
-                                    <Size>5.61588cm</Size>
+                                    <Size>5.6cm</Size>
                                     <CellContents>
                                       <Textbox Name="Label_Currency">
                                         <CanGrow>true</CanGrow>
@@ -5023,7 +4951,7 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>1.49206cm</Size>
+                            <Size>1.5cm</Size>
                             <CellContents>
                               <Textbox Name="Rate">
                                 <CanGrow>true</CanGrow>
@@ -5067,7 +4995,7 @@ OR MULTIMODAL TRANSPORT</Value>
                           <TablixMembers>
                             <TablixMember>
                               <TablixHeader>
-                                <Size>1.49206cm</Size>
+                                <Size>1.5cm</Size>
                                 <CellContents>
                                   <Textbox Name="Unit">
                                     <CanGrow>true</CanGrow>
@@ -5111,7 +5039,7 @@ OR MULTIMODAL TRANSPORT</Value>
                               <TablixMembers>
                                 <TablixMember>
                                   <TablixHeader>
-                                    <Size>5.61588cm</Size>
+                                    <Size>5.6cm</Size>
                                     <CellContents>
                                       <Textbox Name="Currency">
                                         <CanGrow>true</CanGrow>
@@ -5253,7 +5181,7 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="Label_TotalCntrsCount">
                             <CanGrow>true</CanGrow>
@@ -5302,7 +5230,7 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="Label_POLEn2">
                                 <CanGrow>true</CanGrow>
@@ -5345,16 +5273,15 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox47">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
                                         <TextRuns>
                                           <TextRun>
-                                            <Value />
+                                            <Value>RECEIVED by the Carrier from the Shipper, as far as ascertained by reasonable means of checking, in apparent good order and condition unless otherwise stated herein, the total number or quantity of Containers or other packages or units indicated in the box entitled "Carrier's Receipt" for carriage from</Value>
                                             <Style>
                                               <FontFamily>Tahoma</FontFamily>
-                                              <FontSize>7pt</FontSize>
+                                              <FontSize>5pt</FontSize>
                                             </Style>
                                           </TextRun>
                                         </TextRuns>
@@ -5374,7 +5301,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                       <PaddingLeft>2pt</PaddingLeft>
                                       <PaddingRight>2pt</PaddingRight>
                                       <PaddingTop>2pt</PaddingTop>
-                                      <PaddingBottom>2pt</PaddingBottom>
                                     </Style>
                                   </Textbox>
                                 </CellContents>
@@ -5386,7 +5312,7 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="TotalCntrsCount">
                             <CanGrow>true</CanGrow>
@@ -5444,7 +5370,7 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="POLEn2">
                                 <CanGrow>true</CanGrow>
@@ -5494,16 +5420,15 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox32">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
                                         <TextRuns>
                                           <TextRun>
-                                            <Value />
+                                            <Value>the Port of Loading (or the Place of Receipt, if mentioned above) to the Port of Discharge (or the Place of Delivery, if mentioned above),such carriage being always subject to the terms, rights, defences, provisions, conditions, exceptions, limitations, and liberties hereof and the Merchant's attention</Value>
                                             <Style>
                                               <FontFamily>Tahoma</FontFamily>
-                                              <FontSize>7pt</FontSize>
+                                              <FontSize>5pt</FontSize>
                                             </Style>
                                           </TextRun>
                                         </TextRuns>
@@ -5522,8 +5447,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                       </RightBorder>
                                       <PaddingLeft>2pt</PaddingLeft>
                                       <PaddingRight>2pt</PaddingRight>
-                                      <PaddingTop>2pt</PaddingTop>
-                                      <PaddingBottom>2pt</PaddingBottom>
                                     </Style>
                                   </Textbox>
                                 </CellContents>
@@ -5535,7 +5458,7 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="Label_NumberOriginals">
                             <CanGrow>true</CanGrow>
@@ -5584,7 +5507,7 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="Label_DateIssue">
                                 <CanGrow>true</CanGrow>
@@ -5631,16 +5554,15 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox21">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
                                         <TextRuns>
                                           <TextRun>
-                                            <Value />
+                                            <Value>is drawn in particular to the Carrier's liberties in respect of on deck stowage and the carrying vessel. Where the bill of lading is non-negotiable the Carrier may give delivery of the Goods to the named</Value>
                                             <Style>
                                               <FontFamily>Tahoma</FontFamily>
-                                              <FontSize>7pt</FontSize>
+                                              <FontSize>5pt</FontSize>
                                             </Style>
                                           </TextRun>
                                         </TextRuns>
@@ -5659,8 +5581,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                       </RightBorder>
                                       <PaddingLeft>2pt</PaddingLeft>
                                       <PaddingRight>2pt</PaddingRight>
-                                      <PaddingTop>2pt</PaddingTop>
-                                      <PaddingBottom>2pt</PaddingBottom>
                                     </Style>
                                   </Textbox>
                                 </CellContents>
@@ -5672,7 +5592,7 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="NumberOriginals">
                             <CanGrow>true</CanGrow>
@@ -5721,10 +5641,9 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="DateIssue">
-                                <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
                                   <Paragraph>
@@ -5745,14 +5664,10 @@ OR MULTIMODAL TRANSPORT</Value>
                                     <Style>None</Style>
                                   </Border>
                                   <BottomBorder>
-                                    <Color>Black</Color>
                                     <Style>Solid</Style>
-                                    <Width>1pt</Width>
                                   </BottomBorder>
                                   <RightBorder>
-                                    <Color>Black</Color>
                                     <Style>Solid</Style>
-                                    <Width>1pt</Width>
                                   </RightBorder>
                                   <PaddingLeft>2pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
@@ -5768,16 +5683,15 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox5">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
                                         <TextRuns>
                                           <TextRun>
-                                            <Value />
+                                            <Value>consignee upon reasonable proof of identity and without requiring surrender of an original bill of lading. Where the bill of lading is negotiable, the Merchant is obliged to surrender one original, duly endorsed, in exchange for the Goods.  The Carrier accepts a duty of reasonable care to check that any such document which the Merchant surrenders as a bill of lading is genuine and original. If the Carrier complies with this duty, it will be entitled to deliver the Goods against what it  reasonably believes to be a genuine and</Value>
                                             <Style>
                                               <FontFamily>Tahoma</FontFamily>
-                                              <FontSize>7pt</FontSize>
+                                              <FontSize>5pt</FontSize>
                                             </Style>
                                           </TextRun>
                                         </TextRuns>
@@ -5796,8 +5710,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                       </RightBorder>
                                       <PaddingLeft>2pt</PaddingLeft>
                                       <PaddingRight>2pt</PaddingRight>
-                                      <PaddingTop>2pt</PaddingTop>
-                                      <PaddingBottom>2pt</PaddingBottom>
                                     </Style>
                                   </Textbox>
                                 </CellContents>
@@ -5809,7 +5721,7 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="Label_DeclaredValue">
                             <CanGrow>true</CanGrow>
@@ -5858,7 +5770,7 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="Label_ShippedOnBoard">
                                 <CanGrow>true</CanGrow>
@@ -5905,16 +5817,15 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox100">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
                                         <TextRuns>
                                           <TextRun>
-                                            <Value />
+                                            <Value>original bill of lading, such delivery discharging the Carrier’s delivery obligations. In accepting this bill of lading, any local customs or privileges to the contrary notwithstanding, the Merchant agrees</Value>
                                             <Style>
                                               <FontFamily>Tahoma</FontFamily>
-                                              <FontSize>7pt</FontSize>
+                                              <FontSize>5pt</FontSize>
                                             </Style>
                                           </TextRun>
                                         </TextRuns>
@@ -5933,8 +5844,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                       </RightBorder>
                                       <PaddingLeft>2pt</PaddingLeft>
                                       <PaddingRight>2pt</PaddingRight>
-                                      <PaddingTop>2pt</PaddingTop>
-                                      <PaddingBottom>2pt</PaddingBottom>
                                     </Style>
                                   </Textbox>
                                 </CellContents>
@@ -5946,7 +5855,7 @@ OR MULTIMODAL TRANSPORT</Value>
                     </TablixMember>
                     <TablixMember>
                       <TablixHeader>
-                        <Size>5.48412cm</Size>
+                        <Size>5.5cm</Size>
                         <CellContents>
                           <Textbox Name="DeclaredValue">
                             <CanGrow>true</CanGrow>
@@ -5995,7 +5904,7 @@ OR MULTIMODAL TRANSPORT</Value>
                       <TablixMembers>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.61588cm</Size>
+                            <Size>5.6cm</Size>
                             <CellContents>
                               <Textbox Name="ShippedOnBoard">
                                 <CanGrow>true</CanGrow>
@@ -6042,16 +5951,16 @@ OR MULTIMODAL TRANSPORT</Value>
                                 <Size>8.7cm</Size>
                                 <CellContents>
                                   <Textbox Name="Textbox90">
-                                    <CanGrow>true</CanGrow>
                                     <KeepTogether>true</KeepTogether>
                                     <Paragraphs>
                                       <Paragraph>
                                         <TextRuns>
                                           <TextRun>
-                                            <Value />
+                                            <Value>to be bound by all Terms and Conditions stated herein whether written, printed, stamped or incorporated on the face or reverse side hereof, as fully as if they were all signed by the Merchant.
+IN WITNESS WHEREOF the number of original Bills of Lading stated on this side have been signed and wherever one original Bill of Lading has been surrendered any others shall be void.</Value>
                                             <Style>
                                               <FontFamily>Tahoma</FontFamily>
-                                              <FontSize>7pt</FontSize>
+                                              <FontSize>5pt</FontSize>
                                             </Style>
                                           </TextRun>
                                         </TextRuns>
@@ -6075,8 +5984,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                       </RightBorder>
                                       <PaddingLeft>2pt</PaddingLeft>
                                       <PaddingRight>2pt</PaddingRight>
-                                      <PaddingTop>2pt</PaddingTop>
-                                      <PaddingBottom>2pt</PaddingBottom>
                                     </Style>
                                   </Textbox>
                                 </CellContents>
@@ -6311,9 +6218,12 @@ OR MULTIMODAL TRANSPORT</Value>
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>dsBL</DataSetName>
-            <Height>28.5cm</Height>
+            <PageBreak>
+              <BreakLocation>End</BreakLocation>
+            </PageBreak>
+            <Height>27.6cm</Height>
             <Width>19.87938cm</Width>
-            <ZIndex>2</ZIndex>
+            <ZIndex>1</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -6321,7 +6231,7 @@ OR MULTIMODAL TRANSPORT</Value>
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>11.88976in</Height>
+        <Height>11.5748in</Height>
         <Style>
           <Border>
             <Style>None</Style>
@@ -6335,7 +6245,7 @@ OR MULTIMODAL TRANSPORT</Value>
           <Height>0.5cm</Height>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
-            <Textbox Name="HeaderPager">
+            <Textbox Name="Header">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>

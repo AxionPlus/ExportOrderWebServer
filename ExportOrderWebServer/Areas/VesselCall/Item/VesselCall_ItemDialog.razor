@@ -49,7 +49,6 @@
         </div>
 
         <div class="Container-item">
-
             <div class="container-content" style="justify-content:flex-start">
                 <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 260px; margin-right:20px" @bind-Value="Item!.Vessel"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
@@ -115,29 +114,6 @@
                                Clearable="!IsFormReadOnly" />
 
              </div>
-
-@*              <div class="container-content" style="justify-content:flex-start">
-                 <MudDatePicker Class="DatePicker" Label="ETA" @bind-Date="Item.ETA"
-                                Style="width: 115px; height: 30px; margin-right: 4px"
-                                DateFormat="dd.MM.yy"
-                                ShowWeekNumbers="true"
-                                Variant="Variant.Outlined"
-                                IconSize=Size.Small
-                                AutoClose=true
-                                DisableToolbar=true
-                                Required RequiredError=""
-                                Clearable="!IsFormReadOnly" />
-                 <MudDatePicker Class="DatePicker" Label="ETS" @bind-Date="Item.ETS"
-                                Style="width: 115px; height: 30px"
-                                DateFormat="dd.MM.yy"
-                                ShowWeekNumbers="true"
-                                Variant="Variant.Outlined"
-                                IconSize=Size.Small
-                                AutoClose=true
-                                DisableToolbar=true
-                                Required RequiredError=""
-                                Clearable="!IsFormReadOnly" />
-             </div> *@
 
              <div class="Container-table">
                  <MudTable Class="Table" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
@@ -251,14 +227,14 @@
             if (IsNewItem)
             {
                 await _vesselCallProvider.NewItemAsync(Item!);
-                Snackbar.Add("Save Successed", Severity.Success);
+                Snackbar.Add("Saved Successfully", Severity.Success);
             }
             else
             {
                 var result = await _vesselCallProvider.ModifyItemAsync(Item!);
                 if (!result.HasError)
                 {
-                    Snackbar.Add("Save Successed", Severity.Success);
+                    Snackbar.Add("Saved Successfully", Severity.Success);
                 }
                 else
                     Snackbar.Add($"{result.Error.First()}", Severity.Error);
@@ -295,8 +271,22 @@
     private async Task RemoveDetail_Click(VesselCallDetail item)
     {
         await Task.Delay(50);
-        if (Item!.Details.Contains(item))
-            Item.Details.Remove(item);
+
+        if (Item is null) return;
+
+        // if (item.ExportOrders.Any(eo => eo.Status != EntityStatus.New))
+        // {
+        //     Snackbar.Add("В этом рейсе есть оформленные поручения.<br>Удаление этого рейса невозможно.", Severity.Error);
+        //     return;
+        // }
+
+        if (item.ExportOrders.Count() > 0)
+        {
+            Snackbar.Add("В этом рейсе есть поручения.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки.", Severity.Warning);
+            return;            
+        }
+
+        Item.Details.Remove(item);
     }
 
     private async Task AddVessel_Click()

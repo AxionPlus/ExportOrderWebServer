@@ -137,8 +137,8 @@
           <DataField>PackageName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="CommodityEn">
-          <DataField>CommodityEn</DataField>
+        <Field Name="RecordCommoditiesEn">
+          <DataField>RecordCommoditiesEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="GrossWt">
@@ -3112,7 +3112,7 @@ GROSS WEIGHT (KILOS)</Value>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CommodityEn.Value</Value>
+                                  <Value>=Fields!RecordCommoditiesEn.Value</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                   </Style>

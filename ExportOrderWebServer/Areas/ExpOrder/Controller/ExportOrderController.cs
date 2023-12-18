@@ -49,6 +49,7 @@ public class ExportOrderController : ControllerBase
             var dsItem = Items.Select(x => new
             {
                 x.Num,
+                x.BLNum,
                 x.Dated,
                 Vessel = x.VesselName + " (" + x.VesselFlag + ")",
                 x.Voyage,
@@ -121,25 +122,18 @@ public class ExportOrderController : ControllerBase
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Encoding.GetEncoding("windows-1252");
 
-            #region PARAMETERS
-            //Dictionary<string, string> parameters = new Dictionary<string, string>()
-            //{
-            //    { "BLTemplate", Item.BLtemplate },
-            //};
-            #endregion
-
             #region DATA SOURCE
 
             var Items = new List<ExportOrderDTO>() { Item };
             var Records = Item.exportOrderRecordsDTO.ToList();
 
-            string Shippers = string.Join("\n", Records.Select(x => x.ShipperEn).Distinct().ToList());            
-            string Consignees = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
-            string NotifyParties = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
+            //string Shippers = string.Join("\n", Records.Select(x => x.ShipperEn).Distinct().ToList());            
+            //string Consignees = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
+            //string NotifyParties = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
 
             // список товаров
 
-            string Commodities = string.Join("; ", Records.GroupBy(c => c.CommodityEn).Select(g => g.Key));
+            //string Commodities = string.Join("; ", Records.GroupBy(c => c.RecordCommoditiesEn).Select(g => g.Key));
 
             #region GROUP WITH 2 KEYS
             //var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName, c.CntrType })
@@ -177,21 +171,20 @@ public class ExportOrderController : ControllerBase
 
             // общие данные
             var dsItem = Items.Select(x => new
-            { 
-               
+            {  
                 x.BLNum,
                 x.BLDate,
+                x.Shippers,
+                x.Consignees,
+                NotifyParties = x.Consignees,
+                CntrTypes,
+                x.Commodities,
                 POLAgent = x.CarrierNameEn,
                 x.PODAgent,
                 x.VesselName,
                 x.Voyage,
                 x.POLEn,
                 x.PODEn,
-                Shippers,
-                Consignees,
-                NotifyParties,
-                CntrTypes,
-                Commodities,
                 x.TotalCntrCount,
                 x.TotalPackages,
                 x.TotalTareWeight,
@@ -199,8 +192,7 @@ public class ExportOrderController : ControllerBase
                 x.Measurement,
             }).ToList();
 
-            // список контейнеров
-
+            // список контейнеров дополненный до 20ти записей на первом листе коносамента
             if (Item.BLtemplate == "nca")
             {
                 int recCount = Records.Count();
@@ -250,7 +242,7 @@ public class ExportOrderController : ControllerBase
                                 break;
                         }
 
-                        switch (record.CommodityEn.Length)
+                        switch (record.RecordCommoditiesEn.Length)
                         {
                             case <= 35:
                                 break;
@@ -298,23 +290,7 @@ public class ExportOrderController : ControllerBase
                         Records.Add(new() { Seq = (uint)i, CntrTareWt = null, GrossWt = null });
             }
 
-            #region OLD список контейнеров
-            //var dsCntrRecords = Records.Select(r => new
-            //{
-            //    r.Cntr,
-            //    r.CntrType,
-            //    r.Seal,
-            //    r.PackageQty,
-            //    r.PackageName,
-            //    r.CntrTareWt,
-            //    r.GrossWt,
-            //    r.Volume,
-            //    r.CommodityNameEn,
-            //}).ToList();
-            #endregion
-
             localReport.AddDataSource("dsBL", dsItem);
-            //localReport.AddDataSource("dsCntrRecords", dsCntrRecords);
             localReport.AddDataSource("dsCntrRecords", Records);
 
             #endregion
@@ -341,7 +317,8 @@ public class ExportOrderController : ControllerBase
     [Route("ViewReportManifest")]
     public async Task<IActionResult> ManifestReport(long vslcallid, bool isIMO)
     {
-        var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
+        //var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
+        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
 
         if (Items.Count() == 0) return Empty;
 
@@ -359,88 +336,56 @@ public class ExportOrderController : ControllerBase
 
             LocalReport localReport = new LocalReport(pathReport);
 
-            #region PARAMETERS
-            //Dictionary<string, string> parameters = new Dictionary<string, string>()
-            //{
-            //    { "Full20Qty", full20Count > 0 ? full20Count.ToString() : "0" },
-            //};
-            #endregion
-
             #region DATA SOURCES
 
-            // Count
-            //int full20Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
-            //                       .Where(it => it.CntrType.Substring(0, 2) == "20")
-            //                       .GroupBy(it => it.Cntr).Count();
-            //int full40Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
-            //                       .Where(it => it.CntrType.Substring(0, 2) == "40")
-            //                       .GroupBy(it => it.Cntr).Count();
-            //int full45Count = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
-            //                       .Where(it => it.CntrType.Substring(0, 2) == "45")
-            //                       .GroupBy(it => it.Cntr).Count();
-
             int full20Count = Items.Where(it => it.GrossWeights > 0)
-                                   .Where(it => it.CntrType.Substring(0, 2) == "20")
+                                   .Where(it => it.CntrType!.Substring(0, 2) == "20")
                                    .GroupBy(it => it.Cntr).Count();
             int full40Count = Items.Where(it => it.GrossWeights > 0)
-                                   .Where(it => it.CntrType.Substring(0, 2) == "40")
+                                   .Where(it => it.CntrType!.Substring(0, 2) == "40")
                                    .GroupBy(it => it.Cntr).Count();
             int full45Count = Items.Where(it => it.GrossWeights > 0)
-                                   .Where(it => it.CntrType.Substring(0, 2) == "45")
+                                   .Where(it => it.CntrType!.Substring(0, 2) == "45")
                                    .GroupBy(it => it.Cntr).Count();
 
             int empty20Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
-                                    .Where(it => it.CntrType.Substring(0, 2) == "20")
+                                    .Where(it => it.CntrType!.Substring(0, 2) == "20")
                                     .GroupBy(it => it.Cntr).Count();
             int empty40Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
-                                    .Where(it => it.CntrType.Substring(0, 2) == "40")
+                                    .Where(it => it.CntrType!.Substring(0, 2) == "40")
                                     .GroupBy(it => it.Cntr).Count();
             int empty45Count = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
-                                    .Where(it => it.CntrType.Substring(0, 2) == "45")
+                                    .Where(it => it.CntrType!.Substring(0, 2) == "45")
                                     .GroupBy(it => it.Cntr).Count();
 
             // Sum weights of Full
-            var full20weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "20").Sum(c => c.GrossWeights);
-            var full40weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "40").Sum(c => c.GrossWeights);
-            var full45weight = Items.Where(it => it.GrossWeights is not null && it.CntrType.Substring(0, 2) == "45").Sum(c => c.GrossWeights);
+            double full20weight = Items.Where(it => it.GrossWeights is not null && it.CntrType!.Substring(0, 2) == "20").Sum(c => (double)c.GrossWeights!);
+            double full40weight = Items.Where(it => it.GrossWeights is not null && it.CntrType!.Substring(0, 2) == "40").Sum(c => (double)c.GrossWeights!);
+            double full45weight = Items.Where(it => it.GrossWeights is not null && it.CntrType!.Substring(0, 2) == "45").Sum(c => (double)c.GrossWeights!);
 
             // Sum Tare
-            //var full20Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
-            //                      .Where(it => it.CntrType.Substring(0, 2) == "20")
-            //                      .Sum(c => c.CntrTareWt);
-            //var full40Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
-            //                      .Where(it => it.CntrType.Substring(0, 2) == "40")
-            //                      .Sum(c => c.CntrTareWt);
-            //var full45Tare = Items.Where(it => it.GrossWeights is not null || it.GrossWeights > 0)
-            //                      .Where(it => it.CntrType.Substring(0, 2) == "45")
-            //                      .Sum(c => c.CntrTareWt);
 
-            var full20Tare = Items.Where(it => it.GrossWeights > 0)
-                                   .Where(it => it.CntrType.Substring(0, 2) == "20")
-                                   .Sum(c => c.CntrTareWt);
-            var full40Tare = Items.Where(it => it.GrossWeights > 0)
-                                  .Where(it => it.CntrType.Substring(0, 2) == "40")
-                                  .Sum(c => c.CntrTareWt);
-            var full45Tare = Items.Where(it => it.GrossWeights > 0)
-                                  .Where(it => it.CntrType.Substring(0, 2) == "45")
-                                  .Sum(c => c.CntrTareWt);
-            var empty20Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
-                                   .Where(it => it.CntrType.Substring(0, 2) == "20")
-                                   .Sum(c => c.CntrTareWt);
-            var empty40Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
-                                   .Where(it => it.CntrType.Substring(0, 2) == "40")
-                                   .Sum(c => c.CntrTareWt);
-            var empty45Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
-                                   .Where(it => it.CntrType.Substring(0, 2) == "45")
-                                   .Sum(c => c.CntrTareWt);
+            double full20Tare = Items.Where(it => it.GrossWeights > 0).Where(it => it.CntrType!.Substring(0, 2) == "20").Sum(c => (double)c.CntrTareWt!);
+            double full40Tare = Items.Where(it => it.GrossWeights > 0).Where(it => it.CntrType!.Substring(0, 2) == "40").Sum(c => (double)c.CntrTareWt!);
+            double full45Tare = Items.Where(it => it.GrossWeights > 0).Where(it => it.CntrType!.Substring(0, 2) == "45").Sum(c => (double)c.CntrTareWt!);
+
+            double empty20Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                   .Where(it => it.CntrType!.Substring(0, 2) == "20")
+                                   .Sum(c => (double)c.CntrTareWt!);
+            double empty40Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                   .Where(it => it.CntrType!.Substring(0, 2) == "40")
+                                   .Sum(c => (double)c.CntrTareWt!);
+            double empty45Tare = Items.Where(it => it.GrossWeights is null || it.GrossWeights == 0)
+                                   .Where(it => it.CntrType!.Substring(0, 2) == "45")
+                                   .Sum(c => (double)c.CntrTareWt!);
 
             // Total
-            var total20 = (double)full20weight! + full20Tare;
-            var total40 = (double)full40weight! + full40Tare;
-            var total45 = (double)full45weight! + full45Tare;
+            var total20 = full20weight + full20Tare;
+            var total40 = full40weight + full40Tare;
+            var total45 = full45weight + full45Tare;
 
             var totalCntrs = full20Count + full40Count + full45Count + empty20Count + empty40Count + empty45Count;
-            var totalWeight = (double)full20weight + (double)full40weight + (double)full45weight;
+            var totalWeight = full20weight + full40weight + full45weight;
             var totalTare = Items.Sum(it => it.CntrTareWt);
             var total = totalWeight + totalTare;
 
@@ -455,9 +400,9 @@ public class ExportOrderController : ControllerBase
                     Empty40Count = empty40Count,
                     Empty45Count = empty45Count,
 
-                    Full20Weight = (double)full20weight,
-                    Full40Weight = (double)full40weight,
-                    Full45Weight = (double)full45weight,
+                    Full20Weight = full20weight,
+                    Full40Weight = full40weight,
+                    Full45Weight = full45weight,
 
                     Full20Tare = full20Tare,
                     Full40Tare = full40Tare,
@@ -499,7 +444,8 @@ public class ExportOrderController : ControllerBase
     [Route("ViewCustomsExplanation")]
     public async Task<IActionResult> CustomsReport(long vslcallid)
     {
-        var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
+        //var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
+        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
 
         if (Items.Count() == 0) return Empty;
 
@@ -542,11 +488,13 @@ public class ExportOrderController : ControllerBase
             var dsRecords = Items.GroupBy(g => g.BLNum)
                                .Select(g => new
                                {
+                                   g.FirstOrDefault()!.ExpOrderNum,
                                    BLNum = g.Key,
                                    CntrCount = g.Select(m => m.Cntr).Count(),
                                    GrossWt = g.Select(m => m.GrossWeights).Sum(),
                                    CntrTotalWt = g.Sum(m => m.CntrTotalWeight),
-                                   Commodities = string.Join("; ", g.Select(m => m.Commodities).Distinct())
+                                   g.FirstOrDefault()!.Commodities,
+                                   //Commodities = string.Join("; ", g.Select(m => m.Commodities).Distinct()),
                                }).ToList();
 
             #endregion
@@ -609,13 +557,14 @@ public class ExportOrderController : ControllerBase
     {
         try
         {
-            var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
+            //var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
+            var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
 
             await Task.Delay(100);
 
             if (Items.Count() == 0) return Empty;
 
-            string FileName = $"Fillbill_{Items.FirstOrDefault()!.Voyage}";
+            string FileName = $"FillBill_{Items.FirstOrDefault()!.Voyage}";
             //string dirName = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "TempFiles");
             string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
 

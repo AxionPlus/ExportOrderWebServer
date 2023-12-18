@@ -137,8 +137,8 @@
           <DataField>PackageName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="CommodityEn">
-          <DataField>CommodityEn</DataField>
+        <Field Name="RecordCommoditiesEn">
+          <DataField>RecordCommoditiesEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="GrossWt">
@@ -636,7 +636,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CommodityEn.Value</Value>
+                                  <Value>=Fields!RecordCommoditiesEn.Value</Value>
                                   <Style>
                                     <FontFamily>Calibri</FontFamily>
                                     <FontSize>9pt</FontSize>

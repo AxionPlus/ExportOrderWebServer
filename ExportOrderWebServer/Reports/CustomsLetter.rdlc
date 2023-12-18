@@ -2106,7 +2106,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=Fields!BLNum.Value</Value>
+                              <Value>=Fields!ExpOrderNum.Value</Value>
                               <Style>
                                 <FontSize>8pt</FontSize>
                               </Style>
@@ -2736,6 +2736,10 @@
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
+        <Field Name="ExpOrderNum">
+          <DataField>ExpOrderNum</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="BLNum">
           <DataField>BLNum</DataField>
           <rd:TypeName>System.String</rd:TypeName>

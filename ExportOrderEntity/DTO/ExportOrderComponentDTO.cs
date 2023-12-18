@@ -18,4 +18,5 @@ public class ExportOrderComponentDTO
     public EntityStatus Status { get; set; }
     public BLTemplate BlTemplate { get; set; }
     public DateTime? CreateTime { get; set; }
+    public int? VersionNo { get; set; }
 }

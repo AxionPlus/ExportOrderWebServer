@@ -17,6 +17,7 @@
             <xs:sequence>
               <xs:element name="Id" msprop:Generator_ColumnPropNameInTable="IdColumn" msprop:Generator_ColumnPropNameInRow="Id" msprop:Generator_UserColumnName="Id" msprop:Generator_ColumnVarNameInTable="columnId" type="xs:long" />
               <xs:element name="Num" msprop:Generator_ColumnPropNameInTable="NumColumn" msprop:Generator_ColumnPropNameInRow="Num" msprop:Generator_UserColumnName="Num" msprop:Generator_ColumnVarNameInTable="columnNum" type="xs:string" minOccurs="0" />
+              <xs:element name="BLNum" msprop:Generator_ColumnPropNameInRow="BLNum" msprop:Generator_ColumnPropNameInTable="BLNumColumn" msprop:Generator_ColumnVarNameInTable="columnBLNum" msprop:Generator_UserColumnName="BLNum" type="xs:string" minOccurs="0" />
               <xs:element name="Dated" msprop:Generator_ColumnPropNameInTable="DatedColumn" msprop:Generator_ColumnPropNameInRow="Dated" msprop:Generator_UserColumnName="Dated" msprop:Generator_ColumnVarNameInTable="columnDated" type="xs:dateTime" minOccurs="0" />
               <xs:element name="Vessel" msprop:Generator_ColumnPropNameInTable="VesselColumn" msprop:Generator_ColumnPropNameInRow="Vessel" msprop:Generator_UserColumnName="Vessel" msprop:Generator_ColumnVarNameInTable="columnVessel" type="xs:string" minOccurs="0" />
               <xs:element name="Voyage" msprop:Generator_ColumnPropNameInTable="VoyageColumn" msprop:Generator_ColumnPropNameInRow="Voyage" msprop:Generator_UserColumnName="Voyage" msprop:Generator_ColumnVarNameInTable="columnVoyage" type="xs:string" minOccurs="0" />

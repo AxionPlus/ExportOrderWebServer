@@ -1,5 +1,5 @@
 ﻿@inject ISnackbar Snackbar
-@inject IDialogService DialogService;
+@inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject IJSRuntime jsRuntime
 
@@ -116,7 +116,7 @@
                           Variant="Variant.Outlined" Margin="Margin.Dense"                          
                           Required RequiredError="" Clearable="!IsFormReadOnly" />
 
-             <MudDatePicker Class="wrapper-input-date" Style="width: 130px; height:40px" Label="Date" @bind-Date="Value.Dated"
+             <MudDatePicker Class="wrapper-input-date" Style="width: 130px; height:35px" Label="Date" @bind-Date="Value.Dated"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             DateFormat="dd.MM.yy"
                             Editable="true"
@@ -157,7 +157,6 @@
                         ToStringFunc="@(str => str is not null ?
                                                 $"{str.FamilyName} {str.Name?.Substring(0, 1)}. {str.SurName?.Substring(0, 1)}."
                                                 : string.Empty)"
-
                         Style="width:200px" Placeholder="Person"
                         Variant="Variant.Outlined" Margin="Margin.Dense"
                         CloseIcon="" OpenIcon="" IconSize="Size.Small"
@@ -176,7 +175,8 @@
                     }
             </MudSelect>
             <MudSpacer />
-            <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
+            <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" Value="Value.Status"
+                       ValueChanged="@(async (e) => Value.Status = await SelectStatus_Change(e))"
                        ToStringFunc="@(str => str.ToString())"
                        Variant="Variant.Outlined" Margin="Margin.Dense">
                 @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
@@ -249,16 +249,15 @@
                     if (Value.Documents.Count() > 0)
                     {
                         <h6 class="infoSC">Shippers:</h6>
-                        @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
+@*                         @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
                         {
                             <div style="padding-left:10px">@(shipper);</div>
-                        }
+                        } *@
+                        <div style="padding-left:10px">@string.Join("; ", Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))</div>
+                            
                         <br />
                         <h6 class="infoSC">Consignees:</h6>
-                        @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
-                        {
-                            <div style="padding-left:10px">@(consignee);</div>
-                        }
+                        <div style="padding-left:10px">@string.Join("; ", Value.Consignees.Select(dcust => dcust.Name).Distinct().Order())</div>
                     }
                 }
             </div>
@@ -415,7 +414,8 @@
                 }
             </FooterContent>
         </MudTable>
-    </div>    
+    </div>
+    
 }
 
 @code {
@@ -423,13 +423,21 @@
     private MudTable<ContainerContent>? mudCntrContentTable;
     private MudTable<DocumentRecord>? mudDocRecordsTable;
 
+    public ExportOrder_ItemDialog? itemDialog;
+
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public ExportOrderEntity? Value { get; set; }
     [Parameter]
     public EventCallback<ExportOrderEntity> ValueChanged { get; set; }    
     [Parameter]
-    public bool IsFormReadOnly { get; set; }    
+    public bool IsFormReadOnly { get; set; }
+    [Parameter]
+    public string InitialStatus { get; set; } = string.Empty;
+    
+    private int lastVersion = 1;
+    private bool IsNewVersionDisabled = true;
+    
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
@@ -460,9 +468,13 @@
         foreach (var document in DocumentItems)
             foreach (var docRecord in document.Records)
                 DocumentRecordItems.Add(docRecord);
+
+        //InitialStatus = Value.Status.ToString();
+        //lastVersion = await _exportOrderProvider.LastVersionAsync();
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
+
 
     #region DOCUMENTS
 
@@ -701,7 +713,7 @@
 
     #endregion
 
-    #region SEARCH AND SELECT METHODS
+    #region AUXILARY METHODS
 
     private async Task GetVesselCallDetail_Click()
     {
@@ -764,6 +776,59 @@
 
     }
 
+    private async Task<EntityStatus> SelectStatus_Change(EntityStatus status)
+    {
+        if (Value is not null)
+        {
+            switch (InitialStatus)
+            {
+                case "New":
+                    if (status == EntityStatus.New || status == EntityStatus.Issued)
+                        return status;
+                    else
+                        return Value.Status;
+                case "Issued":
+                    if (status == EntityStatus.Cancelled || status == EntityStatus.Completed)
+                        return status;
+                    else
+                        return Value.Status;                    
+                case "Cancelled":
+                    return EntityStatus.Cancelled;
+                case "Completed":
+                    return EntityStatus.Completed;
+                default:
+                    return status;
+            }            
+        }
+        else
+            return EntityStatus.New;
+    }
+
+    #endregion
+
+    #region NOT USED
+
+    private async Task GetNewItemVersion_Click(int version)
+    {
+        var response = await _exportOrderProvider.GetVersionAsync(version);
+        if (!response.HasError)
+        {
+            Value = (ExportOrderEntity)response.Object!;
+        }
+    }
+
+    private async Task AddNewVersion_Click()
+    {
+        IsNewVersionDisabled = true;
+
+        await Task.Delay(1000);
+
+        IsNewVersionDisabled = true;
+    }
+
+    #endregion
+
+    #region SEARCHERS
     private async Task<IEnumerable<CarrierCatalog>> SearchCarrier(string value)
     {
         // check Terminal for this Carrier before select
@@ -793,6 +858,50 @@
     }
 
     #endregion
+
+    // public async Task CancelIssuedItem()
+    // {
+    //     IsCancelBtnDisabled = true;
+    //     Value!.Status = EntityStatus.Cancelled;
+
+    //     var response = await _exportOrderProvider.ModifyItemAsync(Value!);
+    //     if (!response.HasError)
+    //         Snackbar.Add($"Cancelled Successfully.<br>New Export Order created (see new Number).<br>Unlock record to continue", Severity.Success);
+    //     else
+    //     {
+    //         Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
+    //         return;
+    //     }
+
+    //     await Task.Delay(500);
+
+    //     Value!.Id = 0;
+    //     Value.Num = Value.Num + "-";
+    //     Value.Status = EntityStatus.New;
+        
+
+    //     // Documents
+    //     // foreach (var document in Value.Documents)
+    //     // {
+    //     //     document.Id = 0;
+
+    //     //     foreach (var record in document.Records)
+    //     //         record.Id = 0;
+    //     // }
+
+    //     // Records
+    //     foreach (var record in Value.Records)
+    //     {
+    //         record.Id = 0;
+
+    //         foreach (var content in record.Contents)
+    //             content.Id = 0;
+    //     }
+
+    //     response = null;
+
+    //     await InvokeAsync(StateHasChanged);
+    // }
 
     #region  TreeItems
 

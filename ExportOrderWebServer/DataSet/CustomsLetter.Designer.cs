@@ -1011,6 +1011,8 @@ namespace ExportOrderWebServer.DataSet {
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
         public partial class dtRecordsDataTable : global::System.Data.TypedTableBase<dtRecordsRow> {
             
+            private global::System.Data.DataColumn columnExpOrderNum;
+            
             private global::System.Data.DataColumn columnBLNum;
             
             private global::System.Data.DataColumn columnCntrCount;
@@ -1052,6 +1054,14 @@ namespace ExportOrderWebServer.DataSet {
             protected dtRecordsDataTable(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
                     base(info, context) {
                 this.InitVars();
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn ExpOrderNumColumn {
+                get {
+                    return this.columnExpOrderNum;
+                }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1131,9 +1141,10 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public dtRecordsRow AdddtRecordsRow(string BLNum, int CntrCount, double GrossWt, double CntrTotalWt, string Commodities) {
+            public dtRecordsRow AdddtRecordsRow(string ExpOrderNum, string BLNum, int CntrCount, double GrossWt, double CntrTotalWt, string Commodities) {
                 dtRecordsRow rowdtRecordsRow = ((dtRecordsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
+                        ExpOrderNum,
                         BLNum,
                         CntrCount,
                         GrossWt,
@@ -1161,6 +1172,7 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             internal void InitVars() {
+                this.columnExpOrderNum = base.Columns["ExpOrderNum"];
                 this.columnBLNum = base.Columns["BLNum"];
                 this.columnCntrCount = base.Columns["CntrCount"];
                 this.columnGrossWt = base.Columns["GrossWt"];
@@ -1171,6 +1183,8 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             private void InitClass() {
+                this.columnExpOrderNum = new global::System.Data.DataColumn("ExpOrderNum", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnExpOrderNum);
                 this.columnBLNum = new global::System.Data.DataColumn("BLNum", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnBLNum);
                 this.columnCntrCount = new global::System.Data.DataColumn("CntrCount", typeof(int), null, global::System.Data.MappingType.Element);
@@ -1746,6 +1760,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public string ExpOrderNum {
+                get {
+                    try {
+                        return ((string)(this[this.tabledtRecords.ExpOrderNumColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'ExpOrderNum\' в таблице \'dtRecords\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtRecords.ExpOrderNumColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string BLNum {
                 get {
                     try {
@@ -1822,6 +1852,18 @@ namespace ExportOrderWebServer.DataSet {
                 set {
                     this[this.tabledtRecords.CommoditiesColumn] = value;
                 }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsExpOrderNumNull() {
+                return this.IsNull(this.tabledtRecords.ExpOrderNumColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetExpOrderNumNull() {
+                this[this.tabledtRecords.ExpOrderNumColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

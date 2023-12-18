@@ -846,7 +846,7 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnPackageName;
             
-            private global::System.Data.DataColumn columnCommodityEn;
+            private global::System.Data.DataColumn columnRecordCommoditiesEn;
             
             private global::System.Data.DataColumn columnGrossWt;
             
@@ -943,9 +943,9 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn CommodityEnColumn {
+            public global::System.Data.DataColumn RecordCommoditiesEnColumn {
                 get {
-                    return this.columnCommodityEn;
+                    return this.columnRecordCommoditiesEn;
                 }
             }
             
@@ -1002,7 +1002,7 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public dtCntrRecordsRow AdddtCntrRecordsRow(int Seq, string Cntr, string CntrType, double CntrTareWt, string Seal, int PackageQty, string PackageName, string CommodityEn, double GrossWt, double Volume) {
+            public dtCntrRecordsRow AdddtCntrRecordsRow(int Seq, string Cntr, string CntrType, double CntrTareWt, string Seal, int PackageQty, string PackageName, string RecordCommoditiesEn, double GrossWt, double Volume) {
                 dtCntrRecordsRow rowdtCntrRecordsRow = ((dtCntrRecordsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Seq,
@@ -1012,7 +1012,7 @@ namespace ExportOrderWebServer.DataSet {
                         Seal,
                         PackageQty,
                         PackageName,
-                        CommodityEn,
+                        RecordCommoditiesEn,
                         GrossWt,
                         Volume};
                 rowdtCntrRecordsRow.ItemArray = columnValuesArray;
@@ -1044,7 +1044,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnSeal = base.Columns["Seal"];
                 this.columnPackageQty = base.Columns["PackageQty"];
                 this.columnPackageName = base.Columns["PackageName"];
-                this.columnCommodityEn = base.Columns["CommodityEn"];
+                this.columnRecordCommoditiesEn = base.Columns["RecordCommoditiesEn"];
                 this.columnGrossWt = base.Columns["GrossWt"];
                 this.columnVolume = base.Columns["Volume"];
             }
@@ -1066,8 +1066,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnPackageQty);
                 this.columnPackageName = new global::System.Data.DataColumn("PackageName", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPackageName);
-                this.columnCommodityEn = new global::System.Data.DataColumn("CommodityEn", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnCommodityEn);
+                this.columnRecordCommoditiesEn = new global::System.Data.DataColumn("RecordCommoditiesEn", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnRecordCommoditiesEn);
                 this.columnGrossWt = new global::System.Data.DataColumn("GrossWt", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnGrossWt);
                 this.columnVolume = new global::System.Data.DataColumn("Volume", typeof(double), null, global::System.Data.MappingType.Element);
@@ -1873,17 +1873,18 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string CommodityEn {
+            public string RecordCommoditiesEn {
                 get {
                     try {
-                        return ((string)(this[this.tabledtCntrRecords.CommodityEnColumn]));
+                        return ((string)(this[this.tabledtCntrRecords.RecordCommoditiesEnColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("Значение для столбца \'CommodityEn\' в таблице \'dtCntrRecords\' равно DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'RecordCommoditiesEn\' в таблице \'dtCntrRecords\' равно DBNull" +
+                                ".", e);
                     }
                 }
                 set {
-                    this[this.tabledtCntrRecords.CommodityEnColumn] = value;
+                    this[this.tabledtCntrRecords.RecordCommoditiesEnColumn] = value;
                 }
             }
             
@@ -2005,14 +2006,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsCommodityEnNull() {
-                return this.IsNull(this.tabledtCntrRecords.CommodityEnColumn);
+            public bool IsRecordCommoditiesEnNull() {
+                return this.IsNull(this.tabledtCntrRecords.RecordCommoditiesEnColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetCommodityEnNull() {
-                this[this.tabledtCntrRecords.CommodityEnColumn] = global::System.Convert.DBNull;
+            public void SetRecordCommoditiesEnNull() {
+                this[this.tabledtCntrRecords.RecordCommoditiesEnColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

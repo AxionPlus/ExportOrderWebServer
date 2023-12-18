@@ -25,6 +25,10 @@
           <DataField>Num</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="BLNum">
+          <DataField>BLNum</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="Dated">
           <DataField>Dated</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
@@ -469,7 +473,7 @@
                                   </Style>
                                 </TextRun>
                                 <TextRun>
-                                  <Value>=Fields!Num.Value</Value>
+                                  <Value>=Fields!BLNum.Value</Value>
                                   <Style>
                                     <FontFamily />
                                   </Style>

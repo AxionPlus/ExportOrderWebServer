@@ -155,7 +155,7 @@
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id, context.BlTemplate); })"
+                <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })"
                             Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                             StartIcon="@Icons.Material.Filled.Preview">
                     view BL
@@ -169,7 +169,7 @@
             <MudTd Style="text-align:start">@context.Carrier</MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
             <MudTd>
-                <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Delete" Color="Color.Secondary"
+                <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
                                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
             </MudTd>
             <MudTd></MudTd>
@@ -224,7 +224,14 @@
     }
 
     private async Task RemoveItem_Click(long id, string num)
-    {        
+    {
+        // check Satus before delete
+        if (Items!.FirstOrDefault(eoc => eoc.Id == id)!.Status != EntityStatus.New)
+        {
+            Snackbar.Add($"Удалить можно только новую запись: Status - New.", Severity.Warning);
+            return;
+        }
+        
         bool? result = await DialogService.ShowMessageBox(
                  "Delete record",
                  (MarkupString)$"<b>Do you want to remove record with {num}?<b>",
@@ -260,31 +267,13 @@
         await JSRuntime.InvokeVoidAsync("open", path);
     }
 
-    private async Task ViewReportBL_Click(long id, BLTemplate? template)
+    private async Task ViewReportBL_Click(long id)
     {
-        //var status = Items!.Where(it => it.Id == id).Select(it => it.Status).FirstOrDefault();
-
-        // if (status.ToString() == "new")
-        //     Snackbar.Add($"There is no Export Order. Create an Export Order first.", Severity.Warning);
-        // else
-        // {
-        //     //TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
-        //     string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
-        //     await JSRuntime.InvokeVoidAsync("open", path);
-        //     //await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
-        // }
-
-        string path = string.Empty;
-
-        // if (template == BLTemplate.nca)
-        //     path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBLnca?Id={id}";
-        // else
-            path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
+        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
 
         await JSRuntime.InvokeVoidAsync("open", path);
         //TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
         //await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
-
     }
 
     private async Task SaveXMLfile_Click(long id)

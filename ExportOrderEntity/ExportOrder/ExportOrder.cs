@@ -12,11 +12,12 @@ public class ExportOrderEntity : Entity
     public CarrierCatalog? Carrier { get; set; }
     public PersonEntity? Person { get; set; }
 
-    public List<DocumentEntity> Documents { get; set; } = new List<DocumentEntity>(); 
+    public List<DocumentEntity> Documents { get; set; } = new List<DocumentEntity>();
     public List<ExportOrderRecord> Records { get; set; } = new List<ExportOrderRecord>();
-
     [JsonIgnore]
     public VesselCallDetail? VesselCallDetail { get; set; }
+    [NotMapped]
+    public int VersionNo { get; set; } = 0;
 
 
     [NotMapped]

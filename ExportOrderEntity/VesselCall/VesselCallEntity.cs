@@ -13,7 +13,7 @@ public class VesselCallEntity : Entity
     [Required] public TerminalCatalog Terminal { get; set; }
     [Required] public DateTime? ETA { get; set; }
     [Required] public DateTime? ETS { get; set; }
-    public IList<VesselCallDetail> Details { get; set; } = new List<VesselCallDetail>();
+    public List<VesselCallDetail> Details { get; set; } = new List<VesselCallDetail>();
 
 
     //public IEnumerable<ExportOrderEntity> ExportOrders { get; set; }    // ?? delete

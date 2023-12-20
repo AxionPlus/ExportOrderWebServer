@@ -1254,7 +1254,7 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>dsCntrRecords</DataSetName>
-            <Top>27.7cm</Top>
+            <Top>27.8cm</Top>
             <Height>1.7cm</Height>
             <Width>19.8cm</Width>
             <Style>
@@ -1445,7 +1445,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.8cm</Height>
+                  <Height>0.9cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1513,7 +1513,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.8cm</Height>
+                  <Height>0.9cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1853,7 +1853,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1887,7 +1887,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.5cm</Height>
+                  <Height>0.45cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -3041,7 +3041,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                   <PaddingBottom>2pt</PaddingBottom>
                                 </Style>
                               </Textbox>
-                              <rd:Selected>true</rd:Selected>
                             </CellContents>
                           </TablixHeader>
                         </TablixMember>
@@ -4274,8 +4273,6 @@ OR MULTIMODAL TRANSPORT</Value>
                               </RightBorder>
                               <PaddingLeft>2pt</PaddingLeft>
                               <PaddingRight>2pt</PaddingRight>
-                              <PaddingTop>2pt</PaddingTop>
-                              <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
                         </CellContents>
@@ -4451,8 +4448,6 @@ OR MULTIMODAL TRANSPORT</Value>
                               </RightBorder>
                               <PaddingLeft>2pt</PaddingLeft>
                               <PaddingRight>2pt</PaddingRight>
-                              <PaddingTop>2pt</PaddingTop>
-                              <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
                         </CellContents>
@@ -6248,7 +6243,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
             <PageBreak>
               <BreakLocation>End</BreakLocation>
             </PageBreak>
-            <Height>27.6cm</Height>
+            <Height>27.7cm</Height>
             <Width>19.87938cm</Width>
             <ZIndex>1</ZIndex>
             <Style>
@@ -6258,7 +6253,7 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>11.5748in</Height>
+        <Height>11.61417in</Height>
         <Style>
           <Border>
             <Style>None</Style>

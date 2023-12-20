@@ -429,8 +429,8 @@
     {
         if (Items!.Count() == 0) return 0;
 
-        if (Items!.Any(s => s.Status == 0))
-            Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
+        // if (Items!.Any(s => s.Status == 0))
+        //     Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
 
         await Task.Delay(500);
 

@@ -1,8 +1,4 @@
-﻿
-using System.ComponentModel;
-using System.Linq;
-
-public class ExportOrderProvider : IExportOrderProvider
+﻿public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
@@ -443,6 +439,83 @@ public class ExportOrderProvider : IExportOrderProvider
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
+
+                // HISTORY
+                //db.ChangeTracker.Clear();
+
+                //// documents
+                //var historyItemDocuments = new List<DocumentHistory>();
+
+                //foreach (var document in item.Documents)
+                //{
+                //    historyItemDocuments.Add(new DocumentHistory()
+                //    {
+                //        Name = document.Name,
+                //        Type = document.Type,
+                //        ShipperName = document.Shipper!.NameEn,
+                //        ConsigneeName = document.Consignee!.NameEn,
+                //    });
+                //}
+
+                //// records
+                //var historyItemRecords = new List<ExportOrderRecordHistory>();
+
+                //foreach (var record in item.Records)
+                //{
+                //    var historyItemRecordContents = new List<ContainerContentHistory>();
+
+                //    foreach (var content in record.Contents)
+                //    {
+                //        historyItemRecordContents.Add(new ContainerContentHistory()
+                //        {
+                //            Id = content.Id,
+                //            PackageQty = content.PackageQty,
+                //            PackageName = content.PackageName,
+                //            NetWt = content.NetWt,
+                //            GrossWt = content.GrossWt,
+                //            Volume = content.Volume,
+                //            Document = content.DocumentRecord.Document.Name,
+                //            SeqDocument = content.DocumentRecord.Seq,
+                //            CommodityName = content.DocumentRecord.CommodityName,
+                //            CommodityEngName = content.DocumentRecord.CommodityEngName,
+                //            IsIMO = content.DocumentRecord.IsIMO,
+                //            IMO = content.DocumentRecord.IMO,
+                //            UNNO = content.DocumentRecord.UNNO,
+                //        });
+                //    }
+
+                //    historyItemRecords.Add(new ExportOrderRecordHistory()
+                //    {
+                //        Id = record.Id,
+                //        CntrNum = record.CntrNum,
+                //        CntrType = record.CntrType!.Normolize,
+                //        CntrTareWt = record.CntrTareWt,
+                //        Seal = record.Seal,
+                //        Contents = historyItemRecordContents
+                //    });
+                //}
+
+                //var historyItem = new ExportOrderHistory()
+                //{
+                //    Status = item.Status,
+                //    CreateUser = User,
+                //    CreateTime = DateTime.Now,
+                //    Mode = HistoryEventMode.Modify,
+
+                //    Num = item.Num,
+                //    Dated = item.Dated,
+                //    Carrier = item.Carrier!.NameEn,
+                //    Person = item.Person!.FamilyName,
+                //    VoyageNo = item.VesselCallDetail!.VesselCall.VoyageNo,
+                //    VesselName = item.VesselCallDetail.VesselCall.Vessel.Name,
+                //    POD = item.VesselCallDetail.POD!.NameEn,
+                //    Documents = historyItemDocuments,
+                //    Records = historyItemRecords
+                //};
+
+                //db.Entry(historyItem).State = EntityState.Added;
+
+                //await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -503,6 +576,87 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 await db.SaveChangesAsync();
 
+                // HISTORY
+                //db.ChangeTracker.Clear();
+
+                //bool IsItemExists = await db.ExportOrders.AnyAsync(vc => vc.Id == item.Id);
+                //if (IsItemExists) { appObjResponse.ErrorAdd($"History not saved"); }
+                //else
+                //{
+                //    // documents
+                //    var historyItemDocuments = new List<DocumentHistory>();
+
+                //    foreach (var document in item.Documents)
+                //    {
+                //        historyItemDocuments.Add(new DocumentHistory()
+                //        {
+                //            Name = document.Name,
+                //            Type = document.Type,
+                //            ShipperName = document.Shipper!.NameEn,
+                //            ConsigneeName = document.Consignee!.NameEn,
+                //        });
+                //    }
+
+                //    // records
+                //    var historyItemRecords = new List<ExportOrderRecordHistory>();
+
+                //    foreach (var record in item.Records)
+                //    {
+                //        var historyItemRecordContents = new List<ContainerContentHistory>();
+
+                //        foreach (var content in record.Contents)
+                //        {
+                //            historyItemRecordContents.Add(new ContainerContentHistory()
+                //            {
+                //                Id = content.Id,
+                //                PackageQty = content.PackageQty,
+                //                PackageName = content.PackageName,
+                //                NetWt = content.NetWt,
+                //                GrossWt = content.GrossWt,
+                //                Volume = content.Volume,
+                //                Document = content.DocumentRecord.Document.Name,
+                //                SeqDocument = content.DocumentRecord.Seq,
+                //                CommodityName = content.DocumentRecord.CommodityName,
+                //                CommodityEngName = content.DocumentRecord.CommodityEngName,
+                //                IsIMO = content.DocumentRecord.IsIMO,
+                //                IMO = content.DocumentRecord.IMO,
+                //                UNNO = content.DocumentRecord.UNNO,
+                //            });
+                //        }
+
+                //        historyItemRecords.Add(new ExportOrderRecordHistory()
+                //        {
+                //            Id = record.Id,
+                //            CntrNum = record.CntrNum,
+                //            CntrType = record.CntrType!.Normolize,
+                //            CntrTareWt = record.CntrTareWt,
+                //            Seal = record.Seal,
+                //            Contents = historyItemRecordContents
+                //        });
+                //    }
+
+                //    var historyItem = new ExportOrderHistory()
+                //    {
+                //        Status = item.Status,
+                //        CreateUser = User,
+                //        CreateTime = DateTime.Now,
+                //        Mode = HistoryEventMode.New,
+
+                //        Num = item.Num,
+                //        Dated = item.Dated,
+                //        Carrier = item.Carrier!.NameEn,
+                //        Person = item.Person!.FamilyName,
+                //        VoyageNo = item.VesselCallDetail.VesselCall.VoyageNo,
+                //        VesselName = item.VesselCallDetail.VesselCall.Vessel.Name,
+                //        POD = item.VesselCallDetail.POD!.NameEn,
+                //        Documents = historyItemDocuments,
+                //        Records = historyItemRecords
+                //    };
+
+                //    db.Entry(historyItem).State = EntityState.Added;
+
+                //    await db.SaveChangesAsync();
+                //}
             }
             catch (Exception ex)
             {

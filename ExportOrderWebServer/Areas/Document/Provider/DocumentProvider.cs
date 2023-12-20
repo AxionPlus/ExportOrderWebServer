@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ExportOrderWebServer.DataSet;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExportOrderWebServer.Areas.Document.Provider;
 
@@ -166,15 +167,6 @@ public class DocumentProvider : IDocumentProvider
                         modifyRecord.GrossWt = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.GrossWt;
                     }
 
-                // compaire existed item with new
-                //foreach (var itemRecord in item.Records)
-                //    if (!modifyItem.Records.Any(s => s.Id == itemRecord.Id))
-                //    {
-                //        db.Entry(itemRecord).State = EntityState.Added;
-                //        modifyItem.Records.Add(itemRecord);
-                //    }
-
-
                 // add a new records wich Id == 0 
                 foreach (var itemRecord in item.Records.Where(dr => dr.Id == 0))
                 {
@@ -187,6 +179,49 @@ public class DocumentProvider : IDocumentProvider
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
+
+                // HISTORY
+                //db.ChangeTracker.Clear();
+
+                //var historyItemRecords = new List<DocumentRecordHistory>();
+
+                //foreach (var record in item.Records)
+                //{
+                //    historyItemRecords.Add(new DocumentRecordHistory
+                //    {
+                //        Id = record.Id,
+                //        Seq = record.Seq,
+                //        CommodityName = record.CommodityName,
+                //        CommodityEngName = record.CommodityEngName,
+                //        CommodityHSCode = record.CommodityHSCode,
+                //        IsIMO = record.IsIMO,
+                //        IMO = record.IMO,
+                //        UNNO = record.UNNO,
+                //        NetWt = record.NetWt,
+                //        GrossWt = record.GrossWt,
+                //        Volume = record.Volume
+                //    });
+                //}
+
+                //var historyItem = new DocumentHistory()
+                //{
+                //    CreateUser = User,
+                //    CreateTime = DateTime.Now,
+                //    Mode = HistoryEventMode.Modify,
+
+                //    Id = item.Id,
+                //    Name = item.Name,
+                //    Type = item.Type,
+                //    Description = item.Description,
+                //    ContarctNo = item.ContarctNo,
+                //    ShipperName = item.Shipper!.NameEn,
+                //    ConsigneeName = item.Consignee!.NameEn,
+                //    Records = historyItemRecords
+                //};
+
+                //db.Entry(historyItem).State = EntityState.Added;
+
+                //await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -229,6 +264,54 @@ public class DocumentProvider : IDocumentProvider
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
+
+                // HISTORY
+                //db.ChangeTracker.Clear();
+
+                //bool IsItemExists = await db.Documents.AnyAsync(vc => vc.Id == item.Id);
+                //if (IsItemExists) { appObjResponse.ErrorAdd($"History not saved"); }
+                //else
+                //{
+                //    var historyItemRecords = new List<DocumentRecordHistory>();
+
+                //    foreach (var record in item.Records)
+                //    {
+                //        historyItemRecords.Add(new DocumentRecordHistory
+                //        {
+                //            Id = record.Id,
+                //            Seq = record.Seq,
+                //            CommodityName = record.CommodityName,
+                //            CommodityEngName = record.CommodityEngName,
+                //            CommodityHSCode = record.CommodityHSCode,
+                //            IsIMO = record.IsIMO,
+                //            IMO = record.IMO,
+                //            UNNO = record.UNNO,
+                //            NetWt = record.NetWt,
+                //            GrossWt = record.GrossWt,
+                //            Volume = record.Volume
+                //        });
+                //    }
+
+                //    var historyItem = new DocumentHistory()
+                //    {
+                //        CreateUser = User,
+                //        CreateTime = DateTime.Now,
+                //        Mode = HistoryEventMode.New,
+
+                //        Id = item.Id,
+                //        Name = item.Name,
+                //        Type = item.Type,
+                //        Description = item.Description,
+                //        ContarctNo = item.ContarctNo,
+                //        ShipperName = item.Shipper!.NameEn,
+                //        ConsigneeName = item.Consignee!.NameEn,
+                //        Records = historyItemRecords
+                //    };
+
+                //    db.Entry(historyItem).State = EntityState.Added;
+
+                //    await db.SaveChangesAsync();
+                //}
             }
             catch (Exception ex)
             {

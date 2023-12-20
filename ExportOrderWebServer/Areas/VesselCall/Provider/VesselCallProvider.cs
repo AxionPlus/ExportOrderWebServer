@@ -1,4 +1,7 @@
 ﻿
+using Azure;
+using ExportOrderEntites.VesselCall;
+
 namespace ExportOrderWebServer.Areas.VesselCall.Provider;
 
 public class VesselCallProvider : IVesselCallProvider
@@ -285,6 +288,41 @@ public class VesselCallProvider : IVesselCallProvider
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
+
+                // HISTORY
+                //db.ChangeTracker.Clear();
+
+                //var historyItemDetails = new List<VesselCallDetailsHistory>();
+
+                //foreach (var detail in item.Details)
+                //{
+                //    historyItemDetails.Add(new VesselCallDetailsHistory()
+                //    {
+                //        POD = detail.POD is null ? null : detail.POD.NameEn,
+                //        FinalDestination = detail.FinalDestination is null ? null : detail.FinalDestination.NameEn,
+                //        AgentPOD = detail.AgentPOD
+                //    });
+                //}
+
+                //var historyItem = new VesselCallHistory()
+                //{
+                //    Status = item.Status,
+                //    CreateUser = User,
+                //    CreateTime = item.CreateTime,
+                //    Mode = HistoryEventMode.Modify,
+
+                //    VesselName = item.Vessel!.Name,
+                //    VoyageNo = item.VoyageNo,
+                //    VoyageNoTerminal = item.VoyageNoTerminal,
+                //    TerminalName = item.Terminal!.Name,
+                //    ETA = item.ETA,
+                //    ETS = item.ETS,
+                //    Details = historyItemDetails,
+                //};
+
+                //db.Entry(historyItem).State = EntityState.Added;
+
+                //await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -341,13 +379,54 @@ public class VesselCallProvider : IVesselCallProvider
 
                 await db.SaveChangesAsync();
 
-                return appObjResponse;
+                // HISTORY
+                //db.ChangeTracker.Clear();
+
+                //bool IsItemExists = await db.VesselCalls.AnyAsync(vc => vc.Id == item.Id);
+                //if (IsItemExists) { appObjResponse.ErrorAdd($"History not saved"); }
+                //else
+                //{
+                //    //db.ChangeTracker.Clear();
+                //    var historyItemDetails = new List<VesselCallDetailsHistory>();
+
+                //    foreach (var detail in item.Details)
+                //    {
+                //        historyItemDetails.Add(new VesselCallDetailsHistory()
+                //        {
+                //            POD = detail.POD is null ? null : detail.POD.NameEn,
+                //            FinalDestination = detail.FinalDestination is null ? null : detail.FinalDestination.NameEn,
+                //            AgentPOD = detail.AgentPOD
+                //        });
+                //    }                    
+
+                //    var historyItem = new VesselCallHistory()
+                //    {
+                //        Status = item.Status,
+                //        CreateUser = User,
+                //        CreateTime = DateTime.Now,
+                //        Mode = HistoryEventMode.New,
+
+                //        VesselName = item.Vessel.Name,
+                //        VoyageNo = item.VoyageNo,
+                //        VoyageNoTerminal = item.VoyageNoTerminal,
+                //        TerminalName = item.Terminal.Name,
+                //        ETA = item.ETA,
+                //        ETS = item.ETS,
+                //        Details = historyItemDetails,
+                //    };
+
+                //    db.Entry(historyItem).State = EntityState.Added;
+
+                //    await db.SaveChangesAsync();
+                //}
             }
             catch (Exception ex)
             {
                 string msg = ex.Message;
                 return appObjResponse;
             }
+
+            return appObjResponse;
         }
     }
 

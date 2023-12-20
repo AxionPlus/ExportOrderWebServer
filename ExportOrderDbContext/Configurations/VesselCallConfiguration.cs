@@ -1,7 +1,8 @@
 ﻿
-using ExportOrderEntites.VesselCall;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Text.Json;
 
 namespace ExportOrderDbContext.Configurations;
 
@@ -22,7 +23,6 @@ public class VesselCallConfiguration : IEntityTypeConfiguration<VesselCallEntity
         builder.HasMany(s => s.Details);
     }
 }
-
 
 public class VesselCallDetailConfiguration : IEntityTypeConfiguration<VesselCallDetail>
 {
@@ -62,10 +62,19 @@ public class VesselConfiguration : IEntityTypeConfiguration<VesselEntity>
     }
 }
 
-public class VesselCallDetailsHistoryConfiguration : IEntityTypeConfiguration<VesselCallDetailsHistory>
+public class VesselCallHistoryConfiguration : IEntityTypeConfiguration<VesselCallHistory>
 {
-    public void Configure(EntityTypeBuilder<VesselCallDetailsHistory> builder)
+    public void Configure(EntityTypeBuilder<VesselCallHistory> builder)
     {
-        builder.HasMany(s => s.ExportOrders);
+        builder
+               .Property(b => b.Details)
+               .HasColumnType("jsonb")
+               .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<VesselCallDetailsHistory>>(v, (JsonSerializerOptions?)null),
+                    new ValueComparer<List<VesselCallDetailsHistory>>(
+                    (c1, c2) => c1.SequenceEqual(c2),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList()));
     }
 }

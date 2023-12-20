@@ -16,12 +16,10 @@ public class DocumentEntity : Entity
     [Required]
     public DocumentCustomer? Consignee { get; set; }
 
-    //public IList<DocumentRecord> Records { get; set; } = new List<DocumentRecord>();
     public List<DocumentRecord> Records { get; set; } = new List<DocumentRecord>();
 
     [JsonIgnore]
     public IEnumerable<ExportOrderEntity>? ExportOrders { get; set; }
-
     [NotMapped]
     public bool ShowDetails { get; set; } = false;
 }

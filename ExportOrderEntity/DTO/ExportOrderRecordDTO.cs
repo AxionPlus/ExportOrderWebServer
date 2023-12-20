@@ -17,10 +17,8 @@ public class ExportOrderRecordDTO
     public double? CntrTareWt { get; set; }
     public string Seal { get; set; }
 
-    // Records
-    //public string? RecordCommodities { get; set; }
+    // Records    
     public string? RecordCommoditiesEn { get; set; }
-
 
     // Content
     public string? Commodity { get; set; }

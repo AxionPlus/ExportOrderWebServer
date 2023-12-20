@@ -41,19 +41,19 @@ public class DocumentHistoryConfiguration : IEntityTypeConfiguration<DocumentHis
 {
     public void Configure(EntityTypeBuilder<DocumentHistory> builder)
     {
-        builder
-               .Property(b => b.Shipper)
-               .HasColumnType("jsonb")
-               .HasConversion(
-                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                    v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
+        //builder
+        //       .Property(b => b.Shipper)
+        //       .HasColumnType("jsonb")
+        //       .HasConversion(
+        //            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+        //            v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
 
-        builder
-               .Property(b => b.Consignee)
-               .HasColumnType("jsonb")
-               .HasConversion(
-                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                    v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
+        //builder
+        //       .Property(b => b.Consignee)
+        //       .HasColumnType("jsonb")
+        //       .HasConversion(
+        //            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+        //            v => JsonSerializer.Deserialize<DocumentCustomer>(v, (JsonSerializerOptions?)null));
 
         builder
                .Property(b => b.Records)

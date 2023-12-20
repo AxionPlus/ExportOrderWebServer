@@ -127,38 +127,6 @@ public class ExportOrderController : ControllerBase
             var Items = new List<ExportOrderDTO>() { Item };
             var Records = Item.exportOrderRecordsDTO.ToList();
 
-            //string Shippers = string.Join("\n", Records.Select(x => x.ShipperEn).Distinct().ToList());            
-            //string Consignees = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
-            //string NotifyParties = string.Join("\n", Records.Select(x => x.ConsigneeEn).Distinct().ToList());
-
-            // список товаров
-
-            //string Commodities = string.Join("; ", Records.GroupBy(c => c.RecordCommoditiesEn).Select(g => g.Key));
-
-            #region GROUP WITH 2 KEYS
-            //var CommoditiesGroup = CommodityRecords.GroupBy(c => new { c.CommodityEngName, c.CntrType })
-            //                                      .Select(g => new
-            //                                      {
-            //                                          Commodity = g.Key.CommodityEngName,
-            //                                          g.Key.CntrType,
-
-            //                                          g.FirstOrDefault()!.HSCode,
-            //                                          g.FirstOrDefault()!.IsIMO,
-            //                                          g.FirstOrDefault()!.IMO,
-            //                                          g.FirstOrDefault()!.UNNO,
-            //                                          g.FirstOrDefault()!.Measures,
-
-            //                                          CntrTypesCount = g.ToList().Count,
-
-            //                                          CommodityAggregated = string.Join(" ", g.ToList().Count,
-            //                                                                                 "*",
-            //                                                                                 g.FirstOrDefault()!.CntrType,
-            //                                                                                 g.FirstOrDefault()!.CommodityEngName,
-            //                                                                                 g.FirstOrDefault()!.IMO,
-            //                                                                                 g.FirstOrDefault()!.UNNO).Trim(),
-            //                                      }).ToList();
-            #endregion
-
             // список типов контейнеров
             var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)
                                         .Select(g => new

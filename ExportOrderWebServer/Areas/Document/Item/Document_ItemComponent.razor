@@ -74,7 +74,7 @@
 
             <MudTextField Class="TextField" Label="Contarct No" Style="width: 360px" @bind-Value="Value.ContarctNo"
                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                        Required RequiredError="" Clearable="!IsFormReadOnly" />
+                        Clearable="!IsFormReadOnly" />
         </div>
         <div class="container-content">
             <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Shipper"); } )"

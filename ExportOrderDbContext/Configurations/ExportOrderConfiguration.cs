@@ -40,7 +40,28 @@ public class ExportOrderHistoryConfiguration : IEntityTypeConfiguration<ExportOr
 {
     public void Configure(EntityTypeBuilder<ExportOrderHistory> builder)
     {
-        builder.HasMany(s => s.Documents).WithMany(d => d.ExportOrders);
+        builder
+               .Property(b => b.Documents)
+               .HasColumnType("jsonb")
+               .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<DocumentHistory>>(v, (JsonSerializerOptions?)null),
+                    new ValueComparer<List<DocumentHistory>>(
+                            (c1, c2) => c1.SequenceEqual(c2),
+                            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                            c => c.ToList()));
+
+        //builder
+        //       .Property(b => b.Documents.SelectMany(d => d.Records))
+        //       .HasColumnType("jsonb")
+        //       .HasConversion(
+        //            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+        //            v => JsonSerializer.Deserialize<List<DocumentRecordHistory>>(v, (JsonSerializerOptions?)null),
+        //            new ValueComparer<List<DocumentRecordHistory>>(
+        //                    (c1, c2) => c1.SequenceEqual(c2),
+        //                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+        //                    c => c.ToList()));
+
         builder.HasMany(s => s.Records).WithOne(r => r.ExportOrder);
     }
 }

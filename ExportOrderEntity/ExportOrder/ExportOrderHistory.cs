@@ -4,40 +4,16 @@ namespace ExportOrderEntites.ExportOrder;
 
 public class ExportOrderHistory : EntityHistory
 {
-    public EntityStatus Status { get; set; }
     public string? Num { get; set; }
     public DateTime? Dated { get; set; }
     public string? Carrier { get; set; }
     public string? Person { get; set; }
     public string? VoyageNo { get; set; }
     public string? VesselName { get; set; }
-    public string? POD { get; set; } // Port of Discharge
+    public string? POD { get; set; }
 
-    public List<DocumentHistory>? Documents { get; set; } = new List<DocumentHistory>();
-    public List<ExportOrderRecordHistory>? Records { get; set; } = new List<ExportOrderRecordHistory>();
-
-    //[NotMapped]
-    //public IEnumerable<DocumentCustomer> Shippers
-    //{
-    //    get
-    //    {
-    //        if (Documents is null)
-    //            return Enumerable.Empty<DocumentCustomer>();
-
-    //        return Documents.Select(x => x.Shipper).ToList()!;
-    //    }
-    //}
-    //[NotMapped]
-    //public IEnumerable<DocumentCustomer> Consignees
-    //{
-    //    get
-    //    {
-    //        if (Documents is null)
-    //            return Enumerable.Empty<DocumentCustomer>();
-
-    //        return Documents.Select(x => x.Consignee).ToList()!;
-    //    }
-    //}   
+    public List<DocumentHistory>? Documents { get; set; }
+    public List<ExportOrderRecordHistory>? Records { get; set; } = new List<ExportOrderRecordHistory>(); 
 }
 
 public class ExportOrderRecordHistory
@@ -61,8 +37,11 @@ public class ContainerContentHistory
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
     public double? Volume { get; set; }
-
-    //public DocumentHistory? DocumentRecord { get; set; }
-    //[JsonIgnore]
-    //public ExportOrderHistory? ExportOrderRecord { get; set; }
+    public string? Document{ get; set; }
+    public int? SeqDocument { get; set; }
+    public string? CommodityName { get; set; }
+    public string? CommodityEngName { get; set; }
+    public bool IsIMO { get; set; }
+    public string? IMO { get; set; }
+    public string? UNNO { get; set; }
 }

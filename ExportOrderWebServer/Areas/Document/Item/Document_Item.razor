@@ -116,7 +116,8 @@
     {
         if (IsNewItem)
         {
-            Item = new() { Shipper = new(), Consignee = new() };
+            //Item = new() { Shipper = new(), Consignee = new() };
+            Item = new() { Shipper = new(), Consignee = new(), Status = EntityStatus.New };
             IsFormReadOnly = false;
         }
         else
@@ -175,6 +176,7 @@
         if (Item is not null)
         {
             Item.Id = 0;
+            Item.Status = EntityStatus.New;
 
             foreach (var docRecord in Item.Records)
                 docRecord.Id = 0;

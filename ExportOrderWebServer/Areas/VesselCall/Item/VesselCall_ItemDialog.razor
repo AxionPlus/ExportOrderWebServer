@@ -11,18 +11,34 @@
         text-align: start;
     }
 
-    .wrapper-input-date * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+    .container-content * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
+        padding: 6px;
         padding-inline-start: 8px;
     }
 
-    .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 4px;
-        padding-right: 4px;
+    .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: 8px;
+    }
+
+    .mud-select.mud-autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
+        margin-right: 0px;
+        margin-inline-end: 3px;        
+    }
+
+    .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-right: unset;
+        padding-inline-end: unset;
+        padding-inline-start: unset;
+    }
+
+    .mud-select.mud-autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
+        margin-inline-end: unset;
     }
 
     .Table * .mud-table-cell {
         padding: 5px;
-    } 
+    }
+
 
 </style>
 
@@ -50,7 +66,7 @@
 
         <div class="Container-item">
             <div class="container-content" style="justify-content:flex-start">
-                <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 260px; margin-right:20px" @bind-Value="Item!.Vessel"
+                <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item!.Vessel"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchVessel"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -63,7 +79,7 @@
                                  Adornment="Adornment.End"
                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddVessel_Click(); })"
                                  Clearable="!IsFormReadOnly" />
-                 <MudTextField T="string" Style="width: 260px; margin-right:20px" Label="Voyage" Text="@Item.VoyageNo"
+                 <MudTextField Class="TextField" T="string" Style="width: 200px; margin-right:20px" Label="Voyage" Text="@Item.VoyageNo"
                                TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true"
@@ -79,20 +95,23 @@
                                 DisableToolbar=true
                                 Required RequiredError=""
                                 Clearable="!IsFormReadOnly" />
-                 <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
-                                Style="width: 125px"
-                                DateFormat="dd.MM.yy"
-                                ShowWeekNumbers="true"
-                                Variant="Variant.Outlined"
-                                IconSize=Size.Small
-                                AutoClose=true
-                                DisableToolbar=true
-                                Required RequiredError=""
-                                Clearable="!IsFormReadOnly" />
-             </div>
 
-             <div class="container-content" style="justify-content:flex-start">
-                 <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 260px; margin-right:20px" Label="Load Terminal" @bind-Value="Item.Terminal"
+                <MudSpacer />
+                <MudSelect Class="wrapper-input select" Style="width:125px" T="EntityStatus" Label="Status" @bind-Value="Item.Status"
+                            ToStringFunc="@(str => str.ToString())"
+                            Variant="Variant.Outlined" Margin="Margin.Dense">
+                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                    {
+                        if (status == EntityStatus.New || status == EntityStatus.Completed)
+                        {
+                            <MudSelectItem Value="@status" />
+                        }
+                    }
+                </MudSelect>                 
+            </div>
+
+            <div class="container-content" style="justify-content:flex-start">
+                 <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px; margin-right:20px" Label="Load Terminal" @bind-Value="Item.Terminal"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchTerminal"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -105,17 +124,27 @@
                                   Adornment="Adornment.End"
                                   OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddTerminal_Click(); })"
                                   Clearable="!IsFormReadOnly" />
-                 
-                 <MudTextField T="string" Style="width: 260px;" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
+
+                 <MudTextField Class="TextField" T="string" Style="width: 200px; margin-right:20px" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
                                TextChanged="async (e)=> { Item.VoyageNoTerminal = e.ToUpper(); }"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                Immediate="true"
                                         Required RequiredError=""
                                Clearable="!IsFormReadOnly" />
 
-             </div>
+                 <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
+                                Style="width: 125px"
+                                DateFormat="dd.MM.yy"
+                                ShowWeekNumbers="true"
+                                Variant="Variant.Outlined"
+                                IconSize=Size.Small
+                                AutoClose=true
+                                DisableToolbar=true
+                                Required RequiredError=""
+                                Clearable="!IsFormReadOnly" />
+            </div>
 
-             <div class="Container-table">
+            <div class="Container-table">
                  <MudTable Class="Table" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
                      <HeaderContent>
                          <MudTh Style="width:35px">
@@ -207,7 +236,6 @@
         }        
         else
         {
-            //var response = await _vesselCallProvider.GetItemAsync(Voyage!);
             var response = await _vesselCallProvider.GetItemAsync(Id);
 
             if (!response.HasError)

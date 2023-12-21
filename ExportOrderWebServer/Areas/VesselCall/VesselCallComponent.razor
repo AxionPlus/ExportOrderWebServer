@@ -17,11 +17,6 @@
         margin-top: 2px;
     }
 
-/*     .mud-input-control.mud-input-control-boolean-input {
-        width: 22px;
-    } */
-
-    /* NEW */
     .mud-icon-button-edge-margin-end {
         margin-right: 2px;
         margin-inline-end: 2px;
@@ -29,10 +24,17 @@
     }
 
     .mud-select * .mud-input-label-outlined.mud-input-label-margin-dense {
-        transform: translate(4px,8px) scale(1);
+        transform: translate(8px,7px) scale(1);
     }
 
-    .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+    .mud-select * .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: 4px;
+        padding-inline-end: 4px;
+    }
+
+    .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-right: unset;
+        padding-inline-end: unset;
         padding-inline-start: unset;
     }
 
@@ -163,13 +165,16 @@
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon="" MaxItems="20"
                             ResetValueOnEmptyText="true" Clearable />
-            <MudSelect Class="wrapper-input" T="EntityStatus?" Label="Status" @bind-Value="@Filter.Status"
-                        Style="width:120px"
+            <MudSelect Class="wrapper-input select" Style="width:125px" T="EntityStatus?" Label="Status" @bind-Value="@Filter.Status"
                         ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
-                        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
+                        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
+                        Disabled="IsSelectable">
                 @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
                 {
-                    <MudSelectItem Value="@status" />
+                    if (status == EntityStatus.New || status == EntityStatus.Completed)
+                    {
+                        <MudSelectItem Value="@status" />
+                    }
                 }
             </MudSelect>
         </div>
@@ -245,8 +250,7 @@
             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
-    }
-    @* MultiSelection="true" *@
+    }    
     <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData" 
               Virtualize="true" RowsPerPage="30" >
 

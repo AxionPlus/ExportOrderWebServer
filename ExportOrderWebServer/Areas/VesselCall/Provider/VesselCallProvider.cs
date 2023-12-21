@@ -166,8 +166,8 @@ public class VesselCallProvider : IVesselCallProvider
 
                 vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);
 
-                if (!string.IsNullOrEmpty(filter.Voyage))
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.OrderBy(s => s.CreateTime);
+                //if (!string.IsNullOrEmpty(filter.Voyage))
+                //    vesselCallDetailsDTO = vesselCallDetailsDTO.OrderBy(s => s.CreateTime);
 
                 appObjResponse.Object = vesselCallDetailsDTO.ToArray();
             }            
@@ -216,6 +216,7 @@ public class VesselCallProvider : IVesselCallProvider
 
                 modifyItem!.CreateUser = User!;
                 modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Status = item.Status;
                 modifyItem!.VoyageNo = item.VoyageNo;
                 modifyItem!.VoyageNoTerminal = item.VoyageNoTerminal;
                 modifyItem!.ETA = item.ETA;
@@ -235,7 +236,7 @@ public class VesselCallProvider : IVesselCallProvider
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
-                // compaire a new item with an existed
+                // compaire a new itemDetails with an existed
                 foreach (var modifyDetail in modifyItem.Details!)
                     if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
                     {
@@ -579,7 +580,7 @@ public class VesselCallProvider : IVesselCallProvider
                     ETS = record.ETS,
                     POD = detail.POD!.NameEn,
                     AgentPOD = detail.AgentPOD,
-                    Status = detail.Status,
+                    Status = record.Status,
                     CreateTime = detail.CreateTime,
                 };
 

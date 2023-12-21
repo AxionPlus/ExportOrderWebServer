@@ -6,6 +6,39 @@
         padding:4px;
     }
 
+    .mud-input > textarea.mud-input-root-outlined.mud-input-root-margin-dense 
+    {
+        margin: 6px 6px;
+    }
+
+    .mud-input > input.mud-input-root.mud-input-root-margin-dense {
+        padding: 6px;
+    }
+
+    .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: 4px;
+    }
+
+    .Document_row {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .mud-icon-button-edge-margin-end {
+        margin-right: unset;
+        margin-inline-end: unset;
+        margin-inline-start: unset;
+    }
+
+    .mud-select {
+        flex-grow: 0;
+    }
+
+    .mud-icon-button-size-small.mud-icon-button-edge-end {
+        margin-inline-end: 3px;
+    }
+
     .GoodMeasures {        
         width: 450px;
         display: flex;
@@ -54,27 +87,38 @@
 
     <div class="Container-item">
         <div class="container-content">
-            <MudSelect T="DocumentType" Label="Type" Style="width: 80px" @bind-Value="@Value.Type" 
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                        ToStringFunc="@(s => s.ToString())" CloseIcon="" OpenIcon=""
-                        Clearable="!IsFormReadOnly">
+            <MudSelect Class="wrapper-input" Style="width: 120px" T="DocumentType" Label="Type" @bind-Value="@Value.Type"
+                        ToStringFunc="@(s => s.ToString())"
+                        Variant="Variant.Outlined" Margin="Margin.Dense">
+                           
                 @foreach (DocumentType type in Enum.GetValues(typeof(DocumentType)))
                 {
                     <MudSelectItem Value="@type" />
                 }
-            </MudSelect>
-            <MudTextField Class="TextField" Label="Name" Style="width: 360px" @bind-Value="Value.Name" 
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            Mask="MaskDocumentName" 
-                            Required RequiredError="" Clearable="!IsFormReadOnly" />
+            </MudSelect>            
+            <div style="width:520px">
+                <MudTextField Class="TextField" Style="width: 260px; font-weight:500" Label="Name" @bind-Value="Value.Name"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Mask="MaskDocumentName"
+                              Required RequiredError="" Clearable="!IsFormReadOnly" />
+            </div>
+            <div class="Document_row" style="width:520px">
+                 <MudTextField Class="TextField" Style="width:360px; font-weight:500" Label="Description" @bind-Value="Value.Description"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Required RequiredError="" Clearable="!IsFormReadOnly" />
 
-            <MudTextField Class="TextField" Label="Description" Style="width: 360px" @bind-Value="Value.Description"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                        Required RequiredError="" Clearable="!IsFormReadOnly" />
-
-            <MudTextField Class="TextField" Label="Contarct No" Style="width: 360px" @bind-Value="Value.ContarctNo"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                        Clearable="!IsFormReadOnly" />
+                <MudSelect Class="wrapper-input select" Style="width:120px" T="EntityStatus" Label="Status" @bind-Value="Value.Status"
+                            ToStringFunc="@(str => str.ToString())"
+                            Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                    {
+                        if (status == EntityStatus.New || status == EntityStatus.Completed)
+                        {
+                            <MudSelectItem Value="@status" />
+                        }
+                    }
+                </MudSelect>
+            </div>
         </div>
         <div class="container-content">
             <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Shipper"); } )"
@@ -82,11 +126,11 @@
                         StartIcon="@Icons.Material.Filled.ArrowDropDownCircle" Disabled="IsFormReadOnly">
                 Shipper
             </MudButton>
-            <MudTextField Class="TextField" Placeholder="Shipper ru" Style="width: 520px" @bind-Value="@Value.Shipper!.Name"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
+            <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 520px" @bind-Value="@Value.Shipper!.Name"
+                        Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
                         Required RequiredError="" Clearable="!IsFormReadOnly" />
-            <MudTextField Class="TextField" Placeholder="Shipper en" Style="width: 520px" @bind-Value="@Value.Shipper!.NameEn"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
+            <MudTextField Class="TextField" Placeholder="Shipper En" Style="width: 520px" @bind-Value="@Value.Shipper!.NameEn"
+                        Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
                         Required RequiredError="" Clearable="!IsFormReadOnly" />
         </div>
         <div class="container-content">
@@ -96,10 +140,10 @@
                 Consignee
             </MudButton>
             <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 520px" @bind-Value="@Value.Consignee!.Name"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
                             Required RequiredError="" Clearable="!IsFormReadOnly" />
             <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 520px" @bind-Value="@Value.Consignee.NameEn"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
                             Required RequiredError="" Clearable="!IsFormReadOnly" />
         </div>
     </div>    
@@ -143,7 +187,7 @@
                                         Mask="@(new PatternMask("0000000000"))"
                                         MaxLength="10" Variant="Variant.Outlined" Margin="Margin.Dense"
                                         AdornmentIcon="@Icons.Material.Filled.Search"
-                                        AdornmentColor="Color.Secondary"
+                                        AdornmentColor="Color.Primary"
                                         Adornment="Adornment.End"
                                         OnAdornmentClick="@( async ()=>
                                         {
@@ -154,20 +198,21 @@
                     </div>
                 </MudTd>
                 <MudTd>
-                    <div class="wrapper-input">
-                            <MudTextField T="string" Style="width: 440px" Value="@context.CommodityName"
-                                        ValueChanged="@((e)=>{context.CommodityName =e.ToUpper();})"
-                                        Lines=2 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                        Required RequiredError="" Immediate />
-                    </div>
+                    
+                        <MudTextField Class="TextField" T="string" Style="width: 440px" Value="@context.CommodityName"
+                                      ValueChanged="@((e)=>{context.CommodityName = e.ToUpper();})"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Lines=2 Immediate
+                                      Required RequiredError="" Clearable="!IsFormReadOnly" />
+                    
                 </MudTd>
                 <MudTd>
-                    <div class="wrapper-input">
-                            <MudTextField T="string" Style="width: 440px" Value="@context.CommodityEngName"
-                                        ValueChanged="@((e)=>{context.CommodityEngName =e.ToUpper();})"
-                                        Lines=2 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                        Required RequiredError="" Immediate />
-                    </div>
+                         <MudTextField Class="TextField" T="string" Style="width: 440px" Value="@context.CommodityEngName"
+                                      ValueChanged="@((e)=>{context.CommodityEngName = e.ToUpper();})"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Lines=2 Immediate
+                                      Required RequiredError="" Clearable="!IsFormReadOnly" />
+                    
                 </MudTd>
                 <MudTd>
                     <div class="wrapper-checkBox">
@@ -322,45 +367,13 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    #region PatternMask
-
     public PatternMask MaskDocumentName = new PatternMask("########/d#m###/#######")
     {        
-        MaskChars = new[] {
+        MaskChars = new[]
+        {
                 new MaskChar('#', @"[0-9]"),
                 new MaskChar('d', @"[0-3]"),
                 new MaskChar('m', @"[0-1]"),
         }
     };
-
-    // public PatternMask MaskWt = new PatternMask("# ### ###,###")
-    // {
-    //     MaskChars = new[] { new MaskChar('#', @"[0-9]") }
-    // };
-
-    // public PatternMask MaskVol = new PatternMask("### ###,###")
-    // {
-    //     MaskChars = new[] { new MaskChar('#', @"[0-9]") }
-    // };
-
-    // Func<string, string> maskCharYear = (monthChar) =>
-    // {
-    //     switch (monthChar)
-    //     {
-    //         case "0":
-    //             return $"@\"[0-9]\"";
-    //         case "1":
-    //             return $"@\"[0-2]\"";
-    //         default:
-    //             return $"@\"[0-9]\"";
-    //     }
-    // };
-
-
-    //public IMask mask = new RegexMask(@"^[0-9]\d{0,5} ',' [0-9]\d{0,2}$");
-
-    //IMask mask = new BlockMask(delimiters: ",", new Block('0', 1, 9), new Block('0', 1, 4));
-
-    #endregion
-
 }

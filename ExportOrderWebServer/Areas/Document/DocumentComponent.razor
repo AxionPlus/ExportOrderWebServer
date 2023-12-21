@@ -10,6 +10,14 @@
         width: 30px;
     }
 
+    .mud-select * .mud-input-label-outlined.mud-input-label-margin-dense {
+        transform: translate(10px,5px) scale(1);
+    }
+
+    .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: 4px;
+    }
+
 </style>
 
 <div class="Container-item">
@@ -19,7 +27,7 @@
                              Placeholder="Декларация"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon=""
-                             Dense = "true" AutoFocus="true"
+                             Dense="true" AutoFocus="true"
                              MinCharacters="4"
                              ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
@@ -31,6 +39,18 @@
             <MudSpacer />
             <MudTextField Class="TextField" Placeholder="Cargo" Style="width: 270px" @bind-Value="@Filter.CargoDescriptionShort"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+            <MudSpacer />
+            <MudSelect Class="wrapper-input select" T="EntityStatus?" Style="width:120px" Label="Status" @bind-Value="Filter.Status"
+                       ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
+                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
+                @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
+                {
+                    if (status == EntityStatus.New || status == EntityStatus.Completed)
+                    {
+                        <MudSelectItem Value="@status" />
+                    }
+                }
+            </MudSelect>
             <MudSpacer />
             <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
                         Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
@@ -73,6 +93,7 @@
             <MudTh>
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Consignee!.Name!)">Consignee</MudTableSortLabel>
             </MudTh>
+            <MudTh Style="width:80px">Status</MudTh>
         </HeaderContent>
         <RowTemplate>
             @if (!IsSelectable)
@@ -88,6 +109,7 @@
             <MudTd>@context.Name</MudTd>
             <MudTd Style="text-align: start">@context.Shipper!.Name</MudTd>
             <MudTd Style="text-align: start">@context.Consignee!.Name</MudTd>
+            <MudTd>@context.Status.ToString()</MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -95,7 +117,7 @@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
-@code {
+    @code {
     private MudTable<DocumentEntity>? mudTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -116,7 +138,7 @@
 
         var response = await _documentProvider.GetItemsAsync(Filter);
         if (!response.HasError)
-            Items = ((IEnumerable<DocumentEntity>)response.Object!).OrderBy(d => d.Name).ToArray();
+            Items = ((IEnumerable<DocumentEntity>)response.Object!).ToList();
 
         await Task.Delay(500);
 
@@ -148,20 +170,6 @@
 
         await GetItems();
     }
-
-    // private async Task ShowItem_Click(long id)
-    // {
-    //     // if (MudDialog is not null)
-    //     //     MudDialog.Close(DialogResult.Ok(id));
-
-    //     var parameters = new DialogParameters { ["Id"] = id };
-    //     var options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-    //     var dialog = await DialogService.ShowAsync<Document_ItemDialog>(string.Empty, parameters, options);
-    //     var result = await dialog.Result;
-
-    //     if (!result.Canceled)
-    //         await GetItems();
-    // }
 
     private async Task OpenItem_Click(long id)
     {

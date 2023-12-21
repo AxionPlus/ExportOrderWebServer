@@ -257,7 +257,7 @@
                             
                         <br />
                         <h6 class="infoSC">Consignees:</h6>
-                        <div style="padding-left:10px">@string.Join("; ", Value.Consignees.Select(dcust => dcust.Name).Distinct().Order())</div>
+                        <div style="padding-left:10px">@string.Join("; ", Value.Consignees.Select(x => x.Name).Distinct().Order())</div>
                     }
                 }
             </div>
@@ -280,7 +280,6 @@
                 <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
             </div>
         }
-
         <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecord"
                   Virtualize="true" RowsPerPage="10">
 
@@ -322,9 +321,9 @@
                 <MudTd>
                     <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecord.CntrNum"
                                     Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
-                    </MudTd>
-                    <MudTd>
-                        <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
+                </MudTd>
+                <MudTd>
+                    <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
                                 Variant="Variant.Outlined" Margin="Margin.Dense"
                                 AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
                                 CloseIcon="" OpenIcon="">
@@ -435,8 +434,8 @@
     [Parameter]
     public string InitialStatus { get; set; } = string.Empty;
     
-    private int lastVersion = 1;
-    private bool IsNewVersionDisabled = true;
+    //private int lastVersion = 1;
+    //private bool IsNewVersionDisabled = true;
     
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
@@ -808,23 +807,23 @@
 
     #region NOT USED
 
-    private async Task GetNewItemVersion_Click(int version)
-    {
-        var response = await _exportOrderProvider.GetVersionAsync(version);
-        if (!response.HasError)
-        {
-            Value = (ExportOrderEntity)response.Object!;
-        }
-    }
+    // private async Task GetNewItemVersion_Click(int version)
+    // {
+    //     var response = await _exportOrderProvider.GetVersionAsync(version);
+    //     if (!response.HasError)
+    //     {
+    //         Value = (ExportOrderEntity)response.Object!;
+    //     }
+    // }
 
-    private async Task AddNewVersion_Click()
-    {
-        IsNewVersionDisabled = true;
+    // private async Task AddNewVersion_Click()
+    // {
+    //     IsNewVersionDisabled = true;
 
-        await Task.Delay(1000);
+    //     await Task.Delay(1000);
 
-        IsNewVersionDisabled = true;
-    }
+    //     IsNewVersionDisabled = true;
+    // }
 
     #endregion
 

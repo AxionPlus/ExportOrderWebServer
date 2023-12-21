@@ -290,9 +290,9 @@ body {
         font-weight: 500;
     }
 
-    .dateRange * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
-        padding-inline-start: 10px;
-    }
+/*    .dateRange * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: 6px;
+    }*/
 
     .dateRange * .mud-input-label-outlined.mud-input-label-margin-dense {
         transform: translate(12px,8px) scale(1);
@@ -302,7 +302,10 @@ body {
 
 /*Mud_INPUT_Controls*/
 
-/*.mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end*/
+/*.mud-input.mud-input-outlined {
+    font-size: 0.95rem;
+}*/
+
 .mud-input-control.TextField {
     display: flex;
     flex-direction: row;
@@ -313,11 +316,14 @@ body {
     flex:unset;
 }
 .mud-select.mud-autocomplete {
-    flex-grow: unset;
+    flex-grow: 0;
 }
 
 .container-content > .mud-select {
-    flex-grow: unset;
+    /*flex-grow: unset;*/
+    /*display: flex;*/
+    flex-grow: 0;
+    align-items: center;
 }
 
 
@@ -386,7 +392,7 @@ body {
         .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
             /*margin-right: -3px;*/
             /*margin-inline-end: 3px;*/
-            margin-inline-start: unset;
+            /*margin-inline-start: unset;*/
             /*margin-top: 2px;*/
         }
 
@@ -422,21 +428,20 @@ body {
     padding: 5px 1px 3px 3px;
 }
 
-.wrapper-input * .mud-input > textarea.mud-input-root-outlined {
-    margin: 4px;
-}
+/*.wrapper-input * .mud-input > textarea.mud-input-root-outlined {
+    margin: 6px;
+}*/
 
 
 .wrapper-input-date {
 }
 
     .wrapper-input-date * .mud-input > input.mud-input-root-outlined {
-        padding: 10px 1px 5px 3px;
+        padding: 8px 1px 5px 6px;
         text-align: center;
         font-size: 15px;
         font-weight: 500;
     }
-
 
     .wrapper-input-date * .mud-input.mud-input-outlined.mud-input-adorned-end {
         padding-inline-end: 0px;
@@ -470,6 +475,7 @@ body {
     background-color: var(--grey-08);
     transform: translate(10px, 10px) scale(1);
 }
+
 
 .wrapper-button {
 }

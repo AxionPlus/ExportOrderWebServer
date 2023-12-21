@@ -293,10 +293,7 @@
 
                 if (!string.IsNullOrEmpty(filter.Vessel))
                     ItemsDTO = ItemsDTO.Where(s => s.Vessel == filter.Vessel).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Voyage))
-                    ItemsDTO = ItemsDTO.Where(s => s.Voyage == filter.Voyage).ToList();
-
+                
                 if (!string.IsNullOrEmpty(filter.POD))
                     ItemsDTO = ItemsDTO.Where(s => s.POD== filter.POD).ToList();
 
@@ -311,7 +308,7 @@
                 ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
                 if (!string.IsNullOrEmpty(filter.Voyage))
-                    ItemsDTO = ItemsDTO.OrderByDescending(s => s.Dated);
+                    ItemsDTO = ItemsDTO.Where(s => s.Voyage == filter.Voyage).OrderByDescending(s => s.Dated).ToList();                
 
                 appObjResponse.Object = ItemsDTO.ToArray();
             }
@@ -421,17 +418,17 @@
                         db.Entry(itemRecordContent).State = EntityState.Added;
                 }
 
-                // Change Status of VesselCallDetail to Issued
-                // when all of its ExportOrders has status - Issued
-                var eoList = await db.ExportOrders
-                                                  .Include(eo => eo.VesselCallDetail)
-                                                  .Where(eo => eo.VesselCallDetail!.Id == modifyItem.VesselCallDetail!.Id)
-                                                  .AsNoTracking().ToListAsync();
+                //// Change Status of VesselCallDetail to Issued
+                //// when all of its ExportOrders has status - Issued
+                //var eoList = await db.ExportOrders
+                //                                  .Include(eo => eo.VesselCallDetail)
+                //                                  .Where(eo => eo.VesselCallDetail!.Id == modifyItem.VesselCallDetail!.Id)
+                //                                  .AsNoTracking().ToListAsync();
 
-                if (eoList.All(eo => eo.Status.Equals(EntityStatus.Issued)))
-                    modifyItem!.VesselCallDetail!.Status = EntityStatus.Issued;
-                else
-                    modifyItem!.VesselCallDetail!.Status = EntityStatus.New;
+                //if (eoList.All(eo => eo.Status.Equals(EntityStatus.Issued)))
+                //    modifyItem!.VesselCallDetail!.Status = EntityStatus.Issued;
+                //else
+                //    modifyItem!.VesselCallDetail!.Status = EntityStatus.New;
 
 
                 db.Entry(modifyItem).State = EntityState.Modified;
@@ -548,9 +545,9 @@
                 }
 
                 item.CreateUser = User!;
-                item.CreateTime = DateTime.Now;
-                item.Status = EntityStatus.New;
-                item.VesselCallDetail!.Status = EntityStatus.New;   // Issued
+                //item.CreateTime = DateTime.Now;
+                //item.Status = EntityStatus.New;
+                //item.VesselCallDetail!.VesselCall.Status = EntityStatus.New;
 
                 db.Entry(item).State = EntityState.Added;
 

@@ -1,4 +1,5 @@
 ﻿using ExportOrderWebServer.DataSet;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExportOrderWebServer.Areas.Document.Provider;
@@ -14,14 +15,18 @@ public class DocumentProvider : IDocumentProvider
         _dbContext = dbContext;
     }
 
-    public async Task<DocumentEntity> GetDocumentAsync(string Num)
+    public async Task<DocumentEntity?> GetDocumentAsync(string Num)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
             var result = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == Num);
-            return result; 
+
+            if (result is not null)
+                return result;
+            else
+                return null;
         }
     }
 
@@ -52,7 +57,7 @@ public class DocumentProvider : IDocumentProvider
         return appObjResponse;
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync()
+    public Task<AppObjectResponse> GetItemsAsync()
     {
         throw new NotImplementedException();
     }
@@ -86,8 +91,13 @@ public class DocumentProvider : IDocumentProvider
 
                 if (!string.IsNullOrEmpty(filter.CargoDescriptionShort))
                     documents = documents.Where(s => s.Description == filter.CargoDescriptionShort).ToList();
-                //documents = documents.Where(s => s.Records.FirstOrDefault()!.CommodityName == filter.CargoDiscriptionShort).ToList();
 
+                if (filter.Status >= 0)
+                    documents = documents.Where(s => s.Status == filter.Status).ToList();
+                else
+                    documents = documents.Where(s => s.Status == EntityStatus.New).ToList();
+
+                documents = documents.OrderByDescending(x => x.CreateTime).ToList();
 
                 appObjResponse.Object = documents.ToArray();
             }
@@ -137,6 +147,7 @@ public class DocumentProvider : IDocumentProvider
 
                 modifyItem!.CreateUser = User!;
                 modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.Status = item.Status;
                 modifyItem!.Name = item.Name;
                 modifyItem!.Type = item.Type;
                 modifyItem!.Description = item.Description;
@@ -205,6 +216,7 @@ public class DocumentProvider : IDocumentProvider
 
                 //var historyItem = new DocumentHistory()
                 //{
+                //    Status = item.Status,
                 //    CreateUser = User,
                 //    CreateTime = DateTime.Now,
                 //    Mode = HistoryEventMode.Modify,
@@ -294,6 +306,7 @@ public class DocumentProvider : IDocumentProvider
 
                 //    var historyItem = new DocumentHistory()
                 //    {
+                //        Status = item.Status,
                 //        CreateUser = User,
                 //        CreateTime = DateTime.Now,
                 //        Mode = HistoryEventMode.New,

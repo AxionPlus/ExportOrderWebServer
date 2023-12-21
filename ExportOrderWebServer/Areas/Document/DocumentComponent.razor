@@ -42,7 +42,8 @@
             <MudSpacer />
             <MudSelect Class="wrapper-input select" T="EntityStatus?" Style="width:120px" Label="Status" @bind-Value="Filter.Status"
                        ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
-                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
+                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
+                       Disabled="IsSelectable">
                 @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
                 {
                     if (status == EntityStatus.New || status == EntityStatus.Completed)

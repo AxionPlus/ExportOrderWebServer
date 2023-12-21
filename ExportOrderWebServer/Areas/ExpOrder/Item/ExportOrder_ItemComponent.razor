@@ -62,6 +62,14 @@
             padding: 4px 4px 1px 4px;
         }
 
+        .mud-table-foot > .mud-table-row {
+            background-color: lightgray;
+        }
+
+/*         .mud-table-foot > .mud-table-row * h6 {
+            margin-bottom: 2px;
+        } */
+
     .mud-list-item-gutters {
         padding-left:4px;
         padding-right:4px;
@@ -125,7 +133,7 @@
              <MudSpacer />
 
              <MudTextField Class="TextField" T="VesselCallDetail" Style="width: 450px" Value="Value.VesselCallDetail"
-                           Label="Vessel Call" Placeholder="Vessel Call"
+                           Label="Vessel / Voyage / Port" Placeholder="Vessel Call"
                            Text="@(Value.VesselCallDetail is not null ?
                                         $"{Value.VesselCallDetail!.VesselCall!.Vessel.Name} / {Value.VesselCallDetail!.VesselCall.VoyageNo} / {Value.VesselCallDetail.POD!.NameEn}"
                                         : string.Empty)"
@@ -207,7 +215,7 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="RemoveDocument"></MudIconButton>
                 </div>
 
-                <MudPaper Width="450px" Elevation="0" Style="height:246px;overflow: auto;">
+                <MudPaper Width="450px" Elevation="0" Style="height:240px;overflow: auto;">
                     @*                          <MudTreeView Items="TreeItems" Dense="true" Hover="true"
                 MultiSelection="MultiSelectionTreeItemData" @bind-SelectedValues="SelectedValues" >
                 <ItemTemplate>
@@ -249,10 +257,6 @@
                     if (Value.Documents.Count() > 0)
                     {
                         <h6 class="infoSC">Shippers:</h6>
-@*                         @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name, (key, group) => new String(group.FirstOrDefault()!.Name)))
-                        {
-                            <div style="padding-left:10px">@(shipper);</div>
-                        } *@
                         <div style="padding-left:10px">@string.Join("; ", Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))</div>
                             
                         <br />
@@ -264,7 +268,7 @@
         </div>
     </div>
     
-    <div class="Container-table">
+    <div class="Container-table" style="min-height:360px; max-height:400px; overflow:auto">
         @if (mudTable != null)
         {
             <div class="tableMenu">
@@ -281,7 +285,7 @@
             </div>
         }
         <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecord"
-                  Virtualize="true" RowsPerPage="10">
+                  Virtualize="true" HorizontalScrollbar="true" RowsPerPage="8" >
 
             <HeaderContent>
                 <MudTh Style="width:50px;">
@@ -409,7 +413,7 @@
                             @(Value.Records.Sum(s => s.Contents.Where(c => c.GrossWt is not null).Sum(c => c.GrossWt!.Value)).ToString("### ###.###"))
                         </h6>
                     </MudTd>
-                    <MudTd></MudTd>
+                    <MudTd colspan="2"></MudTd>
                 }
             </FooterContent>
         </MudTable>
@@ -501,41 +505,6 @@
                     DocumentRecordItems.Add(docRecord);
             }
         }
-    }
-
-    // NOT USED (DELETE)
-    async Task AddDocument_Click()
-    {
-        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents?IsSelectable={true}", "_blank");
-
-        var result = await ValueTask.FromResult(jsRuntime);
-
-        // if (result is not null)
-        // {
-        //     var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
-        // }
-
-
-        // -----------------------------------------------------------------------------------------------------------------------------
-        // var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents/{true}", "_blank"));
-
-        // if (result.IsCompletedSuccessfully)
-        // {
-        //     var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
-        //     //var documents = (HashSet<DocumentEntity>)result.Data;
-
-        //     Value!.Documents!.AddRange(documents);
-
-        //     await ValueChanged.InvokeAsync(Value);
-
-        //     foreach (var document in documents)
-        //     {
-        //         DocumentItems.Add(document);
-
-        //         foreach (var docRecord in document.Records)
-        //             DocumentRecordItems.Add(docRecord);
-        //     }
-        // }
     }
 
     private async Task RemoveDocument()
@@ -824,6 +793,40 @@
 
     //     IsNewVersionDisabled = true;
     // }
+
+    async Task AddDocument_Click()
+    {
+        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents?IsSelectable={true}", "_blank");
+
+        var result = await ValueTask.FromResult(jsRuntime);
+
+        // if (result is not null)
+        // {
+        //     var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
+        // }
+
+
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents/{true}", "_blank"));
+
+        // if (result.IsCompletedSuccessfully)
+        // {
+        //     var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
+        //     //var documents = (HashSet<DocumentEntity>)result.Data;
+
+        //     Value!.Documents!.AddRange(documents);
+
+        //     await ValueChanged.InvokeAsync(Value);
+
+        //     foreach (var document in documents)
+        //     {
+        //         DocumentItems.Add(document);
+
+        //         foreach (var docRecord in document.Records)
+        //             DocumentRecordItems.Add(docRecord);
+        //     }
+        // }
+    }
 
     #endregion
 

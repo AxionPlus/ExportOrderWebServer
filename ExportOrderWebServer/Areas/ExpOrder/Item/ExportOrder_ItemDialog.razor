@@ -82,7 +82,7 @@
 
     private string InitialStatus { get; set; } = string.Empty;
     public bool IsEditSaveBtnsVisible { get; set; } = false;
-    
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,6 +97,8 @@
 
     public async Task GetItem()
     {
+        IsLoadingData = true;
+
         if (IsNewItem)
         {
             Item = new();
@@ -118,6 +120,8 @@
                     IsEditSaveBtnsVisible = false;
             }            
         }
+
+        IsLoadingData = false;
     }
 
     public async Task SaveItem()

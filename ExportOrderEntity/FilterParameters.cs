@@ -24,6 +24,8 @@ public class FilterParameters
     public string? Terminal { get; set; }
     public string? POD { get; set; }
     public DateTime? Dated { get; set; }
+    public DateTime? DateFrom { get; set; }
+    public DateTime? DateTo { get; set; }
     public DateTime? ETA { get; set; }
     public DateTime? ETS { get; set; }
 

@@ -1,0 +1,54 @@
+﻿@page "/statistic"
+@inject IDialogService DialogService
+
+<PageTitle>Statistic</PageTitle>
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+        <MudSpacer />
+        <div class="ToolBar-Title"><span>statistic</span></div>
+        <MudSpacer />
+
+        <div class="ToolBar-iconbutton" style="margin-right: 20px">
+            <MudTooltip Text="get statistic">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AccountBalance" />
+            </MudTooltip>
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
+
+<div class="Container-item">
+    <div class="container-content">
+        <MudDatePicker Class="wrapper-input-date" Label="from" @bind-Date="Filter.DateFrom"
+                       Style="width: 130px; margin-right:10px"
+                       DateFormat="dd.MM.yy"
+                       ShowWeekNumbers="true"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       IconSize=Size.Small
+                       AutoClose=true
+                       DisableToolbar=false Clearable />
+
+        <MudDatePicker Class="wrapper-input-date" Label="to" @bind-Date="Filter.DateTo"
+                        Style="width: 130px; margin-right:40px"
+                        DateFormat="dd.MM.yy"
+                        ShowWeekNumbers="true"
+                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                        IconSize=Size.Small
+                        AutoClose=true
+                        DisableToolbar=false Clearable />
+    </div>
+</div>
+
+@code {
+    public StatisticEntity? Item { get; set; } = new StatisticEntity();
+    private FilterParameters Filter { get; set; } = new();
+    private bool IsLoadingData { get; set; } = false;
+
+}

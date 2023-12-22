@@ -144,6 +144,13 @@ public class VesselCallProvider : IVesselCallProvider
                 
                 var vesselCallDetailsDTO = vcRecords(vesselCalls);
 
+                if (filter.Status >= 0)
+                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == filter.Status).ToList();
+                else
+                    if (string.IsNullOrEmpty(filter.Vessel) && string.IsNullOrEmpty(filter.Voyage) && string.IsNullOrEmpty(filter.Terminal)
+                            && string.IsNullOrEmpty(filter.POD))
+                        vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == EntityStatus.New).ToList();
+                
                 if (!string.IsNullOrEmpty(filter.Vessel))
                     vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.VesselName == filter.Vessel).ToList();
 
@@ -156,18 +163,10 @@ public class VesselCallProvider : IVesselCallProvider
                 if (!string.IsNullOrEmpty(filter.POD))
                     vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.POD == filter.POD).ToList();
 
-                if (filter.Status >= 0)
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == filter.Status).ToList();
-                else
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
-
                 //if (!string.IsNullOrEmpty(filter.Carrier))
                 //    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.CarrierName == filter.Carrier).ToList();
 
                 vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);
-
-                //if (!string.IsNullOrEmpty(filter.Voyage))
-                //    vesselCallDetailsDTO = vesselCallDetailsDTO.OrderBy(s => s.CreateTime);
 
                 appObjResponse.Object = vesselCallDetailsDTO.ToArray();
             }            
@@ -289,6 +288,34 @@ public class VesselCallProvider : IVesselCallProvider
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
+
+
+                // Change Status of ExportOrders
+                db.ChangeTracker.Clear();
+
+                var eoList = new List<ExportOrderEntity>();
+                
+                foreach (var detail in item.Details)
+                {
+                    var expOrders = await db.ExportOrders
+                                              .Include(eo => eo.VesselCallDetail)
+                                              .Where(eo => eo.VesselCallDetail!.Id == detail.Id)
+                                              .AsNoTracking().ToListAsync();
+
+                    if  (expOrders.Count() > 0)
+                        eoList.AddRange(expOrders);
+                }
+
+                if (eoList.Count() > 0)
+                {
+                    eoList.ForEach(e => { e.Status = item.Status; });
+
+                    eoList.ForEach(e => { db.Entry(e).State = EntityState.Modified; });
+
+                    await db.SaveChangesAsync();
+                }
+                else
+                    db.ChangeTracker.Clear();
 
                 // HISTORY
                 //db.ChangeTracker.Clear();

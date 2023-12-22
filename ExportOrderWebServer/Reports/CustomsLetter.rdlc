@@ -1169,7 +1169,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>   ПАСПОРТ: </Value>
+                              <Value>ПАСПОРТ: </Value>
                               <Style>
                                 <FontFamily>Times New Roman</FontFamily>
                                 <FontSize>12pt</FontSize>
@@ -1194,11 +1194,9 @@
                           <Style>None</Style>
                         </Border>
                         <BottomBorder>
-                          <Color>Black</Color>
                           <Style>Solid</Style>
-                          <Width>1pt</Width>
                         </BottomBorder>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>12pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>

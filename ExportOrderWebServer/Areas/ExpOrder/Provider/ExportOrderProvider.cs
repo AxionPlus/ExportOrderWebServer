@@ -69,7 +69,7 @@
                                                 {
                                                     Id = source.Id,
                                                     Num = source.Num,
-                                                    BLNum = source.Num.IndexOf("-") == -1 ? source.Num : source.Num.Substring(0, source.Num.IndexOf("-")),
+                                                    BLNum = source.Num.IndexOf("_") == -1 ? source.Num : source.Num.Substring(0, source.Num.IndexOf("_")),
                                                     Dated = source.Dated.HasValue ? source.Dated.Value.ToString("dd.MM.yyyy") : DateTime.Today.ToString("dd.MM.yyyy"),
                                                     xmlDated = source.Dated.HasValue ? source.Dated.Value.ToString("dd.MM.yyyy hh:mm:ss") : DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss"),
                                                     DateOfLoading = source.VesselCallDetail!.VesselCall!.ETA!.Value.ToString("dd.MM.yyyy"),
@@ -147,7 +147,7 @@
                                 {
                                     Id = source.Id,
                                     Num = source.Num,
-                                    BLNum = source.Num.IndexOf("-") == -1 ? source.Num : source.Num.Substring(0, source.Num.IndexOf("-")),
+                                    BLNum = source.Num.IndexOf("_") == -1 ? source.Num : source.Num.Substring(0, source.Num.IndexOf("_")),
                                     BLDate = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
                                     BLtemplate = source.Carrier!.BlTemplate.ToString(),
                                     CarrierNameEn = source.Carrier!.NameEn,
@@ -285,6 +285,13 @@
 
                 var ItemsDTO = eoComponentRecord(exportOrders);
 
+                if (filter.Status >= 0)
+                    ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
+                else
+                    if (string.IsNullOrEmpty(filter.Num) && string.IsNullOrEmpty(filter.Vessel) && string.IsNullOrEmpty(filter.POD)
+                            && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage))
+                        ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
+
                 //if (!string.IsNullOrEmpty(filter.CntrNum))
                 //    ItemsDTO = ItemsDTO.Where(s => s.Cntr == filter.CntrNum).ToList();
 
@@ -299,11 +306,6 @@
 
                 if (!string.IsNullOrEmpty(filter.Carrier))
                     ItemsDTO = ItemsDTO.Where(s => s.Carrier == filter.Carrier).ToList();
-
-                if (filter.Status >= 0)
-                    ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
-                else
-                    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
 
                 ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
@@ -387,7 +389,6 @@
                 modifyItem.Carrier = item.Carrier;
                 modifyItem.Person = item.Person;
                 modifyItem.VesselCallDetail = item.VesselCallDetail;
-                //modifyItem.Status = modifyItem.Status == EntityStatus.Issued ? EntityStatus.Cancelled : item.Status;
                 modifyItem.Status = item.Status;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
@@ -545,9 +546,6 @@
                 }
 
                 item.CreateUser = User!;
-                //item.CreateTime = DateTime.Now;
-                //item.Status = EntityStatus.New;
-                //item.VesselCallDetail!.VesselCall.Status = EntityStatus.New;
 
                 db.Entry(item).State = EntityState.Added;
 
@@ -1174,7 +1172,7 @@
                         // BL Item
                         VesselCallId = Item.VesselCallDetail!.VesselCall!.Id,
                         ExpOrderNum = Item.Num,
-                        BLNum = Item.Num.IndexOf("-") == -1 ? Item.Num : Item.Num.Substring(0, Item.Num.IndexOf("-")),
+                        BLNum = Item.Num.IndexOf("_") == -1 ? Item.Num : Item.Num.Substring(0, Item.Num.IndexOf("_")),
                         BLDate = Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy") : "---",
                         Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo,
                         VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!,

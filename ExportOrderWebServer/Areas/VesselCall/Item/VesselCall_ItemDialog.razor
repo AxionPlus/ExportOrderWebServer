@@ -221,6 +221,8 @@
     private bool IsLoadingData = false;
     public bool IsFormReadOnly { get; set; } = true;
 
+    private string InitialStatus { get; set; } = string.Empty;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -236,10 +238,13 @@
         }        
         else
         {
-            var response = await _vesselCallProvider.GetItemAsync(Id);
+            var response = await _vesselCallProvider.GetItemAsync(Id);            
 
             if (!response.HasError)
+            {
                 Item = (VesselCallEntity)response.Object!;
+                InitialStatus = Item.Status.ToString();
+            }            
             else
                 Snackbar.Add($"{response.Error.First()}", Severity.Error);
         }
@@ -259,13 +264,18 @@
             }
             else
             {
-                var result = await _vesselCallProvider.ModifyItemAsync(Item!);
-                if (!result.HasError)
+                if (InitialStatus != "Completed")
                 {
-                    Snackbar.Add("Saved Successfully", Severity.Success);
+                    var result = await _vesselCallProvider.ModifyItemAsync(Item!);
+                    if (!result.HasError)
+                    {
+                        Snackbar.Add("Saved Successfully", Severity.Success);
+                    }
+                    else
+                        Snackbar.Add($"{result.Error.First()}", Severity.Error);
                 }
                 else
-                    Snackbar.Add($"{result.Error.First()}", Severity.Error);
+                    Snackbar.Add($"Voyage is Completed.<br>You can't change Status for this Voyage.", Severity.Warning);
             }
 
             IsNewItem = false;

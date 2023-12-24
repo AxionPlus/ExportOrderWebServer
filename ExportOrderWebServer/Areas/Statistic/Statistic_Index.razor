@@ -1,54 +1,233 @@
 ﻿@page "/statistic"
-@inject IDialogService DialogService
+@attribute [Authorize]
+
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject StatisticProvider _statisticProvider
 
 <PageTitle>Statistic</PageTitle>
 
-<div class="ToolBar-container">
-    <MudToolBar Class="ToolBar ToolBar-new">
-        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
-        <MudSpacer />
-        <div class="ToolBar-Title"><span>statistic</span></div>
-        <MudSpacer />
+<style>
+    .mud-simple-table table * tr th {
+        text-align: center;
+    }
 
-        <div class="ToolBar-iconbutton" style="margin-right: 20px">
-            <MudTooltip Text="get statistic">
-                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AccountBalance" />
-            </MudTooltip>
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
-        </div>
-        <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
-        </div>
-    </MudToolBar>
-</div>
+    .mud-simple-table table * tr td {
+        text-align: center;
+    }
 
-<div class="Container-item">
-    <div class="container-content">
-        <MudDatePicker Class="wrapper-input-date" Label="from" @bind-Date="Filter.DateFrom"
-                       Style="width: 130px; margin-right:10px"
-                       DateFormat="dd.MM.yy"
-                       ShowWeekNumbers="true"
-                       Variant="Variant.Outlined" Margin="Margin.Dense"
-                       IconSize=Size.Small
-                       AutoClose=true
-                       DisableToolbar=false Clearable />
+    .mud-picker-inline {
+        flex:unset;
+    }
+</style>
 
-        <MudDatePicker Class="wrapper-input-date" Label="to" @bind-Date="Filter.DateTo"
-                        Style="width: 130px; margin-right:40px"
-                        DateFormat="dd.MM.yy"
-                        ShowWeekNumbers="true"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                        IconSize=Size.Small
-                        AutoClose=true
-                        DisableToolbar=false Clearable />
+
+<MudContainer MaxWidth="MaxWidth.Small">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>statistic</span></div>
+            <MudSpacer />
+
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="get statistic">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AccountBalance" OnClick="GetItem"/>
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
     </div>
-</div>
+
+    <div class="Container-item">
+        <div class="container-content" style="justify-content:flex-start">
+            <MudDatePicker Class="wrapper-input-date" Label="from" @bind-Date="Filter.DateFrom"
+                           Style="width: 130px; margin-right:10px"
+                           DateFormat="dd.MM.yy"
+                           ShowWeekNumbers="true"
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           IconSize=Size.Small
+                           AutoClose=true
+                           DisableToolbar=false
+                           Clearable />
+
+            <MudDatePicker Class="wrapper-input-date" Label="to" @bind-Date="Filter.DateTo"
+                            Style="width: 130px; margin-right:40px"
+                            DateFormat="dd.MM.yy"
+                            ShowWeekNumbers="true"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            IconSize=Size.Small
+                            AutoClose=true
+                            DisableToolbar=false
+                            Clearable />
+
+            <MudSpacer />
+
+             <MudDatePicker Class="wrapper-input-date" Label="month" @bind-Date="_month"
+                            Style="width: 130px; margin-right:10px"
+                            DateFormat="MMM"
+                            ShowWeekNumbers="true"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            IconSize=Size.Small
+                            AutoClose=true
+                            DisableToolbar=false
+                            Clearable
+                            OpenTo="OpenTo.Month" FixYear="@DateTime.Today.Year" FixDay="@DateTime.Today.Day"/>
+
+             <MudDatePicker Class="wrapper-input-date" Label="year" @bind-Date="_year"
+                            Style="width: 130px; margin-right:40px"
+                            DateFormat="yyyy"
+                            ShowWeekNumbers="true"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            IconSize=Size.Small
+                            AutoClose=true
+                            DisableToolbar=false
+                            Clearable
+                            OpenTo="OpenTo.Year" FixMonth="@DateTime.Today.Month" FixDay="@DateTime.Today.Day"/>
+            
+            <MudSpacer />
+
+            <MudButton Class="Button" Style="width: 80px" OnClick="ClearAllFilters"
+                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary">
+                Clear
+            </MudButton>
+        </div>
+    </div>
+
+    <div class="Container-item">
+        @* <div class="container-content"> *@
+            @if (Item is not null)
+            {
+                <MudSimpleTable Style="overflow-x: auto;">
+                    <thead>
+                        <tr>
+                            @foreach (var h in headings)
+                            {
+                                if (h == "Completed")
+                                {
+                                    <th style="color:cornflowerblue">@h</th>                            
+                                }
+                                else
+                                {
+                                    <th>@h</th>
+                                }
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            @foreach (var x in elements)
+                            {
+                                <td>@x</td>
+                            }
+                        </tr>
+                    </tbody>
+                </MudSimpleTable>
+            }    
+        @* </div> *@
+    </div>
+</MudContainer>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     public StatisticEntity? Item { get; set; } = new StatisticEntity();
+    
     private FilterParameters Filter { get; set; } = new();
-    private bool IsLoadingData { get; set; } = false;
+    private DateTime? _month;
+    private DateTime? _year;
 
+    private bool IsLoadingData { get; set; } = false;
+    private bool IsAuth { get; set; }
+    private string[] headings = { "From", "To", "Underway", "Cancelled", "Completed", "Overall" };
+    private string[] elements { get; set; } = new string[6];
+    
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (user.User.IsInRole("Admin"))
+        {
+            IsAuth = true;
+            //await GetItem();
+        }
+    }
+
+    public async Task GetItem()
+    {
+        IsLoadingData = true;
+
+        SetDatePeriod();
+
+        var response = await _statisticProvider.GetItemsAsync(Filter);
+        if (!response.HasError)
+        {
+            Item = (StatisticEntity)response.Object!;
+
+            if (Item is not null)
+            {   
+                elements[0] = Item.DatedFrom.HasValue ? Item.DatedFrom.Value.ToShortDateString() : "---";
+                elements[1] = Item.DatedTo.HasValue ? Item.DatedTo.Value.ToShortDateString() : "---";
+                elements[2] = Item.CountUnderway.ToString();
+                elements[3] = Item.CountCancelled.ToString();
+                elements[4] = Item.CountCompleted.ToString();
+                elements[5] = Item.CountOverall.ToString();
+            }            
+        }
+        else
+            Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
+
+        await Task.Delay(100);
+        IsLoadingData = false;
+    }
+
+    private void ClearAllFilters()
+    {
+        Filter = new();
+        _month = null;
+        _year = null;
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SetDatePeriod()
+    {
+        // if (Filter.DateFrom.HasValue || Filter.DateTo.HasValue)
+        // {
+        //     _month = null;
+        //     _year = null;
+        // }
+
+        if (_month.HasValue)
+        {
+            Filter = new();
+            _year = null;
+
+            var firstDayOfMonth = new DateTime(_month.Value.Year, _month.Value.Month, 1);
+            Filter.DateFrom = firstDayOfMonth;
+            Filter.DateTo = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+            _month = null;
+        }
+
+        if (_year.HasValue)
+        {
+            Filter = new();
+            _month = null;
+
+            var firstDayOfYear = new DateTime(_year.Value.Year, 1, 1);
+            Filter.DateFrom = firstDayOfYear;
+            Filter.DateTo = firstDayOfYear.AddYears(1).AddDays(-1);
+
+            _year = null;
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
 }

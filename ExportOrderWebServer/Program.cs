@@ -1,4 +1,5 @@
 using ExportOrderWebServer;
+using ExportOrderWebServer.Areas.Statistic;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
@@ -63,6 +64,7 @@ builder.Services.AddTransient<ICntrTypeProvider, CntrTypeProvider>();
 builder.Services.AddTransient<IDocumentProvider, DocumentProvider>();
 builder.Services.AddTransient<IExportOrderProvider, ExportOrderProvider>();
 builder.Services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
+builder.Services.AddTransient<StatisticProvider>();
 
 var app = builder.Build();
 

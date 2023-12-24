@@ -28,6 +28,8 @@ public class FilterParameters
     public DateTime? DateTo { get; set; }
     public DateTime? ETA { get; set; }
     public DateTime? ETS { get; set; }
+    public DateTime? StatMonth { get; set; }
+    public DateTime? StatYear { get; set; }
 
     [MaxLength(11)]
     public string? CntrNum { get; set; }

@@ -44,7 +44,8 @@ public class StatisticProvider
                 {
                     DatedFrom = filter.DateFrom,
                     DatedTo = filter.DateTo,
-                    CountUnderway = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.New && eo.Status == EntityStatus.Issued),
+                    CountUnderway = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.New || eo.Status == EntityStatus.Issued),
+                    //CountUnderway = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.New).Count(),
                     CountCancelled = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.Cancelled),
                     CountCompleted = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.Completed),
                     CountOverall = (uint)exportOrders.Count(),

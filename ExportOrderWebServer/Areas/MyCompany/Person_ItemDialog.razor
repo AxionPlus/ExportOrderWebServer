@@ -102,7 +102,7 @@
     protected override async Task OnInitializedAsync()
     {
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
         {
             IsAuth = true;
         }
@@ -138,7 +138,5 @@
 
             IsFormReadOnly = true;
         }
-    }
-
-    
+    }    
 }

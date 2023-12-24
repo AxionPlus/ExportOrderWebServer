@@ -1,5 +1,6 @@
 ﻿@page "/roles"
-@* @attribute [Authorize(Roles = "Admin")] *@
+@attribute [Authorize(Roles = "Admin, Top Manager")]
+
 @inject IDialogService DialogService
 @inject IUserProvider UserProvider
 

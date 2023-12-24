@@ -10,22 +10,18 @@ namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
 public class UploadFileController : ControllerBase
 {
-    //public readonly IExportOrderProvider _exportOrderProvider;    
     private readonly IWebHostEnvironment _webHostEnvironment;
     public readonly ICntrTypeProvider _cntrTypeProvider;
     public readonly IDocumentProvider _documentProvider;
 
-    //public UploadFileController(IExportOrderProvider exportOrderProvider, ICntrTypeProvider cntrTypeProvider, IDocumentProvider documentProvider)
     public UploadFileController(IWebHostEnvironment webHostEnvironment, ICntrTypeProvider cntrTypeProvider, IDocumentProvider documentProvider)
     {
-        //_exportOrderProvider = exportOrderProvider;        
         _webHostEnvironment = webHostEnvironment;
         _cntrTypeProvider = cntrTypeProvider;
         _documentProvider = documentProvider;
 
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
-
 
     #region Check upload
     [HttpPost]
@@ -141,12 +137,17 @@ public class UploadFileController : ControllerBase
         {
             try
             {
-                var summary = new List<string>();
-
                 var result = await exl.ReadUploadingFile();
+
+                // Chek an uploaded data
+                var summary = new List<string>();
 
                 if (result.Item1.Select(eor => eor.Contents.Any(co => co.DocumentRecord == null)).FirstOrDefault() == true)
                     summary.Add("В декларации нет товара, который вы пытаетесь подгрузить.");
+
+                //var duplicateCntrNum = result.Item1.GroupBy(eor => eor.CntrNum).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+                //var duplicateCntrNum = result.Item1.GroupBy(eor => eor.CntrNum).Select(g => g.Key).Where(g => g.Count() > 1).ToList();
+                //var duplicateCntrNum = result.Item1.GroupBy(eor => eor.CntrNum).Where(g => g.Count() > 1).ToList();
 
                 var ur = new UploadResult()
                 {

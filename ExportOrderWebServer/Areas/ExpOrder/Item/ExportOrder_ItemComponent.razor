@@ -66,10 +66,6 @@
             background-color: lightgray;
         }
 
-/*         .mud-table-foot > .mud-table-row * h6 {
-            margin-bottom: 2px;
-        } */
-
     .mud-list-item-gutters {
         padding-left:4px;
         padding-right:4px;
@@ -83,10 +79,6 @@
     .SelectField * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
         text-align:center;
     }
-
-/*     .tfoot {
-        color: #0a58ca;
-    } */
 
     .TextField_Sum * .mud-input > input.mud-input-root-outlined {
         text-align: end;
@@ -257,11 +249,18 @@
                     if (Value.Documents.Count() > 0)
                     {
                         <h6 class="infoSC">Shippers:</h6>
-                        <div style="padding-left:10px">@string.Join("; ", Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))</div>
-                            
+                        @* <div style="padding-left:10px">@string.Join("; ", Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))</div> *@
+                        @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))
+                        {
+                            <div style="padding-left:10px">@shipper@(Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
+                        }
                         <br />
                         <h6 class="infoSC">Consignees:</h6>
-                        <div style="padding-left:10px">@string.Join("; ", Value.Consignees.Select(x => x.Name).Distinct().Order())</div>
+                        @* <div style="padding-left:10px">@string.Join(";\n ", Value.Consignees.Select(x => x.Name).Distinct())</div> *@
+                        @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
+                        {
+                            <div style="padding-left:10px">@consignee@(Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
+                        }
                     }
                 }
             </div>
@@ -417,8 +416,7 @@
                 }
             </FooterContent>
         </MudTable>
-    </div>
-    
+    </div>    
 }
 
 @code {
@@ -437,10 +435,10 @@
     public bool IsFormReadOnly { get; set; }
     [Parameter]
     public string InitialStatus { get; set; } = string.Empty;
-    
+
     //private int lastVersion = 1;
     //private bool IsNewVersionDisabled = true;
-    
+
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
@@ -453,7 +451,7 @@
     private HashSet<DocumentEntity>? SelectedDocumentValues { get; set; }
     private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
     private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
-
+    string cons = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -473,11 +471,10 @@
                 DocumentRecordItems.Add(docRecord);
 
         //InitialStatus = Value.Status.ToString();
-        //lastVersion = await _exportOrderProvider.LastVersionAsync();
+        //lastVersion = await _exportOrderProvider.LastVersionAsync();        
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
-
 
     #region DOCUMENTS
 
@@ -860,50 +857,6 @@
     }
 
     #endregion
-
-    // public async Task CancelIssuedItem()
-    // {
-    //     IsCancelBtnDisabled = true;
-    //     Value!.Status = EntityStatus.Cancelled;
-
-    //     var response = await _exportOrderProvider.ModifyItemAsync(Value!);
-    //     if (!response.HasError)
-    //         Snackbar.Add($"Cancelled Successfully.<br>New Export Order created (see new Number).<br>Unlock record to continue", Severity.Success);
-    //     else
-    //     {
-    //         Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
-    //         return;
-    //     }
-
-    //     await Task.Delay(500);
-
-    //     Value!.Id = 0;
-    //     Value.Num = Value.Num + "-";
-    //     Value.Status = EntityStatus.New;
-        
-
-    //     // Documents
-    //     // foreach (var document in Value.Documents)
-    //     // {
-    //     //     document.Id = 0;
-
-    //     //     foreach (var record in document.Records)
-    //     //         record.Id = 0;
-    //     // }
-
-    //     // Records
-    //     foreach (var record in Value.Records)
-    //     {
-    //         record.Id = 0;
-
-    //         foreach (var content in record.Contents)
-    //             content.Id = 0;
-    //     }
-
-    //     response = null;
-
-    //     await InvokeAsync(StateHasChanged);
-    // }
 
     #region  TreeItems
 

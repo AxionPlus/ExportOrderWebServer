@@ -83,9 +83,6 @@
                                                     VesselFlag = source.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
                                                     VesselFlagEn = source.VesselCallDetail!.VesselCall!.Vessel.Flag.ENG,
                                                     Voyage = source.VesselCallDetail!.VesselCall!.VoyageNo,
-                                                    //Shippers = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn)).Distinct().ToList()),
-                                                    //Consignees = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn)).Distinct().ToList()),
-                                                    //Commodities = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(co => co.DocumentRecord.CommodityEngName)).Distinct().ToList()),
                                                     POD = source.VesselCallDetail!.POD!.Name + ", " + source.VesselCallDetail!.POD!.Country!.RUS,
                                                     PODEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.ENG,
                                                     PODwithCountryRus = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.RUS,
@@ -362,7 +359,7 @@
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
 
                 // DELETE AN EXISTED modifyItem.Records
                 if (modifyItem.Records.Count() > 0)
@@ -533,7 +530,8 @@
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            //var User = await db.Set<AdminUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
 
             try
             {
@@ -674,7 +672,7 @@
             {
                 var db = await _db;
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);                                
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);                                
 
                 // delete Export Order
                 var deleteItem = await db.ExportOrders
@@ -874,7 +872,7 @@
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
 
                 // DELETE AN EXISTED modifyItem
 
@@ -1233,8 +1231,9 @@
                         RecordConsigneesCountries = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.CountryENG!).Distinct().ToList()),
 
                         RecordCommodities = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.CommodityName +
-                                                                                            (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + "UNNO:" + 
-                                                                                                                                rc.DocumentRecord : ""))
+                                                                                            (rc.DocumentRecord.IsIMO ? " IMO:" +
+                                                                                                rc.DocumentRecord.IMO + "UNNO:" + 
+                                                                                                rc.DocumentRecord : ""))
                                                                              .Distinct().ToList()),
                     };
 

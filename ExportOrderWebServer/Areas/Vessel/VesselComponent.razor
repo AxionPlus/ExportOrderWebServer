@@ -2,8 +2,6 @@
 @inject IDialogService DialogService
 @inject IVesselProvider _vesselProvider
 
-<style></style>
-
 
 <div class="Container-item">
     <div class="container-content">
@@ -42,33 +40,32 @@
 
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
-    <HeaderContent>
-        <MudTh Style="width:30px"></MudTh>
-        <MudTh Style="width:30px"></MudTh>
-        <MudTh Style="width:360px">
-            <MudTableSortLabel SortBy="new Func<VesselEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
-        </MudTh>            
-        <MudTh Style="width:100px">IMO number</MudTh>
-        <MudTh Style="width:240px">Flag</MudTh>
-        <MudTh Style="width:100px">Terrminal id</MudTh>
-        <MudTh></MudTh>
-    </HeaderContent>
+        <HeaderContent>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:360px">
+                <MudTableSortLabel SortBy="new Func<VesselEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
+            </MudTh>            
+            <MudTh Style="width:100px">IMO number</MudTh>
+            <MudTh Style="width:240px">Flag</MudTh>
+            <MudTh Style="width:100px">Terrminal id</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
 
-    <RowTemplate>
-        <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-        <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })"></MudIconButton></MudTd>
-        <MudTd>@context.Name</MudTd>
-        <MudTd>@context.IMO</MudTd>
-        <MudTd>@context.Flag!.RUS</MudTd>
-        <MudTd>@context.TerminalCode</MudTd>
-        <MudTd></MudTd>
-    </RowTemplate>
+        <RowTemplate>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })"></MudIconButton></MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.IMO</MudTd>
+            <MudTd>@context.Flag!.RUS</MudTd>
+            <MudTd>@context.TerminalCode</MudTd>
+            <MudTd></MudTd>
+        </RowTemplate>
 
-    <PagerContent></PagerContent>
+        <PagerContent></PagerContent>
 
-</MudTable>
+    </MudTable>
 </div>
-
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
@@ -132,7 +129,6 @@
 
         await GetItems();
     }
-
 
     #region SEARCH FUNCTIONS
 

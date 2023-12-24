@@ -1,6 +1,6 @@
 ﻿@page "/terminal"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
-@* @attribute [Authorize] *@
 @inject IDialogService DialogService
 
 <PageTitle>Terminals</PageTitle>

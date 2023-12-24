@@ -4,6 +4,6 @@ namespace ExportOrderEntites;
 
 public class ApplicationUser : IdentityUser
 {
-    [NotMapped]
-    public string? Roles { get; set; }
+    //[NotMapped]
+    //public string? Roles { get; set; }
 }

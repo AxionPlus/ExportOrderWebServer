@@ -2,7 +2,6 @@
 @inject IDialogService DialogService
 @inject ICustomsProvider _customsOfficeProvider
 
-
 <div class="Container-item">
     <div class="container-content">
         <MudAutocomplete Class="Autocomplete" T="string" Label="Code" Style="width: 200px" @bind-Value="@Filter.Num" SearchFunc="@SearchCodes"
@@ -12,12 +11,6 @@
         <MudAutocomplete Class="Autocomplete" T="string" Label="Office Name" Style="width: 250px" @bind-Value="Filter.Name" SearchFunc="@SearchNames"
                          Variant="Variant.Outlined" Margin="Margin.Dense"
                          CloseIcon="" OpenIcon="" ResetValueOnEmptyText="true" Clearable />
-@*         <MudAutocomplete Class="Autocomplete" T="string" Label="Office Name" Style="width: 500px" SearchFunc="@SearchNames"
-                        Value="Filter.Name"
-                        ValueChanged="(e)=> { Filter.Name = e; }"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                        CloseIcon="" OpenIcon=""
-                        ResetValueOnEmptyText="true" Clearable /> *@
         <MudSpacer />
         <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
                 Variant="Variant.Filled" Color="Color.Secondary"

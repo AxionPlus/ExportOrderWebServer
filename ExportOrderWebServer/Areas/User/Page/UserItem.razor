@@ -1,9 +1,10 @@
 ﻿@page "/user/{UserName}"
-@* @attribute [Authorize(Roles = "Admin")] *@
+@attribute [Authorize(Roles = "Admin, Top Manager")]
+
 @using Microsoft.AspNetCore.Identity;
 @inject ISnackbar Snackbar
-@inject IUserProvider UserProvider
-@inject UserManager<ApplicationUser> UserManager
+@inject IUserProvider _userProvider
+@inject UserManager<ApplicationUser> _userManager
 
 <PageTitle>User</PageTitle>
 
@@ -81,21 +82,21 @@
     protected override async Task OnInitializedAsync()
     {
         await GetUser();
-        Roles = await UserProvider.GetRolesAsync();
+        Roles = await _userProvider.GetRolesAsync();
     }
 
     private async Task GetUser()
     {
         if (!string.IsNullOrWhiteSpace(UserName))
         {
-            User = await UserProvider.GetUserAsync(UserName);
-            SelectedRoles = await UserManager.GetRolesAsync(User);
+            User = await _userProvider.GetUserAsync(UserName);
+            SelectedRoles = await _userManager.GetRolesAsync(User);
         }
     }
 
     public async Task SaveRoles()
     {
-        await UserProvider.RolesToUserAsync(User, SelectedRoles);
+        await _userProvider.RolesToUserAsync(User, SelectedRoles);
 
         //await GetUser();
 

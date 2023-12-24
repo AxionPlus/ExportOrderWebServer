@@ -1,5 +1,6 @@
 ﻿@page "/users"
-@* @attribute [Authorize(Roles = "Admin")] *@
+@attribute [Authorize(Roles = "Admin, Top Manager")]
+
 @inject IUserProvider UserProvider
 @inject UserManager<ApplicationUser> UserManager
 

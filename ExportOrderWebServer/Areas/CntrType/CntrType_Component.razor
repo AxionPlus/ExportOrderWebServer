@@ -29,11 +29,9 @@
     {
         <div class="tableMenu">
             <MudSpacer />
-@*             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" /> *@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
-    }
-    
+    }    
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">
         <HeaderContent>
             <MudTh Style="width:200px">
@@ -139,27 +137,15 @@
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                // CntrTpSz itemExistCheck = new();
-
-                // itemExistCheck = Items!.Where(s => s.ISO == item.ISO).FirstOrDefault()!;
-                // if (itemExistCheck !=null)
-                //     Items!.Remove(item);
-
-                // itemExistCheck = NewItems!.Where(s => s.ISO == item.ISO).FirstOrDefault()!;
-                // if (itemExistCheck != null)
-                //     NewItems!.Remove(itemExistCheck);
-
                 var response = await _cntrTypeProvider.RemoveItemAsync(item);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
                     Snackbar.Add($"Unable to delete", Severity.Warning);
-
             }
 
         await GetItems();
-        //await InvokeAsync(StateHasChanged);
     }
 
     public async Task SaveItem_Click(List<CntrTpSz> newItems)

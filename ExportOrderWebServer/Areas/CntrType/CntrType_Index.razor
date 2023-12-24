@@ -1,4 +1,5 @@
 ﻿@page "/containerType"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 <PageTitle>ContainerTypes</PageTitle>
 
@@ -21,16 +22,3 @@
         <CntrType_Component />
     </MudForm>
 </MudContainer>
-
-@code {
-    //private MudForm? Form;
-
-    // private List<CntrTpSz>? Items { get; set; } = new List<CntrTpSz>();
-    // private List<CntrTpSz>? NewItems { get; set; } = new List<CntrTpSz>();
-
-    // private async Task SaveItem_Click(List<CntrTpSz> newItems)
-    // {
-    //     if (Items != null)
-    //         await component!.SaveItem_Click(Items);
-    // }
-}

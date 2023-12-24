@@ -1,4 +1,5 @@
 ﻿@page "/exportorder"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 @inject ISnackbar Snackbar
 @inject IJSRuntime jsRuntime

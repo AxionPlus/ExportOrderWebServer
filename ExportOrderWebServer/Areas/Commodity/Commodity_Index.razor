@@ -1,6 +1,6 @@
 ﻿@page "/commodity"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
-@* @attribute [Authorize] *@
 @inject IDialogService DialogService
 
 <PageTitle>Commodity</PageTitle>

@@ -1,5 +1,5 @@
 ﻿@page "/vesselcall"
-@* @attribute [Authorize] *@
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService

@@ -1,5 +1,5 @@
 ﻿@page "/statistic"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, Top Manager")]
 
 @inject ISnackbar Snackbar
 @inject AuthenticationStateProvider authenticationStateProvider
@@ -145,17 +145,15 @@
     private bool IsLoadingData { get; set; } = false;
     private bool IsAuth { get; set; }
     private string[] headings = { "From", "To", "Underway", "Cancelled", "Completed", "Overall" };
-    private string[] elements { get; set; } = new string[6];
-    
+    private string[] elements { get; set; } = new string[6];    
 
 
     protected override async Task OnInitializedAsync()
     {
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin"))
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
         {
             IsAuth = true;
-            //await GetItem();
         }
     }
 

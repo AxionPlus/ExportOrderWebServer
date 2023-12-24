@@ -1,4 +1,5 @@
 ﻿@page "/customer"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 @inject IDialogService DialogService
 

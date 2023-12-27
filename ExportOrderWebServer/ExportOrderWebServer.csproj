@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Remove="Reports\CustomsLetter.rdlc" />
     <None Remove="Reports\ExportOrder.rdlc" />
+    <None Remove="Resources\TemplateUploadCntrs.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +39,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\ExportOrder.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\TemplateUploadCntrs.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
@@ -186,9 +190,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\TemplateFillBill.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\TemplateUploadCntrs.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\TransSinergia.jpg">

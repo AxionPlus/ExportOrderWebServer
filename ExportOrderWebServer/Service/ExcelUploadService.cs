@@ -1,5 +1,6 @@
-﻿using ExportOrderWebServer.Areas.ExpOrder.Controller;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -34,6 +35,76 @@ public class ExcelUploadService : IDisposable
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
+    public async Task<List<UploadExcelDTO>> _ReadUploadingFile()
+    {
+        if (!File.Exists(FilePath)) return (new List<UploadExcelDTO>());
+        Workbook = Workbooks?.Open(FilePath, 0, true);
+        WorkSheets = Workbook?.Worksheets;
+        WorkSheet = WorkSheets?.Item[1];
+
+        #region COLUMN NAME
+
+        int colDoc = 0;
+        int colCargoIndex = 1;
+        int colCntrNum = 2;
+        int colCntrType = 3;
+        int colCntrTareWt = 4;
+        int colSeal = 5;
+        int colPackageQty = 6;
+        int colPackageName = 7;
+        int colNet = 8;
+        int colGross = 9;
+
+        #endregion
+
+        var Records = new List<UploadExcelDTO>();
+
+        try
+        {
+            uint columns = 10;
+            uint row = 2;
+
+            do
+            {
+                row++;
+            } while (!string.IsNullOrWhiteSpace(WorkSheet!.Cells[row, 1].Text));
+
+            var startCell = WorkSheet.Cells[2, 1];
+            var endCell = WorkSheet.Cells[row - 1, columns];
+            Range = WorkSheet.Range[startCell, endCell];
+
+            string[][] sheetArray = GetStringArray(Range.Cells.Value);
+            var recordsArray = sheetArray.ToList();
+
+            foreach (var records in sheetArray)
+            {
+                foreach (var record in records)
+                {
+                    var UploadedRecords = new UploadExcelDTO()
+                    {
+                        DocumentName = records[colDoc],
+                        SeqCommodity = uint.TryParse(records[colCargoIndex], out uint _cIndex) ? _cIndex : 0,
+                        CntrNum = records[colCntrNum],
+                        CntrType = records[colCntrType],
+                        CntrTareWt = double.TryParse(records[colCntrTareWt], out double _Tare) ? _Tare : 0,
+                        Seal = records[colSeal],
+                        PackageQty = uint.TryParse(records[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
+                        PackageName = records[colPackageName],
+                        NetWt = double.TryParse(records[colNet], out double _netWt) ? _netWt : 0,
+                        GrossWt = double.TryParse(records[colGross], out double _gwt) ? _gwt : 0,
+                    };
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            var msg = ex.Message;
+            return new List<UploadExcelDTO>();
+        }
+
+        await Task.Delay(500);
+        return (Records);
+    }
 
     public async Task<(List<ExportOrderRecord>, List<DocumentEntity>)> ReadUploadingFile()
     {
@@ -53,14 +124,12 @@ public class ExcelUploadService : IDisposable
         int colPackageQty = 6;
         int colPackageName = 7;
         int colNet = 8;
-        int colGross = 9;        
-        
+        int colGross = 9;
+
         #endregion
-                
+
         var records = new List<ExportOrderRecord>();
         var documents = new List<DocumentEntity>();
-
-        //UploadResult uploadResult = new UploadResult();
 
         try
         {
@@ -68,7 +137,7 @@ public class ExcelUploadService : IDisposable
             uint row = 2;
 
             do
-            {                
+            {
                 row++;
             } while (!string.IsNullOrWhiteSpace(WorkSheet!.Cells[row, 1].Text));
 
@@ -109,20 +178,28 @@ public class ExcelUploadService : IDisposable
                     // Documents
                     var _Document = await _documentProvider.GetDocumentAsync(record[colDoc]);
 
-                    if (_Document is null)
-                    {
-                        return (null, null);
-                    }   
+                    //if (_Document is null)
+                    //{
+                    //    return (null, null);
+                    //}   
 
-                    var document = new DocumentEntity() { Name = "" };
+                    var document = new DocumentEntity() { Name = record[colDoc] };
                     var documentRecord = new DocumentRecord();
 
                     if (!documents.Any(s => s.Name == record[colDoc]))
                     {
-                        documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == cargoIndex);
+                        //documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == cargoIndex);
 
-                        document = _Document;
-                        document.Records.Clear();
+                        //document = _Document;
+                        //document.Records.Clear();
+
+                        if (_Document is not null)
+                        {
+                            documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == cargoIndex);
+
+                            document = _Document;
+                            document.Records.Clear();
+                        }
 
                         documents.Add(document);
                     }
@@ -131,7 +208,10 @@ public class ExcelUploadService : IDisposable
                         document = documents.FirstOrDefault(s => s.Name == record[colDoc]);
 
                         if (!document!.Records.Any(s => s.Seq == cargoIndex))
-                            documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == cargoIndex);
+                        {
+                            if (_Document is not null)
+                                documentRecord = _Document!.Records.FirstOrDefault(r => r.Seq == cargoIndex);
+                        }
                         else
                             documentRecord = null;
                     }

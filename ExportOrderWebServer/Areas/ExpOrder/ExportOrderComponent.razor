@@ -2,7 +2,7 @@
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject HttpClient Http
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime jSRuntime
 
 @inject IExportOrderProvider _exportOrderProvider
 @inject IVesselProvider _vesselProvider
@@ -264,22 +264,22 @@
     private async Task ViewReportExpOrder_Click(long id)
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
-        await JSRuntime.InvokeVoidAsync("open", path);
+        await jSRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task ViewReportBL_Click(long id)
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
 
-        await JSRuntime.InvokeVoidAsync("open", path);
+        await jSRuntime.InvokeVoidAsync("open", path);
         //TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
-        //await JSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
+        //await jSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
     }
 
     private async Task SaveXMLfile_Click(long id)
     {
         string path = $"{Navigation.BaseUri}server/ExportOrder/SaveXMLfile?Id={id}";
-        await JSRuntime.InvokeVoidAsync("open", path);
+        await jSRuntime.InvokeVoidAsync("open", path);
     }
 
     #region SEARCHERS

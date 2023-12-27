@@ -79,36 +79,6 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<AppObjectResponse> GetVesselCallDetailItemAsync(long vesselCallid)
-    {
-        appObjResponse = new();
-
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            try
-            {
-                var db = await _db;
-
-                appObjResponse.Object = await db.Set<VesselCallDetail>().AsNoTracking()
-                                                    .Include(vcd => vcd.POD)
-                                                    .Include(vcd => vcd.VesselCall.Terminal)
-                                                    .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
-                                                    .FirstOrDefaultAsync(vcd => vcd.Id == vesselCallid);
-
-                if (appObjResponse.Object is null)
-                    appObjResponse.ErrorAdd("There is no voyage");
-
-                return appObjResponse;
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
-                return appObjResponse;
-            }
-        }
-    }
-
     public async Task<AppObjectResponse> GetItemsAsync()
     {
         appObjResponse = new();
@@ -493,6 +463,37 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
+
+    #region AUXILARY METHODS
+    public async Task<AppObjectResponse> GetVesselCallDetailItemAsync(long vesselCallid)
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            try
+            {
+                var db = await _db;
+
+                appObjResponse.Object = await db.Set<VesselCallDetail>().AsNoTracking()
+                                                    .Include(vcd => vcd.POD)
+                                                    .Include(vcd => vcd.VesselCall.Terminal)
+                                                    .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
+                                                    .FirstOrDefaultAsync(vcd => vcd.Id == vesselCallid);
+
+                if (appObjResponse.Object is null)
+                    appObjResponse.ErrorAdd("There is no voyage");
+
+                return appObjResponse;
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                appObjResponse.ErrorAdd(msg);
+                return appObjResponse;
+            }
+        }
+    }
     public async Task<AppObjectResponse> RemoveVesselCallDetailAsync(long id)
     {
         appObjResponse = new();
@@ -543,7 +544,6 @@ public class VesselCallProvider : IVesselCallProvider
             return appObjResponse;
         }
     }
-
     public async Task<IEnumerable<string>> GetNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -557,10 +557,6 @@ public class VesselCallProvider : IVesselCallProvider
     {
         throw new NotImplementedException();
     }
-
-
-    #region AUXILARY METHODS
-
     public async Task<IEnumerable<string>> GetPODs()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -584,6 +580,37 @@ public class VesselCallProvider : IVesselCallProvider
                 result = await db.VesselCalls.Select(s => s.VoyageNo!).ToListAsync();
 
             return result;
+        }
+    }
+
+    public async Task<IEnumerable<string>> GetExportOrderNumsAsync(long id)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var vesselCallDetail = await db.VesselCalls
+                                               .Include(vc => vc.Vessel)
+                                               .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)                                               
+                                               .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+
+            if (vesselCallDetail != null)
+                return vesselCallDetail.Details.SelectMany(vcd => vcd.ExportOrders).Select(eo => eo.Num).ToList();
+            else
+                return Enumerable.Empty<string>();
+        }
+    }
+    public async Task<VesselCallEntity?> GetItemToCheckAsync(long id)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var vesselCall = await db.VesselCalls
+                                               .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)
+                                               .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+
+            return vesselCall;
         }
     }
 

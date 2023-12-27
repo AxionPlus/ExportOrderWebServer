@@ -27,7 +27,6 @@ public class ExcelCreateService : IDisposable
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
-
     public async Task<byte[]> CreateExcelFile()
     {
         if (string.IsNullOrEmpty(TempFilePath)) return Array.Empty<byte>();
@@ -48,7 +47,7 @@ public class ExcelCreateService : IDisposable
 
             foreach (var carrier in carrierGroup)
             {
-                // HEAD
+                // HEAD of table
 
                 ++indexCarrier;
 
@@ -111,13 +110,13 @@ public class ExcelCreateService : IDisposable
                     dataBulk[row, 2] = carrier.ElementAt(row).PODunlocode!;
                     dataBulk[row, 3] = carrier.ElementAt(row).BLDate;
                     dataBulk[row, 4] = carrier.ElementAt(row).BLNum;
-                    //dataBulk[row, 5] = carrier.ElementAt(row).Shippers!.Substring(3);
                     dataBulk[row, 5] = carrier.ElementAt(row).RecordShippers!;
                     dataBulk[row, 6] = carrier.ElementAt(row).RecordShippersCountries!;
                     dataBulk[row, 7] = carrier.ElementAt(row).RecordConsignees!;
                     dataBulk[row, 8] = carrier.ElementAt(row).RecordConsigneesCountries!;
                     dataBulk[row, 9] = carrier.ElementAt(row).Cntr;
-                    dataBulk[row, 10] = carrier.ElementAt(row).Commodities!;
+                    //dataBulk[row, 10] = carrier.ElementAt(row).Commodities!;
+                    dataBulk[row, 10] = carrier.ElementAt(row).RecordCommodities!;
                     dataBulk[row, 11] = carrier.ElementAt(row).GrossWeights! == 0 ? carrier.ElementAt(row).CntrTareWt : carrier.ElementAt(row).GrossWeights!;
                     dataBulk[row, 12] = carrier.ElementAt(row).PackageQtys!;
                     dataBulk[row, 13] = carrier.ElementAt(row).CntrType.Substring(2, 2);
@@ -161,7 +160,6 @@ public class ExcelCreateService : IDisposable
     {
         try
         {
-            //File.WriteAllBytes(TempFilePath, ResourceFile!);
             File.WriteAllBytes(TempFilePath, Resource.TemplateFillBill);
             Resource.ResourceManager.ReleaseAllResources();
             

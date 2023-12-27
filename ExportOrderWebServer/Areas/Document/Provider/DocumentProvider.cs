@@ -39,7 +39,11 @@ public class DocumentProvider : IDocumentProvider
             var result =await db.Set<DocumentRecord>().Include(s => s.Document).AsNoTracking()
                                                  .Where(s => s.Document.Name == Num)
                                                  .FirstOrDefaultAsync(s => s.Seq == index);
-            return result;
+
+            if (result != null)
+                return result;
+            else
+                return new DocumentRecord() { Seq = index, CommodityName = string.Empty, CommodityEngName = string.Empty };
         }
     }
 
@@ -57,9 +61,18 @@ public class DocumentProvider : IDocumentProvider
         return appObjResponse;
     }
 
-    public Task<AppObjectResponse> GetItemsAsync()
+    public async Task<AppObjectResponse> GetItemsAsync()
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            appObjResponse.Object = await db.Documents.AsNoTracking().ToListAsync();
+        }
+
+        return appObjResponse;
     }
 
     public async Task<AppObjectResponse> GetItemsAsync(object parameters)
@@ -383,6 +396,18 @@ public class DocumentProvider : IDocumentProvider
 
             var result = await db.Documents.AsNoTracking().ToListAsync();
             return result;
+        }
+    }
+
+    public async Task<List<string?>?> GetDocumentNamesAsync()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var documents = await db.Documents.Select(d => d.Name).ToListAsync();
+
+            return documents;
         }
     }
 }

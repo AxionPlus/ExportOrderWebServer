@@ -66,12 +66,19 @@ public class ExportOrderController : ControllerBase
 
             var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
             var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
-            var dsCommodities = dsRecords?.GroupBy(r => r.Commodity).Select(g => new {
-                                                                                        Commodity = g.Key + " (" +
-                                                                                        g.FirstOrDefault()!.HSCode + ") " +
-                                                                                        (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO +
-                                                                                                                    " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
-                                                                                     }).ToList();
+            //var dsCommodities = dsRecords?.GroupBy(r => r.Commodity).Select(g => new {
+            //                                                                            Commodity = g.Key + " (" +
+            //                                                                            g.FirstOrDefault()!.HSCode + ") " +
+            //                                                                            (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO +
+            //                                                                                                        " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
+            //                                                                         }).ToList();
+
+            var dsCommodities = dsRecords?.GroupBy(r => r.SeqContent)
+                                          .Select(g => new {
+                                                                Commodity = g.FirstOrDefault()!.Commodity + " (" +
+                                                                g.FirstOrDefault()!.HSCode + ") " +
+                                                                (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
+                                                           }).ToList();
 
             int dSeq = 0;
             var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
@@ -549,6 +556,31 @@ public class ExportOrderController : ControllerBase
                 if (buffer != Array.Empty<byte>())
                     return File(buffer, "application/xlsx", $"{FileName}.xlsx");
             }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return Empty;
+        }
+
+        return Ok();
+    }
+
+    [HttpGet]
+    [Route("DownloadExcelTemplate")]
+    public async Task<IActionResult> DownloadTemplate()
+    {
+        try
+        {
+            string FileName = $"ИмпортСписка ДТ (проформа)";
+
+            byte[] fileBytes = Resource.TemplateUploadCntrs;
+            
+            await Task.Delay(100);
+
+            if (fileBytes != Array.Empty<byte>())
+                return File(fileBytes, "application/xlsx", $"{FileName}.xlsx");
+
         }
         catch (Exception ex)
         {

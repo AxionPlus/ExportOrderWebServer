@@ -1,11 +1,11 @@
 ﻿@page "/uploadExportOrderRecords"
 
 
-
 @inject ISnackbar Snackbar
 @inject IHttpClientFactory httpClient
 @inject NavigationManager Navigation
-
+@inject IVesselCallProvider vesselCallProvider
+@inject IDocumentProvider documentProvider
 
 <MudStack Style="width: 100%">
     <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
@@ -39,6 +39,8 @@
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
+    [Parameter]
+    public long VoyageId { get; set; }
     private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
     private string DragClass = DefaultDragClass;
     private string FileName = string.Empty;
@@ -68,7 +70,7 @@
     {
         FileName = string.Empty;
         ClearDragClass();
-        IsDataUploading = false;
+        //IsDataUploading = false;
         HasErrors = false;
         await Task.Delay(100);
     }
@@ -85,7 +87,7 @@
 
     private async Task CheckAndUploadFile()
     {
-        IsLoadingData = true;
+        //IsLoadingData = true;
         long maxFileSize = 1024 * 500;
         using var content = new MultipartFormDataContent();
 
@@ -105,19 +107,89 @@
         var client = httpClient.CreateClient();
         client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
 
-        // DELETE
-        IsDataUploading = true;
-        //
-
-        if (IsDataUploading)
+        if (IsDataUploading)    // DELETE if
         {
             var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadExportOrder", content);
             if (response.IsSuccessStatusCode)
             {   
-                //var uploadedData = await response.Content.ReadFromJsonAsync<IEnumerable<ExportOrderRecord>>();
                 var uploadedData = await response.Content.ReadFromJsonAsync<UploadResult>();
-                
-                IsDataUploading = true;
+
+                if (uploadedData is null)
+                {
+                    client.Dispose();
+                    return;
+                }
+
+                #region CHECK UPLOADED DATA
+
+                // var VesselCall = await vesselCallProvider.GetItemToCheckAsync(VoyageId);
+                // var DocumentNames = await documentProvider.GetDocumentNamesAsync();
+
+                // var errList = new List<string>();
+
+                // if (uploadedData._ExportOrderRecords is not null)
+                // {
+                //     // Container Content
+                //     foreach (var record in uploadedData._ExportOrderRecords)
+                //     {
+                //         if (record.Contents.Count() > 0)
+                //             foreach (var recordContent in record.Contents)
+                //             {
+                //                 if (recordContent.GrossWt > 29000)
+                //                     errList.Add($"Cntr: {record.CntrNum} - Gross weight exceeded.");
+
+                //                 if (recordContent.NetWt! > 29000)
+                //                     errList.Add($"Cntr: {record.CntrNum} - Net weight exceeded.");
+                //             }
+                //         else
+                //             errList.Add($"Cntr: {record.CntrNum} - list of Container Content is empty.");
+                //     }
+                // }
+
+                // // Document
+                // if (uploadedData._Documents is not null)
+                // {                    
+                //     if (DocumentNames is not null)
+                //         foreach (var doc in uploadedData._Documents)
+                //             if (!DocumentNames.Any(d => d == doc.Name))
+                //                 errList.Add($"Document: {doc.Name} dosn't exists in DataBase.");
+                // }
+
+                // // Container Num
+                // if (VesselCall is not null)
+                // {
+                //     var duplicateCntrNum = VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).GroupBy(eo => eo.Num).Where(g => g.Count() > 1).ToList();
+
+                //     if (duplicateCntrNum.Count() > 0)
+                //         foreach (var num in duplicateCntrNum)
+                //             errList.Add($"Cntr: {num.Select(g => g.Num)} duplicates in Voyage: {num.Select(g => g.VesselCallDetail!.VesselCall.VoyageNo)}.");
+                // }
+
+                #endregion
+
+                // int CntrCount = uploadedData._ExportOrderRecords is not null ? uploadedData._ExportOrderRecords.Count() : 0;
+                // int DocumentCount = uploadedData._Documents is not null ? uploadedData._Documents.Count() : 0;
+
+                // // SUMMARY
+                // uploadedData.Summary = new List<string>()
+                // {
+                //     $"Containers: { CntrCount }",
+                //     $"Documents: { DocumentCount }",
+                // };
+
+                // ERRORS
+                //uploadedData.Errors = errList;
+
+
+
+                // var CheckingResults = new CheckingResult()
+                // {
+                //     CntrCount = uploadedData._ExportOrderRecords is not null ? uploadedData._ExportOrderRecords.Count() : 0,
+                //     DocumentCount = uploadedData._Documents is not null ? uploadedData._Documents.Count() : 0,
+                //     Errors = errList,
+                // };
+
+                //IsDataUploading = true;
                 //Snackbar.Add($"Uploaded", Severity.Success);
 
                 MudDialog!.Close(uploadedData);
@@ -125,25 +197,39 @@
             else
             {
                 Snackbar.Add($"Data where not uploaded", Severity.Error);
-                IsDataUploading = false;
+                //IsDataUploading = false;
             }
         }
-        else
-        {
-            var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords", content);
-            if (response.IsSuccessStatusCode)
-            {
-                _CheckingResult = await response.Content.ReadFromJsonAsync<CheckingResult>();
+        // else
+        // {
+        //     var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords", content);
+        //     // var response = await client.SendAsync(new HttpRequestMessage()
+        //     //                 { 
+        //     //                     RequestUri = new Uri($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords?voyageId={VoyageId}"),
+        //     //                     Method = HttpMethod.Get,
+        //     //                     Content = content,
+        //     //                 });
 
-                if (_CheckingResult is not null)
-                    if (!_CheckingResult.HasErrors)
-                        IsDataUploading = true;
-                    else
-                        HasErrors = true;
-            }
-        }
+        //     await client.SendAsync(new HttpRequestMessage()
+        //         {
+        //             RequestUri = new Uri($"{Navigation.BaseUri}file/UploadFile/CheckExpOrderRecords?voyageId={VoyageId}"),
+        //             Method = HttpMethod.Get,
+        //             Content = content,
+        //         });
 
-        IsLoadingData = false;
+        //     if (response.IsSuccessStatusCode)
+        //     {
+        //         _CheckingResult = await response.Content.ReadFromJsonAsync<CheckingResult>();
+
+        //         if (_CheckingResult is not null)
+        //             if (!_CheckingResult.HasErrors)
+        //                 IsDataUploading = true;
+        //             else
+        //                 HasErrors = true;
+        //     }
+        // }
+
+        //IsLoadingData = false;
         client.Dispose();
 
         //  Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;

@@ -46,9 +46,9 @@
         box-shadow: none;
     }
 
-    .mud-table-sticky-footer * .mud-table-root .mud-table-foot > .mud-table-row {
+/*     .mud-table-sticky-footer * .mud-table-root .mud-table-foot > .mud-table-row {
         background-color: lightgrey;
-    }
+    } */
 
     .Table * .mud-table-cell {
         padding: 4px;
@@ -200,10 +200,12 @@
                         <div style="width: 10px"></div>
                     }
                     <MudSpacer />
-                    <h6 class="container-content-head">DOCUMENTS:</h6>
+                    <h6 class="container-content-head" style="color:cornflowerblue">DOCUMENTS:</h6>
                     <MudSpacer />
                     <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddDocuments_Click"></MudIconButton>
-                    <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Disabled="IsFormReadOnly"></MudIconButton>
+                    <MudTooltip Text="Download Template (загрузить проформу)">
+                        <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="DownloadExcelTemplate"></MudIconButton>
+                    </MudTooltip>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="RemoveDocument"></MudIconButton>
                 </div>
 
@@ -249,7 +251,7 @@
                     if (Value.Documents.Count() > 0)
                     {
                         <h6 class="infoSC">Shippers:</h6>
-                        @* <div style="padding-left:10px">@string.Join("; ", Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))</div> *@
+                        @* <div style="padding-left:10px">@string.Join(";\n ", Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))</div> *@
                         @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))
                         {
                             <div style="padding-left:10px">@shipper@(Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
@@ -271,13 +273,16 @@
         @if (mudTable != null)
         {
             <div class="tableMenu">
-                <MudButton Class="Button" Size="Size.Small" Style="margin-inline:20px" Disabled="IsFormReadOnly" OnClick="UploadFile"
-                            Variant="Variant.Filled" Color="Color.Dark"
-                            StartIcon="@Icons.Material.Filled.UploadFile">
+                <MudButton Class="Button" Size="Size.Small"
+                           OnClick="@(async ()=>{ if (Value.VesselCallDetail is not null) await UploadFile(Value.VesselCallDetail.VesselCall.Id); } )"
+                           Style="margin-inline:20px; margin-bottom:2px"
+                           Variant="Variant.Filled" Color="Color.Dark"
+                           StartIcon="@Icons.Material.Filled.UploadFile"
+                           Disabled="IsFormReadOnly">
                     Upload New List
-                </MudButton>
+                </MudButton>               
                 <MudSpacer />
-                <h6 class="container-content-head">CONTAINER RECORDS</h6>
+                <h6 class="container-content-head" style="color:cornflowerblue">CONTAINER RECORDS</h6>
                 <MudSpacer />
                 <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
                 <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
@@ -435,10 +440,11 @@
     public bool IsFormReadOnly { get; set; }
     [Parameter]
     public string InitialStatus { get; set; } = string.Empty;
+    [Parameter]
+    public long voyageId { get; set; } = 0;
 
     //private int lastVersion = 1;
     //private bool IsNewVersionDisabled = true;
-
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
@@ -610,12 +616,13 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task UploadFile()
+    private async Task UploadFile(long id)
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
+        var parameters = new DialogParameters() { ["VoyageId"] = id };
         var options = new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
-        dialog = DialogService.Show<UploadExportOrderRecordsFile>("INPUT: list of records", options);
+        dialog = DialogService.Show<UploadExportOrderRecordsFile>("Импорт списка ДТ", parameters, options);
 
         var result = await dialog.Result;
 
@@ -638,42 +645,58 @@
                     return;
                 }
 
-                var records = uploadResult!._ExportOrderRecords!.ToList();
-                var documents = uploadResult!._Documents!.ToList();
+                bool? IsResult = await DialogService.ShowMessageBox(
+                                         "Summary:",
+                                         (MarkupString)$"{string.Join(";\n)", uploadResult.Errors)}",
+                                         yesText: "Ok", cancelText: "Cancel");
 
-                // Remove old documents from the page
-                foreach (var documentItem in DocumentItems)
+                if (!IsResult.HasValue) return;
+
+                if (IsResult.Value)
                 {
-                    foreach (var documentRecordItem in DocumentRecordItems)
-                        DocumentRecordItems.Remove(documentRecordItem);
+                    var records = uploadResult!._ExportOrderRecords!.ToList();
+                    var documents = uploadResult!._Documents!.ToList();
 
-                    DocumentItems.Remove(documentItem);
-                }
-
-                // Add new documents to the page
-                foreach (var document in documents)
-                {
-                    DocumentItems.Add(document);
-
-                    foreach (var docRecord in document.Records)
+                    // Remove old documents from the page
+                    foreach (var documentItem in DocumentItems)
                     {
-                        docRecord.Document = document;
-                        DocumentRecordItems.Add(docRecord);
+                        foreach (var documentRecordItem in DocumentRecordItems)
+                            DocumentRecordItems.Remove(documentRecordItem);
+
+                        DocumentItems.Remove(documentItem);
                     }
+
+                    // Add new documents to the page
+                    foreach (var document in documents)
+                    {
+                        DocumentItems.Add(document);
+
+                        foreach (var docRecord in document.Records)
+                        {
+                            docRecord.Document = document;
+                            DocumentRecordItems.Add(docRecord);
+                        }
+                    }
+
+                    foreach (var record in records)
+                        foreach (var cntrContent in record.Contents)
+                            cntrContent.DocumentRecord.Document = documents.First(s => s.Records.Any(s => s.Id == cntrContent.DocumentRecord.Id));
+
+                    Value!.Records = records;
+                    Value.Documents = documents;
+
+                    //Snackbar.Add($"Uploaded", Severity.Success);
+
+                    await ValueChanged.InvokeAsync(Value);
                 }
-
-                foreach (var record in records)
-                    foreach (var cntrContent in record.Contents)
-                        cntrContent.DocumentRecord.Document = documents.First(s => s.Records.Any(s => s.Id == cntrContent.DocumentRecord.Id));
-
-                Value!.Records = records;
-                Value.Documents = documents;
-
-                Snackbar.Add($"Uploaded", Severity.Success);
-
-                await ValueChanged.InvokeAsync(Value);
             }
         }
+    }
+
+    private async Task DownloadExcelTemplate()
+    {
+        string path = $"{Navigation.BaseUri}server/ExportOrder/DownloadExcelTemplate";
+        await jsRuntime.InvokeVoidAsync("open", path);
     }
 
     #endregion

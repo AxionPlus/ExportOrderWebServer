@@ -399,6 +399,18 @@ public class DocumentProvider : IDocumentProvider
         }
     }
 
+    public async Task<IEnumerable<DocumentEntity>> GetDocumentItemsToUploadAsync()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var result = await db.Documents.Include(d => d.Records).AsNoTracking().ToListAsync();
+            return result;
+        }
+    }
+
+    // DELETE
     public async Task<List<string?>?> GetDocumentNamesAsync()
     {
         using (var _db = _dbContext.CreateDbContextAsync())

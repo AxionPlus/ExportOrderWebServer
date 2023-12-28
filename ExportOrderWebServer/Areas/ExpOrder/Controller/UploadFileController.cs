@@ -46,9 +46,9 @@ public class UploadFileController : ControllerBase
                 }
             }
 
-        using (var exl = new ExcelUploadService(filePath, cntrTypes, _documentProvider))
+        using (var exl = new _ExcelUploadService(filePath, cntrTypes, _documentProvider))
         {
-            var result = await exl.ReadUploadingFile();
+            var result = await exl._ReadUploadingFile();
 
             var errList = new List<string>();
 
@@ -129,9 +129,9 @@ public class UploadFileController : ControllerBase
                 }
             }
 
-        using (var exl = new ExcelUploadService(filePath, cntrTypes, _documentProvider))
+        using (var exl = new _ExcelUploadService(filePath, cntrTypes, _documentProvider))
         {
-            var result = await exl.ReadUploadingFile();
+            var result = await exl._ReadUploadingFile();
 
             var errList = new List<string>();
 
@@ -222,11 +222,11 @@ public class UploadFileController : ControllerBase
                 }
             }
 
-        using (var exl = new ExcelUploadService(filePath, cntrTypes, _documentProvider))
+        using (var exl = new _ExcelUploadService(filePath, cntrTypes, _documentProvider))
         {
             try
             {
-                var result = await exl.ReadUploadingFile();
+                var result = await exl._ReadUploadingFile();
 
                 var ur = new UploadResult()
                 {
@@ -243,23 +243,58 @@ public class UploadFileController : ControllerBase
             }
         }
     }
+
+    [HttpPost]
+    [Route("UploadFromExcel")]
+    public async Task<List<UploadExcelDTO>> UploadFromExcel([FromForm] IEnumerable<IFormFile> files)
+    {
+        string filePath = string.Empty;
+
+        foreach (var file in files)
+            if (file != null)
+            {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+            }
+
+        using (var exl = new ExcelUploadService(filePath))
+        {
+            try
+            {
+                var result = await exl.ReadUploadingFile();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                Console.WriteLine(msg);
+                return new List<UploadExcelDTO>();
+            }
+        }
+    }
 }
 
-public class UploadResult
-{
-    public IEnumerable<ExportOrderRecord>? _ExportOrderRecords { get; set; }
-    public IEnumerable<DocumentEntity>? _Documents { get; set; }
-    public IEnumerable<string>? Summary { get; set; } = new List<string>();
-    public IEnumerable<string>? Errors { get; set; } = new List<string>();
-}
+//public class UploadResult
+//{
+//    public IEnumerable<ExportOrderRecord>? _ExportOrderRecords { get; set; }
+//    public IEnumerable<DocumentEntity>? _Documents { get; set; }
+//    public IEnumerable<string>? Summary { get; set; } = new List<string>();
+//    public IEnumerable<string>? Errors { get; set; } = new List<string>();
+//}
 
-public class CheckingResult
-{
-    public int CntrCount { get; set; }
-    //public int CntrContentCount { get; set; }
-    public int DocumentCount { get; set; }
-    public IEnumerable<string> Errors { get; set; } = new List<string>();
-    public bool HasErrors => Errors.Count() > 0;
-    //public IEnumerable<string> ErrorsCntrList { get; set; } = new List<string>();
-    //public bool HasErrorsCntrList => ErrorsCntrList.Count() > 0;
-}
+//public class CheckingResult
+//{
+//    public int CntrCount { get; set; }
+//    //public int CntrContentCount { get; set; }
+//    public int DocumentCount { get; set; }
+//    public IEnumerable<string> Errors { get; set; } = new List<string>();
+//    public bool HasErrors => Errors.Count() > 0;
+//    //public IEnumerable<string> ErrorsCntrList { get; set; } = new List<string>();
+//    //public bool HasErrorsCntrList => ErrorsCntrList.Count() > 0;
+//}

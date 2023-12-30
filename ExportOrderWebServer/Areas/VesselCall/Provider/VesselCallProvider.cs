@@ -607,7 +607,7 @@ public class VesselCallProvider : IVesselCallProvider
             var db = await _db;
 
             var vesselCall = await db.VesselCalls
-                                               .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)
+                                               .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records).ThenInclude(eor => eor.Contents)
                                                .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
             return vesselCall;

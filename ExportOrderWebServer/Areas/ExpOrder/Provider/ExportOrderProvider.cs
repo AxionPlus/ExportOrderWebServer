@@ -1155,10 +1155,10 @@
                 var _shippers = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn!)).ToList();
                 var _consignees = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn!)).ToList();
                 var _commodities = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.CommodityName +
-                                                    (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + "UNNO:" + rc.DocumentRecord : "")))
+                                                    (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + "UNNO:" + rc.DocumentRecord.UNNO : "")))
                                                .Distinct().ToList();
                 var _commoditiesEn = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.CommodityEngName +
-                                                    (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + "UNNO:" + rc.DocumentRecord : "")))
+                                                    (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + "UNNO:" + rc.DocumentRecord.UNNO : "")))
                                                 .Distinct().ToList();
 
                 uint indexRec = 0;
@@ -1233,7 +1233,7 @@
                         RecordCommodities = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.CommodityName +
                                                                                             (rc.DocumentRecord.IsIMO ? " IMO:" +
                                                                                                 rc.DocumentRecord.IMO + "UNNO:" + 
-                                                                                                rc.DocumentRecord : ""))
+                                                                                                rc.DocumentRecord.UNNO : ""))
                                                                              .Distinct().ToList()),
                     };
 

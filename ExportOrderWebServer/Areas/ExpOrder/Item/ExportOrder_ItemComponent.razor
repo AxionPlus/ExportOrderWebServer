@@ -7,6 +7,7 @@
 @inject ICntrTypeProvider _cntrTypeProvider
 @inject ICarrierProvider _carrierProvider
 @inject IVesselCallProvider _vesselCallProvider
+@inject IDocumentProvider _documentProvider
 
 <style>
 
@@ -45,10 +46,6 @@
         transition: none;
         box-shadow: none;
     }
-
-/*     .mud-table-sticky-footer * .mud-table-root .mud-table-foot > .mud-table-row {
-        background-color: lightgrey;
-    } */
 
     .Table * .mud-table-cell {
         padding: 4px;
@@ -191,22 +188,27 @@
         <div class="container-content">
             <div class="documents">
                 <div class="controlIconButtons">
-                    @if (DocumentItems.Count > 0)
+@*                     @if (DocumentItems.Count > 0)
                     {
                         <MudCheckBox Class="wrapper-checkBox" Dense="true" Size="Size.Small" @bind-Checked="@MultiSelectionTreeItemData" Disabled="IsFormReadOnly" />
                     }
                     else
                     {
                         <div style="width: 10px"></div>
-                    }
+                    } *@
+                    <div style="width: 10px"></div>
                     <MudSpacer />
-                    <h6 class="container-content-head" style="color:cornflowerblue">DOCUMENTS:</h6>
+                    <h6 class="container-content-head" style="color:cornflowerblue">DOCUMENTS:</h6>                    
                     <MudSpacer />
-                    <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddDocuments_Click"></MudIconButton>
+                    <MudTooltip Text="Add Document (добавить Декларацию)">
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddDocuments_Click"></MudIconButton>
+                    </MudTooltip>                    
                     <MudTooltip Text="Download Template (загрузить проформу)">
                         <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="DownloadExcelTemplate"></MudIconButton>
                     </MudTooltip>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="RemoveDocument"></MudIconButton>
+                    <MudTooltip Text="Remove selected Documents (удалить выбранные Декларации)">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="RemoveDocument"></MudIconButton>
+                    </MudTooltip>                    
                 </div>
 
                 <MudPaper Width="450px" Elevation="0" Style="height:240px;overflow: auto;">
@@ -224,8 +226,10 @@
                 </ItemTemplate>
                 </MudTreeView> *@
 
-                    <MudTreeView MultiSelection="@MultiSelectionTreeItemData" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
-                                 Dense="true" Hover="true">
+                    @* <MudTreeView MultiSelection="@MultiSelectionTreeItemData" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues" *@
+                    <MudTreeView MultiSelection="true" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
+                                 Dense="true"
+                                 Hover="true">
                         <ItemTemplate>
                             <MudTreeViewItem Value="@context"
                                              Text="@context.Name"
@@ -449,7 +453,8 @@
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
 
-    private UploadResult? uploadResult { get; set; }    
+    //private UploadResult? uploadResult { get; set; }
+    private CheckedUploadResult? uploadResult { get; set; }
 
     bool IsItemSelected { get; set; }
 
@@ -518,8 +523,6 @@
         {
             foreach (var item in SelectedDocumentValues)
             {
-                //List<ContainerContent> contents = Value!.Records.SelectMany(eor => eor.Contents.Where(co => co.DocumentRecord.Document.Id == item.Id)).ToList();
-
                 var records = Value!.Records.Where(eor => eor.Contents.Any(co => co.DocumentRecord.Document.Id == item.Id)).ToList();
 
                 foreach (var record in records)
@@ -621,7 +624,7 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         var parameters = new DialogParameters() { ["VoyageId"] = id };
-        var options = new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
         dialog = DialogService.Show<UploadExportOrderRecordsFile>("Импорт списка ДТ", parameters, options);
 
         var result = await dialog.Result;
@@ -630,12 +633,48 @@
         {
             if (result.Data != null)
             {
-                uploadResult = (UploadResult)result.Data;
+                uploadResult = (CheckedUploadResult)result.Data;
 
-                var records = uploadResult!._ExportOrderRecords!.ToList();
-                var documents = uploadResult!._Documents!.ToList();
+                var records = new List<ExportOrderRecord>();
+                var documents = new List<DocumentEntity>();
 
-                // Remove old documents from the page
+                var checkedResult = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.CntrNum);
+
+                // RECORDS
+                foreach (var recordResult in checkedResult)
+                {
+                    var newRecord = new ExportOrderRecord()
+                    {
+                        CntrNum = recordResult.FirstOrDefault()!.CntrNum!,
+                        CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == recordResult.FirstOrDefault()!.CntrType),
+                        CntrTareWt = recordResult.FirstOrDefault()!.CntrTareWt,
+                        Seal = string.IsNullOrEmpty(recordResult.FirstOrDefault()!.Seal) ? string.Empty : recordResult.FirstOrDefault()!.Seal!,
+                    };
+
+                    foreach (var contentResult in recordResult)
+                    {   
+                        var Document = await _documentProvider.GetDocumentAsync(contentResult.DocumentName!);
+
+                        var content = new ContainerContent()
+                        {
+                            PackageQty = contentResult.PackageQty,
+                            PackageName = contentResult.PackageName,
+                            NetWt = contentResult.NetWt,
+                            GrossWt = contentResult.GrossWt,
+                            DocumentRecord = await _documentProvider.GetDocumentRecordAsync(Document!.Name!, (int)contentResult.SeqCommodity!)
+                        };
+
+                        content.DocumentRecord.Document = Document;
+
+                        newRecord.Contents.Add(content);
+                    }
+
+                    records.Add(newRecord);
+                    newRecord = null;
+                }
+
+                // DOCUMENTS
+                //Remove old documents from the page (export order Records removing too)
                 foreach (var documentItem in DocumentItems)
                 {
                     foreach (var documentRecordItem in DocumentRecordItems)
@@ -656,9 +695,9 @@
                     }
                 }
 
-                foreach (var record in records)
-                    foreach (var cntrContent in record.Contents)
-                        cntrContent.DocumentRecord.Document = documents.First(s => s.Records.Any(s => s.Id == cntrContent.DocumentRecord.Id));
+                // foreach (var record in records)
+                //     foreach (var cntrContent in record.Contents)
+                //         cntrContent.DocumentRecord.Document = documents.First(s => s.Records.Any(s => s.Id == cntrContent.DocumentRecord.Id));
 
                 Value!.Records = records;
                 Value.Documents = documents;
@@ -666,65 +705,6 @@
                 Snackbar.Add($"Uploaded", Severity.Success);
 
                 await ValueChanged.InvokeAsync(Value);
-
-
-                // if (uploadResult._Documents is null)
-                // {
-                //     Snackbar.Add($"Document is null", Severity.Warning);
-                //     Snackbar.Add($"{uploadResult.Summary.FirstOrDefault()}", Severity.Warning);
-                //     return;
-                // }
-
-                // if (uploadResult.Summary.Count() > 0)
-                // {
-                //     Snackbar.Add($"{uploadResult.Summary.FirstOrDefault()}", Severity.Warning);
-                //     return;
-                // }
-
-                // bool? IsResult = await DialogService.ShowMessageBox(
-                //                          "Summary:",
-                //                          (MarkupString)$"{string.Join(";\n)", uploadResult.Errors)}",
-                //                          yesText: "Ok", cancelText: "Cancel");
-
-                // if (!IsResult.HasValue) return;
-
-                // if (IsResult.Value)
-                // {
-                //     var records = uploadResult!._ExportOrderRecords!.ToList();
-                //     var documents = uploadResult!._Documents!.ToList();
-
-                //     // Remove old documents from the page
-                //     foreach (var documentItem in DocumentItems)
-                //     {
-                //         foreach (var documentRecordItem in DocumentRecordItems)
-                //             DocumentRecordItems.Remove(documentRecordItem);
-
-                //         DocumentItems.Remove(documentItem);
-                //     }
-
-                //     // Add new documents to the page
-                //     foreach (var document in documents)
-                //     {
-                //         DocumentItems.Add(document);
-
-                //         foreach (var docRecord in document.Records)
-                //         {
-                //             docRecord.Document = document;
-                //             DocumentRecordItems.Add(docRecord);
-                //         }
-                //     }
-
-                //     foreach (var record in records)
-                //         foreach (var cntrContent in record.Contents)
-                //             cntrContent.DocumentRecord.Document = documents.First(s => s.Records.Any(s => s.Id == cntrContent.DocumentRecord.Id));
-
-                //     Value!.Records = records;
-                //     Value.Documents = documents;
-
-                //     Snackbar.Add($"Uploaded", Severity.Success);
-
-                //     await ValueChanged.InvokeAsync(Value);
-                // }
             }
         }
     }

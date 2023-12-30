@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.Linq;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -9,8 +9,6 @@ public class ExcelUploadService : IDisposable
 {
     private string? FilePath { get; set; }
     private readonly uint ExcelAppPid;
-    //private readonly IDocumentProvider _documentProvider;
-    //private IEnumerable<CntrTpSz> CntrTypes = new List<CntrTpSz>();
 
     private Excel.Application? ExcelApp;
     private Excel.Workbooks? Workbooks;
@@ -25,8 +23,6 @@ public class ExcelUploadService : IDisposable
     public ExcelUploadService(string filePath)
     {
         FilePath = filePath;
-        //CntrTypes = cntrTypes;
-        //_documentProvider = documentProvider;
 
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
@@ -75,38 +71,21 @@ public class ExcelUploadService : IDisposable
             string[][] sheetArray = GetStringArray(Range.Cells.Value);
             var recordsArray = sheetArray.ToList();
 
-            foreach (var records in sheetArray)
+            foreach (var records in recordsArray)
             {
-                foreach (var record in records)
+                Records.Add(new UploadExcelDTO()
                 {
-                    Records.Add(new UploadExcelDTO()
-                    {
-                        DocumentName = records[colDoc],
-                        SeqCommodity = uint.TryParse(records[colCargoIndex], out uint _cIndex) ? _cIndex : 0,
-                        CntrNum = records[colCntrNum],
-                        CntrType = records[colCntrType],
-                        CntrTareWt = double.TryParse(records[colCntrTareWt], out double _Tare) ? _Tare : 0,
-                        Seal = records[colSeal],
-                        PackageQty = uint.TryParse(records[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
-                        PackageName = records[colPackageName],
-                        NetWt = double.TryParse(records[colNet], out double _netWt) ? _netWt : 0,
-                        GrossWt = double.TryParse(records[colGross], out double _gwt) ? _gwt : 0,
-                    });
-
-                    //var UploadedRecords = new UploadExcelDTO()
-                    //{
-                    //    DocumentName = records[colDoc],
-                    //    SeqCommodity = uint.TryParse(records[colCargoIndex], out uint _cIndex) ? _cIndex : 0,
-                    //    CntrNum = records[colCntrNum],
-                    //    CntrType = records[colCntrType],
-                    //    CntrTareWt = double.TryParse(records[colCntrTareWt], out double _Tare) ? _Tare : 0,
-                    //    Seal = records[colSeal],
-                    //    PackageQty = uint.TryParse(records[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
-                    //    PackageName = records[colPackageName],
-                    //    NetWt = double.TryParse(records[colNet], out double _netWt) ? _netWt : 0,
-                    //    GrossWt = double.TryParse(records[colGross], out double _gwt) ? _gwt : 0,
-                    //};
-                }
+                    DocumentName = records[colDoc],
+                    SeqCommodity = int.TryParse(records[colCargoIndex], out int _cIndex) ? _cIndex : 0,
+                    CntrNum = records[colCntrNum],
+                    CntrType = string.IsNullOrEmpty(records[colCntrType]) ? null : records[colCntrType].ToUpper(),
+                    CntrTareWt = double.TryParse(records[colCntrTareWt], out double _Tare) ? _Tare : 0,
+                    Seal = records[colSeal],
+                    PackageQty = uint.TryParse(records[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
+                    PackageName = records[colPackageName],
+                    NetWt = double.TryParse(records[colNet], out double _netWt) ? _netWt : 0,
+                    GrossWt = double.TryParse(records[colGross], out double _gwt) ? _gwt : 0,
+                });
             }
         }
         catch (Exception ex)
@@ -142,7 +121,7 @@ public class ExcelUploadService : IDisposable
                     for (int index2 = 0; index2 < columnCount; index2++)
                     {
                         Object obj = array.GetValue(index + 1, index2 + 1)!;
-                        if (null != obj)
+                        if (obj != null)
                         {
                             string value = obj.ToString()!;
 

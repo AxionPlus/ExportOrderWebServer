@@ -164,7 +164,7 @@ public class ExcelCreateService : IDisposable
             Resource.ResourceManager.ReleaseAllResources();
             
             Workbook = Workbooks!.Open(TempFilePath);
-            //WorkSheets = Workbook!.Worksheets;
+            WorkSheets = Workbook!.Worksheets;
 
             return true;
         }

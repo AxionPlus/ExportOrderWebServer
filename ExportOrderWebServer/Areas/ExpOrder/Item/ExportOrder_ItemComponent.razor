@@ -212,41 +212,28 @@
                 </div>
 
                 <MudPaper Width="450px" Elevation="0" Style="height:240px;overflow: auto;">
-                    @*                          <MudTreeView Items="TreeItems" Dense="true" Hover="true"
-                MultiSelection="MultiSelectionTreeItemData" @bind-SelectedValues="SelectedValues" >
-                <ItemTemplate>
-                <MudTreeViewItem Items="@context.TreeItems"
-                Value="@context"
-                LoadingIconColor="Color.Info"
-                CanExpand="@context.CanExpand"
-                Text="@context.Title"
-                EndText="@context.Number?.ToString()"
-                EndTextTypo="@Typo.caption"
-                OnClick="TreeViewItem_Click" />
-                </ItemTemplate>
-                </MudTreeView> *@
-
-                    @* <MudTreeView MultiSelection="@MultiSelectionTreeItemData" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues" *@
-                    <MudTreeView MultiSelection="true" Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
-                                 Dense="true"
-                                 Hover="true">
-                        <ItemTemplate>
-                            <MudTreeViewItem Value="@context"
-                                             Text="@context.Name"
-                                             EndText="@context.Records.Count().ToString()"
-                                             LoadingIconColor="Color.Info"
-                                             EndTextTypo="@Typo.caption">
-                                <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
-                                          Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
-                                    <RowTemplate>
-                                        <MudTd Style="width: 30px">@DocRecords.Seq</MudTd>
-                                        <MudTd Style="width: 115px">@DocRecords.CommodityHSCode</MudTd>
-                                        <MudTd Style="text-align:left">@DocRecords.CommodityName</MudTd>
-                                    </RowTemplate>
-                                </MudTable>
-                            </MudTreeViewItem>
-                        </ItemTemplate>
-                    </MudTreeView>
+                    @if (Value.Documents != null)
+                    {
+                        <MudTreeView Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
+                                     MultiSelection="true" Dense="true" Hover="true">
+                            <ItemTemplate>
+                                <MudTreeViewItem Value="@context"
+                                                 Text="@context.Name"
+                                                 EndText="@context.Records.Count().ToString()"
+                                                 LoadingIconColor="Color.Info"
+                                                 EndTextTypo="@Typo.caption">
+                                    <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecords"
+                                              Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
+                                        <RowTemplate>
+                                            <MudTd Style="width: 30px">@DocRecords.Seq</MudTd>
+                                            <MudTd Style="width: 115px">@DocRecords.CommodityHSCode</MudTd>
+                                            <MudTd Style="text-align:left">@DocRecords.CommodityName</MudTd>
+                                        </RowTemplate>
+                                    </MudTable>
+                                </MudTreeViewItem>
+                            </ItemTemplate>
+                        </MudTreeView>
+                    }
                 </MudPaper>
             </div>
             <div class="documents-info" style="margin-left: 15px; max-width:fit-content">
@@ -299,7 +286,7 @@
                 <MudTh Style="width:50px;">
                     <div class="controlIconButtons">
                         <MudTooltip Text="add new Container record">
-                            <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="IsFormReadOnly" OnClick="AddContainerRecord_Click" Size="Size.Small" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="IsFormReadOnly" OnClick="AddExportOrderRecord_Click" Size="Size.Small" />
                         </MudTooltip>
                     </div>
                 </MudTh>
@@ -324,7 +311,7 @@
             <RowTemplate>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Disabled
-                                    OnClick="@(async ()=>{ await ShowContainerRecord_Click(expOrderRecord.Id);})" />
+                                    OnClick="@(async ()=>{ await ShowRecordContent_Click(expOrderRecord.Id);})" />
                 </MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly"
@@ -474,15 +461,21 @@
     }
 
     protected override async void OnInitialized()
+    {     
+        GetDocumentItems();
+    }
+
+    private async void GetDocumentItems()
     {
+        await Task.Delay(50);
+
         DocumentItems = Value!.Documents!.ToHashSet();
 
         foreach (var document in DocumentItems)
             foreach (var docRecord in document.Records)
                 DocumentRecordItems.Add(docRecord);
 
-        //InitialStatus = Value.Status.ToString();
-        //lastVersion = await _exportOrderProvider.LastVersionAsync();        
+        await InvokeAsync(StateHasChanged);
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -530,8 +523,15 @@
                         Value.Records.Remove(record);
                     else
                     {
-                        var content = record.Contents.Single(co => co.DocumentRecord.Document.Id == item.Id);
-                        record.Contents.Remove(content);
+                        var contents = record.Contents.Where(c => c.DocumentRecord.Document.Id == item.Id).ToList();
+
+                        if (contents.Count() > 0)
+                            foreach (var content in contents)
+                                record.Contents.Remove(content);
+
+                        // if no any content left in the record after removing, then Remove whole record
+                        if (record.Contents.Count() == 0)
+                            Value.Records.Remove(record);
                     }
 
                 DocumentItems.Remove(item);
@@ -548,7 +548,7 @@
 
     #region CNTR RECORDS
 
-    private async Task AddContainerRecord_Click()
+    private async Task AddExportOrderRecord_Click()
     {
         if (Value!.Documents is null) return;
 
@@ -573,7 +573,7 @@
         }
     }
 
-    private async Task ShowContainerRecord_Click(long id)
+    private async Task ShowRecordContent_Click(long id)
     {
         if (Value!.Documents is null) return;
 
@@ -635,13 +635,14 @@
             {
                 uploadResult = (CheckedUploadResult)result.Data;
 
+                var checkedRecords = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.CntrNum);
+                var checkedDocuments = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.DocumentName);
+
                 var records = new List<ExportOrderRecord>();
                 var documents = new List<DocumentEntity>();
 
-                var checkedResult = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.CntrNum);
-
                 // RECORDS
-                foreach (var recordResult in checkedResult)
+                foreach (var recordResult in checkedRecords)
                 {
                     var newRecord = new ExportOrderRecord()
                     {
@@ -683,16 +684,21 @@
                     DocumentItems.Remove(documentItem);
                 }
 
-                // Add new documents to the page
-                foreach (var document in documents)
+                // add new documents
+                foreach (var checkedDocument in checkedDocuments)
                 {
-                    DocumentItems.Add(document);
+                    var Document = await _documentProvider.GetDocumentAsync(checkedDocument.FirstOrDefault()!.DocumentName!);
 
-                    foreach (var docRecord in document.Records)
+                    foreach (var existedRecord in Document!.Records)
                     {
-                        docRecord.Document = document;
-                        DocumentRecordItems.Add(docRecord);
+                        if (!checkedDocument.Any(d => d.SeqCommodity == existedRecord.Seq))
+                            Document!.Records.Remove(existedRecord);
+                        else
+                            existedRecord.Document = Document;
                     }
+                    
+                    //newDocument!.Records.Clear();
+                    documents.Add(Document);
                 }
 
                 // foreach (var record in records)
@@ -705,6 +711,9 @@
                 Snackbar.Add($"Uploaded", Severity.Success);
 
                 await ValueChanged.InvokeAsync(Value);
+
+                GetDocumentItems();
+                //await InvokeAsync(StateHasChanged);
             }
         }
     }

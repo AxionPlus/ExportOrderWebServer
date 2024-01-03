@@ -32,7 +32,7 @@
         <MudSpacer />
         <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Clear"
                    Style="margin-inline-end:10px"
-                   Disabled="@(!FileName.Any() || uploadResult.HasErrors)">
+                   Disabled="@(!FileName.Any())">
             Clear
         </MudButton>
     </MudToolBar>
@@ -171,8 +171,8 @@
                         }
                         else
                         {
-                            if (record.PackageQty is null || record.PackageQty < 1) errList.Add($"{errMessagePrefix} - Package Quantity missed");
-                            if (string.IsNullOrEmpty(record.PackageName)) errList.Add($"{errMessagePrefix} - Package Name missed");
+                            //if (record.PackageQty is null || record.PackageQty < 1) errList.Add($"{errMessagePrefix} - Package Quantity missed");
+                            //if (string.IsNullOrEmpty(record.PackageName)) errList.Add($"{errMessagePrefix} - Package Name missed");
                             if (record.NetWt <= 0) errList.Add($"{errMessagePrefix} - Netto weight is 0");
                             if (record.GrossWt <= 0) errList.Add($"{errMessagePrefix} - Gross weight is 0");
                         }

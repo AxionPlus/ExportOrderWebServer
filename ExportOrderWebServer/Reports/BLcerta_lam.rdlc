@@ -2460,7 +2460,7 @@
                               <TablixMembers>
                                 <TablixMember>
                                   <TablixHeader>
-                                    <Size>1cm</Size>
+                                    <Size>0.6cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox3">
                                         <KeepTogether>true</KeepTogether>
@@ -2500,7 +2500,7 @@
                                   <TablixMembers>
                                     <TablixMember>
                                       <TablixHeader>
-                                        <Size>1.6cm</Size>
+                                        <Size>2cm</Size>
                                         <CellContents>
                                           <Textbox Name="Label_BLNum">
                                             <KeepTogether>true</KeepTogether>
@@ -2587,7 +2587,7 @@
                         </TablixMember>
                         <TablixMember>
                           <TablixHeader>
-                            <Size>5.8cm</Size>
+                            <Size>5.4cm</Size>
                             <CellContents>
                               <Textbox Name="Label_BLName2">
                                 <KeepTogether>true</KeepTogether>
@@ -2627,7 +2627,7 @@ OR MULTIMODAL TRANSPORT</Value>
                           <TablixMembers>
                             <TablixMember>
                               <TablixHeader>
-                                <Size>2.9cm</Size>
+                                <Size>3.3cm</Size>
                                 <CellContents>
                                   <Textbox Name="Num">
                                     <KeepTogether>true</KeepTogether>
@@ -2942,7 +2942,6 @@ OR MULTIMODAL TRANSPORT</Value>
                                   <PaddingBottom>2pt</PaddingBottom>
                                 </Style>
                               </Textbox>
-                              <rd:Selected>true</rd:Selected>
                             </CellContents>
                           </TablixHeader>
                           <TablixMembers>

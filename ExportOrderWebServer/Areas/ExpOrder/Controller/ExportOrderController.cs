@@ -73,12 +73,20 @@ public class ExportOrderController : ControllerBase
             //                                                                                                        " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
             //                                                                         }).ToList();
 
-            var dsCommodities = dsRecords?.GroupBy(r => r.SeqContent)
-                                          .Select(g => new {
-                                                                Commodity = g.FirstOrDefault()!.Commodity + " (" +
-                                                                g.FirstOrDefault()!.HSCode + ") " +
-                                                                (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
-                                                           }).ToList();
+            //var dsCommodities = dsRecords?.GroupBy(r => r.SeqContent)
+            //                              .Select(g => new
+            //                              {
+            //                                  Commodity = g.FirstOrDefault()!.Commodity + " (" +
+            //                                                    g.FirstOrDefault()!.HSCode + ") " +
+            //                                                    (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
+            //                              }).ToList();
+
+            var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
+                              .Select(g => new {
+                                  Commodity = g.Key.Commodity + " (" +
+                                  g.FirstOrDefault()!.HSCode + ") " +
+                                  (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
+                              }).ToList();
 
             int dSeq = 0;
             var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {

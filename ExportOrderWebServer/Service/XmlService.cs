@@ -21,24 +21,6 @@ public class XmlService : IDisposable
         string Shippers = string.Join("; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
         string Consignees = string.Join("; ", Item.exportOrderRecordsDTO?.Select(r => r.Consignee).Distinct().ToList()!);
 
-        //string Shippers = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
-        //string Consignees = string.Join("; КОНТРАГЕНТ; ", Item.exportOrderRecordsDTO?.Select(r => r.Consignee).Distinct().ToList()!);
-
-        //string Shippers = Item.Shippers!;
-        //string Consignees = Item.Consignees!;
-
-        //var Commodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.SeqContent })
-        //                                        .Select(g => new
-        //                                        {
-        //                                            g.Key.DocumentName,
-        //                                            SeqContent = g.Select(g => g.SeqContent).FirstOrDefault(),
-        //                                            Commodity = g.Select(g => g.Commodity).FirstOrDefault(),
-        //                                            HScode = g.Select(g => g.HSCode).FirstOrDefault(),
-        //                                            CommodityGrossWt = g.Sum(g => g.GrossWt),
-        //                                            CommodityNetWt = g.Sum(g => g.NetWt),
-        //                                            Cntrs = g.Select(g => g.Cntr).ToList(),
-        //                                        }).OrderBy(g => g.DocumentName).ToList();
-
         var Commodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.SeqContent })
                                         .Select(g => new
                                         {
@@ -71,8 +53,8 @@ public class XmlService : IDisposable
                 xml.WriteElementString("GoodsDescription", string.Empty);
                 xml.WriteElementString("TotalPlacesQuantity", Item.exportOrderRecordsDTO!.Sum(r => r.PackageQty).ToString());
                 xml.WriteElementString("TotalVolumeQuantity", Item.exportOrderRecordsDTO!.Sum(r => r.PackageQty).ToString());
-                xml.WriteElementString("TotalGrossWeightQuantity", Item.TotalGrossWeight!.Value.ToString("#########.###", CultureInfo.GetCultureInfo("en-US")));
-                xml.WriteElementString("TotalNetWeightQuantity", Item.TotalNetWeight!.Value.ToString("#########.###", CultureInfo.GetCultureInfo("en-US")));
+                xml.WriteElementString("TotalGrossWeightQuantity", Item.TotalGrossWeight!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
+                xml.WriteElementString("TotalNetWeightQuantity", Item.TotalNetWeight!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
                 xml.WriteElementString("Carrier_Name", Item.CarrierNameEn);
                 xml.WriteElementString("Carrier_CountryName", string.Empty);
                 xml.WriteElementString("Consignee_Name", Consignees);
@@ -109,8 +91,8 @@ public class XmlService : IDisposable
                     xml.WriteElementString("GoodsCode", commodity.HScode);
                     xml.WriteElementString("GTDID", commodity.DocumentName);
                     xml.WriteElementString("GoodsDescription", commodity.Commodity);
-                    xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWt == 0 ? "0" : commodity.CommodityGrossWt!.Value.ToString("#########.###", CultureInfo.GetCultureInfo("en-US")));
-                    xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWt == 0 ? "0" : commodity.CommodityNetWt!.Value.ToString("#########.###", CultureInfo.GetCultureInfo("en-US")));
+                    xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWt == 0 ? "0" : commodity.CommodityGrossWt!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
+                    xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWt == 0 ? "0" : commodity.CommodityNetWt!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
                     xml.WriteElementString("WarehouseName", Item.TerminalName);
 
                     xml.WriteStartElement("COMMISSIONSHIPMENTContainer");

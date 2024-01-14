@@ -113,6 +113,8 @@ public class CarrierProvider : ICarrierProvider
                         modifyDetail.Contract = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.Contract;
                         modifyDetail.DateContract = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.DateContract;
                         modifyDetail.AgentPOL = item.CarrierDetails!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOL;
+
+                        db.Entry(modifyDetail).State |= EntityState.Modified;
                     }
 
                 // compaire existed item with new

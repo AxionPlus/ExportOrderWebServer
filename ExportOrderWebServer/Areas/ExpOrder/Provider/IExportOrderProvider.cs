@@ -4,7 +4,6 @@ public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
 {   
     Task<ExportOrderDTO> GetExportOrderDTOAsync(long Id);
     Task<ExportOrderDTO> GetBLDTOAsync(long Id);
-    Task<IEnumerable<ManifestDTO>> GetManifestDTOAsync(long id);
     Task<IEnumerable<VoyageManifestDTO>> GetVoyageManifestDTOAsync(long id);
     Task<IEnumerable<PersonEntity>> GetPersonsAsync();
 

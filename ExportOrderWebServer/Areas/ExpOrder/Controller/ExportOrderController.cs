@@ -300,7 +300,6 @@ public class ExportOrderController : ControllerBase
     [Route("ViewReportManifest")]
     public async Task<IActionResult> ManifestReport(long vslcallid, bool isIMO)
     {
-        //var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
         var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
 
         if (Items.Count() == 0) return Empty;
@@ -427,7 +426,6 @@ public class ExportOrderController : ControllerBase
     [Route("ViewCustomsExplanation")]
     public async Task<IActionResult> CustomsReport(long vslcallid)
     {
-        //var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
         var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
 
         if (Items.Count() == 0) return Empty;
@@ -540,7 +538,6 @@ public class ExportOrderController : ControllerBase
     {
         try
         {
-            //var Items = await _exportOrderProvider.GetManifestDTOAsync(vslcallid);
             var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
 
             await Task.Delay(100);

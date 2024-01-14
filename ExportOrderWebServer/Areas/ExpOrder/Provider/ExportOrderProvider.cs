@@ -183,44 +183,6 @@
         }
     }
 
-    //DELETE (NOT USED)
-    public async Task<IEnumerable<ManifestDTO>> GetManifestDTOAsync(long id)
-    {
-        try
-        {
-            using (var _db = _dbContext.CreateDbContextAsync())
-            {
-                var db = await _db;
-
-                var Items = await db.ExportOrders
-                                            .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal).ThenInclude(ter => ter.Customs)
-                                            .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
-                                            .Include(x => x.VesselCallDetail).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod!.Country)
-                                            .Include(x => x.Person)
-                                            .Include(x => x.Carrier)!.ThenInclude(c => c!.Location).ThenInclude(lo => lo!.Country)
-                                            .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
-                                            .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
-                                            .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)                                            
-                                            .AsNoTracking()
-                                            .Where(x => x.VesselCallDetail!.VesselCall!.Id == id)
-                                            .AsSplitQuery()
-                                            .ToListAsync();
-
-                //var DTOItems = mRecords(Items);
-
-                //return DTOItems;
-                //return IEnumerable<ManifestDTO>().Empty;
-                return Enumerable.Empty<ManifestDTO>();
-
-            }
-        }
-        catch (Exception ex)
-        {
-            string message = ex.Message;
-            return Enumerable.Empty<ManifestDTO>();
-        }
-    }
-
     public async Task<IEnumerable<VoyageManifestDTO>> GetVoyageManifestDTOAsync(long id)
     {
         try
@@ -530,7 +492,7 @@
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            //var User = await db.Set<AdminUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
 
             try
@@ -694,20 +656,6 @@
 
                 var Bug = db.ChangeTracker.DebugView.LongView;
 
-                //var ExpOrdersWithSameVesselCallDetail = await db.ExportOrders
-                //                                                              .Include(eo => eo.VesselCallDetail)
-                //                                                              .Where(eo => eo.VesselCallDetail!.Id.Equals(deleteItem!.VesselCallDetail!.Id)).ToListAsync();
-
-                //if (ExpOrdersWithSameVesselCallDetail is not null)
-                //    if (ExpOrdersWithSameVesselCallDetail.Count() > 1)
-                //        foreach (var detail in ExpOrdersWithSameVesselCallDetail)
-                //        {
-                //            detail.VesselCallDetail!.Status = EntityStatus.New;
-                //            db.Entry(detail.VesselCallDetail!).State = EntityState.Modified;
-                //        }
-
-                //Bug = db.ChangeTracker.DebugView.LongView;
-
                 await db.SaveChangesAsync();
             }
         }
@@ -720,7 +668,6 @@
 
         return appObjResponse;
     }
-
 
     public async Task<AppObjectResponse> GetVersionAsync(int version)
     {
@@ -936,7 +883,6 @@
             //uint indexContent = 0;
             foreach (var content in record.Contents)
             {
-                //eoRecordDTO.SeqContent = ++indexContent;
                 eoRecordDTO.SeqContent = (uint)content.DocumentRecord.Seq;
                 eoRecordDTO.Cntr = record.CntrNum;
 
@@ -989,12 +935,6 @@
                 GrossWt = record.Contents.Sum(c => c.GrossWt),
                 Volume = record.Contents.Sum(c => c.Volume),
 
-                //ShipperEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Order().Distinct().ToList()),
-                //ConsigneeEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Order().Distinct().ToList()),
-                //NotifyEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Order().Distinct().ToList()),
-
-                //IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(dr => dr.Equals(true)),
-
                 RecordCommoditiesEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.CommodityEngName +
                                                                                     (rc.DocumentRecord.IsIMO ? " IMO: " + rc.DocumentRecord.IMO +
                                                                                                                 " UNNO: " + rc.DocumentRecord.UNNO : ""))
@@ -1006,143 +946,6 @@
 
         return eoRecordsDTO.ToArray();
     };
-
-    //Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> blRecords = (_eoRecords) =>
-    //{
-    //    var eoRecordsDTO = new List<ExportOrderRecordDTO>();        
-
-    //    uint indexRec = 0;
-
-    //    foreach (var record in _eoRecords)
-    //    {
-    //        var eoRecordDTO = new ExportOrderRecordDTO()
-    //        {
-    //            Seq = ++indexRec,
-    //            Cntr = record.CntrNum,
-    //            CntrType = record.CntrType!.Normolize!,
-    //            CntrTareWt = record.CntrTareWt,
-    //            Seal = record.Seal is not null ? record.Seal : string.Empty,
-
-    //            PackageQty = (uint)record.Contents.Sum(c => c.PackageQty)! > 0 ? (uint)record.Contents.Sum(c => c.PackageQty)! : null, 
-    //            PackageName = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
-    //            NetWt = record.Contents.Sum(c => c.NetWt),
-    //            GrossWt = record.Contents.Sum(c => c.GrossWt),
-    //            Volume = record.Contents.Sum(c => c.Volume),
-
-    //            ShipperEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Order().Distinct().ToList()),
-    //            ConsigneeEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Order().Distinct().ToList()),
-    //            NotifyEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Order().Distinct().ToList()),
-                                
-    //            IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(dr => dr.Equals(true)),
-
-    //            CommodityEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.CommodityEngName + 
-    //                                                                         (rc.DocumentRecord.IsIMO ? " IMO: " + rc.DocumentRecord.IMO +
-    //                                                                                                    " UNNO: " + rc.DocumentRecord.UNNO : ""))
-    //                                                            .Distinct().ToList()),
-    //        };
-
-    //        eoRecordsDTO.Add(eoRecordDTO);
-    //    }
-
-    //    return eoRecordsDTO.ToArray();
-    //};
-
-    // DELETE (NOT USED)
-    //Func<IEnumerable<ExportOrderEntity>, IEnumerable<ManifestDTO>> mRecords = (exportOrders) =>
-    //{
-    //    var ItemsDTO = new List<ManifestDTO>();
-
-    //    try
-    //    {
-    //        foreach (var Item in exportOrders)
-    //        {
-    //            uint indexRec = 0;
-
-    //            foreach (var record in Item.Records)
-    //            {
-    //                var itemDTO = new ManifestDTO()
-    //                {
-    //                    VesselCallId = Item.VesselCallDetail!.VesselCall!.Id,
-
-    //                    Seq = ++indexRec,
-    //                    BLNum = Item.Num.IndexOf("-") == -1 ? Item.Num : Item.Num.Substring(0, Item.Num.IndexOf("-")),
-    //                    BLDate = Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy") : "---",
-    //                    Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo,
-    //                    VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!,
-    //                    VesselFlag = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
-    //                    VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG,
-    //                    CaptainFamily = Item.VesselCallDetail.VesselCall.Vessel.CaptainFamily,
-    //                    CaptainName = Item.VesselCallDetail.VesselCall.Vessel.CaptainName,
-    //                    PODEn = Item.VesselCallDetail!.POD!.NameEn,
-    //                    PODnCountryEn = Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG,
-    //                    PODunlocode = Item.VesselCallDetail!.POD.UnLocode,
-    //                    CarrierNameEn = Item.Carrier!.NameEn,
-    //                    CarrierLocation = Item.Carrier.Location!.Name,
-    //                    CarrierCountryEn = Item.Carrier.Location!.Country!.ENG,
-    //                    CarrierContract = Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)) == true ? Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.Contract : "",
-    //                    CarrierContractDate = Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)) == true ? Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
-
-    //                    Cntr = record.CntrNum,
-    //                    CntrType = record.CntrType!.Normolize!,
-    //                    Seal = record.Seal != string.Empty ? record.Seal : "N/A",
-    //                    CntrTareWt = record.CntrTareWt,
-    //                    CntrTotalWeight = record.CntrTareWt + (double)record.Contents.Sum(c => c.GrossWt)!,
-
-    //                    PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty)!,
-    //                    PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
-    //                    NetWeights = record.Contents.Sum(c => c.NetWt),
-    //                    GrossWeights = record.Contents.Sum(c => c.GrossWt),
-    //                    Volumes = record.Contents.Sum(c => c.Volume),
-    //                    IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(dr => dr.Equals(true)),
-    //                    IMO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.IMO).Distinct()),
-    //                    UNNO = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.UNNO).Distinct()),
-
-    //                    Commodities = string.Join("; ", record.Contents.Select(rc =>
-    //                                                                                (
-    //                                                                                  rc.DocumentRecord.CommodityName + 
-    //                                                                                  (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO: " + rc.DocumentRecord.UNNO : "")
-    //                                                                                )).Distinct().Order()),
-
-    //                    CommoditiesEn = string.Join("; ", record.Contents.Select(rc =>
-    //                                                                                (
-    //                                                                                   rc.DocumentRecord.CommodityEngName + 
-    //                                                                                   (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO:" + rc.DocumentRecord.UNNO : "")
-    //                                                                                )).Distinct().Order()),
-
-    //                    Shippers = "S: " + string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn).Order().Distinct()),
-    //                    Consignees = "C: " + string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn).Order().Distinct()),
-    //                    ShippersCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.CountryENG).Order().Distinct()),
-    //                    ConsigneesCountries = string.Join(", ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.CountryENG).Order().Distinct()),
-
-    //                    CustomsOfficeCode = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
-    //                    CustomsOfficeName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Office,
-    //                    CustomsOfficeShortName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.OfficeShort,
-    //                    CustomsDapartment = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Dapartment,
-
-    //                    PersonFamily = Item.Person!.FamilyName,
-    //                    PersonSurName = Item.Person!.Name! + " " + Item.Person!.SurName,
-    //                    PersonBirthYear = Item.Person!.BirthYear,
-    //                    PersonBirthPlace = Item.Person!.BirthPlace,
-    //                    PersonCompany = Item.Person!.Company,
-    //                    PersonAddress = Item.Person!.Address,
-    //                    PersonPass = Item.Person!.Passport,
-    //                    PersonSign = Item.Person!.Name!.Substring(0, 1) + ". " + Item.Person!.SurName!.Substring(0, 1) + ". " + Item.Person!.FamilyName,
-
-    //                    DateExplanation = "\"____\" " + Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("MMMM yyyy") + "г.",
-    //                };
-                
-    //                ItemsDTO.Add(itemDTO);
-    //            }
-    //        }
-
-    //        return ItemsDTO;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string msg = ex.Message;
-    //        return Enumerable.Empty<ManifestDTO>();
-    //    }
-    //};
 
     Func<IEnumerable<ExportOrderEntity>, IEnumerable<VoyageManifestDTO>> manifestRecords = (exportOrders) =>
     {

@@ -13,7 +13,7 @@
                    InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
                    @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
         <ButtonTemplate>
-            <MudPaper Height="300px" Outlined="true" Class="@DragClass">
+            <MudPaper Height="200px" Outlined="true" Class="@DragClass">
                 <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
                 @if (!string.IsNullOrEmpty(FileName))
                 {
@@ -39,11 +39,19 @@
 
     @if (uploadResult.HasErrors)
     {
-        <MudText Style="margin-inline-start:10px"><b>Summary:</b></MudText>
-        foreach (var error in uploadResult.Errors)
-        {            
-            <span style="margin-inline:10px">@error;</span>
-        }
+        <MudText Style="margin-inline-start:5px"><b>Всего: </b>@uploadResult.Summary</MudText>
+
+        <table class="Table_Summary" style="margin-inline:10px; width:580px">
+            <tr><th style="width:200px">Декларация</th><th style="width:100px">Контейнер</th><th>Ошибка</th></tr>
+            @foreach (var error in uploadResult.Errors)
+            {
+                <tr>
+                    <td>@error.Split(';')[0]</td>
+                    <td>@error.Split(';')[1]</td>
+                    <td>@error.Split(';')[2]</td>
+                </tr>
+            }
+        </table>
     }
 </MudStack>
 
@@ -117,13 +125,15 @@
         client.Timeout = new TimeSpan(0, 0, 0, 0, -1);        
 
         var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadFromExcel", content);
+
+        // Check data
         if (response.IsSuccessStatusCode)
         {
             var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>>();            
 
             if (uploadedDTO is null)
             { 
-                Snackbar.Add($"Data where not uploaded", Severity.Error);
+                Snackbar.Add($"Data not uploaded", Severity.Error);
             }
             else
             {
@@ -135,28 +145,32 @@
 
                 foreach (var record in uploadedDTO)
                 {
-                    string errMessagePrefix = $"Document: {record.DocumentName}, Cntr: {record.CntrNum}";
+                    //string errMessagePrefix = $"Document: {record.DocumentName}, Cntr: {record.CntrNum}";
+                    string errMessagePrefix = $"{record.DocumentName};{record.CntrNum};";
 
                     // CntrType
                     if (string.IsNullOrEmpty(record.CntrType))
-                        errList.Add($"{errMessagePrefix} - Cntr Type is missed");
+                        errList.Add($"{errMessagePrefix} Cntr Type is missed.");
                     else
                         if (!CntrTypes.Any(ct => ct.Normolize!.ToUpper().Equals(record.CntrType.ToUpper())))
-                            errList.Add($"{errMessagePrefix} - Cntr Type '{record.CntrType}' dosn't exist in DataBase");
+                        errList.Add($"{errMessagePrefix} Cntr Type '{record.CntrType}' dosn't exist in DataBase.");
 
                     if (record.CntrTareWt == 0) // !> 0
-                        errList.Add($"{errMessagePrefix} - CntrTare is 0");
+                        errList.Add($"{errMessagePrefix} CntrTare is 0.");
 
                     // Weights only
                     if (record.GrossWt > 29000)
-                        errList.Add($"{errMessagePrefix} - Gross weight exceeded");
+                        errList.Add($"{errMessagePrefix} Gross weight exceeded.");
 
                     if (record.NetWt! > 29000)
-                        errList.Add($"{errMessagePrefix} - Net weight exceeded");
+                        errList.Add($"{errMessagePrefix} Net weight exceeded.");
+
+                    if (record.GrossWt < record.NetWt)
+                        errList.Add($"{errMessagePrefix} Net weight exceeds Gross.");
 
                     // Document
                     if (string.IsNullOrEmpty(record.DocumentName))
-                        errList.Add($"{errMessagePrefix} - Number of Declaration is missed");
+                        errList.Add($"{errMessagePrefix} Number of Declaration is missed.");
 
                     var existedDocument = Documents.Where(d => d.Name == record.DocumentName).FirstOrDefault();
                     if (existedDocument is not null)
@@ -164,50 +178,53 @@
                         // Container Content
                         if (existedDocument.Records.Any(r => r.CommodityEngName.ToUpper().Equals("EMPTY CONTAINER")))
                         {
-                            if (record.PackageQty > 1) errList.Add($"{errMessagePrefix} - Package Quantity exceeded for Empty container.");
-                            if (record.PackageName != null) errList.Add($"{errMessagePrefix} - Package Name <{record.PackageName}> indicated for Empty container.");
-                            if (record.NetWt > 0) errList.Add($"{errMessagePrefix} - Netto weight exceeds 0 for Empty container.");
-                            if (record.GrossWt > 0) errList.Add($"{errMessagePrefix} - Gross weight exceeds 0 for Empty container.");
+                            if (record.PackageQty > 1) errList.Add($"{errMessagePrefix} Package Quantity exceeded for Empty container.");
+                            if (record.PackageName != null) errList.Add($"{errMessagePrefix} Package Name indicated for Empty container.");
+                            if (record.NetWt > 0) errList.Add($"{errMessagePrefix} Netto weight exceeds 0 for Empty container.");
+                            if (record.GrossWt > 0) errList.Add($"{errMessagePrefix} Gross weight exceeds 0 for Empty container.");
                         }
                         else
                         {
                             //if (record.PackageQty is null || record.PackageQty < 1) errList.Add($"{errMessagePrefix} - Package Quantity missed");
                             //if (string.IsNullOrEmpty(record.PackageName)) errList.Add($"{errMessagePrefix} - Package Name missed");
-                            if (record.NetWt <= 0) errList.Add($"{errMessagePrefix} - Netto weight is 0");
-                            if (record.GrossWt <= 0) errList.Add($"{errMessagePrefix} - Gross weight is 0");
+                            if (record.NetWt <= 0) errList.Add($"{errMessagePrefix} Netto weight is 0.");
+                            if (record.GrossWt <= 0) errList.Add($"{errMessagePrefix} Gross weight is 0.");
                         }
 
                         // Cargo
                         if (record.SeqCommodity == 0)
-                            errList.Add($"{errMessagePrefix} - отсутствует номер товара, который вы пытаетесь подгрузить.");
+                            errList.Add($"{errMessagePrefix} Отсутствует номер товара.");
                         else
                             if (!existedDocument.Records.Any(dr => dr.Seq.Equals(record.SeqCommodity)))
-                                errList.Add($"{errMessagePrefix} - В декларации нет товара, который вы пытаетесь подгрузить.");
+                            errList.Add($"{errMessagePrefix} В декларации нет товара.");
                     }
                     else
-                        errList.Add($"Document: {record.DocumentName} - dosn't exists in DataBase.");
+                        errList.Add($"{errMessagePrefix} Декларации нет в базе данных.");
 
                     // Container Num duplicates in Voyage
                     if (VesselCall is not null)
                         if (VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).SelectMany(eo => eo.Records).Any(eor => eor.CntrNum.Equals(record.CntrNum)))
-                            errList.Add($"Cntr: {record.CntrNum} duplicates in Export Order: {VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).FirstOrDefault(eo => eo.Records.Any(eor => eor.CntrNum.Equals(record.CntrNum)))!.Num}");
+                            errList.Add($"{errMessagePrefix} Cntr duplicates in Export Order: {VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).FirstOrDefault(eo => eo.Records.Any(eor => eor.CntrNum.Equals(record.CntrNum)))!.Num}.");
                 }
 
-                // // SUMMARY
-                // int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
-                // int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
-
                 // RESULT
-                uploadResult.UploadedDTO = uploadedDTO!;
+                uploadResult.UploadedDTO = uploadedDTO;
 
                 if (errList.Count() > 0)
+                {
                     uploadResult.Errors = errList;
+
+                    // SUMMARY
+                    int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
+                    int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
+                    uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
+                }                
                 else
                     MudDialog!.Close(uploadResult);
             }
         }
         else
-            Snackbar.Add($"Data where not uploaded", Severity.Error);
+            Snackbar.Add($"Data not uploaded", Severity.Error);
 
         ClearDragClass();
 

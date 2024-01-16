@@ -12,7 +12,7 @@
               <Width>7.9cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>6cm</Width>
+              <Width>6.4cm</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -705,7 +705,7 @@
         </TablixRowHierarchy>
         <DataSetName>dsLetter</DataSetName>
         <Height>8.8cm</Height>
-        <Width>18.9cm</Width>
+        <Width>19.3cm</Width>
         <Style>
           <Border>
             <Style>None</Style>
@@ -719,7 +719,7 @@
               <Width>5cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>13.9cm</Width>
+              <Width>14.3cm</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -1240,7 +1240,7 @@
         <DataSetName>dsPeron</DataSetName>
         <Top>8.8cm</Top>
         <Height>4.4cm</Height>
-        <Width>18.9cm</Width>
+        <Width>19.3cm</Width>
         <ZIndex>1</ZIndex>
         <Style>
           <Border>
@@ -1258,7 +1258,7 @@
               <Width>7.9cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>6cm</Width>
+              <Width>6.4cm</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -1671,7 +1671,7 @@
         <DataSetName>dsLetter</DataSetName>
         <Top>17.1cm</Top>
         <Height>3.7cm</Height>
-        <Width>18.9cm</Width>
+        <Width>19.3cm</Width>
         <ZIndex>2</ZIndex>
         <Style>
           <Border>
@@ -1689,7 +1689,7 @@
               <Width>7.9cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>6cm</Width>
+              <Width>6.4cm</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -1814,7 +1814,7 @@
         <DataSetName>dsLetter</DataSetName>
         <Top>13.2cm</Top>
         <Height>1.6cm</Height>
-        <Width>18.9cm</Width>
+        <Width>19.3cm</Width>
         <ZIndex>3</ZIndex>
         <Style>
           <Border>
@@ -1826,7 +1826,7 @@
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>2.9cm</Width>
+              <Width>3.1cm</Width>
             </TablixColumn>
             <TablixColumn>
               <Width>1.1cm</Width>
@@ -1841,7 +1841,7 @@
               <Width>8cm</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>2.9cm</Width>
+              <Width>3.1cm</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -2268,7 +2268,7 @@
                             <TextRun>
                               <Value>=Fields!Commodities.Value</Value>
                               <Style>
-                                <FontSize>9pt</FontSize>
+                                <FontSize>8pt</FontSize>
                               </Style>
                             </TextRun>
                           </TextRuns>
@@ -2606,7 +2606,7 @@
         <DataSetName>dsRecords</DataSetName>
         <Top>14.8cm</Top>
         <Height>2.2cm</Height>
-        <Width>18.9cm</Width>
+        <Width>19.3cm</Width>
         <ZIndex>4</ZIndex>
         <Style>
           <Border>
@@ -2618,7 +2618,7 @@
     <Height>8.18898in</Height>
     <Style />
   </Body>
-  <Width>7.44094in</Width>
+  <Width>7.6378in</Width>
   <Page>
     <PageHeight>29.7cm</PageHeight>
     <PageWidth>21cm</PageWidth>

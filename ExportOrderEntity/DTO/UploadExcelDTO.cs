@@ -17,27 +17,27 @@ public class UploadExcelDTO
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
 }
-
-public class UploadResult
-{
-    public IEnumerable<ExportOrderRecord>? _ExportOrderRecords { get; set; }
-    public IEnumerable<DocumentEntity>? _Documents { get; set; }
-    public IEnumerable<string>? Summary { get; set; } = new List<string>();
-    public IEnumerable<string>? Errors { get; set; } = new List<string>();
-}
-
-public class CheckingResult
-{
-    public int CntrCount { get; set; }
-    //public int CntrContentCount { get; set; }
-    public int DocumentCount { get; set; }
-    public IEnumerable<string> Errors { get; set; } = new List<string>();
-    public bool HasErrors => Errors.Count() > 0;
-}
-
 public class CheckedUploadResult
 {
-    public IEnumerable<UploadExcelDTO> UploadedDTO { get; set; } = new List<UploadExcelDTO>();
+    public IEnumerable<UploadExcelDTO>? UploadedDTO { get; set; } = new List<UploadExcelDTO>();
+    public string Summary { get; set; } = string.Empty;
     public IEnumerable<string> Errors { get; set; } = new List<string>();
     public bool HasErrors => Errors.Count() > 0;
 }
+
+//public class UploadResult
+//{
+//    public IEnumerable<ExportOrderRecord>? _ExportOrderRecords { get; set; }
+//    public IEnumerable<DocumentEntity>? _Documents { get; set; }
+//    public IEnumerable<string>? Summary { get; set; } = new List<string>();
+//    public IEnumerable<string>? Errors { get; set; } = new List<string>();
+//}
+
+//public class CheckingResult
+//{
+//    public int CntrCount { get; set; }
+//    //public int CntrContentCount { get; set; }
+//    public int DocumentCount { get; set; }
+//    public IEnumerable<string> Errors { get; set; } = new List<string>();
+//    public bool HasErrors => Errors.Count() > 0;
+//}

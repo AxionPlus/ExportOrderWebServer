@@ -378,19 +378,6 @@
                         db.Entry(itemRecordContent).State = EntityState.Added;
                 }
 
-                //// Change Status of VesselCallDetail to Issued
-                //// when all of its ExportOrders has status - Issued
-                //var eoList = await db.ExportOrders
-                //                                  .Include(eo => eo.VesselCallDetail)
-                //                                  .Where(eo => eo.VesselCallDetail!.Id == modifyItem.VesselCallDetail!.Id)
-                //                                  .AsNoTracking().ToListAsync();
-
-                //if (eoList.All(eo => eo.Status.Equals(EntityStatus.Issued)))
-                //    modifyItem!.VesselCallDetail!.Status = EntityStatus.Issued;
-                //else
-                //    modifyItem!.VesselCallDetail!.Status = EntityStatus.New;
-
-
                 db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;

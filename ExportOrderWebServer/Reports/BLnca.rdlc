@@ -858,7 +858,7 @@
                               <TablixMembers>
                                 <TablixMember>
                                   <TablixHeader>
-                                    <Size>1cm</Size>
+                                    <Size>0.8cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox252">
                                         <KeepTogether>true</KeepTogether>
@@ -898,7 +898,7 @@
                                   <TablixMembers>
                                     <TablixMember>
                                       <TablixHeader>
-                                        <Size>3.6cm</Size>
+                                        <Size>3.8cm</Size>
                                         <CellContents>
                                           <Textbox Name="BLNum">
                                             <KeepTogether>true</KeepTogether>
@@ -908,6 +908,7 @@
                                                   <TextRun>
                                                     <Value>=Fields!BLNum.Value</Value>
                                                     <Style>
+                                                      <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
@@ -942,7 +943,7 @@
                                 </TablixMember>
                                 <TablixMember>
                                   <TablixHeader>
-                                    <Size>1cm</Size>
+                                    <Size>0.8cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox237">
                                         <CanGrow>true</CanGrow>
@@ -978,7 +979,7 @@
                                   <TablixMembers>
                                     <TablixMember>
                                       <TablixHeader>
-                                        <Size>3.6cm</Size>
+                                        <Size>3.8cm</Size>
                                         <CellContents>
                                           <Textbox Name="Textbox142">
                                             <CanGrow>true</CanGrow>
@@ -1019,7 +1020,7 @@
                                 </TablixMember>
                                 <TablixMember>
                                   <TablixHeader>
-                                    <Size>1cm</Size>
+                                    <Size>0.8cm</Size>
                                     <CellContents>
                                       <Textbox Name="Textbox207">
                                         <CanGrow>true</CanGrow>
@@ -1065,7 +1066,7 @@
                                   <TablixMembers>
                                     <TablixMember>
                                       <TablixHeader>
-                                        <Size>3.6cm</Size>
+                                        <Size>3.8cm</Size>
                                         <CellContents>
                                           <Textbox Name="Textbox143">
                                             <CanGrow>true</CanGrow>
@@ -1281,7 +1282,7 @@
                                   <TablixMembers>
                                     <TablixMember>
                                       <TablixHeader>
-                                        <Size>1cm</Size>
+                                        <Size>0.8cm</Size>
                                         <CellContents>
                                           <Textbox Name="Textbox283">
                                             <CanGrow>true</CanGrow>
@@ -1317,7 +1318,7 @@
                                       <TablixMembers>
                                         <TablixMember>
                                           <TablixHeader>
-                                            <Size>3.6cm</Size>
+                                            <Size>3.8cm</Size>
                                             <CellContents>
                                               <Textbox Name="Textbox285">
                                                 <CanGrow>true</CanGrow>
@@ -1526,7 +1527,7 @@
                                   <TablixMembers>
                                     <TablixMember>
                                       <TablixHeader>
-                                        <Size>1cm</Size>
+                                        <Size>0.8cm</Size>
                                         <CellContents>
                                           <Textbox Name="Textbox268">
                                             <CanGrow>true</CanGrow>
@@ -1562,7 +1563,7 @@
                                       <TablixMembers>
                                         <TablixMember>
                                           <TablixHeader>
-                                            <Size>3.6cm</Size>
+                                            <Size>3.8cm</Size>
                                             <CellContents>
                                               <Textbox Name="Textbox270">
                                                 <CanGrow>true</CanGrow>
@@ -3505,14 +3506,14 @@ GROSS WEIGHT (KILOS)</Value>
           <Height>0.5cm</Height>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
-            <Textbox Name="Textbox86">
+            <Textbox Name="Pager">
               <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="B/L number: " &amp; First(Fields!BLNum.Value, "dsBL") &amp; Space(10) &amp; "Attachment " &amp; Globals!PageNumber-1 &amp; " of " &amp; Globals!TotalPages-1</Value>
+                      <Value>="page " &amp;  Globals!OverallPageNumber &amp; " / " &amp; Globals!OverallTotalPages</Value>
                       <Style>
                         <Color>Teal</Color>
                       </Style>
@@ -3523,7 +3524,6 @@ GROSS WEIGHT (KILOS)</Value>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <rd:DefaultName>Textbox86</rd:DefaultName>
               <Left>9.8cm</Left>
               <Height>0.5cm</Height>
               <Width>10cm</Width>
@@ -3568,6 +3568,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox35</rd:DefaultName>
+              <Top>0cm</Top>
               <Height>0.5cm</Height>
               <Width>3.4cm</Width>
               <Style>
@@ -3609,6 +3610,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox35</rd:DefaultName>
+              <Top>0cm</Top>
               <Left>3.4cm</Left>
               <Height>0.5cm</Height>
               <Width>3.4cm</Width>
@@ -4034,6 +4036,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox51</rd:DefaultName>
+              <Top>0cm</Top>
               <Left>6.8cm</Left>
               <Height>2.6cm</Height>
               <Width>13cm</Width>

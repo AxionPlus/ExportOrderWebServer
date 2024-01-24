@@ -5970,7 +5970,7 @@ WT (KGS)</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
+                      <Value>="page " &amp;  Globals!OverallPageNumber &amp; " / " &amp; Globals!OverallTotalPages</Value>
                       <Style>
                         <FontSize>8pt</FontSize>
                         <Color>DarkGreen</Color>

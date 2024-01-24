@@ -624,7 +624,7 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         var parameters = new DialogParameters() { ["VoyageId"] = id };
-        var options = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
         dialog = DialogService.Show<UploadExportOrderRecordsFile>("Импорт списка ДТ", parameters, options);
 
         var result = await dialog.Result;

@@ -75,10 +75,10 @@ public class ExcelUploadService : IDisposable
             {
                 Records.Add(new UploadExcelDTO()
                 {
-                    DocumentName = records[colDoc],
+                    DocumentName = (records[colDoc]).Trim(),
                     SeqCommodity = int.TryParse(records[colCargoIndex], out int _cIndex) ? _cIndex : 0,
-                    CntrNum = records[colCntrNum],
-                    CntrType = string.IsNullOrEmpty(records[colCntrType]) ? null : records[colCntrType].ToUpper(),
+                    CntrNum = records[colCntrNum].Trim(),
+                    CntrType = string.IsNullOrEmpty(records[colCntrType]) ? null : records[colCntrType].ToUpper().Trim(),
                     CntrTareWt = double.TryParse(records[colCntrTareWt], out double _Tare) ? _Tare : 0,
                     Seal = records[colSeal],
                     PackageQty = uint.TryParse(records[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,

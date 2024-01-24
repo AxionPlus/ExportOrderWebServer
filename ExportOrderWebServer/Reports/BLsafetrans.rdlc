@@ -3122,7 +3122,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="B/L number: " &amp; First(Fields!BLNum.Value, "dsBL") &amp; Space(10) &amp; "Attachment " &amp; Globals!PageNumber-1 &amp; " of " &amp; Globals!TotalPages-1</Value>
+                      <Value>="page " &amp;  Globals!OverallPageNumber &amp; " / " &amp; Globals!OverallTotalPages</Value>
                       <Style>
                         <FontStyle>Italic</FontStyle>
                         <FontFamily>Tahoma</FontFamily>

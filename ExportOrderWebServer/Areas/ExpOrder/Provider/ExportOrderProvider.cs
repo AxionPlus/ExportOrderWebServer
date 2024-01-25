@@ -384,7 +384,7 @@
 
                 await db.SaveChangesAsync();
 
-                // HISTORY
+                #region HISTORY                
                 //db.ChangeTracker.Clear();
 
                 //// documents
@@ -460,6 +460,7 @@
                 //db.Entry(historyItem).State = EntityState.Added;
 
                 //await db.SaveChangesAsync();
+                #endregion
             }
             catch (Exception ex)
             {

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Reports\BLoel.rdlc" />
     <None Remove="Reports\CustomsLetter.rdlc" />
     <None Remove="Reports\ExportOrder.rdlc" />
     <None Remove="Resources\TemplateUploadCntrs.xlsx" />
@@ -35,6 +36,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Reports\BLoel.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Reports\CustomsLetter.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>

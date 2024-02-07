@@ -12,8 +12,9 @@ public class ExportOrderDTO
     public string BLNum { get; set; }
     public string BLtemplate { get; set; }
     public string? Dated { get; set; }                   // дата поручения
-    public string? BLDate { get; set; }                  // дата коносамента (added for BL)    
-    public string? DateOfLoading { get; set; }           // дата поручения
+    public string? BLDate { get; set; }                  // дата коносамента (format "dd.MM.yyyy")
+    public string? BLDateOEL { get; set; }               // дата коносамента (format "dd/MM/yyyy")  
+    public string? DateOfLoading { get; set; }           // дата погрузки в поручении
     public string? xmlDated { get; set; }                // дата для xml файла
     public string? CarrierNameEn { get; set; }
     public string? TerminalName { get; set; }
@@ -29,6 +30,7 @@ public class ExportOrderDTO
     public string POD { get; set; }
     public string PODEn { get; set; }
     public string? PODunlocode { get; set; }
+    public string? PODwithCountryEn { get; set; }
     public string? PODwithCountryRus { get; set; }
     public string? POLAgent { get; set; }
     public string? PODAgent { get; set; }    
@@ -42,6 +44,7 @@ public class ExportOrderDTO
     public double? TotalGrossWeight { get; set; }
     public double? TotalNetWeight { get; set; }
     public double? TotalTareWeight { get; set; }
+    public double? TotalGrossNTareWeight { get; set; }
 
     public string? Contract { get; set; }
     public string? ContractDate { get; set; }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using ExportOrderWebServer.Service;
+using System.Globalization;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -152,11 +153,29 @@ public class ExportOrderController : ControllerBase
 
             string CntrTypes = string.Join("\n", CntrTypesGroup.Select(ctg => ctg.CntrTypes));
 
+            //// список контейнеров OEL
+
+            //string CntrListOEL = string.Join("\n", Records.Select(cr =>
+            //(
+            //    cr.Cntr + "                                                              " +
+            //    cr.RecordCommoditiesEn + "                                                              " +
+            //    (cr.GrossWt == null ? "0" : cr.GrossWt.Value.ToString("########0.000", CultureInfo.GetCultureInfo("en-US"))) + " KGS" +
+            //    "\n" + "CS:" + cr.Seal + "\n" + "FCL/FCL" + "\n" + "LINER" + "\n" + "CY/CY" + "\n"
+            //)));
+
+            //string CntrListRecords = string.Join("\n", Records.Select(cr =>
+            //(
+            //    cr.Cntr + "    " + cr.CntrType + "    " + cr.Seal + "    " + cr.PackageQty + "    " + cr.PackageName + "    " + 
+            //    cr.GrossWt + "    " + cr.CntrTareWt + "    " + (cr.GrossWt + cr.CntrTareWt)
+            //)
+            //));
+
             // общие данные
             var dsItem = Items.Select(x => new
             {  
                 x.BLNum,
                 x.BLDate,
+                x.BLDateOEL,
                 x.Shippers,
                 x.Consignees,
                 NotifyParties = x.Consignees,
@@ -168,10 +187,12 @@ public class ExportOrderController : ControllerBase
                 x.Voyage,
                 x.POLEn,
                 x.PODEn,
+                x.PODwithCountryEn,
                 x.TotalCntrCount,
                 x.TotalPackages,
                 x.TotalTareWeight,
                 x.TotalGrossWeight,
+                x.TotalGrossNTareWeight,
                 x.Measurement,
             }).ToList();
 

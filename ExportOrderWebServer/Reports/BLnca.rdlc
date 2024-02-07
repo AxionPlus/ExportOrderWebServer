@@ -25,6 +25,10 @@
           <DataField>BLDate</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="BLDateOEL">
+          <DataField>BLDateOEL</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="VesselName">
           <DataField>VesselName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -39,6 +43,10 @@
         </Field>
         <Field Name="PODEn">
           <DataField>PODEn</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="PODwithCountryEn">
+          <DataField>PODwithCountryEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="POLAgent">
@@ -88,6 +96,10 @@
         <Field Name="TotalGrossWeight">
           <DataField>TotalGrossWeight</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
+        <Field Name="TotalGrossNTareWeight">
+          <DataField>TotalGrossNTareWeight</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="Measurement">
           <DataField>Measurement</DataField>
@@ -143,6 +155,10 @@
         </Field>
         <Field Name="GrossWt">
           <DataField>GrossWt</DataField>
+          <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
+        <Field Name="GrossAndTare">
+          <DataField>GrossAndTare</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
         </Field>
         <Field Name="Volume">
@@ -2610,13 +2626,13 @@
                       <TablixHeader>
                         <Size>7.9cm</Size>
                         <CellContents>
-                          <Textbox Name="PODEn">
+                          <Textbox Name="PODwithCountryEn">
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
                                 <TextRuns>
                                   <TextRun>
-                                    <Value>=Fields!PODEn.Value</Value>
+                                    <Value>=Fields!PODwithCountryEn.Value</Value>
                                     <Style>
                                       <FontFamily>Arial Narrow</FontFamily>
                                       <FontSize>8pt</FontSize>
@@ -2628,7 +2644,7 @@
                                 </Style>
                               </Paragraph>
                             </Paragraphs>
-                            <rd:DefaultName>PODEn</rd:DefaultName>
+                            <rd:DefaultName>PODwithCountryEn</rd:DefaultName>
                             <Style>
                               <Border>
                                 <Style>None</Style>
@@ -3568,7 +3584,6 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox35</rd:DefaultName>
-              <Top>0cm</Top>
               <Height>0.5cm</Height>
               <Width>3.4cm</Width>
               <Style>
@@ -3610,7 +3625,6 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox35</rd:DefaultName>
-              <Top>0cm</Top>
               <Left>3.4cm</Left>
               <Height>0.5cm</Height>
               <Width>3.4cm</Width>
@@ -4036,7 +4050,6 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox51</rd:DefaultName>
-              <Top>0cm</Top>
               <Left>6.8cm</Left>
               <Height>2.6cm</Height>
               <Width>13cm</Width>

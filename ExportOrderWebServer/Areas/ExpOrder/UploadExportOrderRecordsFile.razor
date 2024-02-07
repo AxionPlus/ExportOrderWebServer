@@ -214,7 +214,7 @@
                     if (existedDocument is not null)
                     {
                         // Container Content
-                        if (existedDocument.Records.Any(r => r.CommodityEngName.ToUpper().Equals("EMPTY CONTAINER")))
+                        if (existedDocument.Records.Any(r => r.CommodityEngName.ToUpper().Contains("EMPTY")))
                         {
                             if (record.PackageQty > 1) errList.Add($"{errMessagePrefix} Package Quantity exceeded for Empty container.");
                             if (record.PackageName != null) errList.Add($"{errMessagePrefix} Package Name indicated for Empty container.");

@@ -264,7 +264,7 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox445">
+                        <Textbox Name="Label_Flag">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -281,7 +281,6 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox445</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -298,7 +297,7 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox447">
+                        <Textbox Name="Label_Date">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -315,7 +314,6 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox447</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -332,7 +330,7 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox449">
+                        <Textbox Name="Label_Voyage">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -349,7 +347,6 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox449</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -366,7 +363,7 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox451">
+                        <Textbox Name="Label_POL">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -383,7 +380,6 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox451</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -400,7 +396,7 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox453">
+                        <Textbox Name="Label_POD">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -417,7 +413,6 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox453</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -836,6 +831,7 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="CommoditiesEn">
                                         <CanGrow>true</CanGrow>
+                                        <CanShrink>true</CanShrink>
                                         <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
@@ -886,7 +882,7 @@ WT (KGS)</Value>
                             </TablixMembers>
                           </TablixRowHierarchy>
                           <DataSetName>dsManifest</DataSetName>
-                          <ZIndex>1</ZIndex>
+                          <ZIndex>3</ZIndex>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1053,7 +1049,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox66">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1092,7 +1087,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox67">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1131,7 +1125,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox68">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1170,7 +1163,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox69">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1209,7 +1201,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox70">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1248,7 +1239,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox71">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1287,7 +1277,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox72">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1325,7 +1314,6 @@ WT (KGS)</Value>
                                   <TablixCell>
                                     <CellContents>
                                       <Textbox Name="Textbox51">
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1354,7 +1342,7 @@ WT (KGS)</Value>
                                           </TopBorder>
                                           <PaddingLeft>2pt</PaddingLeft>
                                           <PaddingRight>2pt</PaddingRight>
-                                          <PaddingTop>3pt</PaddingTop>
+                                          <PaddingTop>2pt</PaddingTop>
                                           <PaddingBottom>2pt</PaddingBottom>
                                         </Style>
                                       </Textbox>
@@ -1372,7 +1360,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox34">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1411,7 +1398,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox35">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1450,7 +1436,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox36">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1489,7 +1474,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox37">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1528,7 +1512,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox38">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1567,7 +1550,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox39">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1606,7 +1588,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox40">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1645,7 +1626,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox41">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1684,7 +1664,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox42">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1723,7 +1702,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Textbox43">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1767,7 +1745,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Seq">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1800,7 +1777,7 @@ WT (KGS)</Value>
                                   <TablixCell>
                                     <CellContents>
                                       <Textbox Name="Cntr">
-                                        <KeepTogether>true</KeepTogether>
+                                        <CanGrow>true</CanGrow>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1832,7 +1809,7 @@ WT (KGS)</Value>
                                   <TablixCell>
                                     <CellContents>
                                       <Textbox Name="CntrType">
-                                        <KeepTogether>true</KeepTogether>
+                                        <CanGrow>true</CanGrow>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1866,7 +1843,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="Seal">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1899,7 +1875,7 @@ WT (KGS)</Value>
                                   <TablixCell>
                                     <CellContents>
                                       <Textbox Name="PackageQtys">
-                                        <KeepTogether>true</KeepTogether>
+                                        <CanGrow>true</CanGrow>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1934,7 +1910,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="PackageNames">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1967,7 +1942,7 @@ WT (KGS)</Value>
                                   <TablixCell>
                                     <CellContents>
                                       <Textbox Name="SVC">
-                                        <KeepTogether>true</KeepTogether>
+                                        <CanGrow>true</CanGrow>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -1999,7 +1974,7 @@ WT (KGS)</Value>
                                   <TablixCell>
                                     <CellContents>
                                       <Textbox Name="CntrGrossWts">
-                                        <KeepTogether>true</KeepTogether>
+                                        <CanGrow>true</CanGrow>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -2032,7 +2007,7 @@ WT (KGS)</Value>
                                   <TablixCell>
                                     <CellContents>
                                       <Textbox Name="CntrTareWts">
-                                        <KeepTogether>true</KeepTogether>
+                                        <CanGrow>true</CanGrow>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -2066,7 +2041,6 @@ WT (KGS)</Value>
                                     <CellContents>
                                       <Textbox Name="CntrTotalWeight">
                                         <CanGrow>true</CanGrow>
-                                        <KeepTogether>true</KeepTogether>
                                         <Paragraphs>
                                           <Paragraph>
                                             <TextRuns>
@@ -2125,7 +2099,11 @@ WT (KGS)</Value>
                                 <RepeatOnNewPage>true</RepeatOnNewPage>
                               </TablixMember>
                               <TablixMember>
-                                <Group Name="CntrNum" />
+                                <Group Name="CntrNum">
+                                  <GroupExpressions>
+                                    <GroupExpression>=Fields!Cntr.Value</GroupExpression>
+                                  </GroupExpressions>
+                                </Group>
                                 <TablixMembers>
                                   <TablixMember>
                                     <HideIfNoRows>true</HideIfNoRows>
@@ -2233,7 +2211,7 @@ WT (KGS)</Value>
                           <TablixHeader>
                             <Size>3.3cm</Size>
                             <CellContents>
-                              <Textbox Name="Textbox444">
+                              <Textbox Name="Label_Vessel">
                                 <CanGrow>true</CanGrow>
                                 <KeepTogether>true</KeepTogether>
                                 <Paragraphs>
@@ -2250,7 +2228,6 @@ WT (KGS)</Value>
                                     <Style />
                                   </Paragraph>
                                 </Paragraphs>
-                                <rd:DefaultName>Textbox444</rd:DefaultName>
                                 <Style>
                                   <Border>
                                     <Style>None</Style>
@@ -2436,6 +2413,41 @@ WT (KGS)</Value>
                       <TablixHeader>
                         <Size>9.5cm</Size>
                         <CellContents>
+                          <Textbox Name="TextboxAboveShipper">
+                            <CanGrow>true</CanGrow>
+                            <KeepTogether>true</KeepTogether>
+                            <Paragraphs>
+                              <Paragraph>
+                                <TextRuns>
+                                  <TextRun>
+                                    <Value />
+                                    <Style />
+                                  </TextRun>
+                                </TextRuns>
+                                <Style />
+                              </Paragraph>
+                            </Paragraphs>
+                            <Style>
+                              <Border>
+                                <Style>None</Style>
+                              </Border>
+                              <PaddingLeft>2pt</PaddingLeft>
+                              <PaddingRight>2pt</PaddingRight>
+                              <PaddingTop>2pt</PaddingTop>
+                              <PaddingBottom>2pt</PaddingBottom>
+                            </Style>
+                          </Textbox>
+                        </CellContents>
+                      </TablixHeader>
+                      <TablixMembers>
+                        <TablixMember />
+                      </TablixMembers>
+                      <KeepTogether>true</KeepTogether>
+                    </TablixMember>
+                    <TablixMember>
+                      <TablixHeader>
+                        <Size>9.5cm</Size>
+                        <CellContents>
                           <Tablix Name="TablixShipper">
                             <TablixBody>
                               <TablixColumns>
@@ -2451,7 +2463,7 @@ WT (KGS)</Value>
                               </TablixColumns>
                               <TablixRows>
                                 <TablixRow>
-                                  <Height>1.9cm</Height>
+                                  <Height>1.4cm</Height>
                                   <TablixCells>
                                     <TablixCell>
                                       <CellContents>
@@ -2532,6 +2544,7 @@ WT (KGS)</Value>
                                 </TablixMember>
                               </TablixMembers>
                             </TablixRowHierarchy>
+                            <ZIndex>4</ZIndex>
                             <Style>
                               <Border>
                                 <Style>None</Style>
@@ -2542,9 +2555,7 @@ WT (KGS)</Value>
                       </TablixHeader>
                       <TablixMembers>
                         <TablixMember />
-                        <TablixMember />
                       </TablixMembers>
-                      <KeepTogether>true</KeepTogether>
                     </TablixMember>
                   </TablixMembers>
                   <KeepTogether>true</KeepTogether>
@@ -2858,6 +2869,7 @@ WT (KGS)</Value>
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -5030,7 +5042,7 @@ WT (KGS)</Value>
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>dsSummary</DataSetName>
-            <Top>5.6cm</Top>
+            <Top>5.65cm</Top>
             <Height>5.6cm</Height>
             <Width>28cm</Width>
             <ZIndex>1</ZIndex>
@@ -5070,7 +5082,7 @@ WT (KGS)</Value>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>0.8cm</Height>
+                  <Height>1cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5900,8 +5912,8 @@ WT (KGS)</Value>
             <PageBreak>
               <BreakLocation>Start</BreakLocation>
             </PageBreak>
-            <Top>3.8cm</Top>
-            <Height>1.8cm</Height>
+            <Top>3.65cm</Top>
+            <Height>2cm</Height>
             <Width>28cm</Width>
             <ZIndex>2</ZIndex>
             <Style>
@@ -5911,7 +5923,7 @@ WT (KGS)</Value>
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>4.40945in</Height>
+        <Height>4.42913in</Height>
         <Style />
       </Body>
       <Width>11.02362in</Width>
@@ -5982,6 +5994,7 @@ WT (KGS)</Value>
                   </Style>
                 </Paragraph>
               </Paragraphs>
+              <Top>0cm</Top>
               <Left>20cm</Left>
               <Height>0.45cm</Height>
               <Width>8cm</Width>

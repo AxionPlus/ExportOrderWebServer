@@ -25,6 +25,10 @@
           <DataField>BLDate</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="BLDateOEL">
+          <DataField>BLDateOEL</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="VesselName">
           <DataField>VesselName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -39,6 +43,10 @@
         </Field>
         <Field Name="PODEn">
           <DataField>PODEn</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="PODwithCountryEn">
+          <DataField>PODwithCountryEn</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="POLAgent">
@@ -88,6 +96,10 @@
         <Field Name="TotalGrossWeight">
           <DataField>TotalGrossWeight</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
+        <Field Name="TotalGrossNTareWeight">
+          <DataField>TotalGrossNTareWeight</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="Measurement">
           <DataField>Measurement</DataField>
@@ -143,6 +155,10 @@
         </Field>
         <Field Name="GrossWt">
           <DataField>GrossWt</DataField>
+          <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
+        <Field Name="GrossAndTare">
+          <DataField>GrossAndTare</DataField>
           <rd:TypeName>System.Double</rd:TypeName>
         </Field>
         <Field Name="Volume">
@@ -3645,7 +3661,7 @@ OR MULTIMODAL TRANSPORT</Value>
                                   <Paragraph>
                                     <TextRuns>
                                       <TextRun>
-                                        <Value>=Fields!PODEn.Value</Value>
+                                        <Value>=Fields!PODwithCountryEn.Value</Value>
                                         <Style>
                                           <FontFamily>Tahoma</FontFamily>
                                           <FontSize>9pt</FontSize>

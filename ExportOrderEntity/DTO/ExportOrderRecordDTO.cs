@@ -27,6 +27,7 @@ public class ExportOrderRecordDTO
     public string? PackageName { get; set; }
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
+    public double? GrossAndTare { get; set; }    
     public double? Volume { get; set; }
 
     public string DocumentName { get; set; }

@@ -146,6 +146,8 @@
                                     Num = source.Num,
                                     BLNum = source.Num.IndexOf("_") == -1 ? source.Num : source.Num.Substring(0, source.Num.IndexOf("_")),
                                     BLDate = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
+                                    //BLDateOEL = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd/MM/yyyy"),
+                                    BLDateOEL = source.VesselCallDetail!.VesselCall!.ETS!.HasValue ? DateToStr(source.VesselCallDetail!.VesselCall!.ETS!.Value) : null,
                                     BLtemplate = source.Carrier!.BlTemplate.ToString(),
                                     CarrierNameEn = source.Carrier!.NameEn,
                                     TerminalName = source.VesselCallDetail!.VesselCall.Terminal.Name,
@@ -156,7 +158,8 @@
                                     Consignees = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn)).Distinct().ToList()),
                                     Commodities = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(co => co.DocumentRecord.CommodityEngName)).Distinct().ToList()),
 
-                                    PODEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country!.ENG,
+                                    PODEn = source.VesselCallDetail!.POD!.NameEn!,
+                                    PODwithCountryEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country!.ENG,
                                     PODwithCountryRus = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.RUS,
                                     FinalDestination = source.VesselCallDetail!.FinalDestination!.NameEn! + ", " + source.VesselCallDetail!.FinalDestination!.Country!.ENG,
                                     POLAgent = source.Carrier!.CarrierDetails.FirstOrDefault(cd => cd.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.AgentPOL!,
@@ -168,6 +171,7 @@
                                     TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
                                     TotalNetWeight = source.Records.Sum(r => r.Contents.Sum(c => c.NetWt)),
                                     TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
+                                    TotalGrossNTareWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)) + source.Records.Sum(r => r.CntrTareWt),
                                     exportOrderRecordsDTO = blRecords(source.Records!)
                                 })
                                 .FirstOrDefaultAsync(x => x.Id == Id);
@@ -922,7 +926,7 @@
                 NetWt = record.Contents.Sum(c => c.NetWt),
                 GrossWt = record.Contents.Sum(c => c.GrossWt),
                 Volume = record.Contents.Sum(c => c.Volume),
-
+                GrossAndTare = (record.Contents.Sum(c => c.GrossWt) + record.CntrTareWt),
                 RecordCommoditiesEn = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.CommodityEngName +
                                                                                     (rc.DocumentRecord.IsIMO ? " IMO: " + rc.DocumentRecord.IMO +
                                                                                                                 " UNNO: " + rc.DocumentRecord.UNNO : ""))
@@ -1068,5 +1072,12 @@
         return RecordsDTO;
     };
 
+    Func<DateTime?, string?> DateToStr = (date) =>
+    {
+        if (date is not null)
+            return date.Value.ToString("dd") + "/" + date.Value.ToString("MM") + "/" + date.Value.ToString("yyyy");
+        else
+            return null;
+    };
     #endregion
 }

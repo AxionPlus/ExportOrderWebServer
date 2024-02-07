@@ -36,5 +36,6 @@ public enum BLTemplate
     sinokor,
     soling,
     transsinergia,
-    nca
+    nca,
+    oel
 }

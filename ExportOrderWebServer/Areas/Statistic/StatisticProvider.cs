@@ -23,12 +23,14 @@ public class StatisticProvider
             {
                 var filter = (FilterParameters)parameters;
 
-                var exportOrders = await db.ExportOrders
+                var exportOrders = await db.ExportOrders.AsNoTracking()
+                                                        .Include(e => e.Records)
                                                         .Select(x => new ExportOrderEntity()
                                                         {
                                                             Num = x.Num,
                                                             Dated = x.Dated,
                                                             Status = x.Status,
+                                                            Records = x.Records,
                                                         })
                                                         .Where(x => filter.DateFrom.HasValue ? x.Dated >= filter.DateFrom : true)
                                                         .Where(x => filter.DateTo.HasValue ? x.Dated <= filter.DateTo : true)
@@ -40,18 +42,21 @@ public class StatisticProvider
                     return appObjResponse;
                 }
 
-                var ItemsStatistic = new StatisticEntity()
+                var Statistic = new StatisticEntity()
                 {
                     DatedFrom = filter.DateFrom,
                     DatedTo = filter.DateTo,
-                    CountUnderway = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.New || eo.Status == EntityStatus.Issued),
-                    //CountUnderway = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.New).Count(),
-                    CountCancelled = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.Cancelled),
-                    CountCompleted = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.Completed),
-                    CountOverall = (uint)exportOrders.Count(),
+                    EOsUnderway = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.New || eo.Status == EntityStatus.Issued),
+                    EOsCompleted = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.Completed),
+                    EOsCancelled = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.Cancelled),                    
+                    EOsOverall = (uint)exportOrders.Count(),
+                    CntrsUnderway = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.New || eo.Status == EntityStatus.Issued).SelectMany(eo => eo.Records).Count(),
+                    CntrsCompleted = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.Completed).SelectMany(eo => eo.Records).Count(),
+                    CntrsCancelled = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.Cancelled).SelectMany(eo => eo.Records).Count(),
+                    CntrsOverall = (uint)exportOrders.SelectMany(eo => eo.Records).Count(),
                 };
 
-                appObjResponse.Object = ItemsStatistic;
+                appObjResponse.Object = Statistic;
             }
 
             return appObjResponse;

@@ -21,7 +21,6 @@
     }
 </style>
 
-
 <MudContainer MaxWidth="MaxWidth.Small">
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">
@@ -43,7 +42,6 @@
             </div>
         </MudToolBar>
     </div>
-
     <div class="Container-item">
         <div class="container-content" style="justify-content:flex-start">
             <MudDatePicker Class="wrapper-input-date" Label="from" @bind-Date="Filter.DateFrom"
@@ -98,38 +96,35 @@
             </MudButton>
         </div>
     </div>
-
     <div class="Container-item">
-        @* <div class="container-content"> *@
-            @if (Item is not null)
-            {
-                <MudSimpleTable Style="overflow-x: auto;">
-                    <thead>
-                        <tr>
-                            @foreach (var h in headings)
+        @if (Item is not null)
+        {
+            <MudSimpleTable Style="overflow-x: auto;">
+                <thead>
+                    <tr>
+                        @foreach (var h in headings)
+                        {
+                            if (h == "Completed")
                             {
-                                if (h == "Completed")
-                                {
-                                    <th style="color:cornflowerblue">@h</th>                            
-                                }
-                                else
-                                {
-                                    <th>@h</th>
-                                }
+                                <th style="color:cornflowerblue">@h</th>                            
                             }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            @foreach (var x in elements)
+                            else
                             {
-                                <td>@x</td>
+                                <th>@h</th>
                             }
-                        </tr>
-                    </tbody>
-                </MudSimpleTable>
-            }    
-        @* </div> *@
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @foreach (var x in elements)
+                        {
+                            <td>@x</td>
+                        }
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+        }
     </div>
 </MudContainer>
 
@@ -172,10 +167,10 @@
             {   
                 elements[0] = Item.DatedFrom.HasValue ? Item.DatedFrom.Value.ToShortDateString() : "---";
                 elements[1] = Item.DatedTo.HasValue ? Item.DatedTo.Value.ToShortDateString() : "---";
-                elements[2] = Item.CountUnderway.ToString();
-                elements[3] = Item.CountCancelled.ToString();
-                elements[4] = Item.CountCompleted.ToString();
-                elements[5] = Item.CountOverall.ToString();
+                elements[2] = Item.CntrsUnderway.ToString() + " (" + Item.EOsUnderway.ToString() + ")";
+                elements[3] = Item.CntrsCancelled.ToString() + " (" + Item.EOsCancelled.ToString() + ")";
+                elements[4] = Item.CntrsCompleted.ToString() + " (" + Item.EOsCompleted.ToString() + ")";
+                elements[5] = Item.CntrsOverall.ToString() + " (" + Item.EOsOverall.ToString() + ")";
             }            
         }
         else

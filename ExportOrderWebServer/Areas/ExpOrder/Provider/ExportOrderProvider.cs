@@ -146,7 +146,6 @@
                                     Num = source.Num,
                                     BLNum = source.Num.IndexOf("_") == -1 ? source.Num : source.Num.Substring(0, source.Num.IndexOf("_")),
                                     BLDate = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
-                                    //BLDateOEL = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd/MM/yyyy"),
                                     BLDateOEL = source.VesselCallDetail!.VesselCall!.ETS!.HasValue ? DateToStr(source.VesselCallDetail!.VesselCall!.ETS!.Value) : null,
                                     BLtemplate = source.Carrier!.BlTemplate.ToString(),
                                     CarrierNameEn = source.Carrier!.NameEn,

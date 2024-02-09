@@ -36,6 +36,12 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
 });
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "AspNetCore.Identity.Application.ExportOrderWebServer";
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+});
+
 builder.Services.AddScoped<TokenProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();

@@ -13,13 +13,13 @@
             <MudSpacer />
             <div class="ToolBar-Title"><span>Application Users</span></div>
             <MudSpacer />
-@*             <AuthorizeView Roles="Admin">
+            <AuthorizeView Roles="Admin">
                 <Authorized>
                     <div class="ToolBar-iconbutton">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddAlert" Href="Identity/Account/Manage/Register" />
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddCard" Href="Identity/Account/Manage/Register" />
                     </div>
                 </Authorized>
-            </AuthorizeView> *@
+            </AuthorizeView>                        
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
             </div>
@@ -35,6 +35,7 @@
                 <MudTh Style="width: 30px"><MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="GetItems" Disabled="IsLoadingData" /></MudTh>
                 <MudTh Style="width: 400px">User Name</MudTh>
                 <MudTh Style="text-align: left">Roles</MudTh>
+                <MudTh></MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
@@ -43,18 +44,17 @@
                 <MudTd>@context.UserName</MudTd>
                 <MudTd Style="text-align: left">@(context.Roles!.Count() > 0 ? string.Join(", ", context.Roles!.ToList()) : string.Empty)</MudTd>
                 <MudTd></MudTd>
-                </RowTemplate>
-            </MudTable>
-        </div>
+            </RowTemplate>
+        </MudTable>
+      </div>
 
 </MudContainer>
 
 
-
- @code {
+@code {
     bool IsLoadingData = false;
     private IEnumerable<ApplicationUserDTO>? Items { get; set; }
-    
+
     protected override async Task OnInitializedAsync()
     {
         await GetItems();
@@ -65,5 +65,10 @@
         IsLoadingData = true;
         Items = await UserProvider.GetUsersDTOAsync();        
         IsLoadingData = false;
+    }
+
+    private void AddItem_Click()
+    {
+        
     }
 }

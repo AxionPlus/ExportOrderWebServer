@@ -15,7 +15,9 @@
         <CascadingValue Value=ShowMainMenu>
             <AuthorizeView>
                 <Authorized>
-                    @Body
+                    <CascadingValue Value=ApplicationUser>
+                        @Body
+                    </CascadingValue>                    
                 </Authorized>
                 <NotAuthorized>
                     <LoginRedirect />
@@ -26,9 +28,10 @@
 </MudLayout>
 
 
-
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    public string? ApplicationUser { get; set; }
 
     EventCallback ShowMainMenu => EventCallback.Factory.Create(this, ToggleDrawer);
 

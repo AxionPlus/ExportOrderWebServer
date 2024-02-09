@@ -34,6 +34,7 @@ public class StatisticProvider
                                                         })
                                                         .Where(x => filter.DateFrom.HasValue ? x.Dated >= filter.DateFrom : true)
                                                         .Where(x => filter.DateTo.HasValue ? x.Dated <= filter.DateTo : true)
+                                                        .Where(x => x.Records.Any(r => r.Contents.Any(co => co.GrossWt > 0)))
                                                         .ToListAsync();
 
                 if (exportOrders is null)

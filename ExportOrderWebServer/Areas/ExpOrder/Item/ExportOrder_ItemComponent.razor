@@ -300,7 +300,7 @@
                 <MudTh Style="width: 64px">Type</MudTh>
                 <MudTh Style="width: 80px">TareWt</MudTh>
                 <MudTh Style="width: 300px">Seals</MudTh>
-                <MudTh Style="width: 30px"></MudTh>
+                <MudTh Style="width: 33px">Seq</MudTh>
                 <MudTh Style="width: 88px">QTY</MudTh>
                 <MudTh Style="width: 120px">Pkg Name</MudTh>
                 <MudTh Style="width: 120px">NET</MudTh>
@@ -335,34 +335,32 @@
                 </MudTd>
                 <MudTd>
                     <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecord.CntrTareWt"
-                                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                        Required RequiredError="" HideSpinButtons="true" />
+                                     Variant="Variant.Outlined" Margin="Margin.Dense"
+                                     Required RequiredError="" HideSpinButtons="true" />
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecord.Seal"
-                                Style="width: 292px"
+                    <MudTextField Class="TextField" Style="width: 292px" T="string" @bind-Value="expOrderRecord.Seal"                                
                                 Variant="Variant.Outlined" Margin="Margin.Dense" />
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
-                    <MudTextField Class="QuantityField" T="string" Text="@expOrderRecord.Contents.Sum(s => s.PackageQty).ToString()"
-                                Style="width: 80px"
-                                Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudTextField Class="QuantityField" Style="width: 80px" T="string" Text="@expOrderRecord.Contents.Sum(s => s.PackageQty).ToString()"                                
+                                Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly/>
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                                Text="@(expOrderRecord.Contents.Sum(s => s.NetWt) is not null ? expOrderRecord.Contents.Sum(s => s.NetWt!.Value).ToString("## ###.###") : "-")"
-                                Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                  Text="@(expOrderRecord.Contents.Sum(s => s.NetWt) is not null ? expOrderRecord.Contents.Sum(s => s.NetWt!.Value).ToString("## ##0.###") : "-")"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                                Text="@(expOrderRecord.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("## ###.###"))"
-                                Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                  Text="@(expOrderRecord.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("## ##0.###"))"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecord.IsShowCntrContent ? "transform: rotate(180deg);" : "")"
-                                Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
+                                   Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
                 </MudTd>
                 <MudTd></MudTd>
             </RowTemplate>
@@ -375,11 +373,11 @@
                             <MudTable Class="sub-Table" @ref="mudCntrContentTable" Context="CntrContent" Items="@expOrderRecord.Contents">
                                 <RowTemplate>
                                     <MudTd Style="width:300px; padding-right:12px; text-align:end">@CntrContent.DocumentRecord.Document.Name</MudTd>
-                                    <MudTd Style="width:30px">@CntrContent.DocumentRecord.Seq</MudTd>
-                                    <MudTd Style="width:88px">@CntrContent.PackageQty</MudTd>
-                                    <MudTd Style="width: 120px; text-align:center">@CntrContent.PackageName</MudTd>
-                                    <MudTd Style="width: 120px">@CntrContent.NetWt</MudTd>
-                                    <MudTd Style="width: 120px">@CntrContent.GrossWt</MudTd>
+                                    <MudTd Style="width: 33px">@CntrContent.DocumentRecord.Seq</MudTd>
+                                    <MudTd Style="width: 88px">@CntrContent.PackageQty</MudTd>
+                                    <MudTd Style="width:120px; text-align:center">@CntrContent.PackageName</MudTd>
+                                    <MudTd Style="width:120px">@CntrContent.NetWt</MudTd>
+                                    <MudTd Style="width:120px">@CntrContent.GrossWt</MudTd>
                                     </RowTemplate>
                             </MudTable>
                         </td>

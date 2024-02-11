@@ -155,8 +155,11 @@
                                     Voyage = source.VesselCallDetail!.VesselCall!.VoyageNo,
                                     Shippers = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn)).Distinct().ToList()),
                                     Consignees = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn)).Distinct().ToList()),
-                                    Commodities = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(co => co.DocumentRecord.CommodityEngName)).Distinct().ToList()),
-
+                                    Commodities = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.CommodityEngName +
+                                                                                                                                (rc.DocumentRecord.IsIMO ?
+                                                                                                                                    " IMO:" + rc.DocumentRecord.IMO +
+                                                                                                                                    " UNNO:" + rc.DocumentRecord.UNNO : "")))
+                                                                                                                 .Distinct().ToList()),
                                     PODEn = source.VesselCallDetail!.POD!.NameEn!,
                                     PODwithCountryEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country!.ENG,
                                     PODwithCountryRus = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.RUS,
@@ -186,7 +189,7 @@
         }
     }
 
-    public async Task<IEnumerable<VoyageManifestDTO>> GetVoyageManifestDTOAsync(long id)
+    public async Task<IEnumerable<VoyageManifestDTO>> GetVoyageManifestDTOAsync(long id, bool isImo)
     {
         try
         {
@@ -194,7 +197,7 @@
             {
                 var db = await _db;
 
-                var Items = await db.ExportOrders
+                var exportOrders = await db.ExportOrders
                                             .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal).ThenInclude(ter => ter.Customs)
                                             .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
                                             .Include(x => x.VesselCallDetail).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod!.Country)
@@ -207,8 +210,8 @@
                                             .Where(x => x.VesselCallDetail!.VesselCall!.Id == id)
                                             .AsSplitQuery()
                                             .ToListAsync();
-
-                var DTOItems = manifestRecords(Items);
+                                
+                var DTOItems = manifestRecords(exportOrders, isImo);
 
                 return DTOItems;
             }
@@ -242,6 +245,7 @@
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal)
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
                                                         .Include(eo => eo.Carrier)
+                                                        .Include(eo => eo.Records).ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord)
                                                         .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated : true)
                                                         .ToListAsync();
 
@@ -938,7 +942,7 @@
         return eoRecordsDTO.ToArray();
     };
 
-    Func<IEnumerable<ExportOrderEntity>, IEnumerable<VoyageManifestDTO>> manifestRecords = (exportOrders) =>
+    Func<IEnumerable<ExportOrderEntity>, bool, IEnumerable<VoyageManifestDTO>> manifestRecords = (exportOrders, _isImo) =>
     {
         var ItemsDTO = new List<VoyageManifestDTO>();        
 
@@ -948,20 +952,54 @@
             {
                 var _shippers = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn!)).ToList();
                 var _consignees = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn!)).ToList();
-                var _commodities = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.CommodityName +
-                                                    (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + "UNNO:" + rc.DocumentRecord.UNNO : "")))
-                                               .Distinct().ToList();
-                var _commoditiesEn = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.CommodityEngName +
-                                                    (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + "UNNO:" + rc.DocumentRecord.UNNO : "")))
-                                                .Distinct().ToList();
+                
+                var _commodities = new List<string>();
+                var _commoditiesEn = new List<string>();
 
-                uint indexRec = 0;
-                                
-                foreach (var record in Item.Records)
+                _commodities = Item.Records.SelectMany(eor => eor.Contents.Select(con => con.DocumentRecord.CommodityName +
+                                                                                  (con.DocumentRecord.IsIMO ?
+                                                                                     " IMO:" + con.DocumentRecord.IMO +
+                                                                                     " UNNO:" + con.DocumentRecord.UNNO : "")))
+                                                                          .Distinct().ToList();
+
+                _commoditiesEn = Item.Records.SelectMany(eor => eor.Contents.Select(con => con.DocumentRecord.CommodityEngName +
+                                                                                    (con.DocumentRecord.IsIMO ?
+                                                                                        " IMO:" + con.DocumentRecord.IMO +
+                                                                                        " UNNO:" + con.DocumentRecord.UNNO : "")))
+                                                                            .Distinct().ToList();
+
+                if (_isImo)
                 {
+                    _commodities = Item.Records.SelectMany(eor => eor.Contents.Where(con => con.DocumentRecord.IsIMO == true)
+                                                                              .Select(con => con.DocumentRecord.CommodityName +
+                                                                                       " IMO:" + con.DocumentRecord.IMO +
+                                                                                       " UNNO:" + con.DocumentRecord.UNNO))
+                                                                              .Distinct().ToList();
+
+                    _commoditiesEn = Item.Records.SelectMany(eor => eor.Contents.Where(con => con.DocumentRecord.IsIMO == true)
+                                                                                .Select(con => con.DocumentRecord.CommodityEngName +
+                                                                                         " IMO:" + con.DocumentRecord.IMO +
+                                                                                         " UNNO:" + con.DocumentRecord.UNNO))
+                                                                                .Distinct().ToList();
+                }
+                
+                uint indexRec = 0;
+
+                var Records = Item.Records;
+
+                if (_isImo)
+                    Records = Item.Records.Where(r => r.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true))).ToList();
+
+                foreach (var record in Records)
+                {
+                    var CntrContents = record.Contents;
+
+                    if (_isImo)
+                        CntrContents = record.Contents.Where(con => con.DocumentRecord.IsIMO.Equals(true)).ToList();
+
                     var ItemDTO = new VoyageManifestDTO()
                     {
-                        // BL Item
+                        // BL
                         VesselCallId = Item.VesselCallDetail!.VesselCall!.Id,
                         ExpOrderNum = Item.Num,
                         BLNum = Item.Num.IndexOf("_") == -1 ? Item.Num : Item.Num.Substring(0, Item.Num.IndexOf("_")),
@@ -1007,17 +1045,19 @@
                         Cntr = record.CntrNum,
                         CntrType = record.CntrType!.Normolize!,
                         Seal = record.Seal != string.Empty ? record.Seal : "N/A",
-                        CntrTareWt = record.CntrTareWt,
-                        CntrTotalWeight = record.CntrTareWt + (double)record.Contents.Sum(c => c.GrossWt)!,
+                        CntrTareWt = record.CntrTareWt,                        
 
-                        PackageQtys = (uint)record.Contents.Sum(c => c.PackageQty)!,
-                        PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
-                        NetWeights = record.Contents.Sum(c => c.NetWt),
-                        GrossWeights = record.Contents.Sum(c => c.GrossWt),
-                        Volumes = record.Contents.Sum(c => c.Volume),
+                        PackageQtys = (uint)CntrContents.Sum(c => c.PackageQty)!,
+                        PackageNames = string.Join(", ", CntrContents.Select(c => c.PackageName is not null ? c.PackageName.ToUpper() : "").Distinct().Order()),
+                        NetWeights = CntrContents.Sum(c => c.NetWt),
+                        GrossWeights = CntrContents.Sum(c => c.GrossWt),
+                        Volumes = CntrContents.Sum(c => c.Volume),
+                        CntrTotalWeight = record.CntrTareWt + (double)CntrContents.Sum(c => c.GrossWt)!,
+
+                        // Customs Explanation & FillBill
                         IsIMO = record.Contents.Select(c => c.DocumentRecord.IsIMO).Any(imo => imo.Equals(true)),
-                        IMO = string.Join(", ", record.Contents.Where(rc => rc.DocumentRecord.IsIMO).Select(rc => rc.DocumentRecord.IMO).Distinct()),
-                        UNNO = string.Join(", ", record.Contents.Where(rc => rc.DocumentRecord.IsIMO).Select(rc => rc.DocumentRecord.UNNO).Distinct()),
+                        IMO = string.Join(", ", record.Contents.Where(c => c.DocumentRecord.IsIMO).Select(c => c.DocumentRecord.IMO).Distinct()),
+                        UNNO = string.Join(", ", record.Contents.Where(c => c.DocumentRecord.IsIMO).Select(c => c.DocumentRecord.UNNO).Distinct()),
 
                         RecordShippers = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn!).Distinct().ToList()),
                         RecordConsignees = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn!).Distinct().ToList()),
@@ -1059,6 +1099,8 @@
                 Voyage = record.VesselCallDetail!.VesselCall.VoyageNo,
                 POD = record.VesselCallDetail!.POD!.Name!,
                 Carrier = record.Carrier!.NameEn,
+                IsImo = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true)).Equals(true)),
+                IsEmpty = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.CommodityEngName.ToUpper().Contains("EMPTY")).Equals(true)),
                 Status = record.Status,
                 BlTemplate = record.Carrier!.BlTemplate,
                 CreateTime = record.CreateTime,

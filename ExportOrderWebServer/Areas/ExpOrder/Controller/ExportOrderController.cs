@@ -321,7 +321,7 @@ public class ExportOrderController : ControllerBase
     [Route("ViewReportManifest")]
     public async Task<IActionResult> ManifestReport(long vslcallid, bool isIMO)
     {
-        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
+        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, isIMO);
 
         if (Items.Count() == 0) return Empty;
 
@@ -447,7 +447,7 @@ public class ExportOrderController : ControllerBase
     [Route("ViewCustomsExplanation")]
     public async Task<IActionResult> CustomsReport(long vslcallid)
     {
-        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
+        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, false);
 
         if (Items.Count() == 0) return Empty;
 
@@ -559,7 +559,7 @@ public class ExportOrderController : ControllerBase
     {
         try
         {
-            var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid);
+            var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, false);
 
             await Task.Delay(100);
 
@@ -572,8 +572,7 @@ public class ExportOrderController : ControllerBase
             //DirectoryInfo dirInfo = new DirectoryInfo(dirName);
             //if (!dirInfo.Exists) { dirInfo.Create(); }
             //dirName = dirInfo.FullName;
-            //string tempFilePath = Path.Combine(dirName, $"{Path.GetRandomFileName()}.xlsx");
-            
+            //string tempFilePath = Path.Combine(dirName, $"{Path.GetRandomFileName()}.xlsx");            
 
             using (var xls = new ExcelCreateService(tempFilePath, Items))
             {

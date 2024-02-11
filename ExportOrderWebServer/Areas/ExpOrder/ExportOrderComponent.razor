@@ -36,7 +36,7 @@
 
 </style>
 
-<div class="Container-item">
+<div class="Container-item" style="margin-top:6px">
     <div class="container-content">
         <MudTextField Class="TextField" Placeholder="Container" Style="width: 160px" @bind-Value="@Filter.CntrNum" Disabled
                       Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="11" Clearable />
@@ -106,14 +106,13 @@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" Hover="true" RowsPerPage="15">
-        
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" Hover="true" RowsPerPage="15">        
         <HeaderContent>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:120px"></MudTh>            
-            <MudTh Style="width:150px">
+            <MudTh Style="width:42px"></MudTh>
+            <MudTh Style="width:42px"></MudTh>
+            <MudTh Style="width:42px"></MudTh>
+            <MudTh Style="width:130px"></MudTh>            
+            <MudTh Style="width:160px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Num!)">Number</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:80px">
@@ -122,35 +121,37 @@
             <MudTh Style="width:200px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Vessel!)">Vessel</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:150px">
+            <MudTh Style="width:110px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Voyage!)">Voyage</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:200px">POD</MudTh>
             <MudTh Style="width:200px; text-align:start">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Carrier!)">Carrier</MudTableSortLabel>
-            </MudTh>
-            <MudTh Style="width: 80px">
+            </MudTh>            
+            <MudTh Style="width:43px">IMO</MudTh>
+            <MudTh Style="width:64px">Empty</MudTh>
+            <MudTh Style="width:80px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width: 35px"></MudTh>
+            <MudTh Style="width:30px"></MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>
-                <MudTooltip Text="view Details">
+                <MudTooltip Delay="1500" Duration="1000" Text="view Details">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
                                     OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudTooltip Text="view Export Order">
+                <MudTooltip Delay="1500" Duration="1000" Text="view Export Order">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
                                     OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudTooltip Text="save xml file">
-                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.FileDownload"
+                <MudTooltip Delay="1500" Duration="1000" Text="save xml file">
+                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium"
                                    OnClick="@(async()=>{ await SaveXMLfile_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
@@ -167,6 +168,18 @@
             <MudTd>@context.Voyage</MudTd>
             <MudTd>@context.POD</MudTd>
             <MudTd Style="text-align:start">@context.Carrier</MudTd>
+            <MudTd>
+                @if (context.IsImo.Equals(true))
+                {
+                    <MudTooltip Text="IMO"><MudIcon Icon="@Icons.Custom.Uncategorized.BioHazard" Color="Color.Error"></MudIcon></MudTooltip>
+                }
+            </MudTd>
+            <MudTd>
+                @if (context.IsEmpty.Equals(true))
+                {
+                    <MudTooltip Text="Empty"><MudIcon Icon="@Icons.Material.Outlined.Battery1Bar"></MudIcon></MudTooltip>
+                }
+            </MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
             <MudTd>
                 <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"

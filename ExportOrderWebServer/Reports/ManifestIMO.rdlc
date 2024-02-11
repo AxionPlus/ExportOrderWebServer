@@ -857,7 +857,6 @@ WT (KGS)</Value>
                                           <PaddingBottom>2pt</PaddingBottom>
                                         </Style>
                                       </Textbox>
-                                      <rd:Selected>true</rd:Selected>
                                     </CellContents>
                                   </TablixCell>
                                 </TablixCells>
@@ -4593,14 +4592,14 @@ WT (KGS)</Value>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Full45Count1">
+                        <Textbox Name="Empty45Count">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Full45Count.Value</Value>
+                                  <Value>=Fields!Empty45Count.Value</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                   </Style>
@@ -4611,7 +4610,7 @@ WT (KGS)</Value>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Full45Count1</rd:DefaultName>
+                          <rd:DefaultName>Empty45Count</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -4622,6 +4621,7 @@ WT (KGS)</Value>
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>

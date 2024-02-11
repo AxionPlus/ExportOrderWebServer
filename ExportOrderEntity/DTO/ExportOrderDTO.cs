@@ -38,7 +38,7 @@ public class ExportOrderDTO
     public string? Measurement { get; set;}
 
     public string? Commodities { get; set; }
-    public string? TotalCommodities { get; set; }
+    //public string? TotalCommodities { get; set; }
     public uint TotalCntrCount { get; set; }
     public uint? TotalPackages { get; set; }
     public double? TotalGrossWeight { get; set; }

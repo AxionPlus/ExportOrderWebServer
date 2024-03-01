@@ -118,13 +118,13 @@
     @if (!IsSelectable)
     {
         <div class="container-column" style="width:180px; max-height:fit-content; margin-left:20px">
-            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(false); })"
+            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestReport_Click(false); })"
                         Style="width:142px; margin-bottom:10px;"
                         Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                         StartIcon="@Icons.Material.Filled.Preview">
                 CGO Manifest
             </MudButton>
-            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestsReport_Click(true); })"
+            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestReport_Click(true); })"
                         Style="width:142px; margin-bottom:10px"
                         Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small"
                         StartIcon="@Icons.Material.Filled.Preview">
@@ -303,7 +303,7 @@
         MudDialog!.Close(vcdId);
     }
 
-    private async Task ManifestsReport_Click(bool _isImo)
+    private async Task ManifestReport_Click(bool _isImo)
     {        
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;

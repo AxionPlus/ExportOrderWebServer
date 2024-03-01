@@ -223,9 +223,6 @@
 
     private async Task ShowItem_Click(long id)
     {
-        // if (MudDialog is not null)
-        //     MudDialog.Close(DialogResult.Ok(id));
-
         DialogParameters parameters = new DialogParameters { ["Id"] = id };
         DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
         var dialog = await DialogService.ShowAsync<ExportOrder_ItemDialog>(null, parameters, options);
@@ -285,8 +282,6 @@
         string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
 
         await jSRuntime.InvokeVoidAsync("open", path);
-        //TimeSpan timeSpan = new TimeSpan(0,0,0,0,200);
-        //await jSRuntime.InvokeVoidAsync("open", timeout: timeSpan, path);
     }
 
     private async Task SaveXMLfile_Click(long id)

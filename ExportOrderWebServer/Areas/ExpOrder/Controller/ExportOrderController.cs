@@ -7,7 +7,7 @@ namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
 [Route("server/[controller]")]
 [Controller]
-
+[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 public class ExportOrderController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
@@ -152,23 +152,6 @@ public class ExportOrderController : ControllerBase
 
             string CntrTypes = string.Join("\n", CntrTypesGroup.Select(ctg => ctg.CntrTypes));
 
-            //// список контейнеров OEL
-
-            //string CntrListOEL = string.Join("\n", Records.Select(cr =>
-            //(
-            //    cr.Cntr + "                                                              " +
-            //    cr.RecordCommoditiesEn + "                                                              " +
-            //    (cr.GrossWt == null ? "0" : cr.GrossWt.Value.ToString("########0.000", CultureInfo.GetCultureInfo("en-US"))) + " KGS" +
-            //    "\n" + "CS:" + cr.Seal + "\n" + "FCL/FCL" + "\n" + "LINER" + "\n" + "CY/CY" + "\n"
-            //)));
-
-            //string CntrListRecords = string.Join("\n", Records.Select(cr =>
-            //(
-            //    cr.Cntr + "    " + cr.CntrType + "    " + cr.Seal + "    " + cr.PackageQty + "    " + cr.PackageName + "    " + 
-            //    cr.GrossWt + "    " + cr.CntrTareWt + "    " + (cr.GrossWt + cr.CntrTareWt)
-            //)
-            //));
-
             // общие данные
             var dsItem = Items.Select(x => new
             {  
@@ -245,7 +228,7 @@ public class ExportOrderController : ControllerBase
                                 break;
                         }
 
-                        switch (record.RecordCommoditiesEn.Length)
+                        switch (record.RecordCommoditiesEn!.Length)
                         {
                             case <= 35:
                                 break;

@@ -575,9 +575,9 @@ public class VesselCallProvider : IVesselCallProvider
             var result = new List<string>();
 
             if (!string.IsNullOrEmpty(vessel))
-                result = await db.VesselCalls.Where(s => s.Vessel.Name == vessel).Select(s => s.VoyageNo!).ToListAsync();
+                result = await db.VesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(x => x.CreateTime).Select(s => s.VoyageNo!).ToListAsync();
             else
-                result = await db.VesselCalls.Select(s => s.VoyageNo!).ToListAsync();
+                result = await db.VesselCalls.OrderByDescending(x => x.CreateTime).Select(s => s.VoyageNo!).ToListAsync();
 
             return result;
         }

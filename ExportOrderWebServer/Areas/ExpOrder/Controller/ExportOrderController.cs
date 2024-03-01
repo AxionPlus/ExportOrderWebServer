@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using ExportOrderWebServer.Service;
-using System.Globalization;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 

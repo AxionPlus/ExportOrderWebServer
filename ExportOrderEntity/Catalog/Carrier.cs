@@ -37,5 +37,6 @@ public enum BLTemplate
     soling,
     transsinergia,
     nca,
-    oel
+    oel,
+    lotka
 }

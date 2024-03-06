@@ -7,7 +7,7 @@ public class ExcelCreateService : IDisposable
 {
     private readonly string TempFilePath;
     private readonly uint ExcelAppPid;
-    private readonly IEnumerable<VoyageManifestDTO> Items;  //ManifestDTO
+    private readonly IEnumerable<VoyageManifestDTO> Items;
 
     private Excel.Application? ExcelApp;
     private Excel.Workbooks? Workbooks;
@@ -16,7 +16,7 @@ public class ExcelCreateService : IDisposable
     private Excel.Worksheet? WorkSheet;
     private Excel.Range? Range;
 
-    public ExcelCreateService(string tempFilePath, IEnumerable<VoyageManifestDTO> items)  //ManifestDTO
+    public ExcelCreateService(string tempFilePath, IEnumerable<VoyageManifestDTO> items)
     {
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
@@ -115,7 +115,6 @@ public class ExcelCreateService : IDisposable
                     dataBulk[row, 7] = carrier.ElementAt(row).RecordConsignees!;
                     dataBulk[row, 8] = carrier.ElementAt(row).RecordConsigneesCountries!;
                     dataBulk[row, 9] = carrier.ElementAt(row).Cntr;
-                    //dataBulk[row, 10] = carrier.ElementAt(row).Commodities!;
                     dataBulk[row, 10] = carrier.ElementAt(row).RecordCommodities!;
                     dataBulk[row, 11] = carrier.ElementAt(row).GrossWeights! == 0 ? carrier.ElementAt(row).CntrTareWt : carrier.ElementAt(row).GrossWeights!;
                     dataBulk[row, 12] = carrier.ElementAt(row).PackageQtys!;

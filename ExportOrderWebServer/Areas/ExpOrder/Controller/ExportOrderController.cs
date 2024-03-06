@@ -5,9 +5,10 @@ using ExportOrderWebServer.Service;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
+//[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+
 [Route("server/[controller]")]
 [Controller]
-[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 public class ExportOrderController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;

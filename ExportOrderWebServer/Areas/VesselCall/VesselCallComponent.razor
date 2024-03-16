@@ -199,7 +199,7 @@
             {
                 <MudTd>
                     <MudTooltip Text="Upload">
-                        <MudIconButton Icon="@Icons.Material.Filled.UploadFile" OnClick="@(async()=>{ await SelectItem_Click(context.Id); })" />
+                        <MudIconButton Icon="@Icons.Material.Filled.UploadFile" OnClick="@(async()=>{ await SelectItem_Click(context.Id, context.Status); })" />
                     </MudTooltip>
                 </MudTd>
             }
@@ -297,9 +297,21 @@
         await GetItems();
     }
 
-    private async Task SelectItem_Click(long vcdId)
+    private async Task SelectItem_Click(long vcdId, EntityStatus? status)
     {
         await Task.Delay(50);
+
+        if (status.Equals(EntityStatus.Completed))
+        {
+            bool? result = await DialogService.ShowMessageBox(
+                "Warning",
+                "Unable select Vessel Call due to status - Completed.",
+                yesText: "Close", cancelText: null);
+
+            await InvokeAsync(StateHasChanged);
+            return;
+        }                
+
         MudDialog!.Close(vcdId);
     }
 

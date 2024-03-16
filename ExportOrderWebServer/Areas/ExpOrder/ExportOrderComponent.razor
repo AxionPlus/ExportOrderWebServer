@@ -214,7 +214,7 @@
         if (!response.HasError)
             Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
 
-        await Task.Delay(500);        
+        //await Task.Delay(500);        
 
         IsLoadingData = false;
 
@@ -244,8 +244,8 @@
         
         bool? result = await DialogService.ShowMessageBox(
                  "Delete record",
-                 (MarkupString)$"<b>Do you want to remove record with {num}?<b>",
-                 yesText: "REMOVE", cancelText: "NO");
+                 (MarkupString)$"Do you want to Delete record <b>{num}</b> ?",
+                 yesText: "DELETE!", cancelText: "NO");
 
         if (!result.HasValue) return;
 
@@ -265,9 +265,9 @@
 
         await GetItems();
 
-        IsLoadingData = false;
+        //IsLoadingData = false;
 
-        await InvokeAsync(StateHasChanged);
+        //await InvokeAsync(StateHasChanged);
 
     }
 

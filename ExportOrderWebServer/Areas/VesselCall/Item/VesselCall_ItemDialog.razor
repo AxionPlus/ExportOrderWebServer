@@ -100,7 +100,7 @@
                 <MudSelect Class="wrapper-input select" Style="width:125px" T="EntityStatus" Label="Status" @bind-Value="Item.Status"
                             ToStringFunc="@(str => str.ToString())"
                             Variant="Variant.Outlined" Margin="Margin.Dense">
-                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                    @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
                     {
                         if (status == EntityStatus.New || status == EntityStatus.Completed)
                         {

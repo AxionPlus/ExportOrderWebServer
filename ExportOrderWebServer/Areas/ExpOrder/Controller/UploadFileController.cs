@@ -60,49 +60,4 @@ public class UploadFileController : ControllerBase
             }
         }
     }
-
-   
-    // NOT USED, DELETE
-    //[HttpPost]
-    //[Route("UploadExportOrder")]
-    //public async Task<UploadResult> UploadExportOrder([FromForm] IEnumerable<IFormFile> files)
-    //{
-    //    string filePath = string.Empty;        
-
-    //    var cntrTypes = await _cntrTypeProvider.GetCntrTypes();
-
-    //    foreach (var file in files)
-    //        if (file != null)
-    //        {
-    //            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-    //            //filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileName);
-    //            filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileName);
-                
-    //            using (var stream = new FileStream(filePath, FileMode.Create))
-    //            {
-    //                file.CopyTo(stream);
-    //            }
-    //        }
-
-    //    using (var exl = new _ExcelUploadService(filePath, cntrTypes, _documentProvider))
-    //    {
-    //        try
-    //        {
-    //            var result = await exl._ReadUploadingFile();
-
-    //            var ur = new UploadResult()
-    //            {
-    //                _ExportOrderRecords = result.Item1.ToList(),
-    //                _Documents = result.Item2.ToList(),
-    //            };
-
-    //            return ur;
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            var msg = ex.Message;
-    //            return new UploadResult() { Summary = new List<string>() { msg } };
-    //        }
-    //    }
-    //}
 }

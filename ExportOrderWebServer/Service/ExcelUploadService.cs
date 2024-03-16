@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -52,7 +51,7 @@ public class ExcelUploadService : IDisposable
 
         #endregion
 
-        var Records = new List<UploadExcelDTO>();
+        var UploadResult = new List<UploadExcelDTO>();
 
         try
         {
@@ -73,7 +72,7 @@ public class ExcelUploadService : IDisposable
 
             foreach (var records in recordsArray)
             {
-                Records.Add(new UploadExcelDTO()
+                UploadResult.Add(new UploadExcelDTO()
                 {
                     DocumentName = (records[colDoc]).Trim(),
                     SeqCommodity = int.TryParse(records[colCargoIndex], out int _cIndex) ? _cIndex : 0,
@@ -83,8 +82,8 @@ public class ExcelUploadService : IDisposable
                     Seal = records[colSeal],
                     PackageQty = uint.TryParse(records[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
                     PackageName = records[colPackageName],
-                    NetWt = double.TryParse(records[colNet], out double _netWt) ? _netWt : 0,
-                    GrossWt = double.TryParse(records[colGross], out double _gwt) ? _gwt : 0,
+                    NetWt = double.TryParse(records[colNet], out double _netWt) ? Math.Round(_netWt, 3, MidpointRounding.AwayFromZero)  : 0,
+                    GrossWt = double.TryParse(records[colGross], out double _gwt) ? Math.Round( _gwt, 3, MidpointRounding.AwayFromZero) : 0,
                 });
             }
         }
@@ -95,7 +94,7 @@ public class ExcelUploadService : IDisposable
         }
 
         await Task.Delay(200);
-        return (Records);
+        return (UploadResult);
     }
 
 

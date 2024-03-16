@@ -399,7 +399,7 @@ public class DocumentProvider : IDocumentProvider
         }
     }
 
-    public async Task<IEnumerable<DocumentEntity>> GetDocumentItemsToUploadAsync()
+    public async Task<IEnumerable<DocumentEntity>> GetDocumentItemsToCheckAsync()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {

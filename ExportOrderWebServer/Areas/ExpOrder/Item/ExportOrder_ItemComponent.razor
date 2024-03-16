@@ -627,93 +627,106 @@
 
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        try
         {
-            if (result.Data != null)
+            if (!result.Canceled)
             {
-                uploadResult = (CheckedUploadResult)result.Data;
-
-                var checkedRecords = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.CntrNum);
-                var checkedDocuments = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.DocumentName);
-
-                var records = new List<ExportOrderRecord>();
-                var documents = new List<DocumentEntity>();
-
-                // RECORDS
-                foreach (var recordResult in checkedRecords)
+                if (result.Data != null)
                 {
-                    var newRecord = new ExportOrderRecord()
+                    uploadResult = (CheckedUploadResult)result.Data;
+
+                    if (uploadResult.UploadedDTO == null) return;
+
+                    var checkedRecords = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.CntrNum);
+                    var checkedDocuments = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.DocumentName);
+
+                    var records = new List<ExportOrderRecord>();
+                    var documents = new List<DocumentEntity>();
+
+                    // RECORDS
+                    foreach (var recordResult in checkedRecords)
                     {
-                        CntrNum = recordResult.FirstOrDefault()!.CntrNum!,
-                        CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == recordResult.FirstOrDefault()!.CntrType),
-                        CntrTareWt = recordResult.FirstOrDefault()!.CntrTareWt,
-                        Seal = string.IsNullOrEmpty(recordResult.FirstOrDefault()!.Seal) ? string.Empty : recordResult.FirstOrDefault()!.Seal!,
-                    };
-
-                    foreach (var contentResult in recordResult)
-                    {   
-                        var Document = await _documentProvider.GetDocumentAsync(contentResult.DocumentName!);
-
-                        var content = new ContainerContent()
+                        var newRecord = new ExportOrderRecord()
                         {
-                            PackageQty = contentResult.PackageQty,
-                            PackageName = contentResult.PackageName,
-                            NetWt = contentResult.NetWt,
-                            GrossWt = contentResult.GrossWt,
-                            DocumentRecord = await _documentProvider.GetDocumentRecordAsync(Document!.Name!, (int)contentResult.SeqCommodity!)
+                            CntrNum = recordResult.FirstOrDefault()!.CntrNum!,
+                            CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == recordResult.FirstOrDefault()!.CntrType),
+                            CntrTareWt = recordResult.FirstOrDefault()!.CntrTareWt,
+                            Seal = string.IsNullOrEmpty(recordResult.FirstOrDefault()!.Seal) ? string.Empty : recordResult.FirstOrDefault()!.Seal!,
                         };
 
-                        content.DocumentRecord.Document = Document;
+                        foreach (var contentResult in recordResult)
+                        {   
+                            var Document = await _documentProvider.GetDocumentAsync(contentResult.DocumentName!);
 
-                        newRecord.Contents.Add(content);
+                            var content = new ContainerContent()
+                            {
+                                PackageQty = contentResult.PackageQty,
+                                PackageName = contentResult.PackageName,
+                                NetWt = contentResult.NetWt,
+                                GrossWt = contentResult.GrossWt,
+                                DocumentRecord = await _documentProvider.GetDocumentRecordAsync(Document!.Name!, (int)contentResult.SeqCommodity!)
+                            };
+
+                            content.DocumentRecord.Document = Document;
+
+                            newRecord.Contents.Add(content);
+                        }
+
+                        records.Add(newRecord);
+                        newRecord = null;
                     }
 
-                    records.Add(newRecord);
-                    newRecord = null;
-                }
-
-                // DOCUMENTS
-                //Remove old documents from the page (export order Records removing too)
-                foreach (var documentItem in DocumentItems)
-                {
-                    foreach (var documentRecordItem in DocumentRecordItems)
-                        DocumentRecordItems.Remove(documentRecordItem);
-
-                    DocumentItems.Remove(documentItem);
-                }
-
-                // add new documents
-                foreach (var checkedDocument in checkedDocuments)
-                {
-                    var Document = await _documentProvider.GetDocumentAsync(checkedDocument.FirstOrDefault()!.DocumentName!);
-
-                    foreach (var existedRecord in Document!.Records)
+                    // DOCUMENTS
+                    // Remove old documents from the page (export order Records removing too)
+                    if (DocumentItems.Count > 0)
                     {
-                        if (!checkedDocument.Any(d => d.SeqCommodity == existedRecord.Seq))
-                            Document!.Records.Remove(existedRecord);
-                        else
-                            existedRecord.Document = Document;
+                        foreach (var documentItem in DocumentItems)
+                        {
+                            foreach (var documentRecordItem in DocumentRecordItems)
+                                DocumentRecordItems.Remove(documentRecordItem);
+
+                            DocumentItems.Remove(documentItem);
+                        }
                     }
-                    
-                    //newDocument!.Records.Clear();
-                    documents.Add(Document);
+
+                    // add new documents
+                    foreach (var checkedDocument in checkedDocuments)
+                    {
+                        var Document = await _documentProvider.GetDocumentAsync(checkedDocument.Key!);
+
+                        if (Document is null) continue;
+
+                        var existedRecords = Document.Records.ToList();
+
+                        foreach (var existedRecord in existedRecords)
+                        {
+                            if (!checkedDocument.Any(d => d.SeqCommodity == existedRecord.Seq))
+                                Document!.Records.Remove(existedRecord);
+                            // else
+                            //     existedRecord.Document = Document;
+                        }
+            
+                        //newDocument!.Records.Clear();
+                        documents.Add(Document);
+                    }
+
+                    Value!.Records = records;
+                    Value.Documents = documents;
+
+                    Snackbar.Add($"Uploaded", Severity.Success);
+
+                    await ValueChanged.InvokeAsync(Value);
+
+                    GetDocumentItems();
+                    //await InvokeAsync(StateHasChanged);
                 }
-
-                // foreach (var record in records)
-                //     foreach (var cntrContent in record.Contents)
-                //         cntrContent.DocumentRecord.Document = documents.First(s => s.Records.Any(s => s.Id == cntrContent.DocumentRecord.Id));
-
-                Value!.Records = records;
-                Value.Documents = documents;
-
-                Snackbar.Add($"Uploaded", Severity.Success);
-
-                await ValueChanged.InvokeAsync(Value);
-
-                GetDocumentItems();
-                //await InvokeAsync(StateHasChanged);
             }
         }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            Console.WriteLine(msg);
+        }        
     }
 
     private async Task DownloadExcelTemplate()

@@ -33,6 +33,7 @@ public class FilterParameters
 
     [MaxLength(11)]
     public string? CntrNum { get; set; }
+    public List<string> CntrsNum { get; set; } = new List<string>();
     public string? CntrType { get; set; }
     public bool? CntrIsSOC { get; set; }
 

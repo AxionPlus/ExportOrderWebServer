@@ -1,0 +1,77 @@
+﻿@using ExportOrderWebServer.Areas.ExpOrder
+@inject IDialogService DialogService
+
+<style>
+/*     .searchBadge .mud-badge.mud-badge-top.right.mud-badge-overlap {
+        inset: auto auto calc(100% - 23px) calc(100% - 24px);
+    }
+
+    .searchBadge .mud-badge {
+        font-size: 11px;
+        height: 18px;
+        min-width: 18px;
+    } */
+</style>
+
+<div class="FieldContainer" style="min-width:150px; @Style">
+    <div class="fieldName">@Label</div>
+    <div style="display: inline-flex; width:100%;">
+        <MudTextField T="string" Class="TextField"                        
+                      Value="CntrNum"
+                      ValueChanged="@(async(e)=>{ await CntrNumChanged.InvokeAsync(e); } )"
+                      Variant="Variant.Outlined"
+                      Required="@Required" RequiredError=""
+                      MaxLength="11"
+                      Placeholder="Container"
+                      Immediate
+                      Clearable
+                      OnClearButtonClick="async(_)=> {
+                        await CntrNumChanged.InvokeAsync(string.Empty);
+                        await CntrsChanged.InvokeAsync(new());
+                      }">
+        </MudTextField>
+@*         <div style="margin-inline:2px"></div>
+        <MudBadge Class="searchBadge" Color="Color.Info" Origin="@Origin.TopCenter" Content="@(Cntrs.Count())">
+            <MudIconButton Style="margin-top:5px" Class="TextFieldIconButton" Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Small" OnClick="CntrList"></MudIconButton>
+        </MudBadge> *@
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Label { get; set; }
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public string? CntrNum { get; set; }
+    [Parameter]
+    public EventCallback<string> CntrNumChanged { get; set; }
+    [Parameter]
+    public bool Required { get; set; }
+    [Parameter]
+    public List<string?> Cntrs { get; set; }
+    [Parameter]
+    public EventCallback<List<string>> CntrsChanged { get; set; }
+
+    private async Task CntrList()
+    {
+        var str = new StringBuilder();
+        foreach (var item in Cntrs)
+            str.AppendLine(item);
+
+        var parameters = new DialogParameters { ["Text"] = str.ToString() };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<ExportOrderComponent_InputListCntr>($"Input {Label}", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await CntrNumChanged.InvokeAsync("Select many");
+            await CntrsChanged.InvokeAsync((List<string>)result.Data);            
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+}

@@ -1,0 +1,41 @@
+﻿<style>
+    .PathData * .mud-input > textarea.mud-input-root-outlined {
+        margin: 8px;
+    }
+</style>
+
+<MudContainer MaxWidth="MaxWidth.Small" Style="padding:10px; min-width: 280px;">
+
+    <MudTextField Class="PathData" T="string" Lines="25" Variant="Variant.Outlined" @bind-Text="@Text" />
+    <div style="display:flex; justify-content: space-between;">
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Select_Click">Select</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="(_)=>{Text = string.Empty;}">Clear</MudButton>
+    </div>
+
+</MudContainer>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter]
+    public string? Text { get; set; }
+
+    private List<string> TextList { get; set; } = new List<string>();
+
+    private void Select_Click()
+    {
+        if (string.IsNullOrWhiteSpace(Text))
+            return;
+
+        var lines = Text.Replace("\"", "").Split("\n");
+
+        foreach (var item in lines)
+        {
+            if (string.IsNullOrWhiteSpace(item))
+                continue;
+
+            TextList.Add(item.Trim());
+        }
+
+        MudDialog?.Close(DialogResult.Ok(TextList));
+    }
+}

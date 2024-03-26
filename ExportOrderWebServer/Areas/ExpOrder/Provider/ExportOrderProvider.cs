@@ -1,4 +1,6 @@
-﻿public class ExportOrderProvider : IExportOrderProvider
+﻿using System.Linq;
+
+public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
@@ -240,13 +242,19 @@
             {
                 var filter = (FilterParameters)parameters;
 
-                var exportOrders = await db.ExportOrders
+                var exportOrders = await db.ExportOrders.AsNoTracking()
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel)
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal)
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
                                                         .Include(eo => eo.Carrier)
                                                         .Include(eo => eo.Records).ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord)
                                                         .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated : true)
+                                                        .Where(eo => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :                                                                        
+                                                                            eo.Records.Any(eor => eor.CntrNum.Equals(filter.CntrNum)))
+                                                        //.Where(eo => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :
+                                                        //                filter.CntrNum.Contains("select", StringComparison.CurrentCultureIgnoreCase) ? eo.Records.Any(eor => eor.CntrNum.Equals(filter.CntrsNum.Any())) :
+                                                        //                    eo.Records.Any(eor => eor.CntrNum.Equals(filter.CntrNum)))
+                                                        .AsSplitQuery()
                                                         .ToListAsync();
 
                 var ItemsDTO = eoComponentRecord(exportOrders);
@@ -258,8 +266,12 @@
                             && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage))
                         ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
 
+                // Cntr Num
                 //if (!string.IsNullOrEmpty(filter.CntrNum))
-                //    ItemsDTO = ItemsDTO.Where(s => s.Cntr == filter.CntrNum).ToList();
+                //    if (filter.CntrNum.Contains("select", StringComparison.CurrentCultureIgnoreCase))
+                //        ItemsDTO = ItemsDTO.Where(s => s.Cntr.Contains(filter.CntrsNum.Any(), StringComparison.CurrentCultureIgnoreCase));
+                //    else
+                //        ItemsDTO = ItemsDTO.Where(s => s.Cntr == filter.CntrNum).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Num))
                     ItemsDTO = ItemsDTO.Where(s => s.Num == filter.Num).ToList();
@@ -1094,6 +1106,7 @@
             {                
                 Id = record.Id,
                 Num = record.Num,
+                //Cntr = record.Records.Count > 0 ? string.Join(", ", record.Records.Select(s => s.CntrNum).ToList()) : null,
                 Dated = record.Dated != null ? record.Dated!.Value.ToString("dd.MM.yy") : "---",
                 Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
                 Voyage = record.VesselCallDetail!.VesselCall.VoyageNo,
@@ -1120,5 +1133,6 @@
         else
             return null;
     };
+
     #endregion
 }

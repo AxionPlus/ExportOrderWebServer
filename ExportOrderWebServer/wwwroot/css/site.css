@@ -514,3 +514,40 @@ body {
         min-width: 960px;
     }
 }
+
+
+/*FieldContainer*/
+/*.FieldContainer {
+    display: block;
+    padding-top: 6px;
+    padding-bottom: 2px;
+}
+
+    .FieldContainer .mud-input-control {
+        margin-top: 2px;
+    }
+
+    .FieldContainer > .fieldName {
+        padding-left: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+        .FieldContainer > .fieldName.checkBox {
+            display: flex;
+            justify-content: center;
+            padding-left: unset
+        }
+
+        .FieldContainer > .fieldName.mtySpace {
+            margin-top: 17px;
+        }
+
+    .FieldContainer .context {
+        display: flex;
+    }
+
+    .FieldContainer * .mud-input-control-helper-container {
+        display: none;
+    }*/

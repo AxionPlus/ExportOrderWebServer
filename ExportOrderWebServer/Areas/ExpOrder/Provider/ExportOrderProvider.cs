@@ -210,6 +210,8 @@ public class ExportOrderProvider : IExportOrderProvider
                                             .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
                                             .AsNoTracking()
                                             .Where(x => x.VesselCallDetail!.VesselCall!.Id == id)
+                                            .Where(x => x.Status.Equals(EntityStatus.New) || x.Status.Equals(EntityStatus.Issued))
+                                            //.Where(x => x.Status.Equals(EntityStatus.Issued))
                                             .AsSplitQuery()
                                             .ToListAsync();
                                 

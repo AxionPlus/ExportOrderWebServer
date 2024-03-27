@@ -213,8 +213,9 @@
             @if (!IsSelectable)
             {
                 <MudTd Style="text-align:start">
-                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Disabled
-                                OnClick="@(async()=>{ await RemoveItemDetail_Click(context.Id, context.POD!); })" />
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary"
+                                   Disabled="@(ApplicationParameter.ApplicationUser == "Manager")"                                   
+                                   OnClick="@(async()=>{ await RemoveItemDetail_Click(context.Id, context.POD!); })" />
                 </MudTd>                
             }
             <MudTd></MudTd>
@@ -279,9 +280,11 @@
     private async Task RemoveItemDetail_Click(long id, string pod)
     {
         bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b><br/>For discharge port: {pod}",
-                          yesText: "YES", cancelText: "NO");
+                          "REMOVE",
+                          (MarkupString)$"Do you want Delete record?<br/>For discharge port:<b>{pod}</b>",
+                          yesText: "DELETE!", cancelText: "NO");
+
+        IsLoadingData = true;
 
         if (msgResult.HasValue)
             if (msgResult.Value)
@@ -293,6 +296,8 @@
                 else
                     Snackbar.Add($"Unable to delete:<br>{response.Error.FirstOrDefault()}", Severity.Warning);
             }
+
+        IsLoadingData = false;
 
         await GetItems();
     }

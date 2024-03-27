@@ -428,39 +428,40 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        appObjResponse = new();
+        throw new NotImplementedException();
+        //appObjResponse = new();
 
-        try
-        {
-            using (var _db = _dbContext.CreateDbContextAsync())
-            {
-                var db = await _db;
+        //try
+        //{
+        //    using (var _db = _dbContext.CreateDbContextAsync())
+        //    {
+        //        var db = await _db;
 
-                // check an Existing item
-                var existedItem = await db.VesselCalls.Where(s => s.Id == id).FirstOrDefaultAsync();
+        //        // check an Existing item
+        //        var existedItem = await db.VesselCalls.Where(s => s.Id == id).FirstOrDefaultAsync();
 
-                if (existedItem is null)
-                {
-                    appObjResponse.ErrorAdd("Record wasn't deleted");
-                    return appObjResponse;
-                }
+        //        if (existedItem is null)
+        //        {
+        //            appObjResponse.ErrorAdd("Record wasn't deleted");
+        //            return appObjResponse;
+        //        }
 
-                db.Entry(existedItem).State = EntityState.Deleted;
+        //        db.Entry(existedItem).State = EntityState.Deleted;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
+        //        var bug = db.ChangeTracker.DebugView.LongView;
+        //        await db.SaveChangesAsync();
 
-                return appObjResponse;
-            }
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-            appObjResponse.ErrorAdd(msg);
-            return appObjResponse;
-        }
+        //        return appObjResponse;
+        //    }
+        //}
+        //catch (Exception ex)
+        //{
+        //    string msg = ex.Message;
+        //    appObjResponse.ErrorAdd(msg);
+        //    return appObjResponse;
+        //}
     }
 
 
@@ -504,35 +505,24 @@ public class VesselCallProvider : IVesselCallProvider
             {
                 var db = await _db;
 
-                // check an Existing item
+                // check an Existing item - Vessel Call Detail
                 var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).Include(vcd => vcd.ExportOrders).FirstOrDefault();
 
                 if (existedItem is null)
-                {
                     appObjResponse.ErrorAdd("There is no Record to delete.");
-                    return appObjResponse;
-                }
-
-                //var existedExportOrders = db.ExportOrders.Where(eo => eo.VesselCallDetail!.Id == id);
-
-                //if (existedExportOrders.Count() > 0)
-                //{
-                //    appObjResponse.ErrorAdd($"");
-                //    return appObjResponse;
-                //}
-
-
-                // Find Export Orders in Existing Item
-                if (db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == id))
+                else
                 {
-                    appObjResponse.ErrorAdd($"Vessel Call has an Export Orders issued.");
-                    return appObjResponse;
+                    // Find an Export Orders in Existing Item
+                    if (db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == id))
+                        appObjResponse.ErrorAdd($"Vessel Call has an Export Orders issued.<br/>Delete all of it's Export Orders first.");
+                    else
+                    {
+                        db.Entry(existedItem).State = EntityState.Deleted;
+
+                        var bug = db.ChangeTracker.DebugView.LongView;
+                        await db.SaveChangesAsync();
+                    }
                 }
-
-                db.Entry(existedItem).State = EntityState.Deleted;
-
-                var bug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
 
                 return appObjResponse;
             }

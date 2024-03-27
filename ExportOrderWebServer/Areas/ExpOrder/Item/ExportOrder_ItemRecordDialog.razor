@@ -53,8 +53,9 @@
 
     <div class="Container-item">
         <div class="container-content">
-             <MudTextField T="string" Label="Cntr num" MaxLength="11" Value="@Item!.CntrNum"
+             <MudTextField T="string" Label="Cntr num" MaxLength="11" @ref="CNum" Value="@Item!.CntrNum"
                           ValueChanged="(e) => { Item.CntrNum = e.ToUpper(); }"
+                          OnBlur="@(async () => { await CheckCntrNum(Item.CntrNum); })"
                           Style="width:180px" Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required RequiredError="" Clearable />
              <MudSelect Class="CntrType" T="CntrTpSz" Label="Type" @bind-Value="@Item.CntrType"
@@ -154,9 +155,10 @@
 
 </MudForm>
 
- @code {
+@code {
     private MudForm? Form { get; set; }
     private MudTable<ContainerContent>? mudTable;
+    MudTextField<string>? CNum { get; set; }
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
@@ -176,7 +178,7 @@
         if (first)
             CntrTypes = await _cntrTypeProvider.GetCntrTypes();
     }
-        
+
     protected override async void OnInitialized()    
     {
         await GetItem();
@@ -223,7 +225,7 @@
                     Snackbar.Add(response.Error.FirstOrDefault(), Severity.Warning);
                     return;
                 }
-                
+
                 // check for empty Document
                 bool errDocument = false;
 
@@ -265,6 +267,62 @@
     {
         await Task.Delay(50);
         IsFormReadOnly = false;
+    }
+
+    // Move to separate Service
+    private async Task CheckCntrNum(string num)
+    {
+        if (num is not null)
+        {
+            if (num.Length < 11) return;
+
+            // Chars in CntrNum
+            char[] chars = new char[26]
+            {
+                        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+            };
+
+            // digital equivalents:
+            int[] ControlEquivalents = new int[26]
+            {
+                        10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28, 29,30, 31, 32, 34, 35, 36, 37, 38
+            };
+
+            //int equivalentIndex1 = Array.IndexOf(ControlEquivalents, record.CntrNum.Substring(0, 1));
+            int DigitalEquivalent1 = ControlEquivalents[Array.IndexOf(chars, Convert.ToChar(num.Substring(0, 1)))] * (int)Math.Pow(2, 0);
+            int DigitalEquivalent2 = ControlEquivalents[Array.IndexOf(chars, Convert.ToChar(num.Substring(1, 1)))] * (int)Math.Pow(2, 1);
+            int DigitalEquivalent3 = ControlEquivalents[Array.IndexOf(chars, Convert.ToChar(num.Substring(2, 1)))] * (int)Math.Pow(2, 2);
+            int DigitalEquivalent4 = ControlEquivalents[Array.IndexOf(chars, Convert.ToChar(num.Substring(3, 1)))] * (int)Math.Pow(2, 3);
+
+            // Digits in CntrNum
+            int digit1 = Convert.ToInt32(num.Substring(4, 1)) * (int)Math.Pow(2, 4);
+            int digit2 = Convert.ToInt32(num.Substring(5, 1)) * (int)Math.Pow(2, 5);
+            int digit3 = Convert.ToInt32(num.Substring(6, 1)) * (int)Math.Pow(2, 6);
+            int digit4 = Convert.ToInt32(num.Substring(7, 1)) * (int)Math.Pow(2, 7);
+            int digit5 = Convert.ToInt32(num.Substring(8, 1)) * (int)Math.Pow(2, 8);
+            int digit6 = Convert.ToInt32(num.Substring(9, 1)) * (int)Math.Pow(2, 9);
+
+            // sum of ControlEquivalents multiplications (Characters only)
+            int multiplicationOfChars = DigitalEquivalent1 + DigitalEquivalent2 + DigitalEquivalent3 + DigitalEquivalent4;
+
+            // sum of Serial numbers multiplications (Digits only)
+            int multiplicationOfDigits = digit1 + digit2 + digit3 + digit4 + digit5 + digit6;
+
+            // Остаток от деления на 11 по модулю
+            int Remainder = (multiplicationOfChars + multiplicationOfDigits) % 11;
+
+            if (Remainder == 10) Remainder = 0;
+            
+            if (Convert.ToInt32(num.Substring(10, 1)) == Remainder)
+                return;
+
+            bool? result = await DialogService.ShowMessageBox(
+                            "Non-compliance",
+                            (MarkupString)$"Контрольная цифра в номере контейнера не верна. Правильно - {Remainder}.",
+                            yesText: "Ok");
+
+            //await CNum.FocusAsync();
+        }
     }
 
     #region SEARCH METHODS

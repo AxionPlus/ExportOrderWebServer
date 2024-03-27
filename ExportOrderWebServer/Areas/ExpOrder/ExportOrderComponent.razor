@@ -190,7 +190,7 @@
             </MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
             <MudTd>
-                <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
+                <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || IsBtnClicked)" Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
                                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
             </MudTd>
             <MudTd></MudTd>
@@ -201,7 +201,7 @@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
-    @code {
+@code {
     private MudTable<ExportOrderComponentDTO>? mudTable;
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -209,8 +209,8 @@
     public IEnumerable<ExportOrderComponentDTO>? Items { get; set; } = new List<ExportOrderComponentDTO>();
     private IEnumerable<string>? CntrList { get; set; }
     private FilterParameters Filter { get; set; } = new();
-    private bool IsLoadingData {get; set; } = false;
-
+    private bool IsLoadingData { get; set; } = false;
+    private bool IsBtnClicked { get; set; } = false;
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
@@ -244,40 +244,48 @@
 
     private async Task RemoveItem_Click(long id, string num)
     {
+        IsBtnClicked = true;
+
         // check Satus before delete
         if (Items!.FirstOrDefault(eoc => eoc.Id == id)!.Status != EntityStatus.New)
         {
             Snackbar.Add($"Удалить можно только новую запись: Status - New.", Severity.Warning);
-            return;
+
+            if (ApplicationParameter.ApplicationUser.Equals("Manager"))
+                return;
         }
-        
+                
+        await Task.Delay(1000);
+
         bool? result = await DialogService.ShowMessageBox(
-                 "Delete record",
-                 (MarkupString)$"Do you want to Delete record <b>{num}</b> ?",
+                 "Delete",
+                 (MarkupString)$"Do you want Delete record?<br/><b>{num}</b>",
                  yesText: "DELETE!", cancelText: "NO");
 
-        if (!result.HasValue) return;
+        IsLoadingData = true;
 
-        if (result.Value)
-        {
-            IsLoadingData = true;
-
-            var response = await _exportOrderProvider.RemoveItemAsync(id);
-            if (!response.HasError)
+        if (result.HasValue)
+            if (result.Value)
             {
-                Items!.ToList().Remove(Items!.FirstOrDefault(eoc => eoc.Id == id)!);
-                Snackbar.Add($"Deleted successfully", Severity.Success);
-            }
-            else
-                Snackbar.Add($"Record wasn't deleted.<br>{response.Error.First()}", Severity.Warning);                
-        }
+                IsLoadingData = true;
 
+                var response = await _exportOrderProvider.RemoveItemAsync(id);
+                if (!response.HasError)
+                {
+                    Items!.ToList().Remove(Items!.FirstOrDefault(eoc => eoc.Id == id)!);
+                    Snackbar.Add($"Deleted successfully", Severity.Success);
+                }
+                else
+                    Snackbar.Add($"Record wasn't deleted.<br/>{response.Error.First()}", Severity.Warning);
+            }
+        
+        IsLoadingData = false;
+        
         await GetItems();
 
-        //IsLoadingData = false;
+        IsBtnClicked = false;
 
         //await InvokeAsync(StateHasChanged);
-
     }
 
     private async Task ViewReportExpOrder_Click(long id)

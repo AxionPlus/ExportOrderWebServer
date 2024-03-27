@@ -123,13 +123,15 @@ public class CheckUploadResultService
                 else
                     errList.Add($"{errMessagePrefix} Декларации нет в базе данных.");
 
+
+                #region Move to separate Service
+
                 // Container Num DUPLICATION in Voyage
                 if (VesselCall is not null)
                     if (VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).SelectMany(eo => eo.Records).Any(eor => eor.CntrNum.Equals(record.CntrNum)))
                         errList.Add($"{errMessagePrefix} Cntr duplicates in: {VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).FirstOrDefault(eo => eo.Records.Any(eor => eor.CntrNum.Equals(record.CntrNum)))!.Num}.");
 
                 // CONTAINER NUM CONTROL DIGIT
-
                 if (record.CntrNum is not null)
                 {
                     string num = record.CntrNum;
@@ -174,10 +176,12 @@ public class CheckUploadResultService
                     //int div = Math.DivRem((multiplicationOfChars + multiplicationOfDigits), 11, out Remainder);
 
                     if (Convert.ToInt32(record.CntrNum.Substring(10, 1)) != Remainder)
-                        errList.Add($"{errMessagePrefix} Контрольная цифра в номере контейнера не верна. Правитльно - {Remainder}.");
-                }            
+                        errList.Add($"{errMessagePrefix} Контрольная цифра в номере контейнера не верна. Правильно - {Remainder}.");
+                }
+
+                #endregion
             }
-        
+
             return errList;
         }
     }

@@ -1,4 +1,5 @@
-﻿@inject ISnackbar Snackbar
+﻿@inject AuthenticationStateProvider authenticationStateProvider
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject IJSRuntime jsRuntime
@@ -172,13 +173,35 @@
                     }
             </MudSelect>
             <MudSpacer />
-            <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" Value="Value.Status"
-                       ValueChanged="@(async (e) => Value.Status = await SelectStatus_Change(e))"
+            <MudSelect Class="wrapper-input" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
                        ToStringFunc="@(str => str.ToString())"
                        Variant="Variant.Outlined" Margin="Margin.Dense">
-                @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                @switch (InitialStatus)
                 {
-                    <MudSelectItem Value="@status" />
+                    case EntityStatus.New:
+                        <MudSelectItem Value="@(EntityStatus.Issued)" />
+                        <MudSelectItem Value="@(EntityStatus.Cancelled)" />
+                        break;
+                                
+                    case EntityStatus.Issued:
+                        <MudSelectItem Value="@(EntityStatus.Cancelled)" />
+                        break;
+
+                    case EntityStatus.Cancelled:
+                        if (IsRoleForEdit)
+                        {
+                            <MudSelectItem Value="@(EntityStatus.New)" />
+                            <MudSelectItem Value="@(EntityStatus.Issued)" />
+                        }
+                        break;
+
+                    case EntityStatus.Completed:
+                        if (IsRoleForEdit)
+                        {
+                            <MudSelectItem Value="@(EntityStatus.New)" />
+                            <MudSelectItem Value="@(EntityStatus.Issued)" />
+                        }
+                        break;
                 }
             </MudSelect>
         </div>
@@ -428,7 +451,7 @@
     [Parameter]
     public bool IsFormReadOnly { get; set; }
     [Parameter]
-    public string InitialStatus { get; set; } = string.Empty;
+    public EntityStatus InitialStatus { get; set; }// = EntityStatus.New;
     [Parameter]
     public long voyageId { get; set; } = 0;
 
@@ -438,16 +461,14 @@
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
 
-    //private UploadResult? uploadResult { get; set; }
     private CheckedUploadResult? uploadResult { get; set; }
 
-    bool IsItemSelected { get; set; }
+    //private bool IsItemSelected { get; set; }
+    private bool IsRoleForEdit = false;
 
-    bool MultiSelectionTreeItemData = false;
     private HashSet<DocumentEntity>? SelectedDocumentValues { get; set; }
     private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
     private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
-    string cons = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -459,7 +480,14 @@
     }
 
     protected override async void OnInitialized()
-    {     
+    {
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        {
+            IsRoleForEdit = true;
+        }
+
         GetDocumentItems();
     }
 
@@ -705,7 +733,7 @@
                             // else
                             //     existedRecord.Document = Document;
                         }
-            
+
                         //newDocument!.Records.Clear();
                         documents.Add(Document);
                     }
@@ -800,37 +828,37 @@
 
     }
 
-    private async Task<EntityStatus> SelectStatus_Change(EntityStatus status)
-    {
-        if (Value is not null)
-        {
-            switch (InitialStatus)
-            {
-                case "New":
-                    if (status == EntityStatus.New || status == EntityStatus.Issued)
-                        return status;
-                    else
-                        return Value.Status;
-                case "Issued":
-                    if (status == EntityStatus.Cancelled || status == EntityStatus.Completed)
-                        return status;
-                    else
-                        return Value.Status;                    
-                case "Cancelled":
-                    return EntityStatus.Cancelled;
-                case "Completed":
-                    return EntityStatus.Completed;
-                default:
-                    return status;
-            }            
-        }
-        else
-            return EntityStatus.New;
-    }
-
     #endregion
 
     #region NOT USED
+
+    // private async Task<EntityStatus> SelectStatus_Change(EntityStatus status)
+    // {
+    //     if (Value is not null)
+    //     {
+    //         switch (InitialStatus)
+    //         {
+    //             case "New":
+    //                 if (status == EntityStatus.New || status == EntityStatus.Issued)
+    //                     return status;
+    //                 else
+    //                     return Value.Status;
+    //             case "Issued":
+    //                 if (status == EntityStatus.Cancelled || status == EntityStatus.Completed)
+    //                     return status;
+    //                 else
+    //                     return Value.Status;
+    //             case "Cancelled":
+    //                 return EntityStatus.Cancelled;
+    //             case "Completed":
+    //                 return EntityStatus.Completed;
+    //             default:
+    //                 return status;
+    //         }
+    //     }
+    //     else
+    //         return EntityStatus.New;
+    // }
 
     // private async Task GetNewItemVersion_Click(int version)
     // {

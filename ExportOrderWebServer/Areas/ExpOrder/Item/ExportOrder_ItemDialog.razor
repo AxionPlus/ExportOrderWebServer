@@ -1,5 +1,7 @@
 ﻿@inject ISnackbar Snackbar
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject IUserProvider UserProvider
+@inject IJSRuntime jsRuntime
 @inject IExportOrderProvider _exportOrderProvider
 
 <style></style>
@@ -8,15 +10,12 @@
 
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">
-            @if (MudDialog != null)
-            {
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Text="EXIT">
-                        <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" OnClick="CloseDialog_Click"
-                                       Icon="@Icons.Material.Outlined.ExitToApp" />
-                    </MudTooltip>
-                </div>
-            }
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Text="EXIT">
+                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" OnClick="CloseDialogOrPage"
+                                   Icon="@Icons.Material.Outlined.ExitToApp" />
+                </MudTooltip>
+            </div>
             @if (IsFormReadOnly)
             {
                 <div class="ToolBar-iconbutton" style="margin-left:20px">
@@ -57,7 +56,7 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" InitialStatus="@InitialStatus" />
+            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" InitialStatus="@Item.Status" />
         }
     </MudForm>
 
@@ -79,20 +78,27 @@
     public bool IsFormReadOnly { get; set; } = true;
     public bool IsLoadingData { get; set; } = false;
     private bool IsAuth = false;
+    private bool IsRoleForEdit = false;
 
-    private string InitialStatus { get; set; } = string.Empty;
-    public bool IsEditSaveBtnsVisible { get; set; } = false;
+    public bool IsEditSaveBtnsVisible { get; set; } = true;
 
 
+    // CHANGE TO: protected override async void
     protected override async Task OnInitializedAsync()
     {
-        await GetItem();
-
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+
         if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
         {
             IsAuth = true;
         }
+
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        {
+            IsRoleForEdit = true;
+        }
+
+        await GetItem();
     }
 
     public async Task GetItem()
@@ -103,7 +109,6 @@
         {
             Item = new();
             IsFormReadOnly = false;
-            IsEditSaveBtnsVisible = true;
         }        
         else
         {
@@ -112,12 +117,9 @@
             {
                 Item = (ExportOrderEntity)response.Object!;
 
-                InitialStatus = Item.Status.ToString();
-
-                if (Item.Status == EntityStatus.New || Item.Status == EntityStatus.Issued)
-                    IsEditSaveBtnsVisible = true;
-                else
-                    IsEditSaveBtnsVisible = false;
+                if (Item.Status.Equals(EntityStatus.Cancelled))
+                    if (!IsRoleForEdit)
+                        IsEditSaveBtnsVisible = false;
             }            
         }
 
@@ -193,7 +195,7 @@
             Item.Num = Item.Status == EntityStatus.Issued || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
 
             Item!.Status = EntityStatus.New;
-            InitialStatus = "New";
+            //InitialStatus = "New";
             IsEditSaveBtnsVisible = true;
 
             IsNewItem = true;
@@ -209,9 +211,17 @@
         IsFormReadOnly = false;
     }
 
-    public async Task CloseDialog_Click()
+    // public async Task CloseDialog_Click()
+    // {
+    //     await Task.Delay(50);
+    //     MudDialog!.Close();
+    // }
+
+    private void CloseDialogOrPage()
     {
-        await Task.Delay(50);
-        MudDialog!.Close();
+        if (MudDialog != null)
+            MudDialog!.Close();
+        else
+            jsRuntime.InvokeVoidAsync("window.close");
     }
 }

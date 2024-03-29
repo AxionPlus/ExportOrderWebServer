@@ -15,9 +15,11 @@
         <MudToolBar Class="ToolBar ToolBar-new">
             <div class="ToolBar-iconbutton">
                 <MudTooltip Text="EXIT">
-                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseWindow" />
+                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" OnClick="CloseDialogOrPage"
+                                   Icon="@Icons.Material.Outlined.ExitToApp" />
                 </MudTooltip>
             </div>
+
             @if (IsFormReadOnly)
             {
                 <div class="ToolBar-iconbutton" style="margin-left:20px">
@@ -58,7 +60,7 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" InitialStatus="@InitialStatus" />
+            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" InitialStatus="@Item.Status" />
         }
     </MudForm>
 
@@ -86,20 +88,26 @@
     public bool IsFormReadOnly { get; set; } = true;
     public bool IsLoadingData { get; set; } = false;
     private bool IsAuth = false;
+    private bool IsRoleForEdit = false;
 
-    private string InitialStatus { get; set; } = string.Empty;
-    public bool IsEditSaveBtnsVisible { get; set; } = false;
-    
+    public bool IsEditSaveBtnsVisible { get; set; } = true;
+
 
     protected override async Task OnInitializedAsync()
-    {
-        await GetItem();
-
+    {        
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+
         if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
         {
             IsAuth = true;
         }
+
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        {
+            IsRoleForEdit = true;
+        }
+
+        await GetItem();
     }
 
     private async Task GetItem()
@@ -121,12 +129,12 @@
                 }
                 else
                     Snackbar.Add($"{response.Error.First()}", Severity.Error);
-                
+
                 Item = new() { VesselCallDetail = vesselCallDetail };
             }
 
             IsFormReadOnly = false;
-            IsEditSaveBtnsVisible = true;
+            //IsEditSaveBtnsVisible = true;
         }
         else
         {
@@ -134,13 +142,10 @@
             if (!response.HasError)
             {
                 Item = (ExportOrderEntity)response.Object!;
-
-                InitialStatus = Item.Status.ToString();
-
-                if (Item.Status == EntityStatus.New || Item.Status == EntityStatus.Issued)
-                    IsEditSaveBtnsVisible = true;
-                else
-                    IsEditSaveBtnsVisible = false;
+                
+                if (Item.Status.Equals(EntityStatus.Cancelled))
+                    if (!IsRoleForEdit)
+                        IsEditSaveBtnsVisible = false;
             }
         }
     }
@@ -214,7 +219,7 @@
             Item.Num = Item.Status == EntityStatus.Issued || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
 
             Item!.Status = EntityStatus.New;
-            InitialStatus = "New";
+
             IsEditSaveBtnsVisible = true;
 
             IsNewItem = true;
@@ -230,8 +235,21 @@
         IsFormReadOnly = false;
     }
 
-    public void CloseWindow()
+    // public void CloseWindow()
+    // {
+    //     jsRuntime.InvokeVoidAsync("window.close");
+    // }
+
+    // public void CloseDialog_Click()
+    // {
+    //     MudDialog!.Close();
+    // }
+
+    private void CloseDialogOrPage()
     {
-        jsRuntime.InvokeVoidAsync("window.close");
+        if (MudDialog != null)
+            MudDialog!.Close();
+        else
+            jsRuntime.InvokeVoidAsync("window.close");
     }
 }

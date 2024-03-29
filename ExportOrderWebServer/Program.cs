@@ -82,6 +82,7 @@ builder.Services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 
 builder.Services.AddTransient<StatisticProvider>();
 builder.Services.AddTransient<CheckUploadResultService>();
+builder.Services.AddTransient<CheckCntrNumService>();
 
 var app = builder.Build();
 

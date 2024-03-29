@@ -1,4 +1,5 @@
-﻿@inject ISnackbar Snackbar
+﻿@inject AuthenticationStateProvider authenticationStateProvider
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject HttpClient Http
@@ -33,8 +34,7 @@
     }
 
     .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-right: unset;
-        padding-inline-end: unset;
+        padding-inline-end: 6px;
         padding-inline-start: unset;
     }
 
@@ -213,8 +213,8 @@
             @if (!IsSelectable)
             {
                 <MudTd Style="text-align:start">
-                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary"
-                                   Disabled="@(ApplicationParameter.ApplicationUser == "Manager")"                                   
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Disabled="@(IsLoadingData || !IsRoleForEdit)"
+                                   Color="Color.Secondary"
                                    OnClick="@(async()=>{ await RemoveItemDetail_Click(context.Id, context.POD!); })" />
                 </MudTd>                
             }
@@ -235,8 +235,20 @@
 
     private IEnumerable<VesselCallDetailDTO>? Items { get; set; } = new List<VesselCallDetailDTO>();
     private FilterParameters Filter { get; set; } = new();
-    private bool IsLoadingData = false;
 
+    private bool IsLoadingData = false;
+    private bool IsRoleForEdit = false;
+
+
+    protected override async void OnInitialized()
+    {
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        {
+            IsRoleForEdit = true;
+        }
+    }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
@@ -282,8 +294,8 @@
         bool? msgResult = await DialogService.ShowMessageBox(
                           "REMOVE",
                           (MarkupString)$"Do you want Delete record?<br/>For discharge port:<b>{pod}</b>",
-                          yesText: "DELETE!", cancelText: "NO");
-
+                          yesText: "DELETE!", cancelText: "NO");        
+        
         IsLoadingData = true;
 
         if (msgResult.HasValue)

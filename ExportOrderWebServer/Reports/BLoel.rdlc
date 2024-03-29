@@ -1265,14 +1265,14 @@ SHIPPER DECLARES THAT ANY APPLICABLE WOOD PACKAGING MATERIALS COMPLY WITH ISPM15
                       <TablixHeader>
                         <Size>4.8cm</Size>
                         <CellContents>
-                          <Textbox Name="Textbox9">
+                          <Textbox Name="Text_Draft">
                             <CanGrow>true</CanGrow>
                             <KeepTogether>true</KeepTogether>
                             <Paragraphs>
                               <Paragraph>
                                 <TextRuns>
                                   <TextRun>
-                                    <Value>DRAFT</Value>
+                                    <Value />
                                     <Style>
                                       <FontFamily>Arial Rounded MT Bold</FontFamily>
                                       <FontSize>8pt</FontSize>
@@ -1282,7 +1282,6 @@ SHIPPER DECLARES THAT ANY APPLICABLE WOOD PACKAGING MATERIALS COMPLY WITH ISPM15
                                 <Style />
                               </Paragraph>
                             </Paragraphs>
-                            <rd:DefaultName>Textbox9</rd:DefaultName>
                             <Style>
                               <Border>
                                 <Style>None</Style>
@@ -2923,7 +2922,6 @@ TOTAL TARE WEIGHT     : </Value>
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
-                          <rd:Selected>true</rd:Selected>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>

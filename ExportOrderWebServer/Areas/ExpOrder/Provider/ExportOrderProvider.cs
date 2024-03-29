@@ -210,8 +210,8 @@ public class ExportOrderProvider : IExportOrderProvider
                                             .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
                                             .AsNoTracking()
                                             .Where(x => x.VesselCallDetail!.VesselCall!.Id == id)
-                                            .Where(x => x.Status.Equals(EntityStatus.New) || x.Status.Equals(EntityStatus.Issued))
-                                            //.Where(x => x.Status.Equals(EntityStatus.Issued))
+                                            //.Where(x => x.Status.Equals(EntityStatus.New) || x.Status.Equals(EntityStatus.Issued))
+                                            .Where(x => x.Status != EntityStatus.Cancelled)
                                             .AsSplitQuery()
                                             .ToListAsync();
                                 
@@ -265,7 +265,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
                 else
                     if (string.IsNullOrEmpty(filter.Num) && string.IsNullOrEmpty(filter.Vessel) && string.IsNullOrEmpty(filter.POD)
-                            && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage))
+                            && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage) && string.IsNullOrEmpty(filter.CntrNum))
                         ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
 
                 // Cntr Num
@@ -502,7 +502,7 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             var db = await _db;
             
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             try
             {
@@ -874,6 +874,18 @@ public class ExportOrderProvider : IExportOrderProvider
     }
 
     #region AUXIALARY
+
+    public async Task<string> GetUserRoleAsync()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var role = await db.Set<ApplicationRole>().AsNoTracking().Select(s => s.Name).FirstOrDefaultAsync();
+
+            return role is null ? string.Empty : role;
+        }
+    }
 
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
     {

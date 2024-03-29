@@ -1,5 +1,4 @@
 ﻿@page "/uploadExportOrderRecords"
-@using ExportOrderWebServer.Service
 
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
@@ -7,9 +6,6 @@
 @inject NavigationManager Navigation
 @inject IDbContextFactory<ApplicationDbContext> applicationDbContext
 @inject CheckUploadResultService checkUploadResultService
-@* @inject IVesselCallProvider _vesselCallProvider
-@inject IDocumentProvider _documentProvider
-@inject ICntrTypeProvider _cntrTypeProvider *@
 
 <MudStack Style="width: 100%">
     <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
@@ -26,11 +22,11 @@
         </ButtonTemplate>
     </MudFileUpload>
     <MudToolBar DisableGutters="true" Class="gap-4">
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CheckAndUploadFile"
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(async () => { await CheckAndUploadFile(IsChecked); })"
                    Style="margin-inline-start:10px"
-                   Disabled="@(!FileName.Any() || uploadResult.HasErrors)"
+                   Disabled="@(!FileName.Any())"
                    StartIcon="@Icons.Material.Filled.UploadFile">
-            Upload File(s)
+            @BtnName @(" ") File(s)
         </MudButton>
         <MudSpacer />
         <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Clear"
@@ -40,12 +36,19 @@
         </MudButton>
     </MudToolBar>
 
-    @if (uploadResult.HasErrors)
+    @if (!string.IsNullOrWhiteSpace(uploadResult.Summary))
     {
         <MudText Style="margin-inline-start:5px"><b>Всего: </b>@uploadResult.Summary</MudText>
-
+    }
+    
+    @if (uploadResult.HasErrors)
+    {
         <table class="Table_Summary" style="margin-inline:10px; width:900px">
-            <tr><th style="width:200px">Декларация</th><th style="width:110px">Контейнер</th><th>Описание ошибки</th></tr>
+            <tr>
+                <th style="width:200px">Декларация</th>
+                <th style="width:110px">Контейнер</th>
+                <th>Описание ошибки</th>
+            </tr>
             @foreach (var error in uploadResult.Errors)
             {
                 <tr>
@@ -75,6 +78,9 @@
 
     public CheckedUploadResult uploadResult { get; set; } = new CheckedUploadResult();
     private bool IsLoadingData = false;
+    private string BtnName { get; set; } = "Check";
+    private bool IsChecked { get; set; } = false;
+
 
     private async Task OnInputFileChanged(InputFileChangeEventArgs e)
     {
@@ -88,9 +94,12 @@
 
     private async Task Clear()
     {
+        ClearDragClass();
+
         FileName = string.Empty;
         uploadResult = new CheckedUploadResult();
-        ClearDragClass();
+        BtnName = "Check";
+        IsChecked = false;
 
         await Task.Delay(100);
     }
@@ -105,9 +114,10 @@
         DragClass = DefaultDragClass;
     }
 
-
-    private async Task CheckAndUploadFile()
+    private async Task CheckAndUploadFile(bool ischecked)
     {
+        if (ischecked) MudDialog!.Close(uploadResult);
+
         IsLoadingData = true;
 
         long maxFileSize = 1024 * 500;
@@ -131,6 +141,8 @@
 
         var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadFromExcel", content);
 
+        client.Dispose();
+
         // Check data
         if (response.IsSuccessStatusCode)
         {
@@ -142,218 +154,29 @@
             }
             else
             {
-                //var errList = new List<string>();
-
-                List<string> errList = await checkUploadResultService.CheckingResult(uploadedDTO, VoyageId);
-
-                // using (var checkService = new CheckUploadResultService(applicationDbContext, uploadedDTO))
-                // {
-                //     errList = await checkService.CheckingResult(VoyageId);
-                // }
-
-                #region To Service
-                // var VesselCall = await _vesselCallProvider.GetItemToCheckAsync(VoyageId);
-                // var Documents = await _documentProvider.GetDocumentItemsToUploadAsync();
-                // var CntrTypes = await _cntrTypeProvider.GetCntrTypes();                
-
-                // foreach (var record in uploadedDTO)
-                // {
-                //     string errMessagePrefix = $"{record.DocumentName};{record.CntrNum};";
-
-                //     // CntrType
-                //     if (string.IsNullOrEmpty(record.CntrType))
-                //         errList.Add($"{errMessagePrefix} Cntr Type is missed.");
-                //     else
-                //     {
-                //         string type = record.CntrType.Substring(2);
-
-                //         switch (type)
-                //         {
-                //             case "DС": // en D + ru С
-                //                 record.CntrType = record.CntrType.Replace("DС", "DC");
-                //                 break;
-
-                //             case "НС": // ru Н + ru С
-                //                 record.CntrType = record.CntrType.Replace("НС", "HC");
-                //                 break;
-                //             case "НC": // ru Н + en С
-                //                 record.CntrType = record.CntrType.Replace("НC", "HC");
-                //                 break;
-                //             case "HС": // en Н + ru С
-                //                 record.CntrType = record.CntrType.Replace("HС", "HC");
-                //                 break;
-
-                //             case "ТК": // ru Т + ru К
-                //                 record.CntrType = record.CntrType.Replace("ТК", "TK");
-                //                 break;
-                //             case "ТK": // ru Т + en K
-                //                 record.CntrType = record.CntrType.Replace("Т", "T");
-                //                 break;
-                //             case "TК": // en T + ru К
-                //                 record.CntrType = record.CntrType.Replace("К", "K");
-                //                 break;
-
-                //             case "ОТ": // ru О + ru Т
-                //                 record.CntrType = record.CntrType.Replace("ОТ", "OT");
-                //                 break;
-                //             case "ОT": // ru О + en T
-                //                 record.CntrType = record.CntrType.Replace("ОT", "OT");
-                //                 break;
-                //             case "OТ": // en O + ru Т
-                //                 record.CntrType = record.CntrType.Replace("OТ", "OT");
-                //                 break;
-                //         }
-
-                //         if (!CntrTypes.Any(ct => ct.Normolize!.Equals(record.CntrType)))
-                //             errList.Add($"{errMessagePrefix} Cntr Type '{record.CntrType}' dosn't exist in DataBase.");
-                //     }                    
-
-                //     // Weights
-                //     if (record.CntrTareWt == 0)
-                //         errList.Add($"{errMessagePrefix} CntrTare is 0.");
-
-                //     if (record.GrossWt > 29000)
-                //         errList.Add($"{errMessagePrefix} Gross weight exceeded.");
-
-                //     if (record.NetWt! > 29000)
-                //         errList.Add($"{errMessagePrefix} Net weight exceeded.");
-
-                //     if (record.GrossWt < record.NetWt)
-                //         errList.Add($"{errMessagePrefix} Net weight exceeds Gross.");
-
-                //     // Document
-                //     if (string.IsNullOrEmpty(record.DocumentName))
-                //         errList.Add($"{errMessagePrefix} Number of Declaration is missed.");
-
-                //     var existedDocument = Documents.Where(d => d.Name == record.DocumentName).FirstOrDefault();
-                //     if (existedDocument is not null)
-                //     {
-                //         // Container Content
-                //         if (existedDocument.Records.Any(r => r.CommodityEngName.ToUpper().Contains("EMPTY")))
-                //         {
-                //             if (record.PackageQty > 1) errList.Add($"{errMessagePrefix} Package Quantity exceeded for Empty container.");
-                //             if (record.PackageName != null) errList.Add($"{errMessagePrefix} Package Name indicated for Empty container.");
-                //             if (record.NetWt > 0) errList.Add($"{errMessagePrefix} Netto weight exceeds 0 for Empty container.");
-                //             if (record.GrossWt > 0) errList.Add($"{errMessagePrefix} Gross weight exceeds 0 for Empty container.");
-                //         }
-                //         else
-                //         {
-                //             //if (record.PackageQty is null || record.PackageQty < 1) errList.Add($"{errMessagePrefix} - Package Quantity missed");
-                //             //if (string.IsNullOrEmpty(record.PackageName)) errList.Add($"{errMessagePrefix} - Package Name missed");
-                //             if (record.NetWt <= 0) errList.Add($"{errMessagePrefix} Netto weight is 0.");
-                //             if (record.GrossWt <= 0) errList.Add($"{errMessagePrefix} Gross weight is 0.");
-                //         }
-
-                //         // Cargo
-                //         if (record.SeqCommodity == 0)
-                //             errList.Add($"{errMessagePrefix} Отсутствует номер товара.");
-                //         else
-                //             if (!existedDocument.Records.Any(dr => dr.Seq.Equals(record.SeqCommodity)))
-                //             errList.Add($"{errMessagePrefix} В декларации нет товара.");
-                //     }
-                //     else
-                //         errList.Add($"{errMessagePrefix} Декларации нет в базе данных.");
-
-                //     // Container Num duplicates in Voyage
-                //     if (VesselCall is not null)
-                //         if (VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).SelectMany(eo => eo.Records).Any(eor => eor.CntrNum.Equals(record.CntrNum)))
-                //             errList.Add($"{errMessagePrefix} Cntr duplicates in: {VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).FirstOrDefault(eo => eo.Records.Any(eor => eor.CntrNum.Equals(record.CntrNum)))!.Num}.");
-
-
-                //     // CONTAINER NUM CONTROL DIGIT
-
-                //     if (record.CntrNum is not null)
-                //     {
-                //         // digital equivalents:
-                //         string[,] ControlEquivalents = new string[2, 26]
-                //         {
-                //             { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" },
-                //             { "10", "12", "13", "14", "15", "16", "17", "18", "19",
-                //               "20", "21", "23", "24", "25", "26", "27", "28", "29",
-                //               "30", "31", "32", "34", "35", "36", "37", "38"
-                //             }
-                //         };
-
-                //         // control digit according to surplus from deviding by 11:
-                //         int[,] Surplus = new int[2, 11]
-                //         {
-                //             { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 },
-                //             { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0}
-                //         };
-
-                //         // string char1 = record.CntrNum.Substring(0, 1);
-                //         // string char2 = record.CntrNum.Substring(1, 1);
-                //         // string char3 = record.CntrNum.Substring(2, 1);
-                //         // string char4 = record.CntrNum.Substring(3, 1);
-
-                //         int equivalentIndex1 = Array.IndexOf(ControlEquivalents, record.CntrNum.Substring(0, 1));
-                //         int equivalentIndex2 = Array.IndexOf(ControlEquivalents, record.CntrNum.Substring(1, 1));
-                //         int equivalentIndex3 = Array.IndexOf(ControlEquivalents, record.CntrNum.Substring(2, 1));
-                //         int equivalentIndex4 = Array.IndexOf(ControlEquivalents, record.CntrNum.Substring(3, 1));
-
-                //         int DigitalEquivalent1 = Convert.ToInt32(ControlEquivalents[1, equivalentIndex1]) * (int)Math.Pow(2, 0);
-                //         int DigitalEquivalent2 = Convert.ToInt32(ControlEquivalents[1, equivalentIndex2]) * (int)Math.Pow(2, 1);
-                //         int DigitalEquivalent3 = Convert.ToInt32(ControlEquivalents[1, equivalentIndex3]) * (int)Math.Pow(2, 2);
-                //         int DigitalEquivalent4 = Convert.ToInt32(ControlEquivalents[1, equivalentIndex4]) * (int)Math.Pow(2, 3);
-
-                //         int digit1 = Convert.ToInt32(record.CntrNum.Substring(4, 1)) * (int)Math.Pow(2, 4);
-                //         int digit2 = Convert.ToInt32(record.CntrNum.Substring(5, 1)) * (int)Math.Pow(2, 5);
-                //         int digit3 = Convert.ToInt32(record.CntrNum.Substring(6, 1)) * (int)Math.Pow(2, 6);
-                //         int digit4 = Convert.ToInt32(record.CntrNum.Substring(7, 1)) * (int)Math.Pow(2, 7);
-                //         int digit5 = Convert.ToInt32(record.CntrNum.Substring(8, 1)) * (int)Math.Pow(2, 8);
-                //         int digit6 = Convert.ToInt32(record.CntrNum.Substring(9, 1)) * (int)Math.Pow(2, 9);
-
-                //         // sum of ControlEquivalents multiplications (Characters only)
-                //         int multiplicationOfChars = DigitalEquivalent1 + DigitalEquivalent2 + DigitalEquivalent3 + DigitalEquivalent4;
-
-                //         // sum of Serial numbers multiplications (Digits only)
-                //         int multiplicationOfDigits = digit1 + digit2 + digit3 + digit4 + digit5 + digit6;
-
-                //         // частное от деления всех произведений на 11: (multiplicationOfChars + multiplicationOfDigits)
-                //         int QuotientofDivision = (multiplicationOfChars + multiplicationOfDigits) / 11;
-
-                //         // Остаток от деления
-                //         int Remainder = (multiplicationOfChars + multiplicationOfDigits) % 11;
-                //         //int Remainder;
-                //         //int div = Math.DivRem((multiplicationOfChars + multiplicationOfDigits), 11, out Remainder);
-
-                //         //Pow(double a, double b): возвращает число a, возведенное в степень b
-                //         //Math.Pow(radius, 2);
-
-
-                //         //DivRem(int a, int b, out int result): возвращает результат от деления a / b, а остаток помещается в параметр result
-                //         //int result;
-                //         //int div = Math.DivRem(14, 5, out result);
-                //         //result = 4
-                //         // div = 2
-
-                //     }
-
-                // }
-                #endregion
-
-                // RESULT
+                var errList = await checkUploadResultService.CheckingResult(uploadedDTO, VoyageId);
+                
+                // UPLOADED DATA
                 uploadResult.UploadedDTO = uploadedDTO;
 
+                // SUMMARY
+                int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
+                int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
+                uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
+
+                // ERRORS                
                 if (errList.Count() > 0)
-                {
                     uploadResult.Errors = errList;
 
-                    // SUMMARY
-                    int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
-                    int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
-                    uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
-                }                
-                else
-                    MudDialog!.Close(uploadResult);
+
+                IsChecked = true;
+                BtnName = "Upload";
             }
         }
         else
             Snackbar.Add($"Data not uploaded", Severity.Error);
 
         ClearDragClass();
-
-        client.Dispose();
         
         IsLoadingData = false;
     }

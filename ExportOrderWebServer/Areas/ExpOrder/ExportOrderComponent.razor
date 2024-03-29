@@ -3,6 +3,7 @@
 @inject NavigationManager Navigation
 @inject HttpClient Http
 @inject IJSRuntime jSRuntime
+@inject AuthenticationStateProvider authenticationStateProvider
 
 @inject IExportOrderProvider _exportOrderProvider
 @inject IVesselProvider _vesselProvider
@@ -190,7 +191,8 @@
             </MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
             <MudTd>
-                <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || IsBtnClicked)" Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
+                <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || IsBtnClicked || !IsRoleForEdit)"
+                               Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
                                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
             </MudTd>
             <MudTd></MudTd>
@@ -209,8 +211,21 @@
     public IEnumerable<ExportOrderComponentDTO>? Items { get; set; } = new List<ExportOrderComponentDTO>();
     private IEnumerable<string>? CntrList { get; set; }
     private FilterParameters Filter { get; set; } = new();
+
     private bool IsLoadingData { get; set; } = false;
     private bool IsBtnClicked { get; set; } = false;
+    private bool IsRoleForEdit = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        {
+            IsRoleForEdit = true;
+        }
+    }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
@@ -222,8 +237,6 @@
 
         if (!response.HasError)
             Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
-
-        //await Task.Delay(500);        
 
         IsLoadingData = false;
 
@@ -246,15 +259,11 @@
     {
         IsBtnClicked = true;
 
-        // check Satus before delete
-        if (Items!.FirstOrDefault(eoc => eoc.Id == id)!.Status != EntityStatus.New)
-        {
-            Snackbar.Add($"Удалить можно только новую запись: Status - New.", Severity.Warning);
+        // // check Satus before delete
+        // if (!IsRoleForEdit)
+        //     if (Items!.FirstOrDefault(eoc => eoc.Id == id)!.Status != EntityStatus.New)
+        //         Snackbar.Add($"Удалить можно только новую запись: Status - New.", Severity.Warning);
 
-            if (ApplicationParameter.ApplicationUser.Equals("Manager"))
-                return;
-        }
-                
         await Task.Delay(1000);
 
         bool? result = await DialogService.ShowMessageBox(
@@ -267,7 +276,7 @@
         if (result.HasValue)
             if (result.Value)
             {
-                IsLoadingData = true;
+                //IsLoadingData = true;
 
                 var response = await _exportOrderProvider.RemoveItemAsync(id);
                 if (!response.HasError)
@@ -277,11 +286,13 @@
                 }
                 else
                     Snackbar.Add($"Record wasn't deleted.<br/>{response.Error.First()}", Severity.Warning);
+
+                await GetItems();
             }
         
         IsLoadingData = false;
         
-        await GetItems();
+        //await GetItems();
 
         IsBtnClicked = false;
 

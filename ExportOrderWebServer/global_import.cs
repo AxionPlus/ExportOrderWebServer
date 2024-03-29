@@ -22,7 +22,6 @@ global using ExportOrderWebServer.Areas.Customs.Provider;
 global using ExportOrderWebServer.Areas.Document.Provider;
 global using ExportOrderWebServer.Areas.ExpOrder.Provider;
 global using ExportOrderWebServer.Areas.Identity;
-//global using ExportOrderWebServer.Areas.Identity.Pages;
 global using ExportOrderWebServer.Areas.Location.Provider;
 global using ExportOrderWebServer.Areas.MyCompany.Provider;
 global using ExportOrderWebServer.Areas.Terminal.Provider;
@@ -31,5 +30,3 @@ global using ExportOrderWebServer.Areas.Vessel.Provider;
 global using ExportOrderWebServer.Areas.VesselCall.Provider;
 
 global using ExportOrderWebServer.Resources;
-
-

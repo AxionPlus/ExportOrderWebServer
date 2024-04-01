@@ -10,8 +10,13 @@
     .CntrType {
         width: 92px;
         margin-inline: 20px;
-        line-height:18px;
+        line-height: 18px;
     }
+
+        .CntrType * .mud-input-slot.mud-input-root-outlined.mud-input-root-margin-dense {
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
 
     .QuantityField {
         width: 120px;
@@ -32,134 +37,153 @@
         margin-inline-end: 3px;
     }
 
+    .Summary {
+        margin-top: 3px;
+        margin-bottom: 3px;
+        color:cornflowerblue;
+    }
 </style>
 
-<MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+@if (Item != null)
+{
+    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
 
-    <div class="ToolBar-container">
-        <MudToolBar Class="ToolBar ToolBar-new">
-            <div class="ToolBar-iconbutton" style="margin-left: 20px">
-                <MudTooltip Text="Edit Container record">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
-                </MudTooltip>
-            </div>
-            <MudSpacer />
-            <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                <MudTooltip Text="Save Container record">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
-                </MudTooltip>
-            </div>
-        </MudToolBar>
-    </div>
-
-    <div class="Container-item">
-        <div class="container-content">
-             <MudTextField T="string" Label="Cntr num" MaxLength="11" @ref="CNum" Value="@Item!.CntrNum"
-                          ValueChanged="(e) => { Item.CntrNum = e.ToUpper(); }"
-                          OnBlur="@(async () => { await CheckCntrNum(Item.CntrNum); })"
-                          Style="width:180px" Variant="Variant.Outlined" Margin="Margin.Dense"
-                          Required RequiredError="" Clearable />
-             <MudSelect Class="CntrType" T="CntrTpSz" Label="Type" @bind-Value="@Item.CntrType"
-                       Variant="Variant.Outlined" Margin="Margin.Dense" CloseIcon="" OpenIcon="" Clearable>
-                @if (CntrTypes is not null)
-                    @foreach (var type in CntrTypes)
-                    {
-                        <MudSelectItem Value="@type">@type.Normolize!.ToString()</MudSelectItem>
-                    }
-             </MudSelect>
-             <MudNumericField Class="QuantityField" T="double" Label="TARE wt" @bind-Value="Item.CntrTareWt"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Required RequiredError="" HideSpinButtons="true" />
-             <MudTextField Class="Seal" T="string" Label="SEALS" @bind-Value="@Item.Seal"
-                           Style="width:280px" Variant="Variant.Outlined" Margin="Margin.Dense"
-                           Required RequiredError="" Clearable />
-             <MudSpacer />
+        <div class="ToolBar-container">
+            <MudToolBar Class="ToolBar ToolBar-new">
+                <MudSpacer />
+                <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                    <MudTooltip Text="@(IsFormReadOnly ? "Edit" : "Save" )">
+                        @if (IsFormReadOnly)
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
+                        }
+                        else
+                        {
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
+                        }
+                    </MudTooltip>
+                </div>
+            </MudToolBar>
         </div>
 
-         <div class="container-content">
-             <div class="Container-table">
-                 <MudTable Class="Table" @ref="mudTable" Items="Item.Contents" RowsPerPage="10">
-                     <HeaderContent>
-                         <MudTh Style="width:35px">
-                             <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddContainerContent_Click">ADD new content</MudIconButton>
-                         </MudTh>
-                         <MudTh Style="width:240px">Document</MudTh>
-                         <MudTh Style="width:150px">HS Code</MudTh>
-                         <MudTh Style="width:350px">Commodity Name</MudTh>
-                         <MudTh Style="width: 75px">PkgQty</MudTh>
-                         <MudTh Style="width:120px">PkgName</MudTh>
-                         <MudTh Style="width:100px">Net</MudTh>
-                         <MudTh Style="width:100px">Gross</MudTh>
-                         <MudTh Style="width:100px">Volume</MudTh>
-                         <MudTh></MudTh>
-                     </HeaderContent>
-                     <RowTemplate>
-                         <MudTd>
-                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" Disabled="@(Item is null)"
-                                            OnClick="@(async () => { RemoveContainerContent_Click(context); })" />
-                         </MudTd>
-                         <MudTd>
-                             <MudSelect Class="wrapper-input" T="DocumentEntity" Style="width:200px" @bind-Value="context.DocumentRecord.Document"
-                                        ToStringFunc="@(d => d is not null ? d.Name : "")"
-                                        Variant="Variant.Outlined" OpenIcon="" Clearable Required RequiredError="">
-                                 @if (Documents is not null)
-                                    @foreach (var document in Documents)
-                                    {
-                                        <MudSelectItem T="DocumentEntity" Value="@document">@document.Name</MudSelectItem>
-                                    }
-                            </MudSelect>
-                        </MudTd>
-                        <MudTd>
-                            <MudSelect Class="wrapper-input" Style="width:120px" T="DocumentRecord" @bind-Value="@context.DocumentRecord"
-                                       ToStringFunc="@(dr => dr is not null ? dr.CommodityHSCode : "")"
-                                       Variant="Variant.Outlined" Margin="Margin.Dense"
-                                       OpenIcon="" Clearable Required RequiredError="">
-                                 @if (context.DocumentRecord?.Document is not null)
-                                    @if (context.DocumentRecord.Document.Records is not null)
-                                        @foreach (var documentRecord in context.DocumentRecord.Document.Records)
+        <div class="Container-item">
+
+            <div class="container-content" style="padding-bottom:unset">
+                <MudTextField T="string" Label="Container num" Value="@Item.CntrNum"
+                              ValueChanged="(e) => { Item.CntrNum = e.ToUpper(); }"
+                              OnBlur="CheckCntrNum"
+                              Style="width:180px" MaxLength="11"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Required RequiredError="" Clearable="!IsFormReadOnly" Mask="@_CntrNumMask" />
+                <MudSelect Class="CntrType" T="CntrTpSz" Label="Type" @bind-Value="@Item.CntrType"
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           CloseIcon="" OpenIcon="" Required RequiredError="" Clearable="!IsFormReadOnly">
+                    @if (CntrTypes is not null)
+                        @foreach (var type in CntrTypes)
+                        {
+                            <MudSelectItem Value="@type">@type.Normolize!.ToString()</MudSelectItem>
+                        }
+                </MudSelect>
+                <MudNumericField Class="QuantityField" T="double" Label="TARE wt" @bind-Value="Item.CntrTareWt"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                 Required RequiredError="" HideSpinButtons="true" />
+                <MudTextField Class="Seal" T="string" Label="SEALS" @bind-Value="@Item.Seal"
+                              Style="width:280px" Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Required RequiredError="" Clearable="!IsFormReadOnly" />
+                <MudSpacer />
+            </div>
+                        
+            <div class="container-content">
+                <div class="Container-table">
+                    <MudTable Class="Table" @ref="mudTable" Items="Item.Contents" RowsPerPage="10">
+                        <HeaderContent>
+                            <MudTh Style="width:35px">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddContainerContent_Click">ADD new content</MudIconButton>
+                            </MudTh>
+                            <MudTh Style="width:240px">Document</MudTh>
+                            <MudTh Style="width:150px">HS Code</MudTh>
+                            <MudTh Style="width:350px">Commodity Name</MudTh>
+                            <MudTh Style="width: 75px">PkgQty</MudTh>
+                            <MudTh Style="width:120px">PkgName</MudTh>
+                            <MudTh Style="width:100px">Net</MudTh>
+                            <MudTh Style="width:100px">Gross</MudTh>
+                            <MudTh Style="width:100px">Volume</MudTh>
+                            <MudTh></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" Disabled="@(Item is null)"
+                                                OnClick="@(async () => { RemoveContainerContent_Click(context); })" />
+                            </MudTd>
+                            <MudTd>
+                                <MudSelect Class="wrapper-input" T="string" Style="width:200px" Value="@context.DocumentName"
+                                           ValueChanged="@(t => { context.DocumentName = t; context.DocumentRecord = new DocumentRecord(); })"
+                                           Variant="Variant.Outlined" OpenIcon="" Clearable="!IsFormReadOnly" Required RequiredError="">
+                                    @if (Documents is not null)
+                                        @foreach (var document in Documents)
+                                        {
+                                            <MudSelectItem T="string" Value="@document.Name">@document.Name</MudSelectItem>
+                                        }
+                                </MudSelect>
+                            </MudTd>
+                            <MudTd>
+                                <MudSelect Class="wrapper-input" Style="width:120px" T="DocumentRecord" @bind-Value="@context.DocumentRecord"                                      
+                                           ToStringFunc="@(dr => dr is not null ? dr.CommodityHSCode : "")"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                                           OpenIcon="" Required RequiredError="" Clearable="!IsFormReadOnly">
+                                    @if (context.DocumentRecord is not null && context.DocumentName is not null && Documents is not null)
+                                        @foreach (DocumentRecord documentRecord in Documents.FirstOrDefault(d => d.Name == context.DocumentName)!.Records)
                                         {
                                             <MudSelectItem Value="@documentRecord">
                                                 @($"({documentRecord.CommodityHSCode}) {documentRecord?.CommodityName}")
                                             </MudSelectItem>
-                                        }
-                            </MudSelect>
-                        </MudTd>
-                        <MudTd>@(context.DocumentRecord is not null ? context.DocumentRecord.CommodityName : "")</MudTd>
-                        <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.PackageQty" Variant="Variant.Outlined" HideSpinButtons Required RequiredError=""></MudNumericField></MudTd>
-                         <MudTd><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.PackageName" Variant="Variant.Outlined" Required RequiredError=""></MudTextField></MudTd>
-                         <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt" Variant="Variant.Outlined" HideSpinButtons="true" Required RequiredError=""></MudNumericField></MudTd>
-                         <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt" Variant="Variant.Outlined" HideSpinButtons Required RequiredError=""></MudNumericField></MudTd>
-                         <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.Volume" Variant="Variant.Outlined" HideSpinButtons Disabled></MudNumericField></MudTd>
-                         <MudTd></MudTd>
-                     </RowTemplate>
-                     <FooterContent>
-                         @if (Item.Contents.Count() > 0)
-                        {
-                            <MudTd colspan="2" Style="text-align:center">
-                                <h6>
-                                    Total documents: @Item.Contents.GroupBy(co => co.DocumentRecord.Document.Id)!.Count().ToString()
-                                </h6>
+                                        }                
+                                </MudSelect>
                             </MudTd>
-                            <MudTd Style="text-align:center">
-                                <h6>
-                                    goods: @Item.Contents.Count()
-                                </h6>
-                            </MudTd>
-                            <MudTd colspan="6"></MudTd>
+                            <MudTd>@(context.DocumentRecord is not null ? context.DocumentRecord.CommodityName : "")</MudTd>
+                            <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.PackageQty" Variant="Variant.Outlined" HideSpinButtons Required RequiredError=""></MudNumericField></MudTd>
+                            <MudTd><MudTextField Class="wrapper-input NoHeader" @bind-Value="@context.PackageName" Variant="Variant.Outlined" Required RequiredError=""></MudTextField></MudTd>
+                            <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt" Variant="Variant.Outlined" HideSpinButtons="true" Required RequiredError=""></MudNumericField></MudTd>
+                            <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt" Variant="Variant.Outlined" HideSpinButtons Required RequiredError=""></MudNumericField></MudTd>
+                            <MudTd><MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.Volume" Variant="Variant.Outlined" HideSpinButtons Disabled></MudNumericField></MudTd>
                             <MudTd></MudTd>
-                        }
-                    </FooterContent>
-                </MudTable>
-            </div>
+                        </RowTemplate>
+                        <FooterContent>
+                            @if (Item.Contents.Count(co => co.DocumentRecord != null) > 0)
+                            {
+                                <MudTd colspan="2" Style="text-align:center">
+                                    <h6 class="Summary">
+                                        Total documents:@(" ")
+                                        @if (Item.Contents.Any(co => co.DocumentRecord != null))
+                                            @if (!Item.Contents.Any(co => co.DocumentRecord.Document == null))
+                                                @Item.Contents.GroupBy(co => co.DocumentRecord.Document.Id)!.Count()                                   
+                                    </h6>
+                                </MudTd>
+                                <MudTd Style="text-align:center">
+                                    <h6 class="Summary">
+                                        goods:
+                                        @if (Item.Contents.Any(co => co.DocumentRecord != null))
+                                            @if (!Item.Contents.Any(co => co.DocumentRecord.Document == null))
+                                                @Item.Contents.GroupBy(co => co.DocumentRecord.CommodityEngName)!.Count()
+                                    </h6>
+                                </MudTd>
+                                <MudTd colspan="6"></MudTd>
+                                <MudTd></MudTd>
+                            }
+                        </FooterContent>
+                    </MudTable>
+                </div>
+            </div>            
         </div>
-    </div>
+    
+    </MudForm>
 
-</MudForm>
+    <OverlayLoadingData Visible="@IsLoadingData" />
+}
 
 @code {
     private MudForm? Form { get; set; }
     private MudTable<ContainerContent>? mudTable;
-    MudTextField<string>? CNum { get; set; }
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
@@ -167,11 +191,15 @@
     [Parameter]
     public bool IsNewItem { get; set; } = false;
     [Parameter]
+    public long VoyageId { get; set; }
+    [Parameter]
     public IEnumerable<DocumentEntity>? Documents { get; set; }
 
     public ExportOrderRecord? Item { get; set; }
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
+
     private bool IsFormReadOnly { get; set; } = true;
+    public bool IsLoadingData { get; set; } = false;
 
 
     protected override async Task OnAfterRenderAsync(bool first)
@@ -180,7 +208,7 @@
             CntrTypes = await _cntrTypeProvider.GetCntrTypes();
     }
 
-    protected override async void OnInitialized()    
+    protected override async Task OnInitializedAsync()    // prev. - void OnInitialized()
     {
         await GetItem();
     }
@@ -196,14 +224,22 @@
         {
             var response = await _exportOrderProvider.GetExportOrderRecordItemAsync(Id);
             if (!response.HasError)
+            {
                 Item = (ExportOrderRecord)response.Object!;
+
+                foreach (var content in Item.Contents)
+                {
+                    content.DocumentName = content.DocumentRecord.Document.Name;
+                }
+            }
         }
     }
+
 
     private void AddContainerContent_Click()
     {
         if (Item is not null)
-            Item.Contents.Add(new ContainerContent() { DocumentRecord = new() { Document = new() } });
+            Item.Contents.Add(new ContainerContent() { DocumentRecord = new() });
     }
 
     private void RemoveContainerContent_Click(ContainerContent item)
@@ -217,17 +253,19 @@
 
         if (Form.IsValid)
         {
+            IsLoadingData = true;
+
             if (IsNewItem)
             {
-                // check for existing Record.CntrNum
-                var response = await _exportOrderProvider.IsExistRecordItemAsync(Item!.CntrNum);
-                if (response.HasError)
-                {
-                    Snackbar.Add(response.Error.FirstOrDefault(), Severity.Warning);
-                    return;
-                }
+                // // check for existing Record.CntrNum
+                // var response = await _exportOrderProvider.IsRecordItemExistAsync(Item!.CntrNum);
+                // if (response.HasError)
+                // {
+                //     Snackbar.Add(response.Error.FirstOrDefault(), Severity.Warning);
+                //     return;
+                // }
 
-                // check for empty Document
+                // check for an empty Document
                 bool errDocument = false;
 
                 foreach (var content in Item!.Contents)
@@ -238,6 +276,8 @@
                         continue;
                     }
                 }
+
+                IsLoadingData = false;
 
                 if (!errDocument)
                     MudDialog!.Close(DialogResult.Ok(Item));
@@ -251,17 +291,21 @@
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add("Not Successed", Severity.Error);
+                    Snackbar.Add("No Success", Severity.Error);
+                    IsLoadingData = false;
                     return;
-                }
-
-                await GetItem();
+                }                
             }
+
+            IsNewItem = false;
+
+            await GetItem();
+
+            IsFormReadOnly = true;
+            IsLoadingData = false;
         }
         else
-        {
             Snackbar.Add("Fill up an all required fields (marked in red)", Severity.Warning);
-        }
     }
 
     private async Task EditItem_Click()
@@ -270,13 +314,27 @@
         IsFormReadOnly = false;
     }
 
-    private async Task CheckCntrNum(string num)
-    {
+    private async void CheckCntrNum()
+    {        
+        if (VoyageId == 0 || Item is null) return;
+
+        // Check DUPLICATES
+        string num = Item.CntrNum;
+
+        bool response = await checkCntrNumService.IsCntrNumDuplicates(num, VoyageId);
+
+        if (response)
+        {
+            Snackbar.Add($"{num}: Контейнер повторяется в этом рейсе.", Severity.Error);
+            return;
+        }
+
+        // Check CONTROL DIGIT IN CNTR_NUM
         if (num is not null)
         {
             if (num.Length < 11) return;
 
-            int controlDigit = await checkCntrNumService.IsControlDigitCorrect(num);
+            int controlDigit = await checkCntrNumService.ControlDigit(num);
 
             if (Convert.ToInt32(num.Substring(10, 1)) == controlDigit)
                 return;
@@ -290,8 +348,15 @@
         }
     }
 
-    #region SEARCH METHODS
-
+    private PatternMask _CntrNumMask = new PatternMask("aaaa#######")
+    {
+        MaskChars = new[]
+        {
+            new MaskChar('a', @"[a-zA-Z]"),
+            new MaskChar('#', @"[0-9]"),
+        }
+    };
+    
     private async Task<IEnumerable<DocumentEntity>> SearchDocument(string value)
     {
         var result = await _documentProvider.GetDocumentItemsAsync();
@@ -302,10 +367,6 @@
         if (result.Count() == 0)
             return Enumerable.Empty<DocumentEntity>();
         
-        //SelectedDocumentRecords = result.FirstOrDefault(d => d.Name!.Equals(value))!.Records.ToList();
         return result.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();            
     }
-
-    #endregion
-
 }

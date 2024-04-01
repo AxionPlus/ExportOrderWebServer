@@ -1,12 +1,10 @@
 using ExportOrderWebServer;
-using ExportOrderWebServer.Areas.Statistic;
-using ExportOrderWebServer.Service;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
+//var services = builder.Services;
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -16,11 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                         optionsBuilder => optionsBuilder.MigrationsAssembly("ExportOrderWebServer")));
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-                                                            options.UseNpgsql(connectionString), ServiceLifetime.Transient);
-
-//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-//                .AddEntityFrameworkStores<ApplicationDbContext>()
-//                .AddDefaultTokenProviders();
+    options.UseNpgsql(connectionString), ServiceLifetime.Transient);
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -83,6 +77,7 @@ builder.Services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 builder.Services.AddTransient<StatisticProvider>();
 builder.Services.AddTransient<CheckUploadResultService>();
 builder.Services.AddTransient<CheckCntrNumService>();
+//builder.Services.AddTransient<ICheckCntrNumService, CheckCntrNumService>();
 
 var app = builder.Build();
 
@@ -101,10 +96,8 @@ else
     app.UseExceptionHandler("/Error");
 }
 
-
 app.UseSession();
 app.UseStaticFiles();
-
 
 app.UseRouting();
 

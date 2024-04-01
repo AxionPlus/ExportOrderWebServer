@@ -76,7 +76,7 @@
     private ExportOrderEntity? Item { get; set; }
 
     public bool IsFormReadOnly { get; set; } = true;
-    public bool IsLoadingData { get; set; } = false;
+    private bool IsLoadingData { get; set; } = false;
     private bool IsAuth = false;
     private bool IsRoleForEdit = false;
 

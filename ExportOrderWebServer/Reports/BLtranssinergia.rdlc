@@ -2405,6 +2405,11 @@
                                   <TopBorder>
                                     <Style>Solid</Style>
                                   </TopBorder>
+                                  <LeftBorder>
+                                    <Color>Black</Color>
+                                    <Style>Solid</Style>
+                                    <Width>1pt</Width>
+                                  </LeftBorder>
                                   <PaddingLeft>4pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
                                   <PaddingTop>3pt</PaddingTop>
@@ -2603,6 +2608,11 @@ OR MULTIMODAL TRANSPORT</Value>
                                   <Border>
                                     <Style>None</Style>
                                   </Border>
+                                  <LeftBorder>
+                                    <Color>Black</Color>
+                                    <Style>Solid</Style>
+                                    <Width>1pt</Width>
+                                  </LeftBorder>
                                   <RightBorder>
                                     <Color>Black</Color>
                                     <Style>Solid</Style>

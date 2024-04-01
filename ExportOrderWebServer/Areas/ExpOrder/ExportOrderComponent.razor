@@ -247,7 +247,8 @@
     {
         DialogParameters parameters = new DialogParameters { ["Id"] = id };
         DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        var dialog = await DialogService.ShowAsync<ExportOrder_ItemDialog>(null, parameters, options);
+        //var dialog = await DialogService.ShowAsync<ExportOrder_ItemDialog>(null, parameters, options);
+        var dialog = await DialogService.ShowAsync<ExportOrder_Item>(null, parameters, options);
 
         DialogResult result = await dialog.Result;
 

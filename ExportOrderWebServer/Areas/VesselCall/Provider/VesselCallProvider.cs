@@ -1,8 +1,4 @@
-﻿
-using Azure;
-using ExportOrderEntites.VesselCall;
-
-namespace ExportOrderWebServer.Areas.VesselCall.Provider;
+﻿namespace ExportOrderWebServer.Areas.VesselCall.Provider;
 
 public class VesselCallProvider : IVesselCallProvider
 {
@@ -22,62 +18,33 @@ public class VesselCallProvider : IVesselCallProvider
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-            var db = await _db;
+            try
+            {
+                var db = await _db;
 
-            appObjResponse.Object = await db.VesselCalls
-                                                        .Include(vc => vc.Vessel)
-                                                        .Include(vc => vc.Terminal)
-                                                        .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
-                                                        .Include(vc => vc.Details).ThenInclude(vcd => vcd.FinalDestination)
-                                                        .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)
-                                                        .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
-            
-            if (appObjResponse.Object is null)
-                appObjResponse.ErrorAdd($"There is no voyage you choose.");
+                var voyage = await db.VesselCalls.AsNoTracking().AsSplitQuery()
+                                                 .Include(vc => vc.Vessel)
+                                                 .Include(vc => vc.Terminal)
+                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
+                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.FinalDestination)
+                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records)
+                                                 .FirstOrDefaultAsync(s => s.Id == id);
+
+                if (voyage is null)
+                    appObjResponse.ErrorAdd($"There is no voyage you choose.");
+
+                appObjResponse.Object = voyage;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return appObjResponse;
+            }
         }
 
         return appObjResponse;
     }
 
-    public async Task<AppObjectResponse> GetItemAsync(string voyage)
-    {
-        appObjResponse = new();
-
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            try
-            {            
-                var db = await _db;
-
-                if (voyage.Contains('&'))
-                {
-                    var vesselName = voyage.Split('&')[0];
-                    var voyageNo = voyage.Split('&')[1];
-
-                    appObjResponse.Object = await db.VesselCalls
-                                                                .Include(vc => vc.Vessel)
-                                                                .Include(vc => vc.Terminal)
-                                                                .Include(vc => vc.Details).ThenInclude(d => d.POD)
-                                                                .Where(vc => vc.Vessel.Name!.ToUpper() == vesselName.ToUpper() &&
-                                                                             vc.VoyageNo.ToUpper() == voyageNo.ToUpper())
-                                                                .FirstOrDefaultAsync();
-
-                    if (appObjResponse.Object is null)
-                        appObjResponse.ErrorAdd($"There is no voyage: {vesselName} / {voyageNo}");
-                }
-                else
-                    appObjResponse.ErrorAdd("Wrong request");
-
-                return appObjResponse;
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
-                return appObjResponse;
-            }
-        }
-    }
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
@@ -466,7 +433,7 @@ public class VesselCallProvider : IVesselCallProvider
 
 
     #region AUXILARY METHODS
-    public async Task<AppObjectResponse> GetVesselCallDetailItemAsync(long vesselCallid)
+    public async Task<AppObjectResponse> GetVesselCallDetailAsync(long vcdId)
     {
         appObjResponse = new();
 
@@ -480,7 +447,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .Include(vcd => vcd.POD)
                                                     .Include(vcd => vcd.VesselCall.Terminal)
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
-                                                    .FirstOrDefaultAsync(vcd => vcd.Id == vesselCallid);
+                                                    .FirstOrDefaultAsync(vcd => vcd.Id == vcdId);
 
                 if (appObjResponse.Object is null)
                     appObjResponse.ErrorAdd("There is no voyage");
@@ -590,18 +557,32 @@ public class VesselCallProvider : IVesselCallProvider
                 return Enumerable.Empty<string>();
         }
     }
-    public async Task<VesselCallEntity?> GetItemToCheckAsync(long id)
+    public async Task<AppObjectResponse> GetItemToCheckAsync(long id)
     {
-        using (var _db = _dbContext.CreateDbContextAsync())
+        appObjResponse = new();
+        try
         {
-            var db = await _db;
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
 
-            var vesselCall = await db.VesselCalls
-                                               .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records).ThenInclude(eor => eor.Contents)
-                                               .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+                var voyage = await db.VesselCalls.AsNoTracking().AsSplitQuery()
+                                                .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records)
+                                                .FirstOrDefaultAsync(s => s.Id == id);
 
-            return vesselCall;
+                if (voyage is null)
+                    appObjResponse.ErrorAdd($"There is no voyage you choose.");
+
+                appObjResponse.Object = voyage;                
+            }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return appObjResponse;
+        }
+
+        return appObjResponse;
     }
 
     Func<IEnumerable<VesselCallEntity>, IEnumerable<VesselCallDetailDTO>> vcRecords = (Records) =>

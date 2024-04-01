@@ -17,9 +17,7 @@ public class ExportOrderRecord
     public CntrTpSz? CntrType { get; set; }
     public double CntrTareWt { get; set; }
     [Required]
-    public string Seal { get; set; }        // change to string? and delete [Required]
-
-    //public IList<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
+    public string Seal { get; set; }
     public List<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
     [JsonIgnore]
     public ExportOrderEntity ExportOrder { get; set; }

@@ -18,11 +18,7 @@ public class CheckUploadResultService
             var db = await _db;
 
             var errList = new List<string>();
-
-            var VesselCall = await db.VesselCalls.Include(vc => vc.Details)
-                                                 .ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records).ThenInclude(eor => eor.Contents)
-                                                 .AsNoTracking().FirstOrDefaultAsync(s => s.Id == voyageId);
-
+                        
             var Documents = await db.Documents.Include(d => d.Records).AsNoTracking().ToListAsync();
 
             var CntrTypes = await db.ContainerTypeSize.AsNoTracking().ToListAsync();
@@ -79,7 +75,7 @@ public class CheckUploadResultService
 
                 // CONTAINER
 
-                // ---------- Type
+                // --- Type
                 if (string.IsNullOrEmpty(record.CntrType))
                     errList.Add($"{errMessagePrefix} Cntr Type is missed.");
                 else
@@ -127,19 +123,16 @@ public class CheckUploadResultService
                         errList.Add($"{errMessagePrefix} Cntr Type '{record.CntrType}' dosn't exist in DataBase.");
                 }
 
-                #region MOVE to separate SERVICE
-
-                // ---------- Num DUPLICATION in Voyage
-                if (VesselCall is not null)
-                    if (VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).SelectMany(eo => eo.Records).Any(eor => eor.CntrNum.Equals(record.CntrNum)))
-                        errList.Add($"{errMessagePrefix} Cntr duplicates in: {VesselCall.Details.SelectMany(vcd => vcd.ExportOrders).FirstOrDefault(eo => eo.Records.Any(eor => eor.CntrNum.Equals(record.CntrNum)))!.Num}.");
-
-                #endregion
-
-                // ---------- Num CONTROL DIGIT
                 if (record.CntrNum is not null && record.CntrNum.Length == 11)
                 {
-                    int controlDigit = await _checkCntrNumService.IsControlDigitCorrect(record.CntrNum);
+                    // --- Num DUPLICATION in Voyage
+                    bool response = await _checkCntrNumService.IsCntrNumDuplicates(record.CntrNum, voyageId);
+
+                    if (response)
+                        errList.Add($"{errMessagePrefix} Контейнер повторяется в этом рейсе.");
+
+                    // --- Num CONTROL DIGIT
+                    int controlDigit = await _checkCntrNumService.ControlDigit(record.CntrNum);
 
                     if (Convert.ToInt32(record.CntrNum.Substring(10, 1)) != controlDigit)
                         errList.Add($"{errMessagePrefix} Контрольная цифра в номере контейнера не верна. Правильно - {controlDigit}.");

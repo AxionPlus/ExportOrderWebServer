@@ -11,6 +11,6 @@ public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
     Task<int> LastVersionAsync();
     Task<AppObjectResponse> GetVersionAsync(int version);    
     Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id);
-    Task<AppObjectResponse> IsExistRecordItemAsync(string recordItemName);
+    //Task<AppObjectResponse> IsRecordItemExistAsync(string recordItemName);
     Task<AppObjectResponse> ModifyExportOrderRecordItemAsync(ExportOrderRecord item);
 }

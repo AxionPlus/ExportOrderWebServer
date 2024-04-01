@@ -28,6 +28,14 @@
                     </MudTooltip>
                 </div>
             }
+            else
+            {
+                <div class="ToolBar-iconbutton" style="margin-left:20px">
+                    <MudTooltip Class="ExitIconButton" Text="Refresh page" Delay="500" Duration="1000">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
+                    </MudTooltip>
+                </div>
+            }
             <MudSpacer />
             <div class="ToolBar-Title">
                 <span>Export Order</span>
@@ -60,7 +68,9 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" InitialStatus="@Item.Status" />
+            <ExportOrder_ItemComponent @bind-Value="Item"
+                                       IsFormReadOnly="IsFormReadOnly"
+                                       IsRoleForEdit="@IsRoleForEdit" />
         }
     </MudForm>
 
@@ -78,7 +88,7 @@
 
     [SupplyParameterFromQuery]
     [Parameter]
-    public long vcdId { get; set; }
+    public long vcdId { get; set; }     // delete this parameter
 
     [SupplyParameterFromQuery]
     [Parameter]
@@ -116,25 +126,24 @@
 
         if (IsNewItem)
         {
-            Item = new();            
+            Item = new();
 
-            if (vcdId > 0)
-            {
-                var vesselCallDetail = new VesselCallDetail();
+            // if (vcdId != 0)
+            // {
+            //     var vesselCallDetail = new VesselCallDetail();
 
-                response = await _vesselCallProvider.GetVesselCallDetailItemAsync(vcdId);
-                if (!response.HasError)
-                {
-                    vesselCallDetail = (VesselCallDetail)response.Object!;
-                }
-                else
-                    Snackbar.Add($"{response.Error.First()}", Severity.Error);
+            //     response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
+            //     if (!response.HasError)
+            //     {
+            //         vesselCallDetail = (VesselCallDetail)response.Object!;
+            //     }
+            //     else
+            //         Snackbar.Add($"{response.Error.First()}", Severity.Error);
 
-                Item = new() { VesselCallDetail = vesselCallDetail };
-            }
+            //     Item = new() { VesselCallDetail = vesselCallDetail };
+            // }
 
             IsFormReadOnly = false;
-            //IsEditSaveBtnsVisible = true;
         }
         else
         {
@@ -142,7 +151,7 @@
             if (!response.HasError)
             {
                 Item = (ExportOrderEntity)response.Object!;
-                
+
                 if (Item.Status.Equals(EntityStatus.Cancelled))
                     if (!IsRoleForEdit)
                         IsEditSaveBtnsVisible = false;
@@ -152,6 +161,8 @@
 
     public async Task SaveItem()
     {
+        if (Item is null) return;
+
         IsLoadingData = true;
 
         await Form!.Validate();
@@ -159,7 +170,7 @@
         if (Form.IsValid)
             if (IsNewItem)
             {
-                var response = await _exportOrderProvider.NewItemAsync(Item!);
+                var response = await _exportOrderProvider.NewItemAsync(Item);
                 if (!response.HasError)
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
@@ -171,7 +182,7 @@
             }
             else
             {
-                var response = await _exportOrderProvider.ModifyItemAsync(Item!);
+                var response = await _exportOrderProvider.ModifyItemAsync(Item);
                 if (!response.HasError)
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
@@ -190,7 +201,7 @@
 
         IsNewItem = false;
 
-        Id = Item!.Id;
+        Id = Item.Id;
 
         await GetItem();
 
@@ -234,16 +245,6 @@
 
         IsFormReadOnly = false;
     }
-
-    // public void CloseWindow()
-    // {
-    //     jsRuntime.InvokeVoidAsync("window.close");
-    // }
-
-    // public void CloseDialog_Click()
-    // {
-    //     MudDialog!.Close();
-    // }
 
     private void CloseDialogOrPage()
     {

@@ -1,5 +1,6 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject AuthenticationStateProvider authenticationStateProvider
 @inject IVesselCallProvider _vesselCallProvider
 @inject IVesselProvider _vesselProvider
 @inject ITerminalProvider _terminalProvider
@@ -200,7 +201,7 @@
              </div>
          </div>
 
-     </MudForm>
+    </MudForm>
 }
 
 <OverlayLoadingData Visible="@IsLoadingData" />
@@ -220,12 +221,15 @@
 
     private bool IsLoadingData = false;
     public bool IsFormReadOnly { get; set; } = true;
-
-    private string InitialStatus { get; set; } = string.Empty;
-
+    private bool IsRoleForEdit = false;
 
     protected override async Task OnInitializedAsync()
     {
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+            IsRoleForEdit = true;
+
         await GetItem();
     }
 
@@ -241,10 +245,7 @@
             var response = await _vesselCallProvider.GetItemAsync(Id);            
 
             if (!response.HasError)
-            {
                 Item = (VesselCallEntity)response.Object!;
-                InitialStatus = Item.Status.ToString();
-            }            
             else
                 Snackbar.Add($"{response.Error.First()}", Severity.Error);
         }
@@ -263,19 +264,17 @@
                 Snackbar.Add("Saved Successfully", Severity.Success);
             }
             else
-            {
-                if (InitialStatus != "Completed")
+            {   
+                if (Item!.Status != EntityStatus.Completed || IsRoleForEdit) //if (InitialStatus != "Completed")
                 {
                     var result = await _vesselCallProvider.ModifyItemAsync(Item!);
                     if (!result.HasError)
-                    {
                         Snackbar.Add("Saved Successfully", Severity.Success);
-                    }
                     else
                         Snackbar.Add($"{result.Error.First()}", Severity.Error);
                 }
                 else
-                    Snackbar.Add($"Voyage is Completed.<br>You can't change Status for this Voyage.", Severity.Warning);
+                        Snackbar.Add($"Voyage is Completed.<br>You can't change Status for this Voyage.", Severity.Warning);
             }
 
             IsNewItem = false;

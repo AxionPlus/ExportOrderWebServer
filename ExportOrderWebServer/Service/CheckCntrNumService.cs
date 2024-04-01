@@ -2,7 +2,15 @@
 
 public class CheckCntrNumService
 {
-    public async Task<int> IsControlDigitCorrect(string cntrNum)
+    public readonly IVesselCallProvider vesselCallProvider;
+    //private AppObjectResponse appObjResponse;
+
+    public CheckCntrNumService(IVesselCallProvider _vesselCallProvider)
+    {
+        vesselCallProvider = _vesselCallProvider;
+    }
+
+    public async Task<int> ControlDigit(string cntrNum)
     {
         // Chars in CntrNum
         char[] chars = new char[26]
@@ -46,4 +54,60 @@ public class CheckCntrNumService
 
         return Remainder;
     }
+
+    public async Task<bool> IsCntrNumDuplicates(string cntrNum, long voyageId)
+    {
+        try
+        {     
+            var responseVoyage = await vesselCallProvider.GetItemAsync(voyageId);
+
+            if (!responseVoyage!.HasError)
+            { 
+                VesselCallEntity Voyage = (VesselCallEntity)responseVoyage.Object!;
+
+                string? existedCntrNum = Voyage.Details.SelectMany(vcd => vcd.ExportOrders)
+                                                        .SelectMany(eo => eo.Records)
+                                                        .Select(eor => eor.CntrNum)
+                                                        .FirstOrDefault(n => n.Equals(cntrNum));
+
+                if (existedCntrNum is not null)
+                    return true;
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+
+        return false;
+    }
+
+    //public async Task<AppObjectResponse> IsCntrNumDuplicates(string cntrNum, long voyageId)
+    //{
+    //    appObjResponse = new();
+    //    try
+    //    {
+    //        var responseVoyage = await vesselCallProvider.GetItemAsync(voyageId);
+
+    //        if (responseVoyage!.HasError)
+    //            appObjResponse.ErrorAdd($"{responseVoyage.Error.FirstOrDefault()}");
+    //        else
+    //        {
+    //            VesselCallEntity Voyage = (VesselCallEntity)responseVoyage.Object!;
+
+    //            string? existedCntrNum = Voyage.Details.SelectMany(vcd => vcd.ExportOrders).SelectMany(eo => eo.Records).Select(eor => eor.CntrNum).FirstOrDefault(n => n.Equals(cntrNum));
+
+    //            if (existedCntrNum is not null)
+    //                appObjResponse.ErrorAdd($"Контейнер повторяется в рейсе: {Voyage.Vessel.Name + " / " + Voyage.VoyageNo}.");
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex.Message);
+    //        return appObjResponse;
+    //    }
+
+    //    return appObjResponse;
+    //}
 }

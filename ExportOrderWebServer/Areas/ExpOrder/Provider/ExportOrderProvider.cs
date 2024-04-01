@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-public class ExportOrderProvider : IExportOrderProvider
+﻿public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
@@ -22,16 +20,49 @@ public class ExportOrderProvider : IExportOrderProvider
 
             try
             {
-                appObjResponse.Object = await db.ExportOrders.Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal)
-                                                             .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Vessel)
-                                                             .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
-                                                             .Include(eo => eo.Person)
-                                                             .Include(eo => eo.Carrier)!.ThenInclude(c => c!.CarrierDetails)
-                                                             .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)
-                                                             .Include(eo => eo.Records)!.ThenInclude(r => r.CntrType)
-                                                             .Include(eo => eo.Records)!.ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
-                                                             .AsNoTracking()
-                                                             .FirstOrDefaultAsync(s => s.Id == id);
+                var documents = new List<DocumentEntity>();
+
+                var exportOrder = await db.ExportOrders.AsNoTracking()
+                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal)
+                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Vessel)
+                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
+                                                       .Include(eo => eo.Person)
+                                                       .Include(eo => eo.Carrier)!.ThenInclude(c => c!.CarrierDetails)
+                                                       .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)        // delete
+                                                       .Include(eo => eo.Records)!.ThenInclude(r => r.CntrType)
+                                                       .Include(eo => eo.Records)!.ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
+                                                       .FirstOrDefaultAsync(s => s.Id == id);
+
+                if (exportOrder is null)
+                {
+                    appObjResponse.ErrorAdd("Export Order not found");
+                    return appObjResponse;
+                }
+
+                // Clear Documents from Export Order
+                exportOrder.Documents.Clear();          // delete
+
+                var checkedDocuments = exportOrder.Records.SelectMany(eor => eor.Contents.Select(con => con.DocumentRecord.Document)).GroupBy(d => d.Name);
+
+                foreach (var checkedDocument in checkedDocuments)
+                {
+                    var Document = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == checkedDocument.Key);
+
+                    if (Document is null) continue;
+
+                    var existedDocRecords = Document.Records.ToList();
+
+                    foreach (var existedDocRecord in existedDocRecords)
+                    {
+                        if (!checkedDocument.SelectMany(d => d.Records).Any(dr => dr.Seq == existedDocRecord.Seq))
+                            Document.Records.Remove(existedDocRecord);
+                    }
+
+                    //documents.Add(Document);
+                    exportOrder.Documents.Add(Document);
+                }
+
+                appObjResponse.Object = exportOrder;
             }
             catch (Exception ex)
             {
@@ -740,66 +771,16 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             var db = await _db;
 
-            try
-            {
-                var Result = await db.Set<ExportOrderRecord>()
-                                                              //.Include(eor => eor.ExportOrder)
-                                                              .Include(eor => eor.CntrType)
-                                                              .Include(eor => eor.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
-                                                              .AsNoTracking()
-                                                              .FirstOrDefaultAsync(s => s.Id == id);
+            var eoRecords = await db.Set<ExportOrderRecord>().AsNoTracking()
+                                                             .Include(eor => eor.ExportOrder).ThenInclude(eo => eo.VesselCallDetail)
+                                                             .Include(eor => eor.CntrType)
+                                                             .Include(eor => eor.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)                                                          
+                                                             .FirstOrDefaultAsync(s => s.Id == id);
 
-                var result = db.ExportOrders.Select(eo => eo.Records.FirstOrDefault(eor => eor.Id == id))
-                                                              //.Include(eor => eor.CntrType)
-                                                              //.Include(eor => eor.Contents)//.ThenInclude(con => con.DocumentRecord).ThenInclude(dr => dr.Document)
-                                                              ;
-                                                                            
-                                                                            
-
-                appObjResponse.Object = result;
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
-                return appObjResponse;
-            }
+            appObjResponse.Object = eoRecords;
         }
 
         return appObjResponse;
-    }
-
-    public async Task<AppObjectResponse> IsExistRecordItemAsync(string recordItemName)
-    {
-        appObjResponse = new();
-
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            try
-            {
-                var vesselCall = await db.VesselCalls
-                            .Include(vc => vc.Details)
-                            .ThenInclude(d => d.ExportOrders)
-                            .ThenInclude(eo => eo.Records)
-                            .SelectMany(vc => vc.Details.SelectMany(vcd => vcd.ExportOrders.SelectMany(eo => eo.Records.Select(eor => eor.CntrNum))))
-                            .ToListAsync();
-
-                bool IsExist = vesselCall.Any(cntr => cntr == recordItemName);
-
-                if (IsExist) appObjResponse.ErrorAdd($"Container is exist already: {recordItemName}");
-
-                return appObjResponse;
-            }
-            catch(Exception ex)
-            {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
-                return appObjResponse;
-            }
-        }
-
     }
     
     public async Task<AppObjectResponse> ModifyExportOrderRecordItemAsync(ExportOrderRecord item)
@@ -835,7 +816,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 foreach (var modifyContent in modifyItem.Contents)
                     db.Entry(modifyContent).State = EntityState.Deleted;
 
-                db.Entry(modifyItem).State = EntityState.Deleted;
+                //db.Entry(modifyItem).State = EntityState.Deleted;
 
                 var dbBug = db.ChangeTracker.DebugView.LongView;
                 await db.SaveChangesAsync();
@@ -845,10 +826,14 @@ public class ExportOrderProvider : IExportOrderProvider
                 // RE-WRITE WITH A NEW ITEM
 
                 modifyItem!.CntrNum = item.CntrNum;
-                db.Entry(modifyItem.CntrType!).State = EntityState.Unchanged;
+                modifyItem.CntrType = item.CntrType;                
                 modifyItem!.CntrTareWt = item.CntrTareWt;
                 modifyItem.Seal = item.Seal;
-                
+                modifyItem.ExportOrder = item.ExportOrder;
+
+                db.Entry(modifyItem.CntrType!).State = EntityState.Unchanged;
+                db.Entry(modifyItem.ExportOrder!).State = EntityState.Unchanged;
+
                 foreach (var itemContent in item.Contents)
                 {
                     db.Entry(itemContent).State = EntityState.Added;
@@ -863,9 +848,9 @@ public class ExportOrderProvider : IExportOrderProvider
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
-
+                //string msg = ex.Message;
+                Console.WriteLine(ex.Message);
+                //appObjResponse.ErrorAdd(msg);
                 return appObjResponse;
             }
 
@@ -1147,6 +1132,43 @@ public class ExportOrderProvider : IExportOrderProvider
         else
             return null;
     };
+
+    #endregion
+
+    #region DELETE
+
+    // DELETE
+    //public async Task<AppObjectResponse> IsRecordItemExistAsync(string cntrNum)
+    //{
+    //    appObjResponse = new();
+
+    //    using (var _db = _dbContext.CreateDbContextAsync())
+    //    {
+    //        var db = await _db;
+
+    //        try
+    //        {
+    //            var VoyageCntrs = await db.VesselCalls.AsNoTracking()
+    //                                        .Include(vc => vc.Details)
+    //                                        .ThenInclude(d => d.ExportOrders)
+    //                                        .ThenInclude(eo => eo.Records)
+    //                                        .SelectMany(vc => vc.Details.SelectMany(vcd => vcd.ExportOrders.SelectMany(eo => eo.Records.Select(eor => eor.CntrNum))))
+    //                                        .ToListAsync();
+
+    //            bool IsExist = VoyageCntrs.Any(cntr => cntr == cntrNum);
+
+    //            if (IsExist) appObjResponse.ErrorAdd($"Container is exist already: {cntrNum}");                
+
+    //            return appObjResponse;
+    //        }
+    //        catch(Exception ex)
+    //        {
+    //            string msg = ex.Message;
+    //            appObjResponse.ErrorAdd(msg);
+    //            return appObjResponse;
+    //        }
+    //    }
+    //}
 
     #endregion
 }

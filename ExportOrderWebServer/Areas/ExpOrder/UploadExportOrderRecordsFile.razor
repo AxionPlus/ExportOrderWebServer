@@ -149,14 +149,12 @@
             var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>>();            
 
             if (uploadedDTO is null)
-            { 
                 Snackbar.Add($"Data not uploaded", Severity.Error);
-            }
             else
             {
                 var errList = await checkUploadResultService.CheckingResult(uploadedDTO, VoyageId);
                 
-                // UPLOADED DATA
+                // DATA
                 uploadResult.UploadedDTO = uploadedDTO;
 
                 // SUMMARY
@@ -168,7 +166,7 @@
                 if (errList.Count() > 0)
                     uploadResult.Errors = errList;
 
-
+                // CHECKED AND READY TO UPLOAD
                 IsChecked = true;
                 BtnName = "Upload";
             }

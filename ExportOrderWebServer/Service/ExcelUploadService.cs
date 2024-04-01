@@ -51,7 +51,7 @@ public class ExcelUploadService : IDisposable
 
         #endregion
 
-        var UploadResult = new List<UploadExcelDTO>();
+        var UploadExcel = new List<UploadExcelDTO>();
 
         try
         {
@@ -72,7 +72,7 @@ public class ExcelUploadService : IDisposable
 
             foreach (var records in recordsArray)
             {
-                UploadResult.Add(new UploadExcelDTO()
+                UploadExcel.Add(new UploadExcelDTO()
                 {
                     DocumentName = (records[colDoc]).Trim(),
                     SeqCommodity = int.TryParse(records[colCargoIndex], out int _cIndex) ? _cIndex : 0,
@@ -94,7 +94,7 @@ public class ExcelUploadService : IDisposable
         }
 
         await Task.Delay(200);
-        return (UploadResult);
+        return (UploadExcel);
     }
 
 

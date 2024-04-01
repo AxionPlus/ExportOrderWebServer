@@ -1,13 +1,16 @@
 ﻿@page "/"
 @inject AuthenticationStateProvider authenticationStateProvider;
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Export Order</PageTitle>
 
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/Identity/Account/Logout" />
 
         <MudSpacer />
+        <img src="Logo_Axion.png" asp-append-version="true" height="24" width="34" class="mr-1" />
+        <MudSpacer />
+
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -19,7 +22,12 @@
 
 <br />
 
-<h1 style="text-align:center;">Hello, @ApplicationParameter.ApplicationUser</h1>
+<div class="container-content" style="text-align:center">
+    @* <img src="Logo_Axion.png" asp-append-version="true" width="200px" /> *@
+</div>
+<br />
+<h1 style="text-align:center">Hello</h1>
+<h1 style="text-align:center">@ApplicationParameter.ApplicationUser</h1>
 
 @* <MudButton OnClick="menu_click">Menu</MudButton> *@
 

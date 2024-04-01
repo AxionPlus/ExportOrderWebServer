@@ -4,6 +4,7 @@ global using Microsoft.EntityFrameworkCore;
 global using ExportOrderDbContext;
 
 global using ExportOrderEntites;
+global using ExportOrderEntites.DTO;
 global using ExportOrderEntites.Document;
 global using ExportOrderEntites.Catalog;
 global using ExportOrderEntites.Cntr;
@@ -11,7 +12,7 @@ global using ExportOrderEntites.VesselCall;
 global using ExportOrderEntites.ExportOrder;
 global using ExportOrderEntites.MyCompany;
 
-global using ExportOrderEntites.DTO;
+global using ExportOrderWebServer.Service;
 
 global using ExportOrderWebServer.Areas.Carrier.Provider;
 global using ExportOrderWebServer.Areas.Cntr.Provider;
@@ -28,5 +29,6 @@ global using ExportOrderWebServer.Areas.Terminal.Provider;
 global using ExportOrderWebServer.Areas.User.Provider;
 global using ExportOrderWebServer.Areas.Vessel.Provider;
 global using ExportOrderWebServer.Areas.VesselCall.Provider;
+global using ExportOrderWebServer.Areas.Statistic;
 
 global using ExportOrderWebServer.Resources;

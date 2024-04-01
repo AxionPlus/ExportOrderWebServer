@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ExportOrderWebServer.Service;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
@@ -48,9 +47,9 @@ public class UploadFileController : ControllerBase
         {
             try
             {
-                var result = await exl.ReadUploadingFile();
+                var uploadResult = await exl.ReadUploadingFile();
 
-                return result;
+                return uploadResult;
             }
             catch (Exception ex)
             {

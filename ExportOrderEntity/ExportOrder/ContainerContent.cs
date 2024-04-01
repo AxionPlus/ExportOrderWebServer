@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.ExportOrder;
@@ -17,4 +18,5 @@ public class ContainerContent
     public DocumentRecord DocumentRecord { get; set; }
     [JsonIgnore]
     public ExportOrderRecord ExportOrderRecord { get; set; }
+    [NotMapped] public string? DocumentName { get; set; }
 }

@@ -116,7 +116,8 @@
 
     private async Task CheckAndUploadFile(bool ischecked)
     {
-        if (ischecked) MudDialog!.Close(uploadResult);
+        if (IsChecked) MudDialog!.Close(uploadResult);
+        //if (ischecked) MudDialog!.Close(uploadResult);
 
         IsLoadingData = true;
 

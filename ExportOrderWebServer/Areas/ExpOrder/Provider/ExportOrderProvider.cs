@@ -860,18 +860,6 @@
 
     #region AUXIALARY
 
-    public async Task<string> GetUserRoleAsync()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            var role = await db.Set<ApplicationRole>().AsNoTracking().Select(s => s.Name).FirstOrDefaultAsync();
-
-            return role is null ? string.Empty : role;
-        }
-    }
-
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
     {
         var eoRecordsDTO = new List<ExportOrderRecordDTO>();

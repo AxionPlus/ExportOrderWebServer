@@ -177,9 +177,10 @@
         </div>
     
     </MudForm>
-
-    <OverlayLoadingData Visible="@IsLoadingData" />
+       
 }
+
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     private MudForm? Form { get; set; }
@@ -257,14 +258,6 @@
 
             if (IsNewItem)
             {
-                // // check for existing Record.CntrNum
-                // var response = await _exportOrderProvider.IsRecordItemExistAsync(Item!.CntrNum);
-                // if (response.HasError)
-                // {
-                //     Snackbar.Add(response.Error.FirstOrDefault(), Severity.Warning);
-                //     return;
-                // }
-
                 // check for an empty Document
                 bool errDocument = false;
 
@@ -279,10 +272,12 @@
 
                 IsLoadingData = false;
 
-                if (!errDocument)
-                    MudDialog!.Close(DialogResult.Ok(Item));
-                else
+                if (errDocument)
                     Snackbar.Add("Select a Document / HS code", Severity.Warning);
+                else
+                    MudDialog!.Close(DialogResult.Ok(Item));
+                
+                return;
             }
             else
             {

@@ -127,22 +127,6 @@
         if (IsNewItem)
         {
             Item = new();
-
-            // if (vcdId != 0)
-            // {
-            //     var vesselCallDetail = new VesselCallDetail();
-
-            //     response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
-            //     if (!response.HasError)
-            //     {
-            //         vesselCallDetail = (VesselCallDetail)response.Object!;
-            //     }
-            //     else
-            //         Snackbar.Add($"{response.Error.First()}", Severity.Error);
-
-            //     Item = new() { VesselCallDetail = vesselCallDetail };
-            // }
-
             IsFormReadOnly = false;
         }
         else

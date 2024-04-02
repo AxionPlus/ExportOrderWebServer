@@ -143,7 +143,8 @@
         var client = httpClient.CreateClient();
         client.Timeout = new TimeSpan(0, 0, 0, 0, -1);        
 
-        var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadFromExcel", content);
+        //var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadFromExcel", content);
+        var response = await client.PostAsync($"{ApplicationParameter.UploadFileUrl}UploadFromExcel", content);
 
         client.Dispose();
 
@@ -176,7 +177,7 @@
             }
         }
         else
-            Snackbar.Add($"Data not uploaded", Severity.Error);
+            Snackbar.Add($"File not uploaded", Severity.Error);
 
         ClearDragClass();
         

@@ -1,7 +1,6 @@
 ﻿using AspNetCore.Reporting;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using ExportOrderWebServer.Service;
 
 namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 

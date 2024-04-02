@@ -794,18 +794,6 @@
 
     private async Task AddPerson_Click()
     {
-        // //await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}mycompany?IsNewPerson={true}", "_blank"));
-        // await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}mycompany?IsNewPerson={true}", "_blank");
-
-        // var result = await ValueTask.FromResult(jsRuntime);
-
-        // // if (result is not null)
-        // // {
-        // //     Persons = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<PersonEntity>>(result.ToString());
-        // //     //Persons = JsonSerializer.DeserializeAsync<HashSet<PersonEntity>>(result, (JsonSerializerOptions?)null);
-        // // }
-
-
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
@@ -815,10 +803,7 @@
         DialogResult result = await dialog.Result;
 
         if (result.Canceled)
-        {
             Persons = await _exportOrderProvider.GetPersonsAsync();
-        }
-
     }
 
     #endregion

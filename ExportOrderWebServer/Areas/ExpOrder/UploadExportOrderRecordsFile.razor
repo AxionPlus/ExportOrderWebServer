@@ -22,7 +22,7 @@
         </ButtonTemplate>
     </MudFileUpload>
     <MudToolBar DisableGutters="true" Class="gap-4">
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(async () => { await CheckAndUploadFile(IsChecked); })"
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CheckAndUploadFile"
                    Style="margin-inline-start:10px"
                    Disabled="@(!FileName.Any())"
                    StartIcon="@Icons.Material.Filled.UploadFile">
@@ -114,11 +114,14 @@
         DragClass = DefaultDragClass;
     }
 
-    private async Task CheckAndUploadFile(bool ischecked)
+    private async Task CheckAndUploadFile()
     {
-        if (IsChecked) MudDialog!.Close(uploadResult);
-        //if (ischecked) MudDialog!.Close(uploadResult);
-
+        if (IsChecked)
+        {
+            MudDialog!.Close(uploadResult);
+            return;
+        }
+        
         IsLoadingData = true;
 
         long maxFileSize = 1024 * 500;

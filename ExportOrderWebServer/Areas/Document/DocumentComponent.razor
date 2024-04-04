@@ -1,7 +1,7 @@
 ﻿@inject ISnackbar Snackbar
+@inject IJSRuntime jSRuntime
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
-@inject IJSRuntime jSRuntime
 @inject IDocumentProvider _documentProvider
 
 <style>
@@ -22,6 +22,11 @@
 
 <div class="Container-item">
         <div class="container-content">
+            <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
+                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+                Search
+            </MudButton>
+            <MudSpacer />
             <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" Value="Filter.Document" SearchFunc="@SearchDocument"                             
                              ValueChanged="(e)=> { Filter.Document = e; }"
                              Placeholder="Декларация"
@@ -52,11 +57,6 @@
                     }
                 }
             </MudSelect>
-            <MudSpacer />
-            <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
-                        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
-                 Search
-            </MudButton>
         </div>
     </div>
 
@@ -118,10 +118,10 @@
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
-    @code {
+@code {
     private MudTable<DocumentEntity>? mudTable;
-
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
     [Parameter]
     public bool IsSelectable { get; set; } = false;
 
@@ -136,6 +136,8 @@
     public async Task GetItems()
     {        
         IsLoadingData = true;
+
+        if (IsSelectable) Filter.Status = EntityStatus.New;
 
         var response = await _documentProvider.GetItemsAsync(Filter);
         if (!response.HasError)
@@ -197,16 +199,7 @@
 
     private async Task<IEnumerable<string>> SearchDocument(string value)
     {
-        var result = await _documentProvider.GetNames();
-
-        // if (result.Count() == 0)
-        //     return Enumerable.Empty<string>();
-
-        // if (string.IsNullOrWhiteSpace(value))
-        //     return result;
-        
-        // return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct().Order().ToList();
-
+        var result = await _documentProvider.GetDocumentNames(IsSelectable);
 
         if (string.IsNullOrWhiteSpace(value))
             return result;

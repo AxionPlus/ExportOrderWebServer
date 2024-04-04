@@ -302,20 +302,21 @@
 
     private async Task ViewReportExpOrder_Click(long id)
     {
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
+        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
+        string path = $"{ApplicationParameter.ViewReportUrl}ViewReportExpOrder?Id={id}";
         await jSRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task ViewReportBL_Click(long id)
     {
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportBL?Id={id}";
+        string path = $"{ApplicationParameter.ViewReportUrl}ViewReportBL?Id={id}";
 
         await jSRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task SaveXMLfile_Click(long id)
     {
-        string path = $"{Navigation.BaseUri}server/ExportOrder/SaveXMLfile?Id={id}";
+        string path = $"{Navigation.BaseUri}view/ViewReport/SaveXMLfile?Id={id}";
         await jSRuntime.InvokeVoidAsync("open", path);
     }
 

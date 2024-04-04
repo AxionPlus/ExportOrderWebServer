@@ -6,14 +6,14 @@ namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
 //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 
-[Route("server/[controller]")]
+[Route("view/[controller]")]
 [Controller]
-public class ExportOrderController : ControllerBase
+public class ViewReportController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IExportOrderProvider _exportOrderProvider;
 
-    public ExportOrderController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider)
+    public ViewReportController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -298,7 +298,7 @@ public class ExportOrderController : ControllerBase
             return Ok();
         }
     }
-    
+
     [HttpGet]
     [Route("ViewReportManifest")]
     public async Task<IActionResult> ManifestReport(long vslcallid, bool isIMO)
@@ -518,7 +518,7 @@ public class ExportOrderController : ControllerBase
             string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xml");
 
             using (var xml = new XmlService(tempFilePath, Item))
-            {   
+            {
                 var buffer = await xml.CreateXMLfile();
 
                 if (buffer != Array.Empty<byte>())
@@ -582,7 +582,7 @@ public class ExportOrderController : ControllerBase
             string FileName = $"ИмпортСписка ДТ (проформа)";
 
             byte[] fileBytes = Resource.TemplateUploadCntrs;
-            
+
             await Task.Delay(100);
 
             if (fileBytes != Array.Empty<byte>())

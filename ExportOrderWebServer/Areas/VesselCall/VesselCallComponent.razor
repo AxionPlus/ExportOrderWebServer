@@ -191,7 +191,8 @@
                 </MudTd>
                 <MudTd>
                     <MudTooltip Text="Add new ExportOrder">
-                        <MudIconButton Icon="@Icons.Material.Filled.AddCircleOutline" Color="Color.Primary" OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })" />
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircleOutline" Color="Color.Primary" Disabled="context.Status == EntityStatus.Completed"
+                                        OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })" />
                     </MudTooltip>                    
                 </MudTd>
             }
@@ -242,9 +243,9 @@
 
     protected override async void OnInitialized()
     {
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
         {
             IsRoleForEdit = true;
         }
@@ -267,7 +268,7 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task ShowItem_Click(long vesselCallId)    // (string VesselVoyage)
+    private async Task ShowItem_Click(long vesselCallId)
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
@@ -281,9 +282,9 @@
             await GetItems();
     }
 
-    private async Task AddExportOrder_Click(long id)
+    private async Task AddExportOrder_Click(long vcdId)
     {
-        var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={id}", "_blank"));
+        var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));
 
         // if (result.IsCompletedSuccessfully)
         //     await component!.GetItems();
@@ -337,7 +338,7 @@
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}";
+        string path = $"{ApplicationParameter.ViewReportUrl}ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 
@@ -346,7 +347,7 @@
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        string path = $"{Navigation.BaseUri}server/ExportOrder/SaveFillBillExcelFile?vslcallid={vesselcallid}";
+        string path = $"{Navigation.BaseUri}view/ViewReport/SaveFillBillExcelFile?vslcallid={vesselcallid}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 
@@ -355,17 +356,14 @@
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        string path = $"{Navigation.BaseUri}server/ExportOrder/ViewCustomsExplanation?vslcallid={vesselcallid}";
+        string path = $"{ApplicationParameter.ViewReportUrl}ViewCustomsExplanation?vslcallid={vesselcallid}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task<long> GetVoyageId()
     {
         if (Items!.Count() == 0) return 0;
-
-        // if (Items!.Any(s => s.Status == 0))
-        //     Snackbar.Add($"Some of the Records has no Export Order issued yet", Severity.Warning);
-
+ 
         await Task.Delay(500);
 
         var voyageGroup = Items!.GroupBy(g => g.VesselCallId).Select(g => g.Key);

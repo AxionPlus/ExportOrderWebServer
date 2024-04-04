@@ -90,6 +90,7 @@ public class ExcelUploadService : IDisposable
         catch (Exception ex)
         {
             var msg = ex.Message;
+            Console.WriteLine(ex.Message);
             return new List<UploadExcelDTO>();
         }
 

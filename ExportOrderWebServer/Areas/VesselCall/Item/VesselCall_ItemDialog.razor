@@ -220,8 +220,9 @@
     private VesselCallEntity? Item { get; set; }
 
     private bool IsLoadingData = false;
-    public bool IsFormReadOnly { get; set; } = true;
+    private bool IsFormReadOnly { get; set; } = true;
     private bool IsRoleForEdit = false;
+    private EntityStatus ItemStatus { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -246,8 +247,8 @@
 
             if (!response.HasError)
                 Item = (VesselCallEntity)response.Object!;
-            else
-                Snackbar.Add($"{response.Error.First()}", Severity.Error);
+            
+            if (Item is not null) ItemStatus = Item.Status;
         }
     }
 
@@ -265,7 +266,9 @@
             }
             else
             {   
-                if (Item!.Status != EntityStatus.Completed || IsRoleForEdit) //if (InitialStatus != "Completed")
+                if (ItemStatus == EntityStatus.Completed && !IsRoleForEdit)
+                    Snackbar.Add($"Voyage is Completed.<br>You can't change Status for this Voyage.", Severity.Warning);
+                else
                 {
                     var result = await _vesselCallProvider.ModifyItemAsync(Item!);
                     if (!result.HasError)
@@ -273,14 +276,11 @@
                     else
                         Snackbar.Add($"{result.Error.First()}", Severity.Error);
                 }
-                else
-                        Snackbar.Add($"Voyage is Completed.<br>You can't change Status for this Voyage.", Severity.Warning);
             }
 
             IsNewItem = false;
             IsFormReadOnly = true;
 
-            //Voyage = $"{Item!.Vessel?.Name}&{Item.VoyageNo}";
             Id = Item!.Id;
             await GetItem();
 

@@ -71,7 +71,6 @@
             <div class="container-content" style="padding-bottom:unset">
                 <MudTextField T="string" Label="Container num" Value="@Item.CntrNum"
                               ValueChanged="(e) => { Item.CntrNum = e.ToUpper(); }"
-                              OnBlur="CheckCntrNum"
                               Style="width:180px" MaxLength="11"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Required RequiredError="" Clearable="!IsFormReadOnly" Mask="@_CntrNumMask" />
@@ -98,7 +97,9 @@
                     <MudTable Class="Table" @ref="mudTable" Items="Item.Contents" RowsPerPage="10">
                         <HeaderContent>
                             <MudTh Style="width:35px">
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddContainerContent_Click">ADD new content</MudIconButton>
+                                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="AddContainerContent_Click"
+                                               Color="Color.Primary" Disabled="IsFormReadOnly">
+                                    ADD new content</MudIconButton>
                             </MudTh>
                             <MudTh Style="width:240px">Document</MudTh>
                             <MudTh Style="width:150px">HS Code</MudTh>
@@ -131,7 +132,7 @@
                                            ToStringFunc="@(dr => dr is not null ? dr.CommodityHSCode : "")"
                                            Variant="Variant.Outlined" Margin="Margin.Dense"
                                            OpenIcon="" Required RequiredError="" Clearable="!IsFormReadOnly">
-                                    @if (context.DocumentRecord is not null && context.DocumentName is not null && Documents is not null)
+                                    @if (context.DocumentName is not null && Documents is not null)
                                         @foreach (DocumentRecord documentRecord in Documents.FirstOrDefault(d => d.Name == context.DocumentName)!.Records)
                                         {
                                             <MudSelectItem Value="@documentRecord">
@@ -155,16 +156,14 @@
                                     <h6 class="Summary">
                                         Total documents:@(" ")
                                         @if (Item.Contents.Any(co => co.DocumentRecord != null))
-                                            @if (!Item.Contents.Any(co => co.DocumentRecord.Document == null))
-                                                @Item.Contents.GroupBy(co => co.DocumentRecord.Document.Id)!.Count()                                   
+                                            @Item.Contents.Where(co => co.DocumentRecord != null).GroupBy(co => co.DocumentName)!.Count()
                                     </h6>
                                 </MudTd>
                                 <MudTd Style="text-align:center">
                                     <h6 class="Summary">
                                         goods:
                                         @if (Item.Contents.Any(co => co.DocumentRecord != null))
-                                            @if (!Item.Contents.Any(co => co.DocumentRecord.Document == null))
-                                                @Item.Contents.GroupBy(co => co.DocumentRecord.CommodityEngName)!.Count()
+                                            @Item.Contents.Where(co => co.DocumentRecord != null).GroupBy(co => co.DocumentRecord.CommodityEngName)!.Count()
                                     </h6>
                                 </MudTd>
                                 <MudTd colspan="6"></MudTd>
@@ -176,8 +175,7 @@
             </div>            
         </div>
     
-    </MudForm>
-       
+    </MudForm>       
 }
 
 <OverlayLoadingData Visible="@IsLoadingData" />
@@ -188,20 +186,17 @@
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
-    public long Id { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
+    public ExportOrderRecord Item { get; set; } = new ExportOrderRecord();
     [Parameter]
     public long VoyageId { get; set; }
     [Parameter]
-    public IEnumerable<DocumentEntity>? Documents { get; set; }
+    public IEnumerable<DocumentEntity> Documents { get; set; } = new List<DocumentEntity>();
 
-    public ExportOrderRecord? Item { get; set; }
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
 
     private bool IsFormReadOnly { get; set; } = true;
     public bool IsLoadingData { get; set; } = false;
-
+    private string? InitialCntrNum;
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -216,24 +211,14 @@
 
     private async Task GetItem()
     {
-        if (IsNewItem)
-        {
-            Item = new();
-            IsFormReadOnly = false;            
-        }
+        if (Item.Id == 0)
+            IsFormReadOnly = false;
         else
-        {
-            var response = await _exportOrderProvider.GetExportOrderRecordItemAsync(Id);
-            if (!response.HasError)
-            {
-                Item = (ExportOrderRecord)response.Object!;
+            foreach (var content in Item!.Contents)
+                content.DocumentName = content.DocumentRecord.Document.Name;
 
-                foreach (var content in Item.Contents)
-                {
-                    content.DocumentName = content.DocumentRecord.Document.Name;
-                }
-            }
-        }
+        if (Item.CntrNum is not null)
+            InitialCntrNum = Item.CntrNum;
     }
 
 
@@ -254,50 +239,32 @@
 
         if (Form.IsValid)
         {
-            IsLoadingData = true;
+            bool hasError = await HasCntrNumError();
 
-            if (IsNewItem)
+            //await Task.Delay(1000);
+
+            if (hasError)
             {
-                // check for an empty Document
-                bool errDocument = false;
+                bool? result = await DialogService.ShowMessageBox(
+                                "Non-compliance",
+                                (MarkupString)$"Продолжить?",
+                                yesText: "YES", cancelText: "NO");
 
-                foreach (var content in Item!.Contents)
+                if (result.HasValue)
                 {
-                    if (string.IsNullOrEmpty(content.DocumentRecord.Document.Name) || string.IsNullOrEmpty(content.DocumentRecord.CommodityHSCode))
-                    {
-                        errDocument = true;
-                        continue;
-                    }
+                    if (!result.Value)
+                        return;
                 }
-
-                IsLoadingData = false;
-
-                if (errDocument)
-                    Snackbar.Add("Select a Document / HS code", Severity.Warning);
-                else
-                    MudDialog!.Close(DialogResult.Ok(Item));
-                
-                return;
+                else return;
             }
-            else
-            {
-                var response = await _exportOrderProvider.ModifyExportOrderRecordItemAsync(Item!);
-                if (!response.HasError)
-                    Snackbar.Add("Saved Successfully", Severity.Success);
-                else
-                {
-                    Snackbar.Add("No Success", Severity.Error);
-                    IsLoadingData = false;
-                    return;
-                }                
-            }
-
-            IsNewItem = false;
-
-            await GetItem();
 
             IsFormReadOnly = true;
-            IsLoadingData = false;
+
+            Snackbar.Add("Seved successfully.", Severity.Success);
+
+            await Task.Delay(500);
+
+            MudDialog!.Close(DialogResult.Ok(Item));
         }
         else
             Snackbar.Add("Fill up an all required fields (marked in red)", Severity.Warning);
@@ -309,37 +276,40 @@
         IsFormReadOnly = false;
     }
 
-    private async void CheckCntrNum()
+    private async Task<bool> HasCntrNumError()
     {        
-        if (VoyageId == 0 || Item is null) return;
+        if (VoyageId == 0 || Item is null) return false;
 
-        // Check DUPLICATES
         string num = Item.CntrNum;
 
+        if (InitialCntrNum is not null)
+            if (num.Equals(InitialCntrNum)) return false;
+
+        if (num.Length < 11)
+        {
+            Snackbar.Add($"Нехватает символов в номере Контейнера.", Severity.Error);
+            return true;
+        }       
+
+        // Check DUPLICATES
         bool response = await checkCntrNumService.IsCntrNumDuplicates(num, VoyageId);
 
         if (response)
         {
             Snackbar.Add($"{num}: Контейнер повторяется в этом рейсе.", Severity.Error);
-            return;
+            return true;
         }
 
         // Check CONTROL DIGIT IN CNTR_NUM
-        if (num is not null)
+
+        int controlDigit = await checkCntrNumService.ControlDigit(num);
+
+        if (Convert.ToInt32(num.Substring(10, 1)) == controlDigit)
+            return false;
+        else
         {
-            if (num.Length < 11) return;
-
-            int controlDigit = await checkCntrNumService.ControlDigit(num);
-
-            if (Convert.ToInt32(num.Substring(10, 1)) == controlDigit)
-                return;
-
-            bool? result = await DialogService.ShowMessageBox(
-                            "Non-compliance",
-                            (MarkupString)$"Контрольная цифра в номере контейнера не верна. Правильно - {controlDigit}.",
-                            yesText: "Ok");
-
-            //await CNum.FocusAsync();
+            Snackbar.Add($"Контрольная цифра в номере контейнера не верна. Правильно - {controlDigit}.", Severity.Error);            
+            return true;
         }
     }
 
@@ -352,16 +322,65 @@
         }
     };
     
-    private async Task<IEnumerable<DocumentEntity>> SearchDocument(string value)
-    {
-        var result = await _documentProvider.GetDocumentItemsAsync();
+    // private async Task SaveItem_Click()
+    // {
+    //     await Form!.Validate();
 
-        if (string.IsNullOrWhiteSpace(value))
-            return result;
+    //     if (Form.IsValid)
+    //     {
+    //         IsLoadingData = true;
 
-        if (result.Count() == 0)
-            return Enumerable.Empty<DocumentEntity>();
-        
-        return result.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();            
-    }
+    //         if (IsNewItem)
+    //         {
+    //             // check for an empty Document
+    //             bool errDocument = false;
+
+    //             foreach (var content in Item!.Contents)
+    //             {
+    //                 if (string.IsNullOrEmpty(content.DocumentRecord.Document.Name) || string.IsNullOrEmpty(content.DocumentRecord.CommodityHSCode))
+    //                 {
+    //                     errDocument = true;
+    //                     continue;
+    //                 }
+    //             }
+
+    //             IsLoadingData = false;
+
+    //             if (errDocument)
+    //                 Snackbar.Add("Select a Document / HS code", Severity.Warning);
+    //             else
+    //                 MudDialog!.Close(DialogResult.Ok(Item));
+
+    //             return;
+    //         }
+    //         else
+    //         {
+    //             //REPEAT AS IT 'IsNewItem'
+    //             // ------------------------------------------------------------
+
+    //             // var response = await _exportOrderProvider.ModifyExportOrderRecordItemAsync(Item!);
+    //             // if (!response.HasError)
+    //             // {
+    //             //     Snackbar.Add("Saved Successfully", Severity.Success);
+    //             // }
+    //             // else
+    //             // {
+    //             //     Snackbar.Add("No Success", Severity.Error);
+    //             //     IsLoadingData = false;
+    //             //     return;
+    //             // }
+
+
+    //         }
+
+    //         IsNewItem = false;
+
+    //         await GetItem();
+
+    //         IsFormReadOnly = true;
+    //         IsLoadingData = false;
+    //     }
+    //     else
+    //         Snackbar.Add("Fill up an all required fields (marked in red)", Severity.Warning);
+    // }
 }

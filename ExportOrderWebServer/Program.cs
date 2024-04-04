@@ -39,11 +39,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);      // время простоя
-    //options.IOTimeout = TimeSpan.FromMinutes(5);      // время активности сессии
-});
+//builder.Services.AddSession(options =>
+//{
+//    options.IdleTimeout = TimeSpan.FromMinutes(30);      // время простоя
+//    //options.IOTimeout = TimeSpan.FromMinutes(5);      // время активности сессии
+//});
 
 builder.Services.AddScoped<TokenProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
@@ -96,7 +96,7 @@ else
     app.UseExceptionHandler("/Error");
 }
 
-app.UseSession();
+//app.UseSession();
 app.UseStaticFiles();
 
 app.UseRouting();

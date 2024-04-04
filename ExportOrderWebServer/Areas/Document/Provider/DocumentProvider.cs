@@ -1,8 +1,4 @@
-﻿using ExportOrderWebServer.DataSet;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace ExportOrderWebServer.Areas.Document.Provider;
+﻿namespace ExportOrderWebServer.Areas.Document.Provider;
 
 public class DocumentProvider : IDocumentProvider
 {
@@ -83,7 +79,7 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
 
-            var documents = await db.Documents.Include(d => d.Records).ToListAsync();
+            var documents = await db.Documents.AsNoTracking().Include(d => d.Records).ToListAsync();
 
             if (parameters.GetType() == typeof(string))
                 if (!string.IsNullOrWhiteSpace(parameters as string))
@@ -107,12 +103,12 @@ public class DocumentProvider : IDocumentProvider
 
                 if (filter.Status >= 0)
                     documents = documents.Where(s => s.Status == filter.Status).ToList();
-                else
-                    documents = documents.Where(s => s.Status == EntityStatus.New).ToList();
+                //else
+                //    documents = documents.Where(s => s.Status == EntityStatus.New).ToList();
 
                 documents = documents.OrderByDescending(x => x.CreateTime).ToList();
 
-                appObjResponse.Object = documents.ToArray();
+                appObjResponse.Object = documents.ToList();
             }
 
             return appObjResponse;
@@ -388,38 +384,39 @@ public class DocumentProvider : IDocumentProvider
         }
     }
 
-    public async Task<IEnumerable<DocumentEntity>> GetDocumentItemsAsync()
+    public async Task<List<string>> GetDocumentNames(bool isSelectable)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var result = await db.Documents.AsNoTracking().ToListAsync();
-            return result;
+            var documents = await db.Documents.AsNoTracking().ToListAsync();
+
+            if (isSelectable)
+                documents = documents.Where(d => d.Status.Equals(EntityStatus.New)).ToList();
+
+            return documents.Select(d => d.Name!).ToList();
         }
     }
 
-    public async Task<IEnumerable<DocumentEntity>> GetDocumentItemsToCheckAsync()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
+    #region DELETE
+    //public async Task<List<DocumentEntity>> GetExportOrderDocumentsAsync(long eoId)
+    //{
+    //    using (var _db = _dbContext.CreateDbContextAsync())
+    //    {
+    //        var db = await _db;
 
-            var result = await db.Documents.Include(d => d.Records).AsNoTracking().ToListAsync();
-            return result;
-        }
-    }
+    //        var documents = await db.Documents.AsNoTracking()
+    //                                          //.Include(d => d.Records).ThenInclude(dr => dr.Document)
+    //                                          .Include(d => d.Records)
+    //                                          .Include(d => d.ExportOrders)
+    //                                          //.Where(d => d.ExportOrders.Select(eo => eo.Id).Equals(eoId))
+    //                                          //.Where(d => d.ExportOrders.FirstOrDefault().Id.Equals(eoId))
+    //                                          .Where(d => d.ExportOrders!.Any(eo => eo.Id.Equals(eoId)))
+    //                                          .ToListAsync();
 
-    // DELETE
-    public async Task<List<string?>?> GetDocumentNamesAsync()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            var documents = await db.Documents.Select(d => d.Name).ToListAsync();
-
-            return documents;
-        }
-    }
+    //        return documents;
+    //    }
+    //}
+    #endregion
 }

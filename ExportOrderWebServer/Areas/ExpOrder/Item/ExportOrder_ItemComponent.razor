@@ -325,7 +325,7 @@
             <RowTemplate>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Disabled="IsFormReadOnly"
-                                    OnClick="@(async ()=>{ await ShowRecordContent_Click(expOrderRecord.Id);})" />
+                                    OnClick="@(async ()=>{ await ShowRecordContent_Click(expOrderRecord);})" />
                 </MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly"
@@ -463,7 +463,7 @@
         }
     }
 
-    protected override async void OnInitialized()   // change to: Task OnInitializedAsync
+    protected override async Task OnInitializedAsync()   // change to: Task OnInitializedAsync (void)
     {
         CheckVoyageState();
         GetDocumentItems();
@@ -478,6 +478,29 @@
         foreach (var document in DocumentItems)
             foreach (var docRecord in document.Records)
                 DocumentRecordItems.Add(docRecord);
+
+        //-----------------------------------
+
+        // if (Value!.Documents.Count() == 0) return;
+
+        // var usedDocuments = Value!.Documents;
+
+        // foreach (var usedDocument in Value!.Documents)
+        // {            
+        //     var existedDocRecords = usedDocument.Records.ToList();
+
+        //     foreach (var existedDocRecord in existedDocRecords)
+        //     {
+        //         if (!usedDocument.Records.Any(dr => dr.Seq == existedDocRecord.Seq))
+        //             usedDocument.Records.Remove(existedDocRecord);
+        //     }
+
+        //     DocumentItems.Add(usedDocument);
+
+        //     foreach (var document in DocumentItems)
+        //         foreach (var docRecord in document.Records)
+        //             DocumentRecordItems.Add(docRecord);
+        // }
 
         await InvokeAsync(StateHasChanged);
     }
@@ -501,14 +524,15 @@
             Value!.Documents!.AddRange(documents);
 
             await ValueChanged.InvokeAsync(Value);
+            GetDocumentItems();
 
-            foreach (var document in documents)
-            {
-                DocumentItems.Add(document);
+            // foreach (var document in documents)
+            // {
+            //     DocumentItems.Add(document);
 
-                foreach (var docRecord in document.Records)
-                    DocumentRecordItems.Add(docRecord);
-            }
+            //     foreach (var docRecord in document.Records)
+            //         DocumentRecordItems.Add(docRecord);
+            // }
         }
     }
 
@@ -563,7 +587,9 @@
     {
         if (Value is null || Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0) return;
 
-        var parameters = new DialogParameters() { ["IsNewItem"] = true, ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents };
+        //var parameters = new DialogParameters() { ["IsNewItem"] = true, ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents };
+        var parameters = new DialogParameters() { ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents };
+        //var parameters = new DialogParameters() { ["IsNewItem"] = true, ["ExportOrderId"] = Value.Id, ["VoyageId"] = VoyageId };
         var options = new DialogOptions { CloseButton = true, DisableBackdropClick = true, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("New Container Record", parameters, options);
         var result = await dialog.Result;
@@ -579,20 +605,34 @@
 
             if (exportOrderRecord is not null)
                 Value.Records.Add(exportOrderRecord);
+
+            await InvokeAsync(StateHasChanged);
         }
     }
 
-    private async Task ShowRecordContent_Click(long eorId)
+    private async Task ShowRecordContent_Click(ExportOrderRecord item)
     {
         if (Value is null || Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0) return;
 
-        var parameters = new DialogParameters() { ["Id"] = eorId, ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents };
+        var parameters = new DialogParameters() { ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents, ["Item"] = item };
         var options = new DialogOptions { CloseButton = true, DisableBackdropClick = true, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("Edit Container Record", parameters, options);
         var result = await dialog.Result;
 
-        //await InvokeAsync(StateHasChanged);
-        //RELOAD (GetItem) on ExportOrder_Item page.
+        if (!result.Canceled)
+        {
+            if (result.Data is null)
+                return;
+
+            var modifiedExportOrderRecord = (ExportOrderRecord)result.Data;
+
+            // re-write ExportOrderRecord
+            
+            if (modifiedExportOrderRecord is not null)
+                item = modifiedExportOrderRecord;
+
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private async Task RemoveContainerRecord(ExportOrderRecord record)
@@ -742,7 +782,7 @@
 
     private async Task DownloadExcelTemplate()
     {
-        string path = $"{Navigation.BaseUri}server/ExportOrder/DownloadExcelTemplate";
+        string path = $"{Navigation.BaseUri}view/ViewReport/DownloadExcelTemplate";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 

@@ -14,7 +14,4 @@ public class VesselCallEntity : Entity
     [Required] public DateTime? ETA { get; set; }
     [Required] public DateTime? ETS { get; set; }
     public List<VesselCallDetail> Details { get; set; } = new List<VesselCallDetail>();
-
-
-    //public IEnumerable<ExportOrderEntity> ExportOrders { get; set; }    // ?? delete
 }

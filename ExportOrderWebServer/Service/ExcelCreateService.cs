@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Office.Interop.Excel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -9,16 +10,16 @@ public class ExcelCreateService : IDisposable
     private readonly uint ExcelAppPid;
     private readonly IEnumerable<VoyageManifestDTO> Items;
 
-    private Excel.Application? ExcelApp;
-    private Excel.Workbooks? Workbooks;
-    private Excel.Workbook? Workbook;
-    private Excel.Sheets? WorkSheets;
-    private Excel.Worksheet? WorkSheet;
+    private Application? ExcelApp;
+    private Workbooks? Workbooks;
+    private Workbook? Workbook;
+    private Sheets? WorkSheets;
+    private Worksheet? WorkSheet;
     private Excel.Range? Range;
 
     public ExcelCreateService(string tempFilePath, IEnumerable<VoyageManifestDTO> items)
     {
-        ExcelApp = new Excel.Application();
+        ExcelApp = new Application();
         Workbooks = ExcelApp.Workbooks;
 
         TempFilePath = tempFilePath;
@@ -42,8 +43,8 @@ public class ExcelCreateService : IDisposable
             int indexCarrier = 0;
             int overallRows = 0;
 
-            for (int i = 1; i < carrierGroup.Count(); i++)
-                WorkSheets!.Copy(After: WorkSheets!.Item[i]);
+            for (int i = 1; i < carrierGroup.Count; i++)
+                WorkSheet!.Copy(After: WorkSheets!.Item[i]);
 
             foreach (var carrier in carrierGroup)
             {
@@ -52,21 +53,20 @@ public class ExcelCreateService : IDisposable
                 ++indexCarrier;
 
                 var item = carrier.Select(g => new
-                                   {
-                                      g.CarrierNameEn,
-                                      g.VesselName,
-                                      g.VesselFlagEn,
-                                      g.CarrierCountryEn,
-                                      g.CarrierLocation,
-                                      g.CarrierContract,
-                                      g.CarrierContractDate,
-                                      g.CaptainFamily,
-                                      g.CaptainName,
-                                      g.BLDate,
-                                      g.POLEn,
-                                      g.CustomsOfficeCode,
-                                   })
-                                  .FirstOrDefault();
+                {
+                    g.CarrierNameEn,
+                    g.VesselName,
+                    g.VesselFlagEn,
+                    g.CarrierCountryEn,
+                    g.CarrierLocation,
+                    g.CarrierContract,
+                    g.CarrierContractDate,
+                    g.CaptainFamily,
+                    g.CaptainName,
+                    g.BLDate,
+                    g.POLEn,
+                    g.CustomsOfficeCode,
+                }).FirstOrDefault();
 
                 //WorkSheet = WorkSheets!.Item[indexCarrier];
                 WorkSheet = Workbook!.Sheets[indexCarrier];
@@ -104,7 +104,7 @@ public class ExcelCreateService : IDisposable
                 var dataBulk = new object[rows, columns];
 
                 var result = Parallel.For(0, rows, (row, state) =>
-                {                    
+                {
                     dataBulk[row, 0] = carrier.ElementAt(row).Seal;
                     dataBulk[row, 1] = carrier.ElementAt(row).PODandCountryEn!;
                     dataBulk[row, 2] = carrier.ElementAt(row).PODunlocode!;
@@ -126,8 +126,8 @@ public class ExcelCreateService : IDisposable
                 });
 
                 Range.Value = dataBulk;
-                
-                overallRows = overallRows + rows;
+
+                overallRows += rows;
             }
 
             SaveTempFile();
@@ -148,13 +148,6 @@ public class ExcelCreateService : IDisposable
 
     #region SUPPORT METHODS
 
-    //private void InitializeExcel()
-    //{
-    //    ExcelApp = new Excel.Application();
-    //    Workbooks = ExcelApp.Workbooks;
-    //    //var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
-    //}
-
     private bool CreateTempFile(byte[]? ResourceFile)
     {
         try
@@ -164,6 +157,7 @@ public class ExcelCreateService : IDisposable
             
             Workbook = Workbooks!.Open(TempFilePath);
             WorkSheets = Workbook!.Worksheets;
+            WorkSheet = WorkSheets[1];
 
             return true;
         }
@@ -217,4 +211,11 @@ public class ExcelCreateService : IDisposable
     }
 
     #endregion
+
+    //private void InitializeExcel()
+    //{
+    //    ExcelApp = new Excel.Application();
+    //    Workbooks = ExcelApp.Workbooks;
+    //    //var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
+    //}
 }

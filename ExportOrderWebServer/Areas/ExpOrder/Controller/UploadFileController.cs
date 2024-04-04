@@ -14,7 +14,10 @@ public class UploadFileController : ControllerBase
     public readonly IDocumentProvider _documentProvider;
     public readonly IVesselCallProvider _vesselCallProvider;
 
-    public UploadFileController(IWebHostEnvironment webHostEnvironment, ICntrTypeProvider cntrTypeProvider, IDocumentProvider documentProvider, IVesselCallProvider vesselCallProvider)
+    public UploadFileController(IWebHostEnvironment webHostEnvironment,
+                                ICntrTypeProvider cntrTypeProvider,
+                                IDocumentProvider documentProvider,
+                                IVesselCallProvider vesselCallProvider)
     {
         _webHostEnvironment = webHostEnvironment;
         _cntrTypeProvider = cntrTypeProvider;

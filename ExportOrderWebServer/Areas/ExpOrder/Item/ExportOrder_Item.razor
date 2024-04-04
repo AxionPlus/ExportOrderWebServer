@@ -68,9 +68,7 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @bind-Value="Item"
-                                       IsFormReadOnly="IsFormReadOnly"
-                                       IsRoleForEdit="@IsRoleForEdit" />
+            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" IsRoleForEdit="@IsRoleForEdit" />
         }
     </MudForm>
 
@@ -88,7 +86,7 @@
 
     [SupplyParameterFromQuery]
     [Parameter]
-    public long vcdId { get; set; }     // delete this parameter
+    public long vcdId { get; set; }
 
     [SupplyParameterFromQuery]
     [Parameter]
@@ -105,17 +103,14 @@
 
     protected override async Task OnInitializedAsync()
     {        
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
-        {
-            IsAuth = true;
-        }
-
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
         {
             IsRoleForEdit = true;
+            IsAuth = true;
         }
+        else if (authState.User.IsInRole("Manager")) IsAuth = true;        
 
         await GetItem();
     }
@@ -126,8 +121,17 @@
 
         if (IsNewItem)
         {
-            Item = new();
             IsFormReadOnly = false;
+                        
+            if (vcdId == 0)
+                Item = new();
+            else
+            {
+                //Add VesselCallDetail
+                response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
+                if (!response.HasError)
+                    Item = new() { VesselCallDetail = (VesselCallDetail)response.Object! };
+            }   
         }
         else
         {

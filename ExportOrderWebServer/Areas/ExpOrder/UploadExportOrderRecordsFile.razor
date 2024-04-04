@@ -121,7 +121,7 @@
             MudDialog!.Close(uploadResult);
             return;
         }
-        
+
         IsLoadingData = true;
 
         long maxFileSize = 1024 * 500;
@@ -141,9 +141,8 @@
         }
 
         var client = httpClient.CreateClient();
-        client.Timeout = new TimeSpan(0, 0, 0, 0, -1);        
-
-        //var response = await client.PostAsync($"{Navigation.BaseUri}file/UploadFile/UploadFromExcel", content);
+        client.Timeout = new TimeSpan(0, 10, 0);        // TimeSpan.FromMinutes(10);
+        
         var response = await client.PostAsync($"{ApplicationParameter.UploadFileUrl}UploadFromExcel", content);
 
         client.Dispose();

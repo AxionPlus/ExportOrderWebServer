@@ -1,4 +1,6 @@
-﻿public class ExportOrderProvider : IExportOrderProvider
+﻿using MudBlazor;
+
+public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
@@ -16,8 +18,8 @@
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
+            
             var db = await _db;
-
             try
             {
                 var documents = new List<DocumentEntity>();
@@ -28,7 +30,7 @@
                                                        .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
                                                        .Include(eo => eo.Person)
                                                        .Include(eo => eo.Carrier)!.ThenInclude(c => c!.CarrierDetails)
-                                                       .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)        // delete
+                                                       .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)
                                                        .Include(eo => eo.Records)!.ThenInclude(r => r.CntrType)
                                                        .Include(eo => eo.Records)!.ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
                                                        .FirstOrDefaultAsync(s => s.Id == id);
@@ -39,28 +41,27 @@
                     return appObjResponse;
                 }
 
-                // Clear Documents from Export Order
-                exportOrder.Documents.Clear();          // delete
+                //// Clear Documents from Export Order and RE-WRITE it
+                //exportOrder.Documents.Clear();
 
-                var checkedDocuments = exportOrder.Records.SelectMany(eor => eor.Contents.Select(con => con.DocumentRecord.Document)).GroupBy(d => d.Name);
+                //var checkedDocuments = exportOrder.Records.SelectMany(eor => eor.Contents.Select(con => con.DocumentRecord.Document)).GroupBy(d => d.Name);
 
-                foreach (var checkedDocument in checkedDocuments)
-                {
-                    var Document = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == checkedDocument.Key);
+                //foreach (var checkedDocument in checkedDocuments)
+                //{
+                //    var Document = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == checkedDocument.Key);
 
-                    if (Document is null) continue;
+                //    if (Document is null) continue;
 
-                    var existedDocRecords = Document.Records.ToList();
+                //    var existedDocRecords = Document.Records.ToList();
 
-                    foreach (var existedDocRecord in existedDocRecords)
-                    {
-                        if (!checkedDocument.SelectMany(d => d.Records).Any(dr => dr.Seq == existedDocRecord.Seq))
-                            Document.Records.Remove(existedDocRecord);
-                    }
+                //    foreach (var existedDocRecord in existedDocRecords)
+                //    {
+                //        if (!checkedDocument.SelectMany(d => d.Records).Any(dr => dr.Seq == existedDocRecord.Seq))
+                //            Document.Records.Remove(existedDocRecord);
+                //    }
 
-                    //documents.Add(Document);
-                    exportOrder.Documents.Add(Document);
-                }
+                //    exportOrder.Documents.Add(Document);
+                //}
 
                 appObjResponse.Object = exportOrder;
             }
@@ -373,9 +374,10 @@
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-                // DELETE AN EXISTED modifyItem.Records
+                // DELETE AN EXISTING modifyItem.Documents & modifyItem.Records
+                
                 if (modifyItem.Records.Count() > 0)
                     foreach (var modifyRecord in modifyItem.Records)
                     {
@@ -383,7 +385,7 @@
                             db.Entry(modifyContent).State = EntityState.Deleted;
 
                         db.Entry(modifyRecord).State = EntityState.Deleted;
-                    }                    
+                    }
 
                 modifyItem.Documents.Clear();
 
@@ -407,7 +409,8 @@
                 db.Entry(modifyItem.Person!).State = EntityState.Unchanged;
                 db.Entry(modifyItem.VesselCallDetail!).State = EntityState.Unchanged;
 
-                // DOCUMENTS              
+                //if (!modifyItem.Documents.SequenceEqual(item.Documents))
+                //{
                 foreach (var itemDocument in item.Documents!)
                 {
                     itemDocument!.CreateUser = User!;
@@ -419,15 +422,18 @@
                     foreach (var record in itemDocument.Records)
                         db.Entry(record).State = EntityState.Unchanged;
                 }
-
-                // EXPORT ORDER RECORDS
-                foreach (var itemRecord in item.Records)
+                //}
+                
+                if (!modifyItem.Records.SequenceEqual(item.Records))
                 {
-                    db.Entry(itemRecord).State = EntityState.Added;
-                    modifyItem.Records.Add(itemRecord);
+                    foreach (var itemRecord in item.Records)
+                    {
+                        db.Entry(itemRecord).State = EntityState.Added;
+                        modifyItem.Records.Add(itemRecord);
 
-                    foreach (var itemRecordContent in itemRecord.Contents)
-                        db.Entry(itemRecordContent).State = EntityState.Added;
+                        foreach (var itemRecordContent in itemRecord.Contents)
+                            db.Entry(itemRecordContent).State = EntityState.Added;
+                    }
                 }
 
                 db.Entry(modifyItem).State = EntityState.Modified;
@@ -783,82 +789,7 @@
         return appObjResponse;
     }
     
-    public async Task<AppObjectResponse> ModifyExportOrderRecordItemAsync(ExportOrderRecord item)
-    {
-        appObjResponse = new();
-
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            try
-            {
-                var modifyItem = await db.Set<ExportOrderRecord>()
-                                                                  .Include(eor => eor.Contents)
-                                                                  .AsTracking()
-                                                                  .FirstOrDefaultAsync(s => s.Id == item.Id);
-
-                if (modifyItem!.CntrNum != item.CntrNum)
-                {
-                    var itemExistCheck = await db.Set<ExportOrderRecord>().Where(s => s.CntrNum.ToUpper() == item.CntrNum.ToUpper()).FirstOrDefaultAsync();
-
-                    if (itemExistCheck is not null)
-                    {
-                        appObjResponse.ErrorAdd($"Export Order No. {item.CntrNum} exists already.");
-                        return appObjResponse;
-                    }
-                }
-
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
-
-                // DELETE AN EXISTED modifyItem
-
-                foreach (var modifyContent in modifyItem.Contents)
-                    db.Entry(modifyContent).State = EntityState.Deleted;
-
-                //db.Entry(modifyItem).State = EntityState.Deleted;
-
-                var dbBug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
-
-                db.ChangeTracker.Clear();
-
-                // RE-WRITE WITH A NEW ITEM
-
-                modifyItem!.CntrNum = item.CntrNum;
-                modifyItem.CntrType = item.CntrType;                
-                modifyItem!.CntrTareWt = item.CntrTareWt;
-                modifyItem.Seal = item.Seal;
-                modifyItem.ExportOrder = item.ExportOrder;
-
-                db.Entry(modifyItem.CntrType!).State = EntityState.Unchanged;
-                db.Entry(modifyItem.ExportOrder!).State = EntityState.Unchanged;
-
-                foreach (var itemContent in item.Contents)
-                {
-                    db.Entry(itemContent).State = EntityState.Added;
-                    modifyItem.Contents.Add(itemContent);
-                }
-
-                db.Entry(modifyItem).State = EntityState.Modified;
-
-                var bug = db.ChangeTracker.DebugView.LongView;
-
-                await db.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                //string msg = ex.Message;
-                Console.WriteLine(ex.Message);
-                //appObjResponse.ErrorAdd(msg);
-                return appObjResponse;
-            }
-
-            return appObjResponse;
-        }
-    }
-
-    #region AUXIALARY
+    #region AUXILIARY
 
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
     {
@@ -1125,7 +1056,6 @@
 
     #region DELETE
 
-    // DELETE
     //public async Task<AppObjectResponse> IsRecordItemExistAsync(string cntrNum)
     //{
     //    appObjResponse = new();
@@ -1158,5 +1088,74 @@
     //    }
     //}
 
+    //public async Task<AppObjectResponse> ModifyExportOrderRecordItemAsync(ExportOrderRecord item)
+    //{
+    //    appObjResponse = new();
+
+    //    using (var _db = _dbContext.CreateDbContextAsync())
+    //    {
+    //        var db = await _db;
+
+    //        try
+    //        {
+    //            var modifyItem = await db.Set<ExportOrderRecord>().AsTracking()
+    //                                                              .Include(eor => eor.Contents)                                                                  
+    //                                                              .FirstOrDefaultAsync(s => s.Id == item.Id);
+
+    //            //if (modifyItem!.CntrNum != item.CntrNum)
+    //            //{
+    //            //    bool response = await checkCntrNumService.IsCntrNumDuplicates(num, VoyageId);
+
+    //            //    if (response)
+    //            //    {
+    //            //        Snackbar.Add($"{num}: Контейнер повторяется в этом рейсе.", Severity.Error);
+    //            //        return;
+    //            //    }
+    //            //}
+
+    //            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+    //            // DELETE AN EXISTED modifyItem
+
+    //            foreach (var modifyContent in modifyItem.Contents)
+    //                db.Entry(modifyContent).State = EntityState.Deleted;
+
+    //            var dbBug = db.ChangeTracker.DebugView.LongView;
+    //            await db.SaveChangesAsync();
+
+    //            db.ChangeTracker.Clear();
+
+    //            // RE-WRITE WITH A NEW ITEM
+
+    //            modifyItem!.CntrNum = item.CntrNum;
+    //            modifyItem.CntrType = item.CntrType;                
+    //            modifyItem!.CntrTareWt = item.CntrTareWt;
+    //            modifyItem.Seal = item.Seal;
+    //            modifyItem.ExportOrder = item.ExportOrder;
+
+    //            db.Entry(modifyItem.CntrType!).State = EntityState.Unchanged;
+    //            db.Entry(modifyItem.ExportOrder!).State = EntityState.Unchanged;
+
+    //            foreach (var itemContent in item.Contents)
+    //            {
+    //                db.Entry(itemContent).State = EntityState.Added;
+    //                modifyItem.Contents.Add(itemContent);
+    //            }
+
+    //            db.Entry(modifyItem).State = EntityState.Modified;
+
+    //            var bug = db.ChangeTracker.DebugView.LongView;
+
+    //            await db.SaveChangesAsync();
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Console.WriteLine(ex.Message);
+    //            return appObjResponse;
+    //        }
+
+    //        return appObjResponse;
+    //    }
+    //}
     #endregion
 }

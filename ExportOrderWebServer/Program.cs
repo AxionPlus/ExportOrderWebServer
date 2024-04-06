@@ -6,15 +6,21 @@ using MudBlazor.Services;
 var builder = WebApplication.CreateBuilder(args);
 //var services = builder.Services;
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
     options.UseNpgsql(connectionString,
-                        optionsBuilder => optionsBuilder.MigrationsAssembly("ExportOrderWebServer")));
+                    optionsBuilder => optionsBuilder.MigrationsAssembly("ExportOrderWebServer"));
+});    
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString), ServiceLifetime.Transient);
+{ 
+    options.UseNpgsql(connectionString);
+},
+ServiceLifetime.Transient);
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>()

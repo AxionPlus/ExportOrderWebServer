@@ -19,6 +19,8 @@ public class ExportOrderConfiguration : IEntityTypeConfiguration<ExportOrderEnti
                .HasConversion(converter);
 
         builder.HasMany(s=>s.Documents).WithMany(s=>s.ExportOrders).UsingEntity(j => j.ToTable("ExportOrders_Documents"));
+
+        //.OnDelete(DeleteBehavior.ClientCascade)
     }
 }
 

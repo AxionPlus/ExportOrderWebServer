@@ -1,6 +1,4 @@
-﻿using MudBlazor;
-
-public class ExportOrderProvider : IExportOrderProvider
+﻿public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
@@ -22,17 +20,17 @@ public class ExportOrderProvider : IExportOrderProvider
             var db = await _db;
             try
             {
-                var documents = new List<DocumentEntity>();
+                //var documents = new List<DocumentEntity>();
 
-                var exportOrder = await db.ExportOrders.AsNoTracking()
-                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal)
-                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Vessel)
-                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
-                                                       .Include(eo => eo.Person)
-                                                       .Include(eo => eo.Carrier)!.ThenInclude(c => c!.CarrierDetails)
+                var exportOrder = await db.ExportOrders.AsNoTracking().AsSplitQuery()
+                                                       .Include(eo => eo.Carrier)!//.ThenInclude(c => c!.CarrierDetails)
+                                                       .Include(eo => eo.Person)                                                       
                                                        .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)
                                                        .Include(eo => eo.Records)!.ThenInclude(r => r.CntrType)
                                                        .Include(eo => eo.Records)!.ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
+                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
+                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Vessel)                                                       
+                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal)
                                                        .FirstOrDefaultAsync(s => s.Id == id);
 
                 if (exportOrder is null)
@@ -351,18 +349,15 @@ public class ExportOrderProvider : IExportOrderProvider
 
             try
             {
-                var modifyItem = await db.ExportOrders
+                var modifyItem = await db.ExportOrders.AsTracking().AsSplitQuery()
                                                     .Include(eo => eo.Carrier)
                                                     .Include(eo => eo.Person)
-                                                    .Include(eo => eo.Documents).ThenInclude(d => d.Records)
+                                                    .Include(eo => eo.Documents)
                                                     .Include(eo => eo.Records).ThenInclude(d => d.Contents).ThenInclude(c => c.DocumentRecord)
-                                                    .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
-                                                    .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Vessel)
-                                                    .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal)
-                                                    .AsTracking()
+                                                    .Include(eo => eo.VesselCallDetail)
                                                     .FirstOrDefaultAsync(s => s.Id == item.Id);
 
-                // check Num duplicate
+                // check CntrNum duplicate
                 if (modifyItem!.Num != item.Num)
                 {
                     var itemExistCheck = await db.ExportOrders.Where(s => s.Num!.ToUpper() == item.Num!.ToUpper()).FirstOrDefaultAsync();
@@ -377,18 +372,29 @@ public class ExportOrderProvider : IExportOrderProvider
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
                 // DELETE AN EXISTING modifyItem.Documents & modifyItem.Records
-                
-                if (modifyItem.Records.Count() > 0)
-                    foreach (var modifyRecord in modifyItem.Records)
-                    {
-                        foreach (var modifyContent in modifyRecord.Contents)
-                            db.Entry(modifyContent).State = EntityState.Deleted;
 
-                        db.Entry(modifyRecord).State = EntityState.Deleted;
+                //if (!modifyItem.Records.SequenceEqual(item.Records))
+                if (modifyItem.Records.Count > 0)
+                {
+                    foreach (var record in modifyItem.Records)
+                    {
+                        foreach (var content in record.Contents)
+                            db.Entry(content).State = EntityState.Deleted;
+
+                        db.Entry(record).State = EntityState.Deleted;
                     }
 
-                modifyItem.Documents.Clear();
+                    modifyItem.Records.Clear();
+                }
 
+                if (modifyItem.Documents.Count > 0)
+                {
+                    foreach (var document in modifyItem.Documents)
+                        db.Entry(document).State = EntityState.Unchanged;
+
+                    modifyItem.Documents.Clear();
+                }
+                
                 var dbBug = db.ChangeTracker.DebugView.LongView;
                 await db.SaveChangesAsync();
 
@@ -409,8 +415,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 db.Entry(modifyItem.Person!).State = EntityState.Unchanged;
                 db.Entry(modifyItem.VesselCallDetail!).State = EntityState.Unchanged;
 
-                //if (!modifyItem.Documents.SequenceEqual(item.Documents))
-                //{
+                // DOCUMENTS
                 foreach (var itemDocument in item.Documents!)
                 {
                     itemDocument!.CreateUser = User!;
@@ -418,22 +423,16 @@ public class ExportOrderProvider : IExportOrderProvider
 
                     db.Entry(itemDocument).State = EntityState.Unchanged;
                     modifyItem.Documents.Add(itemDocument);
-
-                    foreach (var record in itemDocument.Records)
-                        db.Entry(record).State = EntityState.Unchanged;
                 }
-                //}
-                
-                if (!modifyItem.Records.SequenceEqual(item.Records))
-                {
-                    foreach (var itemRecord in item.Records)
-                    {
-                        db.Entry(itemRecord).State = EntityState.Added;
-                        modifyItem.Records.Add(itemRecord);
 
-                        foreach (var itemRecordContent in itemRecord.Contents)
-                            db.Entry(itemRecordContent).State = EntityState.Added;
-                    }
+                // RECORDS
+                foreach (var record in item.Records)
+                {
+                    foreach (var content in record.Contents)
+                        db.Entry(content).State = EntityState.Added;
+
+                    db.Entry(record).State = EntityState.Added;
+                    modifyItem.Records.Add(record);
                 }
 
                 db.Entry(modifyItem).State = EntityState.Modified;
@@ -522,8 +521,8 @@ public class ExportOrderProvider : IExportOrderProvider
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
+                Console.WriteLine(ex.Message);
+                appObjResponse.ErrorAdd(ex.Message);
                 return appObjResponse;
             }
 
@@ -555,9 +554,9 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 db.Entry(item).State = EntityState.Added;
 
-                db.Entry(item.Carrier!).State = EntityState.Unchanged;
-                db.Entry(item.VesselCallDetail!).State = EntityState.Modified;
+                db.Entry(item.Carrier!).State = EntityState.Unchanged;                
                 db.Entry(item.Person!).State = EntityState.Unchanged;
+                db.Entry(item.VesselCallDetail!).State = EntityState.Modified;
 
                 // Documents
                 foreach (var document in item.Documents!)
@@ -569,15 +568,16 @@ public class ExportOrderProvider : IExportOrderProvider
                     db.Entry(record).State = EntityState.Added;
                     db.Entry(record.CntrType!).State = EntityState.Detached;
 
-                    foreach (var recordContent in record.Contents)
-                        db.Entry(recordContent).State = EntityState.Added;
+                    foreach (var content in record.Contents)
+                        db.Entry(content).State = EntityState.Added;
                 }
 
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 
-                // HISTORY
+                #region HISTORY
+
                 //db.ChangeTracker.Clear();
 
                 //bool IsItemExists = await db.ExportOrders.AnyAsync(vc => vc.Id == item.Id);
@@ -658,6 +658,8 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 //    await db.SaveChangesAsync();
                 //}
+
+                #endregion
             }
             catch (Exception ex)
             {
@@ -1157,5 +1159,208 @@ public class ExportOrderProvider : IExportOrderProvider
     //        return appObjResponse;
     //    }
     //}
+    //---------------------------------------------------------------------------------
+    //public async Task<AppObjectResponse> _ModifyItemAsync(ExportOrderEntity item)
+    //{
+    //    appObjResponse = new();
+
+    //    using (var _db = _dbContext.CreateDbContextAsync())
+    //    {
+    //        var db = await _db;
+
+    //        try
+    //        {
+    //            //var modifyItem = await db.ExportOrders
+    //            //                                    .Include(eo => eo.Carrier)
+    //            //                                    .Include(eo => eo.Person)
+    //            //                                    .Include(eo => eo.Documents).ThenInclude(d => d.Records)
+    //            //                                    .Include(eo => eo.Records).ThenInclude(d => d.Contents).ThenInclude(c => c.DocumentRecord)
+    //            //                                    .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
+    //            //                                    .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Vessel)
+    //            //                                    .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal)
+    //            //                                    .AsTracking()
+    //            //                                    .FirstOrDefaultAsync(s => s.Id == item.Id);
+
+    //            var modifyItem = await db.ExportOrders
+    //                                .Include(eo => eo.Carrier)
+    //                                .Include(eo => eo.Person)
+    //                                .Include(eo => eo.Documents).ThenInclude(d => d.Records)
+    //                                .Include(eo => eo.Records).ThenInclude(d => d.Contents).ThenInclude(c => c.DocumentRecord)
+    //                                .Include(eo => eo.VesselCallDetail)
+    //                                .Include(eo => eo.VesselCallDetail)
+    //                                .Include(eo => eo.VesselCallDetail)
+    //                                .AsTracking()
+    //                                .FirstOrDefaultAsync(s => s.Id == item.Id);
+
+    //            // check Num duplicate
+    //            if (modifyItem!.Num != item.Num)
+    //            {
+    //                var itemExistCheck = await db.ExportOrders.Where(s => s.Num!.ToUpper() == item.Num!.ToUpper()).FirstOrDefaultAsync();
+
+    //                if (itemExistCheck is not null)
+    //                {
+    //                    appObjResponse.ErrorAdd($"Export Order {item.Num} dtd {item.Dated!.Value.ToShortDateString()} exists already");
+    //                    return appObjResponse;
+    //                }
+    //            }
+
+    //            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+    //            // DELETE AN EXISTING modifyItem.Documents & modifyItem.Records
+
+    //            if (modifyItem.Records.Count > 0)
+    //                if (!modifyItem.Records.SequenceEqual(item.Records))
+    //                {
+    //                    foreach (var modifyRecord in modifyItem.Records)
+    //                    {
+    //                        foreach (var modifyContent in modifyRecord.Contents)
+    //                            db.Entry(modifyContent).State = EntityState.Deleted;
+
+    //                        db.Entry(modifyRecord).State = EntityState.Deleted;
+    //                    }
+
+    //                    //modifyItem.Documents.Clear();
+    //                }
+
+    //            modifyItem.Documents.Clear();
+
+    //            var dbBug = db.ChangeTracker.DebugView.LongView;
+    //            await db.SaveChangesAsync();
+
+    //            db.ChangeTracker.Clear();
+
+    //            // RE-WRITE WITH A NEW ITEM
+    //            modifyItem.CreateUser = User!;
+    //            modifyItem.CreateTime = DateTime.Now;
+    //            modifyItem.Num = item.Num;
+    //            modifyItem.Dated = item.Dated;
+    //            modifyItem.Carrier = item.Carrier;
+    //            modifyItem.Person = item.Person;
+    //            modifyItem.VesselCallDetail = item.VesselCallDetail;
+    //            modifyItem.Status = item.Status;
+
+    //            db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+    //            db.Entry(modifyItem.Carrier!).State = EntityState.Unchanged;
+    //            db.Entry(modifyItem.Person!).State = EntityState.Unchanged;
+    //            db.Entry(modifyItem.VesselCallDetail!).State = EntityState.Unchanged;
+
+    //            // DOCUMENTS
+    //            foreach (var itemDocument in item.Documents!)
+    //            {
+    //                itemDocument!.CreateUser = User!;
+    //                db.Entry(itemDocument.CreateUser).State = EntityState.Unchanged;
+
+    //                db.Entry(itemDocument).State = EntityState.Unchanged;
+    //                modifyItem.Documents.Add(itemDocument);
+
+    //                foreach (var record in itemDocument.Records)
+    //                    db.Entry(record).State = EntityState.Unchanged;
+    //            }
+
+    //            // RECORDS
+    //            foreach (var itemRecord in item.Records)
+    //            {
+    //                db.Entry(itemRecord).State = EntityState.Added;
+    //                modifyItem.Records.Add(itemRecord);
+
+    //                foreach (var itemRecordContent in itemRecord.Contents)
+    //                    db.Entry(itemRecordContent).State = EntityState.Added;
+    //            }
+
+    //            db.Entry(modifyItem).State = EntityState.Modified;
+
+    //            var bug = db.ChangeTracker.DebugView.LongView;
+
+    //            await db.SaveChangesAsync();
+
+    //            #region HISTORY                
+    //            //db.ChangeTracker.Clear();
+
+    //            //// documents
+    //            //var historyItemDocuments = new List<DocumentHistory>();
+
+    //            //foreach (var document in item.Documents)
+    //            //{
+    //            //    historyItemDocuments.Add(new DocumentHistory()
+    //            //    {
+    //            //        Name = document.Name,
+    //            //        Type = document.Type,
+    //            //        ShipperName = document.Shipper!.NameEn,
+    //            //        ConsigneeName = document.Consignee!.NameEn,
+    //            //    });
+    //            //}
+
+    //            //// records
+    //            //var historyItemRecords = new List<ExportOrderRecordHistory>();
+
+    //            //foreach (var record in item.Records)
+    //            //{
+    //            //    var historyItemRecordContents = new List<ContainerContentHistory>();
+
+    //            //    foreach (var content in record.Contents)
+    //            //    {
+    //            //        historyItemRecordContents.Add(new ContainerContentHistory()
+    //            //        {
+    //            //            Id = content.Id,
+    //            //            PackageQty = content.PackageQty,
+    //            //            PackageName = content.PackageName,
+    //            //            NetWt = content.NetWt,
+    //            //            GrossWt = content.GrossWt,
+    //            //            Volume = content.Volume,
+    //            //            Document = content.DocumentRecord.Document.Name,
+    //            //            SeqDocument = content.DocumentRecord.Seq,
+    //            //            CommodityName = content.DocumentRecord.CommodityName,
+    //            //            CommodityEngName = content.DocumentRecord.CommodityEngName,
+    //            //            IsIMO = content.DocumentRecord.IsIMO,
+    //            //            IMO = content.DocumentRecord.IMO,
+    //            //            UNNO = content.DocumentRecord.UNNO,
+    //            //        });
+    //            //    }
+
+    //            //    historyItemRecords.Add(new ExportOrderRecordHistory()
+    //            //    {
+    //            //        Id = record.Id,
+    //            //        CntrNum = record.CntrNum,
+    //            //        CntrType = record.CntrType!.Normolize,
+    //            //        CntrTareWt = record.CntrTareWt,
+    //            //        Seal = record.Seal,
+    //            //        Contents = historyItemRecordContents
+    //            //    });
+    //            //}
+
+    //            //var historyItem = new ExportOrderHistory()
+    //            //{
+    //            //    Status = item.Status,
+    //            //    CreateUser = User,
+    //            //    CreateTime = DateTime.Now,
+    //            //    Mode = HistoryEventMode.Modify,
+
+    //            //    Num = item.Num,
+    //            //    Dated = item.Dated,
+    //            //    Carrier = item.Carrier!.NameEn,
+    //            //    Person = item.Person!.FamilyName,
+    //            //    VoyageNo = item.VesselCallDetail!.VesselCall.VoyageNo,
+    //            //    VesselName = item.VesselCallDetail.VesselCall.Vessel.Name,
+    //            //    POD = item.VesselCallDetail.POD!.NameEn,
+    //            //    Documents = historyItemDocuments,
+    //            //    Records = historyItemRecords
+    //            //};
+
+    //            //db.Entry(historyItem).State = EntityState.Added;
+
+    //            //await db.SaveChangesAsync();
+    //            #endregion
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            string msg = ex.Message;
+    //            appObjResponse.ErrorAdd(msg);
+    //            return appObjResponse;
+    //        }
+
+    //        return appObjResponse;
+    //    }
+    //}
+
     #endregion
 }

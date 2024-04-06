@@ -68,7 +68,7 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" IsRoleForEdit="@IsRoleForEdit" />
+            <ExportOrder_ItemComponent @ref="ExportOrderItemComponent" @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" IsRoleForEdit="@IsRoleForEdit" />
         }
     </MudForm>
 
@@ -79,6 +79,8 @@
 @code {
     private MudForm? Form;
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    public ExportOrder_ItemComponent? ExportOrderItemComponent; 
 
     [SupplyParameterFromQuery]
     [Parameter]
@@ -122,12 +124,12 @@
         if (IsNewItem)
         {
             IsFormReadOnly = false;
-                        
+
             if (vcdId == 0)
                 Item = new();
             else
             {
-                //Add VesselCallDetail
+                //Add VesselCallDetail (when ExportOrder_Index opened from VesselCall_Index page)
                 response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
                 if (!response.HasError)
                     Item = new() { VesselCallDetail = (VesselCallDetail)response.Object! };
@@ -143,8 +145,15 @@
                 if (Item.Status.Equals(EntityStatus.Cancelled))
                     if (!IsRoleForEdit)
                         IsEditSaveBtnsVisible = false;
+
+                if (ExportOrderItemComponent is not null)
+                {
+                     //await InvokeAsync(StateHasChanged);
+                    // await ExportOrderItemComponent.GetDocumentItems();
+                    //await ExportOrderItemComponent.ValueChanged.InvokeAsync(Item);
+                }
             }
-        }
+        }        
     }
 
     public async Task SaveItem()
@@ -191,14 +200,14 @@
 
         Id = Item.Id;
 
+        //await InvokeAsync(StateHasChanged);
+
         await GetItem();
 
         await Task.Delay(1000);
 
         IsFormReadOnly = true;
-        IsLoadingData = false;
-
-        await InvokeAsync(StateHasChanged);
+        IsLoadingData = false;               
     }    
 
     public async Task CopyItem()

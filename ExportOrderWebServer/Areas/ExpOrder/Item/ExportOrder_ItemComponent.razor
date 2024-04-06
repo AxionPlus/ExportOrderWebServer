@@ -17,9 +17,7 @@
         justify-content: flex-start;
     }
 
-    .mud-picker-inline {
-        flex: unset;
-    }
+    .mud-picker-inline { flex: unset; }
 
     .wrapper-input-date > .mud-input-control {
         margin-top: 3px;
@@ -30,9 +28,7 @@
         padding-right: 4px;
     }
 
-    .mud-icon-button {
-        padding: 3px;
-    }
+    .mud-icon-button { padding: 3px; }
 
     .wrapper-input * .mud-icon-size-small {
         color:currentColor;
@@ -48,9 +44,7 @@
         box-shadow: none;
     }
 
-    .Table * .mud-table-cell {
-        padding: 4px;
-    }
+    .Table * .mud-table-cell { padding: 4px; }
 
         .Table * .mud-table-cell *.mud-input-control {
             margin: unset;
@@ -90,8 +84,10 @@
         text-align: center;
     }
 
-    .h6 {
-        margin-bottom: 2px;
+    .Summary {
+        margin-top: 3px;
+        margin-bottom: 3px;
+        color: cornflowerblue;
     }
 
     .container-content-head {
@@ -99,9 +95,7 @@
         align-self: center;
     }
 
-    .infoSC {
-        margin-bottom: 3px;
-    }
+    .infoSC { margin-bottom: 3px; }
 
 </style>
 
@@ -229,7 +223,7 @@
                 <MudPaper Width="450px" Elevation="0" Style="height:240px;overflow: auto;">
                     @if (Value.Documents != null)
                     {
-                        <MudTreeView Items="DocumentItems" @bind-SelectedValues="SelectedDocumentValues"
+                        <MudTreeView Items="@Value.Documents.ToHashSet()" @bind-SelectedValues="SelectedDocumentValues"
                                      MultiSelection="true" Dense="true" Hover="true">
                             <ItemTemplate>
                                 <MudTreeViewItem Value="@context"
@@ -237,8 +231,8 @@
                                                  EndText="@context.Records.Count().ToString()"
                                                  LoadingIconColor="Color.Info"
                                                  EndTextTypo="@Typo.caption">
-                                    <MudTable @ref="mudDocRecordsTable" Class="Table" T="DocumentRecord" Context="DocRecord"
-                                              Items="DocumentRecordItems.Where(x => x.Document.Id == context.Id)">
+                                    <MudTable Class="Table" T="DocumentRecord" Context="DocRecord"
+                                              Items="@(context.Records.Where(x => x.Document.Id == context.Id))">
                                         <RowTemplate>
                                             <MudTd Style="width: 30px">@DocRecord.Seq</MudTd>
                                             <MudTd Style="width: 115px">@DocRecord.CommodityHSCode</MudTd>
@@ -282,7 +276,7 @@
                 <MudButton Class="Button" Style="margin-inline:20px; margin-bottom:2px" OnClick="UploadFile_Click"                           
                            Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small" 
                            StartIcon="@Icons.Material.Filled.UploadFile"
-                           Disabled="IsFormReadOnly">
+                           Disabled="@(IsFormReadOnly || Value.VesselCallDetail is null)">
                     Upload New List
                 </MudButton>               
                 <MudSpacer />
@@ -299,7 +293,7 @@
                 <MudTh Style="width:50px;">
                     <div class="controlIconButtons">
                         <MudTooltip Text="add new Container record">
-                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Disabled="@(IsFormReadOnly || VoyageId == 0)" Color="Color.Primary"
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Disabled="@(IsFormReadOnly || Value.VesselCallDetail is null)" Color="Color.Primary"
                                             OnClick="AddExportOrderRecord_Click" Size="Size.Small" />
                         </MudTooltip>
                     </div>
@@ -404,19 +398,27 @@
             <FooterContent>
                 @if (Value.Records!.Count > 0)
                 {
-                    <MudTd colspan="3" Style="text-align:end"><h6>Total containers:</h6></MudTd>
-                    <MudTd Style="text-align:center"><h6>@Value.Records!.Count().ToString("###")</h6></MudTd>
-                    <MudTd Style="text-align:center"><h6>@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6></MudTd>
+                    <MudTd colspan="3" Style="text-align:end">
+                        <h6 class="Summary">Total containers:</h6>
+                    </MudTd>
+                    <MudTd Style="text-align:center">
+                        <h6 class="Summary">@Value.Records!.Count().ToString("###")</h6>
+                    </MudTd>
+                    <MudTd Style="text-align:center">
+                        <h6 class="Summary">@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6>
+                    </MudTd>
                     <MudTd colspan="2"></MudTd>
-                    <MudTd Style="text-align:center"><h6>@Value.Records.Sum(s => s.Contents.Sum(c => c.PackageQty)).ToString()</h6></MudTd>
+                    <MudTd Style="text-align:center">
+                        <h6 class="Summary">@Value.Records.Sum(s => s.Contents.Sum(c => c.PackageQty)).ToString()</h6>
+                    </MudTd>
                     <MudTd></MudTd>
                     <MudTd Style="text-align:end; padding-right: 8px">
-                        <h6>
+                        <h6 class="Summary">
                             @(Value.Records.Sum(s => s.Contents.Where(c => c.NetWt is not null).Sum(c => c.NetWt!.Value)).ToString("### ###.###"))
                         </h6>
                     </MudTd>
                     <MudTd Style="text-align:end; padding-right: 8px">
-                        <h6>
+                        <h6 class="Summary">
                             @(Value.Records.Sum(s => s.Contents.Where(c => c.GrossWt is not null).Sum(c => c.GrossWt!.Value)).ToString("### ###.###"))
                         </h6>
                     </MudTd>
@@ -430,7 +432,7 @@
 @code {
     private MudTable<ExportOrderRecord>? mudTable;
     private MudTable<ContainerContent>? mudCntrContentTable;
-    private MudTable<DocumentRecord>? mudDocRecordsTable;
+    //private MudTable<DocumentRecord>? mudDocRecordsTable;
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
@@ -441,9 +443,8 @@
     public bool IsFormReadOnly { get; set; }
     [Parameter]
     public bool IsRoleForEdit { get; set; }
-
-
-    private long VoyageId { get; set; }
+    
+    //private long VoyageId { get; set; }
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
@@ -463,47 +464,19 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()   // change to: Task OnInitializedAsync (void)
-    {
-        CheckVoyageState();
-        GetDocumentItems();
-    }
+    // protected override async Task OnInitializedAsync()   // change to: Task OnInitializedAsync (void)
+    // {
+    //     //CheckVoyageState();
+    //     //await GetDocumentItems();
+    // }
 
-    private async void GetDocumentItems()
-    {
-        await Task.Delay(50);
+    // public async Task GetDocumentItems()
+    // {
+    //     await Task.Delay(100);
 
-        DocumentItems = Value!.Documents!.ToHashSet();
-
-        foreach (var document in DocumentItems)
-            foreach (var docRecord in document.Records)
-                DocumentRecordItems.Add(docRecord);
-
-        //-----------------------------------
-
-        // if (Value!.Documents.Count() == 0) return;
-
-        // var usedDocuments = Value!.Documents;
-
-        // foreach (var usedDocument in Value!.Documents)
-        // {            
-        //     var existedDocRecords = usedDocument.Records.ToList();
-
-        //     foreach (var existedDocRecord in existedDocRecords)
-        //     {
-        //         if (!usedDocument.Records.Any(dr => dr.Seq == existedDocRecord.Seq))
-        //             usedDocument.Records.Remove(existedDocRecord);
-        //     }
-
-        //     DocumentItems.Add(usedDocument);
-
-        //     foreach (var document in DocumentItems)
-        //         foreach (var docRecord in document.Records)
-        //             DocumentRecordItems.Add(docRecord);
-        // }
-
-        await InvokeAsync(StateHasChanged);
-    }
+    //     //await ValueChanged.InvokeAsync(Value);
+    //     DocumentItems = Value!.Documents!.ToHashSet();
+    // }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
@@ -521,18 +494,11 @@
         {
             var documents = (HashSet<DocumentEntity>)result.Data;
 
-            Value!.Documents!.AddRange(documents);
+            Value!.Documents.AddRange(documents);
 
-            await ValueChanged.InvokeAsync(Value);
-            GetDocumentItems();
+            //await ValueChanged.InvokeAsync(Value);
 
-            // foreach (var document in documents)
-            // {
-            //     DocumentItems.Add(document);
-
-            //     foreach (var docRecord in document.Records)
-            //         DocumentRecordItems.Add(docRecord);
-            // }
+            //await GetDocumentItems();
         }
     }
 
@@ -540,43 +506,41 @@
     {
         await Task.Delay(50);
 
-        if (SelectedDocumentValues!.Count > 0)
+        if (SelectedDocumentValues!.Count == 0) return;
+
+        foreach (var document in SelectedDocumentValues)
         {
-            foreach (var item in SelectedDocumentValues)
-            {
-                // Cntr Records
-                var records = Value!.Records.Where(eor => eor.Contents.Any(co => co.DocumentRecord.Document.Id == item.Id)).ToList();
+            // Cntr RECORDS
+            var records = Value!.Records.Where(eor => eor.Contents.Any(co => co.DocumentRecord.Document.Id == document.Id)).ToList();
 
-                foreach (var record in records)
-                    if (record.Contents.Count() == 1)
+            foreach (var record in records)
+                if (record.Contents.Count() == 1)
+                    Value.Records.Remove(record);
+                else
+                {
+                    var contents = record.Contents.Where(c => c.DocumentRecord.Document.Id == document.Id).ToList();
+
+                    if (contents.Count() > 0)
+                        foreach (var content in contents)
+                            record.Contents.Remove(content);
+
+                    // if no any content left in the record after removing, then Remove whole record
+                    if (record.Contents.Count() == 0)
                         Value.Records.Remove(record);
-                    else
-                    {
-                        var contents = record.Contents.Where(c => c.DocumentRecord.Document.Id == item.Id).ToList();
+                }
 
-                        if (contents.Count() > 0)
-                            foreach (var content in contents)
-                                record.Contents.Remove(content);
+            // DOCUMENTS ( don't use DocumentRecordItems.Clear(); )
+            // foreach (var documentRecord in document.Records)
+            //     DocumentRecordItems.Remove(documentRecord);
 
-                        // if no any content left in the record after removing, then Remove whole record
-                        if (record.Contents.Count() == 0)
-                            Value.Records.Remove(record);
-                    }
+            //DocumentItems.Remove(document);
 
-                // Documents
-                foreach (var itemRecord in item.Records)
-                    DocumentRecordItems.Remove(itemRecord);
-
-                DocumentItems.Remove(item);
-                Value!.Documents!.Remove(item);
-            }
-
-            SelectedDocumentValues.Clear();
-
-            GetDocumentItems();
+            Value!.Documents.Remove(document);
         }
 
-        await InvokeAsync(StateHasChanged);
+        SelectedDocumentValues.Clear();
+        //await ValueChanged.InvokeAsync(Value);
+        //await GetDocumentItems();        
     }
 
     #endregion
@@ -585,11 +549,16 @@
 
     private async Task AddExportOrderRecord_Click()
     {
-        if (Value is null || Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0) return;
+        // if (Value is null || Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0) return;
+        // var parameters = new DialogParameters() { ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents };
 
-        //var parameters = new DialogParameters() { ["IsNewItem"] = true, ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents };
-        var parameters = new DialogParameters() { ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents };
-        //var parameters = new DialogParameters() { ["IsNewItem"] = true, ["ExportOrderId"] = Value.Id, ["VoyageId"] = VoyageId };
+        if (Value is null || Value.Documents.Count() == 0 || Value.VesselCallDetail is null) return;
+
+        var parameters = new DialogParameters()
+        {
+            ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id,
+            ["Documents"] = Value.Documents,                
+        };
         var options = new DialogOptions { CloseButton = true, DisableBackdropClick = true, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("New Container Record", parameters, options);
         var result = await dialog.Result;
@@ -601,20 +570,26 @@
 
             var exportOrderRecord = (ExportOrderRecord)result.Data;
 
-            // check for existing Record
-
             if (exportOrderRecord is not null)
                 Value.Records.Add(exportOrderRecord);
 
-            await InvokeAsync(StateHasChanged);
+            //await InvokeAsync(StateHasChanged);
         }
     }
 
     private async Task ShowRecordContent_Click(ExportOrderRecord item)
     {
-        if (Value is null || Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0) return;
+        //if (Value is null || Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0) return;
+        //var parameters = new DialogParameters() { ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents, ["Item"] = item };
 
-        var parameters = new DialogParameters() { ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents, ["Item"] = item };
+        if (Value is null || Value.Documents.Count() == 0 || Value.VesselCallDetail is null) return;
+
+        var parameters = new DialogParameters()
+        {
+                ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id,
+                ["Documents"] = Value.Documents,
+                ["Item"] = item
+        };
         var options = new DialogOptions { CloseButton = true, DisableBackdropClick = true, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("Edit Container Record", parameters, options);
         var result = await dialog.Result;
@@ -627,11 +602,11 @@
             var modifiedExportOrderRecord = (ExportOrderRecord)result.Data;
 
             // re-write ExportOrderRecord
-            
+
             if (modifiedExportOrderRecord is not null)
                 item = modifiedExportOrderRecord;
 
-            await InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged); // DELETE
         }
     }
 
@@ -648,7 +623,7 @@
             if (result.Value)
                 Value!.Records!.Remove(record);
 
-        GetDocumentItems();
+        //await GetDocumentItems();
         //await InvokeAsync(StateHasChanged);
     }
 
@@ -672,9 +647,11 @@
 
     private async Task UploadFile_Click()
     {
-        if (VoyageId == 0) return;
+        //if (VoyageId == 0) return;
+        if (Value is null || Value.VesselCallDetail is null) return;
 
-        var parameters = new DialogParameters() { ["VoyageId"] = VoyageId };
+        //var parameters = new DialogParameters() { ["VoyageId"] = VoyageId };
+        var parameters = new DialogParameters() { ["VoyageId"] = Value.VesselCallDetail.Id };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
         var dialog = DialogService.Show<UploadExportOrderRecordsFile>("Импорт списка ДТ", parameters, options);
 
@@ -730,7 +707,7 @@
                     }
 
                     // DOCUMENTS
-                    // Remove old documents from the page (export order Records removing too)
+                    // Remove old documents from the page       (export order Records removing too)
                     if (DocumentItems.Count > 0)
                     {
                         foreach (var documentItem in DocumentItems)
@@ -762,14 +739,14 @@
                         documents.Add(Document);
                     }
 
-                    Value!.Records = records;
+                    Value.Records = records;
                     Value.Documents = documents;
 
                     Snackbar.Add($"Uploaded", Severity.Success);
 
                     await ValueChanged.InvokeAsync(Value);
 
-                    GetDocumentItems();
+                    //await GetDocumentItems();
                 }
             }
         }
@@ -805,7 +782,7 @@
             if (!response.HasError)
             {
                 Value.VesselCallDetail = (VesselCallDetail)response.Object!;
-                VoyageId = Value.VesselCallDetail.VesselCall.Id;
+                //VoyageId = Value.VesselCallDetail.VesselCall.Id;
             }
             else
                 Snackbar.Add($"{response.Error.First()}", Severity.Error);
@@ -814,12 +791,12 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private void CheckVoyageState()
-    {
-        if (Value is null || Value.VesselCallDetail is null) return;
+    // private void CheckVoyageState()
+    // {
+    //     if (Value is null || Value.VesselCallDetail is null) return;
 
-        VoyageId = Value.VesselCallDetail.VesselCall.Id;
-    }
+    //     VoyageId = Value.VesselCallDetail.VesselCall.Id;
+    // }
 
     private async Task AddCarrier_Click()
     {

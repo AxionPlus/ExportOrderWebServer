@@ -6,6 +6,7 @@ namespace ExportOrderDbContext;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
 {
     public string ConnectionString { get; set; } = "User ID=postgres;Password=Jyww3Xq2Hv7C;Host=46.173.5.112;Port=5434;Database=AxionExportOrder;Pooling=true;";
+    //public string ConnectionString { get; set; } = "User ID=postgres;Password=Hd6!#qcS2htQ2;Host=db.axionplus.ru;Port=5432;Database=ExportOrderAxion;Pooling=true;";
 
     #region DataBASES
 

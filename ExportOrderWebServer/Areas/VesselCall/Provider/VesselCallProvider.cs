@@ -443,12 +443,14 @@ public class VesselCallProvider : IVesselCallProvider
             {
                 var db = await _db;
 
-                appObjResponse.Object = await db.Set<VesselCallDetail>().AsNoTracking()
-                                                    .Include(vcd => vcd.POD)
-                                                    .Include(vcd => vcd.VesselCall.Terminal)
+                appObjResponse.Object = await db.Set<VesselCallDetail>().AsNoTracking()                                                    
+                                                    .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Terminal)
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
+                                                    .Include(vcd => vcd.POD)
+                                                    //.Include(vcd => vcd.FinalDestination)
+                                                    //.Include(vcd => vcd.ExportOrders)
                                                     .FirstOrDefaultAsync(vcd => vcd.Id == vcdId);
-
+                //var bug = db.ChangeTracker.DebugView?.LongView;
                 if (appObjResponse.Object is null)
                     appObjResponse.ErrorAdd("There is no voyage");
 

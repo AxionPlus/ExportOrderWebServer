@@ -8,5 +8,5 @@ public class VesselCallDetail : Entity
     public LocationCatalog? POD { get; set; }               // Порт выгрузки    
     public LocationCatalog? FinalDestination { get; set; }  // Порт выгрузки
     public string? AgentPOD { get; set; }                   // Агент в порту выгрузки
-    public IList<ExportOrderEntity> ExportOrders { get; set; } = new List<ExportOrderEntity>();
+    public List<ExportOrderEntity> ExportOrders { get; set; } = new List<ExportOrderEntity>();  //public IList<ExportOrderEntity>
 }

@@ -67,7 +67,7 @@
 
         <div class="Container-item">
             <div class="container-content" style="justify-content:flex-start">
-                <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item!.Vessel"
+                <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item.Vessel"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="@SearchVessel"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -194,7 +194,8 @@
                                               AdornmentColor="Color.Primary"
                                               Adornment="Adornment.End"
                                               OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddPort_Click(); })"
-                                              Clearable="!IsFormReadOnly" />
+                                              Clearable="!IsFormReadOnly"
+                                              Disabled />
                          </MudTd>
                      </RowTemplate>
                  </MudTable>
@@ -238,7 +239,8 @@
     {
         if (IsNewItem)
         {
-            Item = new() { Details = new List<VesselCallDetail>() { new VesselCallDetail() }  };
+            //Item = new() { Details = new List<VesselCallDetail>() { new VesselCallDetail() }  };
+            Item = new() { Details = new List<VesselCallDetail>() { new() } };
             IsFormReadOnly = false;
         }        
         else
@@ -247,8 +249,8 @@
 
             if (!response.HasError)
                 Item = (VesselCallEntity)response.Object!;
-            
-            if (Item is not null) ItemStatus = Item.Status;
+
+            //if (Item is not null) ItemStatus = Item.Status;
         }
     }
 
@@ -265,8 +267,9 @@
                 Snackbar.Add("Saved Successfully", Severity.Success);
             }
             else
-            {   
-                if (ItemStatus == EntityStatus.Completed && !IsRoleForEdit)
+            {
+                //if (ItemStatus == EntityStatus.Completed && !IsRoleForEdit)
+                if (Item is not null && Item.Status == EntityStatus.Completed && !IsRoleForEdit)
                     Snackbar.Add($"Voyage is Completed.<br>You can't change Status for this Voyage.", Severity.Warning);
                 else
                 {
@@ -309,23 +312,20 @@
     {
         await Task.Delay(50);
 
-        if (Item is null) return;
-
-        // if (item.ExportOrders.Any(eo => eo.Status != EntityStatus.New))
-        // {
-        //     Snackbar.Add("В этом рейсе есть оформленные поручения.<br>Удаление этого рейса невозможно.", Severity.Error);
-        //     return;
-        // }
+        //if (item is null) return;
 
         if (item.ExportOrders.Count() > 0)
         {
-            Snackbar.Add("В этом рейсе есть поручения.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки.", Severity.Warning);
+            string portName = item.POD is null ? string.Empty : (string.IsNullOrWhiteSpace(item.POD.Name) ? string.Empty : item.POD.Name);
+
+            Snackbar.Add($"В этом рейсе есть поручения.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки:<br>{portName}", Severity.Warning);
             return;            
         }
 
-        Item.Details.Remove(item);
+        Item!.Details.Remove(item);
     }
 
+    #region ADD from Catalog
     private async Task AddVessel_Click()
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
@@ -358,6 +358,8 @@
 
         DialogResult result = await dialog.Result;
     }
+
+    # endregion
 
     #region SEARCH FUNCTIONS
 

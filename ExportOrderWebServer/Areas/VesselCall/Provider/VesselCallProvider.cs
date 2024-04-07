@@ -27,7 +27,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                  .Include(vc => vc.Terminal)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.FinalDestination)
-                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records)
+                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)//.ThenInclude(eo => eo.Records)
                                                  .FirstOrDefaultAsync(s => s.Id == id);
 
                 if (voyage is null)
@@ -122,16 +122,22 @@ public class VesselCallProvider : IVesselCallProvider
 
             try
             {
-                var modifyItem = await db.VesselCalls
+                var modifyItem = await db.VesselCalls.AsNoTracking()    // if AsTracking() - check all of modifyItem's elements for changing
                                                     .Include(vc => vc.Vessel)
                                                     .Include(vc => vc.Terminal)
-                                                    .Include(vc => vc.Details).ThenInclude(d => d.POD)
-                                                    .Include(vc => vc.Details).ThenInclude(d => d.FinalDestination)
-                                                    .AsNoTracking()
+                                                    //.Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)
+                                                    .Include(vc => vc.Details)//.ThenInclude(d => d.POD)
+                                                    //.Include(vc => vc.Details).ThenInclude(d => d.FinalDestination)
                                                     .FirstOrDefaultAsync(s => s.Id == item.Id);
 
-                string modifyVoyage = $"{modifyItem!.Vessel?.Name}&{modifyItem.VoyageNo}";
-                string itemVoyage = $"{item!.Vessel?.Name}&{item.VoyageNo}";
+                if (modifyItem is null)
+                {
+                    appObjResponse.ErrorAdd($"{item.Vessel} / {item.VoyageNo} not found.");
+                    return appObjResponse;
+                }
+
+                string modifyVoyage = $"{modifyItem.Vessel?.Name}&{modifyItem.VoyageNo}";
+                string itemVoyage = $"{item.Vessel?.Name}&{item.VoyageNo}";
 
                 if (modifyVoyage != itemVoyage)
                 {
@@ -148,42 +154,80 @@ public class VesselCallProvider : IVesselCallProvider
 
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
+                //// DELETE modify.Details
+
+                //if (modifyItem.Details.Count > 0)
+                //    foreach (var detail in modifyItem.Details)
+                //    {
+                //        detail.ExportOrders.ForEach(eo => db.Entry(eo).State = EntityState.Deleted);
+                //        db.Entry(detail).State = EntityState.Deleted;
+                //    }
+
+                //modifyItem.Details.Clear();
+
+                //var dbBug = db.ChangeTracker.DebugView.LongView;
+                //await db.SaveChangesAsync();
+
+                //db.ChangeTracker.Clear();
+
                 // RE-WRITE WITH A NEW ITEM
 
-                modifyItem!.CreateUser = User!;
-                modifyItem!.CreateTime = DateTime.Now;
-                modifyItem!.Status = item.Status;
-                modifyItem!.VoyageNo = item.VoyageNo;
-                modifyItem!.VoyageNoTerminal = item.VoyageNoTerminal;
-                modifyItem!.ETA = item.ETA;
-                modifyItem!.ETS = item.ETS;
-
-                if (item.Vessel is not null)
-                {
-                    modifyItem!.Vessel = item.Vessel;
-                    db.Entry(modifyItem.Vessel!).State = EntityState.Unchanged;
-                }
-                    
-                if (item.Terminal is not null)
-                {
-                    modifyItem!.Terminal = item.Terminal;
-                    db.Entry(modifyItem.Terminal!).State = EntityState.Unchanged;
-                }                    
+                modifyItem.CreateUser = User!;
+                modifyItem.CreateTime = DateTime.Now;
+                modifyItem.Status = item.Status;
+                modifyItem.VoyageNo = item.VoyageNo;
+                modifyItem.VoyageNoTerminal = item.VoyageNoTerminal;
+                modifyItem.ETA = item.ETA;
+                modifyItem.ETS = item.ETS;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
+                //if (item.Vessel is not null)
+                //{
+                    //modifyItem.Vessel = item.Vessel!;
+                //if (!modifyItem.Vessel!.Equals(item.Vessel))
+                modifyItem.Vessel = item.Vessel!;
+                db.Entry(modifyItem.Vessel!).State = EntityState.Unchanged;
+                //}
+
+                //if (item.Terminal is not null)
+                //{
+                //modifyItem.Terminal = item.Terminal;
+                //if (!modifyItem.Terminal.Equals(item.Terminal))
+                modifyItem.Terminal = item.Terminal;
+                db.Entry(modifyItem.Terminal!).State = EntityState.Unchanged;
+                //}
+
+                // RE-WRITE modifyDetail with itemDetail
+                //if (item.Details.Count > 0)
+                //    foreach (var newDetail in item.Details)
+                //    {
+                //        newDetail.CreateUser = User!;
+                //        db.Entry(newDetail.CreateUser).State = EntityState.Unchanged;
+
+                //        foreach (var exportOrder in newDetail.ExportOrders)
+                //            db.Entry(exportOrder).State = EntityState.Added;
+
+                //        db.Entry(newDetail).State = EntityState.Added;
+                //        modifyItem.Details.Add(newDetail);
+                //    }
+
+                // -------------------------------------------------------------------
                 // compaire a new itemDetails with an existed
                 foreach (var modifyDetail in modifyItem.Details!)
                     if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
                     {
                         // check for existing ExportOrders within VesselCallDetail
-                        if (!db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == modifyDetail.Id))                            
+                        if (!db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == modifyDetail.Id))
+                        {
                             db.Entry(modifyDetail).State = EntityState.Deleted;
+                            modifyItem.Details.Remove(modifyDetail);
+                        }                            
                         else
                         {
-                            appObjResponse.ErrorAdd($"В этом рейсе есть поручения.");
+                            appObjResponse.ErrorAdd($"Удалить рейс нельзя. В этом рейсе есть поручения.");
                             return appObjResponse;
-                        }                            
+                        }
                     }
                     else
                     {
@@ -191,15 +235,22 @@ public class VesselCallProvider : IVesselCallProvider
                         modifyDetail.CreateTime = DateTime.Now;
                         modifyDetail.AgentPOD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOD;
 
+                        //if (!modifyDetail.POD!.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD))
                         modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
+                        
                         db.Entry(modifyDetail.POD!).State = EntityState.Unchanged;
 
-                        modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
+                        //modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
 
-                        if (modifyDetail.FinalDestination != null)
-                            db.Entry(modifyDetail.FinalDestination!).State = EntityState.Unchanged;
-                        else
-                            db.Entry(modifyDetail).Reference("FinalDestination").IsModified = true;
+                        //if (modifyDetail.FinalDestination != null)
+                        //    db.Entry(modifyDetail.FinalDestination!).State = EntityState.Unchanged;
+                        //else
+                        //    db.Entry(modifyDetail).Reference("FinalDestination").IsModified = true;
+
+                        //if (item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination != null)
+                        //    modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
+                        //else
+                        //    db.Entry(modifyDetail).Reference("FinalDestination").IsModified = true;
 
                         db.Entry(modifyDetail).State = EntityState.Modified;
                     }
@@ -208,26 +259,24 @@ public class VesselCallProvider : IVesselCallProvider
                 foreach (var itemDetail in item.Details!)
                     if (!modifyItem.Details.Any(s => s.Id == itemDetail.Id))
                     {
-                        itemDetail.CreateUser = User!;
-                        itemDetail.CreateTime = DateTime.Now;
-
+                        itemDetail.CreateUser = User!;                        
                         db.Entry(itemDetail.CreateUser).State = EntityState.Unchanged;
                         db.Entry(itemDetail.POD!).State = EntityState.Unchanged;
                         if (itemDetail.FinalDestination is not null)
-                            db.Entry(itemDetail.FinalDestination!).State = EntityState.Unchanged;                        
+                            db.Entry(itemDetail.FinalDestination!).State = EntityState.Unchanged;
 
                         db.Entry(itemDetail).State = EntityState.Added;
                         modifyItem.Details.Add(itemDetail);
                     }
 
+                //---------------------------------------------
                 db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 
-
-                // Change Status of ExportOrders
+                // Change Status of related EXPORT ORDERS
                 db.ChangeTracker.Clear();
 
                 var eoList = new List<ExportOrderEntity>();
@@ -254,7 +303,7 @@ public class VesselCallProvider : IVesselCallProvider
                 else
                     db.ChangeTracker.Clear();
 
-                // HISTORY
+                #region HISTORY
                 //db.ChangeTracker.Clear();
 
                 //var historyItemDetails = new List<VesselCallDetailsHistory>();
@@ -288,6 +337,7 @@ public class VesselCallProvider : IVesselCallProvider
                 //db.Entry(historyItem).State = EntityState.Added;
 
                 //await db.SaveChangesAsync();
+                #endregion
             }
             catch (Exception ex)
             {
@@ -326,7 +376,7 @@ public class VesselCallProvider : IVesselCallProvider
                 foreach (var detail in item.Details)
                 {
                     detail.CreateUser = User!;
-                    detail.CreateTime = DateTime.Now;
+                    //detail.CreateTime = DateTime.Now;
 
                     db.Entry(detail.POD!).State = EntityState.Unchanged;
                     if (detail.FinalDestination is not null)
@@ -344,7 +394,7 @@ public class VesselCallProvider : IVesselCallProvider
 
                 await db.SaveChangesAsync();
 
-                // HISTORY
+                #region HISTORY
                 //db.ChangeTracker.Clear();
 
                 //bool IsItemExists = await db.VesselCalls.AnyAsync(vc => vc.Id == item.Id);
@@ -384,6 +434,7 @@ public class VesselCallProvider : IVesselCallProvider
 
                 //    await db.SaveChangesAsync();
                 //}
+                #endregion
             }
             catch (Exception ex)
             {

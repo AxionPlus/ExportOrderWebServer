@@ -432,7 +432,6 @@
 @code {
     private MudTable<ExportOrderRecord>? mudTable;
     private MudTable<ContainerContent>? mudCntrContentTable;
-    //private MudTable<DocumentRecord>? mudDocRecordsTable;
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
@@ -442,10 +441,8 @@
     [Parameter]
     public bool IsFormReadOnly { get; set; }
     [Parameter]
-    public bool IsRoleForEdit { get; set; }
+    public bool IsRoleForEdit { get; set; }    
     
-    //private long VoyageId { get; set; }
-
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
 
@@ -470,13 +467,6 @@
     //     //await GetDocumentItems();
     // }
 
-    // public async Task GetDocumentItems()
-    // {
-    //     await Task.Delay(100);
-
-    //     //await ValueChanged.InvokeAsync(Value);
-    //     DocumentItems = Value!.Documents!.ToHashSet();
-    // }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 

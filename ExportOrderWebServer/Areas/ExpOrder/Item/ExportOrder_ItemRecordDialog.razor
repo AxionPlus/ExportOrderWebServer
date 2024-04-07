@@ -113,7 +113,7 @@
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd>
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" Disabled="@(Item is null)"
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" Disabled="@(IsFormReadOnly || Item.Contents.Count == 0)"
                                                 OnClick="@(async () => { RemoveContainerContent_Click(context); })" />
                             </MudTd>
                             <MudTd>

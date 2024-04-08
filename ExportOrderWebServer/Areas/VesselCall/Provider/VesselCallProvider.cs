@@ -45,7 +45,6 @@ public class VesselCallProvider : IVesselCallProvider
         return appObjResponse;
     }
 
-
     public async Task<AppObjectResponse> GetItemsAsync()
     {
         appObjResponse = new();
@@ -125,9 +124,7 @@ public class VesselCallProvider : IVesselCallProvider
                 var modifyItem = await db.VesselCalls.AsNoTracking()    // if AsTracking() - check all of modifyItem's elements for changing
                                                     .Include(vc => vc.Vessel)
                                                     .Include(vc => vc.Terminal)
-                                                    //.Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)
-                                                    .Include(vc => vc.Details)//.ThenInclude(d => d.POD)
-                                                    //.Include(vc => vc.Details).ThenInclude(d => d.FinalDestination)
+                                                    .Include(vc => vc.Details)
                                                     .FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem is null)
@@ -154,22 +151,6 @@ public class VesselCallProvider : IVesselCallProvider
 
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-                //// DELETE modify.Details
-
-                //if (modifyItem.Details.Count > 0)
-                //    foreach (var detail in modifyItem.Details)
-                //    {
-                //        detail.ExportOrders.ForEach(eo => db.Entry(eo).State = EntityState.Deleted);
-                //        db.Entry(detail).State = EntityState.Deleted;
-                //    }
-
-                //modifyItem.Details.Clear();
-
-                //var dbBug = db.ChangeTracker.DebugView.LongView;
-                //await db.SaveChangesAsync();
-
-                //db.ChangeTracker.Clear();
-
                 // RE-WRITE WITH A NEW ITEM
 
                 modifyItem.CreateUser = User!;
@@ -182,35 +163,11 @@ public class VesselCallProvider : IVesselCallProvider
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
-                //if (item.Vessel is not null)
-                //{
-                    //modifyItem.Vessel = item.Vessel!;
-                //if (!modifyItem.Vessel!.Equals(item.Vessel))
                 modifyItem.Vessel = item.Vessel!;
                 db.Entry(modifyItem.Vessel!).State = EntityState.Unchanged;
-                //}
 
-                //if (item.Terminal is not null)
-                //{
-                //modifyItem.Terminal = item.Terminal;
-                //if (!modifyItem.Terminal.Equals(item.Terminal))
                 modifyItem.Terminal = item.Terminal;
                 db.Entry(modifyItem.Terminal!).State = EntityState.Unchanged;
-                //}
-
-                // RE-WRITE modifyDetail with itemDetail
-                //if (item.Details.Count > 0)
-                //    foreach (var newDetail in item.Details)
-                //    {
-                //        newDetail.CreateUser = User!;
-                //        db.Entry(newDetail.CreateUser).State = EntityState.Unchanged;
-
-                //        foreach (var exportOrder in newDetail.ExportOrders)
-                //            db.Entry(exportOrder).State = EntityState.Added;
-
-                //        db.Entry(newDetail).State = EntityState.Added;
-                //        modifyItem.Details.Add(newDetail);
-                //    }
 
                 // -------------------------------------------------------------------
                 // compaire a new itemDetails with an existed
@@ -235,20 +192,13 @@ public class VesselCallProvider : IVesselCallProvider
                         modifyDetail.CreateTime = DateTime.Now;
                         modifyDetail.AgentPOD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOD;
 
-                        //if (!modifyDetail.POD!.Equals(item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD))
-                        modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
-                        
+                        modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;                        
                         db.Entry(modifyDetail.POD!).State = EntityState.Unchanged;
 
                         //modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
 
                         //if (modifyDetail.FinalDestination != null)
                         //    db.Entry(modifyDetail.FinalDestination!).State = EntityState.Unchanged;
-                        //else
-                        //    db.Entry(modifyDetail).Reference("FinalDestination").IsModified = true;
-
-                        //if (item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination != null)
-                        //    modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
                         //else
                         //    db.Entry(modifyDetail).Reference("FinalDestination").IsModified = true;
 
@@ -269,14 +219,13 @@ public class VesselCallProvider : IVesselCallProvider
                         modifyItem.Details.Add(itemDetail);
                     }
 
-                //---------------------------------------------
                 db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 
-                // Change Status of related EXPORT ORDERS
+                // Change Status for an EXPORT ORDERS related
                 db.ChangeTracker.Clear();
 
                 var eoList = new List<ExportOrderEntity>();
@@ -347,8 +296,7 @@ public class VesselCallProvider : IVesselCallProvider
             }
 
             return appObjResponse;
-        }
-        
+        }        
     }
 
     public async Task<AppObjectResponse> NewItemAsync(VesselCallEntity item)
@@ -358,8 +306,7 @@ public class VesselCallProvider : IVesselCallProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             try
-            {
-            
+            {            
                 var db = await _db;
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
@@ -376,7 +323,6 @@ public class VesselCallProvider : IVesselCallProvider
                 foreach (var detail in item.Details)
                 {
                     detail.CreateUser = User!;
-                    //detail.CreateTime = DateTime.Now;
 
                     db.Entry(detail.POD!).State = EntityState.Unchanged;
                     if (detail.FinalDestination is not null)

@@ -358,7 +358,7 @@
                 <MudTd></MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                                  Text="@(expOrderRecord.Contents.Sum(s => s.NetWt) is not null ? expOrderRecord.Contents.Sum(s => s.NetWt!.Value).ToString("## ##0.###") : "-")"
+                                  Text="@(expOrderRecord.Contents.Where(s => s.NetWt is not null).Sum(s => s.NetWt!.Value).ToString("## ##0.###"))"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>

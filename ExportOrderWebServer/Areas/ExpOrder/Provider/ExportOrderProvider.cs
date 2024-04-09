@@ -7,6 +7,8 @@
     public ExportOrderProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+
+        appObjResponse = new();
     }
 
 
@@ -16,7 +18,7 @@
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-            
+
             var db = await _db;
             try
             {
@@ -24,12 +26,12 @@
 
                 var exportOrder = await db.ExportOrders.AsNoTracking().AsSplitQuery()
                                                        .Include(eo => eo.Carrier)!//.ThenInclude(c => c!.CarrierDetails)
-                                                       .Include(eo => eo.Person)                                                       
+                                                       .Include(eo => eo.Person)
                                                        .Include(eo => eo.Documents)!.ThenInclude(d => d.Records)
                                                        .Include(eo => eo.Records)!.ThenInclude(r => r.CntrType)
                                                        .Include(eo => eo.Records)!.ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
                                                        .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
-                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Vessel)                                                       
+                                                       .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Vessel)
                                                        .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal)
                                                        .FirstOrDefaultAsync(s => s.Id == id);
 
@@ -73,7 +75,7 @@
 
         return appObjResponse;
     }
-        
+
     public async Task<ExportOrderDTO> GetExportOrderDTOAsync(long Id)
     {
         try
@@ -134,9 +136,9 @@
                                                     //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
                                                     ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
                                                     MyCompanyName = myCompany!.Name,
-                                                    Person = source.Person!.Name!.Substring(0, 1) + ". " + 
-                                                            source.Person!.SurName!.Substring(0, 1) + ". " + 
-                                                            source.Person!.FamilyName + "  т. " + 
+                                                    Person = source.Person!.Name!.Substring(0, 1) + ". " +
+                                                            source.Person!.SurName!.Substring(0, 1) + ". " +
+                                                            source.Person!.FamilyName + "  т. " +
                                                             source.Person.Phone,
                                                     PersonXml = source.Person!.Name + " " + source.Person!.FamilyName + " телефон: " + source.Person.Phone,
                                                     exportOrderRecordsDTO = eoRecords(source.Records!)
@@ -146,7 +148,7 @@
                 return Item!;
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             string msg = ex.Message;
             Console.WriteLine(msg);
@@ -199,7 +201,7 @@
                                     POLAgent = source.Carrier!.CarrierDetails.FirstOrDefault(cd => cd.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.AgentPOL!,
                                     PODAgent = source.VesselCallDetail!.AgentPOD,
                                     Measurement = source.Records.FirstOrDefault()!.Contents.FirstOrDefault()!.Volume > 0 ? "CBM" : "KG",
-                                    
+
                                     TotalCntrCount = (uint)source.Records.Count,
                                     TotalPackages = (uint)source.Records.Sum(r => r.Contents.Sum(c => c.PackageQty))!,
                                     TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
@@ -244,7 +246,7 @@
                                             .Where(x => x.Status != EntityStatus.Cancelled)
                                             .AsSplitQuery()
                                             .ToListAsync();
-                                
+
                 var DTOItems = manifestRecords(exportOrders, isImo);
 
                 return DTOItems;
@@ -281,7 +283,7 @@
                                                         .Include(eo => eo.Carrier)
                                                         .Include(eo => eo.Records).ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord)
                                                         .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated : true)
-                                                        .Where(eo => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :                                                                        
+                                                        .Where(eo => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :
                                                                             eo.Records.Any(eor => eor.CntrNum.Equals(filter.CntrNum)))
                                                         //.Where(eo => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :
                                                         //                filter.CntrNum.Contains("select", StringComparison.CurrentCultureIgnoreCase) ? eo.Records.Any(eor => eor.CntrNum.Equals(filter.CntrsNum.Any())) :
@@ -296,7 +298,7 @@
                 else
                     if (string.IsNullOrEmpty(filter.Num) && string.IsNullOrEmpty(filter.Vessel) && string.IsNullOrEmpty(filter.POD)
                             && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage) && string.IsNullOrEmpty(filter.CntrNum))
-                        ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
+                    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
 
                 // Cntr Num
                 //if (!string.IsNullOrEmpty(filter.CntrNum))
@@ -310,9 +312,9 @@
 
                 if (!string.IsNullOrEmpty(filter.Vessel))
                     ItemsDTO = ItemsDTO.Where(s => s.Vessel == filter.Vessel).ToList();
-                
+
                 if (!string.IsNullOrEmpty(filter.POD))
-                    ItemsDTO = ItemsDTO.Where(s => s.POD== filter.POD).ToList();
+                    ItemsDTO = ItemsDTO.Where(s => s.POD == filter.POD).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Carrier))
                     ItemsDTO = ItemsDTO.Where(s => s.Carrier == filter.Carrier).ToList();
@@ -320,7 +322,7 @@
                 ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
                 if (!string.IsNullOrEmpty(filter.Voyage))
-                    ItemsDTO = ItemsDTO.Where(s => s.Voyage == filter.Voyage).OrderByDescending(s => s.Dated).ToList();                
+                    ItemsDTO = ItemsDTO.Where(s => s.Voyage == filter.Voyage).OrderByDescending(s => s.Dated).ToList();
 
                 appObjResponse.Object = ItemsDTO.ToArray();
             }
@@ -394,7 +396,7 @@
 
                     modifyItem.Documents.Clear();
                 }
-                
+
                 var dbBug = db.ChangeTracker.DebugView.LongView;
                 await db.SaveChangesAsync();
 
@@ -537,7 +539,7 @@
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            
+
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             try
@@ -554,7 +556,7 @@
 
                 db.Entry(item).State = EntityState.Added;
 
-                db.Entry(item.Carrier!).State = EntityState.Unchanged;                
+                db.Entry(item.Carrier!).State = EntityState.Unchanged;
                 db.Entry(item.Person!).State = EntityState.Unchanged;
                 db.Entry(item.VesselCallDetail!).State = EntityState.Modified;
 
@@ -682,14 +684,14 @@
             {
                 var db = await _db;
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);                                
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
 
                 // delete Export Order
                 var deleteItem = await db.ExportOrders
                                                       .Include(eo => eo.VesselCallDetail)
                                                       .Include(eo => eo.Records).ThenInclude(d => d.Contents)
                                                       .FirstOrDefaultAsync(s => s.Id == id);
-                
+
                 if (deleteItem!.Records.Count() > 0)
                     foreach (var record in deleteItem.Records)
                     {
@@ -773,7 +775,7 @@
 
     public async Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id)
     {
-        appObjResponse = new();
+
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -782,7 +784,7 @@
             var eoRecords = await db.Set<ExportOrderRecord>().AsNoTracking()
                                                              .Include(eor => eor.ExportOrder).ThenInclude(eo => eo.VesselCallDetail)
                                                              .Include(eor => eor.CntrType)
-                                                             .Include(eor => eor.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)                                                          
+                                                             .Include(eor => eor.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
                                                              .FirstOrDefaultAsync(s => s.Id == id);
 
             appObjResponse.Object = eoRecords;
@@ -790,7 +792,44 @@
 
         return appObjResponse;
     }
-    
+
+    public async Task<AppObjectResponse> SetNewVesselCall(IEnumerable<long> exportOrderIds, long vesselCallid)
+    {
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var VesselCall = await db.Set<VesselCallDetail>().FirstOrDefaultAsync(s => s.Id == vesselCallid);
+
+            var ExportOrders = await db.ExportOrders.AsNoTracking()
+                                         .Where(s => exportOrderIds.Any(i => i == s.Id))
+                                         .ToArrayAsync();
+
+            foreach (var exportOrder in ExportOrders)
+            {
+                exportOrder.VesselCallDetail = VesselCall;
+                db.Entry(exportOrder).State = EntityState.Modified;
+
+                db.Entry(VesselCall!).State = EntityState.Unchanged;
+
+            }
+
+
+            var bug = db.ChangeTracker.DebugView.LongView;
+
+            await db.SaveChangesAsync();
+
+
+            appObjResponse.Object = eoRecords;
+        }
+
+        return appObjResponse;
+
+
+
+    }
+
     #region AUXILIARY
 
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
@@ -876,7 +915,7 @@
 
     Func<IEnumerable<ExportOrderEntity>, bool, IEnumerable<VoyageManifestDTO>> manifestRecords = (exportOrders, _isImo) =>
     {
-        var ItemsDTO = new List<VoyageManifestDTO>();        
+        var ItemsDTO = new List<VoyageManifestDTO>();
 
         try
         {
@@ -884,7 +923,7 @@
             {
                 var _shippers = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn!)).ToList();
                 var _consignees = Item.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn!)).ToList();
-                
+
                 var _commodities = new List<string>();
                 var _commoditiesEn = new List<string>();
 
@@ -914,7 +953,7 @@
                                                                                          " UNNO:" + con.DocumentRecord.UNNO))
                                                                                 .Distinct().ToList();
                 }
-                
+
                 uint indexRec = 0;
 
                 var Records = Item.Records;
@@ -977,7 +1016,7 @@
                         Cntr = record.CntrNum,
                         CntrType = record.CntrType!.Normolize!,
                         Seal = record.Seal != string.Empty ? record.Seal : "N/A",
-                        CntrTareWt = record.CntrTareWt,                        
+                        CntrTareWt = record.CntrTareWt,
 
                         PackageQtys = (uint)CntrContents.Sum(c => c.PackageQty)!,
                         PackageNames = string.Join(", ", CntrContents.Select(c => c.PackageName is not null ? c.PackageName.ToUpper() : "").Distinct().Order()),
@@ -998,7 +1037,7 @@
 
                         RecordCommodities = string.Join("; ", record.Contents.Select(rc => rc.DocumentRecord.CommodityName +
                                                                                             (rc.DocumentRecord.IsIMO ? " IMO:" +
-                                                                                                rc.DocumentRecord.IMO + "UNNO:" + 
+                                                                                                rc.DocumentRecord.IMO + "UNNO:" +
                                                                                                 rc.DocumentRecord.UNNO : ""))
                                                                              .Distinct().ToList()),
                     };
@@ -1023,7 +1062,7 @@
         foreach (var record in Records)
         {
             var recordDTO = new ExportOrderComponentDTO()
-            {                
+            {
                 Id = record.Id,
                 Num = record.Num,
                 //Cntr = record.Records.Count > 0 ? string.Join(", ", record.Records.Select(s => s.CntrNum).ToList()) : null,

@@ -16,6 +16,7 @@ public class ExportOrderComponentDTO
     public string? Carrier { get; set; }
     public bool? IsImo { get; set; }
     public bool? IsEmpty { get; set; }
+    public bool IsSelect { get; set; }
 
     public EntityStatus Status { get; set; }
     public BLTemplate BlTemplate { get; set; }

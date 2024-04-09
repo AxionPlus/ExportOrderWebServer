@@ -9,4 +9,5 @@ public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
     Task<int> LastVersionAsync();
     Task<AppObjectResponse> GetVersionAsync(int version);    
     Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id);
+    Task<AppObjectResponse> SetNewVesselCall(IEnumerable<long>exportOrderIds,long vesselCallid);
 }

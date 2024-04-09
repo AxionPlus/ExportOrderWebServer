@@ -126,9 +126,9 @@ public class CheckUploadResultService
                 if (record.CntrNum is not null && record.CntrNum.Length == 11)
                 {
                     // --- Num DUPLICATION in Voyage
-                    bool response = await _checkCntrNumService.IsCntrNumDuplicates(record.CntrNum, voyageId);
+                    bool found = await _checkCntrNumService.IsCntrNumDuplicates(record.CntrNum, voyageId);
 
-                    if (response)
+                    if (found)
                         errList.Add($"{errMessagePrefix} Контейнер повторяется в этом рейсе.");
 
                     // --- Num CONTROL DIGIT
@@ -145,8 +145,4 @@ public class CheckUploadResultService
         }
     }
 
-    //public void Dispose()
-    //{
-    //    //throw new NotImplementedException();
-    //}
 }

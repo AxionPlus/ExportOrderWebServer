@@ -461,13 +461,6 @@
         }
     }
 
-    // protected override async Task OnInitializedAsync()   // change to: Task OnInitializedAsync (void)
-    // {
-    //     //CheckVoyageState();
-    //     //await GetDocumentItems();
-    // }
-
-
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     #region DOCUMENTS
@@ -596,8 +589,10 @@
             if (modifiedExportOrderRecord is not null)
                 item = modifiedExportOrderRecord;
 
-            await InvokeAsync(StateHasChanged); // DELETE
+            //await InvokeAsync(StateHasChanged); // DELETE
         }
+
+        //await InvokeAsync(StateHasChanged);
     }
 
     private async Task RemoveContainerRecord(ExportOrderRecord record)
@@ -640,8 +635,7 @@
         //if (VoyageId == 0) return;
         if (Value is null || Value.VesselCallDetail is null) return;
 
-        //var parameters = new DialogParameters() { ["VoyageId"] = VoyageId };
-        var parameters = new DialogParameters() { ["VoyageId"] = Value.VesselCallDetail.Id };
+        var parameters = new DialogParameters() { ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
         var dialog = DialogService.Show<UploadExportOrderRecordsFile>("Импорт списка ДТ", parameters, options);
 

@@ -210,7 +210,7 @@
 
     private bool IsFormReadOnly { get; set; } = true;
     public bool IsLoadingData { get; set; } = false;
-    private string? InitialCntrNum;
+    private string? InitialCntrNum { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -234,7 +234,6 @@
         if (Item.CntrNum is not null)
             InitialCntrNum = Item.CntrNum;
     }
-
 
     private void AddContainerContent_Click()
     {
@@ -286,6 +285,8 @@
 
     private async Task EditItem_Click()
     {
+        //MudDialog!.Options.CloseButton = false;
+
         await Task.Delay(50);
         IsFormReadOnly = false;
     }
@@ -296,35 +297,35 @@
 
         string num = Item.CntrNum;
 
-        if (InitialCntrNum is not null)
-            if (num.Equals(InitialCntrNum)) return false;
-
+        if (num.Equals(InitialCntrNum)) return false;
+                
         if (num.Length < 11)
         {
             Snackbar.Add($"Нехватает символов в номере Контейнера.", Severity.Error);
             return true;
-        }       
+        }        
+
+        bool hasError = false;
 
         // Check DUPLICATES
-        bool response = await checkCntrNumService.IsCntrNumDuplicates(num, VoyageId);
+        bool found = await checkCntrNumService.IsCntrNumDuplicates(num, VoyageId);
 
-        if (response)
+        if (found)
         {
             Snackbar.Add($"{num}: Контейнер повторяется в этом рейсе.", Severity.Error);
-            return true;
+            hasError = true;
         }
 
         // Check CONTROL DIGIT IN CNTR_NUM
-
         int controlDigit = await checkCntrNumService.ControlDigit(num);
 
-        if (Convert.ToInt32(num.Substring(10, 1)) == controlDigit)
-            return false;
-        else
+        if (Convert.ToInt32(num.Substring(10, 1)) != controlDigit)
         {
             Snackbar.Add($"Контрольная цифра в номере контейнера не верна. Правильно - {controlDigit}.", Severity.Error);            
-            return true;
+            hasError = true;
         }
+
+        return hasError;
     }
 
     private PatternMask _CntrNumMask = new PatternMask("aaaa#######")

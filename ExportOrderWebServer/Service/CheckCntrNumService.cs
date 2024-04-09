@@ -3,7 +3,6 @@
 public class CheckCntrNumService
 {
     public readonly IVesselCallProvider vesselCallProvider;
-    //private AppObjectResponse appObjResponse;
 
     public CheckCntrNumService(IVesselCallProvider _vesselCallProvider)
     {
@@ -65,13 +64,10 @@ public class CheckCntrNumService
             { 
                 VesselCallEntity Voyage = (VesselCallEntity)responseVoyage.Object!;
 
-                string? existedCntrNum = Voyage.Details.SelectMany(vcd => vcd.ExportOrders)
-                                                        .SelectMany(eo => eo.Records)
-                                                        .Select(eor => eor.CntrNum)
-                                                        .FirstOrDefault(n => n.Equals(cntrNum));
-
-                if (existedCntrNum is not null)
-                    return true;
+                return Voyage.Details.SelectMany(vcd => vcd.ExportOrders)
+                                     .SelectMany(eo => eo.Records)
+                                     .Select(eor => eor.CntrNum)
+                                     .Any(n => n.Equals(cntrNum));
             }
         }
         catch(Exception ex)
@@ -82,32 +78,4 @@ public class CheckCntrNumService
 
         return false;
     }
-
-    //public async Task<AppObjectResponse> IsCntrNumDuplicates(string cntrNum, long voyageId)
-    //{
-    //    appObjResponse = new();
-    //    try
-    //    {
-    //        var responseVoyage = await vesselCallProvider.GetItemAsync(voyageId);
-
-    //        if (responseVoyage!.HasError)
-    //            appObjResponse.ErrorAdd($"{responseVoyage.Error.FirstOrDefault()}");
-    //        else
-    //        {
-    //            VesselCallEntity Voyage = (VesselCallEntity)responseVoyage.Object!;
-
-    //            string? existedCntrNum = Voyage.Details.SelectMany(vcd => vcd.ExportOrders).SelectMany(eo => eo.Records).Select(eor => eor.CntrNum).FirstOrDefault(n => n.Equals(cntrNum));
-
-    //            if (existedCntrNum is not null)
-    //                appObjResponse.ErrorAdd($"Контейнер повторяется в рейсе: {Voyage.Vessel.Name + " / " + Voyage.VoyageNo}.");
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex.Message);
-    //        return appObjResponse;
-    //    }
-
-    //    return appObjResponse;
-    //}
 }

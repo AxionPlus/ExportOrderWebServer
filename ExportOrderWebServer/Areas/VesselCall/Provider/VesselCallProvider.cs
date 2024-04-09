@@ -27,7 +27,7 @@ public class VesselCallProvider : IVesselCallProvider
                                                  .Include(vc => vc.Terminal)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.FinalDestination)
-                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)//.ThenInclude(eo => eo.Records)
+                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records)
                                                  .FirstOrDefaultAsync(s => s.Id == id);
 
                 if (voyage is null)

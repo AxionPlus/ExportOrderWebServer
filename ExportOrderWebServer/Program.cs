@@ -6,8 +6,7 @@ using MudBlazor.Services;
 var builder = WebApplication.CreateBuilder(args);
 //var services = builder.Services;
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -22,6 +21,7 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 },
 ServiceLifetime.Transient);
 
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders()
@@ -45,19 +45,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
-//builder.Services.AddSession(options =>
-//{
-//    options.IdleTimeout = TimeSpan.FromMinutes(30);      // время простоя
-//    //options.IOTimeout = TimeSpan.FromMinutes(5);      // время активности сессии
-//});
-
 builder.Services.AddScoped<TokenProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
-builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJwtBearer(x =>
 {
     // options
 });
+//builder.Services.AddAuthentication("tris.Identity").AddCookie();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -83,7 +77,6 @@ builder.Services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 builder.Services.AddTransient<StatisticProvider>();
 builder.Services.AddTransient<CheckUploadResultService>();
 builder.Services.AddTransient<CheckCntrNumService>();
-//builder.Services.AddTransient<ICheckCntrNumService, CheckCntrNumService>();
 
 var app = builder.Build();
 
@@ -102,7 +95,6 @@ else
     app.UseExceptionHandler("/Error");
 }
 
-//app.UseSession();
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -112,5 +104,11 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+//app.UseCors(x => x
+//                .AllowAnyMethod()
+//                .AllowAnyHeader()
+//                .SetIsOriginAllowed(origin => true) // allow any origin  
+//                .AllowCredentials());               // allow credentials 
 
 app.Run();

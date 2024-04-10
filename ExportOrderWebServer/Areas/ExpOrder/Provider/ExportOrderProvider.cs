@@ -343,20 +343,19 @@
 
     public async Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-            var db = await _db;
 
+            var db = await _db;
+            db.Database.SetCommandTimeout(560);
             try
             {
                 var modifyItem = await db.ExportOrders.AsTracking().AsSplitQuery()
-                                                    .Include(eo => eo.Carrier)
-                                                    .Include(eo => eo.Person)
+                                                    //.Include(eo => eo.Carrier)
+                                                    // .Include(eo => eo.Person)
                                                     .Include(eo => eo.Documents)
                                                     .Include(eo => eo.Records).ThenInclude(d => d.Contents).ThenInclude(c => c.DocumentRecord)
-                                                    .Include(eo => eo.VesselCallDetail)
+                                                    // .Include(eo => eo.VesselCallDetail)
                                                     .FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 // check CntrNum duplicate
@@ -375,7 +374,6 @@
 
                 // DELETE AN EXISTING modifyItem.Documents & modifyItem.Records
 
-                //if (!modifyItem.Records.SequenceEqual(item.Records))
                 if (modifyItem.Records.Count > 0)
                 {
                     foreach (var record in modifyItem.Records)
@@ -389,18 +387,18 @@
                     modifyItem.Records.Clear();
                 }
 
-                if (modifyItem.Documents.Count > 0)
-                {
-                    foreach (var document in modifyItem.Documents)
-                        db.Entry(document).State = EntityState.Unchanged;
+  
+                // DOCUMENTS
+                foreach (var modifyItemDocument in modifyItem.Documents.ToArray())
+                    if(!item.Documents.Any(s=>s.Id== modifyItemDocument.Id))
+                        modifyItem.Documents.Remove(modifyItemDocument);
 
-                    modifyItem.Documents.Clear();
-                }
+                foreach (var itemDocument in item.Documents)
+                    if (!modifyItem.Documents.Any(s => s.Id == itemDocument.Id))
+                        modifyItem.Documents.Add(itemDocument);
 
                 var dbBug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
 
-                db.ChangeTracker.Clear();
 
                 // RE-WRITE WITH A NEW ITEM
                 modifyItem.CreateUser = User!;
@@ -412,31 +410,28 @@
                 modifyItem.VesselCallDetail = item.VesselCallDetail;
                 modifyItem.Status = item.Status;
 
+
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
                 db.Entry(modifyItem.Carrier!).State = EntityState.Unchanged;
+
                 db.Entry(modifyItem.Person!).State = EntityState.Unchanged;
+
                 db.Entry(modifyItem.VesselCallDetail!).State = EntityState.Unchanged;
-
-                // DOCUMENTS
-                foreach (var itemDocument in item.Documents!)
-                {
-                    itemDocument!.CreateUser = User!;
-                    db.Entry(itemDocument.CreateUser).State = EntityState.Unchanged;
-
-                    db.Entry(itemDocument).State = EntityState.Unchanged;
-                    modifyItem.Documents.Add(itemDocument);
-                }
-
+                
                 // RECORDS
                 foreach (var record in item.Records)
                 {
-                    foreach (var content in record.Contents)
-                        db.Entry(content).State = EntityState.Added;
-
                     db.Entry(record).State = EntityState.Added;
                     modifyItem.Records.Add(record);
-                }
 
+                    foreach (var content in record.Contents)
+                    {
+                        db.Entry(content).State = EntityState.Added;
+                    }
+
+                }
+                dbBug = db.ChangeTracker.DebugView.LongView;
                 db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;

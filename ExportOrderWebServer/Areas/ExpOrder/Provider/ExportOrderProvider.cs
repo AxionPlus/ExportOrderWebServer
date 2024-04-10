@@ -341,7 +341,7 @@
         throw new NotImplementedException();
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item)
+    public async Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string UserName = "")
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -370,8 +370,13 @@
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
 
+                if (User is null )
+                {
+                    appObjResponse.ErrorAdd($"user not found{UserName}");
+                    return appObjResponse;
+                }
                 // DELETE AN EXISTING modifyItem.Documents & modifyItem.Records
 
                 if (modifyItem.Records.Count > 0)
@@ -823,6 +828,11 @@
 
 
 
+    }
+
+    public Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item)
+    {
+        throw new NotImplementedException();
     }
 
     #region AUXILIARY

@@ -198,6 +198,7 @@
     private MudForm? Form { get; set; }
     private MudTable<ContainerContent>? mudTable;
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] public string? ApplicationUser { get; set; }
 
     [Parameter]
     public ExportOrderRecord Item { get; set; } = new ExportOrderRecord();

@@ -79,6 +79,7 @@
 @code {
     private MudForm? Form;
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] public string? ApplicationUser { get; set; }
 
     public ExportOrder_ItemComponent? ExportOrderItemComponent; 
 
@@ -107,6 +108,7 @@
     {        
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 
+        ApplicationUser = authState.User.Identity?.Name;
         if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
         {
             IsRoleForEdit = true;
@@ -179,7 +181,7 @@
             }
             else
             {
-                var response = await _exportOrderProvider.ModifyItemAsync(Item);
+                var response = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser);
                 if (!response.HasError)
                     Snackbar.Add("Save Successed", Severity.Success);
                 else

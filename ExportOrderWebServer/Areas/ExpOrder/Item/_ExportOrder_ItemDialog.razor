@@ -67,6 +67,7 @@
 @code {
     private MudForm? Form;
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] public string? ApplicationUser { get; set; }
 
     [Parameter]
     public long Id { get; set; }
@@ -147,7 +148,7 @@
             }
             else
             {
-                var response = await _exportOrderProvider.ModifyItemAsync(Item!);
+                var response = await _exportOrderProvider.ModifyItemAsync(Item!, ApplicationUser);
                 if (!response.HasError)
                     Snackbar.Add("Save Successed", Severity.Success);
                 else

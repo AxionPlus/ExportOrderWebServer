@@ -214,7 +214,7 @@
 
 @code {
     private MudTable<ExportOrderComponentDTO>? mudTable;
-
+  
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     public IEnumerable<ExportOrderComponentDTO> Items { get; set; } = new List<ExportOrderComponentDTO>();
@@ -247,6 +247,18 @@
 
         if (!result.Canceled)
         {
+
+            bool? errResult = await DialogService.ShowMessageBox(
+        "Set New Vessel CALL?",
+        "Do you want to Roll Booking(s)?",
+
+        yesText: "Yes", cancelText: "No");
+            if (!errResult.HasValue)
+                return;
+            if (!errResult.Value)
+                return;
+
+
             IsLoadingData = true;
             await InvokeAsync(StateHasChanged);
 

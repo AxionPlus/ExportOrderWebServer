@@ -51,5 +51,6 @@
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
+        ApplicationUser = authState.User.Identity.Name;
     }
 }

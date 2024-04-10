@@ -118,9 +118,9 @@
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" Hover="true" RowsPerPage="15">
         <HeaderContent>
             <MudTh Style="width:42px">
-                <MudTooltip Delay="1500" Duration="1000" Text="view Details">
-                    <MudIconButton Class="wrapper-iconbutton" Disabled="@(!Items!.Any(s=>s.IsSelect))" Icon="@Icons.Material.Outlined.DepartureBoard"
-                              Color="Color.Secondary"     OnClick="SetNewVesselCall" />
+                <MudTooltip Delay="1500" Duration="1000" Text="перенести в другой рейс">
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!Items!.Any(s=>s.IsSelect))"
+                              Color="Color.Secondary" OnClick="SetNewVesselCall" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:42px"></MudTh>
@@ -247,17 +247,15 @@
 
         if (!result.Canceled)
         {
-
             bool? errResult = await DialogService.ShowMessageBox(
-        "Set New Vessel CALL?",
-        "Do you want to Roll Booking(s)?",
+                    "Set New Vessel CALL?",
+                    "Do you want to Roll Export Order(s)?",
+                    yesText: "Yes", cancelText: "No");
 
-        yesText: "Yes", cancelText: "No");
-            if (!errResult.HasValue)
-                return;
-            if (!errResult.Value)
-                return;
-
+                    if (!errResult.HasValue)
+                        return;
+                    if (!errResult.Value)
+                        return;
 
             IsLoadingData = true;
             await InvokeAsync(StateHasChanged);
@@ -270,8 +268,8 @@
 
             await GetItems();
         }
-
     }
+
     public async Task GetItems()
     {
         IsLoadingData = true;
@@ -353,7 +351,6 @@
     private async Task ViewReportBL_Click(long id)
     {
         string path = $"{ApplicationParameter.ViewReportUrl}ViewReportBL?Id={id}";
-
         await jSRuntime.InvokeVoidAsync("open", path);
     }
 

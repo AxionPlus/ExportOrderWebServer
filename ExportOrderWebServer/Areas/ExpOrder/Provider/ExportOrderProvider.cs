@@ -22,8 +22,6 @@
             var db = await _db;
             try
             {
-                //var documents = new List<DocumentEntity>();
-
                 var exportOrder = await db.ExportOrders.AsNoTracking().AsSplitQuery()
                                                        .Include(eo => eo.Carrier)!//.ThenInclude(c => c!.CarrierDetails)
                                                        .Include(eo => eo.Person)
@@ -40,28 +38,6 @@
                     appObjResponse.ErrorAdd("Export Order not found");
                     return appObjResponse;
                 }
-
-                //// Clear Documents from Export Order and RE-WRITE it
-                //exportOrder.Documents.Clear();
-
-                //var checkedDocuments = exportOrder.Records.SelectMany(eor => eor.Contents.Select(con => con.DocumentRecord.Document)).GroupBy(d => d.Name);
-
-                //foreach (var checkedDocument in checkedDocuments)
-                //{
-                //    var Document = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == checkedDocument.Key);
-
-                //    if (Document is null) continue;
-
-                //    var existedDocRecords = Document.Records.ToList();
-
-                //    foreach (var existedDocRecord in existedDocRecords)
-                //    {
-                //        if (!checkedDocument.SelectMany(d => d.Records).Any(dr => dr.Seq == existedDocRecord.Seq))
-                //            Document.Records.Remove(existedDocRecord);
-                //    }
-
-                //    exportOrder.Documents.Add(Document);
-                //}
 
                 appObjResponse.Object = exportOrder;
             }
@@ -300,13 +276,6 @@
                             && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage) && string.IsNullOrEmpty(filter.CntrNum))
                     ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
 
-                // Cntr Num
-                //if (!string.IsNullOrEmpty(filter.CntrNum))
-                //    if (filter.CntrNum.Contains("select", StringComparison.CurrentCultureIgnoreCase))
-                //        ItemsDTO = ItemsDTO.Where(s => s.Cntr.Contains(filter.CntrsNum.Any(), StringComparison.CurrentCultureIgnoreCase));
-                //    else
-                //        ItemsDTO = ItemsDTO.Where(s => s.Cntr == filter.CntrNum).ToList();
-
                 if (!string.IsNullOrEmpty(filter.Num))
                     ItemsDTO = ItemsDTO.Where(s => s.Num == filter.Num).ToList();
 
@@ -377,8 +346,8 @@
                     appObjResponse.ErrorAdd($"user not found{UserName}");
                     return appObjResponse;
                 }
-                // DELETE AN EXISTING modifyItem.Documents & modifyItem.Records
 
+                // DELETE AN EXISTING modifyItem.Documents & modifyItem.Records
                 if (modifyItem.Records.Count > 0)
                 {
                     foreach (var record in modifyItem.Records)
@@ -803,8 +772,8 @@
             var VesselCall = await db.Set<VesselCallDetail>().FirstOrDefaultAsync(s => s.Id == vesselCallid);
 
             var ExportOrders = await db.ExportOrders.AsNoTracking()
-                                         .Where(s => exportOrderIds.Any(i => i == s.Id))
-                                         .ToArrayAsync();
+                                                    .Where(s => exportOrderIds.Any(i => i == s.Id))
+                                                    .ToArrayAsync();
 
             foreach (var exportOrder in ExportOrders)
             {
@@ -812,22 +781,16 @@
                 db.Entry(exportOrder).State = EntityState.Modified;
 
                 db.Entry(VesselCall!).State = EntityState.Unchanged;
-
             }
-
 
             var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
 
-
             appObjResponse.Object = eoRecords;
         }
 
         return appObjResponse;
-
-
-
     }
 
     public Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item)

@@ -11,7 +11,6 @@ public class VesselCallProvider : IVesselCallProvider
         _dbContext = dbContext;
     }
 
-
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
         appObjResponse = new();
@@ -249,8 +248,8 @@ public class VesselCallProvider : IVesselCallProvider
 
                     await db.SaveChangesAsync();
                 }
-                else
-                    db.ChangeTracker.Clear();
+
+                db.ChangeTracker.Clear();
 
                 #region HISTORY
                 //db.ChangeTracker.Clear();
@@ -427,7 +426,6 @@ public class VesselCallProvider : IVesselCallProvider
         //    return appObjResponse;
         //}
     }
-
 
     #region AUXILARY METHODS
     public async Task<AppObjectResponse> GetVesselCallDetailAsync(long vcdId)

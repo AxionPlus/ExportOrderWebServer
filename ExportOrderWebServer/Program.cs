@@ -74,9 +74,11 @@ builder.Services.AddTransient<IDocumentProvider, DocumentProvider>();
 builder.Services.AddTransient<IExportOrderProvider, ExportOrderProvider>();
 builder.Services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 
+builder.Services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
 builder.Services.AddTransient<StatisticProvider>();
 builder.Services.AddTransient<CheckUploadResultService>();
 builder.Services.AddTransient<CheckCntrNumService>();
+
 
 var app = builder.Build();
 

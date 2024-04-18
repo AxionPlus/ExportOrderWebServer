@@ -442,7 +442,7 @@
     public bool IsFormReadOnly { get; set; }
     [Parameter]
     public bool IsRoleForEdit { get; set; }    
-    
+
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
 
@@ -766,6 +766,12 @@
             if (!response.HasError)
             {
                 Value.VesselCallDetail = (VesselCallDetail)response.Object!;
+
+                /// check Carrier for Terminal: is the Carrier has any Terminal like VesselCall's Terminal
+                if (Value.Carrier is not null)
+                    if (!Value.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Value.VesselCallDetail.VesselCall.Terminal.Name)))
+                        Value.Carrier = null;
+
                 //VoyageId = Value.VesselCallDetail.VesselCall.Id;
             }
             else

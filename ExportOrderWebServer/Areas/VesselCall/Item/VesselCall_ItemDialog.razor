@@ -249,8 +249,6 @@
 
             if (!response.HasError)
                 Item = (VesselCallEntity)response.Object!;
-
-            //if (Item is not null) ItemStatus = Item.Status;
         }
     }
 
@@ -270,14 +268,22 @@
             {
                 //if (ItemStatus == EntityStatus.Completed && !IsRoleForEdit)
                 if (Item is not null && Item.Status == EntityStatus.Completed && !IsRoleForEdit)
+                {
                     Snackbar.Add($"Voyage is Completed.<br>You can't change Status for this Voyage.", Severity.Warning);
+                    IsFormReadOnly = true;
+                    IsLoadingData = false;
+                }                    
                 else
                 {
                     var result = await _vesselCallProvider.ModifyItemAsync(Item!);
                     if (!result.HasError)
                         Snackbar.Add("Saved Successfully", Severity.Success);
                     else
-                        Snackbar.Add($"{result.Error.First()}", Severity.Error);
+                    {
+                        Snackbar.Add($"{string.Join("; ", result.Error)}", Severity.Error);
+                        IsFormReadOnly = true;
+                        IsLoadingData = false;
+                    }                        
                 }
             }
 

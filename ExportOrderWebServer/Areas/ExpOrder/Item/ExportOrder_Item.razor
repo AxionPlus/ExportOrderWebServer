@@ -68,7 +68,7 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @ref="ExportOrderItemComponent" @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" IsRoleForEdit="@IsRoleForEdit" />
+            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" IsRoleForEdit="@IsRoleForEdit" />
         }
     </MudForm>
 
@@ -81,7 +81,7 @@
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [CascadingParameter] public string? ApplicationUser { get; set; }
 
-    public ExportOrder_ItemComponent? ExportOrderItemComponent; 
+    //public ExportOrder_ItemComponent? ExportOrderItemComponent; 
 
     [SupplyParameterFromQuery]
     [Parameter]
@@ -147,13 +147,6 @@
                 if (Item.Status.Equals(EntityStatus.Cancelled))
                     if (!IsRoleForEdit)
                         IsEditSaveBtnsVisible = false;
-
-                if (ExportOrderItemComponent is not null)
-                {
-                     //await InvokeAsync(StateHasChanged);
-                    // await ExportOrderItemComponent.GetDocumentItems();
-                    //await ExportOrderItemComponent.ValueChanged.InvokeAsync(Item);
-                }
             }
         }        
     }

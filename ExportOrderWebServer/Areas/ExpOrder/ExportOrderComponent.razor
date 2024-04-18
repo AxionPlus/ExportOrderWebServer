@@ -2,6 +2,7 @@
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject HttpClient Http
+@inject IHttpCustomMethods HttpCustomMethod
 @inject IJSRuntime jSRuntime
 @inject AuthenticationStateProvider authenticationStateProvider
 
@@ -115,29 +116,39 @@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" Hover="true" RowsPerPage="15">
-        <HeaderContent>
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedExportOrderItems"
+              Virtualize="true" RowsPerPage="15" MultiSelection="true">
+        <HeaderContent>            
             <MudTh Style="width:42px">
-                <MudTooltip Delay="1500" Duration="1000" Text="перенести в другой рейс">
-                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!Items!.Any(s=>s.IsSelect))"
-                              Color="Color.Secondary" OnClick="SetNewVesselCall" />
+                <MudTooltip Delay="1500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!Items!.Any(s=>s.IsSelected))"
+                                   Color="Color.Secondary" OnClick="SetNewVesselCall" />
+                </MudTooltip>
+            </MudTh>
+            <MudTh Style="width:42px">
+                <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedExportOrderItems.Count == 0)"
+                                   OnClick="@(async()=>{ await SaveReportsExpOrder_Click(SelectedExportOrderItems); })" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:42px"></MudTh>
-            <MudTh Style="width:42px"></MudTh>
-            <MudTh Style="width:42px"></MudTh>
-            <MudTh Style="width:130px"></MudTh>
+            <MudTh Style="width:130px">
+                <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedExportOrderItems.Count == 0)"
+                                   OnClick="@(async()=>{ await SaveReportsBL_Click(SelectedExportOrderItems); })" />
+                </MudTooltip>                
+            </MudTh>
             <MudTh Style="width:160px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Num!)">Number</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:80px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Dated!)">Dated</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:200px">
+            <MudTh Style="width:230px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Vessel!)">Vessel</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:110px">
-                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Voyage!)">Voyage</MudTableSortLabel>
+            <MudTh Style="width:130px">
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.VoyageNo!)">Voyage</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:200px">POD</MudTh>
             <MudTh Style="width:200px; text-align:start">
@@ -148,13 +159,13 @@
             <MudTh Style="width:80px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:42px"></MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>
-                <MudCheckBox @bind-Value="@context.IsSelect" />
-            </MudTd>
+@*             <MudTd>
+                <MudCheckBox @bind-Value="@context.IsSelected" />
+            </MudTd> *@
             <MudTd>
                 <MudTooltip Delay="1500" Duration="1000" Text="view Details">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
@@ -183,7 +194,7 @@
             <MudTd>@context.Num</MudTd>
             <MudTd>@context.Dated</MudTd>
             <MudTd>@context.Vessel</MudTd>
-            <MudTd>@context.Voyage</MudTd>
+            <MudTd>@context.VoyageNo</MudTd>
             <MudTd>@context.POD</MudTd>
             <MudTd Style="text-align:start">@context.Carrier</MudTd>
             <MudTd>
@@ -204,7 +215,7 @@
                                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
                                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
             </MudTd>
-            <MudTd></MudTd>
+            @* <MudTd></MudTd> *@
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -214,10 +225,12 @@
 
 @code {
     private MudTable<ExportOrderComponentDTO>? mudTable;
-  
+
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     public IEnumerable<ExportOrderComponentDTO> Items { get; set; } = new List<ExportOrderComponentDTO>();
+    private HashSet<ExportOrderComponentDTO> SelectedExportOrderItems = new HashSet<ExportOrderComponentDTO>();
+    private string Voyage = string.Empty;
     private IEnumerable<string>? CntrList { get; set; }
     private FilterParameters Filter { get; set; } = new();
 
@@ -236,39 +249,7 @@
         }
     }
 
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
-
-    public async Task SetNewVesselCall()
-    {
-        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
-        var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
-        {
-            bool? errResult = await DialogService.ShowMessageBox(
-                    "Set New Vessel CALL?",
-                    "Do you want to Roll Export Order(s)?",
-                    yesText: "Yes", cancelText: "No");
-
-                    if (!errResult.HasValue)
-                        return;
-                    if (!errResult.Value)
-                        return;
-
-            IsLoadingData = true;
-            await InvokeAsync(StateHasChanged);
-
-            var VesselCallId = (long)result.Data;
-
-            var SelectItems = Items!.Where(s => s.IsSelect).Select(s => s.Id).ToArray();
-
-            await _exportOrderProvider.SetNewVesselCall(SelectItems, VesselCallId);
-
-            await GetItems();
-        }
-    }
+    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);    
 
     public async Task GetItems()
     {
@@ -277,7 +258,7 @@
         var response = await _exportOrderProvider.GetItemsAsync(Filter);
 
         if (!response.HasError)
-            Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
+            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!; // Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
 
         IsLoadingData = false;
 
@@ -288,7 +269,6 @@
     {
         DialogParameters parameters = new DialogParameters { ["Id"] = id };
         DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        //var dialog = await DialogService.ShowAsync<ExportOrder_ItemDialog>(null, parameters, options);
         var dialog = await DialogService.ShowAsync<ExportOrder_Item>(null, parameters, options);
 
         DialogResult result = await dialog.Result;
@@ -341,6 +321,44 @@
         //await InvokeAsync(StateHasChanged);
     }
 
+    public async Task SetNewVesselCall()
+    {
+        if (SelectedExportOrderItems is null || SelectedExportOrderItems.Count == 0)
+        {
+            Snackbar.Add($"Select at list one record.", Severity.Warning);
+            return;
+        }
+
+        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            bool? errResult = await DialogService.ShowMessageBox(
+                    "Set New Vessel CALL?",
+                    "Do you want to Roll Export Order(s)?",
+                    yesText: "Yes", cancelText: "No");
+
+            if (!errResult.HasValue)
+                return;
+            if (!errResult.Value)
+                return;
+
+            IsLoadingData = true;
+            await InvokeAsync(StateHasChanged);
+
+            var VesselCallId = (long)result.Data;
+
+            var selectedItems = SelectedExportOrderItems.Select(s => s.Id).ToArray();
+
+            await _exportOrderProvider.SetNewVesselCall(selectedItems, VesselCallId);
+
+            await GetItems();
+        }
+    }
+
     private async Task ViewReportExpOrder_Click(long id)
     {
         //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
@@ -356,9 +374,37 @@
 
     private async Task SaveXMLfile_Click(long id)
     {
-        string path = $"{Navigation.BaseUri}view/ViewReport/SaveXMLfile?Id={id}";
+        //string path = $"{Navigation.BaseUri}view/ViewReport/SaveXMLfile?Id={id}";
+        string path = $"{ApplicationParameter.ViewReportUrl}SaveXMLfile?Id={id}";
         await jSRuntime.InvokeVoidAsync("open", path);
     }
+
+    private async Task SaveReportsExpOrder_Click(HashSet<ExportOrderComponentDTO> selectedItems)
+    {
+        IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
+        
+        var Voyages = selectedItems.GroupBy(s => s.VesselCallId).Select(g => g.FirstOrDefault()!.VoyageNo);
+
+        if (Voyages.Count() > 1)
+        {
+            Snackbar.Add($"Export Orders for one Voyage only is available.", Severity.Warning);
+            return;
+        }
+
+        string VoyageNo = Voyages.FirstOrDefault()!;
+
+        var response = await HttpCustomMethod.POST_Report("SaveExportOrdersReport", ids, VoyageNo);
+        await jSRuntime.InvokeVoidAsync("open", response);
+
+        //await jSRuntime.InvokeVoidAsync("open", path, "application/pdf");
+
+    }
+
+    private async Task SaveReportsBL_Click(HashSet<ExportOrderComponentDTO> selectedItems)
+    {
+
+    }
+    
 
     #region SEARCHERS
 

@@ -5,7 +5,7 @@
 @inject IHttpCustomMethods HttpCustomMethod
 @inject IJSRuntime jSRuntime
 @inject AuthenticationStateProvider authenticationStateProvider
-
+@inject IHttpClientFactory httpClient
 @inject IExportOrderProvider _exportOrderProvider
 @inject IVesselProvider _vesselProvider
 @inject IVesselCallProvider _vesselCallProvider
@@ -118,7 +118,7 @@
     }
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedExportOrderItems"
               Virtualize="true" RowsPerPage="15" MultiSelection="true">
-        <HeaderContent>            
+        <HeaderContent>
             <MudTh Style="width:42px">
                 <MudTooltip Delay="1500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!Items!.Any(s=>s.IsSelected))"
@@ -136,7 +136,7 @@
                 <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedExportOrderItems.Count == 0)"
                                    OnClick="@(async()=>{ await SaveReportsBL_Click(SelectedExportOrderItems); })" />
-                </MudTooltip>                
+                </MudTooltip>
             </MudTh>
             <MudTh Style="width:160px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Num!)">Number</MudTableSortLabel>
@@ -163,8 +163,8 @@
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-@*             <MudTd>
-                <MudCheckBox @bind-Value="@context.IsSelected" />
+            @*             <MudTd>
+            <MudCheckBox @bind-Value="@context.IsSelected" />
             </MudTd> *@
             <MudTd>
                 <MudTooltip Delay="1500" Duration="1000" Text="view Details">
@@ -249,7 +249,7 @@
         }
     }
 
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);    
+    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     public async Task GetItems()
     {
@@ -382,7 +382,7 @@
     private async Task SaveReportsExpOrder_Click(HashSet<ExportOrderComponentDTO> selectedItems)
     {
         IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
-        
+
         var Voyages = selectedItems.GroupBy(s => s.VesselCallId).Select(g => g.FirstOrDefault()!.VoyageNo);
 
         if (Voyages.Count() > 1)
@@ -392,19 +392,39 @@
         }
 
         string VoyageNo = Voyages.FirstOrDefault()!;
+        var obj = new { Object = ids, Remarks = VoyageNo };
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
 
-        var response = await HttpCustomMethod.POST_Report("SaveExportOrdersReport", ids, VoyageNo);
-        await jSRuntime.InvokeVoidAsync("open", response);
+        //  var response = await HttpCustomMethod.POST_Report("SaveExportOrdersReport", ids, VoyageNo);
+        using (var Http = httpClient.CreateClient())
+        {
+            Http.Timeout = new TimeSpan(0, 10, 0);
+            var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            //var response = await Http.PostAsync($"{ApplicationParameter.UploadFileUrl}{url}", stringContent).ConfigureAwait(false);
+            var response = await Http.PostAsync($"{Navigation.BaseUri}file/UploadFile/SaveExportOrdersReport", stringContent).ConfigureAwait(false);
 
-        //await jSRuntime.InvokeVoidAsync("open", path, "application/pdf");
+            if (response.IsSuccessStatusCode)
+            {
+                //var res = response.Content.Headers.ContentDisposition;
+                var resultString = await response.Content.ReadAsStreamAsync();
+                using (var memoryStream = new MemoryStream())
+                {
+                    resultString.CopyTo(memoryStream);
 
-    }
+                    var buffer = memoryStream.ToArray();
+
+                    await jSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                          $"Manifest_{VoyageNo}.pdf", Convert.ToBase64String(buffer));
+                }
+            }
+        }
+   }
 
     private async Task SaveReportsBL_Click(HashSet<ExportOrderComponentDTO> selectedItems)
     {
 
     }
-    
+
 
     #region SEARCHERS
 

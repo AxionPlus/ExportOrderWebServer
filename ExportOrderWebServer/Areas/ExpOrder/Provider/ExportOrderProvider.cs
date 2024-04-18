@@ -218,7 +218,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                             .Include(x => x.Carrier)!.ThenInclude(c => c!.Location).ThenInclude(lo => lo!.Country)
                                             .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
                                             .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
-                                            .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)                                            
+                                            .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
                                             .Where(x => x.VesselCallDetail!.VesselCall!.Id == id)
                                             .Where(x => x.Status != EntityStatus.Cancelled)
                                             .AsNoTracking()
@@ -263,32 +263,56 @@ public class ExportOrderProvider : IExportOrderProvider
                                                         .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated : true)
                                                         .Where(eo => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :
                                                                             eo.Records.Any(eor => eor.CntrNum.Equals(filter.CntrNum)))
-                                                        .ToListAsync();
+                                                        .Where(s => filter.Status == null ? true : s.Status == filter.Status)
+                                                        .Where(s=> string.IsNullOrEmpty(filter.Num)? true: s.Num == filter.Num)
+                                                        .Where(s=> string.IsNullOrEmpty(filter.Vessel)? true: s.VesselCallDetail.VesselCall.Vessel.Name == filter.Vessel)
+                                                        .Where(s=> string.IsNullOrEmpty(filter.Voyage) ? true: s.VesselCallDetail.VesselCall.VoyageNo == filter.Voyage)
+                                                        .Where(s=> string.IsNullOrEmpty(filter.POD) ? true: s.VesselCallDetail.POD.Name == filter.POD)
+                                                        .Where(s=> string.IsNullOrEmpty(filter.Carrier) ? true: s.Carrier.NameEn == filter.Carrier)
+                                                        .ToArrayAsync();
 
-                var ItemsDTO = eoComponentRecord(exportOrders);
+               //var ItemsDTO = eoComponentRecord(exportOrders);
+               var ItemsDTO = exportOrders.Select(record=>
+                new ExportOrderComponentDTO()
+                {
+                    Id = record.Id,
+                    Num = record.Num,
+                    //Cntr = record.exportOrders.Count > 0 ? string.Join(", ", record.exportOrders.Select(s => s.CntrNum).ToList()) : null,
+                    Dated = record.Dated != null ? record.Dated!.Value.ToString("dd.MM.yy") : "---",
+                    VesselCallId = record.VesselCallDetail!.VesselCall.Id,
+                    Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
+                    VoyageNo = record.VesselCallDetail!.VesselCall.VoyageNo,
+                    POD = record.VesselCallDetail!.POD!.Name!,
+                    Carrier = record.Carrier!.NameEn,
+                    IsImo = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true)).Equals(true)),
+                    IsEmpty = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.CommodityEngName.ToUpper().Contains("EMPTY")).Equals(true)),
+                    Status = record.Status,
+                    BlTemplate = record.Carrier!.BlTemplate,
+                    CreateTime = record.CreateTime,
+                    VersionNo = record.VersionNo,
+                });
+                //if (filter.Status is not null)
+                //    ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
+                //else
+                //    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
+                ////if (string.IsNullOrEmpty(filter.Num) && string.IsNullOrEmpty(filter.Vessel) && string.IsNullOrEmpty(filter.POD)
+                ////        && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage) && string.IsNullOrEmpty(filter.CntrNum))
+                ////    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
 
-                if (filter.Status is not null)
-                    ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
-                else
-                    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
-                    //if (string.IsNullOrEmpty(filter.Num) && string.IsNullOrEmpty(filter.Vessel) && string.IsNullOrEmpty(filter.POD)
-                    //        && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage) && string.IsNullOrEmpty(filter.CntrNum))
-                    //    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
+                //if (!string.IsNullOrEmpty(filter.Num))
+                //    ItemsDTO = ItemsDTO.Where(s => s.Num == filter.Num).ToList();
 
-                if (!string.IsNullOrEmpty(filter.Num))
-                    ItemsDTO = ItemsDTO.Where(s => s.Num == filter.Num).ToList();
+                //if (!string.IsNullOrEmpty(filter.Vessel))
+                //    ItemsDTO = ItemsDTO.Where(s => s.Vessel == filter.Vessel).ToList();
 
-                if (!string.IsNullOrEmpty(filter.Vessel))
-                    ItemsDTO = ItemsDTO.Where(s => s.Vessel == filter.Vessel).ToList();
+                //if (!string.IsNullOrEmpty(filter.POD))
+                //    ItemsDTO = ItemsDTO.Where(s => s.POD == filter.POD).ToList();
 
-                if (!string.IsNullOrEmpty(filter.POD))
-                    ItemsDTO = ItemsDTO.Where(s => s.POD == filter.POD).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Carrier))
-                    ItemsDTO = ItemsDTO.Where(s => s.Carrier == filter.Carrier).ToList();
+                //if (!string.IsNullOrEmpty(filter.Carrier))
+                //    ItemsDTO = ItemsDTO.Where(s => s.Carrier == filter.Carrier).ToList();
 
                 if (!string.IsNullOrEmpty(filter.Voyage))
-                    ItemsDTO = ItemsDTO.Where(s => s.VoyageNo == filter.Voyage).OrderByDescending(s => s.Dated).ToList();
+                    ItemsDTO = ItemsDTO.OrderByDescending(s => s.Dated).ToList();
                 else
                     ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
@@ -341,7 +365,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
 
-                if (User is null )
+                if (User is null)
                 {
                     appObjResponse.ErrorAdd($"user not found{UserName}");
                     return appObjResponse;
@@ -361,10 +385,10 @@ public class ExportOrderProvider : IExportOrderProvider
                     modifyItem.Records.Clear();
                 }
 
-  
+
                 // DOCUMENTS
                 foreach (var modifyItemDocument in modifyItem.Documents.ToArray())
-                    if(!item.Documents.Any(s=>s.Id== modifyItemDocument.Id))
+                    if (!item.Documents.Any(s => s.Id == modifyItemDocument.Id))
                         modifyItem.Documents.Remove(modifyItemDocument);
 
                 foreach (var itemDocument in item.Documents)
@@ -392,7 +416,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 db.Entry(modifyItem.Person!).State = EntityState.Unchanged;
 
                 db.Entry(modifyItem.VesselCallDetail!).State = EntityState.Unchanged;
-                
+
                 // RECORDS
                 foreach (var record in item.Records)
                 {
@@ -825,7 +849,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                     .ToListAsync();
 
                 if (Items is null || !Items.Any()) return Enumerable.Empty<VoyageExportOrderDTO>();
-                    
+
                 var DTOItems = FuncExportOrdersDTO(Items, myCompanyName);
 
                 return DTOItems;
@@ -1099,7 +1123,7 @@ public class ExportOrderProvider : IExportOrderProvider
     Func<IEnumerable<ExportOrderEntity>, string?, IEnumerable<VoyageExportOrderDTO>> FuncExportOrdersDTO = (exportOrders, _MyCoName) =>
     {
         var ItemsDTO = new List<VoyageExportOrderDTO>();
-        
+
         try
         {
             foreach (var item in exportOrders)
@@ -1190,7 +1214,7 @@ public class ExportOrderProvider : IExportOrderProvider
                         ItemsDTO.Add(itemDTO);
                         itemDTO = new VoyageExportOrderDTO();
                     }
-                }                
+                }
             }
 
             return ItemsDTO;

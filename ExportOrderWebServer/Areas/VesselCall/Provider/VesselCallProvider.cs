@@ -68,39 +68,21 @@ public class VesselCallProvider : IVesselCallProvider
             {
                 var filter = (FilterParameters)parameters;
 
-                var vesselCalls = await db.VesselCalls
+                var vesselCalls = await db.VesselCalls.AsSplitQuery()
                                                     .Include(vc => vc.Vessel)
                                                     .Include(vc => vc.Terminal)
                                                     .Include(vc => vc.Details).ThenInclude(d => d.POD)
-                                                    .Where(vc => filter.ETA.HasValue ? vc.ETA!.Value >= filter.ETA.Value : true)
-                                                    .Where(vc => filter.ETS.HasValue ? vc.ETS!.Value >= filter.ETS.Value : true)
-                                                    .AsSplitQuery()
+                                                    .Where(s => filter.DateFrom.HasValue ? s.ETA!.Value >= filter.DateFrom : true)
+                                                    .Where(s => filter.DateTo.HasValue ? s.ETS!.Value <= filter.DateTo.Value : true)
+                                                    .Where(s => filter.Status != null ? s.Status == filter.Status : s.Status == EntityStatus.New)
+                                                    .Where(s => string.IsNullOrEmpty(filter.Vessel) ? true : s.Vessel.Name == filter.Vessel)
+                                                    .Where(s => string.IsNullOrEmpty(filter.Voyage) ? true : s.VoyageNo == filter.Voyage)
+                                                    .Where(s => string.IsNullOrEmpty(filter.Terminal) ? true : s.Terminal.Name == filter.Terminal)
+                                                    .Where(s => string.IsNullOrEmpty(filter.POD) ? true : s.Details.Any(vcd => vcd.POD == null ? true : vcd.POD.NameEn == filter.POD))
                                                     .ToListAsync();
                 
                 var vesselCallDetailsDTO = vcRecords(vesselCalls);
-
-                if (filter.Status >= 0)
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == filter.Status).ToList();
-                else
-                    if (string.IsNullOrEmpty(filter.Vessel) && string.IsNullOrEmpty(filter.Voyage) && string.IsNullOrEmpty(filter.Terminal)
-                            && string.IsNullOrEmpty(filter.POD))
-                        vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Status == EntityStatus.New).ToList();
                 
-                if (!string.IsNullOrEmpty(filter.Vessel))
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.VesselName == filter.Vessel).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Voyage))
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.VoyageNo == filter.Voyage).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Terminal))
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.Terminal == filter.Terminal).ToList();
-
-                if (!string.IsNullOrEmpty(filter.POD))
-                    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.POD == filter.POD).ToList();
-
-                //if (!string.IsNullOrEmpty(filter.Carrier))
-                //    vesselCallDetailsDTO = vesselCallDetailsDTO.Where(s => s.CarrierName == filter.Carrier).ToList();
-
                 vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);
 
                 appObjResponse.Object = vesselCallDetailsDTO.ToArray();
@@ -427,7 +409,9 @@ public class VesselCallProvider : IVesselCallProvider
         //}
     }
 
+
     #region AUXILARY METHODS
+
     public async Task<AppObjectResponse> GetVesselCallDetailAsync(long vcdId)
     {
         appObjResponse = new();
@@ -506,7 +490,6 @@ public class VesselCallProvider : IVesselCallProvider
             return await db.Vessels.Select(s => s.Name!).ToListAsync();
         }
     }
-
     public Task<IEnumerable<string>> GetNamesEn()
     {
         throw new NotImplementedException();
@@ -519,7 +502,6 @@ public class VesselCallProvider : IVesselCallProvider
             return await db.Locations.Select(s => s.Name!).ToListAsync();
         }
     }
-
     public async Task<IEnumerable<string>> GetVoyages(string? vessel)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -536,7 +518,6 @@ public class VesselCallProvider : IVesselCallProvider
             return result;
         }
     }
-
     public async Task<IEnumerable<string>> GetExportOrderNumsAsync(long id)
     {
         using (var _db = _dbContext.CreateDbContextAsync())

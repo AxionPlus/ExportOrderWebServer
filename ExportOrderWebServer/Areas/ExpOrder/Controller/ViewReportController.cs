@@ -36,10 +36,10 @@ public class ViewReportController : ControllerBase
             LocalReport localReport = new LocalReport(pathReport);
 
             #region PARAMETERS
-            Dictionary<string, string> parameters = new Dictionary<string, string>()
-            {
-                { "report", "new" },
-            };
+            //Dictionary<string, string> parameters = new Dictionary<string, string>()
+            //{
+            //    { "report", "new" },
+            //};
             #endregion
 
             #region DATA SOURCE
@@ -66,20 +66,6 @@ public class ViewReportController : ControllerBase
 
             var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
             var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
-            //var dsCommodities = dsRecords?.GroupBy(r => r.Commodity).Select(g => new {
-            //                                                                            Commodity = g.Key + " (" +
-            //                                                                            g.FirstOrDefault()!.HSCode + ") " +
-            //                                                                            (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO +
-            //                                                                                                        " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
-            //                                                                         }).ToList();
-
-            //var dsCommodities = dsRecords?.GroupBy(r => r.SeqContent)
-            //                              .Select(g => new
-            //                              {
-            //                                  Commodity = g.FirstOrDefault()!.Commodity + " (" +
-            //                                                    g.FirstOrDefault()!.HSCode + ") " +
-            //                                                    (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
-            //                              }).ToList();
 
             var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
                               .Select(g => new {
@@ -107,7 +93,7 @@ public class ViewReportController : ControllerBase
 
             #endregion
 
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, parameters, mimeType);
+            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
 
             return File(result.MainStream, "application/pdf");
         }

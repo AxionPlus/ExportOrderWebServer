@@ -1,7 +1,4 @@
-﻿using ExportOrderWebServer.DataSet;
-using System.ComponentModel;
-
-public class ExportOrderProvider : IExportOrderProvider
+﻿public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
@@ -69,60 +66,60 @@ public class ExportOrderProvider : IExportOrderProvider
                 //var voyageNo = Voyage.Split('&')[1];
                 //var pod = Voyage.Split('&')[2];
 
-                var Item = await db.ExportOrders.Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal).ThenInclude(t => t.Customs)
-                                    .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
-                                    .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.POD).ThenInclude(p => p!.Country)
-                                    .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
-                                    .Include(x => x.Person)
-                                    .Include(x => x.Documents)!.ThenInclude(d => d.Records)
-                                    .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
-                                    .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
-                                    .AsNoTracking()
-                                    .Select(source => new ExportOrderDTO()
-                                    {
-                                        Id = source.Id,
-                                        Num = source.Num,
-                                        BLNum = source.Num.IndexOf("_") == -1 ? source.Num : source.Num.Substring(0, source.Num.IndexOf("_")),
-                                        Dated = source.Dated.HasValue ? source.Dated.Value.ToString("dd.MM.yyyy") : DateTime.Today.ToString("dd.MM.yyyy"),
-                                        xmlDated = source.Dated.HasValue ? source.Dated.Value.ToString("dd.MM.yyyy hh:mm:ss") : DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss"),
-                                        DateOfLoading = source.VesselCallDetail!.VesselCall!.ETA!.Value.ToString("dd.MM.yyyy"),
-                                        BLDate = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
-                                        BLtemplate = source.Carrier!.BlTemplate.ToString(),
-                                        CustomsOfficeCode = source.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
-                                        CustomsOfficeNameShort = source.VesselCallDetail.VesselCall.Terminal.Customs.OfficeShort,
-                                        CarrierNameEn = source.Carrier!.NameEn,
-                                        TerminalName = source.VesselCallDetail!.VesselCall.Terminal.Name,
-                                        VesselName = source.VesselCallDetail!.VesselCall!.Vessel.Name!,
-                                        VesselFlag = source.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
-                                        VesselFlagEn = source.VesselCallDetail!.VesselCall!.Vessel.Flag.ENG,
-                                        Voyage = source.VesselCallDetail!.VesselCall!.VoyageNo,
-                                        POD = source.VesselCallDetail!.POD!.Name + ", " + source.VesselCallDetail!.POD!.Country!.RUS,
-                                        PODEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.ENG,
-                                        PODwithCountryRus = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.RUS,
-                                        FinalDestination = source.VesselCallDetail!.FinalDestination!.NameEn! + ", " + source.VesselCallDetail!.FinalDestination!.Country!.ENG,
-                                        POLAgent = source.Carrier!.CarrierDetails.FirstOrDefault(cd => cd.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.AgentPOL!,
-                                        PODAgent = source.VesselCallDetail!.AgentPOD,
-                                        Measurement = source.Records.FirstOrDefault()!.Contents.FirstOrDefault()!.Volume > 0 ? "CBM" : "KG",
-                                        TotalCntrCount = (uint)source.Records.Count,
-                                        TotalPackages = (uint)source.Records.Sum(r => r.Contents.Sum(c => c.PackageQty))!,
-                                        TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
-                                        TotalNetWeight = source.Records.Sum(r => r.Contents.Sum(c => c.NetWt)),
-                                        TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
-                                        //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ?
-                                        //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
-                                        Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.Contract,
-                                        //ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract != null ?
-                                        //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
-                                        ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
-                                        MyCompanyName = myCompany!.Name,
-                                        Person = source.Person!.Name!.Substring(0, 1) + ". " +
-                                                source.Person!.SurName!.Substring(0, 1) + ". " +
-                                                source.Person!.FamilyName + "  т. " +
-                                                source.Person.Phone,
-                                        PersonXml = source.Person!.Name + " " + source.Person!.FamilyName + " телефон: " + source.Person.Phone,
-                                        exportOrderRecordsDTO = eoRecords(source.Records!)
-                                    })
-                                    .FirstOrDefaultAsync(x => x.Id == Id);
+                var Item = await db.ExportOrders.AsNoTracking().AsSplitQuery()
+                                .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal).ThenInclude(t => t.Customs)
+                                .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
+                                .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.POD).ThenInclude(p => p!.Country)
+                                .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
+                                .Include(x => x.Person)
+                                .Include(x => x.Documents)!.ThenInclude(d => d.Records)
+                                .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
+                                .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)                                
+                                .Select(source => new ExportOrderDTO()
+                                {
+                                    Id = source.Id,
+                                    Num = source.Num,
+                                    BLNum = source.Num.IndexOf("_") == -1 ? source.Num : source.Num.Substring(0, source.Num.IndexOf("_")),
+                                    Dated = source.Dated.HasValue ? source.Dated.Value.ToString("dd.MM.yyyy") : DateTime.Today.ToString("dd.MM.yyyy"),
+                                    xmlDated = source.Dated.HasValue ? source.Dated.Value.ToString("dd.MM.yyyy hh:mm:ss") : DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss"),
+                                    DateOfLoading = source.VesselCallDetail!.VesselCall!.ETA!.Value.ToString("dd.MM.yyyy"),
+                                    BLDate = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
+                                    BLtemplate = source.Carrier!.BlTemplate.ToString(),
+                                    CustomsOfficeCode = source.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
+                                    CustomsOfficeNameShort = source.VesselCallDetail.VesselCall.Terminal.Customs.OfficeShort,
+                                    CarrierNameEn = source.Carrier!.NameEn,
+                                    TerminalName = source.VesselCallDetail!.VesselCall.Terminal.Name,
+                                    VesselName = source.VesselCallDetail!.VesselCall!.Vessel.Name!,
+                                    VesselFlag = source.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
+                                    VesselFlagEn = source.VesselCallDetail!.VesselCall!.Vessel.Flag.ENG,
+                                    Voyage = source.VesselCallDetail!.VesselCall!.VoyageNo,
+                                    POD = source.VesselCallDetail!.POD!.Name + ", " + source.VesselCallDetail!.POD!.Country!.RUS,
+                                    PODEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.ENG,
+                                    PODwithCountryRus = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country.RUS,
+                                    FinalDestination = source.VesselCallDetail!.FinalDestination!.NameEn! + ", " + source.VesselCallDetail!.FinalDestination!.Country!.ENG,
+                                    POLAgent = source.Carrier!.CarrierDetails.FirstOrDefault(cd => cd.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.AgentPOL!,
+                                    PODAgent = source.VesselCallDetail!.AgentPOD,
+                                    Measurement = source.Records.FirstOrDefault()!.Contents.FirstOrDefault()!.Volume > 0 ? "CBM" : "KG",
+                                    TotalCntrCount = (uint)source.Records.Count,
+                                    TotalPackages = (uint)source.Records.Sum(r => r.Contents.Sum(c => c.PackageQty))!,
+                                    TotalGrossWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)),
+                                    TotalNetWeight = source.Records.Sum(r => r.Contents.Sum(c => c.NetWt)),
+                                    TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
+                                    //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract != null ?
+                                    //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name).Contract : null,
+                                    Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.Contract,
+                                    //ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract != null ?
+                                    //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
+                                    ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
+                                    MyCompanyName = myCompany!.Name,
+                                    Person = source.Person!.Name!.Substring(0, 1) + ". " +
+                                            source.Person!.SurName!.Substring(0, 1) + ". " +
+                                            source.Person!.FamilyName + "  т. " +
+                                            source.Person.Phone,
+                                    PersonXml = source.Person!.Name + " " + source.Person!.FamilyName + " телефон: " + source.Person.Phone,
+                                    exportOrderRecordsDTO = eoRecords(source.Records!)
+                                })
+                                .FirstOrDefaultAsync(x => x.Id == Id);
 
                 return Item!;
             }
@@ -260,64 +257,45 @@ public class ExportOrderProvider : IExportOrderProvider
                                                         .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.POD)
                                                         .Include(eo => eo.Carrier)
                                                         .Include(eo => eo.Records).ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord)
-                                                        .Where(eo => filter.Dated.HasValue ? eo.Dated == filter.Dated : true)
-                                                        .Where(eo => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :
-                                                                            eo.Records.Any(eor => eor.CntrNum.Equals(filter.CntrNum)))
-                                                        .Where(s => filter.Status == null ? true : s.Status == filter.Status)
-                                                        .Where(s=> string.IsNullOrEmpty(filter.Num)? true: s.Num == filter.Num)
-                                                        .Where(s=> string.IsNullOrEmpty(filter.Vessel)? true: s.VesselCallDetail.VesselCall.Vessel.Name == filter.Vessel)
-                                                        .Where(s=> string.IsNullOrEmpty(filter.Voyage) ? true: s.VesselCallDetail.VesselCall.VoyageNo == filter.Voyage)
-                                                        .Where(s=> string.IsNullOrEmpty(filter.POD) ? true: s.VesselCallDetail.POD.Name == filter.POD)
-                                                        .Where(s=> string.IsNullOrEmpty(filter.Carrier) ? true: s.Carrier.NameEn == filter.Carrier)
+                                                        .Where(s => filter.Dated.HasValue ? s.Dated == filter.Dated : true)
+                                                        .Where(s => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :
+                                                                        s.Records.Any(eor => eor.CntrNum.Equals(filter.CntrNum)))
+                                                        .Where(s => filter.Status != null ? s.Status == filter.Status :
+                                                                        (s.Status == EntityStatus.New || s.Status == EntityStatus.Issued))
+                                                        .Where(s => string.IsNullOrEmpty(filter.Num) ? true : s.Num == filter.Num)
+                                                        .Where(s => string.IsNullOrEmpty(filter.Vessel) ? true : s.VesselCallDetail!.VesselCall.Vessel.Name == filter.Vessel)
+                                                        .Where(s => string.IsNullOrEmpty(filter.Voyage) ? true : s.VesselCallDetail!.VesselCall.VoyageNo == filter.Voyage)
+                                                        .Where(s => string.IsNullOrEmpty(filter.POD) ? true : s.VesselCallDetail!.POD!.Name == filter.POD)
+                                                        .Where(s => string.IsNullOrEmpty(filter.Carrier) ? true : s.Carrier!.NameEn == filter.Carrier)
                                                         .ToArrayAsync();
 
                //var ItemsDTO = eoComponentRecord(exportOrders);
                var ItemsDTO = exportOrders.Select(record=>
-                new ExportOrderComponentDTO()
-                {
-                    Id = record.Id,
-                    Num = record.Num,
-                    //Cntr = record.exportOrders.Count > 0 ? string.Join(", ", record.exportOrders.Select(s => s.CntrNum).ToList()) : null,
-                    Dated = record.Dated != null ? record.Dated!.Value.ToString("dd.MM.yy") : "---",
-                    VesselCallId = record.VesselCallDetail!.VesselCall.Id,
-                    Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
-                    VoyageNo = record.VesselCallDetail!.VesselCall.VoyageNo,
-                    POD = record.VesselCallDetail!.POD!.Name!,
-                    Carrier = record.Carrier!.NameEn,
-                    IsImo = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true)).Equals(true)),
-                    IsEmpty = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.CommodityEngName.ToUpper().Contains("EMPTY")).Equals(true)),
-                    Status = record.Status,
-                    BlTemplate = record.Carrier!.BlTemplate,
-                    CreateTime = record.CreateTime,
-                    VersionNo = record.VersionNo,
-                });
-                //if (filter.Status is not null)
-                //    ItemsDTO = ItemsDTO.Where(s => s.Status == filter.Status).ToList();
-                //else
-                //    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
-                ////if (string.IsNullOrEmpty(filter.Num) && string.IsNullOrEmpty(filter.Vessel) && string.IsNullOrEmpty(filter.POD)
-                ////        && string.IsNullOrEmpty(filter.Carrier) && string.IsNullOrEmpty(filter.Voyage) && string.IsNullOrEmpty(filter.CntrNum))
-                ////    ItemsDTO = ItemsDTO.Where(s => s.Status == EntityStatus.New || s.Status == EntityStatus.Issued).ToList();
-
-                //if (!string.IsNullOrEmpty(filter.Num))
-                //    ItemsDTO = ItemsDTO.Where(s => s.Num == filter.Num).ToList();
-
-                //if (!string.IsNullOrEmpty(filter.Vessel))
-                //    ItemsDTO = ItemsDTO.Where(s => s.Vessel == filter.Vessel).ToList();
-
-                //if (!string.IsNullOrEmpty(filter.POD))
-                //    ItemsDTO = ItemsDTO.Where(s => s.POD == filter.POD).ToList();
-
-                //if (!string.IsNullOrEmpty(filter.Carrier))
-                //    ItemsDTO = ItemsDTO.Where(s => s.Carrier == filter.Carrier).ToList();
+                    new ExportOrderComponentDTO()
+                    {
+                        Id = record.Id,
+                        Num = record.Num,
+                        Dated = record.Dated != null ? record.Dated!.Value.ToString("dd.MM.yy") : "---",
+                        VesselCallId = record.VesselCallDetail!.VesselCall.Id,
+                        Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
+                        VoyageNo = record.VesselCallDetail!.VesselCall.VoyageNo,
+                        POD = record.VesselCallDetail!.POD!.Name,
+                        Carrier = record.Carrier!.NameEn,
+                        IsImo = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true)).Equals(true)),
+                        IsEmpty = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.CommodityEngName.ToUpper().Contains("EMPTY")).Equals(true)),
+                        Status = record.Status,
+                        BlTemplate = record.Carrier!.BlTemplate,
+                        CreateTime = record.CreateTime,
+                        VersionNo = record.VersionNo,
+                    });
 
                 if (!string.IsNullOrEmpty(filter.Voyage))
-                    ItemsDTO = ItemsDTO.OrderByDescending(s => s.Dated).ToList();
+                    ItemsDTO = ItemsDTO.OrderByDescending(s => s.Dated);
                 else
                     ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
-                //appObjResponse.Object = ItemsDTO.ToArray();
-                appObjResponse.Object = ItemsDTO;
+                appObjResponse.Object = ItemsDTO.ToArray();
+                //appObjResponse.Object = ItemsDTO;
             }
 
             return appObjResponse;
@@ -1089,36 +1067,36 @@ public class ExportOrderProvider : IExportOrderProvider
         }
     };
 
-    Func<IEnumerable<ExportOrderEntity>, IEnumerable<ExportOrderComponentDTO>> eoComponentRecord = (exportOrders) =>
-    {
-        var RecordsDTO = new List<ExportOrderComponentDTO>();
+    //Func<IEnumerable<ExportOrderEntity>, IEnumerable<ExportOrderComponentDTO>> eoComponentRecord = (exportOrders) =>
+    //{
+    //    var RecordsDTO = new List<ExportOrderComponentDTO>();
 
-        foreach (var record in exportOrders)
-        {
-            var recordDTO = new ExportOrderComponentDTO()
-            {
-                Id = record.Id,
-                Num = record.Num,
-                //Cntr = record.exportOrders.Count > 0 ? string.Join(", ", record.exportOrders.Select(s => s.CntrNum).ToList()) : null,
-                Dated = record.Dated != null ? record.Dated!.Value.ToString("dd.MM.yy") : "---",
-                VesselCallId = record.VesselCallDetail!.VesselCall.Id,
-                Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
-                VoyageNo = record.VesselCallDetail!.VesselCall.VoyageNo,
-                POD = record.VesselCallDetail!.POD!.Name!,
-                Carrier = record.Carrier!.NameEn,
-                IsImo = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true)).Equals(true)),
-                IsEmpty = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.CommodityEngName.ToUpper().Contains("EMPTY")).Equals(true)),
-                Status = record.Status,
-                BlTemplate = record.Carrier!.BlTemplate,
-                CreateTime = record.CreateTime,
-                VersionNo = record.VersionNo,
-            };
+    //    foreach (var record in exportOrders)
+    //    {
+    //        var recordDTO = new ExportOrderComponentDTO()
+    //        {
+    //            Id = record.Id,
+    //            Num = record.Num,
+    //            //Cntr = record.exportOrders.Count > 0 ? string.Join(", ", record.exportOrders.Select(s => s.CntrNum).ToList()) : null,
+    //            Dated = record.Dated != null ? record.Dated!.Value.ToString("dd.MM.yy") : "---",
+    //            VesselCallId = record.VesselCallDetail!.VesselCall.Id,
+    //            Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
+    //            VoyageNo = record.VesselCallDetail!.VesselCall.VoyageNo,
+    //            POD = record.VesselCallDetail!.POD!.Name!,
+    //            Carrier = record.Carrier!.NameEn,
+    //            IsImo = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true)).Equals(true)),
+    //            IsEmpty = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.CommodityEngName.ToUpper().Contains("EMPTY")).Equals(true)),
+    //            Status = record.Status,
+    //            BlTemplate = record.Carrier!.BlTemplate,
+    //            CreateTime = record.CreateTime,
+    //            VersionNo = record.VersionNo,
+    //        };
 
-            RecordsDTO.Add(recordDTO);
-        }
+    //        RecordsDTO.Add(recordDTO);
+    //    }
 
-        return RecordsDTO;
-    };
+    //    return RecordsDTO;
+    //};
 
     Func<IEnumerable<ExportOrderEntity>, string?, IEnumerable<VoyageExportOrderDTO>> FuncExportOrdersDTO = (exportOrders, _MyCoName) =>
     {

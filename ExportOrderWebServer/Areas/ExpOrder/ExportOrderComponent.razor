@@ -116,26 +116,28 @@
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedExportOrderItems"
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedItems"
               Virtualize="true" RowsPerPage="15" MultiSelection="true">
         <HeaderContent>
             <MudTh Style="width:42px">
                 <MudTooltip Delay="1500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
-                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!Items!.Any(s=>s.IsSelected))"
+@*                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!Items!.Any(s=>s.IsSelected))"
+                                   Color="Color.Secondary" OnClick="SetNewVesselCall" /> *@
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!SelectedItems.Any())"
                                    Color="Color.Secondary" OnClick="SetNewVesselCall" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:42px">
                 <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
-                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedExportOrderItems.Count == 0)"
-                                   OnClick="@(async()=>{ await SaveReportsExpOrder_Click(SelectedExportOrderItems); })" />
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
+                                   OnClick="@(async()=>{ await SaveReportsExportOrder_Click(SelectedItems); })" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:42px"></MudTh>
             <MudTh Style="width:130px">
                 <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
-                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedExportOrderItems.Count == 0)"
-                                   OnClick="@(async()=>{ await SaveReportsBL_Click(SelectedExportOrderItems); })" />
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
+                                   OnClick="@(async()=>{ await SaveReportsBL_Click(SelectedItems); })" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:160px">
@@ -229,7 +231,7 @@
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     public IEnumerable<ExportOrderComponentDTO> Items { get; set; } = new List<ExportOrderComponentDTO>();
-    private HashSet<ExportOrderComponentDTO> SelectedExportOrderItems = new HashSet<ExportOrderComponentDTO>();
+    private HashSet<ExportOrderComponentDTO> SelectedItems = new HashSet<ExportOrderComponentDTO>();
     private string Voyage = string.Empty;
     private IEnumerable<string>? CntrList { get; set; }
     private FilterParameters Filter { get; set; } = new();
@@ -258,7 +260,10 @@
         var response = await _exportOrderProvider.GetItemsAsync(Filter);
 
         if (!response.HasError)
-            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!; // Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
+        {
+            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!;
+            //Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
+        }            
 
         IsLoadingData = false;
 
@@ -323,9 +328,17 @@
 
     public async Task SetNewVesselCall()
     {
-        if (SelectedExportOrderItems is null || SelectedExportOrderItems.Count == 0)
+        if (SelectedItems is null || SelectedItems.Count == 0)
         {
             Snackbar.Add($"Select at list one record.", Severity.Warning);
+            return;
+        }
+
+        var Voyages = SelectedItems.GroupBy(s => s.VesselCallId).ToArray();
+
+        if (Voyages.Count() > 1)
+        {
+            Snackbar.Add($"Export Orders for one Voyage only is available.", Severity.Warning);
             return;
         }
 
@@ -351,7 +364,7 @@
 
             var VesselCallId = (long)result.Data;
 
-            var selectedItems = SelectedExportOrderItems.Select(s => s.Id).ToArray();
+            var selectedItems = SelectedItems.Select(s => s.Id).ToArray();
 
             await _exportOrderProvider.SetNewVesselCall(selectedItems, VesselCallId);
 
@@ -378,12 +391,12 @@
         string path = $"{ApplicationParameter.ViewReportUrl}SaveXMLfile?Id={id}";
         await jSRuntime.InvokeVoidAsync("open", path);
     }
-
-    private async Task SaveReportsExpOrder_Click(HashSet<ExportOrderComponentDTO> selectedItems)
+    
+    private async Task SaveReportsExportOrder_Click(HashSet<ExportOrderComponentDTO> selectedItems)
     {
         IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
 
-        var Voyages = selectedItems.GroupBy(s => s.VesselCallId).Select(g => g.FirstOrDefault()!.VoyageNo);
+        var Voyages = selectedItems.GroupBy(s => s.VesselCallId).Select(g => new { Voyage = g.FirstOrDefault()!.Vessel + "_" + g.FirstOrDefault()!.VoyageNo });
 
         if (Voyages.Count() > 1)
         {
@@ -391,40 +404,81 @@
             return;
         }
 
-        string VoyageNo = Voyages.FirstOrDefault()!;
-        var obj = new { Object = ids, Remarks = VoyageNo };
+        IsLoadingData = true;
+
+        string Voyage = Voyages.FirstOrDefault()!.Voyage;
+        var obj = new { Object = ids, Remarks = Voyage };
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
 
-        //  var response = await HttpCustomMethod.POST_Report("SaveExportOrdersReport", ids, VoyageNo);
         using (var Http = httpClient.CreateClient())
         {
             Http.Timeout = new TimeSpan(0, 10, 0);
             var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            //var response = await Http.PostAsync($"{ApplicationParameter.UploadFileUrl}{url}", stringContent).ConfigureAwait(false);
-            var response = await Http.PostAsync($"{Navigation.BaseUri}file/UploadFile/SaveExportOrdersReport", stringContent).ConfigureAwait(false);
+            var response = await Http.PostAsync($"{ApplicationParameter.UploadFileUrl}SaveExportOrderReportFiles", stringContent).ConfigureAwait(false);
+            //var response = await Http.PostAsync($"{Navigation.BaseUri}file/UploadFile/SaveExportOrderReportFiles", stringContent).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                //var res = response.Content.Headers.ContentDisposition;
-                var resultString = await response.Content.ReadAsStreamAsync();
+                // string fileName = response.Content.Headers.ContentDisposition is null ? string.Empty :
+                //                     (string.IsNullOrEmpty(response.Content.Headers.ContentDisposition.FileName) ? string.Empty : response.Content.Headers.ContentDisposition.FileName);
+
+                var stream = await response.Content.ReadAsStreamAsync();
                 using (var memoryStream = new MemoryStream())
                 {
-                    resultString.CopyTo(memoryStream);
-
-                    var buffer = memoryStream.ToArray();
-
+                    stream.CopyTo(memoryStream);
+                    
                     await jSRuntime.InvokeVoidAsync("jsSaveAsFile",
-                          $"Manifest_{VoyageNo}.pdf", Convert.ToBase64String(buffer));
+                          $"ExportOrders_{Voyage}.zip", Convert.ToBase64String(memoryStream.ToArray()));
                 }
             }
         }
-   }
+
+        IsLoadingData = false;
+    }
 
     private async Task SaveReportsBL_Click(HashSet<ExportOrderComponentDTO> selectedItems)
     {
+        IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
 
+        var Voyages = selectedItems.GroupBy(s => s.VesselCallId).Select(g => new { Voyage = g.FirstOrDefault()!.Vessel + "_" + g.FirstOrDefault()!.VoyageNo });
+
+        if (Voyages.Count() > 1)
+        {
+            Snackbar.Add($"Bill of Ladings for one Voyage only is available.", Severity.Warning);
+            return;
+        }
+
+        IsLoadingData = true;
+
+        string Voyage = Voyages.FirstOrDefault()!.Voyage;
+        var obj = new { Object = ids, Remarks = Voyage };
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+
+        using (var Http = httpClient.CreateClient())
+        {
+            Http.Timeout = new TimeSpan(0, 10, 0);
+            var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await Http.PostAsync($"{ApplicationParameter.UploadFileUrl}SaveBLReportFiles", stringContent).ConfigureAwait(false);
+            //var response = await Http.PostAsync($"{Navigation.BaseUri}file/UploadFile/SaveBLReportFiles", stringContent).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // string fileName = response.Content.Headers.ContentDisposition is null ? string.Empty :
+                //                     (string.IsNullOrEmpty(response.Content.Headers.ContentDisposition.FileName) ? string.Empty : response.Content.Headers.ContentDisposition.FileName);
+
+                var stream = await response.Content.ReadAsStreamAsync();
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+
+                    await jSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                          $"BLs_{Voyage}.zip", Convert.ToBase64String(memoryStream.ToArray()));
+                }
+            }
+        }
+
+        IsLoadingData = false;
     }
-
 
     #region SEARCHERS
 
@@ -479,6 +533,52 @@
         else
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
+
+    #endregion
+
+    #region DELETE
+
+    // private async Task SaveReportsExpOrder_Click(HashSet<ExportOrderComponentDTO> selectedItems)
+    // {
+    //     IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
+
+    //     var Voyages = selectedItems.GroupBy(s => s.VesselCallId).Select(g => new { Voyage = g.FirstOrDefault()!.Vessel + "_" + g.FirstOrDefault()!.VoyageNo });
+
+    //     if (Voyages.Count() > 1)
+    //     {
+    //         Snackbar.Add($"Export Orders for one Voyage only is available.", Severity.Warning);
+    //         return;
+    //     }
+
+    //     //string VoyageNo = Voyages.FirstOrDefault() is null ? string.Empty : Voyages.FirstOrDefault()!.ToString();
+    //     string Voyage = Voyages.FirstOrDefault()!.Voyage;
+    //     var obj = new { Object = ids, Remarks = Voyage };
+    //     var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+
+    //     //  var response = await HttpCustomMethod.POST_Report("SaveExportOrdersReport", ids, Voyage);
+    //     using (var Http = httpClient.CreateClient())
+    //     {
+    //         Http.Timeout = new TimeSpan(0, 10, 0);
+    //         var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+    //         //var response = await Http.PostAsync($"{ApplicationParameter.UploadFileUrl}{url}", stringContent).ConfigureAwait(false);
+    //         var response = await Http.PostAsync($"{Navigation.BaseUri}file/UploadFile/SaveExportOrdersReport", stringContent).ConfigureAwait(false);
+
+    //         if (response.IsSuccessStatusCode)
+    //         {
+    //             //var res = response.Content.Headers.ContentDisposition;
+    //             var resultString = await response.Content.ReadAsStreamAsync();
+    //             using (var memoryStream = new MemoryStream())
+    //             {
+    //                 resultString.CopyTo(memoryStream);
+
+    //                 var buffer = memoryStream.ToArray();
+
+    //                 await jSRuntime.InvokeVoidAsync("jsSaveAsFile",
+    //                       $"ExportOrders_{Voyage}.pdf", Convert.ToBase64String(buffer));
+    //             }
+    //         }
+    //     }
+    // }
 
     #endregion
 }

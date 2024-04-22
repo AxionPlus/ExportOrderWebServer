@@ -95,7 +95,7 @@
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon="" MaxItems="20"
                              ResetValueOnEmptyText="true" Clearable />
-            <MudDatePicker Class="wrapper-input-date" Label="From" @bind-Date="Filter.ETA"
+            <MudDatePicker Class="wrapper-input-date" Label="From" @bind-Date="Filter.DateFrom"
                             Style="width: 130px"
                             DateFormat="dd.MM.yy"
                             ShowWeekNumbers="true"
@@ -103,7 +103,7 @@
                             IconSize=Size.Small
                             AutoClose=true
                             DisableToolbar=false Clearable />
-            <MudDatePicker Class="wrapper-input-date" Label="To" @bind-Date="Filter.ETS"
+            <MudDatePicker Class="wrapper-input-date" Label="To" @bind-Date="Filter.DateTo"
                             Style="width: 130px"
                             DateFormat="dd.MM.yy"
                             ShowWeekNumbers="true"

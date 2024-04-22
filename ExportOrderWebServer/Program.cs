@@ -78,7 +78,7 @@ builder.Services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
 builder.Services.AddTransient<StatisticProvider>();
 builder.Services.AddTransient<CheckUploadResultService>();
 builder.Services.AddTransient<CheckCntrNumService>();
-
+//builder.Services.AddTransient<IDisposable, SavePdfFileService>(); 
 
 var app = builder.Build();
 

@@ -219,10 +219,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\TempFiles\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Areas\Identity\Pages\Account\LogOut.cshtml" />
     <None Include="Areas\Identity\Pages\Error.cshtml" />
     <None Include="Areas\Identity\Pages\Shared\_LoginPartial.cshtml" />

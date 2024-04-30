@@ -43,7 +43,6 @@ public class XmlService : IDisposable
                 xml.WriteStartElement("COMMISSIONSHIPMENT");
                 //xml.WriteAttributeString("xsi", "noNamespaceSchemaLocation", "http://www.w3.org/2001/XMLSchema-instance", "ReleaseOrder.xsd");
                 xml.WriteAttributeString("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                //xml.WriteStartAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance");
 
                 xml.WriteStartElement("COMMISSIONSHIPMENT_ITEM");
                 xml.WriteElementString("BorderCustomCode", Item.CustomsOfficeCode);
@@ -71,7 +70,6 @@ public class XmlService : IDisposable
 
                 xml.WriteStartElement("COMMISSIONSHIPMENTGoods");
 
-                //int counterGoods = 0;
                 int counterDocuments = 0;
                 string document = string.Empty;
 
@@ -83,8 +81,6 @@ public class XmlService : IDisposable
                     document = commodity.DocumentName;
 
                     xml.WriteStartElement("COMMISSIONSHIPMENTGOODS_ITEM");
-                    //xml.WriteElementString("GoodsNumericDT", (++counterDocuments).ToString());
-                    //xml.WriteElementString("GoodsNumeric", (++counterGoods).ToString());
                     xml.WriteElementString("GoodsNumericDT", commodity.SeqContent.ToString());
                     xml.WriteElementString("GoodsNumeric", counterDocuments.ToString());
 

@@ -65,7 +65,7 @@ public class ViewReportController : ControllerBase
             var dsRecords = Item.exportOrderRecordsDTO;
 
             var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
-            var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
+            var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
 
             var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
                               .Select(g => new {
@@ -128,17 +128,14 @@ public class ViewReportController : ControllerBase
             var Items = new List<ExportOrderDTO>() { Item };
             var Records = Item.exportOrderRecordsDTO.ToList();
 
-            // список типов контейнеров
+            /// список типов контейнеров
             var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)
-                                        .Select(g => new
-                                        {
-                                            CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key),
-                                        })
+                                        .Select(g => new { CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key), })
                                         .ToList();
 
             string CntrTypes = string.Join("\n", CntrTypesGroup.Select(ctg => ctg.CntrTypes));
 
-            // общие данные
+            /// общие данные
             var dsItem = Items.Select(x => new
             {  
                 x.BLNum,

@@ -239,13 +239,12 @@
     {
         if (IsNewItem)
         {
-            //Item = new() { Details = new List<VesselCallDetail>() { new VesselCallDetail() }  };
             Item = new() { Details = new List<VesselCallDetail>() { new() } };
             IsFormReadOnly = false;
         }        
         else
         {
-            var response = await _vesselCallProvider.GetItemAsync(Id);            
+            var response = await _vesselCallProvider.GetItemAsync(Id);
 
             if (!response.HasError)
                 Item = (VesselCallEntity)response.Object!;
@@ -259,19 +258,34 @@
 
         if (Form.IsValid)
         {
+            if (!Item!.Details.Any())
+            {
+                Snackbar.Add("Fill up at least one Port of Discharge", Severity.Warning);
+                IsLoadingData = false;
+                return;
+            }                
+
             if (IsNewItem)
             {
-                await _vesselCallProvider.NewItemAsync(Item!);
-                Snackbar.Add("Saved Successfully", Severity.Success);
+                if (Item!.Details.Any())
+                {
+                    await _vesselCallProvider.NewItemAsync(Item!);
+                    Snackbar.Add("Saved Successfully", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Fill up at least one Port of Discharge", Severity.Warning);
+                    return;
+                }                
             }
             else
             {
                 //if (ItemStatus == EntityStatus.Completed && !IsRoleForEdit)
                 if (Item is not null && Item.Status == EntityStatus.Completed && !IsRoleForEdit)
                 {
-                    Snackbar.Add($"Voyage is Completed.<br>You can't change Status for this Voyage.", Severity.Warning);
-                    IsFormReadOnly = true;
-                    IsLoadingData = false;
+                    Snackbar.Add($"Voyage is Completed.<br>You can't change this Voyage.", Severity.Warning);
+                    //IsFormReadOnly = true;
+                    //IsLoadingData = false;
                 }                    
                 else
                 {
@@ -281,8 +295,8 @@
                     else
                     {
                         Snackbar.Add($"{string.Join("; ", result.Error)}", Severity.Error);
-                        IsFormReadOnly = true;
-                        IsLoadingData = false;
+                        //IsFormReadOnly = true;
+                        //IsLoadingData = false;
                     }                        
                 }
             }
@@ -290,8 +304,10 @@
             IsNewItem = false;
             IsFormReadOnly = true;
 
-            Id = Item!.Id;
-            await GetItem();
+            // Id = Item!.Id;
+            // await GetItem();
+
+            await InvokeAsync(StateHasChanged);
 
             await Task.Delay(500);
             IsLoadingData = false;
@@ -329,6 +345,9 @@
         }
 
         Item!.Details.Remove(item);
+
+        // if (!Item.Details.Any())
+        //     Item.Details.Add(new());
     }
 
     #region ADD from Catalog

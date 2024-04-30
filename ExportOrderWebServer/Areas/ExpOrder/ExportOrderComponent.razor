@@ -129,15 +129,17 @@
             </MudTh>
             <MudTh Style="width:42px">
                 <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
+@*                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
+                                   OnClick="@(async()=>{ await SaveReportsExportOrder_Click(); })" /> *@
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                                   OnClick="@(async()=>{ await SaveReportsExportOrder_Click(SelectedItems); })" />
+                                   OnClick="SaveReportsExportOrder_Click" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:42px"></MudTh>
             <MudTh Style="width:130px">
                 <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                                   OnClick="@(async()=>{ await SaveReportsBL_Click(SelectedItems); })" />
+                                   OnClick="SaveReportsBL_Click" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:160px">
@@ -261,8 +263,7 @@
 
         if (!response.HasError)
         {
-            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!;
-            //Items = ((IEnumerable<ExportOrderComponentDTO>)response.Object!).ToArray();
+            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!; // .ToArray();
         }            
 
         IsLoadingData = false;
@@ -364,9 +365,9 @@
 
             var VesselCallId = (long)result.Data;
 
-            var selectedItems = SelectedItems.Select(s => s.Id).ToArray();
+            var selectedIds = SelectedItems.Select(s => s.Id).ToArray();
 
-            await _exportOrderProvider.SetNewVesselCall(selectedItems, VesselCallId);
+            await _exportOrderProvider.SetNewVesselCall(selectedIds, VesselCallId);
 
             await GetItems();
         }
@@ -391,12 +392,12 @@
         string path = $"{ApplicationParameter.ViewReportUrl}SaveXMLfile?Id={id}";
         await jSRuntime.InvokeVoidAsync("open", path);
     }
-    
-    private async Task SaveReportsExportOrder_Click(HashSet<ExportOrderComponentDTO> selectedItems)
-    {
-        IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
 
-        var Voyages = selectedItems.GroupBy(s => s.VesselCallId).Select(g => new { Voyage = g.FirstOrDefault()!.Vessel + "_" + g.FirstOrDefault()!.VoyageNo });
+    private async Task SaveReportsExportOrder_Click() //(HashSet<ExportOrderComponentDTO> selectedItems)
+    {   
+        IEnumerable<long> ids = SelectedItems.Select(s => s.Id).ToList();   //IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
+
+        var Voyages = SelectedItems.GroupBy(s => s.VesselCallId).Select(g => new { Voyage = g.FirstOrDefault()!.Vessel + "_" + g.FirstOrDefault()!.VoyageNo });
 
         if (Voyages.Count() > 1)
         {
@@ -419,28 +420,34 @@
 
             if (response.IsSuccessStatusCode)
             {
-                // string fileName = response.Content.Headers.ContentDisposition is null ? string.Empty :
-                //                     (string.IsNullOrEmpty(response.Content.Headers.ContentDisposition.FileName) ? string.Empty : response.Content.Headers.ContentDisposition.FileName);
+                string fileName = response.Content.Headers.ContentDisposition is null ? string.Empty :
+                                    (string.IsNullOrEmpty(response.Content.Headers.ContentDisposition.FileName) ? string.Empty : response.Content.Headers.ContentDisposition.FileName);
 
                 var stream = await response.Content.ReadAsStreamAsync();
                 using (var memoryStream = new MemoryStream())
                 {
                     stream.CopyTo(memoryStream);
-                    
+
                     await jSRuntime.InvokeVoidAsync("jsSaveAsFile",
                           $"ExportOrders_{Voyage}.zip", Convert.ToBase64String(memoryStream.ToArray()));
                 }
+
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    if (File.Exists(fileName)) File.Delete(fileName);
+                    if (Directory.Exists(fileName.Substring(0, fileName.Length - 4))) Directory.Delete(fileName.Substring(0, fileName.Length - 4));
+                }                
             }
         }
 
         IsLoadingData = false;
     }
 
-    private async Task SaveReportsBL_Click(HashSet<ExportOrderComponentDTO> selectedItems)
+    private async Task SaveReportsBL_Click()  // (HashSet<ExportOrderComponentDTO> selectedItems)
     {
-        IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
+        IEnumerable<long> ids = SelectedItems.Select(s => s.Id).ToList();   // IEnumerable<long> ids = selectedItems.Select(s => s.Id).ToList();
 
-        var Voyages = selectedItems.GroupBy(s => s.VesselCallId).Select(g => new { Voyage = g.FirstOrDefault()!.Vessel + "_" + g.FirstOrDefault()!.VoyageNo });
+        var Voyages = SelectedItems.GroupBy(s => s.VesselCallId).Select(g => new { Voyage = g.FirstOrDefault()!.Vessel + "_" + g.FirstOrDefault()!.VoyageNo });
 
         if (Voyages.Count() > 1)
         {
@@ -463,8 +470,8 @@
 
             if (response.IsSuccessStatusCode)
             {
-                // string fileName = response.Content.Headers.ContentDisposition is null ? string.Empty :
-                //                     (string.IsNullOrEmpty(response.Content.Headers.ContentDisposition.FileName) ? string.Empty : response.Content.Headers.ContentDisposition.FileName);
+                string fileName = response.Content.Headers.ContentDisposition is null ? string.Empty :
+                                    (string.IsNullOrEmpty(response.Content.Headers.ContentDisposition.FileName) ? string.Empty : response.Content.Headers.ContentDisposition.FileName);
 
                 var stream = await response.Content.ReadAsStreamAsync();
                 using (var memoryStream = new MemoryStream())
@@ -473,6 +480,12 @@
 
                     await jSRuntime.InvokeVoidAsync("jsSaveAsFile",
                           $"BLs_{Voyage}.zip", Convert.ToBase64String(memoryStream.ToArray()));
+                }
+
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    if (File.Exists(fileName)) File.Delete(fileName);
+                    if (Directory.Exists(fileName.Substring(0, fileName.Length - 4))) Directory.Delete(fileName.Substring(0, fileName.Length - 4));
                 }
             }
         }

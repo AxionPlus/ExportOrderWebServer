@@ -532,9 +532,6 @@
 
     private async Task AddExportOrderRecord_Click()
     {
-        // if (Value is null || Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0) return;
-        // var parameters = new DialogParameters() { ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents };
-
         if (Value is null || Value.Documents.Count() == 0 || Value.VesselCallDetail is null) return;
 
         var parameters = new DialogParameters()
@@ -548,8 +545,7 @@
 
         if (!result.Canceled)
         {
-            if (result.Data is null)
-                return;
+            if (result.Data is null) return;
 
             var exportOrderRecord = (ExportOrderRecord)result.Data;
 
@@ -562,9 +558,6 @@
 
     private async Task ShowRecordContent_Click(ExportOrderRecord item)
     {
-        //if (Value is null || Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0) return;
-        //var parameters = new DialogParameters() { ["VoyageId"] = VoyageId, ["Documents"] = Value.Documents, ["Item"] = item };
-
         if (Value is null || Value.Documents.Count() == 0 || Value.VesselCallDetail is null) return;
 
         var parameters = new DialogParameters()
@@ -579,8 +572,7 @@
 
         if (!result.Canceled)
         {
-            if (result.Data is null)
-                return;
+            if (result.Data is null) return;
 
             var modifiedExportOrderRecord = (ExportOrderRecord)result.Data;
 
@@ -588,8 +580,6 @@
 
             if (modifiedExportOrderRecord is not null)
                 item = modifiedExportOrderRecord;
-
-            //await InvokeAsync(StateHasChanged); // DELETE
         }
 
         //await InvokeAsync(StateHasChanged);
@@ -715,9 +705,7 @@
                         foreach (var existedRecord in existedRecords)
                         {
                             if (!checkedDocument.Any(d => d.SeqCommodity == existedRecord.Seq))
-                                Document!.Records.Remove(existedRecord);
-                            // else
-                            //     existedRecord.Document = Document;
+                                Document!.Records.Remove(existedRecord);                            
                         }
 
                         documents.Add(Document);
@@ -730,7 +718,6 @@
 
                     await ValueChanged.InvokeAsync(Value);
 
-                    //await GetDocumentItems();
                 }
             }
         }
@@ -767,12 +754,10 @@
             {
                 Value.VesselCallDetail = (VesselCallDetail)response.Object!;
 
-                /// check Carrier for Terminal: is the Carrier has any Terminal like VesselCall's Terminal
+                /// check Carrier for Terminal: is the Carrier has any of Terminals like VesselCall's Terminal
                 if (Value.Carrier is not null)
                     if (!Value.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Value.VesselCallDetail.VesselCall.Terminal.Name)))
                         Value.Carrier = null;
-
-                //VoyageId = Value.VesselCallDetail.VesselCall.Id;
             }
             else
                 Snackbar.Add($"{response.Error.First()}", Severity.Error);
@@ -780,13 +765,6 @@
 
         await InvokeAsync(StateHasChanged);
     }
-
-    // private void CheckVoyageState()
-    // {
-    //     if (Value is null || Value.VesselCallDetail is null) return;
-
-    //     VoyageId = Value.VesselCallDetail.VesselCall.Id;
-    // }
 
     private async Task AddCarrier_Click()
     {
@@ -846,110 +824,4 @@
 
     #endregion
 
-    #region NOT USED
-
-    // private async Task<EntityStatus> SelectStatus_Change(EntityStatus status)
-    // {
-    //     if (Value is not null)
-    //     {
-    //         switch (InitialStatus)
-    //         {
-    //             case "New":
-    //                 if (status == EntityStatus.New || status == EntityStatus.Issued)
-    //                     return status;
-    //                 else
-    //                     return Value.Status;
-    //             case "Issued":
-    //                 if (status == EntityStatus.Cancelled || status == EntityStatus.Completed)
-    //                     return status;
-    //                 else
-    //                     return Value.Status;
-    //             case "Cancelled":
-    //                 return EntityStatus.Cancelled;
-    //             case "Completed":
-    //                 return EntityStatus.Completed;
-    //             default:
-    //                 return status;
-    //         }
-    //     }
-    //     else
-    //         return EntityStatus.New;
-    // }
-
-    // private async Task GetNewItemVersion_Click(int version)
-    // {
-    //     var response = await _exportOrderProvider.GetVersionAsync(version);
-    //     if (!response.HasError)
-    //     {
-    //         Value = (ExportOrderEntity)response.Object!;
-    //     }
-    // }
-
-    // private async Task AddNewVersion_Click()
-    // {
-    //     IsNewVersionDisabled = true;
-
-    //     await Task.Delay(1000);
-
-    //     IsNewVersionDisabled = true;
-    // }
-
-    // async Task AddDocument_Click()
-    // {
-    //     await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents?IsSelectable={true}", "_blank");
-
-    //     var result = await ValueTask.FromResult(jsRuntime);
-
-    //     // if (result is not null)
-    //     // {
-    //     //     var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
-    //     // }
-
-
-    //     // -----------------------------------------------------------------------------------------------------------------------------
-    //     // var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}documents/{true}", "_blank"));
-
-    //     // if (result.IsCompletedSuccessfully)
-    //     // {
-    //     //     var documents = Newtonsoft.Json.JsonConvert.DeserializeObject<HashSet<DocumentEntity>>(result.ToString());
-    //     //     //var documents = (HashSet<DocumentEntity>)result.Data;
-
-    //     //     Value!.Documents!.AddRange(documents);
-
-    //     //     await ValueChanged.InvokeAsync(Value);
-
-    //     //     foreach (var document in documents)
-    //     //     {
-    //     //         DocumentItems.Add(document);
-
-    //     //         foreach (var docRecord in document.Records)
-    //     //             DocumentRecordItems.Add(docRecord);
-    //     //     }
-    //     // }
-    // }
-
-    // private async Task<bool> IsVoyageStateOk()
-    // {
-    //     if (Value is not null)
-    //         if (Value.VesselCallDetail is not null)
-    //         {
-    //             VoyageId = Value.VesselCallDetail.VesselCall.Id;
-    //             return true;
-    //         }
-
-    //     return false;
-    // }
-
-    // private async Task<bool> IsDocumentsStateOk()
-    // {
-    //     if (Value is null)
-    //         return false;
-    //     else
-    //         if (Value.Documents is null || Value.Documents.Count() == 0 || VoyageId == 0)
-    //         return false;
-
-    //     return true;
-    // }
-
-    #endregion
 }

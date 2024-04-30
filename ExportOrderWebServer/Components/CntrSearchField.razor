@@ -1,17 +1,7 @@
 ﻿@using ExportOrderWebServer.Areas.ExpOrder
 @inject IDialogService DialogService
 
-<style>
-/*     .searchBadge .mud-badge.mud-badge-top.right.mud-badge-overlap {
-        inset: auto auto calc(100% - 23px) calc(100% - 24px);
-    }
-
-    .searchBadge .mud-badge {
-        font-size: 11px;
-        height: 18px;
-        min-width: 18px;
-    } */
-</style>
+<style></style>
 
 <div class="FieldContainer" style="min-width:150px; @Style">
     <div class="fieldName">@Label</div>
@@ -30,10 +20,6 @@
                         await CntrsChanged.InvokeAsync(new());
                       }">
         </MudTextField>
-@*         <div style="margin-inline:2px"></div>
-        <MudBadge Class="searchBadge" Color="Color.Info" Origin="@Origin.TopCenter" Content="@(Cntrs.Count())">
-            <MudIconButton Style="margin-top:5px" Class="TextFieldIconButton" Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Small" OnClick="CntrList"></MudIconButton>
-        </MudBadge> *@
     </div>
 </div>
 

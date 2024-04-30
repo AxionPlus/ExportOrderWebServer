@@ -1,4 +1,6 @@
-﻿namespace ExportOrderWebServer.Areas.VesselCall.Provider;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace ExportOrderWebServer.Areas.VesselCall.Provider;
 
 public class VesselCallProvider : IVesselCallProvider
 {
@@ -80,10 +82,35 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .Where(s => string.IsNullOrEmpty(filter.Terminal) ? true : s.Terminal.Name == filter.Terminal)
                                                     .Where(s => string.IsNullOrEmpty(filter.POD) ? true : s.Details.Any(vcd => vcd.POD == null ? true : vcd.POD.NameEn == filter.POD))
                                                     .ToListAsync();
-                
+
                 var vesselCallDetailsDTO = vcRecords(vesselCalls);
-                
-                vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);
+
+                //var vesselCallDetailsDTO = new List<VesselCallDetailDTO>();
+
+                //foreach (var vesselCall in vesselCalls)
+                //{
+                //    var itemDTO = vesselCall.Details.Select(detail =>
+                //        new VesselCallDetailDTO()
+                //        {
+                //            Id = detail.Id,
+                //            VesselCallId = vesselCall.Id,
+                //            VesselName = vesselCall.Vessel.Name,
+                //            VoyageNo = vesselCall.VoyageNo,
+                //            VoyageNoTerminal = vesselCall.VoyageNoTerminal,
+                //            Terminal = vesselCall.Terminal.Name,
+                //            ETA = vesselCall.ETA,
+                //            ETS = vesselCall.ETS,
+                //            POD = detail.POD!.NameEn,
+                //            AgentPOD = detail.AgentPOD,
+                //            Status = vesselCall.Status,
+                //            CreateTime = detail.CreateTime,
+                //        });
+
+                //    vesselCallDetailsDTO.AddRange(itemDTO);
+                //}                    
+                //vesselCallDetailsDTO = (List<VesselCallDetailDTO>)vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);
+
+                vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);                
 
                 appObjResponse.Object = vesselCallDetailsDTO.ToArray();
             }            
@@ -152,7 +179,7 @@ public class VesselCallProvider : IVesselCallProvider
 
                 // -------------------------------------------------------------------
                 // compaire a new itemDetails with an existed
-                foreach (var modifyDetail in modifyItem.Details!)
+                foreach (var modifyDetail in modifyItem.Details!.ToArray())
                     if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
                     {
                         // check for existing ExportOrders within VesselCallDetail
@@ -427,9 +454,8 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
                                                     .Include(vcd => vcd.POD)
                                                     //.Include(vcd => vcd.FinalDestination)
-                                                    //.Include(vcd => vcd.ExportOrders)
                                                     .FirstOrDefaultAsync(vcd => vcd.Id == vcdId);
-                //var bug = db.ChangeTracker.DebugView?.LongView;
+                
                 if (appObjResponse.Object is null)
                     appObjResponse.ErrorAdd("There is no voyage");
 
@@ -568,7 +594,7 @@ public class VesselCallProvider : IVesselCallProvider
         var RecordsDTO = new List<VesselCallDetailDTO>();
 
         foreach (var record in Records)
-        {
+        {            
             foreach (var detail in record.Details)                
             {
                 var recordDTO = new VesselCallDetailDTO()

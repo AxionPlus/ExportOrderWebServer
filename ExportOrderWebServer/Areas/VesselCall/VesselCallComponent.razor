@@ -259,7 +259,7 @@
 
         var response = await _vesselCallProvider.GetItemsAsync(Filter);
         if (!response.HasError)
-            Items = ((IEnumerable<VesselCallDetailDTO>)response.Object!).ToArray();
+            Items = ((IEnumerable<VesselCallDetailDTO>)response.Object!);//.ToArray();
 
         await Task.Delay(50);
 

@@ -4191,7 +4191,6 @@ IN WITNESS WHEREOF the Carrier or their Agent has signed the number of Bills of 
                           <PaddingBottom>2pt</PaddingBottom>
                         </Style>
                       </Textbox>
-                      <rd:Selected>true</rd:Selected>
                     </CellContents>
                   </TablixHeader>
                   <TablixMembers>
@@ -5311,7 +5310,7 @@ IN WITNESS WHEREOF the Carrier or their Agent has signed the number of Bills of 
             <Paragraph>
               <TextRuns>
                 <TextRun>
-                  <Value>="page " &amp;  Globals!OverallPageNumber &amp; " / " &amp; Globals!OverallTotalPages</Value>
+                  <Value>="page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
                   <Style>
                     <FontStyle>Italic</FontStyle>
                     <FontFamily>Tahoma</FontFamily>

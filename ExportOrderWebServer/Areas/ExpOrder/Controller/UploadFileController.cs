@@ -15,8 +15,7 @@ public class UploadFileController : ControllerBase
     private readonly IWebHostEnvironment webHostEnvironment;
     private readonly IExportOrderProvider _exportOrderProvider;
         
-    public UploadFileController(IWebHostEnvironment _webHostEnvironment,
-                                IExportOrderProvider exportOrderProvider)
+    public UploadFileController(IWebHostEnvironment _webHostEnvironment, IExportOrderProvider exportOrderProvider)
     {
         webHostEnvironment = _webHostEnvironment;
         _exportOrderProvider = exportOrderProvider;
@@ -24,10 +23,6 @@ public class UploadFileController : ControllerBase
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
-    //public static void CreateFromDirectory(string sourceDirectoryName, System.IO.Stream destination)
-    //{
-
-    //}
 
     [HttpPost]
     [Route("UploadFromExcel")] // file/UploadFileController/UploadFromExcel
@@ -94,7 +89,7 @@ public class UploadFileController : ControllerBase
 
                 #region LOCAL REPORT CREATE
 
-                string mimeType = "";
+                string mimeType = "application/pdf";
                 int pageIndex = new Random().Next(1, 101);
                 string pathReport = Path.Combine(webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
 
@@ -114,21 +109,25 @@ public class UploadFileController : ControllerBase
                     x.PODwithCountryRus,
                     x.Contract,
                     x.ContractDate,
+                    x.Shippers,
+                    x.Consignees,
+                    x.Commodities,
+                    x.CommodityShort,
                     x.MyCompanyName,
                     x.Person
                 });
 
                 var dsRecords = Item.exportOrderRecordsDTO;
 
-                var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
-                var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
+                //var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
+                //var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
 
-                var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
-                                  .Select(g => new {
-                                      Commodity = g.Key.Commodity + " (" +
-                                      g.FirstOrDefault()!.HSCode + ") " +
-                                      (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
-                                  }).ToList();
+                //var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
+                //                  .Select(g => new {
+                //                      Commodity = g.Key.Commodity + " (" +
+                //                      g.FirstOrDefault()!.HSCode + ") " +
+                //                      (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
+                //                  }).ToList();
 
                 int dSeq = 0;
                 var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
@@ -142,9 +141,9 @@ public class UploadFileController : ControllerBase
 
                 localReport.AddDataSource("dsItem", dsItem);
                 localReport.AddDataSource("dsRecords", dsRecords);
-                localReport.AddDataSource("dsShippers", dsShippers);
-                localReport.AddDataSource("dsConsignees", dsConsignees);
-                localReport.AddDataSource("dsCommodities", dsCommodities);
+                //localReport.AddDataSource("dsShippers", dsShippers);
+                //localReport.AddDataSource("dsConsignees", dsConsignees);
+                //localReport.AddDataSource("dsCommodities", dsCommodities);
                 localReport.AddDataSource("dsDocuments", dsDocuments);
 
                 ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);

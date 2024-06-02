@@ -1,5 +1,4 @@
-﻿using Microsoft.Office.Interop.Excel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -10,16 +9,16 @@ public class ExcelCreateService : IDisposable
     private readonly uint ExcelAppPid;
     private readonly IEnumerable<VoyageManifestDTO> Items;
 
-    private Application? ExcelApp;
-    private Workbooks? Workbooks;
-    private Workbook? Workbook;
-    private Sheets? WorkSheets;
-    private Worksheet? WorkSheet;
+    private Excel.Application? ExcelApp;
+    private Excel.Workbooks? Workbooks;
+    private Excel.Workbook? Workbook;
+    private Excel.Sheets? WorkSheets;
+    private Excel.Worksheet? WorkSheet;
     private Excel.Range? Range;
 
     public ExcelCreateService(string tempFilePath, IEnumerable<VoyageManifestDTO> items)
     {
-        ExcelApp = new Application();
+        ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
 
         TempFilePath = tempFilePath;
@@ -51,21 +50,21 @@ public class ExcelCreateService : IDisposable
                 // HEAD of table
 
                 ++indexCarrier;
-
-                var item = carrier.Select(g => new
+                
+                var item = carrier.Select(s => new
                 {
-                    g.CarrierNameEn,
-                    g.VesselName,
-                    g.VesselFlagEn,
-                    g.CarrierCountryEn,
-                    g.CarrierLocation,
-                    g.CarrierContract,
-                    g.CarrierContractDate,
-                    g.CaptainFamily,
-                    g.CaptainName,
-                    g.BLDate,
-                    g.POLEn,
-                    g.CustomsOfficeCode,
+                    s.CarrierNameEn,
+                    s.VesselName,
+                    s.VesselFlag,
+                    s.CarrierCountryEn,
+                    s.CarrierLocation,
+                    s.CarrierContract,
+                    s.CarrierContractDate,
+                    s.CaptainFamily,
+                    s.CaptainName,
+                    s.BLDate,
+                    s.POLEn,
+                    s.CustomsOfficeCode,
                 }).FirstOrDefault();
 
                 //WorkSheet = WorkSheets!.Item[indexCarrier];
@@ -73,7 +72,7 @@ public class ExcelCreateService : IDisposable
                 WorkSheet.Name = item!.CarrierNameEn;
 
                 WorkSheet.Cells[1, 2].Value = item!.VesselName;
-                WorkSheet.Cells[2, 2].Value = item!.VesselFlagEn;
+                WorkSheet.Cells[2, 2].Value = item!.VesselFlag;
                 WorkSheet.Cells[3, 2].Value = item!.CarrierNameEn;
                 WorkSheet.Cells[4, 2].Value = item!.CarrierCountryEn;
                 WorkSheet.Cells[5, 2].Value = item!.CarrierLocation;
@@ -105,21 +104,21 @@ public class ExcelCreateService : IDisposable
 
                 var result = Parallel.For(0, rows, (row, state) =>
                 {
-                    dataBulk[row, 0] = carrier.ElementAt(row).Seal;
+                    dataBulk[row, 0] = carrier.ElementAt(row).Seal!;
                     dataBulk[row, 1] = carrier.ElementAt(row).PODandCountryEn!;
                     dataBulk[row, 2] = carrier.ElementAt(row).PODunlocode!;
-                    dataBulk[row, 3] = carrier.ElementAt(row).BLDate;
-                    dataBulk[row, 4] = carrier.ElementAt(row).BLNum;
+                    dataBulk[row, 3] = carrier.ElementAt(row).BLDate!;
+                    dataBulk[row, 4] = carrier.ElementAt(row).BLNum!;
                     dataBulk[row, 5] = carrier.ElementAt(row).RecordShippers!;
                     dataBulk[row, 6] = carrier.ElementAt(row).RecordShippersCountries!;
                     dataBulk[row, 7] = carrier.ElementAt(row).RecordConsignees!;
                     dataBulk[row, 8] = carrier.ElementAt(row).RecordConsigneesCountries!;
-                    dataBulk[row, 9] = carrier.ElementAt(row).Cntr;
+                    dataBulk[row, 9] = carrier.ElementAt(row).Cntr!;
                     dataBulk[row, 10] = carrier.ElementAt(row).RecordCommodities!;
                     dataBulk[row, 11] = carrier.ElementAt(row).GrossWeights! == 0 ? carrier.ElementAt(row).CntrTareWt : carrier.ElementAt(row).GrossWeights!;
                     dataBulk[row, 12] = carrier.ElementAt(row).PackageQtys!;
-                    dataBulk[row, 13] = carrier.ElementAt(row).CntrType.Substring(2, 2);
-                    dataBulk[row, 14] = carrier.ElementAt(row).CntrType.Substring(0, 2);
+                    dataBulk[row, 13] = carrier.ElementAt(row).CntrType!.Substring(2, 2);
+                    dataBulk[row, 14] = carrier.ElementAt(row).CntrType!.Substring(0, 2);
                     dataBulk[row, 15] = carrier.ElementAt(row).GrossWeights! == 0 ? 0 : carrier.ElementAt(row).CntrTareWt!;
                     dataBulk[row, 16] = carrier.ElementAt(row).IMO!;
                     dataBulk[row, 17] = carrier.ElementAt(row).UNNO!;

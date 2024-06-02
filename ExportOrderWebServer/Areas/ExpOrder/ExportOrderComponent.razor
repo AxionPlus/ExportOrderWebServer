@@ -117,29 +117,25 @@
         </div>
     }
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedItems"
-              Virtualize="true" RowsPerPage="15" MultiSelection="true">
+              Virtualize="true" RowsPerPage="15" MultiSelection="true" >
         <HeaderContent>
-            <MudTh Style="width:42px">
-                <MudTooltip Delay="1500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
-@*                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!Items!.Any(s=>s.IsSelected))"
-                                   Color="Color.Secondary" OnClick="SetNewVesselCall" /> *@
-                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.DepartureBoard" Disabled="@(!SelectedItems.Any())"
-                                   Color="Color.Secondary" OnClick="SetNewVesselCall" />
+            <MudTh Style="max-width:45px">
+                <MudTooltip Delay="500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.TransferWithinAStation" Disabled="@(!SelectedItems.Any())"
+                                   Size="Size.Small" Color="Color.Secondary" OnClick="SetNewVesselCall" />
                 </MudTooltip>
             </MudTh>
-            <MudTh Style="width:42px">
-                <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
-@*                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                                   OnClick="@(async()=>{ await SaveReportsExportOrder_Click(); })" /> *@
+            <MudTh Style="max-width:45px">
+                <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                                   OnClick="SaveReportsExportOrder_Click" />
+                                   Size="Size.Small" OnClick="SaveReportsExportOrder_Click" />
                 </MudTooltip>
             </MudTh>
-            <MudTh Style="width:42px"></MudTh>
+            <MudTh Style="max-width:50px">XML</MudTh>
             <MudTh Style="width:130px">
-                <MudTooltip Delay="1500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
+                <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                                   OnClick="SaveReportsBL_Click" />
+                                   Size="Size.Small" OnClick="SaveReportsBL_Click" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:160px">
@@ -158,18 +154,15 @@
             <MudTh Style="width:200px; text-align:start">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Carrier!)">Carrier</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:43px">IMO</MudTh>
+            <MudTh Style="width:50px">IMO</MudTh>
             <MudTh Style="width:64px">Empty</MudTh>
-            <MudTh Style="width:80px">
+            <MudTh Style="width:100px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:42px"></MudTh>
-            <MudTh></MudTh>
+            <MudTh Style="min-width:20px"></MudTh>
         </HeaderContent>
         <RowTemplate>
-            @*             <MudTd>
-            <MudCheckBox @bind-Value="@context.IsSelected" />
-            </MudTd> *@
             <MudTd>
                 <MudTooltip Delay="1500" Duration="1000" Text="view Details">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
@@ -219,7 +212,7 @@
                                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
                                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
             </MudTd>
-            @* <MudTd></MudTd> *@
+            <MudTd></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -248,9 +241,7 @@
         var user = await authenticationStateProvider.GetAuthenticationStateAsync();
 
         if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
-        {
             IsRoleForEdit = true;
-        }
     }
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -262,9 +253,7 @@
         var response = await _exportOrderProvider.GetItemsAsync(Filter);
 
         if (!response.HasError)
-        {
             Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!; // .ToArray();
-        }            
 
         IsLoadingData = false;
 

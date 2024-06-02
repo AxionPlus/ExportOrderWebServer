@@ -3529,7 +3529,7 @@ GROSS WEIGHT (KILOS)</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="page " &amp;  Globals!OverallPageNumber &amp; " / " &amp; Globals!OverallTotalPages</Value>
+                      <Value>="page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
                       <Style>
                         <Color>Teal</Color>
                       </Style>

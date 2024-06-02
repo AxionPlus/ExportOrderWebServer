@@ -129,7 +129,6 @@
                 Item = new();
             else
             {
-                //Add VesselCallDetail (when ExportOrder_Index opened from VesselCall_Index page)
                 response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
                 if (!response.HasError)
                     Item = new() { VesselCallDetail = (VesselCallDetail)response.Object! };

@@ -29,8 +29,8 @@ public class ViewReportController : ControllerBase
 
         try
         {
-            string mimeType = "";
-            int extension = 1;
+            string mimeType = "application/pdf";
+            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
 
             LocalReport localReport = new LocalReport(pathReport);
@@ -58,37 +58,45 @@ public class ViewReportController : ControllerBase
                 x.PODwithCountryRus,
                 x.Contract,
                 x.ContractDate,
+                x.Shippers,
+                x.Consignees,
+                x.Commodities,
+                x.CommodityShort,
                 x.MyCompanyName,
                 x.Person
             });
 
             var dsRecords = Item.exportOrderRecordsDTO;
 
-            var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
-            var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
+            //var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
 
-            var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
-                              .Select(g => new {
-                                  Commodity = g.Key.Commodity + " (" +
-                                  g.FirstOrDefault()!.HSCode + ") " +
-                                  (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
-                              }).ToList();
+            //var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
+
+            //var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
+            //                              .Select(g => new
+            //                              {
+            //                                  Commodity = g.Key.Commodity + " (" +
+            //                                  g.FirstOrDefault()!.HSCode + ") " +
+            //                                  (g.FirstOrDefault()!.IsIMO ? " IMO: " +
+            //                                    g.FirstOrDefault()!.IMO + " UNNO: " +
+            //                                    g.FirstOrDefault()!.UNNO : ""),
+            //                              }).ToList();
 
             int dSeq = 0;
             var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
-                                                                                          docSeq = ++dSeq,
-                                                                                          Document = g.Key,
-                                                                                          Pakages = g.Sum(q => q.PackageQty),
-                                                                                          CntrTare = g.Sum(tr => tr.CntrTareWt),
-                                                                                          docNet = g.Sum(net => net.NetWt),
-                                                                                          docGross = g.Sum(gr => gr.GrossWt)
-                                                                                      }).ToList();            
+               docSeq = ++dSeq,
+               Document = g.Key,
+               Pakages = g.Sum(q => q.PackageQty),
+               CntrTare = g.Sum(tr => tr.CntrTareWt),
+               docNet = g.Sum(net => net.NetWt),
+               docGross = g.Sum(gr => gr.GrossWt)
+            }).ToList();            
             
             localReport.AddDataSource("dsItem", dsItem);
             localReport.AddDataSource("dsRecords", dsRecords);
-            localReport.AddDataSource("dsShippers", dsShippers);
-            localReport.AddDataSource("dsConsignees", dsConsignees);
-            localReport.AddDataSource("dsCommodities", dsCommodities);
+            //localReport.AddDataSource("dsShippers", dsShippers);
+            //localReport.AddDataSource("dsConsignees", dsConsignees);
+            //localReport.AddDataSource("dsCommodities", dsCommodities);
             localReport.AddDataSource("dsDocuments", dsDocuments);
 
             #endregion
@@ -114,7 +122,7 @@ public class ViewReportController : ControllerBase
 
         try
         {
-            string mimeType = "";
+            string mimeType = "application/pdf";
             int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
 

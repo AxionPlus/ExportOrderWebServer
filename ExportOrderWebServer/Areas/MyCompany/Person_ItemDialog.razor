@@ -108,16 +108,6 @@
         }
     }
 
-    // private async Task GetItem()
-    // {
-    //     if (IsFormReadOnly)
-    //     {
-    //         var response = await _myCompanyProvider.GetPersonItemAsync(Id);
-    //         if (!response.HasError)
-    //             Item = (PersonEntity)response.Object!;
-    //     }
-    // }
-
     private async Task SaveItem_Click()
     {
         await Form!.Validate();

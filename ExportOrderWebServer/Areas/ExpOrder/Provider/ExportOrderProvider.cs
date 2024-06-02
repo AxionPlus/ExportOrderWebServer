@@ -1,4 +1,7 @@
-﻿public class ExportOrderProvider : IExportOrderProvider
+﻿using ExportOrderWebServer.DataSet;
+using System.Collections.Immutable;
+
+public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
@@ -85,6 +88,13 @@
                                     DateOfLoading = source.VesselCallDetail!.VesselCall!.ETA!.Value.ToString("dd.MM.yyyy"),
                                     BLDate = source.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
                                     BLtemplate = source.Carrier!.BlTemplate.ToString(),
+                                    Shippers = string.Join(";\n", source.Documents.GroupBy(d => d.Shipper!.Name).Select(g => g.Key).Distinct().ToImmutableList()),
+                                    Consignees = string.Join(";\n", source.Documents.GroupBy(d => d.Consignee!.Name).Select(g => g.Key).Distinct().ToImmutableList()),
+                                    Commodities = string.Join(";\n", source.Records.SelectMany(
+                                        eor => eor.Contents.Select(
+                                            rc => rc.DocumentRecord.CommodityName +
+                                            (rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO:" + rc.DocumentRecord.UNNO : ""))
+                                        ).Distinct().ToList()),
                                     CustomsOfficeCode = source.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
                                     CustomsOfficeNameShort = source.VesselCallDetail.VesselCall.Terminal.Customs.OfficeShort,
                                     CarrierNameEn = source.Carrier!.NameEn,
@@ -111,6 +121,7 @@
                                     //ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract != null ?
                                     //          source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCall.LoadingTerminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
                                     ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
+                                    CommodityShort = source.CommodityShort,
                                     MyCompanyName = myCompany!.Name,
                                     Person = source.Person!.Name!.Substring(0, 1) + ". " +
                                             source.Person!.SurName!.Substring(0, 1) + ". " +
@@ -207,7 +218,7 @@
             {
                 var db = await _db;
 
-                var exportOrders = await db.ExportOrders
+                var exportOrders = await db.ExportOrders.AsNoTracking().AsSplitQuery()
                                             .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Terminal).ThenInclude(ter => ter.Customs)
                                             .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
                                             .Include(x => x.VesselCallDetail).ThenInclude(vc => vc!.POD).ThenInclude(pod => pod!.Country)
@@ -218,8 +229,6 @@
                                             .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
                                             .Where(x => x.VesselCallDetail!.VesselCall!.Id == id)
                                             .Where(x => x.Status != EntityStatus.Cancelled)
-                                            .AsNoTracking()
-                                            .AsSplitQuery()
                                             .ToListAsync();
 
                 var DTOItems = manifestRecords(exportOrders, isImo);
@@ -381,6 +390,7 @@
                 modifyItem.Carrier = item.Carrier;
                 modifyItem.Person = item.Person;
                 modifyItem.VesselCallDetail = item.VesselCallDetail;
+                modifyItem.CommodityShort = item.CommodityShort;
                 modifyItem.Status = item.Status;
 
 
@@ -479,6 +489,7 @@
                 //    Person = item.Person!.FamilyName,
                 //    VoyageNo = item.VesselCallDetail!.VesselCall.VoyageNo,
                 //    VesselName = item.VesselCallDetail.VesselCall.Vessel.Name,
+                //    CommodityShort = item.CommodityShort,
                 //    POD = item.VesselCallDetail.POD!.NameEn,
                 //    Documents = historyItemDocuments,
                 //    Records = historyItemRecords
@@ -619,6 +630,7 @@
                 //        Person = item.Person!.FamilyName,
                 //        VoyageNo = item.VesselCallDetail.VesselCall.VoyageNo,
                 //        VesselName = item.VesselCallDetail.VesselCall.Vessel.Name,
+                //        CommodityShort = item.CommodityShort,
                 //        POD = item.VesselCallDetail.POD!.NameEn,
                 //        Documents = historyItemDocuments,
                 //        Records = historyItemRecords
@@ -979,41 +991,57 @@
 
                     var ItemDTO = new VoyageManifestDTO()
                     {
-                        // BL
                         VesselCallId = Item.VesselCallDetail!.VesselCall!.Id,
                         ExpOrderNum = Item.Num,
                         BLNum = Item.Num.IndexOf("_") == -1 ? Item.Num : Item.Num.Substring(0, Item.Num.IndexOf("_")),
                         BLDate = Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy") : "---",
                         Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo,
-                        VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name!,
-                        VesselFlag = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.RUS,
-                        VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag!.ENG,
+                        VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name is null ? string.Empty : Item.VesselCallDetail!.VesselCall!.Vessel.Name,
+                        VesselFlag = Item.VesselCallDetail!.VesselCall!.Vessel.Flag is null ? string.Empty : Item.VesselCallDetail!.VesselCall!.Vessel.Flag.RUS,
+                        VesselFlagEn = Item.VesselCallDetail!.VesselCall!.Vessel.Flag is null ? string.Empty : Item.VesselCallDetail!.VesselCall!.Vessel.Flag.ENG,
                         CaptainFamily = Item.VesselCallDetail.VesselCall.Vessel.CaptainFamily,
                         CaptainName = Item.VesselCallDetail.VesselCall.Vessel.CaptainName,
-                        PODEn = Item.VesselCallDetail!.POD!.NameEn,
-                        PODandCountryEn = Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG,
-                        PODunlocode = Item.VesselCallDetail!.POD.UnLocode,
-                        CarrierNameEn = Item.Carrier!.NameEn,
-                        CarrierLocation = Item.Carrier.Location!.Name,
-                        CarrierCountryEn = Item.Carrier.Location!.Country!.ENG,
-                        CarrierContract = Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)) == true ? Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.Contract : "",
-                        CarrierContractDate = Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)) == true ? Item.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
+                        PODEn = Item.VesselCallDetail!.POD is null ? string.Empty : Item.VesselCallDetail!.POD.NameEn,
+                        PODandCountryEn = Item.VesselCallDetail!.POD is null ? string.Empty :
+                                            Item.VesselCallDetail!.POD!.NameEn + ", " + Item.VesselCallDetail!.POD.Country!.ENG,
+                        PODunlocode = Item.VesselCallDetail!.POD is null ? string.Empty : Item.VesselCallDetail!.POD.UnLocode,
+                        CarrierNameEn = Item.Carrier is null ? string.Empty : Item.Carrier.NameEn,
+                        CarrierLocation = Item.Carrier is null ? string.Empty : Item.Carrier.Location is null ? string.Empty : Item.Carrier.Location.Name,
+                        CarrierCountryEn = Item.Carrier is null ? string.Empty :
+                                                Item.Carrier.Location is null ? string.Empty :
+                                                    Item.Carrier.Location.Country is null ? string.Empty : Item.Carrier.Location.Country.ENG,
+                        CarrierContract = Item.Carrier is null ? string.Empty :
+                                            Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)) == true ?
+                                                Item.Carrier.CarrierDetails
+                                                    .FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.Contract : "",
+                        CarrierContractDate = Item.Carrier is null ? string.Empty :
+                                                Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)) == true ?
+                                                    Item.Carrier.CarrierDetails
+                                                        .FirstOrDefault(s => s.TerminalName == Item.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
+                        CustomsOfficeCode = Item.VesselCallDetail!.VesselCall.Terminal.Customs is null ? string.Empty :
+                                                Item.VesselCallDetail!.VesselCall.Terminal.Customs.Code,
+                        CustomsOfficeName = Item.VesselCallDetail!.VesselCall.Terminal.Customs is null ? string.Empty :
+                                                Item.VesselCallDetail!.VesselCall.Terminal.Customs.Office,
+                        CustomsOfficeShortName = Item.VesselCallDetail!.VesselCall.Terminal.Customs is null ? string.Empty :
+                                                    Item.VesselCallDetail!.VesselCall.Terminal.Customs.OfficeShort,
+                        CustomsDapartment = Item.VesselCallDetail!.VesselCall.Terminal.Customs is null ? string.Empty :
+                                                Item.VesselCallDetail!.VesselCall.Terminal.Customs.Dapartment,
 
-                        CustomsOfficeCode = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
-                        CustomsOfficeName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Office,
-                        CustomsOfficeShortName = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.OfficeShort,
-                        CustomsDapartment = Item.VesselCallDetail!.VesselCall.Terminal.Customs!.Dapartment,
-
-                        PersonFamily = Item.Person!.FamilyName,
-                        PersonSurName = Item.Person!.Name! + " " + Item.Person!.SurName,
-                        PersonBirthYear = Item.Person!.BirthYear,
-                        PersonBirthPlace = Item.Person!.BirthPlace,
-                        PersonCompany = Item.Person!.Company,
-                        PersonAddress = Item.Person!.Address,
-                        PersonPass = Item.Person!.Passport,
-                        PersonSign = Item.Person!.Name!.Substring(0, 1) + ". " + Item.Person!.SurName!.Substring(0, 1) + ". " + Item.Person!.FamilyName,
-                        DateExplanation = "\"____\" " + Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("MMMM yyyy") + "г.",
-
+                        PersonFamily = Item.Person is null ? string.Empty : Item.Person.FamilyName,
+                        PersonSurName = Item.Person is null ? string.Empty : Item.Person.Name + " " + Item.Person.SurName,
+                        PersonBirthYear = Item.Person is null ? string.Empty : Item.Person.BirthYear,
+                        PersonBirthPlace = Item.Person is null ? string.Empty : Item.Person.BirthPlace,
+                        PersonCompany = Item.Person is null ? string.Empty : Item.Person.Company,
+                        PersonAddress = Item.Person is null ? string.Empty : Item.Person.Address,
+                        PersonPass = Item.Person is null ? string.Empty : Item.Person.Passport,
+                        PersonSign = Item.Person is null ? string.Empty :
+                                        Item.Person.Name is null ? string.Empty :
+                                            Item.Person.Name.Substring(0, 1) + ". " +
+                                            (Item.Person.SurName is null ? string.Empty : Item.Person.SurName.Substring(0, 1) + ". ") +
+                                            Item.Person.FamilyName,
+                        DateExplanation = "\"____\" " +
+                                            (Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? 
+                                                Item.VesselCallDetail!.VesselCall!.ETS.Value.ToString("MMMM yyyy") : "_____________________") + "г.",
                         Shippers = "S: " + string.Join("; ", _shippers.Order().Distinct()),
                         Consignees = "C: " + string.Join("; ", _consignees.Order().Distinct()),
                         Commodities = string.Join("; ", _commodities.Order().Distinct()),

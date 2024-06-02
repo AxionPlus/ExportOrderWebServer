@@ -18,8 +18,8 @@ public class XmlService : IDisposable
     { 
         if (string.IsNullOrEmpty(FilePath)) return Array.Empty<byte>();
 
-        string Shippers = string.Join("; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
-        string Consignees = string.Join("; ", Item.exportOrderRecordsDTO?.Select(r => r.Consignee).Distinct().ToList()!);
+        //string Shippers = string.Join("; ", Item.exportOrderRecordsDTO?.Select(r => r.Shipper).Distinct().ToList()!);
+        //string Consignees = string.Join("; ", Item.exportOrderRecordsDTO?.Select(r => r.Consignee).Distinct().ToList()!);
 
         var Commodities = Item.exportOrderRecordsDTO!.GroupBy(r => new { r.DocumentName, r.SeqContent })
                                         .Select(g => new
@@ -56,9 +56,11 @@ public class XmlService : IDisposable
                 xml.WriteElementString("TotalNetWeightQuantity", Item.TotalNetWeight!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
                 xml.WriteElementString("Carrier_Name", Item.CarrierNameEn);
                 xml.WriteElementString("Carrier_CountryName", string.Empty);
-                xml.WriteElementString("Consignee_Name", Consignees);
+                //xml.WriteElementString("Consignee_Name", Consignees);
+                xml.WriteElementString("Consignee_Name", Item.Consignees);
                 xml.WriteElementString("Consignee_CountryName", string.Empty);
-                xml.WriteElementString("Consignor_Name", Shippers);
+                //xml.WriteElementString("Consignor_Name", Shippers);
+                xml.WriteElementString("Consignor_Name", Item.Shippers);
                 xml.WriteElementString("Consignor_CountryName", string.Empty);
                 xml.WriteElementString("VesselName", Item.VesselName);
                 xml.WriteElementString("Vessel_CountryName", Item.VesselFlag);

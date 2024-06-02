@@ -12,6 +12,8 @@ public class ExportOrderEntity : Entity
     public PersonEntity? Person { get; set; }
     public List<DocumentEntity> Documents { get; set; } = new List<DocumentEntity>();
     public List<ExportOrderRecord> Records { get; set; } = new List<ExportOrderRecord>();
+    
+    public string? CommodityShort { get; set; }
     [JsonIgnore]
     public VesselCallDetail? VesselCallDetail { get; set; }
 
@@ -40,3 +42,4 @@ public class ExportOrderEntity : Entity
         }
     }
 }
+ 

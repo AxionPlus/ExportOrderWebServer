@@ -144,11 +144,12 @@
                              OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCarrier_Click(); })"
                              Clearable="!IsFormReadOnly" />
          </div>
-         <div class="container-content">
+        <div class="container-content">
              <MudSelect Class="wrapper-input" T="PersonEntity" Label="Person" @bind-Value="@Value.Person"
-                        ToStringFunc="@(str => str is not null ?
-                                                $"{str.FamilyName} {str.Name?.Substring(0, 1)}. {str.SurName?.Substring(0, 1)}."
-                                                : string.Empty)"
+                        ToStringFunc="@(s => s is null ? string.Empty :
+                                             $"{s.FamilyName} " +
+                                             $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. " +
+                                             $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}.")"
                         Style="width:200px" Placeholder="Person"
                         Variant="Variant.Outlined" Margin="Margin.Dense"
                         CloseIcon="" OpenIcon="" IconSize="Size.Small"
@@ -220,7 +221,7 @@
                     </MudTooltip>                    
                 </div>
 
-                <MudPaper Width="450px" Elevation="0" Style="height:240px;overflow: auto;">
+                <MudPaper Width="450px" Elevation="0" Style="height:240px;overflow:auto">
                     @if (Value.Documents != null)
                     {
                         <MudTreeView Items="@Value.Documents.ToHashSet()" @bind-SelectedValues="SelectedDocumentValues"
@@ -244,6 +245,14 @@
                         </MudTreeView>
                     }
                 </MudPaper>
+                <div style="display:flex; margin-top:3px">
+                    <span style="margin-top:10px; margin-right:6px"><b>Товар кратко:</b></span>
+                    <MudTextField Class="TextField" Style="width: 350px" T="string" @bind-Value="@Value.CommodityShort"
+                                  Text="@Value.CommodityShort"
+                                  TextChanged="async (e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Clearable="!IsFormReadOnly" />
+                </div>                
             </div>
             <div class="documents-info" style="margin-left: 15px; max-width:fit-content">
                 @if (Value.Documents != null)
@@ -347,8 +356,10 @@
                                      Required RequiredError="" HideSpinButtons="true" />
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField" Style="width: 292px" T="string" @bind-Value="expOrderRecord.Seal"                                
-                                Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudTextField Class="TextField" Style="width: 292px" T="string" @bind-Value="expOrderRecord.Seal"
+                                  Text="@expOrderRecord.Seal"
+                                  TextChanged="@(async (e) => {expOrderRecord.Seal = e.ToUpper();})"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>

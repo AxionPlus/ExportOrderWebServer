@@ -15,6 +15,7 @@ public class ExportOrderComponentDTO
     public string? VoyageNo { get; set; } // Voyage
     public string? POD { get; set; }    
     public string? Carrier { get; set; }
+    public string? Terminal { get; set; }
     public bool? IsImo { get; set; }
     public bool? IsEmpty { get; set; }
     public bool IsSelected { get; set; }

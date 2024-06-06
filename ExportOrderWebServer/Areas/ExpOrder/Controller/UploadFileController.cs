@@ -1,5 +1,6 @@
 ﻿using AspNetCore.Reporting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.IO.Compression;
@@ -12,20 +13,111 @@ namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
 
 public class UploadFileController : ControllerBase
 {
-    private readonly IWebHostEnvironment webHostEnvironment;
+    private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IExportOrderProvider _exportOrderProvider;
         
-    public UploadFileController(IWebHostEnvironment _webHostEnvironment, IExportOrderProvider exportOrderProvider)
+    public UploadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider)
     {
-        webHostEnvironment = _webHostEnvironment;
+        _webHostEnvironment = webHostEnvironment;
         _exportOrderProvider = exportOrderProvider;
 
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
+    [HttpGet, Route("SaveFileExcelFillBill")]   // file/UploadFileController/SaveFileExcelFillBill
+    public async Task<IActionResult> SaveFileFillBill(long vslcallid)
+    {
+        try
+        {
+            var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, false);
 
-    [HttpPost]
-    [Route("UploadFromExcel")] // file/UploadFileController/UploadFromExcel
+            if (!Items.Any()) return Empty;
+
+            string FileName = $"FillBill_{Items.FirstOrDefault()!.Voyage}";
+            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
+
+            using (var xls = new ExcelCreateService(tempFilePath, Items, null))
+            {
+                var buffer = await xls.CreateExcelFile_FillBill();
+
+                if (buffer != Array.Empty<byte>())
+                    return File(buffer, "application/xlsx", $"{FileName}.xlsx");
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return Empty;
+        }
+
+        return Ok();
+    }
+
+    [HttpGet, Route("SaveFileExcelRolis")]  // file/UploadFileController/SaveFileExcelRolis
+    public async Task<IActionResult> SaveFileRolis(long expOrderId)
+    {
+        try
+        {
+            var Item = await _exportOrderProvider.GetExportOrderDTOAsync(expOrderId);
+
+            if (Item is null) return Empty;
+
+            string FileName = $"Rolis_{Item.Voyage}_{Item.Num}";
+
+            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
+
+            using (var xls = new ExcelCreateService(tempFilePath, null, Item))
+            {
+                var buffer = await xls.CreateExcelFile_Rolis();
+
+                if (buffer != Array.Empty<byte>())
+                    return File(buffer, "application/xlsx", $"{FileName}.xlsx");
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return Empty;
+        }
+
+        return Ok();
+    }
+
+    [HttpGet, Route("SaveXMLfile")]     // file/UploadFileController/SaveXMLfile
+    public async Task<IActionResult> SaveXMLfile(long Id)
+    {
+        try
+        {
+            var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
+
+            await Task.Delay(100);
+
+            if (Item is null) return Empty;
+
+            string FileName = $"{Item.Num}_Customs";
+            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xml");
+
+            using (var xml = new XmlService(tempFilePath, Item))
+            {
+                var buffer = await xml.CreateXMLfile();
+
+                if (buffer != Array.Empty<byte>())
+                    return File(buffer, "application/xml", $"{FileName}.xml");
+            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            Console.WriteLine($"Error: {ex.Message}");
+            return Empty;
+        }
+
+        return Ok();
+    }
+
+
+
+    [HttpPost, Route("UploadFromExcel")]    // file/UploadFileController/UploadFromExcel
     public async Task<List<UploadExcelDTO>> UploadFromExcel([FromForm] IEnumerable<IFormFile> files)
     {
         string filePath = string.Empty;
@@ -34,7 +126,7 @@ public class UploadFileController : ControllerBase
             if (file != null)
             {
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                filePath = Path.Combine(webHostEnvironment.WebRootPath, fileName);
+                filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -91,7 +183,7 @@ public class UploadFileController : ControllerBase
 
                 string mimeType = "application/pdf";
                 int pageIndex = new Random().Next(1, 101);
-                string pathReport = Path.Combine(webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
+                string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
 
                 LocalReport localReport = new LocalReport(pathReport);
 
@@ -220,7 +312,7 @@ public class UploadFileController : ControllerBase
 
                 string mimeType = "";
                 int pageIndex = new Random().Next(1, 101);
-                string pathReport = Path.Combine(webHostEnvironment.ContentRootPath, "Reports", fileName);
+                string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
 
                 LocalReport localReport = new LocalReport(pathReport);
 
@@ -407,52 +499,5 @@ public class UploadFileController : ControllerBase
     Func<DateTime, string> Date2Str = (date) =>
     {
         return date.ToString("yyyy") + date.ToString("MM") + date.ToString("dd") + date.ToString("HH") + date.ToString("mm");
-    };
-
-    #region DELETE
-
-    //[HttpPost, Route("SaveExportOrdersReport")] // file/UploadFile/SaveExportOrdersReport
-    //public async Task<IActionResult> SaveExportOrdersReport([FromBody] object obj)
-    //{
-    //    try
-    //    {
-    //        IEnumerable<long> Ids = Enumerable.Empty<long>();
-    //        string voyageNo = string.Empty;
-
-    //        var resultObj = JsonConvert.DeserializeObject<ControllerPassObject<IEnumerable<long>>>(obj.ToString());
-    //        if (resultObj is not null)
-    //        {
-    //            if (resultObj.GetObject.Count() > 0)
-    //            {
-    //                Ids = resultObj.GetObject;
-    //                voyageNo = resultObj.Remarks;
-    //            }
-    //        }
-
-    //        var Items = await _exportOrderProvider.GetExportOrdersAsync(Ids);
-
-    //        await Task.Delay(100);
-
-    //        if (Items is null || !Items.Any()) return Empty; //Items.Count == 0
-
-    //        string mimeType = "";
-    //        int pageIndex = new Random().Next(1, 101);
-    //        string pathReport = Path.Combine(webHostEnvironment.ContentRootPath, "Reports", "ExportOrderMulti.rdlc");
-    //        string fileName = $"{voyageNo}_ExpOrders_{pageIndex}";
-
-    //        LocalReport localReport = new LocalReport(pathReport);
-    //        localReport.AddDataSource("dsExportOrders", Items);
-    //        ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
-
-    //        return File(result.MainStream, "application/pdf", $"{fileName}.pdf");
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string msg = ex.Message;
-    //        Console.WriteLine(msg);
-    //        return Empty;
-    //    };
-    //}
-
-    #endregion
+    };       
 }

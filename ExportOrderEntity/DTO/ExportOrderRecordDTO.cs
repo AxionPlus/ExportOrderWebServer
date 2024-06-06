@@ -14,6 +14,7 @@ public class ExportOrderRecordDTO
     public uint SeqContent { get; set; }      // Content index for xml File
     public string Cntr { get; set; }
     public string CntrType { get; set; }
+    public string CntrTypeISO { get; set; }
     public double? CntrTareWt { get; set; }
     public string Seal { get; set; }
 
@@ -21,8 +22,8 @@ public class ExportOrderRecordDTO
     public string? RecordCommoditiesEn { get; set; }
 
     // Content
-    public string? Commodity { get; set; }
-    public string? CommodityEn { get; set; }
+    public string Commodity { get; set; }
+    public string CommodityEn { get; set; }
     public uint? PackageQty { get; set; }
     public string? PackageName { get; set; }
     public double? NetWt { get; set; }
@@ -31,6 +32,7 @@ public class ExportOrderRecordDTO
     public double? Volume { get; set; }
 
     public string DocumentName { get; set; }
+    public string DocumentType { get; set; }
     public string Shipper { get; set; }
     public string ShipperEn { get; set; }
     public string Consignee { get; set; }
@@ -38,8 +40,8 @@ public class ExportOrderRecordDTO
     public string Notify { get; set; }
     public string NotifyEn { get; set; }
     public string HSCode { get; set; }
-    public string IMO { get; set; }
-    public string UNNO { get; set; }
+    public string? IMO { get; set; }
+    public string? UNNO { get; set; }
     public bool IsIMO { get; set; }
 
 

@@ -53,6 +53,8 @@ public class ExportOrderDTO
     public string? MyCompanyName { get; set; }
     public string? Person { get; set; }
     public string? PersonXml { get; set; }
+    public string? PersonPass { get; set; }
+    public string? PersonPhone { get; set; }
 
     public IEnumerable<ExportOrderRecordDTO> exportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
 }

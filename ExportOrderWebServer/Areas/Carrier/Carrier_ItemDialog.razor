@@ -79,7 +79,7 @@
                                   Clearable="!IsFormReadOnly" />
                 
                  <MudSelect Class="wrapper-input" T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
-                            ToStringFunc="@(str=>str.ToString())"
+                            ToStringFunc="@(s => s.ToString())"
                             Variant="Variant.Outlined" Margin="Margin.Dense">
                      @foreach (BLTemplate template in Enum.GetValues(typeof(BLTemplate)))
                     {
@@ -105,9 +105,8 @@
                    <RowTemplate>
                        <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(context); })" /></MudTd>
                        <MudTd>
-                            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" SearchFunc="@SearchTerminalNames"
-                                             Value="context.TerminalName"
-                                             ValueChanged="(e)=> { context.TerminalName = e; }"
+                            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="context.TerminalName"
+                                             SearchFunc="@SearchTerminalName"                                             
                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                              CloseIcon="" OpenIcon=""
                                              ResetValueOnEmptyText="true"
@@ -292,7 +291,7 @@
     }
 
     #region SEARCH FUNCTIONS
-    private async Task<IEnumerable<string>> SearchTerminalNames(string value)
+    private async Task<IEnumerable<string>> SearchTerminalName(string value)
     {
         var result = await _carrierProvider.GetTerminalNames();
 

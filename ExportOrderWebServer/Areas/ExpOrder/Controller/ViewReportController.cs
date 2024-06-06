@@ -27,6 +27,8 @@ public class ViewReportController : ControllerBase
     {
         var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
 
+        if (Item is null) return Empty;
+
         try
         {
             string mimeType = "application/pdf";
@@ -493,78 +495,6 @@ public class ViewReportController : ControllerBase
     }
 
     [HttpGet]
-    [Route("SaveXMLfile")]
-    public async Task<IActionResult> SaveXMLfile(long Id)
-    {
-        try
-        {
-            var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
-
-            await Task.Delay(100);
-
-            if (Item is null) return Empty;
-
-            string FileName = $"{Item.Num}_Customs";
-            //string tempFilePath = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "TempFiles", $"{FileName}_{Path.GetRandomFileName()}.xml");
-            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xml");
-
-            using (var xml = new XmlService(tempFilePath, Item))
-            {
-                var buffer = await xml.CreateXMLfile();
-
-                if (buffer != Array.Empty<byte>())
-                    return File(buffer, "application/xml", $"{FileName}.xml");
-            }
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-            Console.WriteLine($"Error: {ex.Message}");
-            return Empty;
-        }
-
-        return Ok();
-    }
-
-    [HttpGet]
-    [Route("SaveFillBillExcelFile")]
-    public async Task<IActionResult> SaveFillBill(long vslcallid)
-    {
-        try
-        {
-            var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, false);
-
-            await Task.Delay(100);
-
-            if (Items.Count() == 0) return Empty;
-
-            string FileName = $"FillBill_{Items.FirstOrDefault()!.Voyage}";
-            //string dirName = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "TempFiles");
-            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
-
-            //DirectoryInfo dirInfo = new DirectoryInfo(dirName);
-            //if (!dirInfo.Exists) { dirInfo.Create(); }
-            //dirName = dirInfo.FullName;
-            //string tempFilePath = Path.Combine(dirName, $"{Path.GetRandomFileName()}.xlsx");            
-
-            using (var xls = new ExcelCreateService(tempFilePath, Items))
-            {
-                var buffer = await xls.CreateExcelFile();
-
-                if (buffer != Array.Empty<byte>())
-                    return File(buffer, "application/xlsx", $"{FileName}.xlsx");
-            }
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-            return Empty;
-        }
-
-        return Ok();
-    }
-
-    [HttpGet]
     [Route("DownloadExcelTemplate")]
     public async Task<IActionResult> DownloadTemplate()
     {
@@ -588,4 +518,71 @@ public class ViewReportController : ControllerBase
 
         return Ok();
     }
+
+    //[HttpGet]
+    //[Route("SaveXMLfile")]
+    //public async Task<IActionResult> SaveXMLfile(long Id)
+    //{
+    //    try
+    //    {
+    //        var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
+
+    //        await Task.Delay(100);
+
+    //        if (Item is null) return Empty;
+
+    //        string FileName = $"{Item.Num}_Customs";
+    //        //string tempFilePath = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "TempFiles", $"{FileName}_{Path.GetRandomFileName()}.xml");
+    //        string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xml");
+
+    //        using (var xml = new XmlService(tempFilePath, Item))
+    //        {
+    //            var buffer = await xml.CreateXMLfile();
+
+    //            if (buffer != Array.Empty<byte>())
+    //                return File(buffer, "application/xml", $"{FileName}.xml");
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        string msg = ex.Message;
+    //        Console.WriteLine($"Error: {ex.Message}");
+    //        return Empty;
+    //    }
+
+    //    return Ok();
+    //}
+
+    //[HttpGet]
+    //[Route("SaveFileExcelFillBill")]
+    //public async Task<IActionResult> SaveFileFillBill(long vslcallid)
+    //{
+    //    try
+    //    {
+    //        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, false);
+
+    //        //await Task.Delay(100);
+
+    //        //if (Items is null || Items.Count() == 0) return Empty;
+    //        if (!Items.Any()) return Empty;
+
+    //        string FileName = $"FillBill_{Items.FirstOrDefault()!.Voyage}";
+    //        string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
+
+    //        using (var xls = new ExcelCreateService(tempFilePath, Items, null))
+    //        {
+    //            var buffer = await xls.CreateExcelFile_FillBill();
+
+    //            if (buffer != Array.Empty<byte>())
+    //                return File(buffer, "application/xlsx", $"{FileName}.xlsx");
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        string msg = ex.Message;
+    //        return Empty;
+    //    }
+
+    //    return Ok();
+    //}
 }

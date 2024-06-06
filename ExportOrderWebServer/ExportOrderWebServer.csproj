@@ -12,7 +12,6 @@
     <None Remove="Reports\CustomsLetter.rdlc" />
     <None Remove="Reports\ExportOrder.rdlc" />
     <None Remove="Reports\ExportOrderMulti.rdlc" />
-    <None Remove="Resources\TemplateUploadCntrs.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,9 +46,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\ExportOrderMulti.rdlc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\TemplateUploadCntrs.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

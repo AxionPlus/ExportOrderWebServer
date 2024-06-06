@@ -1,6 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace ExportOrderWebServer.Areas.VesselCall.Provider;
+﻿namespace ExportOrderWebServer.Areas.VesselCall.Provider;
 
 public class VesselCallProvider : IVesselCallProvider
 {
@@ -70,7 +68,7 @@ public class VesselCallProvider : IVesselCallProvider
             {
                 var filter = (FilterParameters)parameters;
 
-                var vesselCalls = await db.VesselCalls.AsSplitQuery()
+                var vesselCalls = await db.VesselCalls.AsNoTracking().AsSplitQuery()
                                                     .Include(vc => vc.Vessel)
                                                     .Include(vc => vc.Terminal)
                                                     .Include(vc => vc.Details).ThenInclude(d => d.POD)
@@ -84,31 +82,6 @@ public class VesselCallProvider : IVesselCallProvider
                                                     .ToListAsync();
 
                 var vesselCallDetailsDTO = vcRecords(vesselCalls);
-
-                //var vesselCallDetailsDTO = new List<VesselCallDetailDTO>();
-
-                //foreach (var vesselCall in vesselCalls)
-                //{
-                //    var itemDTO = vesselCall.Details.Select(detail =>
-                //        new VesselCallDetailDTO()
-                //        {
-                //            Id = detail.Id,
-                //            VesselCallId = vesselCall.Id,
-                //            VesselName = vesselCall.Vessel.Name,
-                //            VoyageNo = vesselCall.VoyageNo,
-                //            VoyageNoTerminal = vesselCall.VoyageNoTerminal,
-                //            Terminal = vesselCall.Terminal.Name,
-                //            ETA = vesselCall.ETA,
-                //            ETS = vesselCall.ETS,
-                //            POD = detail.POD!.NameEn,
-                //            AgentPOD = detail.AgentPOD,
-                //            Status = vesselCall.Status,
-                //            CreateTime = detail.CreateTime,
-                //        });
-
-                //    vesselCallDetailsDTO.AddRange(itemDTO);
-                //}                    
-                //vesselCallDetailsDTO = (List<VesselCallDetailDTO>)vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);
 
                 vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);                
 
@@ -129,11 +102,11 @@ public class VesselCallProvider : IVesselCallProvider
 
             try
             {
-                var modifyItem = await db.VesselCalls.AsNoTracking()    // if AsTracking() - check all of modifyItem's elements for changing
-                                                    .Include(vc => vc.Vessel)
-                                                    .Include(vc => vc.Terminal)
-                                                    .Include(vc => vc.Details)
-                                                    .FirstOrDefaultAsync(s => s.Id == item.Id);
+                var modifyItem = await db.VesselCalls.AsNoTracking().AsSplitQuery()    // if AsTracking() - check all of modifyItem's elements for changing
+                                                     .Include(vc => vc.Vessel)
+                                                     .Include(vc => vc.Terminal)
+                                                     .Include(vc => vc.Details)
+                                                     .FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem is null)
                 {
@@ -449,7 +422,7 @@ public class VesselCallProvider : IVesselCallProvider
             {
                 var db = await _db;
 
-                appObjResponse.Object = await db.Set<VesselCallDetail>().AsNoTracking()                                                    
+                appObjResponse.Object = await db.Set<VesselCallDetail>().AsNoTracking().AsSplitQuery()
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Terminal)
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
                                                     .Include(vcd => vcd.POD)
@@ -607,7 +580,7 @@ public class VesselCallProvider : IVesselCallProvider
                     Terminal = record.Terminal.Name,
                     ETA = record.ETA,
                     ETS = record.ETS,
-                    POD = detail.POD!.NameEn,
+                    POD = detail.POD is null ? null : detail.POD.NameEn,
                     AgentPOD = detail.AgentPOD,
                     Status = record.Status,
                     CreateTime = detail.CreateTime,

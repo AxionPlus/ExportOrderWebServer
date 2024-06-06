@@ -84,13 +84,11 @@
 
 @if (Value is not null)
 {
-
     <div class="Container-item">
         <div class="container-content">
             <MudSelect Class="wrapper-input" Style="width: 120px" T="DocumentType" Label="Type" @bind-Value="@Value.Type"
                         ToStringFunc="@(s => s.ToString())"
-                        Variant="Variant.Outlined" Margin="Margin.Dense">
-                           
+                        Variant="Variant.Outlined" Margin="Margin.Dense">                           
                 @foreach (DocumentType type in Enum.GetValues(typeof(DocumentType)))
                 {
                     <MudSelectItem Value="@type" />

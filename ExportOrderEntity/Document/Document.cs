@@ -7,14 +7,14 @@ namespace ExportOrderEntites.Document;
 public class DocumentEntity : Entity
 {
     [Required]
-    public string? Name { get; set; }
+    public string? Name { get; set; }                   // Change to Not nullable
     public DocumentType Type { get; set; }
     public string? Description { get; set; }
     public string? ContarctNo { get; set; }
     [Required]
-    public DocumentCustomer? Shipper { get; set; }
+    public DocumentCustomer? Shipper { get; set; }      // Change to Not nullable
     [Required]
-    public DocumentCustomer? Consignee { get; set; }
+    public DocumentCustomer? Consignee { get; set; }    // Change to Not nullable
 
     public List<DocumentRecord> Records { get; set; } = new List<DocumentRecord>();
 

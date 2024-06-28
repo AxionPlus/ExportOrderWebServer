@@ -6006,7 +6006,28 @@ WT (KGS)</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
+                      <Value>Page </Value>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                        <Color>DarkGreen</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value>=Globals!PageNumber</Value>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                        <Color>DarkGreen</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value> of </Value>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                        <Color>DarkGreen</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value>=Globals!TotalPages</Value>
                       <Style>
                         <FontSize>8pt</FontSize>
                         <Color>DarkGreen</Color>

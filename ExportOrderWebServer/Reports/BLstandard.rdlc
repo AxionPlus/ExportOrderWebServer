@@ -6283,7 +6283,37 @@ IN WITNESS WHEREOF the number of original Bills of Lading stated on this side ha
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
+                      <Value>Page </Value>
+                      <Style>
+                        <FontStyle>Italic</FontStyle>
+                        <FontFamily>Tahoma</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextDecoration>None</TextDecoration>
+                        <Color>Teal</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value>=Globals!PageNumber</Value>
+                      <Style>
+                        <FontStyle>Italic</FontStyle>
+                        <FontFamily>Tahoma</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextDecoration>None</TextDecoration>
+                        <Color>Teal</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value> of </Value>
+                      <Style>
+                        <FontStyle>Italic</FontStyle>
+                        <FontFamily>Tahoma</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <TextDecoration>None</TextDecoration>
+                        <Color>Teal</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value>=Globals!TotalPages</Value>
                       <Style>
                         <FontStyle>Italic</FontStyle>
                         <FontFamily>Tahoma</FontFamily>

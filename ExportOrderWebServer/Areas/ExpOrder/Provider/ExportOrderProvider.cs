@@ -1,4 +1,4 @@
-﻿//using System.Collections.Immutable;
+﻿using ExportOrderEntites.Catalog;
 
 public class ExportOrderProvider : IExportOrderProvider
 {
@@ -233,7 +233,15 @@ public class ExportOrderProvider : IExportOrderProvider
                                 })
                                 .FirstOrDefaultAsync(x => x.Id == Id);
 
-                return Item!;
+                if (Item != null)
+                {
+                    if (Item.BLtemplate.Equals("ametist"))
+                        Item.BLNum = string.Concat("SV-", Item.BLNum);
+
+                    return Item;
+                }
+                else
+                    return new ExportOrderDTO();
             }
         }
         catch (Exception ex)

@@ -3,12 +3,12 @@
 public class VesselCallProvider : IVesselCallProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
-
     private AppObjectResponse appObjResponse;
 
     public VesselCallProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)

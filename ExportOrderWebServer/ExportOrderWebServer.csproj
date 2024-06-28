@@ -12,6 +12,7 @@
     <None Remove="Reports\CustomsLetter.rdlc" />
     <None Remove="Reports\ExportOrder.rdlc" />
     <None Remove="Reports\ExportOrderMulti.rdlc" />
+    <None Remove="Reports\_BLametist_New.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,6 +49,7 @@
     <EmbeddedResource Include="Reports\ExportOrderMulti.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Reports\_BLametist_New.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
@@ -162,9 +164,6 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Manifest.Designer.cs</LastGenOutput>
       <Generator>MSDataSetGenerator</Generator>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Reports\BLametist.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Reports\BLcerta_lam.rdlc">

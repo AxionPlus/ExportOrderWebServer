@@ -5,14 +5,12 @@ namespace ExportOrderWebServer.Service;
 public class SavePdfFileService : IDisposable
 {
     private readonly IWebHostEnvironment webHostEnvironment;
-    //private readonly IJSRuntime jSRuntime;
     private string DirPath { get; set; }
     private readonly IEnumerable<VoyageExportOrderDTO> Items;
 
     public SavePdfFileService(IWebHostEnvironment _webHostEnvironment, string _DirPath, IEnumerable<VoyageExportOrderDTO> _Items)
     {
         webHostEnvironment = _webHostEnvironment;
-        //jSRuntime = _jSRuntime;
         DirPath = _DirPath;
         Items = _Items;
     }

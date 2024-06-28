@@ -77,7 +77,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Reports\BLoel.rdlc" />
     <EmbeddedResource Include="Reports\ExportOrder.rdlc" />
     <None Include="DataSet\BLrecords.xsc">
       <DependentUpon>BLrecords.xsd</DependentUpon>

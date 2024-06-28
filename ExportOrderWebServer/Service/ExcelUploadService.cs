@@ -70,20 +70,20 @@ public class ExcelUploadService : IDisposable
             string[][] sheetArray = GetStringArray(Range.Cells.Value);
             var recordsArray = sheetArray.ToList();
 
-            foreach (var records in recordsArray)
+            foreach (var record in recordsArray)
             {
                 UploadExcel.Add(new UploadExcelDTO()
                 {
-                    DocumentName = (records[colDoc]).Trim(),
-                    SeqCommodity = int.TryParse(records[colCargoIndex], out int _cIndex) ? _cIndex : 0,
-                    CntrNum = records[colCntrNum].Trim(),
-                    CntrType = string.IsNullOrEmpty(records[colCntrType]) ? null : records[colCntrType].ToUpper().Trim(),
-                    CntrTareWt = double.TryParse(records[colCntrTareWt], out double _Tare) ? _Tare : 0,
-                    Seal = records[colSeal],
-                    PackageQty = uint.TryParse(records[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
-                    PackageName = records[colPackageName],
-                    NetWt = double.TryParse(records[colNet], out double _netWt) ? Math.Round(_netWt, 3, MidpointRounding.AwayFromZero)  : 0,
-                    GrossWt = double.TryParse(records[colGross], out double _gwt) ? Math.Round( _gwt, 3, MidpointRounding.AwayFromZero) : 0,
+                    DocumentName = (record[colDoc]).Trim(),
+                    SeqCommodity = int.TryParse(record[colCargoIndex], out int _cIndex) ? _cIndex : 0,
+                    CntrNum = record[colCntrNum].Trim(),
+                    CntrType = string.IsNullOrEmpty(record[colCntrType]) ? null : record[colCntrType].ToUpper().Trim(),
+                    CntrTareWt = double.TryParse(record[colCntrTareWt], out double _Tare) ? _Tare : 0,
+                    Seal = record[colSeal],
+                    PackageQty = uint.TryParse(record[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
+                    PackageName = record[colPackageName],
+                    NetWt = double.TryParse(record[colNet], out double _netWt) ? Math.Round(_netWt, 3, MidpointRounding.AwayFromZero)  : 0,
+                    GrossWt = double.TryParse(record[colGross], out double _gwt) ? Math.Round( _gwt, 3, MidpointRounding.AwayFromZero) : 0,
                 });
             }
         }

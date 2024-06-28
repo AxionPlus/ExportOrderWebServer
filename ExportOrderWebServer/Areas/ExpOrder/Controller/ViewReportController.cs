@@ -120,6 +120,9 @@ public class ViewReportController : ControllerBase
     {
         var Item = await _exportOrderProvider.GetBLDTOAsync(Id);
 
+        if (Item is null)
+            return new EmptyResult();
+
         string fileName = "BL" + Item.BLtemplate + ".rdlc";
 
         try
@@ -159,6 +162,7 @@ public class ViewReportController : ControllerBase
                 POLAgent = x.CarrierNameEn,
                 x.PODAgent,
                 x.VesselName,
+                x.VesselFlagEn,
                 x.Voyage,
                 x.POLEn,
                 x.PODEn,
@@ -517,72 +521,6 @@ public class ViewReportController : ControllerBase
         }
 
         return Ok();
-    }
+    }    
 
-    //[HttpGet]
-    //[Route("SaveXMLfile")]
-    //public async Task<IActionResult> SaveXMLfile(long Id)
-    //{
-    //    try
-    //    {
-    //        var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
-
-    //        await Task.Delay(100);
-
-    //        if (Item is null) return Empty;
-
-    //        string FileName = $"{Item.Num}_Customs";
-    //        //string tempFilePath = Path.Combine(Environment.SpecialFolder.Resources.ToString(), "TempFiles", $"{FileName}_{Path.GetRandomFileName()}.xml");
-    //        string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xml");
-
-    //        using (var xml = new XmlService(tempFilePath, Item))
-    //        {
-    //            var buffer = await xml.CreateXMLfile();
-
-    //            if (buffer != Array.Empty<byte>())
-    //                return File(buffer, "application/xml", $"{FileName}.xml");
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string msg = ex.Message;
-    //        Console.WriteLine($"Error: {ex.Message}");
-    //        return Empty;
-    //    }
-
-    //    return Ok();
-    //}
-
-    //[HttpGet]
-    //[Route("SaveFileExcelFillBill")]
-    //public async Task<IActionResult> SaveFileFillBill(long vslcallid)
-    //{
-    //    try
-    //    {
-    //        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, false);
-
-    //        //await Task.Delay(100);
-
-    //        //if (Items is null || Items.Count() == 0) return Empty;
-    //        if (!Items.Any()) return Empty;
-
-    //        string FileName = $"FillBill_{Items.FirstOrDefault()!.Voyage}";
-    //        string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
-
-    //        using (var xls = new ExcelCreateService(tempFilePath, Items, null))
-    //        {
-    //            var buffer = await xls.CreateExcelFile_FillBill();
-
-    //            if (buffer != Array.Empty<byte>())
-    //                return File(buffer, "application/xlsx", $"{FileName}.xlsx");
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string msg = ex.Message;
-    //        return Empty;
-    //    }
-
-    //    return Ok();
-    //}
 }

@@ -2775,13 +2775,13 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>2.2cm</Width>
+                  <Width>2.3cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.6cm</Width>
+                  <Width>2.5cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1cm</Width>
@@ -3529,7 +3529,25 @@ GROSS WEIGHT (KILOS)</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>="page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
+                      <Value>Page </Value>
+                      <Style>
+                        <Color>Teal</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value>=Globals!PageNumber</Value>
+                      <Style>
+                        <Color>Teal</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value> of </Value>
+                      <Style>
+                        <Color>Teal</Color>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value>=Globals!TotalPages</Value>
                       <Style>
                         <Color>Teal</Color>
                       </Style>
@@ -3548,7 +3566,7 @@ GROSS WEIGHT (KILOS)</Value>
                   <Style>None</Style>
                 </Border>
                 <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
+                <PaddingRight>4pt</PaddingRight>
                 <PaddingTop>2pt</PaddingTop>
                 <PaddingBottom>2pt</PaddingBottom>
               </Style>
@@ -3584,6 +3602,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox35</rd:DefaultName>
+              <Top>0cm</Top>
               <Height>0.5cm</Height>
               <Width>3.4cm</Width>
               <Style>
@@ -3625,6 +3644,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox35</rd:DefaultName>
+              <Top>0cm</Top>
               <Left>3.4cm</Left>
               <Height>0.5cm</Height>
               <Width>3.4cm</Width>
@@ -4050,6 +4070,7 @@ GROSS WEIGHT (KILOS)</Value>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox51</rd:DefaultName>
+              <Top>0cm</Top>
               <Left>6.8cm</Left>
               <Height>2.6cm</Height>
               <Width>13cm</Width>

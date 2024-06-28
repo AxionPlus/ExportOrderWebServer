@@ -5310,7 +5310,34 @@ IN WITNESS WHEREOF the Carrier or their Agent has signed the number of Bills of 
             <Paragraph>
               <TextRuns>
                 <TextRun>
-                  <Value>="page " &amp;  Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
+                  <Value>Page </Value>
+                  <Style>
+                    <FontStyle>Italic</FontStyle>
+                    <FontFamily>Tahoma</FontFamily>
+                    <FontSize>7pt</FontSize>
+                    <Color>Teal</Color>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value>=Globals!PageNumber</Value>
+                  <Style>
+                    <FontStyle>Italic</FontStyle>
+                    <FontFamily>Tahoma</FontFamily>
+                    <FontSize>7pt</FontSize>
+                    <Color>Teal</Color>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value> of </Value>
+                  <Style>
+                    <FontStyle>Italic</FontStyle>
+                    <FontFamily>Tahoma</FontFamily>
+                    <FontSize>7pt</FontSize>
+                    <Color>Teal</Color>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value>=Globals!TotalPages</Value>
                   <Style>
                     <FontStyle>Italic</FontStyle>
                     <FontFamily>Tahoma</FontFamily>

@@ -322,6 +322,8 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnVesselName;
             
+            private global::System.Data.DataColumn columnVesselFlagEn;
+            
             private global::System.Data.DataColumn columnVoyage;
             
             private global::System.Data.DataColumn columnPOLEn;
@@ -420,6 +422,14 @@ namespace ExportOrderWebServer.DataSet {
             public global::System.Data.DataColumn VesselNameColumn {
                 get {
                     return this.columnVesselName;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn VesselFlagEnColumn {
+                get {
+                    return this.columnVesselFlagEn;
                 }
             }
             
@@ -609,6 +619,7 @@ namespace ExportOrderWebServer.DataSet {
                         string BLDate, 
                         string BLDateOEL, 
                         string VesselName, 
+                        string VesselFlagEn, 
                         string Voyage, 
                         string POLEn, 
                         string PODEn, 
@@ -633,6 +644,7 @@ namespace ExportOrderWebServer.DataSet {
                         BLDate,
                         BLDateOEL,
                         VesselName,
+                        VesselFlagEn,
                         Voyage,
                         POLEn,
                         PODEn,
@@ -677,6 +689,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnBLDate = base.Columns["BLDate"];
                 this.columnBLDateOEL = base.Columns["BLDateOEL"];
                 this.columnVesselName = base.Columns["VesselName"];
+                this.columnVesselFlagEn = base.Columns["VesselFlagEn"];
                 this.columnVoyage = base.Columns["Voyage"];
                 this.columnPOLEn = base.Columns["POLEn"];
                 this.columnPODEn = base.Columns["PODEn"];
@@ -708,6 +721,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnBLDateOEL);
                 this.columnVesselName = new global::System.Data.DataColumn("VesselName", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnVesselName);
+                this.columnVesselFlagEn = new global::System.Data.DataColumn("VesselFlagEn", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnVesselFlagEn);
                 this.columnVoyage = new global::System.Data.DataColumn("Voyage", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnVoyage);
                 this.columnPOLEn = new global::System.Data.DataColumn("POLEn", typeof(string), null, global::System.Data.MappingType.Element);
@@ -1337,6 +1352,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public string VesselFlagEn {
+                get {
+                    try {
+                        return ((string)(this[this.tabledtBL.VesselFlagEnColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'VesselFlagEn\' в таблице \'dtBL\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtBL.VesselFlagEnColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string Voyage {
                 get {
                     try {
@@ -1669,6 +1700,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetVesselNameNull() {
                 this[this.tabledtBL.VesselNameColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsVesselFlagEnNull() {
+                return this.IsNull(this.tabledtBL.VesselFlagEnColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetVesselFlagEnNull() {
+                this[this.tabledtBL.VesselFlagEnColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

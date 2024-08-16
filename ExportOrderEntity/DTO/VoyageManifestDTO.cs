@@ -24,6 +24,7 @@ public class VoyageManifestDTO
     // BILL of LADING
     public string? ExpOrderNum { get; set; }
     public string? BLNum { get; set; }
+    public string? BLtemplate { get; set; }
     public string? BLDate { get; set; }          // дата коносамента (отхода судна)
     public string? CarrierNameEn { get; set; }             // Перевозчик - линия
     public string? CarrierCountryEn { get; set; }          // Перевозчик страна

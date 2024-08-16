@@ -3,7 +3,7 @@
 public enum EntityStatus
 {
     New,
-    Issued, 
+    Customs, 
     Completed,
     Cancelled
 }

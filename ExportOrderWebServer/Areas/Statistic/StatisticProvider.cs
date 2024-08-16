@@ -47,11 +47,11 @@ public class StatisticProvider
                 {
                     DatedFrom = filter.DateFrom,
                     DatedTo = filter.DateTo,
-                    EOsUnderway = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.New || eo.Status == EntityStatus.Issued),
+                    EOsUnderway = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.New || eo.Status == EntityStatus.Customs),
                     EOsCompleted = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.Completed),
                     EOsCancelled = (uint)exportOrders.Count(eo => eo.Status == EntityStatus.Cancelled),                    
                     EOsOverall = (uint)exportOrders.Count(),
-                    CntrsUnderway = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.New || eo.Status == EntityStatus.Issued).SelectMany(eo => eo.Records).Count(),
+                    CntrsUnderway = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.New || eo.Status == EntityStatus.Customs).SelectMany(eo => eo.Records).Count(),
                     CntrsCompleted = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.Completed).SelectMany(eo => eo.Records).Count(),
                     CntrsCancelled = (uint)exportOrders.Where(eo => eo.Status == EntityStatus.Cancelled).SelectMany(eo => eo.Records).Count(),
                     CntrsOverall = (uint)exportOrders.SelectMany(eo => eo.Records).Count(),

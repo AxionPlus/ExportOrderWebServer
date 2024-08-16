@@ -383,6 +383,20 @@
                                   <Value>=Fields!MyCompanyName.Value</Value>
                                   <Style>
                                     <FontStyle>Italic</FontStyle>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>export@axionplus.ru</Value>
+                                  <Style>
+                                    <FontStyle>Italic</FontStyle>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

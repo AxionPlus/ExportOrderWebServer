@@ -216,7 +216,7 @@
                     content.Id = 0;
             }
 
-            Item.Num = Item.Status == EntityStatus.Issued || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
+            Item.Num = Item.Status == EntityStatus.Customs || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
 
             Item!.Status = EntityStatus.New;
 

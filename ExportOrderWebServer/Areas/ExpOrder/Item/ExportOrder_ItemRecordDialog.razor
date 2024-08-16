@@ -255,8 +255,6 @@
         {
             bool hasError = await HasCntrNumError();
 
-            //await Task.Delay(1000);
-
             if (hasError)
             {
                 bool? result = await DialogService.ShowMessageBox(
@@ -337,66 +335,4 @@
             new MaskChar('#', @"[0-9]"),
         }
     };
-    
-    // private async Task SaveItem_Click()
-    // {
-    //     await Form!.Validate();
-
-    //     if (Form.IsValid)
-    //     {
-    //         IsLoadingData = true;
-
-    //         if (IsNewItem)
-    //         {
-    //             // check for an empty Document
-    //             bool errDocument = false;
-
-    //             foreach (var content in Item!.Contents)
-    //             {
-    //                 if (string.IsNullOrEmpty(content.DocumentRecord.Document.Name) || string.IsNullOrEmpty(content.DocumentRecord.CommodityHSCode))
-    //                 {
-    //                     errDocument = true;
-    //                     continue;
-    //                 }
-    //             }
-
-    //             IsLoadingData = false;
-
-    //             if (errDocument)
-    //                 Snackbar.Add("Select a Document / HS code", Severity.Warning);
-    //             else
-    //                 MudDialog!.Close(DialogResult.Ok(Item));
-
-    //             return;
-    //         }
-    //         else
-    //         {
-    //             //REPEAT AS IT 'IsNewItem'
-    //             // ------------------------------------------------------------
-
-    //             // var response = await _exportOrderProvider.ModifyExportOrderRecordItemAsync(Item!);
-    //             // if (!response.HasError)
-    //             // {
-    //             //     Snackbar.Add("Saved Successfully", Severity.Success);
-    //             // }
-    //             // else
-    //             // {
-    //             //     Snackbar.Add("No Success", Severity.Error);
-    //             //     IsLoadingData = false;
-    //             //     return;
-    //             // }
-
-
-    //         }
-
-    //         IsNewItem = false;
-
-    //         await GetItem();
-
-    //         IsFormReadOnly = true;
-    //         IsLoadingData = false;
-    //     }
-    //     else
-    //         Snackbar.Add("Fill up an all required fields (marked in red)", Severity.Warning);
-    // }
 }

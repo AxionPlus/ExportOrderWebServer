@@ -174,11 +174,11 @@
                 @switch (Value.Status)
                 {
                     case EntityStatus.New:
-                        <MudSelectItem Value="@(EntityStatus.Issued)" />
+                        <MudSelectItem Value="@(EntityStatus.Customs)" />
                         <MudSelectItem Value="@(EntityStatus.Cancelled)" />
                         break;
                                 
-                    case EntityStatus.Issued:
+                    case EntityStatus.Customs:
                         <MudSelectItem Value="@(EntityStatus.Cancelled)" />
                         break;
 
@@ -186,7 +186,7 @@
                         if (IsRoleForEdit)
                         {
                             <MudSelectItem Value="@(EntityStatus.New)" />
-                            <MudSelectItem Value="@(EntityStatus.Issued)" />
+                            <MudSelectItem Value="@(EntityStatus.Customs)" />
                         }
                         break;
 
@@ -194,7 +194,7 @@
                         if (IsRoleForEdit)
                         {
                             <MudSelectItem Value="@(EntityStatus.New)" />
-                            <MudSelectItem Value="@(EntityStatus.Issued)" />
+                            <MudSelectItem Value="@(EntityStatus.Customs)" />
                         }
                         break;
                 }

@@ -141,16 +141,13 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 source.VesselCallDetail == null ? null :
                                                     string.IsNullOrEmpty(source.VesselCallDetail.VesselCall.Terminal.Name) ? null :
                                                         source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.Contract,
-                                    //Contract = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.Contract,
-
                                     ContractDate = source.Carrier == null ? null :
                                                     source.VesselCallDetail == null ? null :
                                                     string.IsNullOrEmpty(source.VesselCallDetail.VesselCall.Terminal.Name) ? null :
                                                         source.Carrier.CarrierDetails
                                                             .FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract.HasValue ?
                                                         source.Carrier.CarrierDetails
-                                                            .FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",                                    
-                                    //ContractDate = source.Carrier.CarrierDetails.FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy"),
+                                                            .FirstOrDefault(s => s.TerminalName == source.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
                                     MyCompanyName = myCompany == null ? null : myCompany.Name,
                                     Person = source.Person == null ? string.Empty :
                                                 source.Person.Name == null ? string.Empty :
@@ -312,7 +309,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                         .Where(s => string.IsNullOrWhiteSpace(filter.CntrNum) ? true :
                                                                         s.Records.Any(eor => eor.CntrNum.Equals(filter.CntrNum)))
                                                         .Where(s => filter.Status != null ? s.Status == filter.Status :
-                                                                        (s.Status == EntityStatus.New || s.Status == EntityStatus.Issued))
+                                                                        (s.Status == EntityStatus.New || s.Status == EntityStatus.Customs))
                                                         .Where(s => string.IsNullOrEmpty(filter.Num) ? true : s.Num == filter.Num)
                                                         .Where(s => string.IsNullOrEmpty(filter.Vessel) ? true : s.VesselCallDetail!.VesselCall.Vessel.Name == filter.Vessel)
                                                         .Where(s => string.IsNullOrEmpty(filter.Voyage) ? true : s.VesselCallDetail!.VesselCall.VoyageNo == filter.Voyage)
@@ -1053,6 +1050,7 @@ public class ExportOrderProvider : IExportOrderProvider
                         ExpOrderNum = Item.Num,
                         BLNum = Item.Num.IndexOf("_") == -1 ? Item.Num : Item.Num.Substring(0, Item.Num.IndexOf("_")),
                         BLDate = Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? Item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy") : "---",
+                        BLtemplate = Item.Carrier != null ? Item.Carrier.BlTemplate.ToString() : null,
                         Voyage = Item.VesselCallDetail!.VesselCall!.VoyageNo,
                         VesselName = Item.VesselCallDetail!.VesselCall!.Vessel.Name is null ? string.Empty : Item.VesselCallDetail!.VesselCall!.Vessel.Name,
                         VesselFlag = Item.VesselCallDetail!.VesselCall!.Vessel.Flag is null ? string.Empty : Item.VesselCallDetail!.VesselCall!.Vessel.Flag.RUS,
@@ -1137,7 +1135,13 @@ public class ExportOrderProvider : IExportOrderProvider
                                                                              .Distinct().ToList()),
                     };
 
-                    ItemsDTO.Add(ItemDTO);
+                    if (ItemDTO != null)
+                    {
+                        if (ItemDTO.BLtemplate != null && ItemDTO.BLtemplate.Equals("ametist"))
+                            ItemDTO.BLNum = string.Concat("SV-", ItemDTO.BLNum);
+
+                        ItemsDTO.Add(ItemDTO);                        
+                    }
                 }
             }
 

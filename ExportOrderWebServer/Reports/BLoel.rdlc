@@ -3347,6 +3347,7 @@ IN WITNESS WHEREOF the Carrier or their Agent has signed the number of Bills of 
                               <PaddingBottom>2pt</PaddingBottom>
                             </Style>
                           </Textbox>
+                          <rd:Selected>true</rd:Selected>
                         </CellContents>
                       </TablixHeader>
                       <TablixMembers>
@@ -3737,10 +3738,12 @@ IN WITNESS WHEREOF the Carrier or their Agent has signed the number of Bills of 
                                   <Paragraph>
                                     <TextRuns>
                                       <TextRun>
-                                        <Value />
+                                        <Value>SOLING AGENCY LTD
+NOVOROSSIYSK, GUBERNSKOGO, 25, OFFICE 309,
+RUSSIAN FEDERATION</Value>
                                         <Style>
+                                          <FontFamily>Arial Rounded MT Bold</FontFamily>
                                           <FontSize>6pt</FontSize>
-                                          <FontWeight>Bold</FontWeight>
                                         </Style>
                                       </TextRun>
                                     </TextRuns>
@@ -3757,10 +3760,8 @@ IN WITNESS WHEREOF the Carrier or their Agent has signed the number of Bills of 
                                     <Style>Solid</Style>
                                     <Width>1.25pt</Width>
                                   </RightBorder>
-                                  <PaddingLeft>4pt</PaddingLeft>
+                                  <PaddingLeft>12pt</PaddingLeft>
                                   <PaddingRight>2pt</PaddingRight>
-                                  <PaddingTop>2pt</PaddingTop>
-                                  <PaddingBottom>2pt</PaddingBottom>
                                 </Style>
                               </Textbox>
                             </CellContents>
@@ -3933,10 +3934,10 @@ IN WITNESS WHEREOF the Carrier or their Agent has signed the number of Bills of 
                                       <Paragraph>
                                         <TextRuns>
                                           <TextRun>
-                                            <Value />
+                                            <Value>PHONE :7-964-9161118</Value>
                                             <Style>
+                                              <FontFamily>Arial Rounded MT Bold</FontFamily>
                                               <FontSize>6pt</FontSize>
-                                              <FontWeight>Bold</FontWeight>
                                             </Style>
                                           </TextRun>
                                         </TextRuns>
@@ -3953,10 +3954,8 @@ IN WITNESS WHEREOF the Carrier or their Agent has signed the number of Bills of 
                                         <Style>Solid</Style>
                                         <Width>1.25pt</Width>
                                       </RightBorder>
-                                      <PaddingLeft>4pt</PaddingLeft>
+                                      <PaddingLeft>12pt</PaddingLeft>
                                       <PaddingRight>2pt</PaddingRight>
-                                      <PaddingTop>2pt</PaddingTop>
-                                      <PaddingBottom>2pt</PaddingBottom>
                                     </Style>
                                   </Textbox>
                                 </CellContents>

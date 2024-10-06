@@ -1,7 +1,7 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
-@inject IDocumentProvider _documentProvider
+@inject IDocumentProvider _DocumentProvider
 
 <MudContainer MaxWidth="MaxWidth.Large">
 
@@ -11,7 +11,7 @@
             {
                 <div class="ToolBar-iconbutton">
                     <MudTooltip Text="EXIT">
-                        <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseDialog_Click" />
+                        <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="@(() => MudDialog.Close())" />
                     </MudTooltip>
                 </div>
             }
@@ -22,12 +22,7 @@
                     <MudTooltip Class="ExitIconButton" Text="REFRESH" Delay="500" Duration="1000">
                         <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
                     </MudTooltip>
-                </div>
-                @* <div class="ToolBar-iconbutton" style="margin-left:20px">
-                    <MudTooltip Class="ExitIconButton" Text="copy" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
-                    </MudTooltip>
-                </div> *@
+                </div>                
             }
 
             <MudSpacer />
@@ -65,7 +60,6 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            @*<Document_ItemComponent @bind-Value="Item" IsNewItem="IsNewItem" IsFormReadOnly="IsFormReadOnly" /> *@
             <Document_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" />
         }
     </MudForm>
@@ -101,7 +95,7 @@
         }        
         else
         {
-            var response = await _documentProvider.GetItemAsync(Id);
+            var response = await _DocumentProvider.GetItemAsync(Id);
             if (!response.HasError)
                 Item = (DocumentEntity)response.Object!;
         }
@@ -114,7 +108,7 @@
         if (Form.IsValid)
             if (IsNewItem)
             {
-                var response = await _documentProvider.NewItemAsync(Item!);
+                var response = await _DocumentProvider.NewItemAsync(Item!);
                 if (!response.HasError)
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
@@ -125,7 +119,7 @@
             }
             else
             {
-                var response = await _documentProvider.ModifyItemAsync(Item!);
+                var response = await _DocumentProvider.ModifyItemAsync(Item!);
                 if (!response.HasError)
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
@@ -154,11 +148,5 @@
     {
         await Task.Delay(10);
         IsFormReadOnly = false;
-    }
-
-    public async Task CloseDialog_Click()
-    {
-        await Task.Delay(50);
-        MudDialog!.Close();
-    }
+    }    
 }

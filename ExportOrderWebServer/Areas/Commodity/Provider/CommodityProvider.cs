@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
-using MudBlazor;
-
-namespace ExportOrderWebServer.Areas.Commodity.Provider;
+﻿namespace ExportOrderWebServer.Areas.Commodity.Provider;
 
 public class CommodityProvider : ICommodityProvider
 {
@@ -13,6 +9,7 @@ public class CommodityProvider : ICommodityProvider
     public CommodityProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
 
@@ -42,34 +39,25 @@ public class CommodityProvider : ICommodityProvider
         }
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
         appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
+            
+            var commodities = await db.Commodities.AsNoTracking()
+                                                  .Where(s => string.IsNullOrEmpty(filter.HScode) ? true : s.HSCode == filter.HScode)
+                                                  .Where(s => string.IsNullOrEmpty(filter.Name) ? true : s.Name == filter.Name)
+                                                  .Where(s => string.IsNullOrEmpty(filter.NameEn) ? true : s.NameEn == filter.NameEn)
+                                                  .Where(s => !filter.IsIMO.HasValue ? true : s.IsIMO == filter.IsIMO)
+                                                  .ToListAsync();
 
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
+            if (commodities is null)
+                appObjResponse.ErrorAdd("Commodities not found.");
 
-                var Commodities = await db.Commodities.ToListAsync();
-
-                if (!string.IsNullOrEmpty(filter.HScode))
-                    Commodities = Commodities.Where(s => s.HSCode == filter.HScode).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Name))
-                    Commodities = Commodities.Where(s => s.Name == filter.Name).ToList();
-
-                if (!string.IsNullOrEmpty(filter.NameEn))
-                    Commodities = Commodities.Where(s => s.NameEn == filter.NameEn).ToList();
-
-                if (filter.IsIMO.HasValue)
-                    Commodities = Commodities.Where(s => s.IsIMO == filter.IsIMO).ToList();
-
-                appObjResponse.Object = Commodities.ToArray();
-            }
+            appObjResponse.Object = commodities;
 
             return appObjResponse;
         }
@@ -146,13 +134,23 @@ public class CommodityProvider : ICommodityProvider
             //    return appObjResponse;
             //}
 
-            item.CreateUser = User!;
-            db.Entry(item).State = EntityState.Added;
+            try
+            {
+                item.CreateUser = User!;
+                db.Entry(item).State = EntityState.Added;
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+                var bug = db.ChangeTracker.DebugView.LongView;
 
-            await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                appObjResponse.ErrorAdd(ex.Message);
+                return appObjResponse;
+            }
+            
             return appObjResponse;
         }
     }
@@ -197,7 +195,7 @@ public class CommodityProvider : ICommodityProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Commodities.Select(s => s.Name!).ToListAsync();
+            return await db.Commodities.AsNoTracking().Select(s => s.Name).Distinct().OrderBy(s => s).ToArrayAsync();
         }
     }
 
@@ -206,21 +204,21 @@ public class CommodityProvider : ICommodityProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Commodities.Select(s => s.NameEn!).ToListAsync();
+            return await db.Commodities.AsNoTracking().Select(s => s.NameEn).Distinct().OrderBy(s => s).ToArrayAsync();
         }
     }
 
-
-    #region SEARCH METHODS
+    public Task<AppObjectResponse> GetItemsAsync(object parameters)
+    {
+        throw new NotImplementedException();
+    }
 
     public async Task<IEnumerable<string>> GetHScodes()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Commodities.Select(s => s.HSCode).ToListAsync();
+            return await db.Commodities.AsNoTracking().Select(s => s.HSCode).Distinct().OrderBy(s => s).ToArrayAsync();
         }
     }
-
-    #endregion
 }

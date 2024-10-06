@@ -19,12 +19,6 @@
         margin-inline-end: 2px;
         margin-inline-start: unset;
     }
-
-    .FieldContainer .mud-input-control {
-        margin-top: 3px;
-        margin-bottom: 2px;
-    }
-
     .mud-input > input.mud-input-root-outlined {
         padding: 8px;
     }
@@ -41,56 +35,73 @@
         padding: 8px;
     }
 
-    .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 12px;
+    .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
+        margin-top: unset;
+        margin-bottom: unset;
+    }
+
+    .wrapper-input-date * .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .mud-input-control.TextField > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .mud-input-control.Autocomplete > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 22px;
+    }
+
+    .mud-input-control.wrapper-input-select > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 22px;
     }
 
 </style>
 
 <div class="Container-item" style="margin-top:6px">
-    <div class="container-content">
-        <CntrSearchField Style="width: 160px" @bind-CntrNum="@Filter.CntrNum" @bind-Cntrs="@Filter.CntrsNum" />
-        <MudSpacer />
-        <MudTextField Class="TextField" Placeholder="Export Order No" Style="width: 185px" @bind-Value="@Filter.Num"
+    <div class="container-content">        
+        <MudTextField Class="TextField" Label="Container" Style="width: 165px" @bind-Value="@Filter.CntrNum"                      
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
+                      Immediate MaxLength="11" />
+
+        <MudTextField Class="TextField" Label="Export Order" Style="width: 185px" @bind-Value="@Filter.Num"
                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-        <MudSpacer />
-        <MudDatePicker Class="wrapper-input-date" Label="Dated" @bind-Date="Filter.Dated"
-                       Style="width: 130px;"
-                       DateFormat="dd.MM.yy"
-                       ShowWeekNumbers="true"
+        <div style="width:130px; height:35px">
+            <MudDatePicker Class="wrapper-input-date" Label="Dated" @bind-Date="Filter.Dated"                       
                        Variant="Variant.Outlined" Margin="Margin.Dense"
                        IconSize=Size.Small
+                       DateFormat="dd.MM.yy"
+                       ShowWeekNumbers="true"                       
                        AutoClose=true
-                       DisableToolbar=false Clearable />
-        <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" Value="Filter.Vessel" SearchFunc="@SearchVessel"
-                         Placeholder="Vessel"
-                         ValueChanged="(e)=> { Filter.Vessel = e; }"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon=""
-                         ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
-                         Placeholder="Voyage"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon=""
-                         ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" Style="width: 170px" T="string" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
-                         Placeholder="POD"
+                       Clearable />
+        </div>        
+        
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" @bind-Value="Filter.Vessel" SearchFunc="@SearchVessel"
+                         Label="Vessel"                                                  
                          Variant="Variant.Outlined" Margin="Margin.Dense"
                          CloseIcon="" OpenIcon="" MaxItems="20"
                          ResetValueOnEmptyText="true" Clearable />
-        <MudSpacer />
-        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
-                         Placeholder="Carrier"
+        
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+                         Label="Voyage"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon="" MaxItems="20"
+                         ResetValueOnEmptyText="true" Clearable />
+        
+        <MudAutocomplete Class="Autocomplete" Style="width: 170px" T="string" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
+                         Label="POD"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon="" MaxItems="20"
+                         ResetValueOnEmptyText="true" Clearable />
+        
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 210px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
+                         Label="Carrier"
                          ValueChanged="(e)=> { Filter.Carrier= e; }"
                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon=""
+                         CloseIcon="" OpenIcon="" MaxItems="20"
                          ResetValueOnEmptyText="true" Clearable />
-
-        <MudSpacer />
-        <MudSelect Class="wrapper-input select" T="EntityStatus?" Style="width:125px" Label="Status" @bind-Value="Filter.Status"
+        
+        <MudSelect Class="wrapper-input-select" T="EntityStatus?" Style="width:140px" Label="Status" @bind-Value="Filter.Status"
                    ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
                    Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
             @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
@@ -98,7 +109,7 @@
                 <MudSelectItem Value="@status" />
             }
         </MudSelect>
-        <MudSpacer />
+        
         <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
                    Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
             Search
@@ -263,7 +274,7 @@
         var response = await _exportOrderProvider.GetItemsAsync(Filter);
 
         if (!response.HasError)
-            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!; // .ToArray();
+            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!;
 
         IsLoadingData = false;
 
@@ -273,12 +284,12 @@
     private async Task ShowItem_Click(long id)
     {
         DialogParameters parameters = new DialogParameters { ["Id"] = id };
-        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
+        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<ExportOrder_Item>(null, parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result is not null && !result.Canceled)
             await GetItems();
     }
 
@@ -298,8 +309,6 @@
         if (result.HasValue)
             if (result.Value)
             {
-                //IsLoadingData = true;
-
                 var response = await _exportOrderProvider.RemoveItemAsync(id);
                 if (!response.HasError)
                 {
@@ -314,11 +323,7 @@
 
         IsLoadingData = false;
 
-        //await GetItems();
-
         IsBtnClicked = false;
-
-        //await InvokeAsync(StateHasChanged);
     }
 
     public async Task SetNewVesselCall()
@@ -338,11 +343,11 @@
         }
 
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, DisableBackdropClick = true };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result is not null && !result.Canceled)
         {
             bool? questionResult = await DialogService.ShowMessageBox(
                     "Set New Vessel CALL?",
@@ -352,16 +357,19 @@
             if (!questionResult.HasValue) return;
             if (!questionResult.Value) return;
 
-            IsLoadingData = true;
-            await InvokeAsync(StateHasChanged);
+            if (result.Data is not null)
+            {
+                IsLoadingData = true;
+                await InvokeAsync(StateHasChanged);
 
-            var VesselCallDetailId = (long)result.Data;
+                var VesselCallDetailId = (long)result.Data;
 
-            var selectedEOids = SelectedItems.Select(s => s.Id).ToArray();
+                var selectedEOids = SelectedItems.Select(s => s.Id).ToArray();
 
-            await _exportOrderProvider.SetNewVesselCall(selectedEOids, VesselCallDetailId);
+                await _exportOrderProvider.SetNewVesselCall(selectedEOids, VesselCallDetailId);
 
-            await GetItems();
+                await GetItems();
+            }
         }
     }
 
@@ -413,7 +421,6 @@
             Http.Timeout = new TimeSpan(0, 10, 0);
             var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await Http.PostAsync($"{ApplicationParameter.PostUploadFileUrl}SaveExportOrderReportFiles", stringContent).ConfigureAwait(false);
-            //var response = await Http.PostAsync($"{Navigation.BaseUri}file/UploadFile/SaveExportOrderReportFiles", stringContent).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -426,7 +433,8 @@
                     stream.CopyTo(memoryStream);
 
                     await jsRuntime.InvokeVoidAsync("jsSaveAsFile",
-                          $"ExportOrders_{Voyage}.zip", Convert.ToBase64String(memoryStream.ToArray()));
+                                                    $"ExportOrders_{Voyage}.zip",
+                                                    Convert.ToBase64String(memoryStream.ToArray()));
                 }
 
                 if (!string.IsNullOrEmpty(fileName))
@@ -463,7 +471,6 @@
             Http.Timeout = new TimeSpan(0, 10, 0);
             var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await Http.PostAsync($"{ApplicationParameter.PostUploadFileUrl}SaveBLReportFiles", stringContent).ConfigureAwait(false);
-            //var response = await Http.PostAsync($"{Navigation.BaseUri}file/UploadFile/SaveBLReportFiles", stringContent).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -493,7 +500,7 @@
 
     #region SEARCHERS
 
-    private async Task<IEnumerable<string>> SearchVessel(string value)
+    private async Task<IEnumerable<string>> SearchVessel(string value, CancellationToken token)
     {
         var result = await _vesselProvider.GetNamesEn();
 
@@ -506,12 +513,12 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
-    private async Task<IEnumerable<string>> SearchVoyage(string value)
+    private async Task<IEnumerable<string>> SearchVoyage(string value, CancellationToken token)
     {
         var result = await _vesselCallProvider.GetVoyages(Filter.Vessel);
 
         if (string.IsNullOrWhiteSpace(value))
-            return result.Distinct();                      //return Enumerable.Empty<string>();
+            return result.Distinct();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -519,7 +526,7 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
     }
 
-    private async Task<IEnumerable<string>> SearchPort(string value)
+    private async Task<IEnumerable<string>> SearchPort(string value, CancellationToken token)
     {
         var result = await _locationProvider.GetNames();
 
@@ -532,7 +539,7 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchCarrier(string value)
+    private async Task<IEnumerable<string>> SearchCarrier(string value, CancellationToken token)
     {
         var result = await _carrierProvider.GetNamesEn();
 

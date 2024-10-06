@@ -97,12 +97,12 @@
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, DisableBackdropClick = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false};
         dialog = await DialogService.ShowAsync<Carrier_ItemDialog>("Carrier", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
 
-        if (result.Canceled)
+        if (result is not null && !result.Canceled)
             await GetItems();
     }
 
@@ -129,7 +129,7 @@
 
     #region SEARCH FUNCTIONS
 
-    private async Task<IEnumerable<string>> SearchNames(string value)
+    private async Task<IEnumerable<string>> SearchNames(string value, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();
@@ -142,7 +142,7 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchNamesEn(string value)
+    private async Task<IEnumerable<string>> SearchNamesEn(string value, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();

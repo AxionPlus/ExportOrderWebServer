@@ -111,7 +111,7 @@
             if (!response.HasError)
                 Items = ((List<CntrTpSz>)response.Object!).ToList();
 
-            await Task.Delay(500);
+            //await Task.Delay(500);
 
             IsLoadingData = false;
         }
@@ -156,7 +156,7 @@
         if (!response.HasError)
             Snackbar.Add("Saved successfully", Severity.Success);
         else
-            Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+            Snackbar.Add(response.Error.LastOrDefault()!, Severity.Error);
 
         NewItems = new List<CntrTpSz>();
         IsSaveBtnDisabled = true;
@@ -167,12 +167,12 @@
     private async Task PathInput()
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-        DialogOptions dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, DisableBackdropClick = true };
+        DialogOptions dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
         dialog = DialogService.Show<PathInputCntrType_Dialog>("INPUT: List of Container Types", dialogOptions);
 
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data is not null)
+        if (result is not null && !result.Canceled && result.Data is not null)
         {
             NewItems = (List<CntrTpSz>)result.Data;
 

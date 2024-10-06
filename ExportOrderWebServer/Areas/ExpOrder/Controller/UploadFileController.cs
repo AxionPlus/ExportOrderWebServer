@@ -211,16 +211,6 @@ public class UploadFileController : ControllerBase
 
                 var dsRecords = Item.exportOrderRecordsDTO;
 
-                //var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
-                //var dsConsignees = dsRecords?.Select(r => new { Consignees = r.ConsigneeEn }).Distinct().ToList();
-
-                //var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
-                //                  .Select(g => new {
-                //                      Commodity = g.Key.Commodity + " (" +
-                //                      g.FirstOrDefault()!.HSCode + ") " +
-                //                      (g.FirstOrDefault()!.IsIMO ? " IMO: " + g.FirstOrDefault()!.IMO + " UNNO: " + g.FirstOrDefault()!.UNNO : ""),
-                //                  }).ToList();
-
                 int dSeq = 0;
                 var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
                     docSeq = ++dSeq,
@@ -233,9 +223,6 @@ public class UploadFileController : ControllerBase
 
                 localReport.AddDataSource("dsItem", dsItem);
                 localReport.AddDataSource("dsRecords", dsRecords);
-                //localReport.AddDataSource("dsShippers", dsShippers);
-                //localReport.AddDataSource("dsConsignees", dsConsignees);
-                //localReport.AddDataSource("dsCommodities", dsCommodities);
                 localReport.AddDataSource("dsDocuments", dsDocuments);
 
                 ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
@@ -247,9 +234,6 @@ public class UploadFileController : ControllerBase
                 {
                     await fileStream.WriteAsync(result.MainStream, 0, result.MainStream.Length);
                 }
-
-                ///// сохраняем файл в папку DirPath
-                //await System.IO.File.WriteAllBytesAsync(pathFile, result.MainStream);
             }
 
             string zipName = $"{dirPath}.zip";
@@ -263,9 +247,6 @@ public class UploadFileController : ControllerBase
                 if (buffer != Array.Empty<byte>())
                     return File(buffer, "application/zip", $"{zipName}");
             }
-
-            //byte[] fileBytes = System.IO.File.ReadAllBytes(zipName);
-            //return File(fileBytes, "application/zip", $"{zipName}");
 
             return Empty;
 

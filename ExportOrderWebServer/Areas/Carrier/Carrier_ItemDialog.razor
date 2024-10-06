@@ -208,7 +208,7 @@
                     Snackbar.Add("Saved successfully", Severity.Success);                    
                 }
                 else
-                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+                    Snackbar.Add(response.Error.LastOrDefault()!, Severity.Error);
             }
             else
             {
@@ -236,24 +236,20 @@
 
     private async Task AddLocation_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Locaion", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Locaion", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
     }
 
     private async Task AddTerminal_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
     }
 
     private async Task EditItem_Click()
@@ -291,7 +287,7 @@
     }
 
     #region SEARCH FUNCTIONS
-    private async Task<IEnumerable<string>> SearchTerminalName(string value)
+    private async Task<IEnumerable<string>> SearchTerminalName(string value, CancellationToken token)
     {
         var result = await _carrierProvider.GetTerminalNames();
 
@@ -304,7 +300,7 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
     
-    private async Task<IEnumerable<LocationCatalog>> SearchLocation(string value)
+    private async Task<IEnumerable<LocationCatalog>> SearchLocation(string value, CancellationToken token)
     {
         var Locations = new List<LocationCatalog>();
 

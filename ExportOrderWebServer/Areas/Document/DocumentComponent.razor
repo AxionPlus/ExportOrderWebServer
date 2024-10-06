@@ -2,7 +2,7 @@
 @inject IJSRuntime jSRuntime
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
-@inject IDocumentProvider _documentProvider
+@inject IDocumentProvider _DocumentProvider
 
 <style>
 
@@ -27,13 +27,12 @@
                 Search
             </MudButton>
             <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" Value="Filter.Document" SearchFunc="@SearchDocument"                             
-                             ValueChanged="(e)=> { Filter.Document = e; }"
+            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" @bind-Value="Filter.Document" SearchFunc="@SearchDocument"
                              Placeholder="Декларация"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon=""
                              Dense="true" AutoFocus="true"
-                             MinCharacters="4"
+                             MinCharacters="3" MaxItems="20"
                              ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
             <MudTextField Class="TextField" Placeholder="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
@@ -80,7 +79,7 @@
                 @if (IsSelectable)
                 {
                     <MudTooltip Text="upload selected">
-                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Primary" OnClick="@(async()=>{ await TakeItem_Click(); })" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Primary" OnClick="@(SelectItem_Click)" />
                     </MudTooltip>
                 }
             </MudTh>
@@ -126,28 +125,37 @@
     public bool IsSelectable { get; set; } = false;
 
     public IEnumerable<DocumentEntity>? Items { get; set; } = new List<DocumentEntity>();
-    private HashSet<DocumentEntity> SelectedItems = new HashSet<DocumentEntity>();
+    private HashSet<DocumentEntity> SelectedItems = new();
     private FilterParameters Filter { get; set; } = new();
-    bool IsLoadingData = false;
+    private bool IsLoadingData = false;
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     public async Task GetItems()
     {        
+        if (string.IsNullOrEmpty(Filter.Document) & 
+            string.IsNullOrEmpty(Filter.Shipper) &
+            string.IsNullOrEmpty(Filter.Consignee) &
+            string.IsNullOrEmpty(Filter.CargoDescriptionShort) &
+            Filter.Status.Equals(null))
+        {
+            Snackbar.Add("One of the search fields should be used.", Severity.Warning);
+            return;
+        }
+
         IsLoadingData = true;
 
         if (IsSelectable) Filter.Status = EntityStatus.New;
 
-        var response = await _documentProvider.GetItemsAsync(Filter);
-        if (!response.HasError)
-            Items = ((IEnumerable<DocumentEntity>)response.Object!).ToList();
+        var response = await _DocumentProvider.GetItemsAsync(Filter);
 
-        await Task.Delay(500);
+        if (!response.HasError)
+            Items = (IEnumerable<DocumentEntity>)response.Object!;
+        else
+            Snackbar.Add(response.Error.First(), Severity.Warning);
 
         IsLoadingData = false;
-
-        await InvokeAsync(StateHasChanged);
     }
 
     private async Task RemoveItem_Click(string name, long id)
@@ -160,7 +168,7 @@
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _documentProvider.RemoveItemAsync(id);
+                var response = await _DocumentProvider.RemoveItemAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
@@ -179,35 +187,30 @@
         //     await GetItems();
     }
 
-    private async Task TakeItem_Click()
+    private async void SelectItem_Click()
     {
-        if (SelectedItems.Count == 0)
+        if (!SelectedItems.Any())
         {
             Snackbar.Add($"Nothing was selected. Try again or exit without a selection.", Severity.Warning);
             return;
         }        
 
-        await Task.Delay(50);
-
         if (MudDialog != null)
-            MudDialog!.Close(SelectedItems);
+            MudDialog.Close(SelectedItems);
         else
             await jSRuntime.InvokeVoidAsync("window.close", SelectedItems);
     }
 
     #region SEARCHERS
 
-    private async Task<IEnumerable<string>> SearchDocument(string value)
+    private async Task<IEnumerable<string>> SearchDocument(string value, CancellationToken token)
     {
-        var result = await _documentProvider.GetDocumentNames(IsSelectable);
+        var result = await _DocumentProvider.GetDocumentNames(IsSelectable);
 
         if (string.IsNullOrWhiteSpace(value))
             return result;
 
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct().Order().ToList();
+        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToArray();        
     }
 
     #endregion

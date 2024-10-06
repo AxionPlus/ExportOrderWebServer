@@ -12,15 +12,15 @@ public class DocumentRecord
     public int Seq { get; set; }    // change to uint
 
     [Required]
-    public string CommodityName { get; set; }
+    public string CommodityName { get; set; } = string.Empty;
     [Required]
-    public string CommodityEngName { get; set; }
+    public string CommodityEngName { get; set; } = string.Empty;
 
     [MaxLength(10)]
     public string? CommodityHSCode { get; set; }
     public string? IMO { get; set; }
     public string? UNNO { get; set; }
-    public bool IsIMO { get; set; }
+    public bool IsIMO { get; set; } = false;
 
     [Required]
     public double? NetWt { get; set; }
@@ -33,5 +33,5 @@ public class DocumentRecord
     public DocumentEntity Document { get; set; }
 
     [NotMapped]
-    public bool IsShowWT_Details { get; set; } = false;
+    public bool IsShowWeight_Details { get; set; } = false;
 }

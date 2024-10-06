@@ -1,24 +1,18 @@
-﻿@using ExportOrderWebServer.Areas.ExpOrder
-@inject IDialogService DialogService
+﻿@inject IDialogService DialogService
 
 <style></style>
 
-<div class="FieldContainer" style="min-width:150px; @Style">
-    <div class="fieldName">@Label</div>
+<div class="FieldContainer" style="width:165px; @Style">
     <div style="display: inline-flex; width:100%;">
-        <MudTextField T="string" Class="TextField"                        
-                      Value="CntrNum"
-                      ValueChanged="@(async(e)=>{ await CntrNumChanged.InvokeAsync(e); } )"
-                      Variant="Variant.Outlined"
+        <MudTextField T="string" Class="TextField" Label="@Label"
+                      Value="Value"
+                      ValueChanged="@(async(e)=>{ await ValueChanged.InvokeAsync(e); } )"
+                      Variant="Variant.Outlined" Margin="Margin.Dense"
                       Required="@Required" RequiredError=""
-                      MaxLength="11"
-                      Placeholder="Container"
+                      MaxLength="11"                      
                       Immediate
                       Clearable
-                      OnClearButtonClick="async(_)=> {
-                        await CntrNumChanged.InvokeAsync(string.Empty);
-                        await CntrsChanged.InvokeAsync(new());
-                      }">
+                      OnClearButtonClick="async(_)=> {await ValueChanged.InvokeAsync(string.Empty);}">
         </MudTextField>
     </div>
 </div>
@@ -28,36 +22,10 @@
     public string? Label { get; set; }
     [Parameter]
     public string? Style { get; set; }
-
-    [Parameter]
-    public string? CntrNum { get; set; }
-    [Parameter]
-    public EventCallback<string> CntrNumChanged { get; set; }
     [Parameter]
     public bool Required { get; set; }
     [Parameter]
-    public List<string?> Cntrs { get; set; }
+    public string? Value { get; set; }
     [Parameter]
-    public EventCallback<List<string>> CntrsChanged { get; set; }
-
-    private async Task CntrList()
-    {
-        var str = new StringBuilder();
-        foreach (var item in Cntrs)
-            str.AppendLine(item);
-
-        var parameters = new DialogParameters { ["Text"] = str.ToString() };
-
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, DisableBackdropClick = true };
-        var dialog = await DialogService.ShowAsync<ExportOrderComponent_InputListCntr>($"Input {Label}", parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
-        {
-            await CntrNumChanged.InvokeAsync("Select many");
-            await CntrsChanged.InvokeAsync((List<string>)result.Data);            
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
+    public EventCallback<string> ValueChanged { get; set; }
 }

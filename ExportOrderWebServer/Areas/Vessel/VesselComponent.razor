@@ -97,15 +97,13 @@
 
     private async Task ShowItem_Click(long Id)
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("Vessel", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("Vessel", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
 
-        if (result.Canceled)
+        if (result is not null && !result.Canceled)
             await GetItems();
     }
 
@@ -132,7 +130,7 @@
 
     #region SEARCH FUNCTIONS
 
-    private async Task<IEnumerable<string>> SearchVessel(string value)
+    private async Task<IEnumerable<string>> SearchVessel(string value, CancellationToken token)
     {
         var result = await _vesselProvider.GetNamesEn();
 
@@ -145,7 +143,7 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchIMO(string value)
+    private async Task<IEnumerable<string>> SearchIMO(string value, CancellationToken token)
     {
         var result = await _vesselProvider.GetIMOnos();
 

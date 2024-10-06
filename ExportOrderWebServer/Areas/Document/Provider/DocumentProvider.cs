@@ -9,6 +9,7 @@ public class DocumentProvider : IDocumentProvider
     public DocumentProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
     public async Task<DocumentEntity?> GetDocumentAsync(string Num)
@@ -71,7 +72,7 @@ public class DocumentProvider : IDocumentProvider
         return appObjResponse;
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
         appObjResponse = new();
 
@@ -79,38 +80,24 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
 
-            var documents = await db.Documents.AsNoTracking().Include(d => d.Records).ToListAsync();
+            var documents = await db.Documents.AsNoTracking()//.Include(d => d.Records)
+                                                .Where(s => !string.IsNullOrEmpty(s.Name))
+                                                .Where(s => string.IsNullOrEmpty(filter.Document) ? true : s.Name == filter.Document)
+                                                .Where(s => string.IsNullOrEmpty(filter.Shipper) ? true :
+                                                                s.Shipper == null ? true : s.Shipper.Name == filter.Shipper)
+                                                .Where(s => string.IsNullOrEmpty(filter.Consignee) ? true :
+                                                                s.Consignee == null ? true : s.Consignee.Name == filter.Consignee)
+                                                .Where(s => string.IsNullOrEmpty(filter.CargoDescriptionShort) ? true :
+                                                                s.Description == null ? true : s.Description == filter.CargoDescriptionShort)
+                                                .Where(s => filter.Status.Equals(null) ? true : s.Status.Equals(filter.Status))
+                                                .OrderByDescending(s => s.CreateTime)
+                                                .ToListAsync();
 
-            if (parameters.GetType() == typeof(string))
-                if (!string.IsNullOrWhiteSpace(parameters as string))
-                    appObjResponse.Object = documents.Where(s => s.Name == parameters as string);
+            if (documents is null)
+                appObjResponse.ErrorAdd("Documents not found.");
 
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
-
-                if (!string.IsNullOrEmpty(filter.Document))
-                    documents = documents.Where(s => s.Name == filter.Document).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Shipper))
-                    documents = documents.Where(s => s.Shipper!.Name == filter.Shipper).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Consignee))
-                    documents = documents.Where(s => s.Consignee!.Name == filter.Consignee).ToList();
-
-                if (!string.IsNullOrEmpty(filter.CargoDescriptionShort))
-                    documents = documents.Where(s => s.Description == filter.CargoDescriptionShort).ToList();
-
-                if (filter.Status >= 0)
-                    documents = documents.Where(s => s.Status == filter.Status).ToList();
-                //else
-                //    documents = documents.Where(s => s.Status == EntityStatus.New).ToList();
-
-                documents = documents.OrderByDescending(x => x.CreateTime).ToList();
-
-                appObjResponse.Object = documents.ToList();
-            }
-
+            appObjResponse.Object = documents;
+            
             return appObjResponse;
         }
     }
@@ -384,39 +371,29 @@ public class DocumentProvider : IDocumentProvider
         }
     }
 
-    public async Task<List<string>> GetDocumentNames(bool isSelectable)
+    public async Task<IEnumerable<string>> GetDocumentNames(bool isSelectable)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var documents = await db.Documents.AsNoTracking().ToListAsync();
+            var documents = await db.Documents.AsNoTracking()
+                                            .Where(s => !string.IsNullOrEmpty(s.Name))
+                                            .Where(s => isSelectable ? s.Status.Equals(EntityStatus.New) : true)
+                                            .Select(s => s.Name!)
+                                            .OrderBy(s => s)
+                                            .Distinct()                                            
+                                            .ToArrayAsync();
 
-            if (isSelectable)
-                documents = documents.Where(d => d.Status.Equals(EntityStatus.New)).ToList();
+            if (documents != null && documents.Any())
+                return documents;
 
-            return documents.Select(d => d.Name!).ToList();
+            return Enumerable.Empty<string>();            
         }
     }
 
-    #region DELETE
-    //public async Task<List<DocumentEntity>> GetExportOrderDocumentsAsync(long eoId)
-    //{
-    //    using (var _db = _dbContext.CreateDbContextAsync())
-    //    {
-    //        var db = await _db;
-
-    //        var documents = await db.Documents.AsNoTracking()
-    //                                          //.Include(d => d.Records).ThenInclude(dr => dr.Document)
-    //                                          .Include(d => d.Records)
-    //                                          .Include(d => d.ExportOrders)
-    //                                          //.Where(d => d.ExportOrders.Select(eo => eo.Id).Equals(eoId))
-    //                                          //.Where(d => d.ExportOrders.FirstOrDefault().Id.Equals(eoId))
-    //                                          .Where(d => d.ExportOrders!.Any(eo => eo.Id.Equals(eoId)))
-    //                                          .ToListAsync();
-
-    //        return documents;
-    //    }
-    //}
-    #endregion
+    public Task<AppObjectResponse> GetItemsAsync(object parameters)
+    {
+        throw new NotImplementedException();
+    }
 }

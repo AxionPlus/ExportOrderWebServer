@@ -420,7 +420,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     if (!modifyItem.Documents.Any(s => s.Id == itemDocument.Id))
                         modifyItem.Documents.Add(itemDocument);
 
-                var dbBug = db.ChangeTracker.DebugView.LongView;
+                //var dbBug = db.ChangeTracker.DebugView.LongView;
 
 
                 // RE-WRITE WITH A NEW ITEM
@@ -455,7 +455,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     }
 
                 }
-                dbBug = db.ChangeTracker.DebugView.LongView;
+                //dbBug = db.ChangeTracker.DebugView.LongView;
                 db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
@@ -823,7 +823,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
             var VesselCallDetail = await db.Set<VesselCallDetail>().FirstOrDefaultAsync(s => s.Id == vesselCallDetailId);
 
-            var ExportOrders = await db.ExportOrders.AsNoTracking()
+            var ExportOrders = await db.ExportOrders.AsTracking()     // AsNoTracking
                                                     .Where(s => exportOrderIds.Any(i => i == s.Id))
                                                     .ToArrayAsync();
 
@@ -835,17 +835,19 @@ public class ExportOrderProvider : IExportOrderProvider
             
             foreach (var exportOrder in ExportOrders)
             {
-                exportOrder.VesselCallDetail = VesselCallDetail;
+                exportOrder.VesselCallDetail = VesselCallDetail;                
+                db.Entry(exportOrder.VesselCallDetail).State = EntityState.Unchanged;
+
                 db.Entry(exportOrder).State = EntityState.Modified;
             }
 
-            db.Entry(VesselCallDetail).State = EntityState.Unchanged;   // excluded out of foreach
+            //db.Entry(VesselCallDetail).State = EntityState.Unchanged;   // excluded out of foreach
 
             var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
 
-            appObjResponse.Object = eoRecords;
+            //appObjResponse.Object = eoRecords;
             
         }
 

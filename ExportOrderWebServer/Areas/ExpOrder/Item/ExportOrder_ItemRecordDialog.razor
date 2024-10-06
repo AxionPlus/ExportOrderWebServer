@@ -6,27 +6,9 @@
 @inject CheckCntrNumService checkCntrNumService
 
 <style>
-
-    .CntrType {
-        width: 92px;
-        margin-inline: 20px;
-        line-height: 18px;
+    .QuantityField * .mud-input > input.mud-input-root-outlined {
+        text-align: center;
     }
-
-        .CntrType * .mud-input-slot.mud-input-root-outlined.mud-input-root-margin-dense {
-            padding-top: 8px;
-            padding-bottom: 8px;
-        }
-
-    .QuantityField {
-        width: 120px;
-        margin-right: 20px;
-    }
-
-        .QuantityField * .mud-input > input.mud-input-root-outlined {
-            text-align: center;
-        }
-
 
     .Table * .mud-table-cell .mud-input-control * .mud-icon-size-small {
         margin-top: unset;
@@ -69,14 +51,15 @@
         <div class="Container-item">
 
             <div class="container-content" style="padding-bottom:unset">
-                <MudTextField T="string" Label="Container num" Value="@Item.CntrNum"
-                              ValueChanged="(e) => { Item.CntrNum = e.ToUpper(); }"
+                <MudTextField T="string" Label="Container" Value="@Item.CntrNum" ValueChanged="(e) => { Item.CntrNum = e.ToUpper(); }"
+                              Mask="@_CntrNumMask"
                               Style="width:180px" MaxLength="11"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Required RequiredError="" Clearable="!IsFormReadOnly" Mask="@_CntrNumMask" />
-                <MudSelect Class="CntrType" T="CntrTpSz" Label="Type" @bind-Value="@Item.CntrType"
+                              Required RequiredError="" Clearable="!IsFormReadOnly" />
+                <MudSelect Class="wrapper-input-select" T="CntrTpSz" Label="Type" @bind-Value="@Item.CntrType"
+                           Style="width: 92px; margin-inline: 20px;"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                           CloseIcon="" OpenIcon="" Required RequiredError="" Clearable="!IsFormReadOnly">
+                           Required RequiredError="" Clearable="!IsFormReadOnly">
                     @if (CntrTypes is not null)
                         @foreach (var type in CntrTypes)
                         {
@@ -84,10 +67,12 @@
                         }
                 </MudSelect>
                 <MudNumericField Class="QuantityField" T="double" Label="TARE wt" @bind-Value="Item.CntrTareWt"
+                                 Style="width:120px; margin-inline-end:20px"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
                                  Required RequiredError="" HideSpinButtons="true" />
-                <MudTextField Class="Seal" T="string" Label="SEALS" @bind-Value="@Item.Seal"
-                              Style="width:280px" Variant="Variant.Outlined" Margin="Margin.Dense"
+                <MudTextField Class="TextField" T="string" Label="SEALS" @bind-Value="@Item.Seal"
+                              Style="width:280px"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
                               Required RequiredError="" Clearable="!IsFormReadOnly" />
                 <MudSpacer />
             </div>

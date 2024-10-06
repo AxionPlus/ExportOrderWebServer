@@ -8,14 +8,6 @@ body {
     height: 100vh;
 }
 
-/*.mud-primary-hover {
-    background-color: #3592b41f !important;
-}
-
-.h-100 {
-    height: 100%;
-}*/
-
 .page-container {
     display: flex;
     position: relative;
@@ -174,11 +166,7 @@ body {
             min-width: 24px;
         }
 
-/*.Table {
-}*/
-
 .Table * thead {
-    /*background-color: var(--tableThead);*/
     background-color: lightblue;
 }
 
@@ -186,7 +174,6 @@ body {
         color: var(--mud-palette-text-primary);
         font-weight: 500;
         text-align: center;
-        /*line-height: 1.1rem;*/
     }
 
     
@@ -201,11 +188,6 @@ body {
         font-size: 0.92rem;
         font-weight: 500;
     }
-
-
-/*    .Table * .mud-table-cell *.mud-input-control {
-        margin-top: unset;
-    }*/
 
     .Table * .mud-table-cell * .mud-input.mud-input-outlined.mud-input-adorned-end {
         padding-right: 0px;
@@ -290,21 +272,12 @@ body {
         font-weight: 500;
     }
 
-/*    .dateRange * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
-        padding-inline-start: 6px;
-    }*/
-
     .dateRange * .mud-input-label-outlined.mud-input-label-margin-dense {
         transform: translate(12px,8px) scale(1);
     }
 
 
-
 /*Mud_INPUT_Controls*/
-
-/*.mud-input.mud-input-outlined {
-    font-size: 0.95rem;
-}*/
 
 .mud-input-control.TextField {
     display: flex;
@@ -315,13 +288,12 @@ body {
 .container-content > .mud-input-control {
     flex:unset;
 }
+
 .mud-select.mud-autocomplete {
     flex-grow: 0;
 }
 
 .container-content > .mud-select {
-    /*flex-grow: unset;*/
-    /*display: flex;*/
     flex-grow: 0;
     align-items: center;
 }
@@ -336,14 +308,18 @@ body {
         padding: 2px;
     }
 
+.mud-input-control * .mud-input-label-outlined {
+    background-color: var(--grey-08);
+}
 
 /*WRAPPER INPUT*/
 .wrapper-input {
 }
-
-/*    .mud-select * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-        padding-inline-start: 4px;
-    }*/
+    .wrapper-input-select * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        height: 35px;
+        padding-right: unset;
+        padding-inline-end: unset;
+    }
 
     .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
         padding-top: 5px;
@@ -366,8 +342,8 @@ body {
     }
 
     .wrapper-input * .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
-        transform: translate(14px,-6px) scale(.75);
-    }
+        transform: translate(14px,-10px) scale(.85);
+    }    
 
     .wrapper-input * .mud-input-label-outlined {
         background-color: var(--grey-08);
@@ -388,13 +364,6 @@ body {
     .wrapper-input * .mud-icon-button-size-small {
         padding: 0px;
     }
-
-        .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
-            /*margin-right: -3px;*/
-            /*margin-inline-end: 3px;*/
-            /*margin-inline-start: unset;*/
-            /*margin-top: 2px;*/
-        }
 
     .wrapper-input * .mud-icon-size-small {
         color: red;        
@@ -422,18 +391,14 @@ body {
     margin-top: 0px;
 }
 
-
-
 .wrapper-input.NoHeader * .mud-input > input.mud-input-root-outlined {
     padding: 5px 1px 3px 3px;
 }
 
-/*.wrapper-input * .mud-input > textarea.mud-input-root-outlined {
-    margin: 6px;
-}*/
 
-
+/* DATE*/
 .wrapper-input-date {
+    flex:unset;
 }
 
     .wrapper-input-date * .mud-input > input.mud-input-root-outlined {
@@ -459,16 +424,16 @@ body {
         font-size: 1.4rem;
     }
 
-        .wrapper-input-date .mud-input-adornment .mud-icon-size-medium:hover {
-            font-size: 1.5rem;
-        }
+    .wrapper-input-date .mud-input-adornment .mud-icon-size-medium:hover {
+        font-size: 1.5rem;
+    }
+
+    .wrapper-input-date .mud-input-adornment-end {
+        margin-inline-start: 0px;
+    }
 
 .wrapper-input.wrapper-input-date * .mud-input-adornment .mud-icon-button:hover, .mud-icon-button:focus-visible {
     background-color: transparent;
-}
-
-.wrapper-input-date * .mud-input-adornment-end {
-    margin-inline-start: 0px;
 }
 
 .wrapper-input-date * .mud-input-label-outlined {
@@ -477,6 +442,7 @@ body {
 }
 
 
+/*BUTTON*/
 .wrapper-button {
 }
 
@@ -514,40 +480,3 @@ body {
         min-width: 960px;
     }
 }
-
-
-/*FieldContainer*/
-/*.FieldContainer {
-    display: block;
-    padding-top: 6px;
-    padding-bottom: 2px;
-}
-
-    .FieldContainer .mud-input-control {
-        margin-top: 2px;
-    }
-
-    .FieldContainer > .fieldName {
-        padding-left: 10px;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-        .FieldContainer > .fieldName.checkBox {
-            display: flex;
-            justify-content: center;
-            padding-left: unset
-        }
-
-        .FieldContainer > .fieldName.mtySpace {
-            margin-top: 17px;
-        }
-
-    .FieldContainer .context {
-        display: flex;
-    }
-
-    .FieldContainer * .mud-input-control-helper-container {
-        display: none;
-    }*/

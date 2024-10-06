@@ -354,42 +354,36 @@
 
     private async Task AddVessel_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("New Vessel", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("New Vessel", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
     }
 
     private async Task AddTerminal_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
     }
 
     private async Task AddPort_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Location", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Location", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
     }
 
     # endregion
 
     #region SEARCH FUNCTIONS
 
-    private async Task<IEnumerable<VesselEntity>> SearchVessel(string value)
+    private async Task<IEnumerable<VesselEntity>> SearchVessel(string value, CancellationToken token)
     {
         var Vessels = new List<VesselEntity>();
 
@@ -403,7 +397,7 @@
         return Vessels.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
-    private async Task<IEnumerable<TerminalCatalog>> SearchTerminal(string value)
+    private async Task<IEnumerable<TerminalCatalog>> SearchTerminal(string value, CancellationToken token)
     {
         var Terminals = new List<TerminalCatalog>();
 
@@ -417,7 +411,7 @@
         return Terminals.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
-    private async Task<IEnumerable<LocationCatalog>> SearchPOD(string value)
+    private async Task<IEnumerable<LocationCatalog>> SearchPOD(string value, CancellationToken token)
     {
         var Ports = new List<LocationCatalog>();
 

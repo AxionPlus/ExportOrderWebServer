@@ -52,11 +52,11 @@
                            Variant="Variant.Filled" Color="Color.Secondary">Save</MudButton>
             </div>
             <div class="container-content">
-                <MudChipSet Style="margin-left: 20px">
+                <MudChipSet T="IEnumerable<string>" Style="margin-left: 20px">
                     @if (Roles is not null)
-                        @foreach (var value in SelectedRoles)
+                        @foreach (string value in SelectedRoles)
                         {
-                            <MudChip Text="@value"></MudChip>
+                            <MudChip T="string" Text="@value"></MudChip>
                         }
                 </MudChipSet>
             </div>

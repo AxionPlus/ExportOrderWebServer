@@ -36,15 +36,13 @@
 
     private async Task AddItem_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("New Commodity", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("New Commodity", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
 
-        if (result.Canceled)
+        if (result is not null && !result.Canceled)
             await component!.GetItems();
     }
 }

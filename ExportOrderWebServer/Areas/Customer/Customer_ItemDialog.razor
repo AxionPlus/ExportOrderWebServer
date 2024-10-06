@@ -126,7 +126,7 @@
                     Snackbar.Add("Saved successfully", Severity.Success);
                 }
                 else
-                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+                    Snackbar.Add(response.Error.LastOrDefault()!, Severity.Error);
             }
             else
             {
@@ -155,19 +155,14 @@
 
     private async Task AddCountry_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Country_ItemDialog>("New Country", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Country_ItemDialog>("New Country", parameters, options);
 
-        DialogResult result = await dialog.Result;
-
-        // if (result.Canceled)
-        //     await component!.GetItems();
+        var result = await dialog.Result;
     }
 
-    private async Task<IEnumerable<CountryCatalog>> SearchCountry(string value)
+    private async Task<IEnumerable<CountryCatalog>> SearchCountry(string value, CancellationToken token)
     {
         var Countries = new List<CountryCatalog>();
 

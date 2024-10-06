@@ -99,15 +99,13 @@
 
     private async Task ShowItem_Click(long Id)
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("Terminal", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("Terminal", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
 
-        if (result.Canceled)
+        if (result is not null && !result.Canceled)
             await GetItems();
     }
 
@@ -134,7 +132,7 @@
 
     #region SEARCH FUNCTIONS
 
-    private async Task<IEnumerable<string>> SearchNames(string value)
+    private async Task<IEnumerable<string>> SearchNames(string value, CancellationToken token)
     {
         var result = await _terminalProvider.GetNames();
 
@@ -147,7 +145,7 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchLocations(string value)
+    private async Task<IEnumerable<string>> SearchLocations(string value, CancellationToken token)
     {        
         var result = await _locationProvider.GetNames();
      

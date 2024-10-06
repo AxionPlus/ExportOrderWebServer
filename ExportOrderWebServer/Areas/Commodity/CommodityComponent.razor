@@ -1,83 +1,85 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
-@inject ICommodityProvider _commodityProvider
+@inject ICommodityProvider _CommodityProvider
 
 <style>
     .Commodity * div > .mud-dialog-content {
         padding: 8px 0px;
     }
 
+    .Autocomplete * .mud-input-label-outlined.mud-input-label-margin-dense {
+        transform: translate(10px,8px) scale(1);
+    }
+
     .Autocomplete * .mud-input>input.mud-input-root-outlined.mud-input-root-adorned-end {
         padding-inline-start: 10px;
         padding-top: 6px;
         padding-bottom: 6px;
+        padding-inline-end: 4px;
     }
 
-    .Autocomplete * .mud-input-label-outlined.mud-input-label-margin-dense {
-        transform: translate(10px,8px) scale(1);
+    .Autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
+        margin-inline-end: -10px;
+        margin-inline-start: unset;
     }
 
 </style>
 
 <div class="Container-item">
     <div class="container-content">
-        <MudAutocomplete Class="Autocomplete" T="string" Label="HS code" Style="width: 145px" SearchFunc="@SearchHScodes"
-                             Value="Filter.HScode"
-                             ValueChanged="(e)=> { Filter.HScode = e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             AutoFocus=true
-                             MaxLength="10"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
+        <MudAutocomplete Class="Autocomplete HSCode" T="string" Label="HS code" @bind-Value="Filter.HScode" SearchFunc="@SearchHScodes"
+                         Style="width: 145px" 
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         AutoFocus=true
+                         MaxLength="10" MinCharacters="4" Format="0"
+                         CloseIcon="" OpenIcon=""
+                         ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" @bind-Value="Filter.Name" SearchFunc="@SearchNames"
+                         Style="width: 380px"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         MinCharacters="4"
+                         CloseIcon="" OpenIcon=""
+                         ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" @bind-Value="Filter.NameEn" SearchFunc="@SearchNamesEn"
+                         Style="width: 380px"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         MinCharacters="4"
+                         CloseIcon="" OpenIcon=""
+                         ResetValueOnEmptyText="true" Clearable />
          <MudSpacer />
-         <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 380px" SearchFunc="@SearchNames"
-                             Value="Filter.Name"
-                             ValueChanged="(e)=> { Filter.Name =e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
+         <MudCheckBox Class="wrapper-checkBox" Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Value="@Filter.IsIMO"></MudCheckBox>
          <MudSpacer />
-         <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 380px" SearchFunc="@SearchNamesEn"
-                             Value="Filter.NameEn"
-                             ValueChanged="(e)=> { Filter.NameEn =e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
-         <MudSpacer />
-         <MudCheckBox Class="wrapper-checkBox" Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Checked="@Filter.IsIMO"></MudCheckBox>
-         <MudSpacer />
-         <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                     Variant="Variant.Filled" Color="Color.Secondary"  OnClick="@(async () => { await GetItems(); })">
-             Search
-         </MudButton>
+         <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="GetItems"
+                    Variant="Variant.Filled" Color="Color.Secondary">Search</MudButton>
     </div>
 </div>
 
-@if (Items!.Count() > 0)
+@if (Items != null && Items.Any())
 {
     <div class="Container-table">
-    @if (mudTable != null)
+    @if (mudTable != null && !IsSelectable)
     {
         <div class="tableMenu">
             <MudSpacer />
             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items.Count())</span>
         </div>
     }
 
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20" >
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="18" >
 
         <HeaderContent>
             @if (!IsSelectable)
             {
-                <MudTh Style="width:30px"></MudTh>
                 <MudTh Style="width:30px"></MudTh>
             }                    
             else
             {
                 <MudTh Style="width:30px">
                     <MudTooltip Text="add new">
-                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="AddItem_Click" />
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" OnClick="AddItem_Click" />
                     </MudTooltip>
                 </MudTh>
             }
@@ -90,19 +92,22 @@
             <MudTh Style="width:430px">Name En</MudTh>
             <MudTh Style="width:65px">Is IMO</MudTh>
             <MudTh Style="width:65px">UNNO</MudTh>
+            @if (!IsSelectable)
+            {
+                <MudTh Style="width:30px"></MudTh>
+            }
         </HeaderContent>
 
         <RowTemplate>
             @if (!IsSelectable)
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"/></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.HSCode!, context.Id); })"/></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"/></MudTd>                
             }
             else
             {                
                 <MudTd>
                     <MudTooltip Text="select">
-                        <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@(async()=>{ await SelectItem_Click(context); })" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Secondary" OnClick="@(()=>SelectItem_Click(context))" />
                     </MudTooltip>
                 </MudTd>                
             }
@@ -111,6 +116,13 @@
             <MudTd>@context.NameEn</MudTd>            
             <MudTd>@context.IMO</MudTd>
             <MudTd>@context.UNNO</MudTd>
+            @if (!IsSelectable)
+            {
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary"
+                                    OnClick="@(async()=>{ await RemoveItem_Click(context.HSCode, context.Id); })" />
+                </MudTd>
+            }
         </RowTemplate>
 
         <PagerContent></PagerContent>
@@ -138,46 +150,49 @@
 
     public async Task GetItems()
     {
+        if (string.IsNullOrEmpty(Filter.HScode) &
+            string.IsNullOrEmpty(Filter.Name) &
+            string.IsNullOrEmpty(Filter.NameEn))
+        {
+            Snackbar.Add("One of the search fields should be used.", Severity.Warning);
+            return;
+        }
+
         IsLoadingData = true;
 
-        var response = await _commodityProvider.GetItemsAsync(Filter);
-        if (!response.HasError)
-            Items = ((IEnumerable<CommodityCatalog>)response.Object!).ToArray();
+        var response = await _CommodityProvider.GetItemsAsync(Filter);
 
-        await Task.Delay(500);
+        if (!response.HasError)
+            Items = (IEnumerable<CommodityCatalog>)response.Object!;
+        else
+            Snackbar.Add(response.Error.First(), Severity.Warning);
 
         IsLoadingData = false;
-        await InvokeAsync(StateHasChanged);        
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ShowItem_Click(long Id)
     {
-        // if (MudDialog is not null)
-        //     MudDialog.Close(DialogResult.Ok(Id));
-
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("Commodity", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("Commodity", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
 
-        if (result.Canceled)
+        if (result is not null && !result.Canceled)
             await GetItems();
     }
 
     private async Task AddItem_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, DisableBackdropClick = true };
-        dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("New Commodity", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("New Commodity", parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
 
-        if (result.Canceled)
+        if (result is not null && !result.Canceled)
             await GetItems();
     }
 
@@ -191,7 +206,7 @@
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _commodityProvider.RemoveItemAsync(id);
+                var response = await _CommodityProvider.RemoveItemAsync(id);
 
                 if (!response.HasError)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
@@ -202,51 +217,41 @@
         await GetItems();
     }
 
-    private async Task SelectItem_Click(CommodityCatalog item)
+    private void SelectItem_Click(CommodityCatalog item)
     {
-        await Task.Delay(50);
         MudDialog!.Close(item);
     }
 
     #region SEARCH FUNCTIONS
 
-    private async Task<IEnumerable<string>> SearchHScodes(string value)
+    private async Task<IEnumerable<string>> SearchHScodes(string value, CancellationToken token)
     {
-        var result = await _commodityProvider.GetHScodes();
-
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
+        var result = await _CommodityProvider.GetHScodes();
 
         if (string.IsNullOrWhiteSpace(value))
-            return result.Distinct();
+            return Enumerable.Empty<string>();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchNames(string value)
+    private async Task<IEnumerable<string>> SearchNames(string value, CancellationToken token)
     {
-        var result = await _commodityProvider.GetNames();
-
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
-
+        var result = await _CommodityProvider.GetNames();
+        
         if (string.IsNullOrWhiteSpace(value))
-            return result.Distinct();
+            return Enumerable.Empty<string>();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchNamesEn(string value)
+    private async Task<IEnumerable<string>> SearchNamesEn(string value, CancellationToken token)
     {
-        var result = await _commodityProvider.GetNamesEn();
-
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
-
+        var result = await _CommodityProvider.GetNamesEn();
+        
         if (string.IsNullOrWhiteSpace(value))
-            return result.Distinct();
+            return Enumerable.Empty<string>();
         else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     #endregion

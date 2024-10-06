@@ -32,18 +32,13 @@
 
     private async Task AddItem_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, DisableBackdropClick = false };
-        //dialog = await DialogService.ShowAsync<ExportOrder_ItemDialog>(null, parameters, options);
-        dialog = await DialogService.ShowAsync<ExportOrder_Item>(null, parameters, options);
+        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<ExportOrder_Item>(null, parameters, options);
 
-        DialogResult result = await dialog.Result;
+        var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result is not null && !result.Canceled)
             await component!.GetItems();
-    }
-
-   
+    }   
 }

@@ -1,6 +1,6 @@
 ﻿@inject ISnackbar Snackbar
 @inject AuthenticationStateProvider authenticationStateProvider
-@inject ICommodityProvider _commodityProvider
+@inject ICommodityProvider _CommodityProvider
 
 @if (Item is not null)
 {
@@ -28,32 +28,32 @@
             <div class="Container-item">
                 <div class="container-head"></div>
                 <div class="container-content">
-                    <MudTextField T="string" Style="width:200px" Label="HS code" @bind-Value="@Item.HSCode"
+                    <MudTextField @ref="@Hscode" T="string" Style="width:200px" Label="HS code" @bind-Value="@Item.HSCode"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Validation="HSCodeValidation"
-                                  MaxLength="10" Mask="@( IsNewItem? new PatternMask("0000000000") : null)"
                                   AutoFocus="true" Immediate="true"
-                                  Required RequiredError=""
-                                   Clearable="!IsFormReadOnly" />
+                                  Validation="HSCodeValidation"
+                                  Mask="@(new PatternMask("0000000000"))"                                                                    
+                                  Required RequiredError="" Clearable="!IsFormReadOnly" />                
                     <MudSpacer />
                      
                     <div class="wrapper-checkBox" style="width:170px; margin-inline-start:10px; justify-content:start">
-                        <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.Start" @bind-Checked="@Item.IsIMO"></MudCheckBox>
+                        <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.Start" @bind-Value="@Item.IsIMO"></MudCheckBox>
                     </div>                     
                     @if (Item.IsIMO)
                     {
                         <MudTextField T="string" Style="width:100px; margin-inline:10px" Label="IMO" @bind-Value="@Item.IMO"
-                                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                                        MaxLength="3"
-                                        Required RequiredError=""
-                                        Clearable="!IsFormReadOnly" />
-                        <MudTextField T="string" Style="width:100px" Label="UNNO" @bind-Value="@Item.UNNO"
-                                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                                        MaxLength="4" Mask="@( IsNewItem? new PatternMask("0000") : null)"
-                                        Required RequiredError=""
-                                        Clearable="!IsFormReadOnly" />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      MaxLength="3"
+                                      Required RequiredError="" Clearable="!IsFormReadOnly" />
+                        <MudTextField @ref="@Unno" T="string" Style="width:100px" Label="UNNO" @bind-Value="@Item.UNNO"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Mask="@(new PatternMask("0000"))"
+                                      Required RequiredError="" Clearable="!IsFormReadOnly" />
                     }
-                    else {<div style="width:220px"></div>}
+                    else
+                    {
+                        <div style="width:220px"></div>
+                    }
                 </div>
                 <div class="container-content">             
                     <MudTextField T="string" Style="width: 450px" Label="Name" Text="@Item.Name"
@@ -65,12 +65,12 @@
                                   Clearable="!IsFormReadOnly" />
                     <MudSpacer/>
                     <MudTextField T="string" Style="width: 450px; margin-left: 10px" Label="Name En" Text="@Item.NameEn"
-                                   TextChanged="(e)=> { Item.NameEn = e.ToUpper(); StateHasChanged();}"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   Lines="6"
-                                   Immediate="true"
-                                   Required RequiredError=""
-                                   Clearable="!IsFormReadOnly" />
+                                  TextChanged="(e)=> { Item.NameEn = e.ToUpper(); StateHasChanged();}"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Lines="6"
+                                  Immediate="true"
+                                  Required RequiredError=""
+                                  Clearable="!IsFormReadOnly" />
                  </div>
             </div>
         </MudForm>
@@ -88,6 +88,9 @@
     private bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
 
+    public ValidatePageFields Validator = new();
+    private MudTextField<string> Hscode = new();
+    private MudTextField<string?> Unno = new(); //{ get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -104,12 +107,12 @@
     {
         if (IsNewItem)
         {
-            Item = new();
+            Item = new() { Name = string.Empty, NameEn = string.Empty, HSCode = string.Empty };
             IsFormReadOnly = false;
         }        
         else
         {
-            var response = await _commodityProvider.GetItemAsync(Id);
+            var response = await _CommodityProvider.GetItemAsync(Id);
             if (!response.HasError)
                 Item = (CommodityCatalog)response.Object!;
         }
@@ -121,26 +124,38 @@
 
         if (Form.IsValid)
         {
+            if (!Validator.IsValid_HSCode(Hscode.Text))
+            {
+                Snackbar.Add("HS Code is not valid", Severity.Warning);
+                return;
+            }
+
+            if (!Validator.IsValid_UNNO(Unno.Text))
+            {
+                Snackbar.Add("UNNO is not valid", Severity.Warning);
+                return;
+            }            
+
             if (IsNewItem)
             {
-                var response = await _commodityProvider.NewItemAsync(Item!);
+                var response = await _CommodityProvider.NewItemAsync(Item!);
                 if (!response.HasError)
                 {
                     Id = Item!.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);
                 }
                 else
-                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+                    Snackbar.Add(string.Join(", ", response.Error), Severity.Error);
             }
             else
             {
-                var response = await _commodityProvider.ModifyItemAsync(Item!);
+                var response = await _CommodityProvider.ModifyItemAsync(Item!);
                 if (!response.HasError)
                 {
                     Snackbar.Add("Save Successed", Severity.Success);
                 }
                 else
-                    Snackbar.Add(response.Error.Last(), Severity.Error);
+                    Snackbar.Add(string.Join(", ", response.Error), Severity.Error);
             }
         }
         else
@@ -167,4 +182,18 @@
 
         return null;
     };
+
+
+    // private PatternMask Mask_HSCode = new PatternMask("##########")
+    // {
+    //     MaskChars = new[] { new MaskChar('#', @"[0-9]") }
+    // };
+
+    // private PatternMask Mask_UNNO = new PatternMask("####")
+    // {
+    //     MaskChars = new[] { new MaskChar('#', @"\d") }
+    // };
+
+    // public IMask Mask_HSCode = new RegexMask(@"\d");     // work, but number of symbols not controlled
+    // public IMask Mask_UNNO = new RegexMask(@"\d{4}");    // input dosn't work (only matching)
 }

@@ -1,6 +1,5 @@
 ﻿using AspNetCore.Reporting;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.IO.Compression;
@@ -46,7 +45,7 @@ public class UploadFileController : ControllerBase
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
+            Console.WriteLine(ex.Message);
             return Empty;
         }
 

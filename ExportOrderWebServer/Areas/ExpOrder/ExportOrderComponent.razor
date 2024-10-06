@@ -13,7 +13,6 @@
 @inject ICarrierProvider _carrierProvider
 
 <style>
-
     .mud-icon-button-edge-margin-end {
         margin-right: 2px;
         margin-inline-end: 2px;
@@ -21,10 +20,6 @@
     }
     .mud-input > input.mud-input-root-outlined {
         padding: 8px;
-    }
-
-    .mud-select * .mud-input-label-outlined.mud-input-label-margin-dense {
-        transform: translate(4px,8px) scale(1);
     }
 
     .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
@@ -40,22 +35,10 @@
         margin-bottom: unset;
     }
 
-    .wrapper-input-date * .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 16px;
+    .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end: 6px;
+        padding-inline-start: unset;
     }
-
-    .mud-input-control.TextField > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 16px;
-    }
-
-    .mud-input-control.Autocomplete > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 22px;
-    }
-
-    .mud-input-control.wrapper-input-select > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 22px;
-    }
-
 </style>
 
 <div class="Container-item" style="margin-top:6px">
@@ -101,7 +84,8 @@
                          CloseIcon="" OpenIcon="" MaxItems="20"
                          ResetValueOnEmptyText="true" Clearable />
         
-        <MudSelect Class="wrapper-input-select" T="EntityStatus?" Style="width:140px" Label="Status" @bind-Value="Filter.Status"
+        <MudSelect Class="wrapper-input-select" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
+                   Style="width:145px"
                    ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
                    Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
             @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))

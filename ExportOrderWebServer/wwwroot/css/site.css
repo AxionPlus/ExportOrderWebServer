@@ -252,32 +252,7 @@ body {
             margin-inline-end: -8px;
         }
 
-/*DATE RANGE*/
-.dateRange {
-    width: 220px;
-}
-
-    .dateRange * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 7px;
-    }
-
-    .dateRange * .mud-picker-calendar-container {
-        width: 295px;
-    }
-
-    .dateRange * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-        padding-top: 10px;
-        padding-bottom: 4px;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .dateRange * .mud-input-label-outlined.mud-input-label-margin-dense {
-        transform: translate(12px,8px) scale(1);
-    }
-
-
-/*Mud_INPUT_Controls*/
+/*INPUT_Controls*/
 
 .mud-input-control.TextField {
     display: flex;
@@ -312,6 +287,14 @@ body {
     background-color: var(--grey-08);
 }
 
+.mud-input-label-outlined.mud-input-label-margin-dense {
+    transform: translate(14px, 9px) scale(1);
+}
+
+.mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
+    transform: translate(14px,-10px) scale(.80);
+}
+
 /*WRAPPER INPUT*/
 .wrapper-input {
 }
@@ -341,21 +324,12 @@ body {
         font-weight: 500;
     }
 
-    .wrapper-input * .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
-        transform: translate(14px,-10px) scale(.85);
-    }    
-
-    .wrapper-input * .mud-input-label-outlined {
-        background-color: var(--grey-08);
-        transform: translate(10px, 10px) scale(1);
-    }
-
-    .wrapper-input * .mud-icon-button-edge-margin-end {
-        margin-right: 2px;
-        margin-inline-end: 4px;
-        margin-inline-start: unset;
-        margin-top: 4px;
-    }
+.wrapper-input * .mud-icon-button-edge-margin-end {
+    margin-right: 2px;
+    margin-inline-end: 4px;
+    margin-inline-start: unset;
+    margin-top: 4px;
+}
 
     .wrapper-input * .mud-input.mud-input-outlined.mud-input-adorned-end {
         padding-inline-end: 2px;
@@ -432,15 +406,14 @@ body {
         margin-inline-start: 0px;
     }
 
-.wrapper-input.wrapper-input-date * .mud-input-adornment .mud-icon-button:hover, .mud-icon-button:focus-visible {
-    background-color: transparent;
-}
-
-.wrapper-input-date * .mud-input-label-outlined {
-    background-color: var(--grey-08);
-    transform: translate(10px, 10px) scale(1);
-}
-
+    .wrapper-input.wrapper-input-date * .mud-input-adornment .mud-icon-button:hover, .mud-icon-button:focus-visible {
+        background-color: transparent;
+    }
+    
+    .wrapper-input-date * .mud-input-label-outlined {
+        background-color: var(--grey-08);
+        transform: translate(10px, 10px) scale(1);
+    }
 
 /*BUTTON*/
 .wrapper-button {

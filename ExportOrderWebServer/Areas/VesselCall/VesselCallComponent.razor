@@ -11,7 +11,6 @@
 @inject ICarrierProvider _carrierProvider
 
 <style>
-
     .Container-item {
         display: flex;
         flex-direction: row;
@@ -32,23 +31,10 @@
         margin-bottom: unset;
     }
 
-    .wrapper-input-date * .mud-input-control.mud-input-outlined-with-label {
-        margin-top: unset;
-        margin-bottom: unset;
-    }
-
-    .wrapper-input-date * .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 16px;
-    }
-
     .mud-icon-button-edge-margin-end {
         margin-right: 2px;
         margin-inline-end: 2px;
         margin-inline-start: unset;
-    }
-
-    .mud-select * .mud-input-label-outlined.mud-input-label-margin-dense {
-        transform: translate(8px,7px) scale(1);
     }
 
     .mud-select * .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
@@ -68,13 +54,12 @@
     .Container-table .tableMenu .mud-table-cell{
         padding:unset;
     }
-
  </style>
 
 <div class="Container-item">
     <div class="container-column" style="width:270px;">
         <div class="container-content">
-            <MudAutocomplete Class="Autocomplete" T="string" Placeholder="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
                             Style="width: 250px"
                             Variant="Variant.Outlined" Margin="Margin.Dense"
                             CloseIcon="" OpenIcon="" MaxItems="20"
@@ -102,7 +87,7 @@
     </div>
     <div class="container-column" style="width:450px; margin-left:30px">
         <div class="container-content">
-            <MudAutocomplete Class="Autocomplete" T="string" Placeholder="Voyage" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Voyage" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
                              Style="width: 150px"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon=""
@@ -127,12 +112,12 @@
             </div>            
         </div>
         <div class="container-content">
-            <MudAutocomplete Class="Autocomplete" T="string" Placeholder="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
                              Style="width: 150px"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon="" MaxItems="20"
                              ResetValueOnEmptyText="true" Clearable />
-            <MudAutocomplete Class="Autocomplete" T="string" Placeholder="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
+            <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
                              Style="width: 270px"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon="" MaxItems="20"

@@ -10,14 +10,27 @@
         width: 30px;
     }
 
-    .mud-select * .mud-input-label-outlined.mud-input-label-margin-dense {
-        transform: translate(10px,5px) scale(1);
-    }
-
     .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
         padding-inline-start: 4px;
     }
 
+    .mud-input-control.mud-input-control-margin-dense {
+        margin: unset;
+    }
+
+    .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
+        padding: 8px;
+    }
+
+    .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
+        margin-top: unset;
+        margin-bottom: unset;
+    }
+
+    .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end: 6px;
+        padding-inline-start: unset;
+    }
 </style>
 
 <div class="Container-item">
@@ -25,26 +38,22 @@
             <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
                        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
                 Search
-            </MudButton>
-            <MudSpacer />
+            </MudButton>            
             <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" @bind-Value="Filter.Document" SearchFunc="@SearchDocument"
-                             Placeholder="Декларация"
+                             Label="Декларация"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
                              CloseIcon="" OpenIcon=""
-                             Dense="true" AutoFocus="true"
+                             AutoFocus="true"
                              MinCharacters="3" MaxItems="20"
-                             ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-            <MudTextField Class="TextField" Placeholder="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
+                             ResetValueOnEmptyText="true" Clearable />            
+            <MudTextField Class="TextField" Label="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
+                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
+            <MudTextField Class="TextField" Label="Consignee" Style="width: 300px" @bind-Value="@Filter.Consignee"
+                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
+            <MudTextField Class="TextField" Label="Cargo" Style="width: 270px" @bind-Value="@Filter.CargoDescriptionShort"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-            <MudSpacer />
-            <MudTextField Class="TextField" Placeholder="Consignee" Style="width: 300px" @bind-Value="@Filter.Consignee"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-            <MudSpacer />
-            <MudTextField Class="TextField" Placeholder="Cargo" Style="width: 270px" @bind-Value="@Filter.CargoDescriptionShort"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-            <MudSpacer />
-            <MudSelect Class="wrapper-input select" T="EntityStatus?" Style="width:120px" Label="Status" @bind-Value="Filter.Status"
+            <MudSelect Class="wrapper-input-select" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
+                       Style="width:145px"
                        ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
                        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
                        Disabled="IsSelectable">
@@ -55,7 +64,7 @@
                         <MudSelectItem Value="@status" />
                     }
                 }
-            </MudSelect>
+            </MudSelect>            
         </div>
     </div>
 

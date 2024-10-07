@@ -289,38 +289,31 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void AddRecord_Click()
-    {
-        if (Value is null) return;
-
-        DocumentRecord record = new() { Seq = Value.Records.Count() + 1, NetWt = 1, GrossWt = 1 };
-
-        Value.Records.Add(record);
-        await GetCommodity(record);
-    }
-
-    private async Task GetCommodity(DocumentRecord documentRecord)
+    private async Task AddRecord_Click()
     {
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         DialogOptions options = new DialogOptions { CloseButton = true, BackdropClick = false, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<CommodityComponent>("SELECT COMMODITY", parameters, options);
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result is not null && !result.Canceled && result.Data is not null)
         {
-            if (result.Data is null) return;
-
             var commodity = (CommodityCatalog)result.Data;
 
-            if (commodity != null)
+            if (commodity is null) return;
+
+            Value!.Records.Add(new ()
             {
-                documentRecord.CommodityName = commodity.Name;
-                documentRecord.CommodityEngName = commodity.NameEn;
-                documentRecord.CommodityHSCode = commodity.HSCode;
-                documentRecord.IMO = commodity.IMO;
-                documentRecord.UNNO = commodity.UNNO;
-                documentRecord.IsIMO = commodity.IsIMO;
-            }
+                Seq = Value!.Records.Count() + 1,
+                CommodityName = commodity.Name,
+                CommodityEngName = commodity.NameEn,
+                CommodityHSCode = commodity.HSCode,
+                NetWt = 1,
+                GrossWt = 1,
+                IMO = commodity.IMO,
+                UNNO = commodity.UNNO,
+                IsIMO = commodity.IsIMO
+            });
         }
 
         await InvokeAsync(StateHasChanged);

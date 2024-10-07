@@ -120,6 +120,8 @@
 
     public async Task SaveItem_Click()
     {
+        if (Item is null) return;
+
         await Form!.Validate();
 
         if (Form.IsValid)
@@ -130,18 +132,19 @@
                 return;
             }
 
-            if (!Validator.IsValid_UNNO(Unno.Text))
-            {
-                Snackbar.Add("UNNO is not valid", Severity.Warning);
-                return;
-            }            
+            if (Item.IsIMO)
+                if (!Validator.IsValid_UNNO(Unno.Text))
+                {
+                    Snackbar.Add("UNNO is not valid", Severity.Warning);
+                    return;
+                }            
 
             if (IsNewItem)
             {
                 var response = await _CommodityProvider.NewItemAsync(Item!);
                 if (!response.HasError)
                 {
-                    Id = Item!.Id;
+                    Id = Item.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);
                 }
                 else

@@ -31,21 +31,21 @@
                          Style="width: 145px" 
                          Variant="Variant.Outlined" Margin="Margin.Dense"
                          AutoFocus=true
-                         MaxLength="10" MinCharacters="4" Format="0"
+                         MaxLength="10" MinCharacters="3" Format="0"
                          CloseIcon="" OpenIcon=""
                          ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
         <MudAutocomplete Class="Autocomplete" T="string" Label="Name" @bind-Value="Filter.Name" SearchFunc="@SearchNames"
                          Style="width: 380px"
                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                         MinCharacters="4"
+                         MinCharacters="3"
                          CloseIcon="" OpenIcon=""
                          ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
         <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" @bind-Value="Filter.NameEn" SearchFunc="@SearchNamesEn"
                          Style="width: 380px"
                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                         MinCharacters="4"
+                         MinCharacters="3"
                          CloseIcon="" OpenIcon=""
                          ResetValueOnEmptyText="true" Clearable />
          <MudSpacer />
@@ -56,15 +56,14 @@
     </div>
 </div>
 
-@if (Items != null && Items.Any())
-{
-    <div class="Container-table">
+
+<div class="Container-table">
     @if (mudTable != null && !IsSelectable)
     {
         <div class="tableMenu">
             <MudSpacer />
             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items.Count())</span>
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">@(Items is null ? string.Empty : Items.Count())</span>
         </div>
     }
 
@@ -129,7 +128,6 @@
 
     </MudTable>
 </div>
-}
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 

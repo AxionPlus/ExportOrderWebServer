@@ -20,10 +20,12 @@ public class DocumentProvider : IDocumentProvider
 
             var result = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == Num);
 
-            if (result is not null)
-                return result;
-            else
-                return null;
+            return result;
+
+            //if (result is not null)
+            //    return result;
+            //else
+            //    return null;
         }
     }
 

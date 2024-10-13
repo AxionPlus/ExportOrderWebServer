@@ -21,6 +21,11 @@
         padding-inline-start: 8px;
     }
 
+    .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
+        margin-top: unset;
+        margin-bottom: unset;
+    }
+
     .mud-select.mud-autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
         margin-right: 0px;
         margin-inline-end: 3px;        
@@ -34,12 +39,11 @@
 
     .mud-select.mud-autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
         margin-inline-end: unset;
-    }
+    }    
 
     .Table * .mud-table-cell {
         padding: 5px;
     }
-
 
 </style>
 
@@ -65,7 +69,7 @@
             </MudToolBar>
         </div>
 
-        <div class="Container-item">
+        <div class="Container-item" style="flex-direction:column">
             <div class="container-content" style="justify-content:flex-start">
                 <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item.Vessel"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
@@ -86,19 +90,19 @@
                                Immediate="true"
                                Required RequiredError=""
                                Clearable="!IsFormReadOnly" />
-                 <MudDatePicker Class="wrapper-input-date" Label="ETA" @bind-Date="Item.ETA"
-                                Style="width: 125px; margin-right: 4px"
-                                DateFormat="dd.MM.yy"
-                                ShowWeekNumbers="true"
-                                Variant="Variant.Outlined"
-                                IconSize=Size.Small
-                                AutoClose=true
-                                DisableToolbar=true
-                                Required RequiredError=""
-                                Clearable="!IsFormReadOnly" />
+                <div style="width:130px; height:35px; margin-right: 4px">
+                    <MudDatePicker Class="wrapper-input-date" Label="ETA" @bind-Date="Item.ETA"
+                                   DateFormat="dd.MM.yy"
+                                   ShowWeekNumbers="true"
+                                   Variant="Variant.Outlined"
+                                   IconSize=Size.Small
+                                   AutoClose=true
+                                   Required RequiredError=""
+                                   Clearable="!IsFormReadOnly" />
+                 </div>                 
 
                 <MudSpacer />
-                <MudSelect Class="wrapper-input select" Style="width:125px" T="EntityStatus" Label="Status" @bind-Value="Item.Status"
+                <MudSelect Class="wrapper-input-select" Style="width:125px" T="EntityStatus" Label="Status" @bind-Value="Item.Status"
                             ToStringFunc="@(str => str.ToString())"
                             Variant="Variant.Outlined" Margin="Margin.Dense">
                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
@@ -133,8 +137,8 @@
                                         Required RequiredError=""
                                Clearable="!IsFormReadOnly" />
 
-                 <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
-                                Style="width: 125px"
+                <div style="width:130px; height:35px">
+                    <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
                                 DateFormat="dd.MM.yy"
                                 ShowWeekNumbers="true"
                                 Variant="Variant.Outlined"
@@ -143,6 +147,7 @@
                                 DisableToolbar=true
                                 Required RequiredError=""
                                 Clearable="!IsFormReadOnly" />
+                </div>                 
             </div>
 
             <div class="Container-table">

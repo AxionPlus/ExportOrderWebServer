@@ -140,43 +140,80 @@
                 fileName: file.Name);
         }
 
-        var client = httpClient.CreateClient();
-        client.Timeout = new TimeSpan(0, 10, 0);        // TimeSpan.FromMinutes(10);
-        
-        var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFromExcel", content);
+        using (var client = httpClient.CreateClient())
+        {
+            client.Timeout = new TimeSpan(0, 10, 0);        // TimeSpan.FromMinutes(10);
 
-        client.Dispose();
+            var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFromExcel", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>>();
+
+                if (uploadedDTO is null)
+                    Snackbar.Add($"Data not uploaded", Severity.Error);
+                else
+                {
+                    var errList = await checkUploadResultService.CheckingResult(uploadedDTO, VoyageId);
+
+                    /// DATA
+                    uploadResult.UploadedDTO = uploadedDTO;
+
+                    /// SUMMARY
+                    int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
+                    int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
+                    uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
+
+                    /// ERRORS
+                    if (errList.Count() > 0)
+                        uploadResult.Errors = errList;
+
+                    /// CHECKED AND READY TO UPLOAD
+                    IsChecked = true;
+                    BtnName = "Upload";
+                }
+            }
+            else
+                Snackbar.Add($"File not uploaded", Severity.Error);
+        }
+
+        //var client = httpClient.CreateClient();
+        //client.Timeout = new TimeSpan(0, 10, 0);        // TimeSpan.FromMinutes(10);
+        
+        //var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFromExcel", content);
+
+        //client.Dispose();
 
         // Check data
-        if (response.IsSuccessStatusCode)
-        {
-            var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>>();            
+        // if (response.IsSuccessStatusCode)
+        // {
+        //     var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>>();            
 
-            if (uploadedDTO is null)
-                Snackbar.Add($"Data not uploaded", Severity.Error);
-            else
-            {
-                var errList = await checkUploadResultService.CheckingResult(uploadedDTO, VoyageId);
+        //     if (uploadedDTO is null)
+        //         Snackbar.Add($"Data not uploaded", Severity.Error);
+        //     else
+        //     {
+        //         var errList = await checkUploadResultService.CheckingResult(uploadedDTO, VoyageId);
                 
-                // DATA
-                uploadResult.UploadedDTO = uploadedDTO;
+        //         // DATA
+        //         uploadResult.UploadedDTO = uploadedDTO;
 
-                // SUMMARY
-                int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
-                int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
-                uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
+        //         // SUMMARY
+        //         int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
+        //         int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
+        //         uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
 
-                // ERRORS                
-                if (errList.Count() > 0)
-                    uploadResult.Errors = errList;
+        //         // ERRORS                
+        //         if (errList.Count() > 0)
+        //             uploadResult.Errors = errList;
 
-                // CHECKED AND READY TO UPLOAD
-                IsChecked = true;
-                BtnName = "Upload";
-            }
-        }
-        else
-            Snackbar.Add($"File not uploaded", Severity.Error);
+        //         // CHECKED AND READY TO UPLOAD
+        //         IsChecked = true;
+        //         BtnName = "Upload";
+        //     }
+        // }
+        // else
+        //     Snackbar.Add($"File not uploaded", Severity.Error);
 
         ClearDragClass();
         

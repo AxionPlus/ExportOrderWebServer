@@ -329,9 +329,9 @@
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
-        var result = await dialog.Result;
+        var resultDialog = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (resultDialog is not null && !resultDialog.Canceled && resultDialog.Data is not null)
         {
             bool? questionResult = await DialogService.ShowMessageBox(
                     "Set New Vessel CALL?",
@@ -341,19 +341,22 @@
             if (!questionResult.HasValue) return;
             if (!questionResult.Value) return;
 
-            if (result.Data is not null)
+            IsLoadingData = true;
+            await InvokeAsync(StateHasChanged); // commit this
+
+            var newVesselCallDetailId = (long)resultDialog.Data;
+
+            var selectedEOids = SelectedItems.Select(s => s.Id).ToArray();
+
+            var result = await _exportOrderProvider.SetNewVesselCall(selectedEOids, newVesselCallDetailId);
+            if (result.HasError)
             {
-                IsLoadingData = true;
-                await InvokeAsync(StateHasChanged);
-
-                var VesselCallDetailId = (long)result.Data;
-
-                var selectedEOids = SelectedItems.Select(s => s.Id).ToArray();
-
-                await _exportOrderProvider.SetNewVesselCall(selectedEOids, VesselCallDetailId);
-
-                await GetItems();
+                Snackbar.Add(string.Join("; ", result.Error), Severity.Warning);
+                IsLoadingData = false;
+                return;
             }
+
+            await GetItems();
         }
     }
 

@@ -122,10 +122,10 @@
              <MudSpacer />
              <MudTextField Class="TextField" T="VesselCallDetail" Style="width: 450px" @bind-Value="Value.VesselCallDetail"
                            Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
-                           Text="@(Value.VesselCallDetail is not null && Value.VesselCallDetail.VesselCall is not null ?
+                           Text="@(Value.VesselCallDetail != null && Value.VesselCallDetail.VesselCall != null ?
                                         string.Concat(Value.VesselCallDetail.VesselCall.Vessel.Name, " / ", 
                                                         Value.VesselCallDetail.VesselCall.VoyageNo, " / ",
-                                                        Value.VesselCallDetail.POD is null ? string.Empty : Value.VesselCallDetail.POD.NameEn) :
+                                                        Value.VesselCallDetail.POD == null ? string.Empty : Value.VesselCallDetail.POD.NameEn) :
                                         string.Empty)"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            Required RequiredError="" Clearable="!IsFormReadOnly"
@@ -226,7 +226,7 @@
                 <MudPaper Width="450px" Elevation="0" Style="height:240px;overflow:auto">
                     @if (Value.Documents != null)
                     {
-                        <MudTreeView T="DocumentEntity" Items="@TreeItems" @bind-SelectedValues="_SelectedDocumentValues"
+                        <MudTreeView T="DocumentEntity" Items="@TreeItems" @bind-SelectedValues="SelectedDocumentValues"
                                      Dense="true" Hover="true" SelectionMode="SelectionMode.MultiSelection">
                             <ItemTemplate>
                                 <MudTreeViewItem Value="@context.Value"
@@ -293,8 +293,6 @@
                     Upload New List
                 </MudButton>               
                 <MudSpacer />
-                @* <h6 class="container-content-head" style="color:cornflowerblue">CONTAINER RECORDS</h6> *@
-                @* <MudSpacer /> *@
                 <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
                 <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
             </div>
@@ -441,7 +439,9 @@
                 }
             </FooterContent>
         </MudTable>
-    </div>    
+    </div>
+
+    <OverlayLoadingData Visible="@IsLoadingData" />
 }
 
 @code {
@@ -458,17 +458,19 @@
     [Parameter]
     public bool IsRoleForEdit { get; set; }    
 
+    private bool IsLoadingData = false;
+
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
 
     private CheckedUploadResult? uploadResult { get; set; }
 
     //private HashSet<DocumentEntity>? SelectedDocumentValues { get; set; }
-    private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
-    private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
+    //private HashSet<DocumentEntity> DocumentItems { get; set; } = new HashSet<DocumentEntity>();
+    //private HashSet<DocumentRecord> DocumentRecordItems { get; set; } = new HashSet<DocumentRecord>();
 
     private List<TreeItemData<DocumentEntity>> TreeItems { get; set; } = new();
-    private IReadOnlyCollection<DocumentEntity>? _SelectedDocumentValues { get; set; }
+    private IReadOnlyCollection<DocumentEntity>? SelectedDocumentValues { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -481,8 +483,10 @@
 
     protected override void OnInitialized()
     {
-        if (Value is not null)
-            TreeItems = Value.Documents.Select(s => new TreeItemData<DocumentEntity>() { Value = s }).ToList();
+        // if (Value is not null)
+        //     TreeItems = Value.Documents.Select(s => new TreeItemData<DocumentEntity>() { Value = s }).ToList();
+
+        FillUpTreeItems();
 
         //return base.OnInitializedAsync();
     }
@@ -505,7 +509,8 @@
         {
             var documents = (HashSet<DocumentEntity>)result.Data;
 
-            Value.Documents.AddRange(documents);
+            Value.Documents.AddRange(documents); // add DocRecs
+            FillUpTreeItems();
         }
     }
 
@@ -513,9 +518,9 @@
     {
         await Task.Delay(50);
 
-        if (Value is null || _SelectedDocumentValues is null) return;
+        if (Value is null || SelectedDocumentValues is null) return;
 
-        foreach (var document in _SelectedDocumentValues)
+        foreach (var document in SelectedDocumentValues)
         {
             /// Cntr RECORDS
             var records = Value.Records.Where(eor => eor.Contents.Any(co => co.DocumentRecord.Document.Id == document.Id)).ToList();
@@ -542,12 +547,12 @@
 
             //DocumentItems.Remove(document);
 
-            Value!.Documents.Remove(document);
+            Value.Documents.Remove(document);
         }
 
-        _SelectedDocumentValues = null;
-        
-        //SelectedDocumentValues.Clear();
+        SelectedDocumentValues = null;
+
+        FillUpTreeItems();
     }
 
     #endregion
@@ -649,99 +654,110 @@
 
         try
         {
-            if (result is not null && !result.Canceled)
+            if (result is not null && !result.Canceled && result.Data != null)
             {
-                if (result.Data != null)
+                IsLoadingData = true;
+
+                uploadResult = (CheckedUploadResult)result.Data;
+
+                if (uploadResult.UploadedDTO == null) return;
+
+                var checkedRecords = uploadResult.UploadedDTO.ToList().GroupBy(urdto => urdto.CntrNum);
+                var checkedDocuments = uploadResult.UploadedDTO.ToList().GroupBy(urdto => urdto.DocumentName);
+
+                var records = new List<ExportOrderRecord>();
+                var documents = new List<DocumentEntity>();
+
+                /// RECORDS
+                foreach (var checkedRecord in checkedRecords)
                 {
-                    uploadResult = (CheckedUploadResult)result.Data;
-
-                    if (uploadResult.UploadedDTO == null) return;
-
-                    var checkedRecords = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.CntrNum);
-                    var checkedDocuments = uploadResult.UploadedDTO.ToList().GroupBy(urd => urd.DocumentName);
-
-                    var records = new List<ExportOrderRecord>();
-                    var documents = new List<DocumentEntity>();
-
-                    /// RECORDS
-                    foreach (var recordResult in checkedRecords)
+                    var newRecord = new ExportOrderRecord()
                     {
-                        var newRecord = new ExportOrderRecord()
+                        CntrNum = checkedRecord.FirstOrDefault()!.CntrNum!,
+                        CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == checkedRecord.FirstOrDefault()!.CntrType),
+                        CntrTareWt = checkedRecord.FirstOrDefault()!.CntrTareWt,
+                        Seal = string.IsNullOrEmpty(checkedRecord.FirstOrDefault()!.Seal) ? string.Empty : checkedRecord.FirstOrDefault()!.Seal!,
+                    };
+
+                    foreach (var checkedContent in checkedRecord)
+                    {   
+                        var Document = await _documentProvider.GetDocumentAsync(checkedContent.DocumentName!);
+
+                        var content = new ContainerContent()
                         {
-                            CntrNum = recordResult.FirstOrDefault()!.CntrNum!,
-                            CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == recordResult.FirstOrDefault()!.CntrType),
-                            CntrTareWt = recordResult.FirstOrDefault()!.CntrTareWt,
-                            Seal = string.IsNullOrEmpty(recordResult.FirstOrDefault()!.Seal) ? string.Empty : recordResult.FirstOrDefault()!.Seal!,
+                            PackageQty = checkedContent.PackageQty,
+                            PackageName = checkedContent.PackageName,
+                            NetWt = checkedContent.NetWt,
+                            GrossWt = checkedContent.GrossWt,
+                            DocumentRecord = await _documentProvider.GetDocumentRecordAsync(Document!.Name!, (int)checkedContent.SeqCommodity!)
                         };
 
-                        foreach (var contentResult in recordResult)
-                        {   
-                            var Document = await _documentProvider.GetDocumentAsync(contentResult.DocumentName!);
+                        content.DocumentRecord.Document = Document;
 
-                            var content = new ContainerContent()
-                            {
-                                PackageQty = contentResult.PackageQty,
-                                PackageName = contentResult.PackageName,
-                                NetWt = contentResult.NetWt,
-                                GrossWt = contentResult.GrossWt,
-                                DocumentRecord = await _documentProvider.GetDocumentRecordAsync(Document!.Name!, (int)contentResult.SeqCommodity!)
-                            };
-
-                            content.DocumentRecord.Document = Document;
-
-                            newRecord.Contents.Add(content);
-                        }
-
-                        records.Add(newRecord);
-                        newRecord = null;
+                        newRecord.Contents.Add(content);
                     }
 
-                    /// DOCUMENTS
-
-                    /// Remove old documents from the page       (export order Records removing too)
-                    if (DocumentItems.Count > 0)
-                    {
-                        foreach (var documentItem in DocumentItems)
-                        {
-                            foreach (var documentRecordItem in DocumentRecordItems)
-                                DocumentRecordItems.Remove(documentRecordItem);
-
-                            DocumentItems.Remove(documentItem);
-                        }
-                    }
-
-                    /// add new documents
-                    foreach (var checkedDocument in checkedDocuments)
-                    {
-                        var Document = await _documentProvider.GetDocumentAsync(checkedDocument.Key!);
-
-                        if (Document is null) continue;
-
-                        var existedRecords = Document.Records.ToList();
-
-                        foreach (var existedRecord in existedRecords)
-                        {
-                            if (!checkedDocument.Any(d => d.SeqCommodity == existedRecord.Seq))
-                                Document!.Records.Remove(existedRecord);                            
-                        }
-
-                        documents.Add(Document);
-                    }
-
-                    Value.Records = records;
-                    Value.Documents = documents;
-
-                    Snackbar.Add($"Uploaded", Severity.Success);
-
-                    await ValueChanged.InvokeAsync(Value);
-
+                    records.Add(newRecord);
+                    newRecord = null;
                 }
+
+                /// DOCUMENTS
+
+                /// Remove old documents from the page       (export order Records removing too)
+
+                if (Value.Documents.Any())
+                {
+                    Value.Documents.RemoveRange(0, Value.Documents.Count());
+                    TreeItems = new();
+                    // foreach (var document in Value.Documents)
+                    //     Value.Documents.Remove(document);
+                }
+
+                // if (DocumentItems.Any())
+                // {
+                //     foreach (var documentItem in DocumentItems)
+                //     {
+                //         foreach (var documentRecordItem in DocumentRecordItems)
+                //             DocumentRecordItems.Remove(documentRecordItem);
+
+                //         DocumentItems.Remove(documentItem);
+                //     }
+                // }
+
+                /// add new documents
+                foreach (var checkedDocument in checkedDocuments)
+                {
+                    var Document = await _documentProvider.GetDocumentAsync(checkedDocument.Key!);
+
+                    if (Document is null) continue;
+
+                    var documentRecords = Document.Records.ToArray();   //ToList();
+
+                    foreach (var documentRecord in documentRecords)
+                        if (!checkedDocument.Any(d => d.SeqCommodity == documentRecord.Seq))
+                            Document.Records.Remove(documentRecord);
+
+
+
+                    documents.Add(Document);
+                }
+
+                Value.Records = records;
+                Value.Documents = documents;
+                FillUpTreeItems();
+
+                IsLoadingData = false;
+
+                Snackbar.Add($"Uploaded", Severity.Success);
+
+                await ValueChanged.InvokeAsync(Value);
             }
         }
         catch (Exception ex)
         {
             string msg = ex.Message;
             Console.WriteLine(msg);
+            IsLoadingData = false;
         }        
     }
 
@@ -755,6 +771,12 @@
 
     #region AUXILARY METHODS
 
+    private void FillUpTreeItems()
+    {
+        if (Value is not null)
+            TreeItems = Value.Documents.Select(s => new TreeItemData<DocumentEntity>() { Value = s }).ToList();        
+    }
+
     private async Task GetVesselCallDetail_Click()
     {
         if (Value is null) return;
@@ -767,9 +789,9 @@
         if (result is not null && !result.Canceled && result.Data is not null)
         {
             var response = await _vesselCallProvider.GetVesselCallDetailAsync((long)result.Data);
-            if (!response.HasError)
+            if (!response.HasError && response.Object is not null)
             {
-                Value.VesselCallDetail = (VesselCallDetail)response.Object!;
+                Value.VesselCallDetail = (VesselCallDetail)response.Object;
 
                 /// check Carrier for Terminal: is the Carrier has any of Terminals like VesselCall's Terminal
                 if (Value.Carrier is not null)

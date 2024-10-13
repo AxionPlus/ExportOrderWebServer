@@ -816,39 +816,45 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<AppObjectResponse> SetNewVesselCall(IEnumerable<long> exportOrderIds, long vesselCallDetailId)
     {
-
-        using (var _db = _dbContext.CreateDbContextAsync())
+        try
         {
-            var db = await _db;
-
-            var VesselCallDetail = await db.Set<VesselCallDetail>().FirstOrDefaultAsync(s => s.Id == vesselCallDetailId);
-
-            var ExportOrders = await db.ExportOrders.AsTracking()     // AsNoTracking
-                                                    .Where(s => exportOrderIds.Any(i => i == s.Id))
-                                                    .ToArrayAsync();
-
-            if (VesselCallDetail is null)
+            using (var _db = _dbContext.CreateDbContextAsync())
             {
-                appObjResponse.ErrorAdd("Рейс не найден.");
-                return appObjResponse;
+                var db = await _db;
+
+                var VesselCallDetail = await db.Set<VesselCallDetail>().FirstOrDefaultAsync(s => s.Id == vesselCallDetailId);
+                //var VesselCallDetail = await db.Set<VesselCallDetail>().AsNoTracking().FirstOrDefaultAsync(s => s.Id == vesselCallDetailId);
+
+                var ExportOrders = await db.ExportOrders.AsTracking()     // AsNoTracking
+                                                        .Where(s => exportOrderIds.Any(i => i == s.Id))
+                                                        .ToArrayAsync();
+
+                if (VesselCallDetail is null)
+                {
+                    appObjResponse.ErrorAdd("Рейс не найден.");
+                    return appObjResponse;
+                }
+
+                foreach (var exportOrder in ExportOrders)
+                {
+                    exportOrder.VesselCallDetail = VesselCallDetail;
+                    db.Entry(exportOrder.VesselCallDetail).State = EntityState.Unchanged;
+
+                    db.Entry(exportOrder).State = EntityState.Modified;
+                }
+
+                //db.Entry(VesselCallDetail).State = EntityState.Unchanged;   // excluded out of foreach
+
+                var bug = db.ChangeTracker.DebugView.LongView;
+
+                await db.SaveChangesAsync();
             }
-            
-            foreach (var exportOrder in ExportOrders)
-            {
-                exportOrder.VesselCallDetail = VesselCallDetail;                
-                db.Entry(exportOrder.VesselCallDetail).State = EntityState.Unchanged;
-
-                db.Entry(exportOrder).State = EntityState.Modified;
-            }
-
-            //db.Entry(VesselCallDetail).State = EntityState.Unchanged;   // excluded out of foreach
-
-            var bug = db.ChangeTracker.DebugView.LongView;
-
-            await db.SaveChangesAsync();
-
-            //appObjResponse.Object = eoRecords;
-            
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            appObjResponse.ErrorAdd($"Voyage Change error: {ex.Message}");
+            return appObjResponse;
         }
 
         return appObjResponse;

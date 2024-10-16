@@ -57,7 +57,7 @@
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Required RequiredError="" Clearable="!IsFormReadOnly" />
                 <MudSelect Class="wrapper-input-select" T="CntrTpSz" Label="Type" @bind-Value="@Item.CntrType"
-                           Style="width: 92px; margin-inline: 20px;"
+                           Style="width: 108px; margin-inline: 20px;"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            Required RequiredError="" Clearable="!IsFormReadOnly">
                     @if (CntrTypes is not null)
@@ -105,25 +105,43 @@
                                 <MudSelect Class="wrapper-input" T="string" Style="width:200px" Value="@context.DocumentName"
                                            ValueChanged="@(t => { context.DocumentName = t; context.DocumentRecord = new DocumentRecord(); })"
                                            Variant="Variant.Outlined" OpenIcon="" Clearable="!IsFormReadOnly" Required RequiredError="">
-                                    @if (Documents is not null)
+                                    @if (Documents != null)
                                         @foreach (var document in Documents)
                                         {
                                             <MudSelectItem T="string" Value="@document.Name">@document.Name</MudSelectItem>
                                         }
                                 </MudSelect>
+@*                                 <MudSelect Class="wrapper-input" T="string" Style="width:200px" Value="@context.DocumentName"
+                                           ValueChanged="@(t => { context.DocumentName = t; context.DocumentRecord = new DocumentRecord(); })"
+                                           Variant="Variant.Outlined" OpenIcon="" Clearable="!IsFormReadOnly" Required RequiredError="">
+                                    @if (DocumentNames != null)
+                                        @foreach (var document in DocumentNames)
+                                        {
+                                            <MudSelectItem T="string" Value="@document"></MudSelectItem>
+                                        }
+                                </MudSelect> *@
                             </MudTd>
                             <MudTd>
                                 <MudSelect Class="wrapper-input" Style="width:120px" T="DocumentRecord" @bind-Value="@context.DocumentRecord"                                      
-                                           ToStringFunc="@(dr => dr is not null ? dr.CommodityHSCode : "")"
+                                           ToStringFunc="@(dr => dr != null ? dr.CommodityHSCode : "")"
                                            Variant="Variant.Outlined" Margin="Margin.Dense"
                                            OpenIcon="" Required RequiredError="" Clearable="!IsFormReadOnly">
-                                    @if (context.DocumentName is not null && Documents is not null)
-                                        @foreach (DocumentRecord documentRecord in Documents.FirstOrDefault(d => d.Name == context.DocumentName)!.Records)
+                                    @if (context.DocumentName != null && Documents != null)
+                                        @foreach (DocumentRecord documentRecord in Documents.FirstOrDefault(d => !string.IsNullOrEmpty(d.Name) &&
+                                                                                                            d.Name == context.DocumentName)!.Records)
                                         {
                                             <MudSelectItem Value="@documentRecord">
                                                 @($"({documentRecord.CommodityHSCode}) {documentRecord?.CommodityName}")
                                             </MudSelectItem>
-                                        }                
+                                        } 
+@*                                     @if (context.DocumentName != null && Documents != null)
+                                        @foreach (DocumentRecord documentRecord in Documents.Select(d => d.Records.Where(dr => !string.IsNullOrEmpty(dr.Document.Name) &&
+                                                                                                                         dr.Document.Name.Equals(context.DocumentName))).ToList())
+                                        {
+                                            <MudSelectItem Value="@documentRecord">
+                                                @($"({documentRecord.CommodityHSCode}) {documentRecord?.CommodityName}")
+                                            </MudSelectItem>
+                                        } *@
                                 </MudSelect>
                             </MudTd>
                             <MudTd>@(context.DocumentRecord is not null ? context.DocumentRecord.CommodityName : "")</MudTd>
@@ -186,11 +204,13 @@
     [CascadingParameter] public string? ApplicationUser { get; set; }
 
     [Parameter]
-    public ExportOrderRecord Item { get; set; } = new ExportOrderRecord();
+    public ExportOrderRecord Item { get; set; } = new();
     [Parameter]
     public long VoyageId { get; set; }
     [Parameter]
     public IEnumerable<DocumentEntity> Documents { get; set; } = new List<DocumentEntity>();
+    [Parameter]
+    public IEnumerable<string> DocumentNames { get; set; } = new List<string>();
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
 
@@ -214,7 +234,7 @@
         if (Item.Id == 0)
             IsFormReadOnly = false;
         else
-            foreach (var content in Item!.Contents)
+            foreach (var content in Item.Contents)
                 content.DocumentName = content.DocumentRecord.Document.Name;
 
         if (Item.CntrNum is not null)
@@ -224,12 +244,12 @@
     private void AddContainerContent_Click()
     {
         if (Item is not null)
-            Item.Contents.Add(new ContainerContent() { DocumentRecord = new() });
+            Item.Contents.Add(new()); //Item.Contents.Add(new ContainerContent() { DocumentRecord = new() });
     }
 
     private void RemoveContainerContent_Click(ContainerContent item)
     {
-        Item!.Contents.Remove(item);
+        Item.Contents.Remove(item);
     }
 
     private async Task SaveItem_Click()
@@ -259,7 +279,7 @@
 
             Snackbar.Add("Seved successfully.", Severity.Success);
 
-            await Task.Delay(500);
+            await Task.Delay(50);
 
             MudDialog!.Close(DialogResult.Ok(Item));
         }
@@ -269,8 +289,6 @@
 
     private async Task EditItem_Click()
     {
-        //MudDialog!.Options.CloseButton = false;
-
         await Task.Delay(50);
         IsFormReadOnly = false;
     }
@@ -282,7 +300,7 @@
         string num = Item.CntrNum;
 
         if (num.Equals(InitialCntrNum)) return false;
-                
+
         if (num.Length < 11)
         {
             Snackbar.Add($"Нехватает символов в номере Контейнера.", Severity.Error);
@@ -320,4 +338,14 @@
             new MaskChar('#', @"[0-9]"),
         }
     };
+
+    private async void OnDialogClose()
+    {
+        if (MudDialog != null && Form != null)
+            await Form.Validate();
+
+        
+    }
+
+    
 }

@@ -68,7 +68,7 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" IsRoleForEdit="@IsRoleForEdit" />
+            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" IsRoleForEdit="IsRoleForEdit" />
         }
     </MudForm>
 
@@ -130,16 +130,16 @@
             else
             {
                 response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
-                if (!response.HasError)
-                    Item = new() { VesselCallDetail = (VesselCallDetail)response.Object! };
+                if (!response.HasError && response.Object is not null)
+                    Item = new() { VesselCallDetail = (VesselCallDetail)response.Object };
             }   
         }
         else
         {
             response = await _exportOrderProvider.GetItemAsync(Id);
-            if (!response.HasError)
+            if (!response.HasError && response.Object is not null)
             {
-                Item = (ExportOrderEntity)response.Object!;
+                Item = (ExportOrderEntity)response.Object;
 
                 if (Item.Status.Equals(EntityStatus.Cancelled))
                     if (!IsRoleForEdit)
@@ -148,7 +148,7 @@
         }        
     }
 
-    public async Task SaveItem()
+    private async Task SaveItem()
     {
         if (Item is null) return;
 
@@ -171,7 +171,7 @@
             }
             else
             {
-                var response = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser);
+                var response = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser!);
                 if (!response.HasError)
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
@@ -196,13 +196,13 @@
 
         await GetItem();
 
-        await Task.Delay(1000);
+        //await Task.Delay(1000);
 
         IsFormReadOnly = true;
         IsLoadingData = false;               
     }    
 
-    public async Task CopyItem()
+    private async Task CopyItem()
     {
         if (Item is not null)
         {
@@ -228,9 +228,9 @@
         }
     }
 
-    public async Task EditItem()
+    private void EditItem()
     {
-        await Task.Delay(100);
+        //await Task.Delay(100);
 
         IsFormReadOnly = false;
     }

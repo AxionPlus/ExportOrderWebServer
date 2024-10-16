@@ -21,11 +21,6 @@ public class DocumentProvider : IDocumentProvider
             var result = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == Num);
 
             return result;
-
-            //if (result is not null)
-            //    return result;
-            //else
-            //    return null;
         }
     }
 
@@ -397,5 +392,42 @@ public class DocumentProvider : IDocumentProvider
     public Task<AppObjectResponse> GetItemsAsync(object parameters)
     {
         throw new NotImplementedException();
+        //appObjResponse = new();
+
+        //using (var _db = _dbContext.CreateDbContextAsync())
+        //{
+        //    var db = await _db;
+
+        //    if (parameters.GetType() == typeof(long[]))
+        //    {
+        //        var ids = (long[])parameters;
+
+        //        var documents = await db.Documents.AsNoTracking()
+        //                                          .Include(d => d.Records)
+        //                                          .Where(d => ids.Any(x => x == d.Id))
+        //                                          .ToArrayAsync();
+        //        if (documents is null)
+        //            appObjResponse.ErrorAdd("Documents not found");
+        //        else
+        //            appObjResponse.Object = documents;
+        //    }   
+        //}
+
+        //return appObjResponse;
+    }
+
+    public async Task<IEnumerable<DocumentEntity>?> GetItemsAsync(long[] ids)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var documents = await db.Documents.AsNoTracking()
+                                              .Include(d => d.Records)
+                                              .Where(d => ids.Any(x => x == d.Id))
+                                              .ToArrayAsync();
+
+            return documents;
+        }
     }
 }

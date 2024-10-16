@@ -69,7 +69,8 @@
                          Label="Voyage"
                          Variant="Variant.Outlined" Margin="Margin.Dense"
                          CloseIcon="" OpenIcon="" MaxItems="20"
-                         ResetValueOnEmptyText="true" Clearable />
+                         ResetValueOnEmptyText="true" Clearable
+                         Immediate="true"/>
         
         <MudAutocomplete Class="Autocomplete" Style="width: 170px" T="string" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
                          Label="POD"
@@ -342,7 +343,7 @@
             if (!questionResult.Value) return;
 
             IsLoadingData = true;
-            await InvokeAsync(StateHasChanged); // commit this
+            //await InvokeAsync(StateHasChanged); // commit this
 
             var newVesselCallDetailId = (long)resultDialog.Data;
 

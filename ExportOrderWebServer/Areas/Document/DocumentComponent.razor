@@ -202,12 +202,21 @@
         {
             Snackbar.Add($"Nothing was selected. Try again or exit without a selection.", Severity.Warning);
             return;
-        }        
+        }
+
+        long[] ids = SelectedItems.Select(s => s.Id).ToArray();
+
+        // if (MudDialog != null)
+        //     MudDialog.Close(SelectedItems);
+        // else
+        //     await jSRuntime.InvokeVoidAsync("window.close", SelectedItems);
+
+        var documents = await _DocumentProvider.GetItemsAsync(ids);
 
         if (MudDialog != null)
-            MudDialog.Close(SelectedItems);
+            MudDialog.Close(documents);
         else
-            await jSRuntime.InvokeVoidAsync("window.close", SelectedItems);
+            await jSRuntime.InvokeVoidAsync("window.close", documents);
     }
 
     #region SEARCHERS
@@ -223,5 +232,4 @@
     }
 
     #endregion
-
 }

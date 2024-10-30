@@ -101,7 +101,7 @@
                 }
             </MudSelect>            
             <div style="width:520px">
-                <MudTextField @ref="@DeclarationNum" Class="TextField" Style="width: 260px; font-weight:500" Label="Number" @bind-Value="Value.Name"
+                <MudTextField @ref="@DeclarationNum" Class="TextField" Style="width: 260px; font-weight:500; color:var(--mud-palette-primary)" Label="Number" @bind-Value="Value.Name"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Mask="@(new PatternMask("00000000/000000/0000000"))"
                               Required RequiredError="" Clearable="!IsFormReadOnly" 

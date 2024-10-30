@@ -91,7 +91,7 @@
     .Summary {
         margin-top: 3px;
         margin-bottom: 3px;
-        color: cornflowerblue;
+        color: var(--mud-palette-primary);
     }
 
     .container-content-head {
@@ -107,9 +107,10 @@
 {
     <div class="Container-item">
         <div class="container-content" style="padding-bottom:2px">
-            <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px" T="string" Label="Number" Value="@Value.Num"
+            <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px; color:var(--mud-palette-primary)" T="string" Label="Number"
+                          Value="@Value.Num"
                           ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
-                          Variant="Variant.Outlined" Margin="Margin.Dense"                          
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required RequiredError="" Clearable="!IsFormReadOnly" />
             <div style="width:130px; height:35px">
                 <MudDatePicker Class="wrapper-input-date" Label="Date" @bind-Date="Value.Dated"
@@ -209,40 +210,69 @@
                 <div class="controlIconButtons">
                     <div style="width: 10px"></div>
                     <MudSpacer />
-                    <h6 class="container-content-head" style="color:cornflowerblue">DOCUMENTS:</h6>                    
+                    <h6 class="container-content-head">Documents:</h6>                    
                     <MudSpacer />
-                    <MudTooltip Text="Add Document (добавить Декларацию)">
+                    <MudTooltip Text="Add Document (добавить Декларацию)" Duration="1500" Delay="500">
                         <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="AddDocuments_Click"></MudIconButton>
-                    </MudTooltip>                    
-                    <MudTooltip Text="Download Template (загрузить проформу)">
+                    </MudTooltip>
+                    <MudTooltip Text="Download Template (загрузить проформу)" Duration="1500" Delay="500">
                         <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="DownloadExcelTemplate"></MudIconButton>
                     </MudTooltip>
-                    <MudTooltip Text="Remove selected Documents (удалить выбранные Декларации)">
+                    <MudTooltip Text="Remove selected Documents (удалить выбранные Декларации)" Duration="1500" Delay="500">
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly" OnClick="RemoveDocument"></MudIconButton>
                     </MudTooltip>                    
                 </div>
 
-                <MudPaper Width="450px" Elevation="0" Style="height:240px;overflow:auto">
+                <MudPaper Width="450px" Elevation="0" Style="height:240px; overflow:auto">
                     @if (Value.Documents != null)
                     {
-                        <MudTreeView T="ExportOrderDocumentDTO" Items="@TreeItems" @bind-SelectedValues="SelectedDocumentValues"
-                                     Dense="true" Hover="true" SelectionMode="SelectionMode.MultiSelection">
+                        <MudTreeView T="ExportOrderDocumentDTO" Items="@TreeItems" @bind-SelectedValue="SelectedDocument"
+                                     Dense="true" Hover="true" SelectionMode="SelectionMode.ToggleSelection">
                             <ItemTemplate>
-                                <MudTreeViewItem Value="@context.Value"
-                                                 Text="@(context.Value == null ? string.Empty : context.Value.DocumentName)"
-                                                 EndText="@(context.Value == null ? string.Empty : context.Value.DocumentRecords.Count().ToString())"
-                                                 LoadingIconColor="Color.Info"
-                                                 EndTextTypo="@Typo.caption">
-
-                                    <MudTable Class="Table" T="ExportOrderDocumentRecordDTO" Context="DocRecord"
-                                              Items="@(context.Value!.DocumentRecords)">
-                                        <RowTemplate>
-                                            <MudTd Style="width: 30px">@DocRecord.Seq</MudTd>
-                                            <MudTd Style="width: 115px">@DocRecord.CommodityHSCode</MudTd>
-                                            <MudTd Style="text-align:left">@DocRecord.CommodityName</MudTd>
-                                        </RowTemplate>
-                                    </MudTable>
-                                </MudTreeViewItem>
+                                @if (context.Value != null)
+                                {
+                                    <MudTreeViewItem Style="width:100%" Value="@context.Value">
+                                        <BodyContent Context="item">
+                                            <div class="d-flex" style="flex-direction:row; justify-content: space-between; width:100%">
+                                                <MudText>@(context.Value.DocumentName)</MudText>
+                                                <MudSpacer />
+                                                <MudTooltip Text="Кол-во выбранных товаров в этой ДТ" Delay="1000">
+                                                    <MudText Typo="@Typo.caption">@(context.Value.DocumentRecords.Count().ToString())</MudText>
+                                                </MudTooltip>                                                
+                                                <MudSpacer />
+                                                <MudTooltip Text="Список поручений по этой ДТ" Delay="1000">
+                                                    <MudIconButton Icon="@Icons.Custom.FileFormats.FileDocument" Size="Size.Small"
+                                                        OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
+                                                    </MudIconButton>
+                                                </MudTooltip>
+                                            </div>                                            
+                                        </BodyContent>                                        
+                                        <ChildContent>
+                                            <MudTable Class="Table" T="ExportOrderDocumentRecordDTO" Items="@(context.Value.DocumentRecords)" Context="DocRecord">
+                                                <RowTemplate>
+                                                    <MudTd Style="width: 30px; color:gray">@DocRecord.Seq</MudTd>
+                                                    <MudTd Style="width: 115px; color:gray">@DocRecord.CommodityHSCode</MudTd>
+                                                    <MudTd Style="text-align:left; color:gray">@DocRecord.CommodityName</MudTd>
+                                                </RowTemplate>
+                                            </MudTable>
+                                        </ChildContent>                                        
+                                    </MudTreeViewItem>
+                                    <MudPopover Class="px-4 pb-4 pt-2" Open="IsPopoverOpen" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                                        @if (ExportOrderNums != Enumerable.Empty<string>() && ExportOrderNums.Count() > 0)
+                                        {
+                                            <div class="d-flex" style="flex-direction:row; justify-content: flex-end">
+                                                <MudTooltip Text="Close" Delay="1000">
+                                                    <MudIconButton Style="padding:unset" Icon="@Icons.Material.Rounded.Close" Color="Color.Warning" OnClick="@(() => IsPopoverOpen = false)" />
+                                                </MudTooltip>
+                                            </div>                                            
+                                            <MudText Style="padding-top:10px; padding-bottom:10px">Список поручений по этой ДТ:</MudText>
+                                            @foreach (string num in ExportOrderNums)
+                                            {
+                                                <MudText Color="Color.Primary">@num</MudText>
+                                            }                                            
+                                        }                                            
+                                    </MudPopover>
+                                }                                
                             </ItemTemplate>
                         </MudTreeView>
                     }
@@ -261,14 +291,14 @@
                 {
                     if (Value.Documents.Count() > 0)
                     {
-                        <h6 class="infoSC">Shippers:</h6>
+                        <h6 class="infoSC">Shipper(s):</h6>
                         @* <div style="padding-left:10px">@string.Join(";\n ", Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))</div> *@
                         @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))
                         {
                             <div style="padding-left:10px">@shipper@(Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
                         }
                         <br />
-                        <h6 class="infoSC">Consignees:</h6>
+                        <h6 class="infoSC">Consignee(s):</h6>
                         @* <div style="padding-left:10px">@string.Join(";\n ", Value.Consignees.Select(x => x.Name).Distinct())</div> *@
                         @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
                         {
@@ -291,8 +321,7 @@
                     Upload New List
                 </MudButton>               
                 <MudSpacer />
-                <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-                <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Value.Records!.Count())</span>
+                <TablePager T="ExportOrderRecord" Table="mudTable" ItemsCount="@Value.Records.Count()" />
             </div>
         }
         <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecord"
@@ -301,14 +330,14 @@
             <HeaderContent>
                 <MudTh Style="width:50px;">
                     <div class="controlIconButtons">
-                        <MudTooltip Text="add new Container record">
+                        <MudTooltip Text="add new Container record" Duration="1500" Delay="500">
                             <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Disabled="@(IsFormReadOnly || Value.VesselCallDetail is null)" Color="Color.Primary"
                                             OnClick="AddExportOrderRecord_Click" Size="Size.Small" />
                         </MudTooltip>
                     </div>
                 </MudTh>
                 <MudTh Style="width:35px">
-                    <MudTooltip Text="delete All records">
+                    <MudTooltip Text="delete All records" Duration="1500" Delay="500">
                         <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" Size="Size.Small" Disabled="IsFormReadOnly"
                                         OnClick="@(async ()=>{ await RemoveAllContainerRecords();})" />
                     </MudTooltip>
@@ -443,9 +472,10 @@
 }
 
 @code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
     private MudTable<ExportOrderRecord>? mudTable;
     private MudTable<ContainerContent>? mudCntrContentTable;
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
     public ExportOrderEntity? Value { get; set; }
@@ -457,16 +487,20 @@
     public bool IsRoleForEdit { get; set; }    
 
     private bool IsLoadingData = false;
+    private bool IsMenuOpen;
+    private bool IsPopoverOpen = false;
+    private bool TreeViewItemSelected;
 
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
+    private IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
 
     private CheckedUploadResult? uploadResult { get; set; }
 
     private List<TreeItemData<ExportOrderDocumentDTO>> TreeItems { get; set; } = new();
     private List<ExportOrderDocumentDTO> DocumentsDTO { get; set; } = new();
     private List<ExportOrderDocumentRecordDTO> DocumentRecordsDTO { get; set; } = new();
-    private IReadOnlyCollection<ExportOrderDocumentDTO>? SelectedDocumentValues { get; set; }
+    private ExportOrderDocumentDTO? SelectedDocument { get; set; } = null;
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -524,41 +558,40 @@
     {
         await Task.Delay(50);
 
-        if (Value is null || SelectedDocumentValues is null) return;
+        if (Value is null || SelectedDocument is null) return;
 
-        foreach (var document in SelectedDocumentValues)
-        {
-            /// Cntr RECORDS
-            var records = Value.Records.Where(eor => eor.Contents.Any(co => co.DocumentRecord.Document.Id == document.Id)).ToList();
 
-            foreach (var record in records)
-                if (record.Contents.Count() == 1)
+        /// Cntr RECORDS
+        var records = Value.Records.Where(eor => eor.Contents.Any(co => co.DocumentRecord.Document.Id == SelectedDocument.Id)).ToList();
+
+        foreach (var record in records)
+            if (record.Contents.Count() == 1)
+                Value.Records.Remove(record);
+            else
+            {
+                var contents = record.Contents.Where(c => c.DocumentRecord.Document.Id == SelectedDocument.Id).ToList();
+
+                if (contents.Count() > 0)
+                    foreach (var content in contents)
+                        record.Contents.Remove(content);
+
+                /// if no any content left in the record after removing, then Remove whole record
+                if (!record.Contents.Any())
                     Value.Records.Remove(record);
-                else
-                {
-                    var contents = record.Contents.Where(c => c.DocumentRecord.Document.Id == document.Id).ToList();
+            }
 
-                    if (contents.Count() > 0)
-                        foreach (var content in contents)
-                            record.Contents.Remove(content);
+        /// Documents
+        var removingDocument = Value.Documents.FirstOrDefault(s => s.Id.Equals(SelectedDocument.Id));
+        if (removingDocument is not null)
+            Value.Documents.Remove(removingDocument);
 
-                    /// if no any content left in the record after removing, then Remove whole record
-                    if (!record.Contents.Any())
-                        Value.Records.Remove(record);
-                }
+        /// TreeItems
+        var removingItem = TreeItems.FirstOrDefault(s => s.Value != null && s.Value.Id == SelectedDocument.Id);
+        if (removingItem is not null)
+            TreeItems.Remove(removingItem);
 
-            /// Documents
-            var removingDocument = Value.Documents.FirstOrDefault(s => s.Id.Equals(document.Id));
-            if (removingDocument is not null)
-                Value.Documents.Remove(removingDocument);
 
-            /// TreeItems
-            var removingItem = TreeItems.FirstOrDefault(s => s.Value != null && s.Value.Id == document.Id);
-            if (removingItem is not null)
-                TreeItems.Remove(removingItem);
-        }
-
-        SelectedDocumentValues = null;
+        SelectedDocument = null;
     }
 
     #endregion
@@ -770,7 +803,6 @@
     #endregion
 
     #region AUXILARY METHODS
-
     private void FillUpTreeItems()
     {
         if (Value is not null)
@@ -856,6 +888,63 @@
             Persons = await _exportOrderProvider.GetPersonsAsync();
     }
 
+    // private async void OnToggledChanged(bool tuggled)
+    // { 
+    //     IsMenuOpen = tuggled;
+
+    //     if (IsMenuOpen)
+    //     {
+    //         if (SelectedDocument != null && SelectedDocument.DocumentName != null)
+    //         {
+    //             string docName = SelectedDocument.DocumentName;
+
+    //             var exportOrders = await _exportOrderProvider.GetExportOrdersNums(docName);
+
+    //             if (exportOrders != Enumerable.Empty<string>())
+    //                 ExportOrderNums = exportOrders;
+    //         }
+    //     }
+    // }
+
+    // private async void TreeItem_OnDoubleClick(string? docName)
+    // {
+    //     if (!string.IsNullOrWhiteSpace(docName))
+    //     {
+    //         IsMenuOpen = !IsMenuOpen;
+
+    //         if (IsMenuOpen)
+    //         {                
+    //             var exportOrders = await _exportOrderProvider.GetExportOrdersNums(docName);
+
+    //             if (exportOrders != Enumerable.Empty<string>())
+    //                 ExportOrderNums = exportOrders;
+
+    //             await InvokeAsync(StateHasChanged);                
+    //         }
+    //         else
+    //             ExportOrderNums = Enumerable.Empty<string>();
+    //     }        
+    // }
+
+    private async void TreeItemIcon_OnClick(string? docName)
+    {
+        if (!string.IsNullOrWhiteSpace(docName))
+        {
+            IsPopoverOpen = !IsPopoverOpen;
+
+            if (IsPopoverOpen)
+            {                
+                var exportOrders = await _exportOrderProvider.GetExportOrdersNums(docName);
+
+                if (exportOrders != Enumerable.Empty<string>())
+                    ExportOrderNums = exportOrders;
+
+                await InvokeAsync(StateHasChanged);                
+            }
+            else
+                ExportOrderNums = Enumerable.Empty<string>();
+        }        
+    }
     #endregion
 
     #region SEARCHERS

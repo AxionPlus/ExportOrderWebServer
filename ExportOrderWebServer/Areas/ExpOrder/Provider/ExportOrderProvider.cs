@@ -860,6 +860,22 @@
         throw new NotImplementedException();
     }
 
+    public async Task<IEnumerable<string>> GetExportOrdersNums(string documentNum)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            return await db.ExportOrders.AsNoTracking().AsSplitQuery()
+                                            .Include(s => s.Records).ThenInclude(er => er.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
+                                            .Where(s => s.Records.SelectMany(er => er.Contents)
+                                                                 .Any(c => !string.IsNullOrWhiteSpace(c.DocumentRecord.Document.Name) &&
+                                                                            c.DocumentRecord.Document.Name == documentNum))
+                                            .Select(s => new string(string.Concat(s.Num, " (", s.Status.ToString(), ")")))
+                                            .ToArrayAsync();
+        }            
+    }
+
     //public async Task<IEnumerable<VoyageExportOrderDTO>> GetExportOrdersAsync(IEnumerable<long> Ids)
     //{
     //    try

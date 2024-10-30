@@ -3,6 +3,7 @@
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject IDocumentProvider _DocumentProvider
+@inject IExportOrderProvider _ExportOrderProvider
 
 <style>
 
@@ -93,13 +94,13 @@
                 }
             </MudTh>
             <MudTh Style="width:50px">Type</MudTh>
-            <MudTh Style="width:100px">
+            <MudTh Style="width:230px">
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
             </MudTh>
-            <MudTh>
+            <MudTh Style="text-align:start">
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Shipper!.Name!)">Shipper</MudTableSortLabel>
             </MudTh>
-            <MudTh>
+            <MudTh Style="text-align:start">
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Consignee!.Name!)">Consignee</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:80px">Status</MudTh>
@@ -115,9 +116,28 @@
                 <MudTd></MudTd>                
             }            
             <MudTd>@context.Type.ToString()</MudTd>
-            <MudTd>@context.Name</MudTd>
-            <MudTd Style="text-align: start">@context.Shipper!.Name</MudTd>
-            <MudTd Style="text-align: start">@context.Consignee!.Name</MudTd>
+            <MudTd>
+                <MudLink OnClick="@(()=> Show_ExportOrderNums(context.Name))">
+                    @context.Name
+                </MudLink>
+                <MudPopover Class="px-4 pb-4 pt-2" Open="IsPopoverOpen" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                    @if (ExportOrderNums != Enumerable.Empty<string>() && ExportOrderNums.Count() > 0)
+                    {
+                        <div class="d-flex" style="flex-direction:row; justify-content: flex-end">
+                            <MudTooltip Text="Close" Delay="1000">
+                                <MudIconButton Style="padding:unset" Icon="@Icons.Material.Rounded.Close" Color="Color.Warning" OnClick="@(() => IsPopoverOpen = false)" />
+                            </MudTooltip>
+                        </div>
+                        <MudText Style="padding-top:10px; padding-bottom:10px">Список поручений по этой ДТ:</MudText>
+                        @foreach (string num in ExportOrderNums)
+                        {
+                            <MudText Color="Color.Primary">@num</MudText>
+                        }
+                    }
+                </MudPopover>
+            </MudTd>
+            <MudTd Style="text-align: start">@(context.Shipper == null ? "---" : context.Shipper.Name)</MudTd>
+            <MudTd Style="text-align: start">@(context.Consignee == null ? "---" : context.Consignee.Name)</MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -131,12 +151,14 @@
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
-    public bool IsSelectable { get; set; } = false;
+    public bool IsSelectable { get; set; } = false;    
+    private bool IsLoadingData = false;
+    private bool IsPopoverOpen { get; set; } = false;
 
     public IEnumerable<DocumentEntity>? Items { get; set; } = new List<DocumentEntity>();
     private HashSet<DocumentEntity> SelectedItems = new();
-    private FilterParameters Filter { get; set; } = new();
-    private bool IsLoadingData = false;
+    private FilterParameters Filter { get; set; } = new();    
+    private IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
 
 
     private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
@@ -220,6 +242,28 @@
     }
 
     #region SEARCHERS
+    private async void Show_ExportOrderNums(string? docName)
+    {
+        if (!string.IsNullOrWhiteSpace(docName))
+        {
+            IsPopoverOpen = !IsPopoverOpen;
+
+            if (IsPopoverOpen)
+            {
+                //IsLoadingData = true;
+                var exportOrders = await _ExportOrderProvider.GetExportOrdersNums(docName);
+
+                if (exportOrders != Enumerable.Empty<string>())
+                    ExportOrderNums = exportOrders;
+
+                //IsLoadingData = false;
+
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+                ExportOrderNums = Enumerable.Empty<string>();
+        }
+    }
 
     private async Task<IEnumerable<string>> SearchDocument(string value, CancellationToken token)
     {

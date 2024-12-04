@@ -95,7 +95,7 @@
             }
         </MudSelect>
         
-        <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
+        <MudButton Class="Button" Style="width: 80px" OnClick="GetItems"
                    Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
             Search
         </MudButton>
@@ -149,7 +149,7 @@
             </MudTh>
             <MudTh Style="width:200px">POD</MudTh>
             <MudTh Style="width:200px; text-align:start">
-                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Carrier!)">Carrier</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Carrier!)">Carrier</MudTableSortLabel>                
             </MudTh>
             <MudTh Style="width:110px">Terminal</MudTh>
             <MudTh Style="width:50px">IMO</MudTh>
@@ -157,8 +157,8 @@
             <MudTh Style="width:100px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:42px"></MudTh>
             <MudTh Style="min-width:20px"></MudTh>
+            <MudTh Style="width:42px"></MudTh>            
         </HeaderContent>
 
         <RowTemplate>
@@ -213,12 +213,12 @@
                 }
             </MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
+            <MudTd></MudTd>
             <MudTd>
                 <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || IsBtnClicked || !IsRoleForEdit)"
                                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
                                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
-            </MudTd>
-            <MudTd></MudTd>
+            </MudTd>            
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -240,7 +240,6 @@
     private bool IsLoadingData { get; set; } = false;
     private bool IsBtnClicked { get; set; } = false;
     private bool IsRoleForEdit = false;
-
 
     protected override async Task OnInitializedAsync()
     {

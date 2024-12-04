@@ -19,8 +19,6 @@ public class SavePdfFileService : IDisposable
     {
         Dictionary<string, byte[]> Files = new Dictionary<string, byte[]>();
 
-        //var tempFiles = new List<string>();
-
         foreach (var item in Items)
         {
             string mimeType = "";
@@ -33,24 +31,13 @@ public class SavePdfFileService : IDisposable
 
             ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
 
-            //// сохраняем файл в папку DirPath
-            //using (var fileStream = new FileStream(pathFile, FileMode.Create))
-            //{
-
-            //    var file = File.WriteAllBytesAsync(pathFile, result.MainStream);
-                
-            //    await file.CopyToAsync(fileStream);
-            //}
-
+            /// сохраняем файл в папку DirPath
             await File.WriteAllBytesAsync(pathFile, result.MainStream);
 
             Files.Add(pathFile, result.MainStream);
         }
 
         return Files;
-        /// Read whole folder and stream it ot zip file
-
-
     }
 
 

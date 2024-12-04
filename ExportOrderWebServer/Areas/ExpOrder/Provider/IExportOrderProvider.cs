@@ -3,7 +3,6 @@
 public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
 {   
     Task<ExportOrderDTO> GetExportOrderDTOAsync(long Id);
-    //Task<IEnumerable<VoyageExportOrderDTO>> GetExportOrdersAsync(IEnumerable<long> Ids);
     Task<ExportOrderDTO> GetBLDTOAsync(long Id);
     Task<IEnumerable<VoyageManifestDTO>> GetVoyageManifestDTOAsync(long id, bool isImo);
     Task<IEnumerable<PersonEntity>> GetPersonsAsync();
@@ -12,5 +11,6 @@ public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
     Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id);
     Task<AppObjectResponse> SetNewVesselCall(IEnumerable<long>exportOrderIds,long vesselCallid);
     Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string UserName = "");
-    Task<IEnumerable<string>> GetExportOrdersNums(string documentNum);
+    Task<IEnumerable<string>> GetExportOrdersNum(string documentNum);
+    //Task<IEnumerable<string>?> GetShippersNameLAsync(string name);
 }

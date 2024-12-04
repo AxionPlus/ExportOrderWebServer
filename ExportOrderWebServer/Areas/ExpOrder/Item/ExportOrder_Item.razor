@@ -129,6 +129,7 @@
                 Item = new();
             else
             {
+                /// create a new Item with a certain VesselCallDetail
                 response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
                 if (!response.HasError && response.Object is not null)
                     Item = new() { VesselCallDetail = (VesselCallDetail)response.Object };
@@ -223,8 +224,9 @@
             IsEditSaveBtnsVisible = true;
 
             IsNewItem = true;
-            await Task.Delay(100);
+            
             IsFormReadOnly = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 

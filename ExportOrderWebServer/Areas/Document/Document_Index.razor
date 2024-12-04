@@ -62,10 +62,6 @@
     private async Task OpenNewItem_Click()
     {
         await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?IsNewItem={true}", "_blank");
-
-        //var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?IsNewItem={true}", "_blank"));
-        // if (result.IsCompletedSuccessfully)
-        //     await component!.GetItems();
     }
 
     public async Task CloseDialog_Click()

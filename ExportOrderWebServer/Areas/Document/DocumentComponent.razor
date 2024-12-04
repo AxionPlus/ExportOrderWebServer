@@ -251,7 +251,7 @@
             if (IsPopoverOpen)
             {
                 //IsLoadingData = true;
-                var exportOrders = await _ExportOrderProvider.GetExportOrdersNums(docName);
+                var exportOrders = await _ExportOrderProvider.GetExportOrdersNum(docName);
 
                 if (exportOrders != Enumerable.Empty<string>())
                     ExportOrderNums = exportOrders;

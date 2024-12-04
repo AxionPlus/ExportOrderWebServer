@@ -291,15 +291,13 @@
                 {
                     if (Value.Documents.Count() > 0)
                     {
-                        <h6 class="infoSC">Shipper(s):</h6>
-                        @* <div style="padding-left:10px">@string.Join(";\n ", Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))</div> *@
+                        <h6 class="infoSC">Shipper(s):</h6>                        
                         @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))
                         {
                             <div style="padding-left:10px">@shipper@(Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
                         }
                         <br />
                         <h6 class="infoSC">Consignee(s):</h6>
-                        @* <div style="padding-left:10px">@string.Join(";\n ", Value.Consignees.Select(x => x.Name).Distinct())</div> *@
                         @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
                         {
                             <div style="padding-left:10px">@consignee@(Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
@@ -550,8 +548,6 @@
 
             TreeItems.AddRange(DocumentsDTO.Select(s => new TreeItemData<ExportOrderDocumentDTO>() { Value = s }).ToList());
         }
-        // else
-        //     Snackbar.Add($"No any Document selected", Severity.Error);
     }
 
     private async Task RemoveDocument()
@@ -886,45 +882,7 @@
 
         if (result is not null && !result.Canceled)
             Persons = await _exportOrderProvider.GetPersonsAsync();
-    }
-
-    // private async void OnToggledChanged(bool tuggled)
-    // { 
-    //     IsMenuOpen = tuggled;
-
-    //     if (IsMenuOpen)
-    //     {
-    //         if (SelectedDocument != null && SelectedDocument.DocumentName != null)
-    //         {
-    //             string docName = SelectedDocument.DocumentName;
-
-    //             var exportOrders = await _exportOrderProvider.GetExportOrdersNums(docName);
-
-    //             if (exportOrders != Enumerable.Empty<string>())
-    //                 ExportOrderNums = exportOrders;
-    //         }
-    //     }
-    // }
-
-    // private async void TreeItem_OnDoubleClick(string? docName)
-    // {
-    //     if (!string.IsNullOrWhiteSpace(docName))
-    //     {
-    //         IsMenuOpen = !IsMenuOpen;
-
-    //         if (IsMenuOpen)
-    //         {                
-    //             var exportOrders = await _exportOrderProvider.GetExportOrdersNums(docName);
-
-    //             if (exportOrders != Enumerable.Empty<string>())
-    //                 ExportOrderNums = exportOrders;
-
-    //             await InvokeAsync(StateHasChanged);                
-    //         }
-    //         else
-    //             ExportOrderNums = Enumerable.Empty<string>();
-    //     }        
-    // }
+    }    
 
     private async void TreeItemIcon_OnClick(string? docName)
     {
@@ -934,7 +892,7 @@
 
             if (IsPopoverOpen)
             {                
-                var exportOrders = await _exportOrderProvider.GetExportOrdersNums(docName);
+                var exportOrders = await _exportOrderProvider.GetExportOrdersNum(docName);
 
                 if (exportOrders != Enumerable.Empty<string>())
                     ExportOrderNums = exportOrders;

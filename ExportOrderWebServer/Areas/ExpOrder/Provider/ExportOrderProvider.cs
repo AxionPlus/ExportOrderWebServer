@@ -313,7 +313,8 @@
                                                         .Where(s => string.IsNullOrEmpty(filter.Vessel) ? true : s.VesselCallDetail!.VesselCall.Vessel.Name == filter.Vessel)
                                                         .Where(s => string.IsNullOrEmpty(filter.Voyage) ? true : s.VesselCallDetail!.VesselCall.VoyageNo == filter.Voyage)
                                                         .Where(s => string.IsNullOrEmpty(filter.POD) ? true : s.VesselCallDetail!.POD!.Name == filter.POD)
-                                                        .Where(s => string.IsNullOrEmpty(filter.Carrier) ? true : s.Carrier!.NameEn == filter.Carrier)
+                                                        .Where(s => string.IsNullOrEmpty(filter.Carrier) ? true :
+                                                                        s.Carrier == null ? true : s.Carrier.NameEn == filter.Carrier)
                                                         .ToArrayAsync();
                                
                var ItemsDTO = exportOrders.Select(record=>
@@ -860,62 +861,50 @@
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<string>> GetExportOrdersNums(string documentNum)
+    public async Task<IEnumerable<string>> GetExportOrdersNum(string documentNum)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
             return await db.ExportOrders.AsNoTracking().AsSplitQuery()
-                                            .Include(s => s.Records).ThenInclude(er => er.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
-                                            .Where(s => s.Records.SelectMany(er => er.Contents)
-                                                                 .Any(c => !string.IsNullOrWhiteSpace(c.DocumentRecord.Document.Name) &&
-                                                                            c.DocumentRecord.Document.Name == documentNum))
-                                            .Select(s => new string(string.Concat(s.Num, " (", s.Status.ToString(), ")")))
-                                            .ToArrayAsync();
+                                        .Include(s => s.Records).ThenInclude(er => er.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
+                                        .Where(s => s.Records.SelectMany(er => er.Contents)
+                                                             .Any(c => !string.IsNullOrWhiteSpace(c.DocumentRecord.Document.Name) &&
+                                                                        c.DocumentRecord.Document.Name == documentNum))
+                                        .Select(s => new string(string.Concat(s.Num, " (", s.Status.ToString(), ")")))
+                                        .ToArrayAsync();
         }            
     }
 
-    //public async Task<IEnumerable<VoyageExportOrderDTO>> GetExportOrdersAsync(IEnumerable<long> Ids)
+    //public async Task<IEnumerable<string>?> GetShippersNameLAsync(string name)
     //{
+    //    var Shippers = Enumerable.Empty<string>();
+
     //    try
     //    {
     //        using (var _db = _dbContext.CreateDbContextAsync())
     //        {
     //            var db = await _db;
 
-    //            string? myCompanyName = await db.MyCompany.OrderBy(c => c.Id).Select(c => c.Name).LastOrDefaultAsync();
-
-    //            //var DTOItems = new();
-
-    //            var Items = await db.ExportOrders.AsNoTracking().AsSplitQuery()
-    //                                .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc.Terminal).ThenInclude(t => t.Customs)
-    //                                .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel).ThenInclude(vsl => vsl.Flag)
-    //                                .Include(x => x.VesselCallDetail).ThenInclude(vcd => vcd!.POD).ThenInclude(p => p!.Country)
-    //                                .Include(x => x.Carrier)!.ThenInclude(c => c!.CarrierDetails)
-    //                                .Include(x => x.Person)
-    //                                //.Include(x => x.Documents)!.ThenInclude(d => d.Records)
-    //                                .Include(x => x.Records)!.ThenInclude(r => r.CntrType)
-    //                                .Include(x => x.Records)!.ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
-    //                                .Where(x => Ids.Contains(x.Id))
-    //                                //.Where(x => Ids.Any(hs => hs.Equals(x.Id)))
-    //                                .ToListAsync();
-
-    //            if (Items is null || !Items.Any()) return Enumerable.Empty<VoyageExportOrderDTO>();
-
-    //            var DTOItems = FuncExportOrdersDTO(Items, myCompanyName);
-
-    //            return DTOItems;
+    //            Shippers = await db.ExportOrders.AsNoTracking().AsSplitQuery()
+    //                                                .Include(s => s.Carrier)
+    //                                                .Include(s => s.Documents)
+    //                                                .Where(s => s.Carrier != null && s.Carrier.NameEn == name)
+    //                                                .Where(s => s.Documents.Any(d => d.Shipper != null))
+    //                                                .SelectMany(s => s.Documents).Select(d => d.Shipper).Where(sh => sh != null)
+    //                                                .GroupBy(sh => sh!.NameEn, (n, group) => new string(n))
+    //                                                .ToArrayAsync();
     //        }
     //    }
     //    catch (Exception ex)
     //    {
-    //        string msg = ex.Message;
-    //        Console.WriteLine(msg);
-    //        return Enumerable.Empty<VoyageExportOrderDTO>();
+    //        Console.WriteLine(ex.Message);
+    //        return Enumerable.Empty<string>();
     //    }
-    //}
 
+    //    return Shippers;
+    //}
 
     #region AUXILIARY
 
@@ -1287,4 +1276,5 @@
     };
 
     #endregion
+    
 }

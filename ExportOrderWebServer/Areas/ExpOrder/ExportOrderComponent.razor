@@ -14,89 +14,89 @@
 
 <style>
     .mud-icon-button-edge-margin-end {
-        margin-right: 2px;
-        margin-inline-end: 2px;
-        margin-inline-start: unset;
+    margin-right: 2px;
+    margin-inline-end: 2px;
+    margin-inline-start: unset;
     }
     .mud-input > input.mud-input-root-outlined {
-        padding: 8px;
+    padding: 8px;
     }
 
     .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
-        padding-inline-start: unset;
+    padding-inline-start: unset;
     }
 
     .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-        padding: 8px;
+    padding: 8px;
     }
 
     .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
-        margin-top: unset;
-        margin-bottom: unset;
+    margin-top: unset;
+    margin-bottom: unset;
     }
 
     .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 6px;
-        padding-inline-start: unset;
+    padding-inline-end: 6px;
+    padding-inline-start: unset;
     }
 </style>
 
 <div class="Container-item" style="margin-top:6px">
     <div class="container-content">        
         <MudTextField Class="TextField" Label="Container" Style="width: 165px" @bind-Value="@Filter.CntrNum"                      
-                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
-                      Immediate MaxLength="11" />
+        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
+        Immediate MaxLength="11" />
 
         <MudTextField Class="TextField" Label="Export Order" Style="width: 200px" @bind-Value="@Filter.Num"
-                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
         <div style="width:130px; height:35px">
             <MudDatePicker Class="wrapper-input-date" Label="Dated" @bind-Date="Filter.Dated"                       
-                       Variant="Variant.Outlined" Margin="Margin.Dense"
-                       IconSize=Size.Small
-                       DateFormat="dd.MM.yy"
-                       ShowWeekNumbers="true"                       
-                       AutoClose=true
-                       Clearable />
+            Variant="Variant.Outlined" Margin="Margin.Dense"
+            IconSize=Size.Small
+            DateFormat="dd.MM.yy"
+            ShowWeekNumbers="true"                       
+            AutoClose=true
+            Clearable />
         </div>        
-        
+
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" @bind-Value="Filter.Vessel" SearchFunc="@SearchVessel"
-                         Label="Vessel"                                                  
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon="" MaxItems="20"
-                         ResetValueOnEmptyText="true" Clearable />
-        
+        Label="Vessel"                                                  
+        Variant="Variant.Outlined" Margin="Margin.Dense"
+        CloseIcon="" OpenIcon="" MaxItems="20"
+        ResetValueOnEmptyText="true" Clearable />
+
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
-                         Label="Voyage"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon="" MaxItems="20"
-                         ResetValueOnEmptyText="true" Clearable
-                         Immediate="true"/>
-        
+        Label="Voyage"
+        Variant="Variant.Outlined" Margin="Margin.Dense"
+        CloseIcon="" OpenIcon="" MaxItems="20"
+        ResetValueOnEmptyText="true" Clearable
+        Immediate="true"/>
+
         <MudAutocomplete Class="Autocomplete" Style="width: 170px" T="string" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
-                         Label="POD"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon="" MaxItems="20"
-                         ResetValueOnEmptyText="true" Clearable />
-        
+        Label="POD"
+        Variant="Variant.Outlined" Margin="Margin.Dense"
+        CloseIcon="" OpenIcon="" MaxItems="20"
+        ResetValueOnEmptyText="true" Clearable />
+
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 210px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
-                         Label="Carrier"
-                         ValueChanged="(e)=> { Filter.Carrier= e; }"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         CloseIcon="" OpenIcon="" MaxItems="20"
-                         ResetValueOnEmptyText="true" Clearable />
-        
+        Label="Carrier"
+        ValueChanged="(e)=> { Filter.Carrier= e; }"
+        Variant="Variant.Outlined" Margin="Margin.Dense"
+        CloseIcon="" OpenIcon="" MaxItems="20"
+        ResetValueOnEmptyText="true" Clearable />
+
         <MudSelect Class="wrapper-input-select" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
-                   Style="width:145px"
-                   ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
-                   Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
+        Style="width:145px"
+        ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
+        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
             @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
             {
                 <MudSelectItem Value="@status" />
             }
         </MudSelect>
-        
+
         <MudButton Class="Button" Style="width: 80px" OnClick="GetItems"
-                   Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
             Search
         </MudButton>
     </div>
@@ -108,23 +108,23 @@
         <div class="tableMenu">
             <MudSpacer />
             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)"
-                           Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedItems"
-              Virtualize="true" RowsPerPage="15" MultiSelection="true" >
+    Virtualize="true" RowsPerPage="15" MultiSelection="true" SelectOnRowClick="false">
         <HeaderContent>
             <MudTh Style="max-width:45px">
                 <MudTooltip Delay="500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.TransferWithinAStation" Disabled="@(!SelectedItems.Any())"
-                                   Size="Size.Small" Color="Color.Secondary" OnClick="SetNewVesselCall" />
+                    Size="Size.Small" Color="Color.Secondary" OnClick="SetNewVesselCall" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="max-width:45px">
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                                   Size="Size.Small" OnClick="SaveReportsExportOrder_Click" />
+                    Size="Size.Small" OnClick="SaveReportsExportOrder_Click" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="max-width:50px">XML</MudTh>
@@ -132,7 +132,7 @@
             <MudTh Style="width:130px">
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                                   Size="Size.Small" OnClick="SaveReportsBL_Click" />
+                    Size="Size.Small" OnClick="SaveReportsBL_Click" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:160px">
@@ -165,31 +165,31 @@
             <MudTd>
                 <MudTooltip Delay="1000" Duration="1000" Text="view Details">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
-                                   OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
+                    OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
                 <MudTooltip Delay="1000" Duration="1000" Text="view Export Order">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
-                                   OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
+                    OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
                 <MudTooltip Delay="1000" Duration="1000" Text="save xml file">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium"
-                                   OnClick="@(async()=>{ await SaveXMLfile_Click(context.Id); })" />
+                    OnClick="@(async()=>{ await SaveXMLfile_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
                 <MudTooltip Delay="1000" Duration="1000" Text="save xlsx file for ROLIS">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium"
-                                   OnClick="@(async()=>{ await SaveFileRolis_Click(context.Id); })" />
+                    OnClick="@(async()=>{ await SaveFileRolis_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
                 <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })"
-                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Preview">
+                Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                StartIcon="@Icons.Material.Filled.Preview">
                     view BL
                 </MudButton>
             </MudTd>
@@ -216,8 +216,8 @@
             <MudTd></MudTd>
             <MudTd>
                 <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || IsBtnClicked || !IsRoleForEdit)"
-                               Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
-                               OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
+                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
+                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
             </MudTd>            
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -342,13 +342,12 @@
             if (!questionResult.Value) return;
 
             IsLoadingData = true;
-            //await InvokeAsync(StateHasChanged); // commit this
 
-            var newVesselCallDetailId = (long)resultDialog.Data;
+            var newVoyageId = (long)resultDialog.Data;
 
-            var selectedEOids = SelectedItems.Select(s => s.Id).ToArray();
+            long[] selectedEOids = SelectedItems.Select(s => s.Id).ToArray();
 
-            var result = await _exportOrderProvider.SetNewVesselCall(selectedEOids, newVesselCallDetailId);
+            var result = await _exportOrderProvider.SetNewVesselCall(selectedEOids, newVoyageId);
             if (result.HasError)
             {
                 Snackbar.Add(string.Join("; ", result.Error), Severity.Warning);
@@ -356,7 +355,37 @@
                 return;
             }
 
-            await GetItems();
+            //await GetItems();
+
+            int delayCounter = selectedEOids.Length switch
+            {
+                0 => 0,
+                < 50 => 2000,
+                < 100 => 5000,
+                < 200 => 10000,
+                _ => 15000
+            };
+
+            var t = Task.Run(async delegate
+            {
+                await Task.Delay(delayCounter);
+                //await GetItems();
+                //return 25;
+                return GetItems();
+            });
+
+            t.Wait();
+
+            // var delay = Task.Run(async () =>
+            // {
+            //     await Task.Delay(delayCounter);
+            //     return await GetItems();
+            //     //await GetItems();
+            //     //return 25;
+            // });
+
+            // Console.WriteLine("Task t Status: {0}, Result: {1}",
+            //       t.Status, t.Result);
         }
     }
 

@@ -808,7 +808,7 @@
         return appObjResponse;
     }
 
-    public async Task<AppObjectResponse> SetNewVesselCall(IEnumerable<long> exportOrderIds, long vesselCallDetailId)
+    public async Task<AppObjectResponse> SetNewVesselCall(long[] exportOrderIds, long vesselCallDetailId)    //IEnumerable<long> exportOrderIds
     {
         try
         {
@@ -818,13 +818,18 @@
 
                 var VesselCallDetail = await db.Set<VesselCallDetail>().FirstOrDefaultAsync(s => s.Id == vesselCallDetailId);
 
-                var ExportOrders = await db.ExportOrders.AsTracking()     // AsNoTracking
-                                                        .Where(s => exportOrderIds.Any(i => i == s.Id))
+                var ExportOrders = await db.ExportOrders.AsTracking()
+                                                        .Where(s => exportOrderIds.Any(id => id == s.Id))
                                                         .ToArrayAsync();
 
                 if (VesselCallDetail is null)
                 {
                     appObjResponse.ErrorAdd("Рейс не найден.");
+                    return appObjResponse;
+                }
+                else if (ExportOrders is null)
+                {
+                    appObjResponse.ErrorAdd("Поручения не найдены.");
                     return appObjResponse;
                 }
 
@@ -839,11 +844,20 @@
                     db.Entry(exportOrder).State = EntityState.Modified;
                 }
 
-                //db.Entry(VesselCallDetail).State = EntityState.Unchanged;   // excluded out of foreach
-
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
+                                
+                //int delayCounter = exportOrderIds.Length switch
+                //{
+                //    0 => 0,
+                //    < 50 => 2000,
+                //    < 100 => 5000,
+                //    < 200 => 10000,
+                //    _ => 15000
+                //};
+
+                //await Task.Delay(delayCounter);
             }
         }
         catch(Exception ex)

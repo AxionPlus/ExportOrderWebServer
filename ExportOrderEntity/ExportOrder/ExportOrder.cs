@@ -24,10 +24,10 @@ public class ExportOrderEntity : Entity
     {
         get
         {
-            if (Documents is null)
+            if (Documents is null || !Documents.Any(s => s.Shipper != null))
                 return Enumerable.Empty<DocumentCustomer>();
-
-            return Documents.Select(x => x.Shipper).ToList()!;
+            
+            return Documents.Where(s => s.Shipper != null).Select(s => s.Shipper).ToList()!;
         }
     }
     [NotMapped]
@@ -35,10 +35,10 @@ public class ExportOrderEntity : Entity
     {
         get
         {
-            if (Documents is null)
+            if (Documents is null || !Documents.Any(s => s.Consignee != null))
                 return Enumerable.Empty<DocumentCustomer>();
 
-            return Documents.Select(x => x.Consignee).ToList()!;
+            return Documents.Where(s => s.Consignee != null).Select(s => s.Consignee).ToList()!;
         }
     }
 }

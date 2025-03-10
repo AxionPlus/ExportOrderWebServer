@@ -79,7 +79,7 @@
         </div>
     }
     <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" @bind-SelectedItems="SelectedItems"
-              MultiSelection="IsSelectable" Loading="IsLoadingData" Virtualize="true" RowsPerPage="10">
+              MultiSelection="IsSelectable" SelectOnRowClick="false" Virtualize="true" Loading="IsLoadingData" RowsPerPage="10">
         <HeaderContent>
             @if (!IsSelectable)
             {

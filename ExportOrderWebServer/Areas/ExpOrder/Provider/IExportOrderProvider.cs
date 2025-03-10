@@ -9,7 +9,7 @@ public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
     Task<int> LastVersionAsync();
     Task<AppObjectResponse> GetVersionAsync(int version);    
     Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id);
-    Task<AppObjectResponse> SetNewVesselCall(IEnumerable<long>exportOrderIds,long vesselCallid);
+    Task<AppObjectResponse> SetNewVesselCall(long[] exportOrderIds, long vesselCallid);    //IEnumerable<long>exportOrderIds
     Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string UserName = "");
     Task<IEnumerable<string>> GetExportOrdersNum(string documentNum);
     //Task<IEnumerable<string>?> GetShippersNameLAsync(string name);

@@ -1,6 +1,5 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
-@inject NavigationManager Navigation
 @inject HttpClient Http
 @inject IHttpCustomMethods HttpCustomMethod
 @inject IJSRuntime jsRuntime
@@ -14,30 +13,30 @@
 
 <style>
     .mud-icon-button-edge-margin-end {
-    margin-right: 2px;
-    margin-inline-end: 2px;
-    margin-inline-start: unset;
+        margin-right: 2px;
+        margin-inline-end: 2px;
+        margin-inline-start: unset;
     }
     .mud-input > input.mud-input-root-outlined {
-    padding: 8px;
+        padding: 8px;
     }
 
     .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
-    padding-inline-start: unset;
+        padding-inline-start: unset;
     }
 
     .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-    padding: 8px;
+        padding: 8px;
     }
 
     .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
-    margin-top: unset;
-    margin-bottom: unset;
+        margin-top: unset;
+        margin-bottom: unset;
     }
 
     .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
-    padding-inline-end: 6px;
-    padding-inline-start: unset;
+        padding-inline-end: 6px;
+        padding-inline-start: unset;
     }
 </style>
 
@@ -108,7 +107,7 @@
         <div class="tableMenu">
             <MudSpacer />
             <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)"
-            Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+                            Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
             <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
         </div>
     }
@@ -512,7 +511,6 @@
 
         IsLoadingData = false;
     }
-
 
     #region SEARCHERS
 

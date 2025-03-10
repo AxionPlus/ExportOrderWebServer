@@ -49,7 +49,8 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Documents.AsNoTracking().Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == id);
+            appObjResponse.Object = await db.Documents.AsNoTracking().AsSplitQuery()
+                                                      .Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == id);
         }
 
         return appObjResponse;
@@ -123,13 +124,27 @@ public class DocumentProvider : IDocumentProvider
 
             try
             {
-                var modifyItem = await db.Documents.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == item.Id);
+                var modifyItem = await db.Documents.Include(d => d.Records).AsSplitQuery().FirstOrDefaultAsync(d => d.Id == item.Id);
+
+                if (modifyItem is null)
+                {
+                    appObjResponse.ErrorAdd($" {item.Name} NOT found.");
+                    return appObjResponse;
+                }
 
                 if (modifyItem!.Name != item.Name)
                 {
-                    var itemExistCheck = await db.Documents.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+                    //var itemExistCheck = await db.Documents.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
 
-                    if (itemExistCheck is not null)
+                    //if (itemExistCheck is not null)
+                    //{
+                    //    appObjResponse.ErrorAdd($" {item.Name} exists already");
+                    //    return appObjResponse;
+                    //}
+
+                    bool isItemExist = db.Documents.Any(s => s.Name!.ToUpper() == item.Name!.ToUpper());
+
+                    if (isItemExist)
                     {
                         appObjResponse.ErrorAdd($" {item.Name} exists already");
                         return appObjResponse;
@@ -150,7 +165,7 @@ public class DocumentProvider : IDocumentProvider
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;                
 
-                // compaire new item with existed
+                // compaire new item with an existed
                 foreach (var modifyRecord in modifyItem.Records)
                     if (!item.Records.Any(s => s.Id == modifyRecord.Id))
                     {
@@ -230,9 +245,7 @@ public class DocumentProvider : IDocumentProvider
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
-
+                appObjResponse.ErrorAdd(ex.Message);
                 return appObjResponse;
             }
 

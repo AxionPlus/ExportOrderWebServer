@@ -88,9 +88,8 @@
     private bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
 
-    public ValidatePageFields Validator = new();
     private MudTextField<string> Hscode = new();
-    private MudTextField<string?> Unno = new(); //{ get; set; }
+    private MudTextField<string?> Unno = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,14 +125,14 @@
 
         if (Form.IsValid)
         {
-            if (!Validator.IsValid_HSCode(Hscode.Text))
+            if (!ValidatePageFields.IsValid_HSCode(Hscode.Text))
             {
                 Snackbar.Add("HS Code is not valid", Severity.Warning);
                 return;
             }
 
             if (Item.IsIMO)
-                if (!Validator.IsValid_UNNO(Unno.Text))
+                if (!ValidatePageFields.IsValid_UNNO(Unno.Text))
                 {
                     Snackbar.Add("UNNO is not valid", Severity.Warning);
                     return;

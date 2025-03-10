@@ -4,7 +4,7 @@ namespace ExportOrderEntites;
 
 public class ValidatePageFields
 {
-    public bool IsValid_HSCode(string? text)
+    public static bool IsValid_HSCode(string? text)
     {
         if (string.IsNullOrEmpty(text)) return false;
 
@@ -16,7 +16,7 @@ public class ValidatePageFields
             return false;
     }
 
-    public bool IsValid_UNNO(string? text)
+    public static bool IsValid_UNNO(string? text)
     {
         if (string.IsNullOrEmpty(text)) return false;
 
@@ -28,7 +28,7 @@ public class ValidatePageFields
             return false;
     }
 
-    public bool IsValid_DeclarationNum(string? text)
+    public static bool IsValid_DeclarationNum(string? text)
     {
         if (string.IsNullOrEmpty(text)) return false;
 

@@ -1,11 +1,5 @@
 ﻿@page "/document"
-@using Microsoft.AspNetCore.Components.Authorization
-@* @using Microsoft.JSInterop *@
-@using MudBlazor
-@using MudBlazor.Interop
 
-@inject AuthenticationStateProvider authenticationStateProvider
-@inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IJSRuntime jsRuntime
@@ -68,7 +62,7 @@
     <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
         @if (Item != null)
         {
-            <Document_ItemComponent @ref="document_ItemComponent" @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" />
+            <Document_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" />
         }
     </MudForm>
 
@@ -77,8 +71,7 @@
 @code {
     private MudForm? Form { get; set; }
 
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    public Document_ItemComponent? document_ItemComponent { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }    
 
     [SupplyParameterFromQuery]
     [Parameter]
@@ -92,7 +85,6 @@
     private DocumentType Type { get; set; }
     private bool IsAuth = false;
     public bool IsFormReadOnly { get; set; } = true;
-    public ValidatePageFields Validator = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -109,13 +101,15 @@
         else
         {
             var response = await _documentProvider.GetItemAsync(Id);
-            if (!response.HasError)
-                Item = (DocumentEntity)response.Object!;
+            if (!response.HasError && response.Object != null)
+                Item = (DocumentEntity)response.Object;
         }
     }
 
     public async Task SaveItem()
     {
+        if (Item is null) return;
+
         /// Validation
         await Form!.Validate();
 
@@ -123,20 +117,18 @@
         {
             Snackbar.Add("Fill up all required fields.", Severity.Warning);
             return;
-        }
-        else
-        {
-            if (!Validator.IsValid_DeclarationNum(document_ItemComponent!.DeclarationNum.Text))
-            {
-                Snackbar.Add("Declaration Number is not valid", Severity.Warning);
-                return;
-            }
-        }
+        }        
 
-        /// Saving
+        /// Validate Declaration Number 
+        if (!ValidatePageFields.IsValid_DeclarationNum(Item.Name))
+        {
+            Snackbar.Add("Declaration Number is not valid", Severity.Warning);
+            return;
+        }        
+
         if (IsNewItem)
         {
-            var response = await _documentProvider.NewItemAsync(Item!);
+            var response = await _documentProvider.NewItemAsync(Item);
             if (!response.HasError)
                 Snackbar.Add("Saved Successfully", Severity.Success);
             else
@@ -147,12 +139,12 @@
         }
         else
         {
-            var response = await _documentProvider.ModifyItemAsync(Item!);
+            var response = await _documentProvider.ModifyItemAsync(Item);
             if (!response.HasError)
                 Snackbar.Add("Saved Successfully", Severity.Success);
             else
             {
-                Snackbar.Add($"Not Successed:\n {string.Join(",\n", response.Error)}", Severity.Error);
+                Snackbar.Add($"Not Successed:\n{string.Join(",\n", response.Error)}", Severity.Error);
                 return;
             }
         }
@@ -160,11 +152,11 @@
         IsNewItem = false;
         IsFormReadOnly = true;
 
-        Id = Item!.Id;
+        Id = Item.Id;
 
-        await GetItem();
+        //await GetItem();
 
-        //await Task.Delay(1500);
+        await InvokeAsync(StateHasChanged);
     }
 
     public async Task CopyItem()

@@ -818,7 +818,7 @@
 
                 var VesselCallDetail = await db.Set<VesselCallDetail>().FirstOrDefaultAsync(s => s.Id == vesselCallDetailId);
 
-                var ExportOrders = await db.ExportOrders.AsTracking()
+                var ExportOrders = await db.ExportOrders//.AsTracking()
                                                         .Where(s => exportOrderIds.Any(id => id == s.Id))
                                                         .ToArrayAsync();
 
@@ -827,7 +827,7 @@
                     appObjResponse.ErrorAdd("Рейс не найден.");
                     return appObjResponse;
                 }
-                else if (ExportOrders is null)
+                else if (ExportOrders is null || !ExportOrders.Any())
                 {
                     appObjResponse.ErrorAdd("Поручения не найдены.");
                     return appObjResponse;
@@ -839,7 +839,7 @@
 
                     //db.Entry(exportOrder.Carrier!).State = EntityState.Unchanged;
                     //db.Entry(exportOrder.Person!).State = EntityState.Unchanged;
-                    db.Entry(exportOrder.VesselCallDetail).State = EntityState.Unchanged;
+                    //db.Entry(exportOrder.VesselCallDetail).State = EntityState.Unchanged;
 
                     db.Entry(exportOrder).State = EntityState.Modified;
                 }
@@ -847,7 +847,7 @@
                 var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
-                                
+
                 //int delayCounter = exportOrderIds.Length switch
                 //{
                 //    0 => 0,

@@ -328,9 +328,9 @@
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
-        var resultDialog = await dialog.Result;
+        var dialogResult = await dialog.Result;
 
-        if (resultDialog is not null && !resultDialog.Canceled && resultDialog.Data is not null)
+        if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data is not null)
         {
             bool? questionResult = await DialogService.ShowMessageBox(
                     "Set New Vessel CALL?",
@@ -342,23 +342,23 @@
 
             IsLoadingData = true;
 
-            var newVoyageId = (long)resultDialog.Data;
+            var newVoyageId = (long)dialogResult.Data;
 
-            long[] selectedEOids = SelectedItems.Select(s => s.Id).ToArray();
+            long[] selectedIds = SelectedItems.Select(s => s.Id).ToArray();
 
-            var result = await _exportOrderProvider.SetNewVesselCall(selectedEOids, newVoyageId);
+            var result = await _exportOrderProvider.SetNewVesselCall(selectedIds, newVoyageId);
             if (result.HasError)
             {
                 Snackbar.Add(string.Join("; ", result.Error), Severity.Warning);
                 IsLoadingData = false;
                 return;
             }
-
-            //await GetItems();
-
-            int delayCounter = selectedEOids.Length switch
+            
+            /// Set delay
+            int delayCounter = selectedIds.Length switch
             {
                 0 => 0,
+                < 20 => 1000,
                 < 50 => 2000,
                 < 100 => 5000,
                 < 200 => 10000,
@@ -368,23 +368,10 @@
             var t = Task.Run(async delegate
             {
                 await Task.Delay(delayCounter);
-                //await GetItems();
-                //return 25;
                 return GetItems();
             });
 
             t.Wait();
-
-            // var delay = Task.Run(async () =>
-            // {
-            //     await Task.Delay(delayCounter);
-            //     return await GetItems();
-            //     //await GetItems();
-            //     //return 25;
-            // });
-
-            // Console.WriteLine("Task t Status: {0}, Result: {1}",
-            //       t.Status, t.Result);
         }
     }
 

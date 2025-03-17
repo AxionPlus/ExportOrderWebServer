@@ -6,5 +6,5 @@ public interface IDocumentProvider : IEntityProvider<DocumentEntity>
     Task<IEnumerable<DocumentEntity>?> GetItemsAsync(long[] ids);
     Task<DocumentEntity?> GetDocumentAsync(string Num);
     Task<DocumentRecord> GetDocumentRecordAsync(string Num, int index);
-    Task<IEnumerable<string>> GetDocumentNames(bool isSelectable);
+    Task<IEnumerable<string>> GetDocumentNames(bool isSelectable);    
 }

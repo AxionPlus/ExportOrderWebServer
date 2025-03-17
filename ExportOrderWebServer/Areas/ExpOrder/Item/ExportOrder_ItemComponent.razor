@@ -13,90 +13,90 @@
 <style>
 
     .Container-item > .container-content {
-        align-items: flex-start;
-        justify-content: flex-start;
+    align-items: flex-start;
+    justify-content: flex-start;
     }
 
     .mud-picker-inline { flex: unset; }
 
     .wrapper-input-date > .mud-input-control {
-        margin-top: 3px;
+    margin-top: 3px;
     }
 
     .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 4px;
-        padding-right: 4px;
+    padding-inline-end: 4px;
+    padding-right: 4px;
     }
 
     .mud-icon-button { padding: 3px; }
 
     .wrapper-input * .mud-icon-size-small {
-        color:currentColor;
+    color:currentColor;
     }
 
     .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
-        margin-top: 1px;
+    margin-top: 1px;
     }
 
     .wrapper-input-select * .mud-icon-button-size-small.mud-icon-button-edge-end {
-        margin-inline-end: unset;
+    margin-inline-end: unset;
     }
 
     .sub-Table {
-        background-color: lightblue;
-        transition: none;
-        box-shadow: none;
+    background-color: lightblue;
+    transition: none;
+    box-shadow: none;
     }
 
     .Table * .mud-table-cell { padding: 4px; }
 
-        .Table * .mud-table-cell *.mud-input-control {
-            margin: unset;
-        }
+    .Table * .mud-table-cell *.mud-input-control {
+    margin: unset;
+    }
 
-        .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined {
-            padding: 4px 4px 1px 4px;
-        }
+    .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined {
+    padding: 4px 4px 1px 4px;
+    }
 
-        .mud-table-foot > .mud-table-row {
-            background-color: lightgray;
-        }
+    .mud-table-foot > .mud-table-row {
+    background-color: lightgray;
+    }
 
     .mud-list-item-gutters {
-        padding-left:4px;
-        padding-right:4px;
+    padding-left:4px;
+    padding-right:4px;
     }
 
     .mud-list.mud-list-padding {
-        padding-top:2px;
-        padding-bottom:2px;
+    padding-top:2px;
+    padding-bottom:2px;
     }
 
     .SelectField * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-        text-align:center;
+    text-align:center;
     }
 
     .TextField_Sum * .mud-input > input.mud-input-root-outlined {
-        text-align: end;
+    text-align: end;
     }
 
     .NumericField_Content * .mud-input > input.mud-input-root-outlined {
-        text-align: end;
+    text-align: end;
     }
 
     .QuantityField * .mud-input > input.mud-input-root-outlined {
-        text-align: center;
+    text-align: center;
     }
 
     .Summary {
-        margin-top: 3px;
-        margin-bottom: 3px;
-        color: var(--mud-palette-primary);
+    margin-top: 3px;
+    margin-bottom: 3px;
+    color: var(--mud-palette-primary);
     }
 
     .container-content-head {
-        margin-bottom: unset;
-        align-self: center;
+    margin-bottom: unset;
+    align-self: center;
     }
 
     .infoSC { margin-bottom: 3px; }
@@ -108,78 +108,78 @@
     <div class="Container-item">
         <div class="container-content" style="padding-bottom:2px">
             <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px; color:var(--mud-palette-primary)" T="string" Label="Number"
-                          Value="@Value.Num"
-                          ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
-                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                          Required RequiredError="" Clearable="!IsFormReadOnly" />
+            Value="@Value.Num"
+            ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
+            Variant="Variant.Outlined" Margin="Margin.Dense"
+            Required RequiredError="" Clearable="!IsFormReadOnly" />
             <div style="width:130px; height:35px">
                 <MudDatePicker Class="wrapper-input-date" Label="Date" @bind-Date="Value.Dated"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               DateFormat="dd.MM.yy"
-                               Editable="true"
-                               IconSize=Size.Small
-                               Required RequiredError="" Clearable="!IsFormReadOnly" />
+                Variant="Variant.Outlined" Margin="Margin.Dense"
+                DateFormat="dd.MM.yy"
+                Editable="true"
+                IconSize=Size.Small
+                Required RequiredError="" Clearable="!IsFormReadOnly" />
             </div>            
-             <MudSpacer />
+            <MudSpacer />
             <MudTextField Class="TextField" T="string" Style="width: 450px"
-                          Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
-                          Text="@(Value.VesselCallDetail != null && Value.VesselCallDetail.VesselCall != null ?
+            Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
+            Text="@(Value.VesselCallDetail != null && Value.VesselCallDetail.VesselCall != null ?
                                         string.Concat(Value.VesselCallDetail.VesselCall.Vessel.Name, " / ",
                                                         Value.VesselCallDetail.VesselCall.VoyageNo, " / ",
                                                         Value.VesselCallDetail.POD == null ? string.Empty : Value.VesselCallDetail.POD.NameEn) :
                                         string.Empty)"
-                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                          Required RequiredError="" Clearable="!IsFormReadOnly"
-                          Adornment="Adornment.Start" IconSize="Size.Small"
-                          AdornmentColor="Color.Primary"
-                          AdornmentIcon="@Icons.Material.Filled.Waves"
-                          OnAdornmentClick="@(async () => { if (!IsFormReadOnly) await GetVesselCallDetail_Click(); })" />
+            Variant="Variant.Outlined" Margin="Margin.Dense"
+            Required RequiredError="" Clearable="!IsFormReadOnly"
+            Adornment="Adornment.Start" IconSize="Size.Small"
+            AdornmentColor="Color.Primary"
+            AdornmentIcon="@Icons.Material.Filled.Waves"
+            OnAdornmentClick="@(async () => { if (!IsFormReadOnly) await GetVesselCallDetail_Click(); })" />
             <MudSpacer />
             <MudAutocomplete T="CarrierCatalog" Style="width: 270px" Label="Carrier" @bind-Value="Value.Carrier"
-                             ToStringFunc="@(e => e != null ? e.Name : "")"
-                             SearchFunc="@SearchCarrier"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             Required RequiredError=""
-                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                             ResetValueOnEmptyText="true"
-                             Placeholder="Carrier"
-                             MaxItems="20"
-                             AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                             AdornmentColor="Color.Primary"
-                             Adornment="Adornment.End"
-                             OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCarrier_Click(); })"
-                             Clearable="!IsFormReadOnly" />
-         </div>
+            ToStringFunc="@(e => e != null ? e.Name : "")"
+            SearchFunc="@SearchCarrier"
+            Variant="Variant.Outlined" Margin="Margin.Dense"
+            Required RequiredError=""
+            CloseIcon="" OpenIcon="" IconSize="Size.Small"
+            ResetValueOnEmptyText="true"
+            Placeholder="Carrier"
+            MaxItems="20"
+            AdornmentIcon="@Icons.Material.Filled.AddCircle"
+            AdornmentColor="Color.Primary"
+            Adornment="Adornment.End"
+            OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCarrier_Click(); })"
+            Clearable="!IsFormReadOnly" />
+        </div>
         <div class="container-content">            
-                <MudSelect Class="wrapper-input-select" T="PersonEntity" Style="width:200px" Label="Person" @bind-Value="@Value.Person"
-                           ToStringFunc="@(s => s == null ? string.Empty :
+            <MudSelect Class="wrapper-input-select" T="PersonEntity" Style="width:200px" Label="Person" @bind-Value="@Value.Person"
+            ToStringFunc="@(s => s == null ? string.Empty :
                                              $"{s.FamilyName} " +
                                              $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. " +
                                              $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}.")"
-                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                           Required RequiredError="">
-                    @if (Persons.Count() > 0)
-                        @foreach (var person in Persons)
-                        {
-                            <MudSelectItem Value="@person">
-                                @($"{person.FamilyName} {person.Name!.Substring(0, 1)}. {person.SurName!.Substring(0, 1)}.")
-                            </MudSelectItem>
-                        }
-                </MudSelect>
-                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@( async ()=> { if (!IsFormReadOnly) await AddPerson_Click(); })"
-                               Style="padding: 8px"
-                               Size="Size.Small" Color="Color.Primary" Disabled="IsFormReadOnly" />            
+            Variant="Variant.Outlined" Margin="Margin.Dense"
+            Required RequiredError="">
+                @if (Persons.Count() > 0)
+                    @foreach (var person in Persons)
+                    {
+                        <MudSelectItem Value="@person">
+                            @($"{person.FamilyName} {person.Name!.Substring(0, 1)}. {person.SurName!.Substring(0, 1)}.")
+                        </MudSelectItem>
+                    }
+            </MudSelect>
+            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@( async ()=> { if (!IsFormReadOnly) await AddPerson_Click(); })"
+            Style="padding: 8px"
+            Size="Size.Small" Color="Color.Primary" Disabled="IsFormReadOnly" />            
             <MudSpacer />
             <MudSelect Class="wrapper-input-select" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
-                       ToStringFunc="@(str => str.ToString())"
-                       Variant="Variant.Outlined" Margin="Margin.Dense">
+            ToStringFunc="@(str => str.ToString())"
+            Variant="Variant.Outlined" Margin="Margin.Dense">
                 @switch (Value.Status)
                 {
                     case EntityStatus.New:
                         <MudSelectItem Value="@(EntityStatus.Customs)" />
                         <MudSelectItem Value="@(EntityStatus.Cancelled)" />
                         break;
-                                
+
                     case EntityStatus.Customs:
                         <MudSelectItem Value="@(EntityStatus.Cancelled)" />
                         break;
@@ -227,7 +227,7 @@
                     @if (Value.Documents != null)
                     {
                         <MudTreeView T="ExportOrderDocumentDTO" Items="@TreeItems" @bind-SelectedValue="SelectedDocument"
-                                     Dense="true" Hover="true" SelectionMode="SelectionMode.ToggleSelection">
+                        Dense="true" Hover="true" SelectionMode="SelectionMode.ToggleSelection">
                             <ItemTemplate>
                                 @if (context.Value != null)
                                 {
@@ -242,7 +242,7 @@
                                                 <MudSpacer />
                                                 <MudTooltip Text="Список поручений по этой ДТ" Delay="1000">
                                                     <MudIconButton Icon="@Icons.Custom.FileFormats.FileDocument" Size="Size.Small"
-                                                        OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
+                                                    OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
                                                     </MudIconButton>
                                                 </MudTooltip>
                                             </div>                                            
@@ -264,12 +264,17 @@
                                                 <MudTooltip Text="Close" Delay="1000">
                                                     <MudIconButton Style="padding:unset" Icon="@Icons.Material.Rounded.Close" Color="Color.Warning" OnClick="@(() => IsPopoverOpen = false)" />
                                                 </MudTooltip>
-                                            </div>                                            
-                                            <MudText Style="padding-top:10px; padding-bottom:10px">Список поручений по этой ДТ:</MudText>
+                                            </div>
+                                            <MudText Style="padding-top:10px">Список поручений по ДТ</MudText>
+                                            <MudText Style="padding-bottom:10px">@(context.Value.DocumentName)</MudText>
+                                            <MudDivider />
                                             @foreach (string num in ExportOrderNums)
                                             {
                                                 <MudText Color="Color.Primary">@num</MudText>
-                                            }                                            
+                                            }
+                                            <MudDivider />
+                                            <MudText Style="padding-top:10px">@($"Всего нетто: {ExportOrdersTotalNetWt}")</MudText>
+                                            <MudText Style="padding-top:5px">@($"Всего брутто: {ExportOrdersTotalGrossWt}")</MudText>
                                         }                                            
                                     </MudPopover>
                                 }                                
@@ -280,42 +285,39 @@
                 <div style="display:flex; margin-top:3px">
                     <span style="margin-top:10px; margin-right:6px"><b>Товар кратко:</b></span>
                     <MudTextField Class="TextField" Style="width: 350px" T="string" @bind-Value="@Value.CommodityShort"
-                                  Text="@Value.CommodityShort"
-                                  TextChanged="async (e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Immediate="true" Clearable="!IsFormReadOnly" />
+                    Text="@Value.CommodityShort"
+                    TextChanged="async (e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
+                    Variant="Variant.Outlined" Margin="Margin.Dense"
+                    Immediate="true" Clearable="!IsFormReadOnly" />
                 </div>                
             </div>
             <div class="documents-info" style="margin-left: 15px; max-width:fit-content">
-                @if (Value.Documents != null)
-                {
-                    if (Value.Documents.Count() > 0)
+                @if (Value.Documents != null && Value.Documents.Count() > 0)
+                {   
+                    <h6 class="infoSC">Shipper(s):</h6>                        
+                    @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))
                     {
-                        <h6 class="infoSC">Shipper(s):</h6>                        
-                        @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))
-                        {
-                            <div style="padding-left:10px">@shipper@(Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
-                        }
-                        <br />
-                        <h6 class="infoSC">Consignee(s):</h6>
-                        @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
-                        {
-                            <div style="padding-left:10px">@consignee@(Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
-                        }
+                        <div style="padding-left:10px">@shipper@(Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
                     }
+                    <br />
+                    <h6 class="infoSC">Consignee(s):</h6>
+                    @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
+                    {
+                        <div style="padding-left:10px">@consignee@(Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
+                    }                    
                 }
             </div>
         </div>
     </div>
-    
+
     <div class="Container-table" style="min-height:360px; max-height:400px; overflow:auto">
         @if (mudTable != null)
         {
             <div class="tableMenu">
                 <MudButton Class="Button" Style="margin-inline:20px; margin-bottom:2px" OnClick="UploadFile_Click"                           
-                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small" 
-                           StartIcon="@Icons.Material.Filled.UploadFile"
-                           Disabled="@(IsFormReadOnly || Value.VesselCallDetail is null)">
+                Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small" 
+                StartIcon="@Icons.Material.Filled.UploadFile"
+                Disabled="@(IsFormReadOnly || Value.VesselCallDetail is null)">
                     Upload New List
                 </MudButton>               
                 <MudSpacer />
@@ -323,21 +325,21 @@
             </div>
         }
         <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecord"
-                  Virtualize="true" HorizontalScrollbar="true" RowsPerPage="8" >
+        Virtualize="true" HorizontalScrollbar="true" RowsPerPage="8" >
 
             <HeaderContent>
                 <MudTh Style="width:50px;">
                     <div class="controlIconButtons">
                         <MudTooltip Text="add new Container record" Duration="1500" Delay="500">
                             <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Disabled="@(IsFormReadOnly || Value.VesselCallDetail is null)" Color="Color.Primary"
-                                            OnClick="AddExportOrderRecord_Click" Size="Size.Small" />
+                            OnClick="AddExportOrderRecord_Click" Size="Size.Small" />
                         </MudTooltip>
                     </div>
                 </MudTh>
                 <MudTh Style="width:35px">
                     <MudTooltip Text="delete All records" Duration="1500" Delay="500">
                         <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" Size="Size.Small" Disabled="IsFormReadOnly"
-                                        OnClick="@(async ()=>{ await RemoveAllContainerRecords();})" />
+                        OnClick="@(async ()=>{ await RemoveAllContainerRecords();})" />
                     </MudTooltip>
                 </MudTh>
                 <MudTh Style="width: 120px">Nr</MudTh>
@@ -355,21 +357,21 @@
             <RowTemplate>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Disabled="IsFormReadOnly"
-                                    OnClick="@(async ()=>{ await ShowRecordContent_Click(expOrderRecord);})" />
+                    OnClick="@(async ()=>{ await ShowRecordContent_Click(expOrderRecord);})" />
                 </MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Disabled="IsFormReadOnly"
-                                    OnClick="@(async ()=>{ await RemoveContainerRecord(expOrderRecord);})" />
+                    OnClick="@(async ()=>{ await RemoveContainerRecord(expOrderRecord);})" />
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecord.CntrNum"
-                                    Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
+                    Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
                 </MudTd>
                 <MudTd>
                     <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
-                                CloseIcon="" OpenIcon="">
+                    Variant="Variant.Outlined" Margin="Margin.Dense"
+                    AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
+                    CloseIcon="" OpenIcon="">
                         @if (CntrTypes.Count() > 0)
                             @foreach (var type in CntrTypes)
                             {
@@ -379,34 +381,34 @@
                 </MudTd>
                 <MudTd>
                     <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecord.CntrTareWt"
-                                     Variant="Variant.Outlined" Margin="Margin.Dense"
-                                     Required RequiredError="" HideSpinButtons="true" />
+                    Variant="Variant.Outlined" Margin="Margin.Dense"
+                    Required RequiredError="" HideSpinButtons="true" />
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField" Style="width: 292px" T="string" @bind-Value="expOrderRecord.Seal"
-                                  Text="@expOrderRecord.Seal"
-                                  TextChanged="@(async (e) => {expOrderRecord.Seal = e.ToUpper();})"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    Text="@expOrderRecord.Seal"
+                    TextChanged="@(async (e) => {expOrderRecord.Seal = e.ToUpper();})"
+                    Variant="Variant.Outlined" Margin="Margin.Dense" />
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
                     <MudTextField Class="QuantityField" Style="width: 80px" T="string" Text="@expOrderRecord.Contents.Sum(s => s.PackageQty).ToString()"                                
-                                Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly/>
+                    Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly/>
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                                  Text="@(expOrderRecord.Contents.Where(s => s.NetWt is not null).Sum(s => s.NetWt!.Value).ToString("## ##0.###"))"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                    Text="@(expOrderRecord.Contents.Where(s => s.NetWt is not null).Sum(s => s.NetWt!.Value).ToString("## ##0.###"))"
+                    Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                                  Text="@(expOrderRecord.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("## ##0.###"))"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                    Text="@(expOrderRecord.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("## ##0.###"))"
+                    Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecord.IsShowCntrContent ? "transform: rotate(180deg);" : "")"
-                                   Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
+                    Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
                 </MudTd>
                 <MudTd></MudTd>
             </RowTemplate>
@@ -424,7 +426,7 @@
                                     <MudTd Style="width:120px; text-align:center">@CntrContent.PackageName</MudTd>
                                     <MudTd Style="width:120px">@CntrContent.NetWt</MudTd>
                                     <MudTd Style="width:120px">@CntrContent.GrossWt</MudTd>
-                                    </RowTemplate>
+                                </RowTemplate>
                             </MudTable>
                         </td>
                         <MudTd Style="width: 35px"></MudTd>
@@ -492,6 +494,8 @@
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
     private IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
+    private string? ExportOrdersTotalNetWt { get; set; } = null;
+    private string? ExportOrdersTotalGrossWt { get; set; } = null;
 
     private CheckedUploadResult? uploadResult { get; set; }
 
@@ -892,10 +896,15 @@
 
             if (IsPopoverOpen)
             {                
-                var exportOrders = await _exportOrderProvider.GetExportOrdersNum(docName);
+                var exportOrderNums = await _exportOrderProvider.GetDocumentExportOrderNums(docName);
+                double[] total = await _exportOrderProvider.GetDocumentExportOrderTotalWeights(docName);
 
-                if (exportOrders != Enumerable.Empty<string>())
-                    ExportOrderNums = exportOrders;
+                if (exportOrderNums != Enumerable.Empty<string>())
+                {
+                    ExportOrderNums = exportOrderNums;
+                    ExportOrdersTotalNetWt = total[0].ToString("### ### ###.###");
+                    ExportOrdersTotalGrossWt = total[1].ToString("### ### ###.###");
+                }                    
 
                 await InvokeAsync(StateHasChanged);                
             }

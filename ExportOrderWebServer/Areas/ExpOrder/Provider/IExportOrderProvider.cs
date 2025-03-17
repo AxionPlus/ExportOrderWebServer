@@ -11,6 +11,6 @@ public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
     Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id);
     Task<AppObjectResponse> SetNewVesselCall(long[] exportOrderIds, long vesselCallid);    //IEnumerable<long>exportOrderIds
     Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string UserName = "");
-    Task<IEnumerable<string>> GetExportOrdersNum(string documentNum);
-    //Task<IEnumerable<string>?> GetShippersNameLAsync(string name);
+    Task<IEnumerable<string>> GetDocumentExportOrderNums(string documentNum);
+    Task<double[]> GetDocumentExportOrderTotalWeights(string documentNum);
 }

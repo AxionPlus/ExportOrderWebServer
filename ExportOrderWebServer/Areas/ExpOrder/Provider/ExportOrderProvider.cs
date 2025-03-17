@@ -875,50 +875,46 @@
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<string>> GetExportOrdersNum(string documentNum)
+    public async Task<IEnumerable<string>> GetDocumentExportOrderNums(string documentNum)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            return await db.ExportOrders.AsNoTracking().AsSplitQuery()
+            var nums = await db.ExportOrders.AsNoTracking().AsSplitQuery()
                                         .Include(s => s.Records).ThenInclude(er => er.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
                                         .Where(s => s.Records.SelectMany(er => er.Contents)
                                                              .Any(c => !string.IsNullOrWhiteSpace(c.DocumentRecord.Document.Name) &&
                                                                         c.DocumentRecord.Document.Name == documentNum))
                                         .Select(s => new string(string.Concat(s.Num, " (", s.Status.ToString(), ")")))
                                         .ToArrayAsync();
+
+            return nums.Order();
         }            
     }
 
-    //public async Task<IEnumerable<string>?> GetShippersNameLAsync(string name)
-    //{
-    //    var Shippers = Enumerable.Empty<string>();
+    public async Task<double[]> GetDocumentExportOrderTotalWeights(string documentNum)
+    {
+        /// Retrieves total NET & total GROSS weights of ExportOrders used in Document
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;            
 
-    //    try
-    //    {
-    //        using (var _db = _dbContext.CreateDbContextAsync())
-    //        {
-    //            var db = await _db;
+            var containerContents = await db.ExportOrders.AsNoTracking().AsSplitQuery()
+                                              .Include(s => s.Records).ThenInclude(er => er.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)                                              
+                                              .SelectMany(s => s.Records).SelectMany(eor => eor.Contents)
+                                              .Where(con => !string.IsNullOrWhiteSpace(con.DocumentRecord.Document.Name) &&
+                                                                              con.DocumentRecord.Document.Name == documentNum)
+                                              .ToArrayAsync();
 
-    //            Shippers = await db.ExportOrders.AsNoTracking().AsSplitQuery()
-    //                                                .Include(s => s.Carrier)
-    //                                                .Include(s => s.Documents)
-    //                                                .Where(s => s.Carrier != null && s.Carrier.NameEn == name)
-    //                                                .Where(s => s.Documents.Any(d => d.Shipper != null))
-    //                                                .SelectMany(s => s.Documents).Select(d => d.Shipper).Where(sh => sh != null)
-    //                                                .GroupBy(sh => sh!.NameEn, (n, group) => new string(n))
-    //                                                .ToArrayAsync();
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex.Message);
-    //        return Enumerable.Empty<string>();
-    //    }
+            double? net = containerContents.Sum(con => con.NetWt);
+            double? gross = containerContents.Sum(con => con.GrossWt);
 
-    //    return Shippers;
-    //}
+            double[] total = { net ?? 0, gross ?? 0 };
+
+            return total;
+        }
+    }
 
     #region AUXILIARY
 

@@ -38,7 +38,6 @@
 @code {
     [Parameter]
     public MudTable<T>? Table { get; set; }
-
     [Parameter]
     public int? ItemsCount { get; set; }
     [Parameter]
@@ -55,5 +54,4 @@
     {
         Table?.NavigateTo(i - 1);
     }
-
 }

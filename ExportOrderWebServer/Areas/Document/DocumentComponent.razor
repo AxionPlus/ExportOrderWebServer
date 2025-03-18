@@ -8,78 +8,77 @@
 <style>
 
     .Table.MultiSelection * table tr > th:first-child {
-        width: 30px;
+    width: 30px;
     }
 
     .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
-        padding-inline-start: 4px;
+    padding-inline-start: 4px;
     }
 
     .mud-input-control.mud-input-control-margin-dense {
-        margin: unset;
+    margin: unset;
     }
 
     .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-        padding: 8px;
+    padding: 8px;
     }
 
     .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
-        margin-top: unset;
-        margin-bottom: unset;
+    margin-top: unset;
+    margin-bottom: unset;
     }
 
     .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 6px;
-        padding-inline-start: unset;
+    padding-inline-end: 6px;
+    padding-inline-start: unset;
     }
 </style>
 
 <div class="Container-item">
-        <div class="container-content">
-            <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
-                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
-                Search
-            </MudButton>            
-            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" @bind-Value="Filter.Document" SearchFunc="@SearchDocument"
-                             Label="Декларация"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             AutoFocus="true"
-                             MinCharacters="3" MaxItems="20"
-                             ResetValueOnEmptyText="true" Clearable />            
-            <MudTextField Class="TextField" Label="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
-            <MudTextField Class="TextField" Label="Consignee" Style="width: 300px" @bind-Value="@Filter.Consignee"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
-            <MudTextField Class="TextField" Label="Cargo" Style="width: 270px" @bind-Value="@Filter.CargoDescriptionShort"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-            <MudSelect Class="wrapper-input-select" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
-                       Style="width:145px"
-                       ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
-                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
-                       Disabled="IsSelectable">
-                @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
+    <div class="container-content">
+        <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
+                    Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+            Search
+        </MudButton>            
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" @bind-Value="Filter.Document" SearchFunc="@SearchDocument"
+                         Label="Декларация"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon=""
+                         AutoFocus="true"
+                         MinCharacters="3" MaxItems="20"
+                         ResetValueOnEmptyText="true" Clearable />            
+        <MudTextField Class="TextField" Label="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
+        <MudTextField Class="TextField" Label="Consignee" Style="width: 300px" @bind-Value="@Filter.Consignee"
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
+        <MudTextField Class="TextField" Label="Cargo" Style="width: 270px" @bind-Value="@Filter.CargoDescriptionShort"
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+        <MudSelect Class="wrapper-input-select" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
+                   Style="width:145px"
+                   ToStringFunc="@(s => s == null ? string.Empty : s.ToString())"
+                   Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
+                   Disabled="IsSelectable">
+            @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
+            {
+                if (status == EntityStatus.New || status == EntityStatus.Completed)
                 {
-                    if (status == EntityStatus.New || status == EntityStatus.Completed)
-                    {
-                        <MudSelectItem Value="@status" />
-                    }
+                    <MudSelectItem Value="@status" />
                 }
-            </MudSelect>            
-        </div>
+            }
+        </MudSelect>            
     </div>
+</div>
 
 <div class="Container-table">
     @if (mudTable != null)
     {
         <div class="tableMenu">
             <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+            <TablePager T="DocumentEntity" Table="mudTable" ItemsCount="@Items?.Count()" />
         </div>
     }
     <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" @bind-SelectedItems="SelectedItems"
-              MultiSelection="IsSelectable" SelectOnRowClick="false" Virtualize="true" Loading="IsLoadingData" RowsPerPage="10">
+                MultiSelection="IsSelectable" SelectOnRowClick="false" Virtualize="true" Loading="IsLoadingData" RowsPerPage="10">
         <HeaderContent>
             @if (!IsSelectable)
             {
@@ -117,24 +116,10 @@
             }            
             <MudTd>@context.Type.ToString()</MudTd>
             <MudTd>
-                <MudLink OnClick="@(()=> Show_ExportOrderNums(context.Name))">
-                    @context.Name
-                </MudLink>
-                <MudPopover Class="px-4 pb-4 pt-2" Open="IsPopoverOpen" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
-                    @if (ExportOrderNums != Enumerable.Empty<string>() && ExportOrderNums.Count() > 0)
-                    {
-                        <div class="d-flex" style="flex-direction:row; justify-content: flex-end">
-                            <MudTooltip Text="Close" Delay="1000">
-                                <MudIconButton Style="padding:unset" Icon="@Icons.Material.Rounded.Close" Color="Color.Warning" OnClick="@(() => IsPopoverOpen = false)" />
-                            </MudTooltip>
-                        </div>
-                        <MudText Style="padding-top:10px; padding-bottom:10px">Список поручений по этой ДТ:</MudText>
-                        @foreach (string num in ExportOrderNums)
-                        {
-                            <MudText Color="Color.Primary">@num</MudText>
-                        }
-                    }
-                </MudPopover>
+                <MudLink OnClick="@(()=> ShowExportOrderNums_Click(context.Name))">@context.Name</MudLink>
+                <PopoverExpOrderList DocumentName="@context.Name" IsPopoverOpen="@IsPopoverOpen" ExportOrderNums="@ExportOrderNums"
+                                     ExportOrdersTotalNetWt="@ExportOrdersTotalNetWt" ExportOrdersTotalGrossWt="@ExportOrdersTotalGrossWt"
+                                     CloseButton_Click="@(()=> IsPopoverOpen = false)" />
             </MudTd>
             <MudTd Style="text-align: start">@(context.Shipper == null ? "---" : context.Shipper.Name)</MudTd>
             <MudTd Style="text-align: start">@(context.Consignee == null ? "---" : context.Consignee.Name)</MudTd>
@@ -159,9 +144,10 @@
     private HashSet<DocumentEntity> SelectedItems = new();
     private FilterParameters Filter { get; set; } = new();    
     private IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
+    private string? ExportOrdersTotalNetWt { get; set; } = null;
+    private string? ExportOrdersTotalGrossWt { get; set; } = null;
 
-
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
+    //private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     public async Task GetItems()
     {        
@@ -212,10 +198,12 @@
 
     private async Task OpenItem_Click(long id)
     {
-        var result = await ValueTask.FromResult(jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank"));
+        //var result = await ValueTask.FromResult(jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank"));
 
         // if (result.IsCompletedSuccessfully)
         //     await GetItems();
+
+        await jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank");
     }
 
     private async void SelectItem_Click()
@@ -242,7 +230,8 @@
     }
 
     #region SEARCHERS
-    private async void Show_ExportOrderNums(string? docName)
+
+    private async void ShowExportOrderNums_Click(string? docName)
     {
         if (!string.IsNullOrWhiteSpace(docName))
         {
@@ -250,14 +239,16 @@
 
             if (IsPopoverOpen)
             {
-                //IsLoadingData = true;
                 var exportOrders = await _ExportOrderProvider.GetDocumentExportOrderNums(docName);
+                double[] total = await _ExportOrderProvider.GetDocumentExportOrderTotalWeights(docName);
 
                 if (exportOrders != Enumerable.Empty<string>())
+                {
                     ExportOrderNums = exportOrders;
-
-                //IsLoadingData = false;
-
+                    ExportOrdersTotalNetWt = total[0].ToString("### ### ###.###");
+                    ExportOrdersTotalGrossWt = total[1].ToString("### ### ###.###");
+                }
+             
                 await InvokeAsync(StateHasChanged);
             }
             else

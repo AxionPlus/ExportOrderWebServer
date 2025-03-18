@@ -1,0 +1,33 @@
+﻿<MudPopover Class="px-4 pb-4 pt-2" Open="@IsPopoverOpen" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter">
+    @if (ExportOrderNums != Enumerable.Empty<string>() && ExportOrderNums.Count() > 0)
+    {
+        <div class="d-flex" style="flex-direction:row; justify-content: flex-end">            
+            <MudIconButton Style="padding:unset" Icon="@Icons.Material.Rounded.Close" Color="Color.Warning" OnClick="@CloseButton_Click" />
+        </div>
+        <MudText Style="padding-top:10px">Список поручений по ДТ</MudText>
+        <MudText Style="padding-bottom:10px">@(DocumentName)</MudText>
+        <MudDivider />
+        @foreach (string num in ExportOrderNums)
+        {
+            <MudText Color="Color.Primary">@num</MudText>
+        }
+        <MudDivider />
+        <MudText Style="padding-top:10px">@($"Всего нетто: {ExportOrdersTotalNetWt}")</MudText>
+        <MudText Style="padding-bottom:10px">@($"Всего брутто: {ExportOrdersTotalGrossWt}")</MudText>
+    }
+</MudPopover>
+
+@code {
+    [Parameter]
+    public bool IsPopoverOpen { get; set; }
+    [Parameter]
+    public IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
+    [Parameter]
+    public string? ExportOrdersTotalNetWt { get; set; } = null;
+    [Parameter]
+    public string? ExportOrdersTotalGrossWt { get; set; } = null;
+    [Parameter]
+    public string? DocumentName { get; set; } = null;
+    [Parameter]
+    public EventCallback CloseButton_Click { get; set; }
+}

@@ -1,6 +1,4 @@
-﻿
-
-namespace ExportOrderWebServer.Areas.MyCompany.Provider;
+﻿namespace ExportOrderWebServer.Areas.MyCompany.Provider;
 
 public class MyCompanyProvider : IMyCompanyProvider
 {
@@ -11,6 +9,7 @@ public class MyCompanyProvider : IMyCompanyProvider
     public MyCompanyProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
     public async Task<AppObjectResponse> GetItemAsync(uint id)
@@ -35,7 +34,7 @@ public class MyCompanyProvider : IMyCompanyProvider
 
             var company = await db.MyCompany.ToListAsync();
 
-            return company.Count() == 0;
+            return company.Count == 0;
         }
     }
 

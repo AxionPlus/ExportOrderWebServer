@@ -119,11 +119,17 @@ public class VesselCallProvider : IVesselCallProvider
 
                 if (modifyVoyage != itemVoyage)
                 {
-                    var itemExistCheck = await db.VesselCalls.Where(s => s.Vessel!.Name!.ToUpper() == item.Vessel!.Name!.ToUpper())
-                                                            .Where(s => s.VoyageNo.ToUpper() == item.VoyageNo.ToUpper())
-                                                            .FirstOrDefaultAsync();
+                    //var itemExistCheck = await db.VesselCalls.Where(s => s.Vessel!.Name!.ToUpper() == item.Vessel!.Name!.ToUpper())
+                    //                                         .Where(s => s.VoyageNo.ToUpper() == item.VoyageNo.ToUpper())
+                    //                                         .FirstOrDefaultAsync();
+                    
+                    bool isItemExist = db.VesselCalls.Where(s => item.Vessel != null &&
+                                                                !string.IsNullOrWhiteSpace(s.Vessel.Name) && !string.IsNullOrWhiteSpace(item.Vessel.Name) &&
+                                                                s.Vessel.Name.ToUpper() == item.Vessel.Name.ToUpper())
+                                                     .Where(s => s.VoyageNo.ToUpper() == item.VoyageNo.ToUpper())
+                                                     .Any();
 
-                    if (itemExistCheck is not null)
+                    if (isItemExist)
                     {
                         appObjResponse.ErrorAdd($"{itemVoyage} exists already");
                         return appObjResponse;

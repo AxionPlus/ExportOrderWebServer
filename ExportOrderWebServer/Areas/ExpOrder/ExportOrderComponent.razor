@@ -112,7 +112,7 @@
         </div>
     }
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedItems"
-    Virtualize="true" RowsPerPage="15" MultiSelection="true" SelectOnRowClick="false">
+              Virtualize="true" RowsPerPage="15" MultiSelection="true" SelectOnRowClick="false">
         <HeaderContent>
             <MudTh Style="max-width:45px">
                 <MudTooltip Delay="500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
@@ -215,8 +215,8 @@
             <MudTd></MudTd>
             <MudTd>
                 <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || IsBtnClicked || !IsRoleForEdit)"
-                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
-                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
+                               Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
+                               OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
             </MudTd>            
         </RowTemplate>
         <PagerContent></PagerContent>

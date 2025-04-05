@@ -49,22 +49,14 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
-
+    <MudForm @ref="@Form" >
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                        <MudTooltip Text="@(IsFormReadOnly ? "Edit" : "Save" )">
-                            @if (IsFormReadOnly)
-                            {
-                                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" Disabled="!IsFormReadOnly" OnClick="EditItem_Click" />
-                            }                                
-                            else
-                            {
-                                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsFormReadOnly" OnClick="SaveItem_Click" />
-                            }                            
-                        </MudTooltip>
+                    <MudTooltip Text="Save">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="SaveItem_Click" />
+                    </MudTooltip>
                 </div>                
             </MudToolBar>
         </div>
@@ -72,39 +64,37 @@
         <div class="Container-item" style="flex-direction:column">
             <div class="container-content" style="justify-content:flex-start">
                 <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item.Vessel"
-                                 ToStringFunc="@(e => e != null ? e.Name : "")"
-                                 SearchFunc="@SearchVessel"
-                                 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 Required RequiredError=""
-                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                 ResetValueOnEmptyText="true"
-                                 MaxItems="20"                                  
-                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                 AdornmentColor="Color.Primary"
-                                 Adornment="Adornment.End"
-                                 OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddVessel_Click(); })"
-                                 Clearable="!IsFormReadOnly" />
-                 <MudTextField Class="TextField" T="string" Style="width: 200px; margin-right:20px" Label="Voyage" Text="@Item.VoyageNo"
-                               TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true"
-                               Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-                <div style="width:130px; height:35px; margin-right: 4px">
+                                ToStringFunc="@(e => e != null ? e.Name : "")"
+                                SearchFunc="SearchVessel"
+                                Variant="Variant.Outlined" Margin="Margin.Dense"
+                                Required RequiredError=""
+                                CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                ResetValueOnEmptyText="true"
+                                MaxItems="20"                                  
+                                AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                AdornmentColor="Color.Primary"
+                                Adornment="Adornment.End"
+                                OnAdornmentClick="AddVessel_Click"
+                                Clearable />
+                                <MudTextField Class="TextField" T="string" Style="width: 200px; margin-right:20px" Label="Voyage" Text="@Item.VoyageNo"
+                                TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
+                                Variant="Variant.Outlined" Margin="Margin.Dense"
+                                Immediate="true"
+                                Required RequiredError="" Clearable />
+                <div style="width:130px; height:33px; margin-right: 4px">
                     <MudDatePicker Class="wrapper-input-date" Label="ETA" @bind-Date="Item.ETA"
-                                   DateFormat="dd.MM.yy"
-                                   ShowWeekNumbers="true"
-                                   Variant="Variant.Outlined"
-                                   IconSize=Size.Small
-                                   AutoClose=true
-                                   Required RequiredError=""
-                                   Clearable="!IsFormReadOnly" />
-                 </div>                 
+                                    DateFormat="dd.MM.yy"
+                                    ShowWeekNumbers="true"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                    IconSize=Size.Small
+                                    AutoClose=true
+                                    Required RequiredError="" Clearable />
+                </div>                 
 
                 <MudSpacer />
                 <MudSelect Class="wrapper-input-select" Style="width:125px" T="EntityStatus" Label="Status" @bind-Value="Item.Status"
-                            ToStringFunc="@(str => str.ToString())"
-                            Variant="Variant.Outlined" Margin="Margin.Dense">
+                ToStringFunc="@(str => str.ToString())"
+                Variant="Variant.Outlined" Margin="Margin.Dense">
                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
                     {
                         if (status == EntityStatus.New || status == EntityStatus.Completed)
@@ -116,97 +106,90 @@
             </div>
 
             <div class="container-content" style="justify-content:flex-start">
-                 <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px; margin-right:20px" Label="Load Terminal" @bind-Value="Item.Terminal"
-                                  ToStringFunc="@(e => e != null ? e.Name : "")"
-                                  SearchFunc="@SearchTerminal"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Required RequiredError=""
-                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                  ResetValueOnEmptyText="true"
-                                  MaxItems="20"
-                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                  AdornmentColor="Color.Primary"
-                                  Adornment="Adornment.End"
-                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddTerminal_Click(); })"
-                                  Clearable="!IsFormReadOnly" />
-
-                 <MudTextField Class="TextField" T="string" Style="width: 200px; margin-right:20px" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
-                               TextChanged="async (e)=> { Item.VoyageNoTerminal = e.ToUpper(); }"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true"
-                                        Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-
-                <div style="width:130px; height:35px">
-                    <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
-                                DateFormat="dd.MM.yy"
-                                ShowWeekNumbers="true"
-                                Variant="Variant.Outlined"
-                                IconSize=Size.Small
-                                AutoClose=true
-                                DisableToolbar=true
+                <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px; margin-right:20px" Label="Load Terminal" @bind-Value="Item.Terminal"
+                                ToStringFunc="@(e => e != null ? e.Name : "")"
+                                SearchFunc="SearchTerminal"
+                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                 Required RequiredError=""
-                                Clearable="!IsFormReadOnly" />
+                                CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                ResetValueOnEmptyText="true"
+                                MaxItems="20"
+                                AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                AdornmentColor="Color.Primary"
+                                Adornment="Adornment.End"
+                                OnAdornmentClick="AddTerminal_Click"
+                                Clearable />
+                <MudTextField Class="TextField" T="string" Style="width: 200px; margin-right:20px" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
+                              TextChanged="async (e)=> { Item.VoyageNoTerminal = e.ToUpper(); }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"
+                              Required RequiredError="" Clearable />
+                <div style="width:130px; height:33px">
+                    <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
+                                   DateFormat="dd.MM.yy"
+                                   ShowWeekNumbers="true"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   IconSize=Size.Small
+                                   AutoClose=true
+                                   Required RequiredError="" Clearable />
                 </div>                 
             </div>
 
-            <div class="Container-table">
-                 <MudTable Class="Table" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
-                     <HeaderContent>
-                         <MudTh Style="width:35px">
-                             <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetailItem" Disabled="@(IsLoadingData || IsFormReadOnly)" />
-                         </MudTh>
-                         <MudTh Style="width: 260px">PORT of discharge</MudTh>
-                         <MudTh Style="width: 405px">Agent</MudTh>
-                         <MudTh Style="width: 260px">FINAL Destination</MudTh>
-                     </HeaderContent>
-                     <RowTemplate>
-                         <MudTd>
-                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemoveDetail_Click(context); })"
-                                            Disabled="@IsFormReadOnly" />
-                         </MudTd>
-                         <MudTd DataLabel="Port">
-                             <MudAutocomplete Class="VesseCall_Port" T="LocationCatalog" Style="width: 250px; text-align:start" @bind-Value="context.POD"
-                                              ToStringFunc="@(e => e != null ? e.Name : "")"
-                                              SearchFunc="@SearchPOD"
+            <div class="container-content" style="justify-content:flex-start">
+                <div class="Container-table">
+                    <MudTable Class="Table" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
+                        <HeaderContent>
+                            <MudTh Style="width:35px">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetailItem" />
+                            </MudTh>
+                            <MudTh Style="width: 260px">PORT of discharge</MudTh>
+                            <MudTh Style="width: 385px">Agent</MudTh>
+                            <MudTh Style="width: 260px">FINAL Destination</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(async () => { await RemoveDetail_Click(context); })" />
+                            </MudTd>
+                            <MudTd DataLabel="Port">
+                                <MudAutocomplete Class="VesseCall_Port" T="LocationCatalog" Style="width: 250px; text-align:start" @bind-Value="context.POD"
+                                                 ToStringFunc="@(e => e != null ? e.Name : "")"
+                                                 SearchFunc="SearchPOD"
+                                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                 Required RequiredError=""
+                                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                                 ResetValueOnEmptyText="true"
+                                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                                 AdornmentColor="Color.Primary"
+                                                 Adornment="Adornment.End"
+                                                 OnAdornmentClick="AddPort_Click"
+                                                 Clearable />
+                            </MudTd>
+                            <MudTd DataLabel="Agent">
+                                <MudTextField T="string" Style="width: 375px;" Text="@context.AgentPOD"
+                                              TextChanged="async (e)=> { context.AgentPOD = e.ToUpper(); }"
                                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                                              Required RequiredError=""
-                                              CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                              ResetValueOnEmptyText="true"                               
-                                              AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                              AdornmentColor="Color.Primary"
-                                              Adornment="Adornment.End"
-                                              OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddPort_Click(); })"
-                                              Clearable="!IsFormReadOnly" />
-                         </MudTd>
-                         <MudTd DataLabel="Agent">
-                             <MudTextField T="string" Style="width: 395px;" Text="@context.AgentPOD"
-                                           TextChanged="async (e)=> { context.AgentPOD = e.ToUpper(); }"
-                                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                                           Immediate="true"
-                                           Required RequiredError=""
-                                           Clearable="!IsFormReadOnly" />
-                         </MudTd>
-                         <MudTd DataLabel="Final">
-                             <MudAutocomplete Class="VesseCall_Port" T="LocationCatalog" Style="width: 250px" @bind-Value="context.FinalDestination"
-                                              ToStringFunc="@(e => e != null ? e.Name : "")"
-                                              SearchFunc="@SearchPOD"
-                                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                                              
-                                              CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                              ResetValueOnEmptyText="true"
-                                              AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                              AdornmentColor="Color.Primary"
-                                              Adornment="Adornment.End"
-                                              OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddPort_Click(); })"
-                                              Clearable="!IsFormReadOnly"
-                                              Disabled="true" />
-                         </MudTd>
-                     </RowTemplate>
-                 </MudTable>
-             </div>
-         </div>
-
+                                              Immediate="true"
+                                              Required RequiredError="" Clearable />
+                            </MudTd>
+                            <MudTd DataLabel="Final">
+                                <MudAutocomplete Class="VesseCall_Port" T="LocationCatalog" Style="width: 250px" @bind-Value="context.FinalDestination"
+                                                 ToStringFunc="@(e => e != null ? e.Name : "")"
+                                                 SearchFunc="SearchPOD"
+                                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                                 ResetValueOnEmptyText="true"
+                                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                                 AdornmentColor="Color.Primary"
+                                                 Adornment="Adornment.End"
+                                                 OnAdornmentClick="AddPort_Click"
+                                                 Clearable
+                                                 Disabled="true" />
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </div>
+            </div>            
+        </div>
     </MudForm>
 }
 
@@ -226,7 +209,6 @@
     private VesselCallEntity? Item { get; set; }
 
     private bool IsLoadingData = false;
-    private bool IsFormReadOnly { get; set; } = true;
     private bool IsRoleForEdit = false;
     private EntityStatus ItemStatus { get; set; }
 
@@ -245,7 +227,7 @@
         if (IsNewItem)
         {
             Item = new() { Details = new List<VesselCallDetail>() { new() } };
-            IsFormReadOnly = false;
+            //IsFormReadOnly = false;
         }        
         else
         {
@@ -258,12 +240,14 @@
 
     public async Task SaveItem_Click()
     {
+        if (Item is null) return;
+
         IsLoadingData = true;
         await Form!.Validate();
 
         if (Form.IsValid)
         {
-            if (!Item!.Details.Any())
+            if (!Item.Details.Any())
             {
                 Snackbar.Add("Fill up at least one Port of Discharge", Severity.Warning);
                 IsLoadingData = false;
@@ -272,9 +256,9 @@
 
             if (IsNewItem)
             {
-                if (Item!.Details.Any())
+                if (Item.Details.Any())
                 {
-                    await _vesselCallProvider.NewItemAsync(Item!);
+                    await _vesselCallProvider.NewItemAsync(Item);
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 }
                 else
@@ -285,36 +269,22 @@
             }
             else
             {
-                //if (ItemStatus == EntityStatus.Completed && !IsRoleForEdit)
-                if (Item is not null && Item.Status == EntityStatus.Completed && !IsRoleForEdit)
-                {
+                if (Item.Status == EntityStatus.Completed)  //&& !IsRoleForEdit
                     Snackbar.Add($"Voyage is Completed.<br>You can't change this Voyage.", Severity.Warning);
-                    //IsFormReadOnly = true;
-                    //IsLoadingData = false;
-                }                    
                 else
                 {
-                    var result = await _vesselCallProvider.ModifyItemAsync(Item!);
+                    var result = await _vesselCallProvider.ModifyItemAsync(Item);
                     if (!result.HasError)
                         Snackbar.Add("Saved Successfully", Severity.Success);
                     else
-                    {
                         Snackbar.Add($"{string.Join("; ", result.Error)}", Severity.Error);
-                        //IsFormReadOnly = true;
-                        //IsLoadingData = false;
-                    }                        
                 }
             }
 
             IsNewItem = false;
-            IsFormReadOnly = true;
-
-            // Id = Item!.Id;
-            // await GetItem();
 
             await InvokeAsync(StateHasChanged);
 
-            await Task.Delay(500);
             IsLoadingData = false;
         }
         else
@@ -324,32 +294,26 @@
         }            
     }
 
-    private async Task EditItem_Click()
-    {
-        await Task.Delay(50);
-        IsFormReadOnly = false;
-    }
-
     private void AddDetailItem()
     {
         Item!.Details.Add(new());
     }
 
-    private async Task RemoveDetail_Click(VesselCallDetail item)
+    private async Task RemoveDetail_Click(VesselCallDetail itemDetails)
     {
         await Task.Delay(50);
 
         //if (item is null) return;
 
-        if (item.ExportOrders.Count() > 0)
+        if (itemDetails.ExportOrders.Count() > 0)
         {
-            string portName = item.POD is null ? string.Empty : (string.IsNullOrWhiteSpace(item.POD.Name) ? string.Empty : item.POD.Name);
+            string portName = itemDetails.POD is null ? string.Empty : (string.IsNullOrWhiteSpace(itemDetails.POD.Name) ? string.Empty : itemDetails.POD.Name);
 
             Snackbar.Add($"В этом рейсе есть поручения.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки:<br>{portName}", Severity.Warning);
             return;            
         }
 
-        Item!.Details.Remove(item);
+        Item!.Details.Remove(itemDetails);
 
         // if (!Item.Details.Any())
         //     Item.Details.Add(new());

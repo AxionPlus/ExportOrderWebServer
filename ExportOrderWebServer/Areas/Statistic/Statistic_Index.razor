@@ -8,8 +8,13 @@
 <PageTitle>Statistic</PageTitle>
 
 <style>
+    .mud-simple-table table thead {
+        background-color: lightblue;
+    }
+
     .mud-simple-table table * tr th {
         text-align: center;
+        padding: 6px
     }
 
     .mud-simple-table table * tr td {
@@ -43,50 +48,48 @@
         </MudToolBar>
     </div>
     <div class="Container-item">
-        <div class="container-content" style="justify-content:flex-start">
-            <MudDatePicker Class="wrapper-input-date" Label="from" @bind-Date="Filter.DateFrom"
-                           Style="width: 130px; margin-right:10px"
-                           DateFormat="dd.MM.yy"
-                           ShowWeekNumbers="true"
-                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                           IconSize=Size.Small
-                           AutoClose=true
-                           DisableToolbar=false
-                           Clearable />
-
-            <MudDatePicker Class="wrapper-input-date" Label="to" @bind-Date="Filter.DateTo"
-                            Style="width: 130px; margin-right:40px"
-                            DateFormat="dd.MM.yy"
-                            ShowWeekNumbers="true"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            IconSize=Size.Small
-                            AutoClose=true
-                            DisableToolbar=false
-                            Clearable />
-
+        <div class="container-content" style="justify-content:flex-start; padding-bottom:16px">
+            <div style="width:130px; height:35px; margin-right:10px">
+                <MudDatePicker Class="wrapper-input-date" Label="from" @bind-Date="Filter.DateFrom"
+                               DateFormat="dd.MM.yy"
+                               ShowWeekNumbers="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               IconSize=Size.Small
+                               AutoClose=true
+                               Clearable />
+            </div>
+            <div style="width:130px; height:35px; margin-right:40px">
+                <MudDatePicker Class="wrapper-input-date" Label="to" @bind-Date="Filter.DateTo"
+                               DateFormat="dd.MM.yy"
+                               ShowWeekNumbers="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               IconSize=Size.Small
+                               AutoClose=true
+                               Clearable />
+            </div>
+            
             <MudSpacer />
 
-             <MudDatePicker Class="wrapper-input-date" Label="month" @bind-Date="_month"
-                            Style="width: 130px; margin-right:10px"
-                            DateFormat="MMM"
-                            ShowWeekNumbers="true"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            IconSize=Size.Small
-                            AutoClose=true
-                            DisableToolbar=false
-                            Clearable
-                            OpenTo="OpenTo.Month" FixYear="@DateTime.Today.Year" FixDay="@DateTime.Today.Day"/>
-
-             <MudDatePicker Class="wrapper-input-date" Label="year" @bind-Date="_year"
-                            Style="width: 130px; margin-right:40px"
-                            DateFormat="yyyy"
-                            ShowWeekNumbers="true"
-                            Variant="Variant.Outlined" Margin="Margin.Dense"
-                            IconSize=Size.Small
-                            AutoClose=true
-                            DisableToolbar=false
-                            Clearable
-                            OpenTo="OpenTo.Year" FixMonth="@DateTime.Today.Month" FixDay="@DateTime.Today.Day"/>
+            <div style="width:130px; height:35px; margin-right:10px">
+                <MudDatePicker Class="wrapper-input-date" Label="month" @bind-Date="_month"
+                               DateFormat="MMM"
+                               ShowWeekNumbers="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               IconSize=Size.Small
+                               AutoClose=true
+                               Clearable
+                               OpenTo="OpenTo.Month" FixYear="@DateTime.Today.Year" FixDay="@DateTime.Today.Day" />
+            </div>
+            <div style="width:130px; height:35px; margin-right:40px">
+                <MudDatePicker Class="wrapper-input-date" Label="year" @bind-Date="_year"
+                               DateFormat="yyyy"
+                               ShowWeekNumbers="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               IconSize=Size.Small
+                               AutoClose=true
+                               Clearable
+                               OpenTo="OpenTo.Year" FixMonth="@DateTime.Today.Month" FixDay="@DateTime.Today.Day" />
+            </div>             
             
             <MudSpacer />
 
@@ -106,7 +109,7 @@
                         {
                             if (h == "Completed")
                             {
-                                <th style="color:cornflowerblue">@h</th>                            
+                                <th style="color:dodgerblue">@h</th>
                             }
                             else
                             {
@@ -191,12 +194,6 @@
 
     private void SetDatePeriod()
     {
-        // if (Filter.DateFrom.HasValue || Filter.DateTo.HasValue)
-        // {
-        //     _month = null;
-        //     _year = null;
-        // }
-
         if (_month.HasValue)
         {
             Filter = new();

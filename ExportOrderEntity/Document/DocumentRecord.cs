@@ -32,6 +32,6 @@ public class DocumentRecord
     [JsonIgnore]
     public DocumentEntity Document { get; set; }
 
-    [NotMapped]
-    public bool IsShowWeight_Details { get; set; } = false;
+    //[NotMapped]
+    //public bool IsShowWeight_Details { get; set; } = false;
 }

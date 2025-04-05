@@ -5,7 +5,7 @@ namespace ExportOrderEntites.MyCompany;
 public class MyCompanyEntity : Entity
 {
     public string? Name { get; set; }    
-    public IList<PersonEntity>? Persons { get; set; } = new List<PersonEntity>();
+    public List<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
 }
 
 public class PersonEntity : CatalogEntity

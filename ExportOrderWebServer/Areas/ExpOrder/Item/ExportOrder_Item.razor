@@ -19,43 +19,26 @@
                                    Icon="@Icons.Material.Outlined.ExitToApp" />
                 </MudTooltip>
             </div>
-
-            @if (IsFormReadOnly)
-            {
-                <div class="ToolBar-iconbutton" style="margin-left:20px">
-                    <MudTooltip Class="ExitIconButton" Text="Copy Export Order" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
-                    </MudTooltip>
-                </div>
-            }
-            else
-            {
-                <div class="ToolBar-iconbutton" style="margin-left:20px">
-                    <MudTooltip Class="ExitIconButton" Text="Refresh page" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
-                    </MudTooltip>
-                </div>
-            }
+            @* <div class="ToolBar-iconbutton" style="margin-left:20px">
+                <MudTooltip Class="ExitIconButton" Text="Refresh page" Delay="500" Duration="1000">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
+                </MudTooltip>
+            </div> *@
+            <div class="ToolBar-iconbutton" style="margin-left:20px">
+                <MudTooltip Class="ExitIconButton" Text="Copy Export Order" Delay="500" Duration="1000">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
+                </MudTooltip>
+            </div>
             <MudSpacer />
             <div class="ToolBar-Title">
                 <span>Export Order</span>
             </div>
-            <MudSpacer />
-            @if (IsEditSaveBtnsVisible)
-            {
-                <div class="ToolBar-iconbutton" style="margin-right:20px">
-                    <MudTooltip Class="ExitIconButton" Delay="500" Duration="1000" Text=@(IsFormReadOnly ? "edit" : "save")>
-                        @if (IsFormReadOnly)
-                        {
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
-                        }
-                        else
-                        {
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
-                        }
-                    </MudTooltip>
-                </div>
-            }
+            <MudSpacer />            
+            <div class="ToolBar-iconbutton" style="margin-right:20px">
+                <MudTooltip Delay="500" Duration="1000" Text="Save">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="SaveItem" />
+                </MudTooltip>
+            </div>            
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
             </div>
@@ -65,10 +48,10 @@
         </MudToolBar>
     </div>
 
-    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
+    <MudForm @ref="@Form" >
         @if (Item != null)
         {
-            <ExportOrder_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" IsRoleForEdit="IsRoleForEdit" />
+            <ExportOrder_ItemComponent @bind-Value="Item" IsRoleForEdit="IsRoleForEdit" />
         }
     </MudForm>
 
@@ -94,12 +77,10 @@
     public bool IsNewItem { get; set; } = false;
 
     private ExportOrderEntity? Item { get; set; }
-    public bool IsFormReadOnly { get; set; } = true;
-    public bool IsLoadingData { get; set; } = false;
+
+    private bool IsLoadingData { get; set; } = false;
     private bool IsAuth = false;
     private bool IsRoleForEdit = false;
-
-    public bool IsEditSaveBtnsVisible { get; set; } = true;
 
 
     protected override async Task OnInitializedAsync()
@@ -123,7 +104,7 @@
 
         if (IsNewItem)
         {
-            IsFormReadOnly = false;
+            //IsFormReadOnly = false;
 
             if (vcdId == 0)
                 Item = new();
@@ -142,9 +123,9 @@
             {
                 Item = (ExportOrderEntity)response.Object;
 
-                if (Item.Status.Equals(EntityStatus.Cancelled))
-                    if (!IsRoleForEdit)
-                        IsEditSaveBtnsVisible = false;
+                // if (Item.Status.Equals(EntityStatus.Cancelled))
+                //     if (!IsRoleForEdit)
+                //         IsEditSaveBtnsVisible = false;
             }
         }        
     }
@@ -190,16 +171,10 @@
         }
 
         IsNewItem = false;
-
         Id = Item.Id;
-
-        //await InvokeAsync(StateHasChanged);
 
         await GetItem();
 
-        //await Task.Delay(1000);
-
-        IsFormReadOnly = true;
         IsLoadingData = false;               
     }    
 
@@ -219,22 +194,12 @@
 
             Item.Num = Item.Status == EntityStatus.Customs || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
 
-            Item!.Status = EntityStatus.New;
-
-            IsEditSaveBtnsVisible = true;
+            Item.Status = EntityStatus.New;
 
             IsNewItem = true;
             
-            IsFormReadOnly = false;
             await InvokeAsync(StateHasChanged);
         }
-    }
-
-    private void EditItem()
-    {
-        //await Task.Delay(100);
-
-        IsFormReadOnly = false;
     }
 
     private void CloseDialogOrPage()

@@ -38,7 +38,7 @@
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
-            await component!.GetItems();
+        if (result is not null && !result.Canceled && component is not null)
+            await component.GetItems();
     }   
 }

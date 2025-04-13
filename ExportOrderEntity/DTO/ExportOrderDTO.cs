@@ -56,5 +56,5 @@ public class ExportOrderDTO
     public string? PersonPass { get; set; }
     public string? PersonPhone { get; set; }
 
-    public IEnumerable<ExportOrderRecordDTO> exportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
+    public IEnumerable<ExportOrderRecordDTO> ExportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
 }

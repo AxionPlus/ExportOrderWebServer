@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -16,8 +15,7 @@ public class ExportOrderRecord
     public string CntrNum { get; set; }
     public CntrTpSz? CntrType { get; set; }
     public double CntrTareWt { get; set; }
-    [Required]
-    public string Seal { get; set; }
+    public string? Seal { get; set; }
     public List<ContainerContent> Contents { get; set; } = new List<ContainerContent>();
     [JsonIgnore]
     public ExportOrderEntity ExportOrder { get; set; }

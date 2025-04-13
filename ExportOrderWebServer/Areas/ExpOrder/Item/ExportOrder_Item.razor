@@ -1,13 +1,14 @@
 ﻿@page "/exportorder"
+@using System.Text.RegularExpressions
 @attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 @inject ISnackbar Snackbar
 @inject IJSRuntime jsRuntime
+@inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IExportOrderProvider _exportOrderProvider
 @inject IVesselCallProvider _vesselCallProvider
-
-<style></style>
+@inject IValidationService ValidationService
 
 <MudContainer MaxWidth="MaxWidth.Large">
 
@@ -19,11 +20,6 @@
                                    Icon="@Icons.Material.Outlined.ExitToApp" />
                 </MudTooltip>
             </div>
-            @* <div class="ToolBar-iconbutton" style="margin-left:20px">
-                <MudTooltip Class="ExitIconButton" Text="Refresh page" Delay="500" Duration="1000">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Refresh" OnClick="GetItem" />
-                </MudTooltip>
-            </div> *@
             <div class="ToolBar-iconbutton" style="margin-left:20px">
                 <MudTooltip Class="ExitIconButton" Text="Copy Export Order" Delay="500" Duration="1000">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
@@ -104,8 +100,6 @@
 
         if (IsNewItem)
         {
-            //IsFormReadOnly = false;
-
             if (vcdId == 0)
                 Item = new();
             else
@@ -120,25 +114,28 @@
         {
             response = await _exportOrderProvider.GetItemAsync(Id);
             if (!response.HasError && response.Object is not null)
-            {
                 Item = (ExportOrderEntity)response.Object;
-
-                // if (Item.Status.Equals(EntityStatus.Cancelled))
-                //     if (!IsRoleForEdit)
-                //         IsEditSaveBtnsVisible = false;
-            }
         }        
     }
 
     private async Task SaveItem()
     {
-        if (Item is null) return;
+        if (Form is null || Item is null) return;
 
-        IsLoadingData = true;
-
-        await Form!.Validate();
+        await Form.Validate();
 
         if (Form.IsValid)
+        {
+            /// Check Container Numbers
+            if (Item.Records is not null && Item.Records.Any())
+            {
+                bool? proceedWithErrors = await ProceedWithCntrNumsErrors();
+                if (!proceedWithErrors.HasValue) return;
+            }
+
+            IsLoadingData = true;
+
+            /// Save
             if (IsNewItem)
             {
                 var response = await _exportOrderProvider.NewItemAsync(Item);
@@ -155,14 +152,15 @@
             {
                 var response = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser!);
                 if (!response.HasError)
-                    Snackbar.Add("Save Successed", Severity.Success);
+                    Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
                     Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
                     IsLoadingData = false;
                     return;
                 }
-            }
+            }            
+        }
         else
         {
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
@@ -197,7 +195,7 @@
             Item.Status = EntityStatus.New;
 
             IsNewItem = true;
-            
+
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -208,5 +206,30 @@
             MudDialog!.Close();
         else
             jsRuntime.InvokeVoidAsync("window.close");
+    }
+
+    private async Task<bool?> ProceedWithCntrNumsErrors()
+    {
+        if (Item is null || Item.VesselCallDetail is null) return null;
+
+        var cntrNums = Item.Records.Select(r => r.CntrNum).ToArray();
+
+        if (cntrNums is null || !cntrNums.Any()) return null;
+        
+        var errMessages = await ValidationService.ValidateCntrNums(cntrNums, Item.Id, Item.VesselCallDetail.VesselCall.Id, null);
+
+        if (errMessages is not null && errMessages.Any())
+        {
+            StringBuilder resultMessage = new();
+
+            foreach (string msg in errMessages)
+                resultMessage.Append($"{msg}<br>");
+
+            bool? result = await DialogService.ShowMessageBox(null, (MarkupString)$"{resultMessage.ToString()}", yesText: "Продолжить", cancelText: "Отменить");
+
+            return result;
+        }
+        
+        return true;
     }
 }

@@ -18,7 +18,7 @@ public class XmlService : IDisposable
     { 
         if (string.IsNullOrEmpty(FilePath)) return Array.Empty<byte>();
 
-        var Commodities = Item.exportOrderRecordsDTO.GroupBy(r => new { r.DocumentName, r.SeqContent })
+        var Commodities = Item.ExportOrderRecordsDTO.GroupBy(r => new { r.DocumentName, r.SeqContent })
                                         .Select(g => new
                                         {
                                             g.Key.DocumentName,
@@ -47,8 +47,8 @@ public class XmlService : IDisposable
                 xml.WriteElementString("DocumentNumber", Item.Num);
                 xml.WriteElementString("DocumentDate", reverseDateStringXml(Item.xmlDated!));
                 xml.WriteElementString("GoodsDescription", string.Empty);
-                xml.WriteElementString("TotalPlacesQuantity", Item.exportOrderRecordsDTO.Sum(r => r.PackageQty).ToString());
-                xml.WriteElementString("TotalVolumeQuantity", Item.exportOrderRecordsDTO.Sum(r => r.PackageQty).ToString());
+                xml.WriteElementString("TotalPlacesQuantity", Item.ExportOrderRecordsDTO.Sum(r => r.PackageQty).ToString());
+                xml.WriteElementString("TotalVolumeQuantity", Item.ExportOrderRecordsDTO.Sum(r => r.PackageQty).ToString());
                 xml.WriteElementString("TotalGrossWeightQuantity", Item.TotalGrossWeight!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
                 xml.WriteElementString("TotalNetWeightQuantity", Item.TotalNetWeight!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
                 xml.WriteElementString("Carrier_Name", Item.CarrierNameEn);

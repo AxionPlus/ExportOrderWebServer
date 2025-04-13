@@ -14,13 +14,15 @@ public class UploadFileController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IExportOrderProvider _exportOrderProvider;
+    private readonly IExcelFileUploadService _excelUploadService;
         
-    public UploadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider)
+    public UploadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider, IExcelFileUploadService excelUploadService)
     {
         _webHostEnvironment = webHostEnvironment;
         _exportOrderProvider = exportOrderProvider;
 
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        _excelUploadService = excelUploadService;
     }
 
     [HttpGet, Route("SaveFileExcelFillBill")]   // file/UploadFileController/SaveFileExcelFillBill
@@ -115,7 +117,7 @@ public class UploadFileController : ControllerBase
     }
 
     [HttpPost, Route("UploadFromExcel")]    // file/UploadFileController/UploadFromExcel
-    public async Task<List<UploadExcelDTO>> UploadFromExcel([FromForm] IEnumerable<IFormFile> files)
+    public async Task<List<UploadExcelDTO>?> UploadFromExcel([FromForm] IEnumerable<IFormFile> files)
     {
         string filePath = string.Empty;
 
@@ -125,27 +127,15 @@ public class UploadFileController : ControllerBase
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                 filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    file.CopyTo(stream);
-                }
+                using var stream = new FileStream(filePath, FileMode.Create);
+                file.CopyTo(stream);
             }
 
-        using (var exl = new ExcelUploadService(filePath))
-        {
-            try
-            {
-                var uploadResult = await exl.ReadUploadingFile();
+        //using var exl = new ExcelUploadService(filePath);
 
-                return uploadResult;
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                Console.WriteLine(msg);
-                return new List<UploadExcelDTO>();
-            }
-        }
+        //return await exl.ReadUploadingFile();
+
+        return await _excelUploadService.ReadImportListDeclarations(filePath);
     }
 
     [HttpPost, Route("SaveExportOrderReportFiles")] // file/UploadFile/SaveExportOrderReportFiles
@@ -206,7 +196,7 @@ public class UploadFileController : ControllerBase
                     x.Person
                 });
 
-                var dsRecords = Item.exportOrderRecordsDTO;
+                var dsRecords = Item.ExportOrderRecordsDTO;
 
                 int dSeq = 0;
                 var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
@@ -295,7 +285,7 @@ public class UploadFileController : ControllerBase
                 LocalReport localReport = new LocalReport(pathReport);
 
                 var Items = new List<ExportOrderDTO>() { Item };
-                var Records = Item.exportOrderRecordsDTO.ToList();
+                var Records = Item.ExportOrderRecordsDTO.ToList();
 
                 // список типов контейнеров
                 var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)

@@ -118,11 +118,7 @@ public class VesselCallProvider : IVesselCallProvider
                 string itemVoyage = $"{item.Vessel?.Name}&{item.VoyageNo}";
 
                 if (modifyVoyage != itemVoyage)
-                {
-                    //var itemExistCheck = await db.VesselCalls.Where(s => s.Vessel!.Name!.ToUpper() == item.Vessel!.Name!.ToUpper())
-                    //                                         .Where(s => s.VoyageNo.ToUpper() == item.VoyageNo.ToUpper())
-                    //                                         .FirstOrDefaultAsync();
-                    
+                {                    
                     bool isItemExist = db.VesselCalls.Where(s => item.Vessel != null &&
                                                                 !string.IsNullOrWhiteSpace(s.Vessel.Name) && !string.IsNullOrWhiteSpace(item.Vessel.Name) &&
                                                                 s.Vessel.Name.ToUpper() == item.Vessel.Name.ToUpper())
@@ -448,6 +444,7 @@ public class VesselCallProvider : IVesselCallProvider
             }
         }
     }
+
     public async Task<AppObjectResponse> RemoveVesselCallDetailAsync(long id)
     {
         appObjResponse = new();
@@ -487,6 +484,7 @@ public class VesselCallProvider : IVesselCallProvider
             return appObjResponse;
         }
     }
+
     public async Task<IEnumerable<string>> GetNames()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -495,10 +493,12 @@ public class VesselCallProvider : IVesselCallProvider
             return await db.Vessels.Select(s => s.Name!).ToListAsync();
         }
     }
+
     public Task<IEnumerable<string>> GetNamesEn()
     {
         throw new NotImplementedException();
     }
+
     public async Task<IEnumerable<string>> GetPODs()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -507,39 +507,23 @@ public class VesselCallProvider : IVesselCallProvider
             return await db.Locations.Select(s => s.Name!).ToListAsync();
         }
     }
+
     public async Task<IEnumerable<string>> GetVoyages(string? vessel)
     {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
+        using var _db = _dbContext.CreateDbContextAsync();
 
-            var result = new List<string>();
+        var db = await _db;
 
-            if (!string.IsNullOrEmpty(vessel))
-                result = await db.VesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(x => x.CreateTime).Select(s => s.VoyageNo!).ToListAsync();
-            else
-                result = await db.VesselCalls.OrderByDescending(x => x.CreateTime).Select(s => s.VoyageNo!).ToListAsync();
+        var result = Enumerable.Empty<string>();
 
-            return result;
-        }
+        if (!string.IsNullOrEmpty(vessel))
+            result = await db.VesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync();
+        else
+            result = await db.VesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo!).ToArrayAsync();
+
+        return result;
     }
-    public async Task<IEnumerable<string>> GetExportOrderNumsAsync(long id)
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
 
-            var vesselCallDetail = await db.VesselCalls
-                                               .Include(vc => vc.Vessel)
-                                               .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders)                                               
-                                               .AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
-
-            if (vesselCallDetail != null)
-                return vesselCallDetail.Details.SelectMany(vcd => vcd.ExportOrders).Select(eo => eo.Num).ToList();
-            else
-                return Enumerable.Empty<string>();
-        }
-    }
     public async Task<AppObjectResponse> GetItemToCheckAsync(long id)
     {
         appObjResponse = new();

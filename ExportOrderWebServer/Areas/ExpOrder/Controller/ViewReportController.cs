@@ -68,7 +68,7 @@ public class ViewReportController : ControllerBase
                 x.Person
             });
 
-            var dsRecords = Item.exportOrderRecordsDTO;
+            var dsRecords = Item.ExportOrderRecordsDTO;
 
             //var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
 
@@ -139,7 +139,7 @@ public class ViewReportController : ControllerBase
             #region DATA SOURCE
 
             var Items = new List<ExportOrderDTO>() { Item };
-            var Records = Item.exportOrderRecordsDTO.ToList();
+            var Records = Item.ExportOrderRecordsDTO.ToList();
 
             /// список типов контейнеров
             var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)

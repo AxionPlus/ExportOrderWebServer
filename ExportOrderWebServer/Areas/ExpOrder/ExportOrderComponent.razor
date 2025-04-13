@@ -138,7 +138,7 @@
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Num!)">Number</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:80px">
-                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Dated!)">Dated</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=> x.Dated!)">Dated</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:230px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Vessel!)">Vessel</MudTableSortLabel>
@@ -193,7 +193,7 @@
                 </MudButton>
             </MudTd>
             <MudTd>@context.Num</MudTd>
-            <MudTd>@context.Dated</MudTd>
+            <MudTd>@(context.Dated.HasValue ? context.Dated.Value.ToString("dd.MM.yy") : "")</MudTd>
             <MudTd>@context.Vessel</MudTd>
             <MudTd>@context.VoyageNo</MudTd>
             <MudTd>@context.POD</MudTd>
@@ -256,8 +256,8 @@
 
         var response = await _exportOrderProvider.GetItemsAsync(Filter);
 
-        if (!response.HasError)
-            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object!;
+        if (!response.HasError && response.Object is not null)
+            Items = (IEnumerable<ExportOrderComponentDTO>)response.Object;
 
         IsLoadingData = false;
 
@@ -278,14 +278,15 @@
 
     private async Task RemoveItem_Click(long id, string num)
     {
+        if (Items is null || !Items.Any()) return;
+
         IsBtnClicked = true;
 
         await Task.Delay(1000);
 
-        bool? result = await DialogService.ShowMessageBox(
-                 "Delete",
-                 (MarkupString)$"Do you want Delete record?<br/><b>{num}</b>",
-                 yesText: "DELETE!", cancelText: "NO");
+        bool? result = await DialogService.ShowMessageBox("Delete",
+                                                            (MarkupString)$"Do you want to Delete record?<br/><b>{num}</b>",
+                                                            yesText: "DELETE!", cancelText: "NO");
 
         IsLoadingData = true;
 
@@ -295,8 +296,11 @@
                 var response = await _exportOrderProvider.RemoveItemAsync(id);
                 if (!response.HasError)
                 {
-                    Items!.ToList().Remove(Items!.FirstOrDefault(eoc => eoc.Id == id)!);
-                    Snackbar.Add($"Deleted successfully", Severity.Success);
+                    if (Items.Any(eoc => eoc.Id == id))
+                    {
+                        Items.ToList().Remove(Items.FirstOrDefault(eoc => eoc.Id == id)!);
+                        Snackbar.Add($"Deleted successfully", Severity.Success);
+                    }                    
                 }
                 else
                     Snackbar.Add($"Record wasn't deleted.<br/>{response.Error.First()}", Severity.Warning);
@@ -518,13 +522,13 @@
     {
         var result = await _vesselCallProvider.GetVoyages(Filter.Vessel);
 
+        if (result is null || result.Count() == 0)
+            return Enumerable.Empty<string>();
+
         if (string.IsNullOrWhiteSpace(value))
             return result.Distinct();
-
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
+        
+        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
     }
 
     private async Task<IEnumerable<string>> SearchPort(string value, CancellationToken token)

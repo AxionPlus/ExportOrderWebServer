@@ -15,6 +15,9 @@ public class ContainerContent
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
     public double? Volume { get; set; }
+    public string? AdditionalUnitCode { get; set; }     // Код доп. еденицы (таможенный)
+    public double? AdditionalUnitValue { get; set; }    // Значение доп. еденицы
+
     public DocumentRecord DocumentRecord { get; set; }
     [JsonIgnore]
     public ExportOrderRecord ExportOrderRecord { get; set; }

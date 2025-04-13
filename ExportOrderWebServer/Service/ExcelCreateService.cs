@@ -159,7 +159,7 @@ public class ExcelCreateService : IDisposable
         /// Create Teplate file (returt Empty bytes in case error)
         CreateTempFile(Resource.TemplateExpRequestRolis);
 
-        var documentsGroup = Item!.exportOrderRecordsDTO.GroupBy(eor => eor.DocumentName).ToArray();
+        var documentsGroup = Item!.ExportOrderRecordsDTO.GroupBy(eor => eor.DocumentName).ToArray();
 
         WorkSheet!.Cells[2, 2].Value = Item!.Shippers;
         WorkSheet!.Cells[3, 2].Value = Item!.Consignees;
@@ -171,7 +171,7 @@ public class ExcelCreateService : IDisposable
 
         /// TABLE                
         int columns = 18;
-        int rows = Item.exportOrderRecordsDTO.Count();
+        int rows = Item.ExportOrderRecordsDTO.Count();
 
         int startRow = 9;
 
@@ -182,7 +182,7 @@ public class ExcelCreateService : IDisposable
         if (rows > 1) Range.FillDown();
 
         var dataBulk = new object[rows, columns];
-        var records = Item.exportOrderRecordsDTO;
+        var records = Item.ExportOrderRecordsDTO;
 
         var result = Parallel.For(0, rows, (row, state) =>
         {

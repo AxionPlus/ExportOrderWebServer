@@ -13,4 +13,5 @@ public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
     Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string UserName = "");
     Task<IEnumerable<string>> GetDocumentExportOrderNums(string documentNum);
     Task<double[]> GetDocumentExportOrderTotalWeights(string documentNum);
+    Task<IEnumerable<string>?> GetCntrNumsInVoyage(long eoId, long voyageId);
 }

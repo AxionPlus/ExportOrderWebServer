@@ -24,20 +24,20 @@ public class DocumentProvider : IDocumentProvider
         }
     }
 
-    public async Task<DocumentRecord> GetDocumentRecordAsync(string Num, int index)
+    public async Task<DocumentRecord?> GetDocumentRecordAsync(string? Num, int index)
     {
+        if (string.IsNullOrWhiteSpace(Num) || index == 0) return null;
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-            var db = await _db;            
-                
-            var result =await db.Set<DocumentRecord>().Include(s => s.Document).AsNoTracking()
-                                                 .Where(s => s.Document.Name == Num)
-                                                 .FirstOrDefaultAsync(s => s.Seq == index);
+            var db = await _db;
 
-            if (result != null)
-                return result;
-            else
-                return new DocumentRecord() { Seq = index, CommodityName = string.Empty, CommodityEngName = string.Empty };
+            var documentRecord = await db.Set<DocumentRecord>().AsNoTracking()
+                                                               .Include(s => s.Document)
+                                                               .Where(s => s.Document.Name == Num)
+                                                               .FirstOrDefaultAsync(s => s.Seq == index);
+
+            return documentRecord;
         }
     }
 

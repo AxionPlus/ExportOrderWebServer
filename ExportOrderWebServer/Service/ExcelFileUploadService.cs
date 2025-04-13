@@ -4,58 +4,50 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Service;
 
-public class ExcelUploadService : IDisposable
+public interface IExcelFileUploadService : IDisposable
+{
+    public Task<List<UploadExcelDTO>?> ReadImportListDeclarations(string filePath);
+}
+
+public class ExcelFileUploadService : IExcelFileUploadService //: IDisposable
 {
     private string? FilePath { get; set; }
     private readonly uint ExcelAppPid;
 
-    private Excel.Application? ExcelApp;
-    private Excel.Workbooks? Workbooks;
+    private readonly Excel.Application ExcelApp;
+    private readonly Excel.Workbooks Workbooks;
     private Excel.Workbook? Workbook;
     private Excel.Sheets? WorkSheets;
     private Excel.Worksheet? WorkSheet;
-    private Excel.Worksheet? WorkSheetData;
     private Excel.Range? Range;
-    private Excel.Range? FilterRange;
 
 
-    public ExcelUploadService(string filePath)
+    public ExcelFileUploadService()  //public ExcelUploadService(string filePath)
     {
-        FilePath = filePath;
-
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
 
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
-    public async Task<List<UploadExcelDTO>> ReadUploadingFile()
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+    public async Task<List<UploadExcelDTO>?> ReadImportListDeclarations(string filePath)
     {
-        if (!File.Exists(FilePath)) return (new List<UploadExcelDTO>());
+        FilePath = filePath;
+
+        if (!File.Exists(FilePath)) return null;
+
         Workbook = Workbooks?.Open(FilePath, 0, true);
         WorkSheets = Workbook?.Worksheets;
         WorkSheet = WorkSheets?.Item[1];
-
-        #region COLUMN NAMES
-
-        int colDoc = 0;
-        int colCargoIndex = 1;
-        int colCntrNum = 2;
-        int colCntrType = 3;
-        int colCntrTareWt = 4;
-        int colSeal = 5;
-        int colPackageQty = 6;
-        int colPackageName = 7;
-        int colNet = 8;
-        int colGross = 9;
-
-        #endregion
 
         var UploadExcel = new List<UploadExcelDTO>();
 
         try
         {
-            uint columns = 10;
+            uint columns = 12;
             uint row = 2;
 
             do
@@ -74,30 +66,30 @@ public class ExcelUploadService : IDisposable
             {
                 UploadExcel.Add(new UploadExcelDTO()
                 {
-                    DocumentName = (record[colDoc]).Trim(),
-                    SeqCommodity = int.TryParse(record[colCargoIndex], out int _cIndex) ? _cIndex : 0,
-                    CntrNum = record[colCntrNum].Trim(),
-                    CntrType = string.IsNullOrEmpty(record[colCntrType]) ? null : record[colCntrType].ToUpper().Trim(),
-                    CntrTareWt = double.TryParse(record[colCntrTareWt], out double _Tare) ? _Tare : 0,
-                    Seal = record[colSeal],
-                    PackageQty = uint.TryParse(record[colPackageQty], out uint _pkgQty) ? _pkgQty : 0,
-                    PackageName = record[colPackageName],
-                    NetWt = double.TryParse(record[colNet], out double _netWt) ? Math.Round(_netWt, 3, MidpointRounding.AwayFromZero)  : 0,
-                    GrossWt = double.TryParse(record[colGross], out double _gwt) ? Math.Round( _gwt, 3, MidpointRounding.AwayFromZero) : 0,
+                    DocumentName = record[0]?.Trim(),
+                    SeqCommodity = int.TryParse(record[1], out int _cIndex) ? _cIndex : 0,
+                    CntrNum = record[2]?.ToUpper().Trim(),
+                    CntrType = record[3]?.ToUpper().Trim(),
+                    CntrTareWt = double.TryParse(record[4], out double _Tare) ? _Tare : 0,
+                    Seal = record[5]?.Trim(),
+                    PackageQty = uint.TryParse(record[6], out uint _pkgQty) ? _pkgQty : 0,
+                    PackageName = record[7]?.Trim(),
+                    NetWt = double.TryParse(record[8], out double _netWt) ? Math.Round(_netWt, 3, MidpointRounding.AwayFromZero)  : 0,
+                    GrossWt = double.TryParse(record[9], out double _gwt) ? Math.Round( _gwt, 3, MidpointRounding.AwayFromZero) : 0,
+                    AdditionalUnitCode = record[10]?.Trim().ToString(),
+                    AdditionalUnitValue = double.TryParse(record[11], out double _addu) ? Math.Round(_addu, 3, MidpointRounding.AwayFromZero) : null
                 });
             }
         }
         catch (Exception ex)
         {
-            var msg = ex.Message;
             Console.WriteLine(ex.Message);
-            return new List<UploadExcelDTO>();
+            return null;
         }
 
-        await Task.Delay(200);
-        return (UploadExcel);
+        await Task.Delay(2);
+        return UploadExcel;
     }
-
 
     static string[][]? GetStringArray(Object rangeValues)
     {
@@ -134,9 +126,6 @@ public class ExcelUploadService : IDisposable
 
         return stringArray;
     }
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
     public void Dispose()
     {

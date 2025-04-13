@@ -1,4 +1,6 @@
-﻿public class ExportOrderProvider : IExportOrderProvider
+﻿namespace ExportOrderWebServer.Areas.ExpOrder.Provider;
+
+public class ExportOrderProvider : IExportOrderProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
@@ -158,7 +160,7 @@
                                                     source.Person.Name + " " + source.Person.FamilyName + " телефон: " + source.Person.Phone,
                                     PersonPass = source.Person == null ? string.Empty : source.Person.Passport,
                                     PersonPhone = source.Person == null ? string.Empty : source.Person.Phone,
-                                    exportOrderRecordsDTO = eoRecords(source.Records)
+                                    ExportOrderRecordsDTO = eoRecords(source.Records)
                                 })
                                 .FirstOrDefaultAsync(x => x.Id == Id);
 
@@ -225,7 +227,7 @@
                                     TotalNetWeight = source.Records.Sum(r => r.Contents.Sum(c => c.NetWt)),
                                     TotalTareWeight = source.Records.Sum(r => r.CntrTareWt),
                                     TotalGrossNTareWeight = source.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)) + source.Records.Sum(r => r.CntrTareWt),
-                                    exportOrderRecordsDTO = blRecords(source.Records!)
+                                    ExportOrderRecordsDTO = blRecords(source.Records!)
                                 })
                                 .FirstOrDefaultAsync(x => x.Id == Id);
 
@@ -322,7 +324,7 @@
                     {
                         Id = record.Id,
                         Num = record.Num,
-                        Dated = record.Dated.HasValue ? record.Dated.Value.ToString("dd.MM.yy") : "---",
+                        Dated = record.Dated,
                         VesselCallId = record.VesselCallDetail!.VesselCall.Id,
                         Vessel = record.VesselCallDetail!.VesselCall!.Vessel.Name!,
                         VoyageNo = record.VesselCallDetail!.VesselCall.VoyageNo,
@@ -345,7 +347,6 @@
                     ItemsDTO = ItemsDTO.OrderByDescending(s => s.CreateTime);
 
                 appObjResponse.Object = ItemsDTO.ToArray();
-                //appObjResponse.Object = ItemsDTO;
             }
 
             return appObjResponse;
@@ -375,9 +376,14 @@
                                                       .Include(eo => eo.Documents)
                                                       .Include(eo => eo.Records).ThenInclude(d => d.Contents).ThenInclude(c => c.DocumentRecord)
                                                       .FirstOrDefaultAsync(s => s.Id == item.Id);
+                if (modifyItem is null)
+                {
+                    appObjResponse.ErrorAdd("Export Order is not exists.");
+                    return appObjResponse;
+                }                    
 
                 /// check CntrNum duplicate
-                if (modifyItem!.Num != item.Num)
+                if (modifyItem.Num != item.Num)
                 {
                     bool isItemExist = db.ExportOrders.Any(s => s.Num.ToUpper() == item.Num.ToUpper());
 
@@ -444,10 +450,7 @@
                     modifyItem.Records.Add(record);
 
                     foreach (var content in record.Contents)
-                    {
                         db.Entry(content).State = EntityState.Added;
-                    }
-
                 }
                 //dbBug = db.ChangeTracker.DebugView.LongView;
                 db.Entry(modifyItem).State = EntityState.Modified;
@@ -916,6 +919,26 @@
         }
     }
 
+    public async Task<IEnumerable<string>?> GetCntrNumsInVoyage(long eoId, long voyageId)
+    {
+        using var _db = _dbContext.CreateDbContextAsync();
+
+        var db = await _db;
+
+        var cntrNums = await db.ExportOrders.Include(eo => eo.Records)
+                                            .Where(eo => eo.VesselCallDetail != null)
+                                            .Include(eo => eo.VesselCallDetail!.VesselCall)
+                                            .AsNoTracking().AsSplitQuery()
+                                            .Where(eo => eo.Id != eoId && eo.VesselCallDetail!.VesselCall.Id == voyageId)
+                                            .SelectMany(eo => eo.Records).Select(eor => eor.CntrNum)
+                                            .ToArrayAsync();
+
+        if (cntrNums is not null && cntrNums.Any())
+            return cntrNums;
+
+        return null;
+    }
+
     #region AUXILIARY
 
     Func<IEnumerable<ExportOrderRecord>, IEnumerable<ExportOrderRecordDTO>> eoRecords = (_eoRecords) =>
@@ -931,7 +954,7 @@
             eoRecordDTO.CntrType = record.CntrType is null ? string.Empty : record.CntrType.Normolize!;
             eoRecordDTO.CntrTypeISO = record.CntrType is null ? string.Empty : record.CntrType.ISO;
             eoRecordDTO.CntrTareWt = record.CntrTareWt;
-            eoRecordDTO.Seal = record.Seal is null ? string.Empty : record.Seal;
+            eoRecordDTO.Seal = record.Seal;
 
             //uint indexContent = 0;
             foreach (var content in record.Contents)
@@ -986,7 +1009,7 @@
                 Cntr = record.CntrNum,
                 CntrType = record.CntrType!.Normolize!,
                 CntrTareWt = record.CntrTareWt,
-                Seal = record.Seal is not null ? record.Seal : string.Empty,
+                Seal = record.Seal,
 
                 PackageQty = (uint)record.Contents.Sum(c => c.PackageQty)! > 0 ? (uint)record.Contents.Sum(c => c.PackageQty)! : null,
                 PackageName = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
@@ -1125,7 +1148,8 @@
 
                         Cntr = record.CntrNum,
                         CntrType = record.CntrType!.Normolize!,
-                        Seal = record.Seal != string.Empty ? record.Seal : "N/A",
+                        //Seal = record.Seal != string.Empty ? record.Seal : "N/A",
+                        Seal = record.Seal ?? "N/A",
                         CntrTareWt = record.CntrTareWt,
 
                         PackageQtys = (uint)CntrContents.Sum(c => c.PackageQty)!,
@@ -1189,7 +1213,7 @@
                         VesselCallId = item.VesselCallDetail!.VesselCall.Id,
                         BLNum = item.Num.IndexOf("_") == -1 ? item.Num : item.Num.Substring(0, item.Num.IndexOf("_")),
                         Dated = item.Dated.HasValue ? item.Dated.Value.ToString("dd.MM.yyyy") : DateTime.Today.ToString("dd.MM.yyyy"),
-                        xmlDated = item.Dated.HasValue ? item.Dated.Value.ToString("dd.MM.yyyy hh:mm:ss") : DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss"),
+                        XmlDated = item.Dated.HasValue ? item.Dated.Value.ToString("dd.MM.yyyy hh:mm:ss") : DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss"),
                         DateOfLoading = item.VesselCallDetail!.VesselCall!.ETA.HasValue ? item.VesselCallDetail!.VesselCall!.ETA!.Value.ToString("dd.MM.yyyy") : string.Empty,
                         BLDate = item.VesselCallDetail!.VesselCall!.ETS!.Value.ToString("dd.MM.yyyy"),
                         BLtemplate = item.Carrier!.BlTemplate.ToString(),
@@ -1232,7 +1256,7 @@
                         Seq = ++indexRec,
                         CntrType = record.CntrType!.Normolize!,
                         CntrTareWt = record.CntrTareWt,
-                        Seal = record.Seal is not null ? record.Seal : string.Empty,
+                        Seal = record.Seal,
                     };
 
                     /// ExportOrderRecord_Contents

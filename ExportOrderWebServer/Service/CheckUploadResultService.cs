@@ -3,81 +3,45 @@
 public class CheckUploadResultService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
-    private readonly CheckCntrNumService _checkCntrNumService;
+    private readonly IValidationService _validationService;
 
-    public CheckUploadResultService(IDbContextFactory<ApplicationDbContext> dbContext, CheckCntrNumService checkCntrNumService)
+    public CheckUploadResultService(IDbContextFactory<ApplicationDbContext> dbContext, IValidationService validationService)
     {
         _dbContext = dbContext;
-        _checkCntrNumService = checkCntrNumService;
+        _validationService = validationService;
     }
 
-    public async Task<List<string>> CheckingResult(List<UploadExcelDTO> result, long voyageId)
+    public async Task<IEnumerable<string>> CheckUploadedResult(List<UploadExcelDTO> uploadResult, long eoId, long voyageId)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var errList = new List<string>();
+            List<string> errList = new();
                         
             var Documents = await db.Documents.Include(d => d.Records).AsNoTracking().ToListAsync();
 
             var CntrTypes = await db.ContainerTypeSize.AsNoTracking().ToListAsync();
 
-            foreach (var record in result)
+            /// CONTAINERS ONLY
+            var uploadedCntrNums = uploadResult.Where(s => !string.IsNullOrWhiteSpace(s.CntrNum)).GroupBy(s => s.CntrNum).Select(g => g.Key).ToArray();
+
+            if (uploadedCntrNums is not null && uploadedCntrNums != Array.Empty<string>())
             {
-                string errMessagePrefix = $"{record.DocumentName};{record.CntrNum};";
+                var cntrNumErros = await _validationService.ValidateCntrNums(uploadedCntrNums!, eoId, voyageId, null);
 
-                // WEIGHTS
-                if (record.CntrTareWt == 0)
-                    errList.Add($"{errMessagePrefix} CntrTare is 0.");
+                foreach (string err in cntrNumErros)
+                    errList.Add(err.Insert(0, "---:"));
+            }
+                
+            /// All RECORDS
+            foreach (var record in uploadResult)
+            {
+                string errMessagePrefix = $"{record.DocumentName}:{record.CntrNum}:";
 
-                if (record.GrossWt > 29000)
-                    errList.Add($"{errMessagePrefix} Gross weight exceeded.");
-
-                if (record.NetWt! > 29000)
-                    errList.Add($"{errMessagePrefix} Net weight exceeded.");
-
-                if (record.GrossWt < record.NetWt)
-                    errList.Add($"{errMessagePrefix} Net weight exceeds Gross.");
-
-                // DOCUMENT
-                if (string.IsNullOrEmpty(record.DocumentName))
-                    errList.Add($"{errMessagePrefix} Number of Declaration is missed.");
-
-                var existedDocument = Documents.Where(d => d.Name == record.DocumentName).FirstOrDefault();
-                if (existedDocument is not null)
-                {
-                    // Container Content
-                    if (existedDocument.Records.Any(r => r.CommodityEngName.ToUpper().Contains("EMPTY")))
-                    {
-                        if (record.PackageQty > 1) errList.Add($"{errMessagePrefix} Package Quantity exceeded for Empty container.");
-                        if (record.PackageName != null) errList.Add($"{errMessagePrefix} Package Name indicated for Empty container.");
-                        if (record.NetWt > 0) errList.Add($"{errMessagePrefix} Netto weight exceeds 0 for Empty container.");
-                        if (record.GrossWt > 0) errList.Add($"{errMessagePrefix} Gross weight exceeds 0 for Empty container.");
-                    }
-                    else
-                    {
-                        //if (record.PackageQty is null || record.PackageQty < 1) errList.Add($"{errMessagePrefix} - Package Quantity missed");
-                        //if (string.IsNullOrEmpty(record.PackageName)) errList.Add($"{errMessagePrefix} - Package Name missed");
-                        if (record.NetWt <= 0) errList.Add($"{errMessagePrefix} Netto weight is 0.");
-                        if (record.GrossWt <= 0) errList.Add($"{errMessagePrefix} Gross weight is 0.");
-                    }
-
-                    // Cargo
-                    if (record.SeqCommodity == 0)
-                        errList.Add($"{errMessagePrefix} Отсутствует номер товара.");
-                    else
-                        if (!existedDocument.Records.Any(dr => dr.Seq.Equals(record.SeqCommodity)))
-                        errList.Add($"{errMessagePrefix} В декларации нет товара.");
-                }
-                else
-                    errList.Add($"{errMessagePrefix} Декларации нет в базе данных.");
-
-                // CONTAINER
-
-                // --- Type
+                /// CONTAINER TYPE
                 if (string.IsNullOrEmpty(record.CntrType))
-                    errList.Add($"{errMessagePrefix} Cntr Type is missed.");
+                    errList.Add($"{errMessagePrefix} Пропущен тип Контейнера.");
                 else
                 {
                     string type = record.CntrType.Substring(2);
@@ -120,29 +84,55 @@ public class CheckUploadResultService
                     }
 
                     if (!CntrTypes.Any(ct => ct.Normolize!.Equals(record.CntrType)))
-                        errList.Add($"{errMessagePrefix} Cntr Type '{record.CntrType}' dosn't exist in DataBase.");
-                }
+                        errList.Add($"{errMessagePrefix} Cntr Type '{record.CntrType}' dosn't exist in a DataBase.");
+                }                                                
 
-                if (record.CntrNum is not null && record.CntrNum.Length == 11)
+                /// WEIGHTS
+                if (record.CntrTareWt == 0)
+                    errList.Add($"{errMessagePrefix} CntrTare is 0.");
+
+                if (record.GrossWt > 29000)
+                    errList.Add($"{errMessagePrefix} Gross weight exceeded.");
+
+                if (record.NetWt! > 29000)
+                    errList.Add($"{errMessagePrefix} Net weight exceeded.");
+
+                if (record.GrossWt < record.NetWt)
+                    errList.Add($"{errMessagePrefix} Net weight exceeds Gross.");
+
+                /// DOCUMENT
+                if (string.IsNullOrEmpty(record.DocumentName))
+                    errList.Add($"{errMessagePrefix} *Critical - Пропущен номер Декларации.");
+
+                var existedDocument = Documents.Where(d => d.Name == record.DocumentName).FirstOrDefault();
+                if (existedDocument is not null)
                 {
-                    // --- Num DUPLICATION in Voyage
-                    bool found = await _checkCntrNumService.IsCntrNumDuplicates(record.CntrNum, voyageId);
+                    /// Container Content
+                    if (existedDocument.Records.Any(r => r.CommodityEngName.ToUpper().Contains("EMPTY")))
+                    {
+                        if (record.PackageQty > 1) errList.Add($"{errMessagePrefix} Package Quantity exceeded for Empty container.");
+                        if (record.PackageName != null) errList.Add($"{errMessagePrefix} Package Name indicated for Empty container.");
+                        if (record.NetWt > 0) errList.Add($"{errMessagePrefix} Netto weight exceeds 0 for Empty container.");
+                        if (record.GrossWt > 0) errList.Add($"{errMessagePrefix} Gross weight exceeds 0 for Empty container.");
+                    }
+                    else
+                    {
+                        if (record.NetWt <= 0) errList.Add($"{errMessagePrefix} Netto weight is 0.");
+                        if (record.GrossWt <= 0) errList.Add($"{errMessagePrefix} Gross weight is 0.");
+                    }
 
-                    if (found)
-                        errList.Add($"{errMessagePrefix} Контейнер повторяется в этом рейсе.");
-
-                    // --- Num CONTROL DIGIT
-                    int controlDigit = await _checkCntrNumService.ControlDigit(record.CntrNum);
-
-                    if (Convert.ToInt32(record.CntrNum.Substring(10, 1)) != controlDigit)
-                        errList.Add($"{errMessagePrefix} Контрольная цифра в номере контейнера не верна. Правильно - {controlDigit}.");
+                    /// Cargo
+                    if (record.SeqCommodity == 0)
+                        errList.Add($"{errMessagePrefix} *Critical - Отсутствует номер товара.");
+                    else
+                        if (!existedDocument.Records.Any(dr => dr.Seq.Equals(record.SeqCommodity)))
+                        errList.Add($"{errMessagePrefix} *Critical - в ДТ нет товара с таким номером.");
                 }
                 else
-                    errList.Add($"{errMessagePrefix} Количество символов в номере контейнера не верно.");                
+                    errList.Add($"{errMessagePrefix} *Critical - Декларации нет в базе данных.");
             }
-
+                        
             return errList;
         }
     }
-
 }

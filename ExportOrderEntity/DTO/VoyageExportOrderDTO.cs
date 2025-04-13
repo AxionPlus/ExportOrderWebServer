@@ -16,7 +16,7 @@ public class VoyageExportOrderDTO
     public string? BLDate { get; set; }                  // дата коносамента (format "dd.MM.yyyy")
     public string? BLDateOEL { get; set; }               // дата коносамента (format "dd/MM/yyyy")  
     public string? DateOfLoading { get; set; }           // дата погрузки в поручении
-    public string? xmlDated { get; set; }                // дата для xml файла
+    public string? XmlDated { get; set; }                // дата для xml файла
     public string? CarrierNameEn { get; set; }
     public string? TerminalName { get; set; }
     public string VesselName { get; set; }
@@ -60,7 +60,7 @@ public class VoyageExportOrderDTO
     public string Cntr { get; set; }
     public string CntrType { get; set; }
     public double? CntrTareWt { get; set; }
-    public string Seal { get; set; }
+    public string? Seal { get; set; }
     public string? RecordCommoditiesEn { get; set; }
 
     // Content

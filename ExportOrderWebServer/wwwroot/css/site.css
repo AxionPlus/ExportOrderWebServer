@@ -243,7 +243,6 @@ body {
             margin: 0px;
         }
 
-
         .Table * .mud-table-cell .mud-autocomplete .mud-input-control * .mud-icon-button {
             margin-right: 2px;
         }
@@ -272,7 +271,6 @@ body {
     flex-grow: 0;
     align-items: center;
 }
-
 
 .controlIconButtons {
     display: flex;

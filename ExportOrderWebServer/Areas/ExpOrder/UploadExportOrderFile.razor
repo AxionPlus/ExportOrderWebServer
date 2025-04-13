@@ -3,14 +3,12 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IHttpClientFactory httpClient
-@inject NavigationManager Navigation
-@inject IDbContextFactory<ApplicationDbContext> applicationDbContext
-@inject CheckUploadResultService checkUploadResultService
+@inject CheckUploadResultService CheckUploadResultService
 
 <MudStack Style="width: 100%">
     <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
-                   InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
-                   @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+    InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+    @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
         <ActivatorContent>
             <MudPaper Height="200px" Outlined="true" Class="@DragClass">
                 <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
@@ -23,24 +21,30 @@
     </MudFileUpload>
     <MudToolBar Class="gap-4">
         <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CheckAndUploadFile"
-                   Style="margin-inline-start:10px"
-                   Disabled="@(!FileName.Any())"
-                   StartIcon="@Icons.Material.Filled.UploadFile">
+        Style="margin-inline-start:10px"
+        Disabled="@(!FileName.Any())"
+        StartIcon="@Icons.Material.Filled.UploadFile">
             @BtnName @(" ") File(s)
         </MudButton>
         <MudSpacer />
         <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Clear"
-                   Style="margin-inline-end:10px"
-                   Disabled="@(!FileName.Any())">
+        Style="margin-inline-end:10px"
+        Disabled="@(!FileName.Any())">
             Clear
         </MudButton>
     </MudToolBar>
 
     @if (!string.IsNullOrWhiteSpace(uploadResult.Summary))
     {
-        <MudText Style="margin-inline-start:5px"><b>Всего: </b>@uploadResult.Summary</MudText>
+        <MudText Style="margin-inline-start:5px"><b>Всего: </b>@uploadResult.Summary</MudText>        
+        if (uploadResult.HasCriticalErrors)
+        {
+            <MudText Style="margin-inline-start:5px" Color="Color.Error">
+                <b>Есть критические ошибки. Записи отмеченные Critical не будут загружены!</b>
+            </MudText>
+        }
     }
-    
+
     @if (uploadResult.HasErrors)
     {
         <table class="Table_Summary" style="margin-inline:10px; width:900px">
@@ -52,9 +56,9 @@
             @foreach (var error in uploadResult.Errors)
             {
                 <tr>
-                    <td>@error.Split(';')[0]</td>
-                    <td>@error.Split(';')[1]</td>
-                    <td>@error.Split(';')[2]</td>
+                    <td>@error.Split(':')[0]</td>
+                    <td>@error.Split(':')[1]</td>
+                    <td>@error.Split(':')[2]</td>
                 </tr>
             }
         </table>
@@ -65,10 +69,13 @@
 
 @code {
     [CascadingParameter]
-    MudDialogInstance? MudDialog { get; set; }
+    MudDialogInstance MudDialog { get; set; } = new();
 
     [Parameter]
-    public long VoyageId { get; set; }
+    public long EoId { get; set; }      // Id поручения
+
+    [Parameter]
+    public long VoyageId { get; set; }  // Id рейса
 
     private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
     private string DragClass = DefaultDragClass;
@@ -100,8 +107,6 @@
         uploadResult = new CheckedUploadResult();
         BtnName = "Check";
         IsChecked = false;
-
-        //await Task.Delay(100);
     }
 
     private void SetDragClass()
@@ -118,7 +123,11 @@
     {
         if (IsChecked)
         {
-            MudDialog!.Close(uploadResult);
+            if (uploadResult.UploadedDTO is not null && uploadResult.UploadedDTO.Any())
+                MudDialog.Close(uploadResult.UploadedDTO);
+            else
+                MudDialog.Cancel();
+
             return;
         }
 
@@ -148,25 +157,28 @@
 
             if (response.IsSuccessStatusCode)
             {
-                var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>>();
+                var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>?>();
 
                 if (uploadedDTO is null)
                     Snackbar.Add($"Data not uploaded", Severity.Error);
                 else
-                {
-                    var errList = await checkUploadResultService.CheckingResult(uploadedDTO, VoyageId);
-
+                {                    
                     /// DATA
                     uploadResult.UploadedDTO = uploadedDTO;
 
                     /// SUMMARY
-                    int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
-                    int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
+                    int CntrCount = uploadedDTO.GroupBy(ud => ud.CntrNum).Count();
+                    int DocumentCount = uploadedDTO.GroupBy(ud => ud.DocumentName).Count();
                     uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
 
                     /// ERRORS
-                    if (errList.Count() > 0)
-                        uploadResult.Errors = errList;
+                    var errors = await CheckUploadResultService.CheckUploadedResult(uploadedDTO, EoId, VoyageId);
+                    if (errors is not null && errors.Any())
+                    {
+                        uploadResult.Errors = errors;
+                        if (errors.Any(s => s.Contains("*Critical")))
+                            uploadResult.HasCriticalErrors = true;
+                    }                    
 
                     /// CHECKED AND READY TO UPLOAD
                     IsChecked = true;
@@ -176,44 +188,6 @@
             else
                 Snackbar.Add($"File not uploaded", Severity.Error);
         }
-
-        //var client = httpClient.CreateClient();
-        //client.Timeout = new TimeSpan(0, 10, 0);        // TimeSpan.FromMinutes(10);
-        
-        //var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFromExcel", content);
-
-        //client.Dispose();
-
-        // Check data
-        // if (response.IsSuccessStatusCode)
-        // {
-        //     var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>>();            
-
-        //     if (uploadedDTO is null)
-        //         Snackbar.Add($"Data not uploaded", Severity.Error);
-        //     else
-        //     {
-        //         var errList = await checkUploadResultService.CheckingResult(uploadedDTO, VoyageId);
-                
-        //         // DATA
-        //         uploadResult.UploadedDTO = uploadedDTO;
-
-        //         // SUMMARY
-        //         int CntrCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.CntrNum).Count() : 0;
-        //         int DocumentCount = uploadedDTO is not null ? uploadedDTO.GroupBy(ud => ud.DocumentName).Count() : 0;
-        //         uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
-
-        //         // ERRORS                
-        //         if (errList.Count() > 0)
-        //             uploadResult.Errors = errList;
-
-        //         // CHECKED AND READY TO UPLOAD
-        //         IsChecked = true;
-        //         BtnName = "Upload";
-        //     }
-        // }
-        // else
-        //     Snackbar.Add($"File not uploaded", Severity.Error);
 
         ClearDragClass();
         

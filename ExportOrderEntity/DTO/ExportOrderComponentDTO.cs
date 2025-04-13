@@ -9,7 +9,7 @@ public class ExportOrderComponentDTO
 
     public string? Num { get; set; }
     public string? Cntr { get; set; }
-    public string? Dated { get; set; }
+    public DateTime? Dated { get; set; }  //string?
     public long VesselCallId { get; set; }
     public string? Vessel { get; set; }
     public string? VoyageNo { get; set; } // Voyage

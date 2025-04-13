@@ -1,4 +1,5 @@
-﻿@inject AuthenticationStateProvider authenticationStateProvider
+﻿@using System.Text.RegularExpressions
+@inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
@@ -9,10 +10,11 @@
 @inject ICarrierProvider _carrierProvider
 @inject IVesselCallProvider _vesselCallProvider
 @inject IDocumentProvider _documentProvider
+@inject IValidationService ValidationService
 
 <style>
 
-    .Container-item > .container-content {
+    .Container-item > .container-content.ExpOrder {
     align-items: flex-start;
     justify-content: flex-start;
     }
@@ -106,7 +108,7 @@
 @if (Value is not null)
 {
     <div class="Container-item">
-        <div class="container-content" style="padding-bottom:2px">
+        <div class="container-content ExpOrder" style="padding-bottom:2px">
             <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px; color:var(--mud-palette-primary)" T="string" Label="Number"
             Value="@Value.Num"
             ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
@@ -124,10 +126,10 @@
             <MudTextField Class="TextField" T="string" Style="width: 450px"
             Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
             Text="@(Value.VesselCallDetail != null && Value.VesselCallDetail.VesselCall != null ?
-                                                                  string.Concat(Value.VesselCallDetail.VesselCall.Vessel.Name, " / ",
-                                                                                  Value.VesselCallDetail.VesselCall.VoyageNo, " / ",
-                                                                                  Value.VesselCallDetail.POD == null ? string.Empty : Value.VesselCallDetail.POD.NameEn) :
-                                                                  string.Empty)"
+                                                                        string.Concat(Value.VesselCallDetail.VesselCall.Vessel.Name, " / ",
+                                                                                        Value.VesselCallDetail.VesselCall.VoyageNo, " / ",
+                                                                                        Value.VesselCallDetail.POD == null ? string.Empty : Value.VesselCallDetail.POD.NameEn) :
+                                                                        string.Empty)"
             Variant="Variant.Outlined" Margin="Margin.Dense"
             Required RequiredError="" Clearable
             Adornment="Adornment.Start" IconSize="Size.Small"
@@ -150,12 +152,12 @@
             OnAdornmentClick="@( async ()=> { await AddCarrier_Click(); })"
             Clearable />
         </div>
-        <div class="container-content">            
+        <div class="container-content ExpOrder">            
             <MudSelect Class="wrapper-input-select" T="PersonEntity" Style="width:200px" Label="Person" @bind-Value="@Value.Person"
             ToStringFunc="@(s => s == null ? string.Empty :
-                                                                    $"{s.FamilyName} " +
-                                                                    $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. " +
-                                                                    $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}.")"
+                                                string.Concat($"{s.FamilyName} ",
+                                                                 $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. ",
+                                                                 $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}."))"
             Variant="Variant.Outlined" Margin="Margin.Dense"
             Required RequiredError="">
                 @if (Persons.Count() > 0)
@@ -205,7 +207,7 @@
     </div>
 
     <div class="Container-item">
-        <div class="container-content">
+        <div class="container-content ExpOrder">
             <div class="documents">
                 <div class="controlIconButtons">
                     <div style="width: 10px"></div>
@@ -257,7 +259,6 @@
                                             </MudTable>
                                         </ChildContent>                                        
                                     </MudTreeViewItem>
-
                                 }                                
                             </ItemTemplate>
                         </MudTreeView>
@@ -267,10 +268,10 @@
                     }
                 </MudPaper>
                 <div style="display:flex; margin-top:3px">
-                    <span style="margin-top:10px; margin-right:6px"><b>Товар кратко:</b></span>
+                    <span style="margin-top:12px; margin-right:6px"><b>Товар кратко:</b></span>
                     <MudTextField Class="TextField" Style="width: 350px" T="string" @bind-Value="@Value.CommodityShort"
                     Text="@Value.CommodityShort"
-                    TextChanged="async (e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
+                    TextChanged="(e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
                     Variant="Variant.Outlined" Margin="Margin.Dense"
                     Immediate="true" Clearable />
                 </div>                
@@ -295,37 +296,35 @@
     </div>
 
     <div class="Container-table" style="min-height:360px; max-height:400px; overflow:auto">
-        @if (mudTable != null)
-        {
-            <div class="tableMenu">
-                <MudButton Class="Button" Style="margin-inline:20px; margin-bottom:2px" OnClick="UploadFile_Click"                           
-                Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small" 
-                StartIcon="@Icons.Material.Filled.UploadFile"
-                Disabled="@(Value.VesselCallDetail is null)">
-                    Upload New List
-                </MudButton>               
-                <MudSpacer />
-                <TablePager T="ExportOrderRecord" Table="mudTable" ItemsCount="@Value.Records.Count()" />
-            </div>
-        }
+        <div class="tableMenu">
+            <MudButton Class="Button" Style="margin-inline:20px; margin-bottom:2px" OnClick="UploadFile_Click"
+            Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+            StartIcon="@Icons.Material.Filled.UploadFile"
+            Disabled="@(Value.VesselCallDetail is null)">
+                Upload New List
+            </MudButton>
+            <MudSpacer />
+            <TablePager T="ExportOrderRecord" Table="mudTable" ItemsCount="@Value.Records.Count()" />
+        </div>
+
         <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecord"
         Virtualize="true" HorizontalScrollbar="true" RowsPerPage="8" >
             <HeaderContent>
                 <MudTh Style="width:50px;">
                     <div class="controlIconButtons">
-                        <MudTooltip Text="add new Container record" Duration="1500" Delay="500">
-                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Disabled="@(Value.VesselCallDetail is null)" Color="Color.Primary"
-                            OnClick="AddExportOrderRecord_Click" Size="Size.Small" />
+                        <MudTooltip Text="add new Container record" Duration="1500" Delay="500" Placement="Placement.End">
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Disabled="@(Value.VesselCallDetail is null)" OnClick="AddExportOrderRecord_Click"
+                            Color="Color.Primary" Size="Size.Small" />
                         </MudTooltip>
                     </div>
                 </MudTh>
                 <MudTh Style="width:35px">
-                    <MudTooltip Text="delete All records" Duration="1500" Delay="500">
+                    <MudTooltip Text="delete All records" Duration="1500" Delay="500" Placement="Placement.End">
                         <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" Size="Size.Small"
                         OnClick="@(async ()=>{ await RemoveAllContainerRecords();})" />
                     </MudTooltip>
                 </MudTh>
-                <MudTh Style="width: 120px">Nr</MudTh>
+                <MudTh Style="width: 125px">Container</MudTh>
                 <MudTh Style="width: 64px">Type</MudTh>
                 <MudTh Style="width: 80px">TareWt</MudTh>
                 <MudTh Style="width: 300px">Seals</MudTh>
@@ -339,18 +338,18 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
-                    OnClick="@(async ()=>{ await ShowRecordContent_Click(expOrderRecord);})" />
-                    @* <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
-                                    OnClick="@(async ()=>{ await ShowRecordContent_Click(expOrderRecord.Id);})" /> *@
+                    <MudTooltip Text="Edit Container Content" Delay="1000" Duration="1500" Placement="Placement.End">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(()=>ShowRecordContent_Click(expOrderRecord))" />
+                    </MudTooltip>                    
                 </MudTd>
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
-                    OnClick="@(async ()=>{ await RemoveContainerRecord(expOrderRecord);})" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async ()=>{ await RemoveContainerRecord(expOrderRecord);})" />
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField" T="string" @bind-Value="expOrderRecord.CntrNum"
-                    Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
+                    <MudTextField Class="TextField" T="string" @ref="ContainerField" Value="@expOrderRecord.CntrNum"
+                    ValueChanged="async (e) => { expOrderRecord.CntrNum = e.ToUpper(); await CheckTextFieldCntrNum(e.ToUpper()); }"
+                    Variant="Variant.Outlined" Margin="Margin.Dense"
+                    Required RequiredError="" />
                 </MudTd>
                 <MudTd>
                     <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
@@ -369,26 +368,27 @@
                     Variant="Variant.Outlined" Margin="Margin.Dense"
                     Required RequiredError="" HideSpinButtons="true" />
                 </MudTd>
-                <MudTd>
+                <MudTd>                   
                     <MudTextField Class="TextField" Style="width: 292px" T="string" @bind-Value="expOrderRecord.Seal"
                     Text="@expOrderRecord.Seal"
-                    TextChanged="@(async (e) => {expOrderRecord.Seal = e.ToUpper();})"
-                    Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    TextChanged="@((e) => e?.ToUpper())"
+                    Variant="Variant.Outlined" Margin="Margin.Dense"/>
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
-                    <MudTextField Class="QuantityField" Style="width: 80px" T="string" Text="@expOrderRecord.Contents.Sum(s => s.PackageQty).ToString()"                                
+                    <MudTextField Class="QuantityField" Style="width: 80px" T="string"
+                    Text="@(expOrderRecord.Contents.Sum(s => s.PackageQty.HasValue ? s.PackageQty.Value : 0).ToString())"
                     Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly/>
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                    Text="@(expOrderRecord.Contents.Where(s => s.NetWt is not null).Sum(s => s.NetWt!.Value).ToString("## ##0.###"))"
+                    Text="@(expOrderRecord.Contents.Sum(s => s.NetWt.HasValue ? s.NetWt.Value : 0).ToString("## ##0.###"))"
                     Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                    Text="@(expOrderRecord.Contents.Where(c => c.GrossWt is not null).Sum(s => s.GrossWt!.Value).ToString("## ##0.###"))"
+                    Text="@(expOrderRecord.Contents.Sum(s => s.GrossWt.HasValue ? s.GrossWt.Value : 0).ToString("## ##0.###"))"
                     Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
@@ -426,24 +426,24 @@
                         <h6 class="Summary">Total containers:</h6>
                     </MudTd>
                     <MudTd Style="text-align:center">
-                        <h6 class="Summary">@Value.Records!.Count().ToString("###")</h6>
+                        <h6 class="Summary">@Value.Records.Count().ToString("###")</h6>
                     </MudTd>
                     <MudTd Style="text-align:center">
-                        <h6 class="Summary">@Value.Records!.Sum(s => s.CntrTareWt).ToString()</h6>
+                        <h6 class="Summary">@Value.Records.Sum(s => s.CntrTareWt).ToString()</h6>
                     </MudTd>
                     <MudTd colspan="2"></MudTd>
                     <MudTd Style="text-align:center">
-                        <h6 class="Summary">@Value.Records.Sum(s => s.Contents.Sum(c => c.PackageQty)).ToString()</h6>
+                        <h6 class="Summary">@Value.Records.SelectMany(s => s.Contents).Sum(c => c.PackageQty)</h6>
                     </MudTd>
                     <MudTd></MudTd>
                     <MudTd Style="text-align:end; padding-right: 8px">
                         <h6 class="Summary">
-                            @(Value.Records.Sum(s => s.Contents.Where(c => c.NetWt is not null).Sum(c => c.NetWt!.Value)).ToString("### ###.###"))
+                            @(Value.Records.SelectMany(s => s.Contents).Sum(c => c.NetWt.HasValue ? c.NetWt.Value : 0).ToString("### ###.###"))
                         </h6>
                     </MudTd>
                     <MudTd Style="text-align:end; padding-right: 8px">
                         <h6 class="Summary">
-                            @(Value.Records.Sum(s => s.Contents.Where(c => c.GrossWt is not null).Sum(c => c.GrossWt!.Value)).ToString("### ###.###"))
+                            @(Value.Records.SelectMany(s => s.Contents).Sum(c => c.GrossWt.HasValue ? c.GrossWt.Value : 0).ToString("### ###.###"))
                         </h6>
                     </MudTd>
                     <MudTd colspan="2"></MudTd>
@@ -457,17 +457,14 @@
 }
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-
     private MudTable<ExportOrderRecord>? mudTable;
     private MudTable<ContainerContent>? mudCntrContentTable;
+    private MudTextField<string> ContainerField = new();
 
     [Parameter]
     public ExportOrderEntity? Value { get; set; }
     [Parameter]
-    public EventCallback<ExportOrderEntity> ValueChanged { get; set; }    
-    // [Parameter]
-    // public bool IsFormReadOnly { get; set; }
+    public EventCallback<ExportOrderEntity> ValueChanged { get; set; }
     [Parameter]
     public bool IsRoleForEdit { get; set; }    
 
@@ -481,9 +478,10 @@
     private IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
     private string? ExportOrdersTotalNetWt { get; set; } = null;
     private string? ExportOrdersTotalGrossWt { get; set; } = null;
-    private ExportOrderRecord OriginalExportOrderRecord { get; set; } = new();
 
-    private CheckedUploadResult? uploadResult { get; set; }
+    private List<ContainerContent>? OriginalRecordContens { get; set; }    
+
+    private List<UploadExcelDTO>? UploadedExcelDTO { get; set; }
 
     private List<TreeItemData<ExportOrderDocumentDTO>> TreeItems { get; set; } = new();
     private List<ExportOrderDocumentDTO> DocumentsDTO { get; set; } = new();
@@ -501,8 +499,7 @@
 
     protected override void OnInitialized()
     {
-        FillUpTreeItems();
-        //return base.OnInitializedAsync();
+        FillUpTreeItems();        //return base.OnInitializedAsync();
     }
 
     #region DOCUMENTS
@@ -513,7 +510,7 @@
 
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Document_Index>("Select DOCUMENTS", parameters, options);
+        var dialog = await DialogService.ShowAsync<Document_Index>(null, parameters, options);
 
         var result = await dialog.Result;
 
@@ -527,11 +524,11 @@
             foreach (var document in documents)
             {
                 DocumentsDTO.Add(new ExportOrderDocumentDTO()
-                    {
-                        Id = document.Id,
-                        DocumentName = document.Name,
-                        DocumentRecords = new List<ExportOrderDocumentRecordDTO>()
-                    });
+                {
+                    Id = document.Id,
+                    DocumentName = document.Name,
+                    DocumentRecords = new List<ExportOrderDocumentRecordDTO>()
+                });
             }
 
             TreeItems.AddRange(DocumentsDTO.Select(s => new TreeItemData<ExportOrderDocumentDTO>() { Value = s }).ToList());
@@ -582,102 +579,47 @@
 
     #region CNTR RECORDS
 
-    private async Task AddExportOrderRecord_Click()
+    private void AddExportOrderRecord_Click()
     {
-        if (Value is null || Value.Documents.Count() == 0 || Value.VesselCallDetail is null) return;
-
-        var parameters = new DialogParameters()
+        if (Value is not null)
         {
-            ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id,
-            ["Documents"] = Value.Documents,                
-        };
-        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("New Container Record", parameters, options);
-        var result = await dialog.Result;
-
-        if (result is not null && !result.Canceled && result.Data is not null)
-        {
-            var exportOrderRecord = (ExportOrderRecord)result.Data;
-
-            if (exportOrderRecord is not null)
-                Value.Records.Add(exportOrderRecord);
-
-            FillUpTreeItems();
+            Value.Records.Add(new ExportOrderRecord());
+            Snackbar.Add("Новая запись добавлена в конец таблицы.", Severity.Info);
         }
     }
 
-    private async Task ShowRecordContent_Click(ExportOrderRecord itemRecord)
+    private async void ShowRecordContent_Click(ExportOrderRecord record)
     {
         if (Value is null || Value.Documents.Count() == 0 || Value.VesselCallDetail is null) return;
 
-        OriginalExportOrderRecord = itemRecord.CreateJsonBackup();
+        if (string.IsNullOrWhiteSpace(record.CntrNum))
+        {
+            Snackbar.Add("Укажите номер Контейнера.", Severity.Warning);
+            return;
+        }            
+
+        SetOriginalRecordContents(record.Contents);
 
         var parameters = new DialogParameters()
         {
-                ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id,
-                ["Documents"] = Value.Documents,
-                ["Item"] = itemRecord
+            ["Item"] = record,
+            ["CntrNum"] = record.CntrNum,
+            ["Documents"] = Value.Documents
         };
-        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = false, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("Edit Container Record", parameters, options);
+        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>($"{record.CntrNum}", parameters, options);
         var result = await dialog.Result;
 
-        // if (result is not null && !result.Canceled && result.Data is not null)
-        // {
-        //     // var modifiedExportOrderRecord = (ExportOrderRecord)result.Data;
-
-        //     // if (modifiedExportOrderRecord is not null)
-        //     //     item = modifiedExportOrderRecord;
-
-        //     item = (ExportOrderRecord)result.Data;
-        //     FillUpTreeItems();
-        // }
-
-        if (result is not null && !result.Canceled && result.Data is not null)
-            itemRecord = (ExportOrderRecord)result.Data;
-        else
-            itemRecord = OriginalExportOrderRecord;
-
-        // if (result is not null && result.Canceled)  // && OriginalExportOrderRecord is not null
-        //     itemRecord = OriginalExportOrderRecord;
+        if (result is not null && result.Canceled && OriginalRecordContens is not null)
+        {
+            record.Contents = OriginalRecordContens;
+            return;
+        }            
 
         FillUpTreeItems();
 
-        await InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);        
     }
-
-    // private async Task ShowRecordContent_Click(long recordId)
-    // {
-    //     if (Value is null || Value.Documents.Count() == 0 || Value.VesselCallDetail is null) return;
-
-    //     var parameters = new DialogParameters()
-    //     {
-    //         ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id,
-    //         ["Documents"] = Value.Documents,
-    //         ["RecordId"] = recordId
-    //     };
-    //     var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
-    //     var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>("Edit Container Record", parameters, options);
-    //     var result = await dialog.Result;
-
-    //     if (result is not null && !result.Canceled && result.Data is not null)
-    //     {
-    //         // var initialRecord = Value.Records.FirstOrDefault(s => s.Id == recordId);
-    //         // if (initialRecord is not null)
-    //         // {
-    //         //     ModifiedExportOrderRecord = (ExportOrderRecord)result.Data;
-    //         //     initialRecord = ModifiedExportOrderRecord;
-    //         // }
-
-    //         ModifiedExportOrderRecord = Value.Records.FirstOrDefault(s => s.Id == recordId);
-    //         if (ModifiedExportOrderRecord is not null)
-    //             ModifiedExportOrderRecord = (ExportOrderRecord)result.Data;
-
-    //         FillUpTreeItems();
-    //     }
-
-    //     await InvokeAsync(StateHasChanged);
-    // }
 
     private async Task RemoveContainerRecord(ExportOrderRecord record)
     {
@@ -697,35 +639,31 @@
 
     private async Task RemoveAllContainerRecords()
     {
-        if (Value is null) return;
+        if (Value is null || !Value.Records.Any()) return;
 
-        if (Value.Records.Count() == 0) return;
-
-        bool? result = await DialogService.ShowMessageBox(
-                 "Delete All records",
-                 (MarkupString)$"<b>Do you want to remove all records?<b>",
-                 yesText: "REMOVE", cancelText: "NO");
+        bool? result = await DialogService.ShowMessageBox("Delete All records",
+                                                            (MarkupString)$"<b>Do you want to remove all records?<b>",
+                                                            yesText: "REMOVE", cancelText: "NO");
 
         if (!result.HasValue)
             return;
         else
-            Value.Records.RemoveRange(0, Value.Records.Count());
-
-        foreach (var item in TreeItems)
         {
-            item.Value!.DocumentRecords = new();
+            Value.Records.RemoveRange(0, Value.Records.Count());
+            Value.Documents.RemoveRange(0, Value.Documents.Count());
+            ClearTreeItems();
         }
 
-        await InvokeAsync(StateHasChanged);
+        //await InvokeAsync(StateHasChanged);
     }
 
     private async Task UploadFile_Click()
     {
         if (Value is null || Value.VesselCallDetail is null) return;
 
-        var parameters = new DialogParameters() { ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id };
+        var parameters = new DialogParameters() { ["EoId"] = Value.Id, ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<UploadExportOrderRecordsFile>("Импорт списка ДТ", parameters, options);
+        var dialog = DialogService.Show<UploadExportOrderFile>("Импорт списка ДТ", parameters, options);
 
         var result = await dialog.Result;
 
@@ -735,74 +673,92 @@
             {
                 IsLoadingData = true;
 
-                uploadResult = (CheckedUploadResult)result.Data;
+                UploadedExcelDTO = (List<UploadExcelDTO>)result.Data;
 
-                if (uploadResult.UploadedDTO == null) return;
+                if (UploadedExcelDTO is null) return;
 
-                var checkedRecords = uploadResult.UploadedDTO.ToList().GroupBy(urdto => urdto.CntrNum);
-                var checkedDocuments = uploadResult.UploadedDTO.ToList().GroupBy(urdto => urdto.DocumentName);
+                var uploadedExcelDTO = UploadedExcelDTO.Where(s => !string.IsNullOrWhiteSpace(s.DocumentName) && s.SeqCommodity > 0);
+
+                if (uploadedExcelDTO is null) return;
+
+                var uploadedRecords = uploadedExcelDTO.GroupBy(s => s.CntrNum);
+                var uploadedDocuments = uploadedExcelDTO.GroupBy(s => s.DocumentName);
 
                 var records = new List<ExportOrderRecord>();
                 var documents = new List<DocumentEntity>();
 
                 /// RECORDS
-                foreach (var checkedRecord in checkedRecords)
+                foreach (var uploadedRecord in uploadedRecords)
                 {
                     var newRecord = new ExportOrderRecord()
                     {
-                        CntrNum = checkedRecord.FirstOrDefault()!.CntrNum!,
-                        CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == checkedRecord.FirstOrDefault()!.CntrType),
-                        CntrTareWt = checkedRecord.FirstOrDefault()!.CntrTareWt,
-                        Seal = string.IsNullOrEmpty(checkedRecord.FirstOrDefault()!.Seal) ? string.Empty : checkedRecord.FirstOrDefault()!.Seal!,
+                        CntrNum = uploadedRecord.Any(s => !string.IsNullOrWhiteSpace(s.CntrNum)) ? uploadedRecord.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.CntrNum))!.CntrNum! : "",
+                        CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == uploadedRecord.FirstOrDefault()!.CntrType),
+                        CntrTareWt = uploadedRecord.FirstOrDefault()!.CntrTareWt,
+                        Seal = uploadedRecord.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.Seal))?.Seal,
                     };
 
-                    foreach (var checkedContent in checkedRecord)
-                    {   
-                        var Document = await _documentProvider.GetDocumentAsync(checkedContent.DocumentName!);
+                    foreach (var uploadedContent in uploadedRecord)
+                    {
+                        /// Get DocumentRecord && DocumentRecord.Document
+                        var dbDocumentRecord = await _documentProvider.GetDocumentRecordAsync(uploadedContent.DocumentName, uploadedContent.SeqCommodity);
+                        if (dbDocumentRecord is null || dbDocumentRecord.Document is null)
+                            continue;
 
                         var content = new ContainerContent()
                         {
-                            PackageQty = checkedContent.PackageQty,
-                            PackageName = checkedContent.PackageName,
-                            NetWt = checkedContent.NetWt,
-                            GrossWt = checkedContent.GrossWt,
-                            DocumentRecord = await _documentProvider.GetDocumentRecordAsync(Document!.Name!, (int)checkedContent.SeqCommodity!)
+                            PackageQty = uploadedContent.PackageQty,
+                            PackageName = uploadedContent.PackageName,
+                            NetWt = uploadedContent.NetWt,
+                            GrossWt = uploadedContent.GrossWt,
+                            AdditionalUnitValue = uploadedContent.AdditionalUnitValue,
+                            DocumentRecord = dbDocumentRecord
                         };
 
-                        content.DocumentRecord.Document = Document;
+                        /// check & rewrite AdditionalUnitCode
+                        if (!string.IsNullOrWhiteSpace(uploadedContent.AdditionalUnitCode))
+                        {
+                            string unitCode = uploadedContent.AdditionalUnitCode.Length switch {
+                                0 => "000",
+                                1 => uploadedContent.AdditionalUnitCode.Insert(0, "00"),
+                                2 => uploadedContent.AdditionalUnitCode.Insert(0, "0"),
+                                3 => uploadedContent.AdditionalUnitCode,
+                                _ => uploadedContent.AdditionalUnitCode.Substring(0, 3)
+                            };
+
+                            content.AdditionalUnitCode = unitCode;
+                        }
 
                         newRecord.Contents.Add(content);
                     }
 
-                    records.Add(newRecord);
+                    if (newRecord.Contents.Any())
+                        records.Add(newRecord);
+
                     newRecord = null;
                 }
 
                 /// DOCUMENTS
-
-                /// Remove old documents from the page       (export order Records removing too)
+                /// Remove old documents from the page  (export order Records removing too)
                 if (Value.Documents.Any())
                 {
                     Value.Documents.RemoveRange(0, Value.Documents.Count());
-                    TreeItems = new();
-                    // foreach (var document in Value.Documents)
-                    //     Value.Documents.Remove(document);
+                    ClearTreeItems();
                 }
 
                 /// add new documents
-                foreach (var checkedDocument in checkedDocuments)
+                foreach (var uploadedDocument in uploadedDocuments)
                 {
-                    var Document = await _documentProvider.GetDocumentAsync(checkedDocument.Key!);
+                    var DocumentDb = await _documentProvider.GetDocumentAsync(uploadedDocument.Key!);
 
-                    if (Document is null) continue;
+                    if (DocumentDb is null) continue;
 
-                    var documentRecords = Document.Records.ToArray();   //ToList();
+                    /// remove documentRecord wich is not exists in the Checked one
+                    foreach (var documentRecordDb in DocumentDb.Records.ToArray())
+                        if (!uploadedDocument.Any(d => d.SeqCommodity == documentRecordDb.Seq))
+                            DocumentDb.Records.Remove(documentRecordDb);
 
-                    foreach (var documentRecord in documentRecords)
-                        if (!checkedDocument.Any(d => d.SeqCommodity == documentRecord.Seq))
-                            Document.Records.Remove(documentRecord);
-
-                    documents.Add(Document);
+                    documents.Add(DocumentDb);
                 }
 
                 Value.Records = records;
@@ -815,6 +771,8 @@
 
                 await ValueChanged.InvokeAsync(Value);
             }
+            else
+                Snackbar.Add($"NOT uploaded", Severity.Warning);
         }
         catch (Exception ex)
         {
@@ -833,33 +791,38 @@
     #endregion
 
     #region AUXILARY METHODS
-    private void SetOriginalItemRecords(ExportOrderRecord record)
-    {
-        OriginalExportOrderRecord = record.CreateJsonBackup();
 
-        // OriginalExportOrderRecord = new()
-        // {
-        //     Id = record.Id,
-        //     CntrNum = record.CntrNum,
-        //     CntrType = record.CntrType,
-        //     CntrTareWt = record.CntrTareWt,
-        //     Seal = record.Seal,
-        //     ExportOrder = record.ExportOrder,
-        //     Contents = record.Contents
-        // };
+    private void SetOriginalRecordContents(List<ContainerContent> contents)
+    {
+        OriginalRecordContens = new();
+        foreach (var content in contents)
+        {
+            OriginalRecordContens.Add(new ContainerContent()
+            {
+                Id = content.Id,
+                PackageQty = content.PackageQty,
+                PackageName = content.PackageName,
+                NetWt = content.NetWt,
+                GrossWt = content.GrossWt,
+                Volume = content.Volume,
+                AdditionalUnitCode = content.AdditionalUnitCode,
+                AdditionalUnitValue = content.AdditionalUnitValue,
+                DocumentRecord = content.DocumentRecord,
+                DocumentName = content.DocumentName,
+                ExportOrderRecord = content.ExportOrderRecord
+            });
+        };
     }
 
     private void FillUpTreeItems()
     {
         if (Value is not null)
         {
-            TreeItems.Clear();
-            DocumentsDTO = new();
-            DocumentRecordsDTO = new();
+            ClearTreeItems();
 
             var documentRecords = Value.Records.SelectMany(r => r.Contents).Select(c => c.DocumentRecord)
-                                                                           .Where(dr => !string.IsNullOrEmpty(dr.Document.Name))
-                                                                           .GroupBy(dr => new { dr.Document.Name, dr.Seq })
+                                                                           .Where(dr => dr.Document != null && !string.IsNullOrEmpty(dr.Document.Name))
+                                                                           .GroupBy(dr => new { dr.Seq, dr.Document.Name })
                                                                            .ToList();
 
             foreach (var record in documentRecords)
@@ -867,8 +830,8 @@
                 DocumentRecordsDTO.Add(new ExportOrderDocumentRecordDTO()
                 {
                     DocumentId = record.FirstOrDefault()!.Document.Id,
-                    DocumentName = record.Key.Name,
                     Seq = record.Key.Seq,
+                    DocumentName = record.Key.Name,
                     CommodityHSCode = record.FirstOrDefault()!.CommodityHSCode,
                     CommodityName = record.FirstOrDefault()!.CommodityName
                 });              
@@ -883,6 +846,13 @@
 
             TreeItems = DocumentsDTO.Select(s => new TreeItemData<ExportOrderDocumentDTO>() { Value = s }).ToList();
         }        
+    }
+
+    private void ClearTreeItems()
+    {
+        TreeItems.Clear();
+        DocumentsDTO = new();
+        DocumentRecordsDTO = new();
     }
 
     private async Task GetVesselCallDetail_Click()
@@ -959,6 +929,31 @@
                 ExportOrderNums = Enumerable.Empty<string>();
         }        
     }
+
+    private async Task<string> CheckTextFieldCntrNum(string num)
+    {
+        if (Value is not null && Value.VesselCallDetail is not null && !string.IsNullOrWhiteSpace(num))
+        {
+            var cntrNums = Value.Records.Select(r => r.CntrNum).ToArray();
+
+            if (cntrNums is not null && cntrNums.Any())
+            {
+                var errMessages = await ValidationService.ValidateCntrNums(cntrNums, Value.Id, Value.VesselCallDetail.VesselCall.Id, num);
+
+                if (errMessages is not null && errMessages.Any())
+                {
+                    StringBuilder resultMessage = new();
+
+                    foreach (string msg in errMessages)
+                        resultMessage.Append($"{msg}<br>");
+
+                    bool? result = await DialogService.ShowMessageBox(null, (MarkupString)$"{resultMessage.ToString()}", yesText: "Продолжить");
+                }
+            }
+        }
+        return num;
+    }
+
     #endregion
 
     #region SEARCHERS
@@ -978,15 +973,15 @@
         var Carriers = new List<CarrierCatalog>();
 
         var response = await _carrierProvider.GetItemsAsync();
-        if (!response.HasError)
-            Carriers = ((IEnumerable<CarrierCatalog>)response.Object!).ToList();
+        if (!response.HasError && response.Object is not null)
+            Carriers = ((IEnumerable<CarrierCatalog>)response.Object).ToList();
 
         Carriers = Carriers.OrderBy(x => x.Name).Where(x => x.CarrierDetails.Where(d => d.TerminalName == terminal).ToList().Count > 0).ToList();
 
         if (string.IsNullOrWhiteSpace(value))
             return Carriers;
 
-        return Carriers.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return Carriers.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
     #endregion

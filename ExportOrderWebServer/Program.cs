@@ -4,30 +4,31 @@ using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-//var services = builder.Services;
+IServiceCollection services = builder.Services;
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // Add services to the container.
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(connectionString,
                     optionsBuilder => optionsBuilder.MigrationsAssembly("ExportOrderWebServer"));
-});    
+});
 
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+services.AddDbContextFactory<ApplicationDbContext>(options =>
 { 
     options.UseNpgsql(connectionString);
 },
 ServiceLifetime.Transient);
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders()
-                .AddDefaultUI();
+services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.Configure<IdentityOptions>(options =>
+services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders()
+        .AddDefaultUI();
+
+services.Configure<IdentityOptions>(options =>
 {
     // Password settings
     options.Password.RequireDigit = true;
@@ -37,48 +38,49 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
 });
 
-builder.Services.ConfigureApplicationCookie(options =>
+services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.Name = "AspNetCore.Identity.Application.ExportOrderWebServer";
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
 });
 
-builder.Services.AddEndpointsApiExplorer();
+services.AddEndpointsApiExplorer();
 
-builder.Services.AddScoped<TokenProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
-builder.Services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJwtBearer(x =>
+services.AddScoped<TokenProvider>();
+services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
+services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJwtBearer(x =>
 {
     // options
 });
 //builder.Services.AddAuthentication("tris.Identity").AddCookie();
 
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddHttpClient();
-builder.Services.AddMudServices();
+services.AddRazorPages();
+services.AddServerSideBlazor();
+services.AddDatabaseDeveloperPageExceptionFilter();
+services.AddHttpClient();
+services.AddMudServices();
 
-builder.Services.AddTransient<IUserProvider, UserProvider>();
-builder.Services.AddTransient<ICarrierProvider, CarrierProvider>();
-builder.Services.AddTransient<ICommodityProvider, CommodityProvider>();
-builder.Services.AddTransient<ICountryProvider, CountryProvider>();
-builder.Services.AddTransient<ICustomerProvider, CustomerProvider>();
-builder.Services.AddTransient<ICustomsProvider, CustomsProvider>();
-builder.Services.AddTransient<ILocationProvider, LocationProvider>();
-builder.Services.AddTransient<ITerminalProvider, TerminalProvider>();
-builder.Services.AddTransient<IVesselProvider, VesselProvider>();
-builder.Services.AddTransient<IVesselCallProvider, VesselCallProvider>();
-builder.Services.AddTransient<ICntrTypeProvider, CntrTypeProvider>();
-builder.Services.AddTransient<IDocumentProvider, DocumentProvider>();
-builder.Services.AddTransient<IExportOrderProvider, ExportOrderProvider>();
-builder.Services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
+services.AddTransient<IUserProvider, UserProvider>();
+services.AddTransient<ICarrierProvider, CarrierProvider>();
+services.AddTransient<ICommodityProvider, CommodityProvider>();
+services.AddTransient<ICountryProvider, CountryProvider>();
+services.AddTransient<ICustomerProvider, CustomerProvider>();
+services.AddTransient<ICustomsProvider, CustomsProvider>();
+services.AddTransient<ILocationProvider, LocationProvider>();
+services.AddTransient<ITerminalProvider, TerminalProvider>();
+services.AddTransient<IVesselProvider, VesselProvider>();
+services.AddTransient<IVesselCallProvider, VesselCallProvider>();
+services.AddTransient<ICntrTypeProvider, CntrTypeProvider>();
+services.AddTransient<IDocumentProvider, DocumentProvider>();
+services.AddTransient<IExportOrderProvider, ExportOrderProvider>();
+services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 
-builder.Services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
-builder.Services.AddTransient<StatisticProvider>();
-builder.Services.AddTransient<CheckUploadResultService>();
-builder.Services.AddTransient<CheckCntrNumService>();
-//builder.Services.AddTransient<IDisposable, SavePdfFileService>(); 
+services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
+services.AddTransient<StatisticProvider>();
+
+services.AddTransient<CheckUploadResultService>();
+services.AddTransient<IExcelFileUploadService, ExcelFileUploadService>();
+services.AddTransient<IValidationService, ValidationService>(); 
 
 var app = builder.Build();
 

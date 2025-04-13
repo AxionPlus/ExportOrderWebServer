@@ -63,15 +63,5 @@ public class VoyageManifestDTO
     public string? RecordShippers { get; set; }
     public string? RecordShippersCountries { get; set; }
     public string? RecordConsignees { get; set; }
-    public string? RecordConsigneesCountries { get; set; }    
-
-    //// CONTENT
-    //public int SeqContent { get; set; }      // Content sequence
-    //public bool IsIMO { get; set; } = false;
-    //public string? Commodity { get; set; }
-    //public string? CommodityEn { get; set; }
-    //public string? Shipper { get; set; }
-    //public string? ShipperCountry { get; set; }
-    //public string? Consignee { get; set; }
-    //public string? ConsigneeCountry { get; set; }
+    public string? RecordConsigneesCountries { get; set; }
 }

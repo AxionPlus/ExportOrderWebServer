@@ -16,9 +16,7 @@ public class ExportOrderRecordDTO
     public string CntrType { get; set; }
     public string CntrTypeISO { get; set; }
     public double? CntrTareWt { get; set; }
-    public string Seal { get; set; }
-
-    // Records    
+    public string? Seal { get; set; }
     public string? RecordCommoditiesEn { get; set; }
 
     // Content
@@ -46,5 +44,5 @@ public class ExportOrderRecordDTO
 
 
     [JsonIgnore]
-    public ExportOrderDTO exportOrderDTO { get; set; }
+    public ExportOrderDTO ExportOrderDTO { get; set; }
 }

@@ -3,7 +3,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IHttpClientFactory httpClient
-@inject CheckUploadResultService CheckUploadResultService
+@inject ICheckUploadResultService CheckUploadResultService
 
 <MudStack Style="width: 100%">
     <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
@@ -40,7 +40,7 @@
         if (uploadResult.HasCriticalErrors)
         {
             <MudText Style="margin-inline-start:5px" Color="Color.Error">
-                <b>Есть критические ошибки. Записи отмеченные Critical не будут загружены!</b>
+                <b>Есть критические ошибки. Записи отмеченные как *Critical не будут загружены!</b>
             </MudText>
         }
     }

@@ -784,7 +784,8 @@
 
     private async Task DownloadExcelTemplate()
     {
-        string path = $"{Navigation.BaseUri}view/ViewReport/DownloadExcelTemplate";
+        //string path = $"{Navigation.BaseUri}file/DownloadFile/DownloadExcelTemplate";
+        string path = $"{ApplicationParameter.DownloadFileUrl}DownloadExcelTemplate";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 

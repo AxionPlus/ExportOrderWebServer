@@ -63,9 +63,9 @@ namespace ExportOrderWebServer.Resources {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Byte[].
         /// </summary>
-        internal static byte[] TemplateExpRequestRolis {
+        internal static byte[] TemplateFillBill {
             get {
-                object obj = ResourceManager.GetObject("TemplateExpRequestRolis", resourceCulture);
+                object obj = ResourceManager.GetObject("TemplateFillBill", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace ExportOrderWebServer.Resources {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Byte[].
         /// </summary>
-        internal static byte[] TemplateFillBill {
+        internal static byte[] TemplateNutepRolis {
             get {
-                object obj = ResourceManager.GetObject("TemplateFillBill", resourceCulture);
+                object obj = ResourceManager.GetObject("TemplateNutepRolis", resourceCulture);
                 return ((byte[])(obj));
             }
         }

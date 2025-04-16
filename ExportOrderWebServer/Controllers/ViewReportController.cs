@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
-namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
+namespace ExportOrderWebServer.Controllers;
 
 //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 
@@ -35,7 +35,7 @@ public class ViewReportController : ControllerBase
             int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
 
-            LocalReport localReport = new LocalReport(pathReport);
+            LocalReport localReport = new(pathReport);
 
             #region PARAMETERS
             //Dictionary<string, string> parameters = new Dictionary<string, string>()
@@ -109,7 +109,7 @@ public class ViewReportController : ControllerBase
         }
         catch (Exception ex)
         {
-            string message = ex.Message;
+            Console.WriteLine(ex.Message);
             return Ok();
         }
     }
@@ -120,8 +120,7 @@ public class ViewReportController : ControllerBase
     {
         var Item = await _exportOrderProvider.GetBLDTOAsync(Id);
 
-        if (Item is null)
-            return new EmptyResult();
+        if (Item is null) return Empty;
 
         string fileName = "BL" + Item.BLtemplate + ".rdlc";
 
@@ -131,7 +130,7 @@ public class ViewReportController : ControllerBase
             int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
 
-            LocalReport localReport = new LocalReport(pathReport);
+            LocalReport localReport = new(pathReport);
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Encoding.GetEncoding("windows-1252");
@@ -178,7 +177,7 @@ public class ViewReportController : ControllerBase
             // список контейнеров дополненный до 20ти записей на первом листе коносамента
             if (Item.BLtemplate == "nca")
             {
-                int recCount = Records.Count();
+                int recCount = Records.Count;
 
                 int upperBound = 20;
 
@@ -189,7 +188,7 @@ public class ViewReportController : ControllerBase
                         int extraRowsSeal = 0;
                         int extraRowsCommodity = 0;
 
-                        switch (record.Seal.Length)
+                        switch (record.Seal?.Length)
                         {
                             case <= 10:
                                 break;
@@ -225,7 +224,7 @@ public class ViewReportController : ControllerBase
                                 break;
                         }
 
-                        switch (record.RecordCommoditiesEn!.Length)
+                        switch (record.RecordCommoditiesEn?.Length)
                         {
                             case <= 35:
                                 break;
@@ -265,6 +264,8 @@ public class ViewReportController : ControllerBase
                             upperBound -= extraRowsSeal;
                         else
                             upperBound -= extraRowsCommodity;
+
+                        upperBound -= (extraRowsSeal >= extraRowsCommodity) ? extraRowsSeal : extraRowsCommodity;
                     }
                 }
 
@@ -290,8 +291,7 @@ public class ViewReportController : ControllerBase
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            Console.WriteLine(msg);
+            Console.WriteLine(ex.Message);
             return Ok();
         }
     }
@@ -496,31 +496,5 @@ public class ViewReportController : ControllerBase
             Console.WriteLine(msg);
             return Ok();
         }
-    }
-
-    [HttpGet]
-    [Route("DownloadExcelTemplate")]
-    public async Task<IActionResult> DownloadTemplate()
-    {
-        try
-        {
-            string FileName = $"ИмпортСписка ДТ (проформа)";
-
-            byte[] fileBytes = Resource.TemplateUploadCntrs;
-
-            await Task.Delay(100);
-
-            if (fileBytes != Array.Empty<byte>())
-                return File(fileBytes, "application/xlsx", $"{FileName}.xlsx");
-
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-            return Empty;
-        }
-
-        return Ok();
-    }    
-
+    }  
 }

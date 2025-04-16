@@ -208,10 +208,10 @@ public class ExportOrderProvider : IExportOrderProvider
                                     Voyage = source.VesselCallDetail!.VesselCall!.VoyageNo,
                                     Shippers = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn)).Distinct().ToList()),
                                     Consignees = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn)).Distinct().ToList()),
-                                    Commodities = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.CommodityEngName +
+                                    Commodities = string.Join("; ", source.Records.SelectMany(eor => eor.Contents.Select(rc => (rc.DocumentRecord.CommodityEngName +
                                                                                                                                 (rc.DocumentRecord.IsIMO ?
                                                                                                                                     " IMO:" + rc.DocumentRecord.IMO +
-                                                                                                                                    " UNNO:" + rc.DocumentRecord.UNNO : "")))
+                                                                                                                                    " UNNO:" + rc.DocumentRecord.UNNO : "")).Trim()))
                                                                                                                  .Distinct().ToList()),
                                     PODEn = source.VesselCallDetail!.POD!.NameEn!,
                                     PODwithCountryEn = source.VesselCallDetail!.POD!.NameEn! + ", " + source.VesselCallDetail!.POD!.Country!.ENG,
@@ -956,7 +956,6 @@ public class ExportOrderProvider : IExportOrderProvider
             eoRecordDTO.CntrTareWt = record.CntrTareWt;
             eoRecordDTO.Seal = record.Seal;
 
-            //uint indexContent = 0;
             foreach (var content in record.Contents)
             {
                 eoRecordDTO.SeqContent = (uint)content.DocumentRecord.Seq;
@@ -967,7 +966,9 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.NetWt = content.NetWt is null ? 0 : content.NetWt;
                 eoRecordDTO.GrossWt = content.GrossWt is null ? 0 : content.GrossWt;
                 eoRecordDTO.Volume = content.Volume is null ? 0 : content.Volume;
-                eoRecordDTO.GrossAndTare = record.CntrTareWt + (double)content.GrossWt!;
+                eoRecordDTO.GrossAndTare = record.CntrTareWt + (content.GrossWt.HasValue ? content.GrossWt : 0); //(double)content.GrossWt!
+                eoRecordDTO.AdditionalUnitCode = content.AdditionalUnitCode;
+                eoRecordDTO.AdditionalUnitValue = content.AdditionalUnitValue;
 
                 eoRecordDTO.DocumentName = string.IsNullOrEmpty(content.DocumentRecord.Document.Name) ? string.Empty : content.DocumentRecord.Document.Name;
                 eoRecordDTO.DocumentType = content.DocumentRecord.Document.Type.ToString();

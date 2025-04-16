@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.IO.Compression;
 
-namespace ExportOrderWebServer.Areas.ExpOrder.Controller;
+namespace ExportOrderWebServer.Controllers;
 
 [AllowAnonymous]
 [Route("file/[controller]")]
-[ApiController]
+//[ApiController]
 
 public class UploadFileController : ControllerBase
 {
@@ -20,101 +20,11 @@ public class UploadFileController : ControllerBase
     {
         _webHostEnvironment = webHostEnvironment;
         _exportOrderProvider = exportOrderProvider;
-
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         _excelUploadService = excelUploadService;
+
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);        
     }
 
-    [HttpGet, Route("SaveFileExcelFillBill")]   // file/UploadFileController/SaveFileExcelFillBill
-    public async Task<IActionResult> SaveFileFillBill(long vslcallid)
-    {
-        try
-        {
-            var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, false);
-
-            if (!Items.Any()) return Empty;
-
-            string FileName = $"FillBill_{Items.FirstOrDefault()!.Voyage}";
-            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
-
-            using (var xls = new ExcelCreateService(tempFilePath, Items, null))
-            {
-                var buffer = await xls.CreateExcelFile_FillBill();
-
-                if (buffer != Array.Empty<byte>())
-                    return File(buffer, "application/xlsx", $"{FileName}.xlsx");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return Empty;
-        }
-
-        return Ok();
-    }
-
-    [HttpGet, Route("SaveFileExcelRolis")]  // file/UploadFileController/SaveFileExcelRolis
-    public async Task<IActionResult> SaveFileRolis(long expOrderId)
-    {
-        try
-        {
-            var Item = await _exportOrderProvider.GetExportOrderDTOAsync(expOrderId);
-
-            if (Item is null) return Empty;
-
-            string FileName = $"Rolis_{Item.Voyage}_{Item.Num}";
-
-            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xlsx");
-
-            using (var xls = new ExcelCreateService(tempFilePath, null, Item))
-            {
-                var buffer = await xls.CreateExcelFile_Rolis();
-
-                if (buffer != Array.Empty<byte>())
-                    return File(buffer, "application/xlsx", $"{FileName}.xlsx");
-            }
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-            return Empty;
-        }
-
-        return Ok();
-    }
-
-    [HttpGet, Route("SaveXMLfile")]     // file/UploadFileController/SaveXMLfile
-    public async Task<IActionResult> SaveXMLfile(long Id)
-    {
-        try
-        {
-            var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
-
-            await Task.Delay(100);
-
-            if (Item is null) return Empty;
-
-            string FileName = $"{Item.Num}_Customs";
-            string tempFilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{Path.GetRandomFileName()}.xml");
-
-            using (var xml = new XmlService(tempFilePath, Item))
-            {
-                var buffer = await xml.CreateXMLfile();
-
-                if (buffer != Array.Empty<byte>())
-                    return File(buffer, "application/xml", $"{FileName}.xml");
-            }
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-            Console.WriteLine($"Error: {ex.Message}");
-            return Empty;
-        }
-
-        return Ok();
-    }
 
     [HttpPost, Route("UploadFromExcel")]    // file/UploadFileController/UploadFromExcel
     public async Task<List<UploadExcelDTO>?> UploadFromExcel([FromForm] IEnumerable<IFormFile> files)
@@ -131,10 +41,6 @@ public class UploadFileController : ControllerBase
                 file.CopyTo(stream);
             }
 
-        //using var exl = new ExcelUploadService(filePath);
-
-        //return await exl.ReadUploadingFile();
-
         return await _excelUploadService.ReadImportListDeclarations(filePath);
     }
 
@@ -146,7 +52,7 @@ public class UploadFileController : ControllerBase
             IEnumerable<long> Ids = Enumerable.Empty<long>();
             string Voyage = string.Empty;
 
-            var resultObj = JsonConvert.DeserializeObject<ControllerPassObject<IEnumerable<long>>>(obj.ToString());
+            var resultObj = JsonConvert.DeserializeObject<ControllerPassObject<IEnumerable<long>>>(obj.ToString()!);
             if (resultObj is not null)
             {
                 if (resultObj.GetObject.Count() > 0)
@@ -217,10 +123,8 @@ public class UploadFileController : ControllerBase
                 #endregion
 
                 /// сохраняем файл в папку DirPath
-                using (var fileStream = new FileStream(pathFile, FileMode.Create))
-                {
-                    await fileStream.WriteAsync(result.MainStream, 0, result.MainStream.Length);
-                }
+                using var fileStream = new FileStream(pathFile, FileMode.Create);
+                await fileStream.WriteAsync(result.MainStream, 0, result.MainStream.Length);
             }
 
             string zipName = $"{dirPath}.zip";
@@ -254,7 +158,7 @@ public class UploadFileController : ControllerBase
             IEnumerable<long> Ids = Enumerable.Empty<long>();
             string Voyage = string.Empty;
 
-            var resultObj = JsonConvert.DeserializeObject<ControllerPassObject<IEnumerable<long>>>(obj.ToString());
+            var resultObj = JsonConvert.DeserializeObject<ControllerPassObject<IEnumerable<long>>>(obj.ToString()!);
             if (resultObj is not null)
             {
                 if (resultObj.GetObject.Count() > 0)
@@ -429,10 +333,8 @@ public class UploadFileController : ControllerBase
                 #endregion
 
                 /// сохраняем файл в папку DirPath
-                using (var fileStream = new FileStream(pathFile, FileMode.Create))
-                {
-                    await fileStream.WriteAsync(result.MainStream, 0, result.MainStream.Length);
-                }
+                using var fileStream = new FileStream(pathFile, FileMode.Create);
+                await fileStream.WriteAsync(result.MainStream, 0, result.MainStream.Length);
 
                 ///// сохраняем файл в папку DirPath
                 //await System.IO.File.WriteAllBytesAsync(pathFile, result.MainStream);

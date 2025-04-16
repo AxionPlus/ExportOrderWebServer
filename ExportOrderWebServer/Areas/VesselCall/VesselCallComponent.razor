@@ -296,10 +296,8 @@
 
     private async Task AddExportOrder_Click(long vcdId)
     {
-        var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));
-
-        // if (result.IsCompletedSuccessfully)
-        //     await component!.GetItems();
+        //var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));
+        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank");        
     }
 
     private async Task RemoveItemDetail_Click(long id, string pod)
@@ -360,7 +358,8 @@
         if (vesselcallid == 0) return;
 
         //string path = $"{Navigation.BaseUri}view/ViewReport/SaveFileExcelFillBill?vslcallid={vesselcallid}";
-        string path = $"{ApplicationParameter.UploadFileUrl}SaveFileExcelFillBill?vslcallid={vesselcallid}";
+        string path = $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelFillBill?vslcallid={vesselcallid}";
+        
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 
@@ -377,7 +376,7 @@
     {
         if (Items is null || Items!.Count() == 0) return 0;
  
-        await Task.Delay(500);
+        //await Task.Delay(500);
 
         var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1)

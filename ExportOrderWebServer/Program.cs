@@ -78,9 +78,13 @@ services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
 services.AddTransient<StatisticProvider>();
 
-services.AddTransient<CheckUploadResultService>();
+services.AddTransient<ICheckUploadResultService, CheckUploadResultService>();
+services.AddTransient<IValidationService, ValidationService>();
+
+services.AddTransient<IExcelFileCreateService, ExcelFileCreateService>(); 
 services.AddTransient<IExcelFileUploadService, ExcelFileUploadService>();
-services.AddTransient<IValidationService, ValidationService>(); 
+services.AddTransient<IXmlFileService, XmlFileService>();
+
 
 var app = builder.Build();
 

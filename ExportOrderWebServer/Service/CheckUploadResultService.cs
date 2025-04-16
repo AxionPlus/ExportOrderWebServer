@@ -1,6 +1,11 @@
 ﻿namespace ExportOrderWebServer.Service;
 
-public class CheckUploadResultService
+public interface ICheckUploadResultService : IDisposable
+{
+    Task<IEnumerable<string>> CheckUploadedResult(List<UploadExcelDTO> uploadResult, long eoId, long voyageId);
+}
+
+public class CheckUploadResultService : ICheckUploadResultService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
     private readonly IValidationService _validationService;
@@ -134,5 +139,10 @@ public class CheckUploadResultService
                         
             return errList;
         }
+    }
+
+    public void Dispose()
+    {
+        throw new NotImplementedException();
     }
 }

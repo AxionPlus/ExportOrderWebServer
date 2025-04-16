@@ -43,51 +43,51 @@
 <div class="Container-item" style="margin-top:6px">
     <div class="container-content">        
         <MudTextField Class="TextField" Label="Container" Style="width: 165px" @bind-Value="@Filter.CntrNum"                      
-        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
-        Immediate MaxLength="11" />
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
+                      Immediate MaxLength="11" />
 
         <MudTextField Class="TextField" Label="Export Order" Style="width: 200px" @bind-Value="@Filter.Num"
-        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
         <div style="width:130px; height:35px">
             <MudDatePicker Class="wrapper-input-date" Label="Dated" @bind-Date="Filter.Dated"                       
-            Variant="Variant.Outlined" Margin="Margin.Dense"
-            IconSize=Size.Small
-            DateFormat="dd.MM.yy"
-            ShowWeekNumbers="true"                       
-            AutoClose=true
-            Clearable />
+                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                           IconSize=Size.Small
+                           DateFormat="dd.MM.yy"
+                           ShowWeekNumbers="true"                       
+                           AutoClose=true
+                           Clearable />
         </div>        
 
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 220px" @bind-Value="Filter.Vessel" SearchFunc="@SearchVessel"
-        Label="Vessel"                                                  
-        Variant="Variant.Outlined" Margin="Margin.Dense"
-        CloseIcon="" OpenIcon="" MaxItems="20"
-        ResetValueOnEmptyText="true" Clearable />
+                         Label="Vessel"                                                  
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon="" MaxItems="20"
+                         ResetValueOnEmptyText="true" Clearable />
 
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
-        Label="Voyage"
-        Variant="Variant.Outlined" Margin="Margin.Dense"
-        CloseIcon="" OpenIcon="" MaxItems="20"
-        ResetValueOnEmptyText="true" Clearable
-        Immediate="true"/>
+                         Label="Voyage"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon="" MaxItems="20"
+                         ResetValueOnEmptyText="true" Clearable
+                         Immediate="true"/>
 
         <MudAutocomplete Class="Autocomplete" Style="width: 170px" T="string" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
-        Label="POD"
-        Variant="Variant.Outlined" Margin="Margin.Dense"
-        CloseIcon="" OpenIcon="" MaxItems="20"
-        ResetValueOnEmptyText="true" Clearable />
+                         Label="POD"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon="" MaxItems="20"
+                         ResetValueOnEmptyText="true" Clearable />
 
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 210px" Value="Filter.Carrier" SearchFunc="@SearchCarrier"
-        Label="Carrier"
-        ValueChanged="(e)=> { Filter.Carrier= e; }"
-        Variant="Variant.Outlined" Margin="Margin.Dense"
-        CloseIcon="" OpenIcon="" MaxItems="20"
-        ResetValueOnEmptyText="true" Clearable />
+                         Label="Carrier"
+                         ValueChanged="(e)=> { Filter.Carrier= e; }"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon="" MaxItems="20"
+                         ResetValueOnEmptyText="true" Clearable />
 
         <MudSelect Class="wrapper-input-select" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
-        Style="width:145px"
-        ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
-        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
+                   Style="width:145px"
+                   ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
+                   Variant="Variant.Outlined" Margin="Margin.Dense" Clearable>
             @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
             {
                 <MudSelectItem Value="@status" />
@@ -95,7 +95,7 @@
         </MudSelect>
 
         <MudButton Class="Button" Style="width: 80px" OnClick="GetItems"
-        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+                   Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
             Search
         </MudButton>
     </div>
@@ -381,7 +381,6 @@
 
     private async Task ViewReportExpOrder_Click(long id)
     {
-        //string path = $"{Navigation.BaseUri}server/ExportOrder/ViewReportExpOrder?Id={id}";
         string path = $"{ApplicationParameter.ViewReportUrl}ViewReportExpOrder?Id={id}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
@@ -394,13 +393,13 @@
 
     private async Task SaveXMLfile_Click(long id)
     {
-        string path = $"{ApplicationParameter.UploadFileUrl}SaveXMLfile?Id={id}";
+        string path = $"{ApplicationParameter.DownloadFileUrl}SaveFileXML?Id={id}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 
     private async Task SaveFileRolis_Click(long id)
     {
-        string path = $"{ApplicationParameter.UploadFileUrl}SaveFileExcelRolis?expOrderId={id}";
+        string path = $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelRolis?expOrderId={id}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 

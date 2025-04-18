@@ -209,6 +209,12 @@
     <None Update="Resources\TemplateFillBill.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\TemplateNutepRolis.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TemplateUploadCntrs.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\TransSinergia.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

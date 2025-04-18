@@ -17,7 +17,8 @@ public class UploadExcelDTO
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
     public string? AdditionalUnitCode { get; set; }
-    public double? AdditionalUnitValue { get; set; }
+    public string? AdditionalUnitName { get; set; }
+    public double? AdditionalUnitQuantity { get; set; }
 }
 
 public class CheckedUploadResult

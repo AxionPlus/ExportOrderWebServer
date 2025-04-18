@@ -36,6 +36,9 @@ public class ExcelFileCreateService : IExcelFileCreateService
         TemplateFilePath = string.Empty;
         TemporaryFilePath = Path.Combine(DirResources, "TempFiles", $"{Path.GetRandomFileName()}.xlsx");
 
+        if (!Directory.Exists(Path.Combine(DirResources, "TempFiles")))
+            Directory.CreateDirectory(Path.Combine(DirResources, "TempFiles"));
+
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
 
@@ -46,6 +49,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
     public async Task<byte[]> CreateExcelFile_FillBill(IEnumerable<VoyageManifestDTO> items)
     {        
         TemplateFilePath = Path.Combine(DirResources, "TemplateFillBill.xlsx");
+
+        if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
         
         CreateTempFile(TemplateFilePath, TemporaryFilePath);
 
@@ -163,6 +168,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
     {
         TemplateFilePath = Path.Combine(DirResources, "TemplateNutepRolis.xlsx");
 
+        if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
+
         CreateTempFile(TemplateFilePath, TemporaryFilePath);
 
         if (WorkSheet is null) return Array.Empty<byte>();
@@ -205,7 +212,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
                 dataBulk[row, 10] = records.ElementAt(row).CntrTareWt!;
                 dataBulk[row, 11] = records.ElementAt(row).GrossAndTare!;
                 dataBulk[row, 12] = records.ElementAt(row).AdditionalUnitCode!;
-                dataBulk[row, 13] = records.ElementAt(row).AdditionalUnitValue!;
+                dataBulk[row, 13] = records.ElementAt(row).AdditionalUnitQuantity!;
                 dataBulk[row, 14] = records.ElementAt(row).HSCode;
                 dataBulk[row, 15] = records.ElementAt(row).DocumentName;
                 dataBulk[row, 16] = records.ElementAt(row).DocumentType;

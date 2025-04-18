@@ -77,7 +77,7 @@ public class ExcelFileUploadService : IExcelFileUploadService //: IDisposable
                     NetWt = double.TryParse(record[8], out double _netWt) ? Math.Round(_netWt, 3, MidpointRounding.AwayFromZero)  : 0,
                     GrossWt = double.TryParse(record[9], out double _gwt) ? Math.Round( _gwt, 3, MidpointRounding.AwayFromZero) : 0,
                     AdditionalUnitCode = record[10]?.Trim().ToString(),
-                    AdditionalUnitValue = double.TryParse(record[11], out double _addu) ? Math.Round(_addu, 3, MidpointRounding.AwayFromZero) : null
+                    AdditionalUnitQuantity = double.TryParse(record[11], out double _addu) ? Math.Round(_addu, 3, MidpointRounding.AwayFromZero) : null
                 });
             }
         }

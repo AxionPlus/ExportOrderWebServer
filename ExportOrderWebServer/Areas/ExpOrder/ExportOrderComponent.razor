@@ -399,7 +399,7 @@
 
     private async Task SaveFileRolis_Click(long id)
     {
-        string path = $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelRolis?expOrderId={id}";
+        string path = $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelRolis?Id={id}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 

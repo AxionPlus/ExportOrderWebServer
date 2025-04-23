@@ -3,12 +3,12 @@ using System.Xml;
 
 namespace ExportOrderWebServer.Service;
 
-public interface IXmlFileService : IDisposable
+public interface IXmlFileCreateService : IDisposable
 {
     Task<byte[]> CreateXMLfile(ExportOrderDTO item);
 }
 
-public class XmlFileService : IXmlFileService
+public class XmlFileCreateService : IXmlFileCreateService
 {
     private string TemporaryFilePath { get; set; } = Path.Combine(
         AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles", $"{Path.GetRandomFileName()}.xml"
@@ -27,9 +27,9 @@ public class XmlFileService : IXmlFileService
                                                         HScode = g.Select(eor => eor.HSCode).FirstOrDefault(),
                                                         CommodityGrossWt = g.Sum(eor => eor.GrossWt),
                                                         CommodityNetWt = g.Sum(eor => eor.NetWt),
-                                                        AddUnitCode = g.Select(eor => eor.AdditionalUnitCode).FirstOrDefault(),
-                                                        AddUnitName = g.Select(eor => eor.AdditionalUnitName).FirstOrDefault(),
-                                                        AddUnitQuantity = g.Select(eor => eor.AdditionalUnitQuantity).FirstOrDefault(),
+                                                        SupplementaryUnitQuantity = g.Select(eor => eor.SupplementaryUnitQuantity).FirstOrDefault(),
+                                                        SupplementaryUnitCode = g.Select(eor => eor.SupplementaryUnitCode).FirstOrDefault(),
+                                                        SupplementaryUnitShortName = g.Select(eor => eor.SupplementaryUnitShortName).FirstOrDefault(),
                                                         Cntrs = g.Select(eor => eor.Cntr).Distinct().ToList(),
                                                     }).OrderBy(g => g.DocumentName).ToList();
 
@@ -52,7 +52,7 @@ public class XmlFileService : IXmlFileService
                 xml.WriteElementString("BorderCustomCode", item.CustomsOfficeCode);
                 xml.WriteElementString("BorderCustomsOfficeName", item.CustomsOfficeNameShort);
                 xml.WriteElementString("DocumentNumber", item.Num);
-                xml.WriteElementString("DocumentDate", reverseDateStringXml(item.xmlDated!));
+                xml.WriteElementString("DocumentDate", reverseDateStringXml(item.xmlDated));
                 xml.WriteElementString("GoodsDescription", string.Empty);
                 xml.WriteElementString("TotalPlacesQuantity", item.ExportOrderRecordsDTO.Sum(r => r.PackageQty).ToString());
                 xml.WriteElementString("TotalVolumeQuantity", item.ExportOrderRecordsDTO.Sum(r => r.PackageQty).ToString());
@@ -92,10 +92,16 @@ public class XmlFileService : IXmlFileService
                     xml.WriteElementString("GoodsDescription", commodity.Commodity);
                     xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWt == 0 ? "0" : commodity.CommodityGrossWt!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
                     xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWt == 0 ? "0" : commodity.CommodityNetWt!.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")));
-                    xml.WriteElementString("MeasureUnitQualifierCode", string.IsNullOrWhiteSpace(commodity.AddUnitCode) ? string.Empty : commodity.AddUnitCode);
-                    xml.WriteElementString("MeasureUnitQualifierName", string.IsNullOrWhiteSpace(commodity.AddUnitName) ? string.Empty : commodity.AddUnitName);
-                    xml.WriteElementString("SupplementaryGoodsQuantity", commodity.AddUnitQuantity.HasValue ? commodity.AddUnitQuantity.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")) : "");
-                    //xml.WriteElementString("WarehouseName", item.TerminalName);
+                    
+                    if (!string.IsNullOrEmpty(commodity.SupplementaryUnitCode))
+                    {
+                        xml.WriteElementString("MeasureUnitQualifierCode", commodity.SupplementaryUnitCode);
+                        xml.WriteElementString("MeasureUnitQualifierName", commodity.SupplementaryUnitShortName ?? string.Empty);
+                        xml.WriteElementString("SupplementaryGoodsQuantity", commodity.SupplementaryUnitQuantity.HasValue ?
+                                                    commodity.SupplementaryUnitQuantity.Value.ToString("########0.###", CultureInfo.GetCultureInfo("en-US")) : "");
+                    }
+
+                    //xml.WriteElementString("WarehouseName", item.TerminalName); - moved to StartElement("COMMISSIONSHIPMENT_ITEM")
 
                     xml.WriteStartElement("COMMISSIONSHIPMENTContainer");
                     foreach (var cntr in commodity.Cntrs)
@@ -133,13 +139,15 @@ public class XmlFileService : IXmlFileService
             File.Delete(TemporaryFilePath);
     }
 
-    private readonly Func<string, string> reverseDateStringXml = (inDate) =>
+    private readonly Func<string?, string> reverseDateStringXml = (inDate) =>
     {
-        string date = inDate[..10];  // inDate.Substring(0, 10);
-        string time = inDate[11..];     // inDate.Substring(11)
+        if (string.IsNullOrWhiteSpace(inDate)) return string.Empty;
 
-        return date.Split('.')[2] + "-" +
-                date.Split('.')[1] + "-" +
-                date.Split('.')[0] + "T" + time;
+        string date = inDate[..10];  // inDate.Substring(0, 10);
+        string time = inDate[11..];  // inDate.Substring(11)
+        
+        return string.Concat(date.Split('.')[2], "-",
+                                date.Split('.')[1], "-",
+                                date.Split('.')[0], "T", time);
     };
 }

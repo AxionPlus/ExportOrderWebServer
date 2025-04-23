@@ -5,33 +5,31 @@
 <style>
 
     .ToolBar-IconButton {
-        margin-left: 20px;
-        margin-right: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
     }
 
     .Table * .mud-table-cell {
-        padding: 4px;
+    padding: 4px;
     }
 
     .TextField {
-        padding-top: unset;
+    padding-top: unset;
     }
 
     .Table * .mud-table-cell * .mud-input > input.mud-input-root-outlined {
-        text-align:center;
-        padding: 4px 4px 1px 4px;
+    text-align:center;
+    padding: 4px 4px 1px 4px;
     }
 
 </style>
 
-<div class="Container-table">
-    @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-        </div>
-    }    
+<div class="Container-table">    
+    <div class="tableMenu">
+        <MudSpacer />
+        <TablePager T="CntrTpSz" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>    
+
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">
         <HeaderContent>
             <MudTh Style="width:200px">
@@ -41,7 +39,7 @@
                     Upload New List
                 </MudButton>
             </MudTh>
-            <MudTh Style="width:60px"><MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="@(async()=>{ await AddItem_Click(); })" /></MudTh>
+            <MudTh Style="width:60px"><MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="@AddItem_Click" /></MudTh>
             <MudTh Style="width:80px"><MudTableSortLabel SortBy="new Func<CntrTpSz, object>(x=>x.ISO!)">ISO</MudTableSortLabel></MudTh>
             <MudTh Style="width:80px"><MudTableSortLabel SortBy="new Func<CntrTpSz, object>(x=>x.Normolize!)">Type</MudTableSortLabel></MudTh>
             <MudTh Style="width:100px">
@@ -59,42 +57,37 @@
         <RowTemplate>
             <MudTd></MudTd>
             <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" 
-                               OnClick="@(async()=>{ await RemoveItem_Click(context); })" />
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context); })" />
             </MudTd>
             <MudTd>
                 <MudTextField Class="TextField" T="string" Variant="Variant.Outlined" Required RequiredError="" Disabled="@(context.ISO is not null)"
                               Text="@context.ISO"
-                              TextChanged="@(async (e) => { NewItems!.FirstOrDefault(x => x.ISO == context.ISO)!.ISO = e.ToUpper();                                                           
-                                                            context.ISO = e.ToUpper(); })" />
+                              TextChanged="@(async (e) => { context.ISO = e.ToUpper();
+                                                            NewItems.FirstOrDefault(x => x.ISO == context.ISO)!.ISO = e.ToUpper(); })" />
             </MudTd>
             <MudTd>
-                 <MudTextField Class="TextField" T="string" Variant="Variant.Outlined" Required RequiredError="" Disabled="@(context.Normolize is not null)"
+                <MudTextField Class="TextField" T="string" Variant="Variant.Outlined" Required RequiredError="" Disabled="@(context.Normolize is not null)"
                               Text="@context.Normolize"
-                              TextChanged="@(async (e) => { NewItems!.FirstOrDefault(x => x.Normolize == context.Normolize)!.Normolize = e.ToUpper();
-                                                            context.Normolize = e.ToUpper(); })" />
+                              TextChanged="@(async (e) => { context.Normolize = e.ToUpper();
+                                                            NewItems.FirstOrDefault(x => x.Normolize == context.Normolize)!.Normolize = e.ToUpper(); })" />
             </MudTd>
             <MudTd></MudTd>
         </RowTemplate>
-
         <PagerContent></PagerContent>
-
     </MudTable>
 </div>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
- @code {
-    private MudTable<CntrTpSz>? mudTable;
+@code {
+    private MudTable<CntrTpSz> mudTable = new();
 
-    private List<CntrTpSz>? Items { get; set; } = new List<CntrTpSz>();
-    private List<CntrTpSz>? NewItems { get; set; } = new List<CntrTpSz>();
+    private List<CntrTpSz>? Items { get; set; } = new();
+    private List<CntrTpSz> NewItems { get; set; } = new();
 
     private bool IsLoadingData { get; set; } = false;
     private bool IsSaveBtnDisabled = true;
 
-
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,31 +101,26 @@
             IsLoadingData = true;
 
             var response = await _cntrTypeProvider.GetItemsAsync();
-            if (!response.HasError)
-                Items = ((List<CntrTpSz>)response.Object!).ToList();
-
-            //await Task.Delay(500);
+            if (!response.HasError && response.Object is not null)
+                Items = (List<CntrTpSz>)response.Object;
 
             IsLoadingData = false;
         }
     }
 
-    private async Task AddItem_Click()
+    private void AddItem_Click()
     {
-        await Task.Delay(50);
-
-        Items!.Add(new());
-        NewItems!.Add(new());
+        Items?.Add(new());
+        NewItems.Add(new());
 
         IsSaveBtnDisabled = false;
     }
 
     private async Task RemoveItem_Click(CntrTpSz item)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                  "REMOVE Record",
-                  (MarkupString)$"<b>Do you want to remove record?</b> <br/>Cntr Type<br/>{item.Normolize}<br/>",
-                  yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE Record",
+                                                (MarkupString)$"<b>Do you want to remove record?</b> <br/>Cntr Type<br/>{item.Normolize}<br/>",
+                                                yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
@@ -150,8 +138,6 @@
 
     public async Task SaveItem_Click(List<CntrTpSz> newItems)
     {
-        await Task.Delay(50);
-
         var response = await _cntrTypeProvider.NewItemsAsync(newItems);
         if (!response.HasError)
             Snackbar.Add("Saved successfully", Severity.Success);

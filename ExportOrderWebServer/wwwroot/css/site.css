@@ -15,7 +15,6 @@ body {
     height: 100%;
 }
 
-
 /*TOOLBAR*/
 .ToolBar-container {
     color: var(--mud-palette-text-primary);
@@ -80,7 +79,6 @@ body {
     padding: 2px;
 }
 
-
 /*CONTAINER-ITEM*/
 .Container-item {
     margin-top: 15px;
@@ -144,7 +142,6 @@ body {
     height: 100%;
     padding-inline: 20px;
 }
-
 
 /*CONTAINER TABLE*/
 .Container-table {
@@ -221,7 +218,7 @@ body {
     }
 
     .Table * .mud-table-cell {
-        padding: 8px;
+        padding: 6px;
         text-align: center;
     }
 
@@ -252,7 +249,6 @@ body {
         }
 
 /*INPUT_Controls*/
-
 .mud-input-control.TextField {
     display: flex;
     flex-direction: row;
@@ -364,9 +360,8 @@ body {
 }
 
 .wrapper-input.NoHeader * .mud-input > input.mud-input-root-outlined {
-    padding: 5px 1px 3px 3px;
+    padding: 5px 1px 3px 4px;
 }
-
 
 /* DATE*/
 .wrapper-input-date {
@@ -440,7 +435,7 @@ body {
         padding: 4px;
     }
 
-
+/*ICON BUTTON*/
 .wrapper-iconbutton {
     width: 1.6rem;
 }

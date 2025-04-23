@@ -16,15 +16,14 @@ public class UploadExcelDTO
     public string? PackageName { get; set; }
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
-    public string? AdditionalUnitCode { get; set; }
-    public string? AdditionalUnitName { get; set; }
-    public double? AdditionalUnitQuantity { get; set; }
+    public double? SupplementaryUnitQuantity { get; set; }
+    public ushort? SupplementaryUnitCode { get; set; }    
 }
 
-public class CheckedUploadResult
+public class UploadExcelSummary
 {
-    public List<UploadExcelDTO>? UploadedDTO { get; set; } = new();
-    public string Summary { get; set; } = string.Empty;
+    //public List<UploadExcelDTO>? UploadedDTO { get; set; } = new();
+    public string Description { get; set; } = string.Empty;
     public IEnumerable<string> Errors { get; set; } = new List<string>();
     public bool HasErrors => Errors.Any();
     public bool HasCriticalErrors { get; set; } = false;

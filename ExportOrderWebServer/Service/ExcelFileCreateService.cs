@@ -211,8 +211,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
                 dataBulk[row, 9] = records.ElementAt(row).GrossWt!;
                 dataBulk[row, 10] = records.ElementAt(row).CntrTareWt!;
                 dataBulk[row, 11] = records.ElementAt(row).GrossAndTare!;
-                dataBulk[row, 12] = records.ElementAt(row).AdditionalUnitCode!;
-                dataBulk[row, 13] = records.ElementAt(row).AdditionalUnitQuantity!;
+                dataBulk[row, 12] = records.ElementAt(row).SupplementaryUnitCode!;
+                dataBulk[row, 13] = records.ElementAt(row).SupplementaryUnitQuantity!;
                 dataBulk[row, 14] = records.ElementAt(row).HSCode;
                 dataBulk[row, 15] = records.ElementAt(row).DocumentName;
                 dataBulk[row, 16] = records.ElementAt(row).DocumentType;

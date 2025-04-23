@@ -10,7 +10,8 @@
 @inject ICarrierProvider _carrierProvider
 @inject IVesselCallProvider _vesselCallProvider
 @inject IDocumentProvider _documentProvider
-@inject IValidationService ValidationService
+@inject IValidationService _ValidationService
+@inject ISupplementaryUnitProvider _SupplementaryUnitProvider
 
 <style>
 
@@ -324,15 +325,15 @@
                         OnClick="@(async ()=>{ await RemoveAllContainerRecords();})" />
                     </MudTooltip>
                 </MudTh>
-                <MudTh Style="width: 125px">Container</MudTh>
+                <MudTh Style="width:125px">Container</MudTh>
                 <MudTh Style="width: 64px">Type</MudTh>
                 <MudTh Style="width: 80px">TareWt</MudTh>
-                <MudTh Style="width: 300px">Seals</MudTh>
+                <MudTh Style="width:300px">Seals</MudTh>
                 <MudTh Style="width: 33px">Seq</MudTh>
                 <MudTh Style="width: 88px">QTY</MudTh>
-                <MudTh Style="width: 120px">Pkg Name</MudTh>
-                <MudTh Style="width: 120px">NET</MudTh>
-                <MudTh Style="width: 120px">GROSS</MudTh>
+                <MudTh Style="width:120px">Pkg Name</MudTh>
+                <MudTh Style="width:120px">NET</MudTh>
+                <MudTh Style="width:120px">GROSS</MudTh>
                 <MudTh Style="width: 35px"></MudTh>
                 <MudTh></MudTh>
             </HeaderContent>
@@ -396,7 +397,7 @@
                     Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
                 </MudTd>
                 <MudTd></MudTd>
-            </RowTemplate>            
+            </RowTemplate>
             <ChildRowContent>
                 @if (expOrderRecord.IsShowCntrContent)
                 {
@@ -451,13 +452,13 @@
             </FooterContent>
             <PagerContent></PagerContent>
         </MudTable>
-    </div>
-
-    <OverlayLoadingData Visible="@IsLoadingData" />
+    </div>    
 }
 
+<OverlayLoadingData Visible="IsLoadingData" Text="Uploading..." />
+
 @code {
-    private MudTable<ExportOrderRecord>? mudTable;
+    private MudTable<ExportOrderRecord> mudTable = new();
     private MudTable<ContainerContent>? mudCntrContentTable;
     private MudTextField<string> ContainerField = new();
 
@@ -494,6 +495,7 @@
         {
             CntrTypes = await _cntrTypeProvider.GetCntrTypes();
             Persons = await _exportOrderProvider.GetPersonsAsync();
+            StateHasChanged();
         }
     }
 
@@ -579,12 +581,13 @@
 
     #region CNTR RECORDS
 
-    private void AddExportOrderRecord_Click()
+    private async void AddExportOrderRecord_Click()
     {
         if (Value is not null)
         {
             Value.Records.Add(new ExportOrderRecord());
             Snackbar.Add("Новая запись добавлена в конец таблицы.", Severity.Info);
+            await FocusLastRow();
         }
     }
 
@@ -672,7 +675,7 @@
             if (result is not null && !result.Canceled && result.Data != null)
             {
                 IsLoadingData = true;
-
+                
                 UploadedExcelDTO = (List<UploadExcelDTO>)result.Data;
 
                 if (UploadedExcelDTO is null) return;
@@ -685,7 +688,9 @@
                 var uploadedDocuments = uploadedExcelDTO.GroupBy(s => s.DocumentName);
 
                 var records = new List<ExportOrderRecord>();
-                var documents = new List<DocumentEntity>();
+                var documents = new List<DocumentEntity>();                
+                
+                //-----------------
 
                 /// RECORDS
                 foreach (var uploadedRecord in uploadedRecords)
@@ -711,23 +716,16 @@
                             PackageName = uploadedContent.PackageName,
                             NetWt = uploadedContent.NetWt,
                             GrossWt = uploadedContent.GrossWt,
-                            //AdditionalUnitName = uploadedContent.AdditionalUnitName,
-                            AdditionalUnitQuantity = uploadedContent.AdditionalUnitQuantity,
                             DocumentRecord = dbDocumentRecord
                         };
 
-                        /// check & rewrite AdditionalUnitCode
-                        if (!string.IsNullOrWhiteSpace(uploadedContent.AdditionalUnitCode))
-                        {
-                            string unitCode = uploadedContent.AdditionalUnitCode.Length switch {
-                                0 => "000",
-                                1 => uploadedContent.AdditionalUnitCode.Insert(0, "00"),
-                                2 => uploadedContent.AdditionalUnitCode.Insert(0, "0"),
-                                3 => uploadedContent.AdditionalUnitCode,
-                                _ => uploadedContent.AdditionalUnitCode.Substring(0, 3)
-                            };
-
-                            content.AdditionalUnitCode = unitCode;
+                        /// GetSupplementaryUnit if any
+                        if (uploadedContent.SupplementaryUnitCode.HasValue && uploadedContent.SupplementaryUnitQuantity.HasValue)
+                        {   
+                            var supplementaryUnit = await _SupplementaryUnitProvider.GetItemAsync(uploadedContent.SupplementaryUnitCode.Value);
+                            if (supplementaryUnit is null) continue;
+                            content.SupplementaryUnit = supplementaryUnit;
+                            content.SupplementaryUnitQuantity = uploadedContent.SupplementaryUnitQuantity;
                         }
 
                         newRecord.Contents.Add(content);
@@ -764,6 +762,7 @@
 
                 Value.Records = records;
                 Value.Documents = documents;
+                //-----------------
                 FillUpTreeItems();
 
                 IsLoadingData = false;
@@ -777,8 +776,7 @@
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            Console.WriteLine(msg);
+            Console.WriteLine(ex.Message);
             IsLoadingData = false;
         }        
     }
@@ -807,8 +805,8 @@
                 NetWt = content.NetWt,
                 GrossWt = content.GrossWt,
                 Volume = content.Volume,
-                AdditionalUnitCode = content.AdditionalUnitCode,
-                AdditionalUnitQuantity = content.AdditionalUnitQuantity,
+                SupplementaryUnitQuantity = content.SupplementaryUnitQuantity,
+                SupplementaryUnit = content.SupplementaryUnit,
                 DocumentRecord = content.DocumentRecord,
                 DocumentName = content.DocumentName,
                 ExportOrderRecord = content.ExportOrderRecord
@@ -940,7 +938,7 @@
 
             if (cntrNums is not null && cntrNums.Any())
             {
-                var errMessages = await ValidationService.ValidateCntrNums(cntrNums, Value.Id, Value.VesselCallDetail.VesselCall.Id, num);
+                var errMessages = await _ValidationService.ValidateCntrNums(cntrNums, Value.Id, Value.VesselCallDetail.VesselCall.Id, num);
 
                 if (errMessages is not null && errMessages.Any())
                 {
@@ -954,6 +952,12 @@
             }
         }
         return num;
+    }
+
+    private async Task FocusLastRow()   // function <focusLastRow> dosn't called
+    {
+        if (Value is not null && Value.Records is not null && Value.Records.Any())
+            await jsRuntime.InvokeVoidAsync("focusLastRow");
     }
 
     #endregion

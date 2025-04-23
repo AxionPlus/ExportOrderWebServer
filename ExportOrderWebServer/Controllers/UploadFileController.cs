@@ -1,25 +1,19 @@
-﻿using AspNetCore.Reporting;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.IO.Compression;
 
 namespace ExportOrderWebServer.Controllers;
 
 [AllowAnonymous]
 [Route("file/[controller]")]
 //[ApiController]
-
 public class UploadFileController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly IExportOrderProvider _exportOrderProvider;
     private readonly IExcelFileUploadService _excelUploadService;
         
-    public UploadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider, IExcelFileUploadService excelUploadService)
+    public UploadFileController(IWebHostEnvironment webHostEnvironment, IExcelFileUploadService excelUploadService)
     {
         _webHostEnvironment = webHostEnvironment;
-        _exportOrderProvider = exportOrderProvider;
         _excelUploadService = excelUploadService;
 
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);        
@@ -44,330 +38,238 @@ public class UploadFileController : ControllerBase
         return await _excelUploadService.ReadImportListDeclarations(filePath);
     }
 
-    [HttpPost, Route("SaveExportOrderReportFiles")] // file/UploadFile/SaveExportOrderReportFiles
-    public async Task<IActionResult> SaveExportOrderReportFiles([FromBody] object obj)
-    {
-        try
-        {
-            IEnumerable<long> Ids = Enumerable.Empty<long>();
-            string Voyage = string.Empty;
+    #region TO DELETE
 
-            var resultObj = JsonConvert.DeserializeObject<ControllerPassObject<IEnumerable<long>>>(obj.ToString()!);
-            if (resultObj is not null)
-            {
-                if (resultObj.GetObject.Count() > 0)
-                {
-                    Ids = resultObj.GetObject;
-                    Voyage = resultObj.Remarks;
-                }
-            }
+    //[HttpPost, Route("SaveBLReportFiles")] // file/DownloadFile/SaveBLReportFiles
+    //public async Task<IActionResult> SaveBLReportFiles([FromBody] object obj)
+    //{
+    //    try
+    //    {
+    //        IEnumerable<long> Ids = Enumerable.Empty<long>();            
 
-            string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", $"{Voyage}_{Date2Str(DateTime.Now)}");
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath);
+    //        var resultObj = JsonConvert.DeserializeObject<ControllerPassObject<IEnumerable<long>>>(obj.ToString()!);
+    //        if (resultObj is not null)
+    //        {
+    //            if (resultObj.GetObject.Count() > 0)
+    //            {
+    //                Ids = resultObj.GetObject;
+    //            }
+    //        }
 
-            foreach (var id in Ids)
-            {
-                var Item = await _exportOrderProvider.GetExportOrderDTOAsync(id);
+    //        //ring dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", $"{Voyage}_{Date2Str(DateTime.Now)}");
+    //        //string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles", $"{Voyage}_{DateTime.Now:d}");
 
-                string pathFile = Path.Combine(dirPath, $"{Item.Num}.pdf");
+    //        //if (!Directory.Exists(dirPath))
+    //        //    Directory.CreateDirectory(dirPath);
 
-                #region LOCAL REPORT CREATE
+    //        //string dirTemporary = Path.Combine(DirTemporary, Path.GetRandomFileName());
+    //        //if (!Directory.Exists(dirTemporary))
+    //        //    Directory.CreateDirectory(dirTemporary);
 
-                string mimeType = "application/pdf";
-                int pageIndex = new Random().Next(1, 101);
-                string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
+    //        foreach (var id in Ids)
+    //        {
+    //            var Item = await _exportOrderProvider.GetBLDTOAsync(id);
 
-                LocalReport localReport = new LocalReport(pathReport);
+    //            string fileName = "BL" + Item.BLtemplate + ".rdlc";
 
-                var Items = new List<ExportOrderDTO>() { Item };
+    //            string pathFile = Path.Combine(DirTemporary, $"{Item.Voyage}_{Item.Num}.pdf");
 
-                var dsItem = Items.Select(x => new
-                {
-                    x.Num,
-                    x.BLNum,
-                    x.Dated,
-                    Vessel = x.VesselName + " (" + x.VesselFlag + ")",
-                    x.Voyage,
-                    x.DateOfLoading,
-                    x.POL,
-                    x.PODwithCountryRus,
-                    x.Contract,
-                    x.ContractDate,
-                    x.Shippers,
-                    x.Consignees,
-                    x.Commodities,
-                    x.CommodityShort,
-                    x.MyCompanyName,
-                    x.Person
-                });
+    //            #region LOCAL REPORT CREATE
 
-                var dsRecords = Item.ExportOrderRecordsDTO;
+    //            string mimeType = "";
+    //            int pageIndex = new Random().Next(1, 101);
+    //            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
 
-                int dSeq = 0;
-                var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
-                    docSeq = ++dSeq,
-                    Document = g.Key,
-                    Pakages = g.Sum(q => q.PackageQty),
-                    CntrTare = g.Sum(tr => tr.CntrTareWt),
-                    docNet = g.Sum(net => net.NetWt),
-                    docGross = g.Sum(gr => gr.GrossWt)
-                }).ToList();
+    //            LocalReport localReport = new LocalReport(pathReport);
 
-                localReport.AddDataSource("dsItem", dsItem);
-                localReport.AddDataSource("dsRecords", dsRecords);
-                localReport.AddDataSource("dsDocuments", dsDocuments);
+    //            var Items = new List<ExportOrderDTO>() { Item };
+    //            var Records = Item.ExportOrderRecordsDTO.ToList();
 
-                ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
+    //            /// список типов контейнеров
+    //            var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)
+    //                                        .Select(g => new { CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key)})
+    //                                        .ToList();
 
-                #endregion
+    //            string CntrTypes = string.Join("\n", CntrTypesGroup.Select(ctg => ctg.CntrTypes));
 
-                /// сохраняем файл в папку DirPath
-                using var fileStream = new FileStream(pathFile, FileMode.Create);
-                await fileStream.WriteAsync(result.MainStream, 0, result.MainStream.Length);
-            }
+    //            /// общие данные
+    //            var dsItem = Items.Select(x => new
+    //            {
+    //                x.BLNum,
+    //                x.BLDate,
+    //                x.BLDateOEL,
+    //                x.Shippers,
+    //                x.Consignees,
+    //                NotifyParties = x.Consignees,
+    //                CntrTypes,
+    //                x.Commodities,
+    //                POLAgent = x.CarrierNameEn,
+    //                x.PODAgent,
+    //                x.VesselName,
+    //                x.Voyage,
+    //                x.POLEn,
+    //                x.PODEn,
+    //                x.PODwithCountryEn,
+    //                x.TotalCntrCount,
+    //                x.TotalPackages,
+    //                x.TotalTareWeight,
+    //                x.TotalGrossWeight,
+    //                x.TotalGrossNTareWeight,
+    //                x.Measurement,
+    //            }).ToList();
 
-            string zipName = $"{dirPath}.zip";
+    //            /// список контейнеров дополненный до 20ти записей на первом листе коносамента
+    //            if (Item.BLtemplate == "nca")
+    //            {
+    //                int recCount = Records.Count();
 
-            ZipFile.CreateFromDirectory(dirPath, zipName);
+    //                int upperBound = 20;
 
-            using (FileStream fileStream = new FileStream(zipName, FileMode.Open))
-            {
-                var buffer = new byte[fileStream.Length];
-                await fileStream.ReadAsync(buffer);
-                if (buffer != Array.Empty<byte>())
-                    return File(buffer, "application/zip", $"{zipName}");
-            }
+    //                if (recCount < 20)
+    //                {
+    //                    foreach (var record in Records)
+    //                    {
+    //                        int extraRowsSeal = 0;
+    //                        int extraRowsCommodity = 0;
 
-            return Empty;
+    //                        switch (record.Seal.Length)
+    //                        {
+    //                            case <= 10:
+    //                                break;
+    //                            case <= 20:
+    //                                extraRowsSeal = 1;
+    //                                break;
+    //                            case <= 30:
+    //                                extraRowsSeal = 2;
+    //                                break;
+    //                            case <= 40:
+    //                                extraRowsSeal = 3;
+    //                                break;
+    //                            case <= 50:
+    //                                extraRowsSeal = 4;
+    //                                break;
+    //                            case <= 60:
+    //                                extraRowsSeal = 5;
+    //                                break;
+    //                            case <= 70:
+    //                                extraRowsSeal = 6;
+    //                                break;
+    //                            case <= 80:
+    //                                extraRowsSeal = 7;
+    //                                break;
+    //                            case <= 90:
+    //                                extraRowsSeal = 8;
+    //                                break;
+    //                            case <= 100:
+    //                                extraRowsSeal = 9;
+    //                                break;
+    //                            case <= 110:
+    //                                extraRowsSeal = 10;
+    //                                break;
+    //                        }
 
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-            Console.WriteLine(msg);
-            return Empty;
-        };
-    }
+    //                        switch (record.RecordCommoditiesEn!.Length)
+    //                        {
+    //                            case <= 35:
+    //                                break;
+    //                            case <= 70:
+    //                                extraRowsCommodity = 1;
+    //                                break;
+    //                            case <= 105:
+    //                                extraRowsCommodity = 2;
+    //                                break;
+    //                            case <= 140:
+    //                                extraRowsCommodity = 3;
+    //                                break;
+    //                            case <= 175:
+    //                                extraRowsCommodity = 4;
+    //                                break;
+    //                            case <= 210:
+    //                                extraRowsCommodity = 5;
+    //                                break;
+    //                            case <= 245:
+    //                                extraRowsCommodity = 6;
+    //                                break;
+    //                            case <= 280:
+    //                                extraRowsCommodity = 7;
+    //                                break;
+    //                            case <= 315:
+    //                                extraRowsCommodity = 8;
+    //                                break;
+    //                            case <= 350:
+    //                                extraRowsCommodity = 9;
+    //                                break;
+    //                            case <= 385:
+    //                                extraRowsCommodity = 10;
+    //                                break;
+    //                        }
 
-    [HttpPost, Route("SaveBLReportFiles")] // file/UploadFile/SaveBLReportFiles
-    public async Task<IActionResult> SaveBLReportFiles([FromBody] object obj)
-    {
-        try
-        {
-            IEnumerable<long> Ids = Enumerable.Empty<long>();
-            string Voyage = string.Empty;
+    //                        if (extraRowsSeal >= extraRowsCommodity)
+    //                            upperBound -= extraRowsSeal;
+    //                        else
+    //                            upperBound -= extraRowsCommodity;
+    //                    }
+    //                }
 
-            var resultObj = JsonConvert.DeserializeObject<ControllerPassObject<IEnumerable<long>>>(obj.ToString()!);
-            if (resultObj is not null)
-            {
-                if (resultObj.GetObject.Count() > 0)
-                {
-                    Ids = resultObj.GetObject;
-                    Voyage = resultObj.Remarks;
-                }
-            }
+    //                if (upperBound > 0)
+    //                    for (int i = recCount + 1; i <= upperBound; i++)
+    //                        Records.Add(new() { Seq = (uint)i, CntrTareWt = null, GrossWt = null });
+    //            }
 
-            string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", $"{Voyage}_{Date2Str(DateTime.Now)}");
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath);
+    //            localReport.AddDataSource("dsBL", dsItem);
+    //            localReport.AddDataSource("dsCntrRecords", Records);
 
-            foreach (var id in Ids)
-            {
-                var Item = await _exportOrderProvider.GetBLDTOAsync(id);
+    //            ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
 
-                string fileName = "BL" + Item.BLtemplate + ".rdlc";
+    //            #endregion
 
-                string pathFile = Path.Combine(dirPath, $"{Item.Num}.pdf");
+    //            /// сохраняем файл в папку DirPath
+    //            using var fileStream = new FileStream(pathFile, FileMode.Create);
+    //            //await fileStream.WriteAsync(result.MainStream, 0, result.MainStream.Length);
+    //            await fileStream.WriteAsync(result.MainStream.AsMemory(0, result.MainStream.Length));
 
-                #region LOCAL REPORT CREATE
+    //            ///// сохраняем файл в папку DirPath
+    //            //await System.IO.File.WriteAllBytesAsync(pathFile, result.MainStream);
+    //        }
 
-                string mimeType = "";
-                int pageIndex = new Random().Next(1, 101);
-                string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
+    //        //string zipName = $"{DirTemporary}.zip";
 
-                LocalReport localReport = new LocalReport(pathReport);
+    //        ZipFile.CreateFromDirectory(DirTemporary, ZipName);
 
-                var Items = new List<ExportOrderDTO>() { Item };
-                var Records = Item.ExportOrderRecordsDTO.ToList();
+    //        //using (FileStream fileStream = new(ZipName, FileMode.Open))
+    //        //{
+    //        //    var buffer = new byte[fileStream.Length];
 
-                // список типов контейнеров
-                var CntrTypesGroup = Records.Where(r => r.CntrType is not null).GroupBy(r => r.CntrType)
-                                            .Select(g => new
-                                            {
-                                                CntrTypes = string.Join(" ", g.ToList().Count, "*", g.Key),
-                                            })
-                                            .ToList();
+    //        //    await fileStream.ReadAsync(buffer);
 
-                string CntrTypes = string.Join("\n", CntrTypesGroup.Select(ctg => ctg.CntrTypes));
+    //        //    Dispose(DirTemporary, ZipName);
 
-                // общие данные
-                var dsItem = Items.Select(x => new
-                {
-                    x.BLNum,
-                    x.BLDate,
-                    x.BLDateOEL,
-                    x.Shippers,
-                    x.Consignees,
-                    NotifyParties = x.Consignees,
-                    CntrTypes,
-                    x.Commodities,
-                    POLAgent = x.CarrierNameEn,
-                    x.PODAgent,
-                    x.VesselName,
-                    x.Voyage,
-                    x.POLEn,
-                    x.PODEn,
-                    x.PODwithCountryEn,
-                    x.TotalCntrCount,
-                    x.TotalPackages,
-                    x.TotalTareWeight,
-                    x.TotalGrossWeight,
-                    x.TotalGrossNTareWeight,
-                    x.Measurement,
-                }).ToList();
+    //        //    if (buffer != Array.Empty<byte>())
+    //        //        return File(buffer, "application/zip", $"{ZipName}");
+    //        //}
 
-                // список контейнеров дополненный до 20ти записей на первом листе коносамента
-                if (Item.BLtemplate == "nca")
-                {
-                    int recCount = Records.Count();
+    //        //byte[] fileBytes = System.IO.File.ReadAllBytes(zipName);
+    //        //return File(fileBytes, "application/zip", $"{zipName}");
 
-                    int upperBound = 20;
+    //        using FileStream _fileStream = new(ZipName, FileMode.Open);
 
-                    if (recCount < 20)
-                    {
-                        foreach (var record in Records)
-                        {
-                            int extraRowsSeal = 0;
-                            int extraRowsCommodity = 0;
+    //        var buffer = new byte[_fileStream.Length];
+    //        await _fileStream.ReadAsync(buffer);
+    //        //DeleteTempFiles(DirTemporary, ZipName);
 
-                            switch (record.Seal.Length)
-                            {
-                                case <= 10:
-                                    break;
-                                case <= 20:
-                                    extraRowsSeal = 1;
-                                    break;
-                                case <= 30:
-                                    extraRowsSeal = 2;
-                                    break;
-                                case <= 40:
-                                    extraRowsSeal = 3;
-                                    break;
-                                case <= 50:
-                                    extraRowsSeal = 4;
-                                    break;
-                                case <= 60:
-                                    extraRowsSeal = 5;
-                                    break;
-                                case <= 70:
-                                    extraRowsSeal = 6;
-                                    break;
-                                case <= 80:
-                                    extraRowsSeal = 7;
-                                    break;
-                                case <= 90:
-                                    extraRowsSeal = 8;
-                                    break;
-                                case <= 100:
-                                    extraRowsSeal = 9;
-                                    break;
-                                case <= 110:
-                                    extraRowsSeal = 10;
-                                    break;
-                            }
+    //        if (buffer != Array.Empty<byte>())
+    //            return File(buffer, "application/zip", $"{ZipName}");            
+    //        else
+    //            return Empty;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex.Message);
+    //        DeleteTempFiles(DirTemporary, ZipName);
+    //        return Empty;
+    //    };
+    //}
+    
+    #endregion
 
-                            switch (record.RecordCommoditiesEn!.Length)
-                            {
-                                case <= 35:
-                                    break;
-                                case <= 70:
-                                    extraRowsCommodity = 1;
-                                    break;
-                                case <= 105:
-                                    extraRowsCommodity = 2;
-                                    break;
-                                case <= 140:
-                                    extraRowsCommodity = 3;
-                                    break;
-                                case <= 175:
-                                    extraRowsCommodity = 4;
-                                    break;
-                                case <= 210:
-                                    extraRowsCommodity = 5;
-                                    break;
-                                case <= 245:
-                                    extraRowsCommodity = 6;
-                                    break;
-                                case <= 280:
-                                    extraRowsCommodity = 7;
-                                    break;
-                                case <= 315:
-                                    extraRowsCommodity = 8;
-                                    break;
-                                case <= 350:
-                                    extraRowsCommodity = 9;
-                                    break;
-                                case <= 385:
-                                    extraRowsCommodity = 10;
-                                    break;
-                            }
-
-                            if (extraRowsSeal >= extraRowsCommodity)
-                                upperBound -= extraRowsSeal;
-                            else
-                                upperBound -= extraRowsCommodity;
-                        }
-                    }
-
-                    if (upperBound > 0)
-                        for (int i = recCount + 1; i <= upperBound; i++)
-                            Records.Add(new() { Seq = (uint)i, CntrTareWt = null, GrossWt = null });
-                }
-
-                localReport.AddDataSource("dsBL", dsItem);
-                localReport.AddDataSource("dsCntrRecords", Records);
-
-                ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
-
-                #endregion
-
-                /// сохраняем файл в папку DirPath
-                using var fileStream = new FileStream(pathFile, FileMode.Create);
-                await fileStream.WriteAsync(result.MainStream, 0, result.MainStream.Length);
-
-                ///// сохраняем файл в папку DirPath
-                //await System.IO.File.WriteAllBytesAsync(pathFile, result.MainStream);
-            }
-
-            string zipName = $"{dirPath}.zip";
-
-            ZipFile.CreateFromDirectory(dirPath, zipName);
-
-            using (FileStream fileStream = new FileStream(zipName, FileMode.Open))
-            {
-                var buffer = new byte[fileStream.Length];
-                await fileStream.ReadAsync(buffer);
-                if (buffer != Array.Empty<byte>())
-                    return File(buffer, "application/zip", $"{zipName}");
-            }
-
-            //byte[] fileBytes = System.IO.File.ReadAllBytes(zipName);
-            //return File(fileBytes, "application/zip", $"{zipName}");
-
-            return Empty;
-
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-            Console.WriteLine(msg);
-            return Empty;
-        };
-    }
-
-    Func<DateTime, string> Date2Str = (date) =>
-    {
-        return date.ToString("yyyy") + date.ToString("MM") + date.ToString("dd") + date.ToString("HH") + date.ToString("mm");
-    };       
 }

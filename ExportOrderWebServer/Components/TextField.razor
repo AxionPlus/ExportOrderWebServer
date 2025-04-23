@@ -20,7 +20,7 @@
                                 await ValueChanged.InvokeAsync(e.ToUpper());
                             else
                                 await ValueChanged.InvokeAsync(e);}
-                            )"
+                      )"
                       TextChanged="@TextChanged"
                       Variant="Variant.Outlined"
                       Required="@Required" RequiredError="" Error="@Error"
@@ -73,6 +73,8 @@
     [Parameter]
     public bool Error { get; set; }
     [Parameter]
+    public bool Dense { get; set; }
+    [Parameter]
     public int Lines { get; set; } = 1;
     //[Parameter]
     //public string? Text { get; set; }
@@ -93,14 +95,27 @@
     [Parameter]
     public EventCallback<string> TextChanged { get; set; }
 
+    // private string TextClass
+    // {
+    //     get
+    //     {
+    //         if (UpperCase)
+    //             return $"TextField text-upper {Class}";
+    //         else
+    //             return $"TextField {Class}";
+    //     }
+    // }
+
     private string TextClass
     {
         get
         {
+            var dense = Dense ? " Dense" : "";
+
             if (UpperCase)
-                return $"TextField text-upper {Class}";
+                return $"TextField{dense} text-upper {Class}";
             else
-                return $"TextField {Class}";
+                return $"TextField{dense} {Class}";
         }
     }
 

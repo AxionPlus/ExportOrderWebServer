@@ -1,0 +1,174 @@
+﻿@page "/supplementaryUnit"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
+
+@inject ISnackbar Snackbar
+@inject IJSRuntime jsRuntime
+@inject ISupplementaryUnitProvider _SupplementaryUnitProvider
+
+<style>
+    .wrapper-input.NoHeader.FullName * .mud-input > input.mud-input-root-outlined {
+        text-align:start;
+    }
+
+    .Table.Read * .mud-table-body > .mud-table-row  > .mud-table-cell {
+        padding: 2px;
+    }
+</style>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />            
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>Дополнительные ед. измерения</span></div>
+            <MudSpacer />
+            <div class="ToolBar-iconbutton" style="margin-right:20px">
+                <MudTooltip Delay="500" Duration="1000" Text="Save">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="@(async()=>await SaveItem(NewItem))"
+                                   Disabled="@(!IsNewItemActivated)" />
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+
+    <div class="Container-table">
+        <div class="tableMenu">
+            @if (IsNewItemActivated && NewItem is not null)
+            {
+                <MudForm @ref="@Form" Style="display:flex; flex-direction:row; -webkit-fill-available">
+                    <MudNumericField @ref="NewItemCode" Class="wrapper-input NoHeader" T="ushort" Style="width:60px; margin-inline-start:36px" @bind-Value="@NewItem.Code"                    
+                                     Variant="Variant.Outlined" HideSpinButtons AutoFocus Required />
+                    <MudTextField Class="wrapper-input NoHeader" T="string" Style="width:160px; margin-inline:10px"                                  
+                                  Text="@NewItem.ShortName" TextChanged="(e) => { NewItem.ShortName = !string.IsNullOrWhiteSpace(e) ? e.ToUpper().Trim() : string.Empty; }"
+                                  Variant="Variant.Outlined" Clearable Required RequiredError="" />
+                    <MudTextField Class="wrapper-input NoHeader FullName" T="string" Style="width:340px"                                  
+                                  Text="@NewItem.FullName" TextChanged="(e) => { NewItem.FullName = !string.IsNullOrWhiteSpace(e) ? e.ToUpper().Trim() : string.Empty; }"
+                                  Variant="Variant.Outlined" Clearable Required RequiredError="" />
+                </MudForm>
+            }
+            <MudSpacer />
+            <TablePager T="SupplementaryUnitCatalog" Table="mudTable" ItemsCount="@Items.Count()" />
+        </div>
+
+        <MudTable Class="Table Read" @ref="mudTable" Items="@Items" Virtualize Hover RowsPerPage="30">
+            <HeaderContent>
+                <MudTh Style="width:36px">
+                    <MudTooltip Text="Add New Item" Delay="500" Duration="1500">
+                        <MudIconButton Icon="@Icons.Material.Outlined.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="AddItem_Click"></MudIconButton>
+                    </MudTooltip>
+                </MudTh>
+                <MudTh Style="width:60px">
+                    <MudTableSortLabel SortBy="new Func<SupplementaryUnitCatalog, object>(x=>x.Code)">Code</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:180px">
+                    <MudTableSortLabel SortBy="new Func<SupplementaryUnitCatalog, object>(x=>x.ShortName)">Short Name</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="text-align:start">Full Name</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd></MudTd>
+                <MudTd>@context.Code</MudTd>
+                <MudTd>@context.ShortName</MudTd>
+                <MudTd Style="text-align:start">@context.FullName</MudTd>                 
+            </RowTemplate>
+            <PagerContent></PagerContent>
+        </MudTable>
+    </div>    
+
+</MudContainer>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
+
+@code {
+    //[CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    private MudForm Form { get; set; } = new();
+    private MudTable<SupplementaryUnitCatalog> mudTable = new();
+    private MudNumericField<ushort> NewItemCode { get; set; } = new();
+
+    private IEnumerable<SupplementaryUnitCatalog> Items { get; set; } = new List<SupplementaryUnitCatalog>();
+    private SupplementaryUnitCatalog? NewItem { get; set; }
+
+    private bool IsNewItemActivated = false;
+    private bool IsLoadingData = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetItems();
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetItems()
+    {
+        IsLoadingData = true;
+
+        var items = await _SupplementaryUnitProvider.GetItemsAsync();
+
+        if (items is null || !items.Any())
+            Snackbar.Add($"Records not found.", Severity.Warning);
+        else
+            Items = items;
+
+        IsLoadingData = false;
+    }
+
+    private void AddItem_Click()
+    {
+        NewItem = new();
+        IsNewItemActivated = true;
+        StateHasChanged();
+        //await FocusLastRow();
+    }
+
+    private async Task SaveItem(SupplementaryUnitCatalog? newItem)
+    {
+        if (newItem is null) return;
+
+        await Form.Validate();
+
+        if (!Form.IsValid)
+        {
+            Snackbar.Add("Fill up all required fields - marked in red.", Severity.Warning);
+            return;
+        }
+
+        if (newItem.Code == 0)
+        {
+            Snackbar.Add("Code can't be 0. Change the code.", Severity.Warning);
+            await NewItemCode.FocusAsync();
+            return;
+        }
+
+        IsLoadingData = true;
+
+        var response = await _SupplementaryUnitProvider.NewItemAsync(newItem);
+
+        if (response is not null && response.HasError)
+        {
+            Snackbar.Add($"{response.Error.First()}", Severity.Warning);
+            IsLoadingData = false;
+            return;
+        }        
+        
+        Snackbar.Add("New Item saved successfully.", Severity.Success);
+        
+        NewItem = new();
+        IsNewItemActivated = false;
+        await GetItems();
+    }      
+        
+    ///  NOT USED
+    private async Task FocusLastRow()
+    {
+        if (Items.Any())
+            await jsRuntime.InvokeVoidAsync("focusLastRow");
+    }
+}

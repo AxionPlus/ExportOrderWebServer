@@ -1,4 +1,6 @@
-﻿namespace ExportOrderWebServer.Service;
+﻿using ExportOrderWebServer.Areas.SupplementaryUnit.Provider;
+
+namespace ExportOrderWebServer.Service;
 
 public interface ICheckUploadResultService : IDisposable
 {
@@ -9,11 +11,15 @@ public class CheckUploadResultService : ICheckUploadResultService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
     private readonly IValidationService _validationService;
+    private readonly ISupplementaryUnitProvider _supplementaryUnitProvider;
 
-    public CheckUploadResultService(IDbContextFactory<ApplicationDbContext> dbContext, IValidationService validationService)
+    public CheckUploadResultService(IDbContextFactory<ApplicationDbContext> dbContext,
+                                        IValidationService validationService,
+                                        ISupplementaryUnitProvider supplementaryUnitProvider)
     {
         _dbContext = dbContext;
         _validationService = validationService;
+        _supplementaryUnitProvider = supplementaryUnitProvider;
     }
 
     public async Task<IEnumerable<string>> CheckUploadedResult(List<UploadExcelDTO> uploadResult, long eoId, long voyageId)
@@ -124,6 +130,19 @@ public class CheckUploadResultService : ICheckUploadResultService
                     {
                         if (record.NetWt <= 0) errList.Add($"{errMessagePrefix} Netto weight is 0.");
                         if (record.GrossWt <= 0) errList.Add($"{errMessagePrefix} Gross weight is 0.");
+                        
+                        if (!record.SupplementaryUnitCode.HasValue && record.SupplementaryUnitQuantity.HasValue)
+                            errList.Add($"{errMessagePrefix} Supplementary Code is missed.");
+
+                        if (record.SupplementaryUnitCode.HasValue)
+                            if (!record.SupplementaryUnitQuantity.HasValue)
+                                errList.Add($"{errMessagePrefix} Supplementary Quantity is missed.");
+                            else
+                            {
+                                bool isCodeExists = await _supplementaryUnitProvider.IsSupplementaryUnitExists(record.SupplementaryUnitCode.Value);
+                                if (!isCodeExists)
+                                    errList.Add($"{errMessagePrefix} Supplementary Unit not found in the System.");
+                            }                            
                     }
 
                     /// Cargo

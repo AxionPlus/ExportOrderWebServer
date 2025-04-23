@@ -1,12 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace ExportOrderWebServer.Areas.Cntr.Provider;
+﻿namespace ExportOrderWebServer.Areas.CntrType.Provider;
 
 public class CntrTypeProvider : ICntrTypeProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public CntrTypeProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {

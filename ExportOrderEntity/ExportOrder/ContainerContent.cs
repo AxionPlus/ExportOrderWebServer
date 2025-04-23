@@ -15,11 +15,10 @@ public class ContainerContent
     public double? NetWt { get; set; }
     public double? GrossWt { get; set; }
     public double? Volume { get; set; }
-    public string? AdditionalUnitCode { get; set; }     // Код доп. еденицы измерения
-    public string? AdditionalUnitName { get; set; }     // Наименование доп. еденицы измерения
-    public double? AdditionalUnitQuantity { get; set; }    // Значение доп. еденицы измерения
-
+    public double? SupplementaryUnitQuantity { get; set; }      // Значение доп. еденицы измерения
+    public SupplementaryUnitCatalog? SupplementaryUnit { get; set; }   // Доп. еденица измерения    
     public DocumentRecord DocumentRecord { get; set; }
+
     [JsonIgnore]
     public ExportOrderRecord ExportOrderRecord { get; set; }
     [NotMapped] public string? DocumentName { get; set; }

@@ -9,7 +9,7 @@ public interface IExcelFileUploadService : IDisposable
     public Task<List<UploadExcelDTO>?> ReadImportListDeclarations(string filePath);
 }
 
-public class ExcelFileUploadService : IExcelFileUploadService //: IDisposable
+public class ExcelFileUploadService : IExcelFileUploadService
 {
     private string? FilePath { get; set; }
     private readonly uint ExcelAppPid;
@@ -22,7 +22,7 @@ public class ExcelFileUploadService : IExcelFileUploadService //: IDisposable
     private Excel.Range? Range;
 
 
-    public ExcelFileUploadService()  //public ExcelUploadService(string filePath)
+    public ExcelFileUploadService()
     {
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
@@ -76,8 +76,8 @@ public class ExcelFileUploadService : IExcelFileUploadService //: IDisposable
                     PackageName = record[7]?.Trim(),
                     NetWt = double.TryParse(record[8], out double _netWt) ? Math.Round(_netWt, 3, MidpointRounding.AwayFromZero)  : 0,
                     GrossWt = double.TryParse(record[9], out double _gwt) ? Math.Round( _gwt, 3, MidpointRounding.AwayFromZero) : 0,
-                    AdditionalUnitCode = record[10]?.Trim().ToString(),
-                    AdditionalUnitQuantity = double.TryParse(record[11], out double _addu) ? Math.Round(_addu, 3, MidpointRounding.AwayFromZero) : null
+                    SupplementaryUnitCode = ushort.TryParse(record[10]?.Trim(), out ushort _uc) ? _uc : null,
+                    SupplementaryUnitQuantity = double.TryParse(record[11], out double _addu) ? Math.Round(_addu, 3, MidpointRounding.AwayFromZero) : null                    
                 });
             }
         }

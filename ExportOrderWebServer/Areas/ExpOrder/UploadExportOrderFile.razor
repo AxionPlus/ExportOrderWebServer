@@ -24,7 +24,7 @@
         Style="margin-inline-start:10px"
         Disabled="@(!FileName.Any())"
         StartIcon="@Icons.Material.Filled.UploadFile">
-            @BtnName @(" ") File(s)
+            @(IsChecked ? "Upload" : "Check") @(" ") File(s)
         </MudButton>
         <MudSpacer />
         <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Clear"
@@ -34,10 +34,10 @@
         </MudButton>
     </MudToolBar>
 
-    @if (!string.IsNullOrWhiteSpace(uploadResult.Summary))
+    @if (!string.IsNullOrWhiteSpace(UploadExcelSummary.Description))
     {
-        <MudText Style="margin-inline-start:5px"><b>Всего: </b>@uploadResult.Summary</MudText>        
-        if (uploadResult.HasCriticalErrors)
+        <MudText Style="margin-inline-start:5px"><b>Всего: </b>@UploadExcelSummary.Description</MudText>        
+        if (UploadExcelSummary.HasCriticalErrors)
         {
             <MudText Style="margin-inline-start:5px" Color="Color.Error">
                 <b>Есть критические ошибки. Записи отмеченные как *Critical не будут загружены!</b>
@@ -45,7 +45,7 @@
         }
     }
 
-    @if (uploadResult.HasErrors)
+    @if (UploadExcelSummary.HasErrors)
     {
         <table class="Table_Summary" style="margin-inline:10px; width:900px">
             <tr>
@@ -53,7 +53,7 @@
                 <th style="width:110px">Контейнер</th>
                 <th>Описание ошибки</th>
             </tr>
-            @foreach (var error in uploadResult.Errors)
+            @foreach (var error in UploadExcelSummary.Errors)
             {
                 <tr>
                     <td>@error.Split(':')[0]</td>
@@ -73,7 +73,6 @@
 
     [Parameter]
     public long EoId { get; set; }      // Id поручения
-
     [Parameter]
     public long VoyageId { get; set; }  // Id рейса
 
@@ -83,9 +82,11 @@
     private string FileName = string.Empty;
     IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
 
-    public CheckedUploadResult uploadResult { get; set; } = new CheckedUploadResult();
-    private bool IsLoadingData = false;
-    private string BtnName { get; set; } = "Check";
+    //public
+    private UploadExcelSummary UploadExcelSummary { get; set; } = new();
+    private List<UploadExcelDTO>? UploadedExcelDTO { get; set; }
+    
+    private bool IsLoadingData { get; set; } = false;
     private bool IsChecked { get; set; } = false;
 
 
@@ -104,8 +105,7 @@
         ClearDragClass();
 
         FileName = string.Empty;
-        uploadResult = new CheckedUploadResult();
-        BtnName = "Check";
+        UploadExcelSummary = new();
         IsChecked = false;
     }
 
@@ -123,11 +123,11 @@
     {
         if (IsChecked)
         {
-            if (uploadResult.UploadedDTO is not null && uploadResult.UploadedDTO.Any())
-                MudDialog.Close(uploadResult.UploadedDTO);
-            else
+            if (UploadedExcelDTO is null || !UploadedExcelDTO.Any())
                 MudDialog.Cancel();
 
+            /// DATA
+            MudDialog.Close(UploadedExcelDTO);
             return;
         }
 
@@ -157,32 +157,28 @@
 
             if (response.IsSuccessStatusCode)
             {
-                var uploadedDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>?>();
+                UploadedExcelDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>?>();
 
-                if (uploadedDTO is null)
+                if (UploadedExcelDTO is null)
                     Snackbar.Add($"Data not uploaded", Severity.Error);
                 else
-                {                    
-                    /// DATA
-                    uploadResult.UploadedDTO = uploadedDTO;
-
+                {
                     /// SUMMARY
-                    int CntrCount = uploadedDTO.GroupBy(ud => ud.CntrNum).Count();
-                    int DocumentCount = uploadedDTO.GroupBy(ud => ud.DocumentName).Count();
-                    uploadResult.Summary = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
+                    int CntrCount = UploadedExcelDTO.GroupBy(ud => ud.CntrNum).Count();
+                    int DocumentCount = UploadedExcelDTO.GroupBy(ud => ud.DocumentName).Count();
+                    UploadExcelSummary.Description = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
 
                     /// ERRORS
-                    var errors = await CheckUploadResultService.CheckUploadedResult(uploadedDTO, EoId, VoyageId);
+                    var errors = await CheckUploadResultService.CheckUploadedResult(UploadedExcelDTO, EoId, VoyageId);
                     if (errors is not null && errors.Any())
                     {
-                        uploadResult.Errors = errors;
+                        UploadExcelSummary.Errors = errors;
                         if (errors.Any(s => s.Contains("*Critical")))
-                            uploadResult.HasCriticalErrors = true;
+                            UploadExcelSummary.HasCriticalErrors = true;
                     }                    
 
                     /// CHECKED AND READY TO UPLOAD
                     IsChecked = true;
-                    BtnName = "Upload";
                 }
             }
             else

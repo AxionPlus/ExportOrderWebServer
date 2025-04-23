@@ -103,9 +103,8 @@
                     Id = Item!.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);
                 }
-
                 else
-                    Snackbar.Add(response.Error.LastOrDefault(), Severity.Error);
+                    Snackbar.Add(response.Error.LastOrDefault()!, Severity.Error);
             }
             else
             {
@@ -120,9 +119,6 @@
             IsFormReadOnly = true;
 
             await GetItem();
-            //await InvokeAsync(StateHasChanged);
-
-            //MudDialog!.Close();
         }        
     }
 

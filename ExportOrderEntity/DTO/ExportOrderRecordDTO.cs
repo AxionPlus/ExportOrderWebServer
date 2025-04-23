@@ -28,9 +28,9 @@ public class ExportOrderRecordDTO
     public double? GrossWt { get; set; }
     public double? GrossAndTare { get; set; }    
     public double? Volume { get; set; }
-    public string? AdditionalUnitCode { get; set; }
-    public string? AdditionalUnitName { get; set; }
-    public double? AdditionalUnitQuantity { get; set; }
+    public double? SupplementaryUnitQuantity { get; set; }
+    public string? SupplementaryUnitCode { get; set; }
+    public string? SupplementaryUnitShortName { get; set; }
 
     public string DocumentName { get; set; }
     public string DocumentType { get; set; }

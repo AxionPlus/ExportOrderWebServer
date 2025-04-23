@@ -27,18 +27,7 @@
             <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Anchor">Vessel</MudNavLink>
             <MudDivider Class="my-2" />
             <MudNavLink Href="/containerType" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Container Types</MudNavLink>
+            <MudNavLink Href="/supplementaryUnit" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Supplementary Units</MudNavLink>
         </MudNavGroup>    
     </AuthorizeView>
 </MudNavMenu>
-
-
-@* @code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-} *@

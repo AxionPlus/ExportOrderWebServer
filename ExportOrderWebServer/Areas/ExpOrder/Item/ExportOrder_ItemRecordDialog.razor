@@ -3,15 +3,16 @@
 @inject ICntrTypeProvider _cntrTypeProvider
 @inject IDocumentProvider _documentProvider
 @inject IExportOrderProvider _exportOrderProvider
+@inject ISupplementaryUnitProvider _supplementaryUnitProvider
 
 <style>
     .Table * .mud-table-cell .mud-input-control * .mud-icon-size-small {
-        margin-top: unset;
+    margin-top: unset;
     }
 
     .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
-        margin-top: 2px;
-        margin-inline-end: 3px;
+    margin-top: 2px;
+    margin-inline-end: 3px;
     }
 </style>
 
@@ -22,8 +23,8 @@
             <div class="container-content" style="padding-top:unset; padding-bottom:unset">
                 <MudSpacer />
                 <MudButton Class="Button" Style="margin-inline-end:20px" Size="Size.Small" OnClick="SaveItem_Click"
-                           Variant="Variant.Filled" Color="Color.Primary" 
-                           StartIcon="@Icons.Material.Filled.Save">
+                Variant="Variant.Filled" Color="Color.Primary" 
+                StartIcon="@Icons.Material.Filled.Save">
                     SAVE
                 </MudButton>
             </div>
@@ -37,14 +38,19 @@
                             </MudTh>
                             <MudTh Style="width:240px">Document</MudTh>
                             <MudTh Style="width:142px">HS Code</MudTh>
-                            <MudTh Style="width:215px">Commodity Name</MudTh>
+                            <MudTh Style="width:200px">Commodity Name</MudTh>
                             <MudTh Style="width: 70px">PkgQty</MudTh>
                             <MudTh Style="width:120px">PkgName</MudTh>
                             <MudTh Style="width: 95px">Net</MudTh>
                             <MudTh Style="width: 95px">Gross</MudTh>
                             <MudTh Style="width: 95px">Volume</MudTh>
-                            <MudTh Style="width: 50px"><MudTooltip Text="Код доп. еденицы (таможенный)">Code</MudTooltip></MudTh>
-                            <MudTh Style="width: 95px"><MudTooltip Text="Значение доп. еденицы">Add. Unit</MudTooltip></MudTh>
+                            <MudTh Style="width:163px" colspan="2">
+                                Доп. еденицы
+                                <div style="display:flex; flex-direction:row;">
+                                    <MudTh Style="width: 95px">значение</MudTh>
+                                    <MudTh Style="width: 60px">код</MudTh>
+                                </div>                                
+                            </MudTh>
                             <MudTh></MudTh>
                         </HeaderContent>
                         <RowTemplate>
@@ -94,12 +100,18 @@
                             <MudTd>
                                 <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.Volume" Variant="Variant.Outlined" HideSpinButtons Disabled />
                             </MudTd>
-                            <MudTd>
-                                <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.AdditionalUnitCode" Variant="Variant.Outlined" MaxLength="3" />
+                            <MudTd Style="width: 95px">
+                                <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.SupplementaryUnitQuantity" Variant="Variant.Outlined" HideSpinButtons />
                             </MudTd>
-                            <MudTd>
-                                <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.AdditionalUnitQuantity" Variant="Variant.Outlined" HideSpinButtons />
+                            <MudTd Style="width: 60px">
+                                <MudAutocomplete Class="wrapper-input NoHeader" T="SupplementaryUnitCatalog" @bind-Value="context.SupplementaryUnit"
+                                                 ToStringFunc="@(e => e != null ? e.Code.ToString() : "")"
+                                                 SearchFunc="@SearchUnit"
+                                                 Variant="Variant.Outlined" Margin="Margin.Dense"                                                 
+                                                 ResetValueOnEmptyText="true" MaxItems="10"
+                                                 CloseIcon="" OpenIcon="" />
                             </MudTd>
+                            <MudTd></MudTd>
                         </RowTemplate>
                         <FooterContent>
                             @if (Item.Contents.Count(co => co.DocumentRecord != null) > 0)
@@ -129,8 +141,6 @@
     </MudForm>
 }
 
-<OverlayLoadingData Visible="@IsLoadingData" />
-
 @code {
     private MudForm? Form { get; set; }
     private MudTable<ContainerContent>? mudTable;
@@ -146,9 +156,7 @@
 
     private IEnumerable<string?> DocumentNames { get; set; } = new List<string>();
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
-
-    private bool IsLoadingData { get; set; } = false;
-
+    
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -175,6 +183,19 @@
     private void RemoveContainerContent_Click(ContainerContent itemContent)
     {
         Item.Contents.Remove(itemContent);
+    }
+    
+    private async Task<IEnumerable<SupplementaryUnitCatalog>> SearchUnit(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Enumerable.Empty<SupplementaryUnitCatalog>();
+
+        var units = await _supplementaryUnitProvider.GetItemsAsync();
+
+        if (units is null || !units.Any())
+            return Enumerable.Empty<SupplementaryUnitCatalog>();
+
+        return units.Where(x => x.Code.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task SaveItem_Click()

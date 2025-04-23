@@ -30,6 +30,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                                        .Include(eo => eo.Person)
                                                        .Include(eo => eo.Documents).ThenInclude(d => d.Records)
                                                        .Include(eo => eo.Records).ThenInclude(r => r.CntrType)
+                                                       .Include(eo => eo.Records).ThenInclude(r => r.Contents).ThenInclude(c => c.SupplementaryUnit)
                                                        .Include(eo => eo.Records).ThenInclude(r => r.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
                                                        .Include(eo => eo.VesselCallDetail!).ThenInclude(vcd => vcd.POD)
                                                        .Include(eo => eo.VesselCallDetail!).ThenInclude(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
@@ -74,6 +75,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                 .Include(x => x.Documents).ThenInclude(d => d.Records)
                                 .Include(x => x.Records).ThenInclude(r => r.CntrType)
                                 .Include(x => x.Records).ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
+                                .Include(x => x.Records).ThenInclude(r => r.Contents).ThenInclude(co => co.SupplementaryUnit)
                                 .Select(source => new ExportOrderDTO()
                                 {
                                     Id = source.Id,
@@ -88,12 +90,12 @@ public class ExportOrderProvider : IExportOrderProvider
                                                 !source.VesselCallDetail.VesselCall.ETS.HasValue ? null :
                                                     source.VesselCallDetail.VesselCall.ETS.Value.ToString("dd.MM.yyyy"),
                                     BLtemplate = source.Carrier != null ? source.Carrier.BlTemplate.ToString() : string.Empty,
-                                    Shippers = string.Join(";\n", source.Documents.GroupBy(d => d.Shipper!.Name).Select(g => g.Key).Distinct().ToArray()),   //ToList()
-                                    Consignees = string.Join(";\n", source.Documents.GroupBy(d => d.Consignee!.Name).Select(g => g.Key).Distinct().ToArray()),   //ToList()
+                                    Shippers = string.Join(";\n", source.Documents.GroupBy(d => d.Shipper!.Name).Select(g => g.Key).Distinct().ToArray()),
+                                    Consignees = string.Join(";\n", source.Documents.GroupBy(d => d.Consignee!.Name).Select(g => g.Key).Distinct().ToArray()),
                                     Commodities = string.Join(";\n", source.Records.SelectMany(
                                         eor => eor.Contents.Select(rc => string.Concat(rc.DocumentRecord.CommodityName,
                                             rc.DocumentRecord.IsIMO ? " IMO:" + rc.DocumentRecord.IMO + " UNNO:" + rc.DocumentRecord.UNNO : "")))
-                                        .Distinct().ToArray()),  //ToList
+                                        .Distinct().ToArray()),
                                     CommodityShort = source.CommodityShort,
                                     CustomsOfficeCode = source.VesselCallDetail!.VesselCall.Terminal.Customs!.Code,
                                     CustomsOfficeNameShort = source.VesselCallDetail.VesselCall.Terminal.Customs.OfficeShort,
@@ -337,7 +339,7 @@ public class ExportOrderProvider : IExportOrderProvider
                         IsImo = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true)).Equals(true)),
                         IsEmpty = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.CommodityEngName.ToUpper().Contains("EMPTY")).Equals(true)),
                         Status = record.Status,
-                        BlTemplate = record.Carrier!.BlTemplate,
+                        BlTemplate = record.Carrier != null ? record.Carrier.BlTemplate : BLTemplate.standard,
                         CreateTime = record.CreateTime,
                         VersionNo = record.VersionNo,
                     });
@@ -785,9 +787,8 @@ public class ExportOrderProvider : IExportOrderProvider
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            appObjResponse.ErrorAdd(msg);
-            Console.WriteLine($"{msg}");
+            appObjResponse.ErrorAdd(ex.Message);
+            Console.WriteLine($"{ex.Message}");
             return Enumerable.Empty<PersonEntity>();
         }
     }
@@ -967,10 +968,14 @@ public class ExportOrderProvider : IExportOrderProvider
                 eoRecordDTO.NetWt = content.NetWt is null ? 0 : content.NetWt;
                 eoRecordDTO.GrossWt = content.GrossWt is null ? 0 : content.GrossWt;
                 eoRecordDTO.Volume = content.Volume is null ? 0 : content.Volume;
-                eoRecordDTO.GrossAndTare = record.CntrTareWt + (content.GrossWt.HasValue ? content.GrossWt : 0); //(double)content.GrossWt!
-                eoRecordDTO.AdditionalUnitCode = content.AdditionalUnitCode;
-                eoRecordDTO.AdditionalUnitName = content.AdditionalUnitName;
-                eoRecordDTO.AdditionalUnitQuantity = content.AdditionalUnitQuantity;
+                eoRecordDTO.GrossAndTare = record.CntrTareWt + (content.GrossWt.HasValue ? content.GrossWt : 0);
+                
+                if (content.SupplementaryUnit is not null && content.SupplementaryUnitQuantity.HasValue)
+                {
+                    eoRecordDTO.SupplementaryUnitQuantity = content.SupplementaryUnitQuantity;
+                    eoRecordDTO.SupplementaryUnitShortName = content.SupplementaryUnit.ShortName;
+                    eoRecordDTO.SupplementaryUnitCode = SupplementaryCodeToString(content.SupplementaryUnit.Code);
+                }
 
                 eoRecordDTO.DocumentName = string.IsNullOrEmpty(content.DocumentRecord.Document.Name) ? string.Empty : content.DocumentRecord.Document.Name;
                 eoRecordDTO.DocumentType = content.DocumentRecord.Document.Type.ToString();
@@ -1312,6 +1317,21 @@ public class ExportOrderProvider : IExportOrderProvider
             return null;
     };
 
+    private static readonly Func<uint?, string?> SupplementaryCodeToString = (code) =>
+    {
+        if (!code.HasValue) return null;
+
+        string unitCode = code.Value.ToString();
+
+        return unitCode.Length switch
+        {
+            0 => "000",
+            1 => unitCode.Insert(0, "00"),
+            2 => unitCode.Insert(0, "0"),
+            3 => unitCode,
+            _ => unitCode[..3]
+        };
+    };
     #endregion
-    
+
 }

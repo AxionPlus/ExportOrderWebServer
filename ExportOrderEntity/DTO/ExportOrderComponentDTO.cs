@@ -6,13 +6,12 @@ public class ExportOrderComponentDTO
 {
     [Key]
     public long Id { get; set; }
-
     public string? Num { get; set; }
     public string? Cntr { get; set; }
-    public DateTime? Dated { get; set; }  //string?
+    public DateTime? Dated { get; set; }
     public long VesselCallId { get; set; }
     public string? Vessel { get; set; }
-    public string? VoyageNo { get; set; } // Voyage
+    public string? VoyageNo { get; set; }
     public string? POD { get; set; }    
     public string? Carrier { get; set; }
     public string? Terminal { get; set; }

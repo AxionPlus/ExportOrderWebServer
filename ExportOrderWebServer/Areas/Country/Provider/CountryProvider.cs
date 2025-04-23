@@ -1,13 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using static MudBlazor.CategoryTypes;
-
-namespace ExportOrderWebServer.Areas.Country.Provider;
+﻿namespace ExportOrderWebServer.Areas.Country.Provider;
 
 public class CountryProvider : ICountryProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public CountryProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {

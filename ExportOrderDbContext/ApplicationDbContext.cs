@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CarrierTerminalDetails> CarrierDetails { get; set; }
     public DbSet<CustomerCatalog> Customers { get; set; }
     public DbSet<CustomsCatalog> CustomsOffices { get; set; }
+    public DbSet<SupplementaryUnitCatalog> SupplementaryUnits { get; set; }
 
     // Entities
     public DbSet<CntrTpSz> ContainerTypeSize { get; set; }

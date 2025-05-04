@@ -3,12 +3,12 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IHttpClientFactory httpClient
-@inject ICheckUploadResultService CheckUploadResultService
+@inject IUploadResultService _uploadResultService
 
 <MudStack Style="width: 100%">
-    <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
-    InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
-    @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+    <MudFileUpload T="IBrowserFile" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
+                   InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+                   @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
         <ActivatorContent>
             <MudPaper Height="200px" Outlined="true" Class="@DragClass">
                 <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
@@ -21,31 +21,29 @@
     </MudFileUpload>
     <MudToolBar Class="gap-4">
         <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CheckAndUploadFile"
-        Style="margin-inline-start:10px"
-        Disabled="@(!FileName.Any())"
-        StartIcon="@Icons.Material.Filled.UploadFile">
+                   Style="margin-inline-start:10px"
+                   Disabled="@(!FileName.Any())"
+                   StartIcon="@Icons.Material.Filled.UploadFile">
             @(IsChecked ? "Upload" : "Check") @(" ") File(s)
         </MudButton>
         <MudSpacer />
         <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Clear"
-        Style="margin-inline-end:10px"
-        Disabled="@(!FileName.Any())">
+                   Style="margin-inline-end:10px"
+                   Disabled="@(!FileName.Any())">
             Clear
         </MudButton>
     </MudToolBar>
-
-    @if (!string.IsNullOrWhiteSpace(UploadExcelSummary.Description))
+    @if (!string.IsNullOrWhiteSpace(_AppObjectResponse.Description))
     {
-        <MudText Style="margin-inline-start:5px"><b>Всего: </b>@UploadExcelSummary.Description</MudText>        
-        if (UploadExcelSummary.HasCriticalErrors)
+        <MudText Style="margin-inline-start:5px"><b>Всего: </b>@_AppObjectResponse.Description</MudText>
+        if (_AppObjectResponse.HasCriticalErrors)
         {
             <MudText Style="margin-inline-start:5px" Color="Color.Error">
                 <b>Есть критические ошибки. Записи отмеченные как *Critical не будут загружены!</b>
             </MudText>
         }
     }
-
-    @if (UploadExcelSummary.HasErrors)
+    @if (_AppObjectResponse.HasErrors)
     {
         <table class="Table_Summary" style="margin-inline:10px; width:900px">
             <tr>
@@ -53,7 +51,7 @@
                 <th style="width:110px">Контейнер</th>
                 <th>Описание ошибки</th>
             </tr>
-            @foreach (var error in UploadExcelSummary.Errors)
+            @foreach (var error in _AppObjectResponse.Errors)
             {
                 <tr>
                     <td>@error.Split(':')[0]</td>
@@ -80,23 +78,20 @@
     private string DragClass = DefaultDragClass;
     private int maxAllowedFiles = 1;
     private string FileName = string.Empty;
-    IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
+    private IBrowserFile? BrowserFile;
 
-    //public
-    private UploadExcelSummary UploadExcelSummary { get; set; } = new();
     private List<UploadExcelDTO>? UploadedExcelDTO { get; set; }
-    
+    private AppObjectResponse _AppObjectResponse { get; set; } = new();
+
     private bool IsLoadingData { get; set; } = false;
     private bool IsChecked { get; set; } = false;
 
 
-    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    private void OnInputFileChanged(InputFileChangeEventArgs e) //async Task
     {
         ClearDragClass();
-
-        BrowserFiles = (IList<IBrowserFile>)e.GetMultipleFiles();
-        using var content = new MultipartFormDataContent();
-
+        //await Task.Delay(10);
+        BrowserFile = (IBrowserFile)e.File;
         FileName = e.File.Name;
     }
 
@@ -104,50 +99,56 @@
     {
         ClearDragClass();
 
-        FileName = string.Empty;
-        UploadExcelSummary = new();
+        BrowserFile = null;
+        FileName = string.Empty;        
         IsChecked = false;
+
+        _AppObjectResponse = new();
     }
 
-    private void SetDragClass()
-    {
+    private void SetDragClass() =>     
         DragClass = $"{DefaultDragClass} mud-border-primary";
-    }
 
-    private void ClearDragClass()
-    {
+
+    private void ClearDragClass() =>
         DragClass = DefaultDragClass;
-    }
 
     private async Task CheckAndUploadFile()
     {
         if (IsChecked)
         {
-            if (UploadedExcelDTO is null || !UploadedExcelDTO.Any())
-                MudDialog.Cancel();
+            /// GET DATA
+            if (UploadedExcelDTO is not null && UploadedExcelDTO.Any())
+            {
+                IsLoadingData = true;
 
-            /// DATA
-            MudDialog.Close(UploadedExcelDTO);
+                var uploadResult = await _uploadResultService.GetUploadedResult(UploadedExcelDTO);
+
+                IsLoadingData = false;
+
+                if (uploadResult is not null)
+                    MudDialog.Close(uploadResult);
+            }
+
+            MudDialog.Cancel();
             return;
         }
+
+        if (BrowserFile is null) return;
 
         IsLoadingData = true;
 
         long maxFileSize = 1024 * 500;
-        using var content = new MultipartFormDataContent();
 
-        foreach (var file in BrowserFiles)
-        {
-            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+        var content = new MultipartFormDataContent();
 
-            fileContent.Headers.ContentType =
-                new MediaTypeHeaderValue(file.ContentType);
+        var streamContent = new StreamContent(BrowserFile.OpenReadStream(maxFileSize));
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(BrowserFile.ContentType);
 
-            content.Add(
-                content: fileContent,
-                name: "\"files\"",
-                fileName: file.Name);
-        }
+        content.Add(
+            content: streamContent,
+            name: "\"file\"",
+            fileName: BrowserFile.Name);
 
         using (var client = httpClient.CreateClient())
         {
@@ -166,16 +167,16 @@
                     /// SUMMARY
                     int CntrCount = UploadedExcelDTO.GroupBy(ud => ud.CntrNum).Count();
                     int DocumentCount = UploadedExcelDTO.GroupBy(ud => ud.DocumentName).Count();
-                    UploadExcelSummary.Description = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
+                    _AppObjectResponse.Description = $"контейнеров {CntrCount}, деклараций {DocumentCount}.";
 
                     /// ERRORS
-                    var errors = await CheckUploadResultService.CheckUploadedResult(UploadedExcelDTO, EoId, VoyageId);
+                    var errors = await _uploadResultService.CheckUploadedResult(UploadedExcelDTO, EoId, VoyageId);
                     if (errors is not null && errors.Any())
                     {
-                        UploadExcelSummary.Errors = errors;
+                        _AppObjectResponse.Errors = errors.ToList();
                         if (errors.Any(s => s.Contains("*Critical")))
-                            UploadExcelSummary.HasCriticalErrors = true;
-                    }                    
+                            _AppObjectResponse.HasCriticalErrors = true;
+                    }
 
                     /// CHECKED AND READY TO UPLOAD
                     IsChecked = true;

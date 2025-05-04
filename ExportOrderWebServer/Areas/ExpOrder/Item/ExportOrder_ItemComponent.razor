@@ -1,4 +1,4 @@
-﻿@using System.Text.RegularExpressions
+﻿
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
@@ -9,9 +9,7 @@
 @inject ICntrTypeProvider _cntrTypeProvider
 @inject ICarrierProvider _carrierProvider
 @inject IVesselCallProvider _vesselCallProvider
-@inject IDocumentProvider _documentProvider
-@inject IValidationService _ValidationService
-@inject ISupplementaryUnitProvider _SupplementaryUnitProvider
+@inject IValidationService _validationService
 
 <style>
 
@@ -482,8 +480,6 @@
 
     private List<ContainerContent>? OriginalRecordContens { get; set; }    
 
-    private List<UploadExcelDTO>? UploadedExcelDTO { get; set; }
-
     private List<TreeItemData<ExportOrderDocumentDTO>> TreeItems { get; set; } = new();
     private List<ExportOrderDocumentDTO> DocumentsDTO { get; set; } = new();
     private List<ExportOrderDocumentRecordDTO> DocumentRecordsDTO { get; set; } = new();
@@ -668,108 +664,30 @@
         var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
         var dialog = DialogService.Show<UploadExportOrderFile>("Импорт списка ДТ", parameters, options);
 
-        var result = await dialog.Result;
+        var dialogResult = await dialog.Result;
 
         try
         {
-            if (result is not null && !result.Canceled && result.Data != null)
+            if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data != null)
             {
-                IsLoadingData = true;
-                
-                UploadedExcelDTO = (List<UploadExcelDTO>)result.Data;
+                //IsLoadingData = true;
 
-                if (UploadedExcelDTO is null) return;
+                var uploadedResult = (UploadedResult)dialogResult.Data;
 
-                var uploadedExcelDTO = UploadedExcelDTO.Where(s => !string.IsNullOrWhiteSpace(s.DocumentName) && s.SeqCommodity > 0);
+                if (uploadedResult is null) return;
 
-                if (uploadedExcelDTO is null) return;
+                Value.Records = uploadedResult.Records;
+                Value.Documents = uploadedResult.Documents;
 
-                var uploadedRecords = uploadedExcelDTO.GroupBy(s => s.CntrNum);
-                var uploadedDocuments = uploadedExcelDTO.GroupBy(s => s.DocumentName);
+                StateHasChanged();
 
-                var records = new List<ExportOrderRecord>();
-                var documents = new List<DocumentEntity>();                
-                
-                //-----------------
-
-                /// RECORDS
-                foreach (var uploadedRecord in uploadedRecords)
-                {
-                    var newRecord = new ExportOrderRecord()
-                    {
-                        CntrNum = uploadedRecord.Any(s => !string.IsNullOrWhiteSpace(s.CntrNum)) ? uploadedRecord.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.CntrNum))!.CntrNum! : "",
-                        CntrType = CntrTypes.FirstOrDefault(x => x.Normolize == uploadedRecord.FirstOrDefault()!.CntrType),
-                        CntrTareWt = uploadedRecord.FirstOrDefault()!.CntrTareWt,
-                        Seal = uploadedRecord.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.Seal))?.Seal,
-                    };
-
-                    foreach (var uploadedContent in uploadedRecord)
-                    {
-                        /// Get DocumentRecord && DocumentRecord.Document
-                        var dbDocumentRecord = await _documentProvider.GetDocumentRecordAsync(uploadedContent.DocumentName, uploadedContent.SeqCommodity);
-                        if (dbDocumentRecord is null || dbDocumentRecord.Document is null)
-                            continue;
-
-                        var content = new ContainerContent()
-                        {
-                            PackageQty = uploadedContent.PackageQty,
-                            PackageName = uploadedContent.PackageName,
-                            NetWt = uploadedContent.NetWt,
-                            GrossWt = uploadedContent.GrossWt,
-                            DocumentRecord = dbDocumentRecord
-                        };
-
-                        /// GetSupplementaryUnit if any
-                        if (uploadedContent.SupplementaryUnitCode.HasValue && uploadedContent.SupplementaryUnitQuantity.HasValue)
-                        {   
-                            var supplementaryUnit = await _SupplementaryUnitProvider.GetItemAsync(uploadedContent.SupplementaryUnitCode.Value);
-                            if (supplementaryUnit is null) continue;
-                            content.SupplementaryUnit = supplementaryUnit;
-                            content.SupplementaryUnitQuantity = uploadedContent.SupplementaryUnitQuantity;
-                        }
-
-                        newRecord.Contents.Add(content);
-                    }
-
-                    if (newRecord.Contents.Any())
-                        records.Add(newRecord);
-
-                    newRecord = null;
-                }
-
-                /// DOCUMENTS
-                /// Remove old documents from the page  (export order Records removing too)
-                if (Value.Documents.Any())
-                {
-                    Value.Documents.RemoveRange(0, Value.Documents.Count());
-                    ClearTreeItems();
-                }
-
-                /// add new documents
-                foreach (var uploadedDocument in uploadedDocuments)
-                {
-                    var DocumentDb = await _documentProvider.GetDocumentAsync(uploadedDocument.Key!);
-
-                    if (DocumentDb is null) continue;
-
-                    /// remove documentRecord wich is not exists in the Checked one
-                    foreach (var documentRecordDb in DocumentDb.Records.ToArray())
-                        if (!uploadedDocument.Any(d => d.SeqCommodity == documentRecordDb.Seq))
-                            DocumentDb.Records.Remove(documentRecordDb);
-
-                    documents.Add(DocumentDb);
-                }
-
-                Value.Records = records;
-                Value.Documents = documents;
-                //-----------------
                 FillUpTreeItems();
 
-                IsLoadingData = false;
+                //IsLoadingData = false;
 
                 Snackbar.Add($"Uploaded", Severity.Success);
-
-                await ValueChanged.InvokeAsync(Value);
+                
+                //StateHasChanged();  //await ValueChanged.InvokeAsync(Value);
             }
             else
                 Snackbar.Add($"NOT uploaded", Severity.Warning);
@@ -783,9 +701,8 @@
 
     private async Task DownloadExcelTemplate()
     {
-        //string path = $"{Navigation.BaseUri}file/DownloadFile/DownloadExcelTemplate";
-        string path = $"{ApplicationParameter.DownloadFileUrl}DownloadExcelTemplate";
-        await jsRuntime.InvokeVoidAsync("open", path);
+        //string path = $"{Navigation.BaseUri}file/DownloadFile/DownloadExcelTemplate";        
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}DownloadExcelTemplate");
     }
 
     #endregion
@@ -867,7 +784,7 @@
         if (result is not null && !result.Canceled && result.Data is not null)
         {
             var response = await _vesselCallProvider.GetVesselCallDetailAsync((long)result.Data);
-            if (!response.HasError && response.Object is not null)
+            if (!response.HasErrors && response.Object is not null)
             {
                 Value.VesselCallDetail = (VesselCallDetail)response.Object;
 
@@ -877,7 +794,7 @@
                         Value.Carrier = null;
             }
             else
-                Snackbar.Add($"{response.Error.First()}", Severity.Error);
+                Snackbar.Add($"{response.Errors.First()}", Severity.Error);
         }
 
         await InvokeAsync(StateHasChanged);
@@ -938,7 +855,7 @@
 
             if (cntrNums is not null && cntrNums.Any())
             {
-                var errMessages = await _ValidationService.ValidateCntrNums(cntrNums, Value.Id, Value.VesselCallDetail.VesselCall.Id, num);
+                var errMessages = await _validationService.ValidateCntrNums(cntrNums, Value.Id, Value.VesselCallDetail.VesselCall.Id, num);
 
                 if (errMessages is not null && errMessages.Any())
                 {
@@ -954,7 +871,7 @@
         return num;
     }
 
-    private async Task FocusLastRow()   // function <focusLastRow> dosn't called
+    private async Task FocusLastRow()
     {
         if (Value is not null && Value.Records is not null && Value.Records.Any())
             await jsRuntime.InvokeVoidAsync("focusLastRow");
@@ -979,7 +896,7 @@
         var Carriers = new List<CarrierCatalog>();
 
         var response = await _carrierProvider.GetItemsAsync();
-        if (!response.HasError && response.Object is not null)
+        if (!response.HasErrors && response.Object is not null)
             Carriers = ((IEnumerable<CarrierCatalog>)response.Object).ToList();
 
         Carriers = Carriers.OrderBy(x => x.Name).Where(x => x.CarrierDetails.Where(d => d.TerminalName == terminal).ToList().Count > 0).ToList();

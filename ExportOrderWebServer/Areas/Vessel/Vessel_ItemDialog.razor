@@ -120,7 +120,7 @@
         else
         {
             var response = await _vesselProvider.GetItemAsync(Id);
-            if (!response.HasError)
+            if (!response.HasErrors)
                 Item = (VesselEntity)response.Object!;
         }
     }
@@ -134,23 +134,23 @@
             if (IsNewItem)
             {
                 var response = await _vesselProvider.NewItemAsync(Item!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                 {
                     Id = Item!.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);                    
                 }
                 else
-                    Snackbar.Add(response.Error.LastOrDefault()!, Severity.Error);
+                    Snackbar.Add(response.Errors.LastOrDefault()!, Severity.Error);
             }
             else
             {
                 var response = await _vesselProvider.ModifyItemAsync(Item!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                 {
                     Snackbar.Add("Save Successed", Severity.Success);
                 }
                 else
-                    Snackbar.Add(response.Error.Last(), Severity.Error);
+                    Snackbar.Add(response.Errors.Last(), Severity.Error);
             }
 
             IsNewItem = false;
@@ -180,7 +180,7 @@
         var Countries = new List<CountryCatalog>();
 
         var response = await _countryProvider.GetItemsAsync();
-        if (!response.HasError)
+        if (!response.HasErrors)
             Countries = ((IEnumerable<CountryCatalog>)response.Object!).OrderBy(s => s.RUS).ToList();
 
         if (string.IsNullOrWhiteSpace(value))

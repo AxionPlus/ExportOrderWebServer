@@ -125,7 +125,6 @@
         NewItem = new();
         IsNewItemActivated = true;
         StateHasChanged();
-        //await FocusLastRow();
     }
 
     private async Task SaveItem(SupplementaryUnitCatalog? newItem)
@@ -151,9 +150,9 @@
 
         var response = await _SupplementaryUnitProvider.NewItemAsync(newItem);
 
-        if (response is not null && response.HasError)
+        if (response is not null && response.HasErrors)
         {
-            Snackbar.Add($"{response.Error.First()}", Severity.Warning);
+            Snackbar.Add($"{response.Errors.First()}", Severity.Warning);
             IsLoadingData = false;
             return;
         }        
@@ -163,12 +162,5 @@
         NewItem = new();
         IsNewItemActivated = false;
         await GetItems();
-    }      
-        
-    ///  NOT USED
-    private async Task FocusLastRow()
-    {
-        if (Items.Any())
-            await jsRuntime.InvokeVoidAsync("focusLastRow");
     }
 }

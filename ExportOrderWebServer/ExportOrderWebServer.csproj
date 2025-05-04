@@ -246,6 +246,7 @@
 
   <ItemGroup>
     <Folder Include="Resources\TempFiles\" />
+    <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
 </Project>

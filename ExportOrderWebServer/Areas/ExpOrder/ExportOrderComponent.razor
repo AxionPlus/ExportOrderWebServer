@@ -105,10 +105,8 @@
     @if (mudTable != null)
     {
         <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)"
-            Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
+            <MudSpacer />            
+            <TablePager T="ExportOrderComponentDTO" Table="mudTable" ItemsCount="@Items.Count()" />
         </div>
     }
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedItems"
@@ -123,15 +121,15 @@
             <MudTh Style="max-width:45px">
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                    Size="Size.Small" OnClick="SaveReportsExportOrder_Click" />
+                    Size="Size.Small" OnClick="@(async () => await SaveFilesPdf_Click("Order"))" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="max-width:50px">XML</MudTh>
             <MudTh Style="max-width:50px">Rolis</MudTh>
-            <MudTh Style="width:130px">
+            <MudTh Style="width:130px">                
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                    Size="Size.Small" OnClick="SaveReportsBL_Click" />
+                    Size="Size.Small" OnClick="@(async () => await SaveFilesPdf_Click("Bill"))" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:160px">
@@ -159,28 +157,27 @@
             <MudTh Style="min-width:20px"></MudTh>
             <MudTh Style="width:42px"></MudTh>            
         </HeaderContent>
-
         <RowTemplate>
             <MudTd>
-                <MudTooltip Delay="1000" Duration="1000" Text="view Details">
+                <MudTooltip Delay="1500" Duration="1000" Text="view Details">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
                     OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudTooltip Delay="1000" Duration="1000" Text="view Export Order">
+                <MudTooltip Delay="1500" Duration="1000" Text="view Export Order">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
                     OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudTooltip Delay="1000" Duration="1000" Text="save xml file">
+                <MudTooltip Delay="1500" Duration="1000" Text="save xml file">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium"
                     OnClick="@(async()=>{ await SaveXMLfile_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudTooltip Delay="1000" Duration="1000" Text="save xlsx file for ROLIS">
+                <MudTooltip Delay="1500" Duration="1000" Text="save xlsx file for ROLIS">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium"
                     OnClick="@(async()=>{ await SaveFileRolis_Click(context.Id); })" />
                 </MudTooltip>
@@ -226,7 +223,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudTable<ExportOrderComponentDTO>? mudTable;
+    private MudTable<ExportOrderComponentDTO> mudTable = new();
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
@@ -248,15 +245,13 @@
             IsRoleForEdit = true;
     }
 
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
-
     public async Task GetItems()
     {
         IsLoadingData = true;
 
         var response = await _exportOrderProvider.GetItemsAsync(Filter);
 
-        if (!response.HasError && response.Object is not null)
+        if (!response.HasErrors && response.Object is not null)
             Items = (IEnumerable<ExportOrderComponentDTO>)response.Object;
 
         IsLoadingData = false;
@@ -294,7 +289,7 @@
             if (result.Value)
             {
                 var response = await _exportOrderProvider.RemoveItemAsync(id);
-                if (!response.HasError)
+                if (!response.HasErrors)
                 {
                     if (Items.Any(eoc => eoc.Id == id))
                     {
@@ -303,7 +298,7 @@
                     }                    
                 }
                 else
-                    Snackbar.Add($"Record wasn't deleted.<br/>{response.Error.First()}", Severity.Warning);
+                    Snackbar.Add($"Record wasn't deleted.<br/>{response.Errors.First()}", Severity.Warning);
 
                 await GetItems();
             }
@@ -351,9 +346,9 @@
             long[] selectedIds = SelectedItems.Select(s => s.Id).ToArray();
 
             var result = await _exportOrderProvider.SetNewVesselCall(selectedIds, newVoyageId);
-            if (result.HasError)
+            if (result.HasErrors)
             {
-                Snackbar.Add(string.Join("; ", result.Error), Severity.Warning);
+                Snackbar.Add(string.Join("; ", result.Errors), Severity.Warning);
                 IsLoadingData = false;
                 return;
             }
@@ -401,17 +396,19 @@
     {
         string path = $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelRolis?Id={id}";
         await jsRuntime.InvokeVoidAsync("open", path);
-    }
+    }    
 
-    private async Task SaveReportsExportOrder_Click()
+    private async Task SaveFilesPdf_Click(string orderOrBL)
     {
         if (SelectedItems.GroupBy(s => s.VesselCallId).Count() > 1)
         {
-            Snackbar.Add($"Export Orders for one Voyage only is available.", Severity.Warning);
+            Snackbar.Add($"Records for one Voyage only is available.", Severity.Warning);
             return;
         }
 
         IsLoadingData = true;
+
+        string? voyage = SelectedItems.Where(s => !string.IsNullOrWhiteSpace(s.VoyageNo)).Select(s => s.VoyageNo).FirstOrDefault();
 
         IEnumerable<long> ids = SelectedItems.Select(s => s.Id).ToArray();
 
@@ -421,12 +418,12 @@
         {
             Http.Timeout = new TimeSpan(0, 10, 0);
             var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            //var response = await Http.PostAsync($"{ApplicationParameter.PostUploadFileUrl}SaveExportOrderReportFiles", stringContent).ConfigureAwait(false);
-            var response = await Http.PostAsync($"{ApplicationParameter.PostDownloadFileUrl}SaveExportOrderReportFiles", stringContent);
+            string urlName = $"SaveFilesPdf{orderOrBL}";
+            var response = await Http.PostAsync($"{ApplicationParameter.PostDownloadFileUrl}{urlName}", stringContent);
 
             if (response.IsSuccessStatusCode)
             {
-                string filePath = response.Content.Headers.ContentDisposition?.FileNameStar ?? string.Empty;    // prev.: FileName
+                //string filePath = response.Content.Headers.ContentDisposition?.FileNameStar ?? string.Empty;    // prev.: FileName
 
                 var stream = await response.Content.ReadAsStreamAsync();
                 using (var memoryStream = new MemoryStream())
@@ -434,57 +431,10 @@
                     stream.CopyTo(memoryStream);
 
                     await jsRuntime.InvokeVoidAsync("jsSaveAsFile",
-                                                    $"ExportOrders_{Voyage}.zip",
+                                                    $"{orderOrBL}_{voyage}.zip",
                                                     Convert.ToBase64String(memoryStream.ToArray()));
-                }               
-            }
-        }
-
-        IsLoadingData = false;
-    }
-
-    private async Task SaveReportsBL_Click()
-    {
-        if (SelectedItems.GroupBy(s => s.VesselCallId).Count() > 1)
-        {
-            Snackbar.Add($"Bill of Ladings for one Voyage only is available.", Severity.Warning);
-            return;
-        }
-
-        IsLoadingData = true;
-
-        IEnumerable<long> ids = SelectedItems.Select(s => s.Id).ToArray();
-
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(ids);
-
-        using (var Http = httpClient.CreateClient())
-        {
-            Http.Timeout = new TimeSpan(0, 10, 0);
-            var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            //var response = await Http.PostAsync($"{ApplicationParameter.PostUploadFileUrl}SaveBLReportFiles", stringContent).ConfigureAwait(false);
-            var response = await Http.PostAsync($"{ApplicationParameter.PostDownloadFileUrl}SaveBLReportFiles", stringContent);
-
-            if (response.IsSuccessStatusCode)
-            {
-                string filePath = response.Content.Headers.ContentDisposition?.FileNameStar ?? string.Empty;
-
-                var stream = await response.Content.ReadAsStreamAsync();
-                using (var memoryStream = new MemoryStream())
-                {
-                    stream.CopyTo(memoryStream);
-
-                    await jsRuntime.InvokeVoidAsync("jsSaveAsFile",
-                          $"BLs_{Voyage}.zip", Convert.ToBase64String(memoryStream.ToArray()));
                 }
-
-                /// Delete Temp Files & Directory
-                
-                // if (!string.IsNullOrEmpty(filePath))
-                // {
-                //     if (File.Exists(filePath)) File.Delete(filePath);
-                //     string dirPath = filePath.Substring(0, filePath.Length - 4);
-                //     if (Directory.Exists(dirPath)) Directory.Delete(dirPath, true);
-                // }
+                stream.Close(); // CHECK IT
             }
         }
 

@@ -104,14 +104,14 @@
             {
                 /// create a new Item with a certain VesselCallDetail
                 response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
-                if (!response.HasError && response.Object is not null)
+                if (!response.HasErrors && response.Object is not null)
                     Item = new() { VesselCallDetail = (VesselCallDetail)response.Object };
             }   
         }
         else
         {
             response = await _exportOrderProvider.GetItemAsync(Id);
-            if (!response.HasError && response.Object is not null)
+            if (!response.HasErrors && response.Object is not null)
                 Item = (ExportOrderEntity)response.Object;
         }        
     }
@@ -137,11 +137,11 @@
             if (IsNewItem)
             {
                 var response = await _exportOrderProvider.NewItemAsync(Item);
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
+                    Snackbar.Add($"No Success<br>{response.Errors.FirstOrDefault()}", Severity.Error);
                     IsLoadingData = false;
                     return;
                 }
@@ -149,11 +149,11 @@
             else
             {
                 var response = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
+                    Snackbar.Add($"No Success<br>{response.Errors.FirstOrDefault()}", Severity.Error);
                     IsLoadingData = false;
                     return;
                 }

@@ -4,18 +4,17 @@ public class CountryProvider : ICountryProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-    private AppObjectResponse appObjResponse = new();
+    private AppObjectResponse appObjResponse;
 
     public CountryProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -28,7 +27,6 @@ public class CountryProvider : ICountryProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
-        appObjResponse = new();
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -38,28 +36,18 @@ public class CountryProvider : ICountryProvider
         }
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var Commodities = await db.Countries.ToListAsync();
+            var Commodities = await db.Countries
+                                            .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.RUS == filter.Name : true)
+                                            .Where(s => !string.IsNullOrEmpty(filter.NameEn) ? s.ENG == filter.NameEn : true)
+                                            .ToListAsync();
 
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
-
-                if (!string.IsNullOrEmpty(filter.Name))
-                    Commodities = Commodities.Where(s => s.RUS == filter.Name).ToList();
-
-                if (!string.IsNullOrEmpty(filter.NameEn))
-                    Commodities = Commodities.Where(s => s.ENG == filter.NameEn).ToList();
-            }
-
-            appObjResponse.Object = Commodities.ToArray();
+            appObjResponse.Object = Commodities;
 
             return appObjResponse;
         }
@@ -67,8 +55,6 @@ public class CountryProvider : ICountryProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CountryCatalog item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -77,13 +63,17 @@ public class CountryProvider : ICountryProvider
             {
                 var modifyItem = await db.Countries.FirstOrDefaultAsync(s => s.Id == item.Id);
 
-                if (modifyItem!.RUS != item.RUS)
+                if (modifyItem is null)
                 {
-                    var itemExistCheck = await db.Countries
-                                                         .Where(s => s.RUS!.ToUpper() == item.RUS!.ToUpper())
-                                                         .FirstOrDefaultAsync();
+                    appObjResponse.ErrorAdd($"Record not found");
+                    return appObjResponse;
+                }
 
-                    if (itemExistCheck is not null)
+                if (modifyItem is not null && modifyItem.RUS != item.RUS)
+                {
+                    bool isItemExist = db.Countries.Any(s => s.RUS.ToUpper() == item.RUS.ToUpper());
+
+                    if (isItemExist)
                     {
                         appObjResponse.ErrorAdd($" {item.RUS} exists already");
                         return appObjResponse;
@@ -98,6 +88,8 @@ public class CountryProvider : ICountryProvider
                 modifyItem!.ENG = item.ENG;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+
+                db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
 
@@ -116,16 +108,13 @@ public class CountryProvider : ICountryProvider
 
     public async Task<AppObjectResponse> NewItemAsync(CountryCatalog item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-            // check an Existing item
-            var itemExistCheck = await db.Countries.Where(s => s.ENG == item!.ENG).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
+            bool isItemExist = db.Countries.Any(s => s.ENG == item.ENG);
+            if (isItemExist)
             {
                 appObjResponse.ErrorAdd($"Country: {item!.RUS} exists already");
                 return appObjResponse;
@@ -144,15 +133,13 @@ public class CountryProvider : ICountryProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        appObjResponse = new();
-
         try
         {
             using (var _db = _dbContext.CreateDbContextAsync())
             {
                 var db = await _db;
 
-                // check an Existing item
+                /// Get Existing item
                 var existedItem = await db.Countries.Where(s => s.Id == id).FirstOrDefaultAsync();
 
                 if (existedItem is null)

@@ -1,6 +1,6 @@
 ﻿namespace ExportOrderEntites.DTO;
 
-public class VoyageManifestDTO
+public class ManifestDTO
 {
     // Voyage
     public long VesselCallId { get; set; }

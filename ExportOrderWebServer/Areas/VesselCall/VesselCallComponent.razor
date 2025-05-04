@@ -142,7 +142,7 @@
                         StartIcon="@Icons.Material.Filled.Preview">
                 IMO Manifest
             </MudButton>            
-            <MudButton Class="Button" OnClick="@(async()=>{ await ViewCustomsReport_Click(); })"
+            <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportCustoms_Click(); })"
                         Style="width:142px; margin-bottom:10px"
                         Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                         StartIcon="@Icons.Material.Filled.Preview">
@@ -161,14 +161,11 @@
 </div>
 
 <div class="Container-table">
-    @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-        </div>
-    }    
+    <div class="tableMenu">
+        <MudSpacer />
+        <TablePager T="VesselCallDetailDTO" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>
+        
     <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData" 
               Virtualize="true" RowsPerPage="30" >
 
@@ -242,7 +239,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudTable<VesselCallDetailDTO>? mudTable;
+    private MudTable<VesselCallDetailDTO> mudTable = new();
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
@@ -272,10 +269,8 @@
         IsLoadingData = true;
 
         var response = await _vesselCallProvider.GetItemsAsync(Filter);
-        if (!response.HasError)
-            Items = ((IEnumerable<VesselCallDetailDTO>)response.Object!);
-
-        await Task.Delay(50);
+        if (!response.HasErrors && response.Object is not null)
+            Items = (IEnumerable<VesselCallDetailDTO>)response.Object;
 
         IsLoadingData = false;
 
@@ -297,7 +292,7 @@
     private async Task AddExportOrder_Click(long vcdId)
     {
         //var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));
-        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank");        
+        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank");
     }
 
     private async Task RemoveItemDetail_Click(long id, string pod)
@@ -314,10 +309,10 @@
             {
                 var response = await _vesselCallProvider.RemoveVesselCallDetailAsync(id);
 
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
-                    Snackbar.Add($"Unable to delete:<br>{response.Error.FirstOrDefault()}", Severity.Warning);
+                    Snackbar.Add($"Unable to delete:<br>{response.Errors.FirstOrDefault()}", Severity.Warning);
             }
 
         IsLoadingData = false;
@@ -348,8 +343,7 @@
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        string path = $"{ApplicationParameter.ViewReportUrl}ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}";
-        await jsRuntime.InvokeVoidAsync("open", path);
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}");
     }
 
     private async Task SaveFileFillBill_Click()
@@ -357,27 +351,21 @@
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        //string path = $"{Navigation.BaseUri}view/ViewReport/SaveFileExcelFillBill?vslcallid={vesselcallid}";
-        string path = $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelFillBill?vslcallid={vesselcallid}";
-        
-        await jsRuntime.InvokeVoidAsync("open", path);
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelFillBill?vslcallid={vesselcallid}");
     }
 
-    private async Task ViewCustomsReport_Click()
+    private async Task ViewReportCustoms_Click()
     {
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        string path = $"{ApplicationParameter.ViewReportUrl}ViewCustomsExplanation?vslcallid={vesselcallid}";
-        await jsRuntime.InvokeVoidAsync("open", path);
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportCustoms?vslcallid={vesselcallid}");
     }
 
     private async Task<long> GetVoyageId()
     {
         if (Items is null || Items!.Count() == 0) return 0;
  
-        //await Task.Delay(500);
-
         var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
         if (voyageGroup.Count() != 1)
         {
@@ -390,9 +378,9 @@
         string terminal = Items.GroupBy(g => g.VesselCallId).Select(g => g.FirstOrDefault()!.Terminal).FirstOrDefault()!;
 
         var response = await _carrierProvider.GetTerminalNameAsync(voyageId, terminal);
-        if (response.HasError)
+        if (response.HasErrors)
         {
-            Snackbar.Add(response.Error.FirstOrDefault()!, Severity.Warning);
+            Snackbar.Add(response.Errors.FirstOrDefault()!, Severity.Warning);
             await Task.Delay(1000);
             return 0;
         }

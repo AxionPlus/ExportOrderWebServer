@@ -10,11 +10,15 @@ namespace ExportOrderWebServer.Service
 
     public class ValidationService : IValidationService
     {
-        public readonly IExportOrderProvider ExportOrderProvider;
+        public readonly IExportOrderProvider _ExportOrderProvider;
 
-        public ValidationService(IExportOrderProvider _exportOrderProvider)
+        public ValidationService(IExportOrderProvider exportOrderProvider)
         {
-            ExportOrderProvider = _exportOrderProvider;
+            _ExportOrderProvider = exportOrderProvider;
+        }
+        public ValidationService()
+        {
+            
         }
 
         /// <summary>
@@ -30,15 +34,18 @@ namespace ExportOrderWebServer.Service
         /// <returns></returns>
         public async Task<IEnumerable<string>> ValidateCntrNums(string[] editedCntrNums, long eoId, long voyageId, string? singleCntrNum = null)
         {
-            List<string> errMessages = new();
+            List<string> errMessages = new();            
             
-            string[] cntrNums = editedCntrNums;
+            /// Коллекция номеров кнтр-ов, исключая редактируемую коллекцию
+            var dbVoyageCntrNums = await _ExportOrderProvider.GetCntrNumsInVoyage(eoId, voyageId);
+            
+            string[] _editedCntrNums = editedCntrNums;
 
             /// Choose checking procedure - Single Cntr or Entire editing collection
             if (!string.IsNullOrEmpty(singleCntrNum))
-                cntrNums = new string[] { singleCntrNum };
+                _editedCntrNums = new string[] { singleCntrNum };
 
-            foreach (string num in cntrNums)
+            foreach (string num in _editedCntrNums)
             {
                 string errPrefix = $"{num}: ";
                 ///LENGTH
@@ -60,6 +67,7 @@ namespace ExportOrderWebServer.Service
                     errMessages.Add($"{errPrefix} Количество символов в номере Контейнера не верно.");
 
                 /// DUPPLICATES
+                ///
                 /// <edited pageFound>Поиск в редактируемой коллекции</edited>
                 bool editedFound = false;
                 bool dbFound = false;
@@ -72,19 +80,16 @@ namespace ExportOrderWebServer.Service
                     errMessages.Add($"{errPrefix} Контейнер повторяется в этом Поручении.");
                 else
                 {
-                    /// <db dbFound>Поиск в БД, исключая редактируемую коллекцию</db>                
-                    var voyageCntrNums = await ExportOrderProvider.GetCntrNumsInVoyage(eoId, voyageId);
-
-                    if (voyageCntrNums is not null && voyageCntrNums.Any())
-
-                    dbFound = voyageCntrNums.Any(n => n == num);
+                    /// <db dbFound>Поиск в БД, исключая редактируемую коллекцию</db> 
+                    if (dbVoyageCntrNums is not null && dbVoyageCntrNums.Any())
+                        dbFound = dbVoyageCntrNums.Any(n => n == num);
                     
                     if (dbFound)
                         errMessages.Add($"{errPrefix} Контейнер повторяется в этом рейсе.");
                 }                    
             }
 
-            return errMessages; //.ToArray();
+            return errMessages;
         }
 
         public int ControlDigit(string cntrNum)

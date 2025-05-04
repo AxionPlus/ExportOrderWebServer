@@ -95,7 +95,7 @@ public class CntrTypeProvider : ICntrTypeProvider
         {
             var db = await _db;
 
-            var res = await db.ContainerTypeSize.AsNoTracking().ToListAsync();
+            var res = await db.ContainerTypeSize.ToListAsync();
             return res;
         }
     }

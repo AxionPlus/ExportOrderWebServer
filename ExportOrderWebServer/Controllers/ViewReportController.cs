@@ -1,6 +1,7 @@
 ﻿using AspNetCore.Reporting;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using static MudBlazor.CategoryTypes;
 
 namespace ExportOrderWebServer.Controllers;
 
@@ -23,27 +24,20 @@ public class ViewReportController : ControllerBase
 
     [HttpGet]
     [Route("ViewReportExpOrder")]
-    public async Task<IActionResult> ExportOrderReport(long Id)
+    public async Task<IActionResult> ViewReportExpOrder(long Id)
     {
-        var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
+        var ids = new List<long>() { Id };
 
-        if (Item is null) return Empty;
+        var items = await _exportOrderProvider.GetItemsOrderDTOAsync(ids);   //var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
+
+        if (items is null) return BadRequest("Records not found.");
+
+        var Item = items.FirstOrDefault();
+
+        if (Item is null) return BadRequest("Records not found.");
 
         try
         {
-            string mimeType = "application/pdf";
-            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
-
-            LocalReport localReport = new(pathReport);
-
-            #region PARAMETERS
-            //Dictionary<string, string> parameters = new Dictionary<string, string>()
-            //{
-            //    { "report", "new" },
-            //};
-            #endregion
-
             #region DATA SOURCE
 
             var Items = new List<ExportOrderDTO>() { Item };
@@ -70,20 +64,6 @@ public class ViewReportController : ControllerBase
 
             var dsRecords = Item.ExportOrderRecordsDTO;
 
-            //var dsShippers = dsRecords?.Select(r => new { Shippers = r.Shipper }).Distinct().ToList();
-
-            //var dsConsignees = dsRecords?.Select(r => new { Consignees = r.Consignee }).Distinct().ToList();
-
-            //var dsCommodities = dsRecords?.GroupBy(r => new { r.SeqContent, r.Commodity })
-            //                              .Select(g => new
-            //                              {
-            //                                  Commodity = g.Key.Commodity + " (" +
-            //                                  g.FirstOrDefault()!.HSCode + ") " +
-            //                                  (g.FirstOrDefault()!.IsIMO ? " IMO: " +
-            //                                    g.FirstOrDefault()!.IMO + " UNNO: " +
-            //                                    g.FirstOrDefault()!.UNNO : ""),
-            //                              }).ToList();
-
             int dSeq = 0;
             var dsDocuments = dsRecords?.GroupBy(r => r.DocumentName).Select(g => new {
                docSeq = ++dSeq,
@@ -94,16 +74,19 @@ public class ViewReportController : ControllerBase
                docGross = g.Sum(gr => gr.GrossWt)
             }).ToList();            
             
-            localReport.AddDataSource("dsItem", dsItem);
-            localReport.AddDataSource("dsRecords", dsRecords);
-            //localReport.AddDataSource("dsShippers", dsShippers);
-            //localReport.AddDataSource("dsConsignees", dsConsignees);
-            //localReport.AddDataSource("dsCommodities", dsCommodities);
-            localReport.AddDataSource("dsDocuments", dsDocuments);
-
             #endregion
 
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
+            string mimeType = "application/pdf";
+            int pageIndex = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ExportOrder.rdlc");
+
+            LocalReport localReport = new(pathReport);
+
+            localReport.AddDataSource("dsItem", dsItem);
+            localReport.AddDataSource("dsRecords", dsRecords);
+            localReport.AddDataSource("dsDocuments", dsDocuments);
+
+            ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
 
             return File(result.MainStream, "application/pdf");
         }
@@ -116,24 +99,23 @@ public class ViewReportController : ControllerBase
 
     [HttpGet]
     [Route("ViewReportBL")]
-    public async Task<IActionResult> BLReport(long Id)
+    public async Task<IActionResult> ViewReportBL(long Id)
     {
-        var Item = await _exportOrderProvider.GetBLDTOAsync(Id);
+        var ids = new List<long>() { Id };
 
-        if (Item is null) return Empty;
+        var items = await _exportOrderProvider.GetItemsBillDTOAsync(ids);    //var Item = await _exportOrderProvider.GetBLDTOAsync(Id);
 
-        string fileName = "BL" + Item.BLtemplate + ".rdlc";
+        if (items is null) return BadRequest("Records not found.");
+
+        var Item = items.FirstOrDefault();
+
+        if (Item is null) return BadRequest("Records not found.");
+
+        string fileName = string.Concat("BL", Item.BLtemplate, ".rdlc");
 
         try
         {
-            string mimeType = "application/pdf";
-            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
-
-            LocalReport localReport = new(pathReport);
-
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Encoding.GetEncoding("windows-1252");
+            //Encoding.GetEncoding("windows-1252");
 
             #region DATA SOURCE
 
@@ -174,7 +156,7 @@ public class ViewReportController : ControllerBase
                 x.Measurement,
             }).ToList();
 
-            // список контейнеров дополненный до 20ти записей на первом листе коносамента
+            /// список контейнеров дополненный до 20ти записей на первом листе коносамента
             if (Item.BLtemplate == "nca")
             {
                 int recCount = Records.Count;
@@ -274,12 +256,18 @@ public class ViewReportController : ControllerBase
                         Records.Add(new() { Seq = (uint)i, CntrTareWt = null, GrossWt = null });
             }
 
+            #endregion
+
+            string mimeType = "application/pdf";
+            int pageIndex = (int)(DateTime.Now.Ticks >> 10);
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
+
+            LocalReport localReport = new(pathReport);
+
             localReport.AddDataSource("dsBL", dsItem);
             localReport.AddDataSource("dsCntrRecords", Records);
 
-            #endregion
-
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
+            ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
 
             return File(result.MainStream, "application/pdf");
 
@@ -298,26 +286,14 @@ public class ViewReportController : ControllerBase
 
     [HttpGet]
     [Route("ViewReportManifest")]
-    public async Task<IActionResult> ManifestReport(long vslcallid, bool isIMO)
+    public async Task<IActionResult> ViewReportManifest(long vslcallid, bool isIMO)
     {
-        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, isIMO);
+        var Items = await _exportOrderProvider.GetItemsManifestDTOAsync(vslcallid, isIMO);
 
-        if (Items.Count() == 0) return Empty;
+        if (Items is null || !Items.Any()) return Empty;
 
         try
         {
-            string mimeType = "";
-            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;            
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
-
-            if (isIMO)
-            {
-                pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ManifestIMO.rdlc");
-                Items = Items.Where(s => s.IsIMO == true);
-            }                
-
-            LocalReport localReport = new LocalReport(pathReport);
-
             #region DATA SOURCES
 
             int full20Count = Items.Where(it => it.GrossWeights > 0)
@@ -373,7 +349,7 @@ public class ViewReportController : ControllerBase
 
             var dsSummary = new List<ManifestSummaryDTO>()
             {
-                new ManifestSummaryDTO()
+                new()
                 {
                     Full20Count = full20Count,
                     Full40Count = full40Count,
@@ -405,42 +381,45 @@ public class ViewReportController : ControllerBase
 
             #endregion
 
+            string mimeType = "application/pdf";    //""
+            int pageIndex = (int)(DateTime.Now.Ticks >> 10);
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "Manifest.rdlc");
+
+            if (isIMO)
+            {
+                pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "ManifestIMO.rdlc");
+                Items = Items.Where(s => s.IsIMO == true);
+            }
+
+            LocalReport localReport = new(pathReport);
+
             localReport.AddDataSource("dsManifest", Items);
             localReport.AddDataSource("dsSummary", dsSummary);
 
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
-            //parameters
-            //await Task.Delay(500);
+            ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);            
 
             return File(result.MainStream, "application/pdf");
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            Console.WriteLine(msg);
+            Console.WriteLine(ex.Message);
             return Ok();
         }
     }
 
     [HttpGet]
-    [Route("ViewCustomsExplanation")]
-    public async Task<IActionResult> CustomsReport(long vslcallid)
+    [Route("ViewReportCustoms")]
+    public async Task<IActionResult> ViewReportCustoms(long vslcallid)
     {
-        var Items = await _exportOrderProvider.GetVoyageManifestDTOAsync(vslcallid, false);
+        var Items = await _exportOrderProvider.GetItemsManifestDTOAsync(vslcallid, false);
 
-        if (Items.Count() == 0) return Empty;
+        if (Items is null || !Items.Any()) return Empty;
 
         try
         {
-            string mimeType = "";
-            int extension = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
-            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "CustomsLetter.rdlc");
-
-            LocalReport localReport = new LocalReport(pathReport);
-
             #region DATA SOURCES
 
-            // Customs
+            /// Customs
             var dsCustomsDept = Items.GroupBy(g => g.VesselCallId).FirstOrDefault()!
                                 .Select(g => new
                                 {
@@ -448,11 +427,11 @@ public class ViewReportController : ControllerBase
                                     g.CustomsOfficeShortName,
                                     g.CustomsDapartment,
                                     g.DateExplanation,
-                                    VesselVoyage = g.VesselName + ", флаг " + g.VesselFlag + ", рейс: " + g.Voyage,
+                                    VesselVoyage = string.Concat(g.VesselName, ", флаг ", g.VesselFlag, ", рейс: ", g.Voyage),
                                     g.PersonSign
                                 }).ToList();
 
-            // Person
+            /// Person
             var dsPerson = Items.GroupBy(g => g.CustomsOfficeCode).FirstOrDefault()!
                                 .Select(g => new
                                 {
@@ -465,7 +444,7 @@ public class ViewReportController : ControllerBase
                                     g.PersonPass,
                                 }).ToList();
 
-            // General Data (records)
+            /// General Data (records)
             var dsRecords = Items.GroupBy(g => g.BLNum)
                                .Select(g => new
                                {
@@ -480,20 +459,23 @@ public class ViewReportController : ControllerBase
 
             #endregion
 
+            string mimeType = "application/pdf";    // ""
+            int pageIndex = (int)(DateTime.Now.Ticks >> 10);    //int extension = 1;
+            string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", "CustomsLetter.rdlc");
+
+            LocalReport localReport = new(pathReport);
+
             localReport.AddDataSource("dsLetter", dsCustomsDept);
             localReport.AddDataSource("dsPeron", dsPerson);
             localReport.AddDataSource("dsRecords", dsRecords);
 
-            ReportResult result = localReport.Execute(RenderType.Pdf, extension, null, mimeType);
-            //parameters
-            //await Task.Delay(500);
-
+            ReportResult result = localReport.Execute(RenderType.Pdf, pageIndex, null, mimeType);
+            
             return File(result.MainStream, "application/pdf");
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            Console.WriteLine(msg);
+            Console.WriteLine(ex.Message);
             return Ok();
         }
     }  

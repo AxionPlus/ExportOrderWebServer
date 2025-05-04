@@ -21,5 +21,6 @@ public class ContainerContent
 
     [JsonIgnore]
     public ExportOrderRecord ExportOrderRecord { get; set; }
-    [NotMapped] public string? DocumentName { get; set; }
+    [NotMapped]
+    public string? DocumentName { get; set; }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace ExportOrderWebServer.Areas.Customs.Provider;
+﻿namespace ExportOrderWebServer.Areas.Customs.Provider;
 
 public class CustomsProvider : ICustomsProvider
 {
@@ -11,12 +9,11 @@ public class CustomsProvider : ICustomsProvider
     public CustomsProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -32,27 +29,17 @@ public class CustomsProvider : ICustomsProvider
         throw new NotImplementedException();
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var customsOffices = await db.CustomsOffices.ToListAsync();
-
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
-
-                if (!string.IsNullOrEmpty(filter.Num))
-                    customsOffices = customsOffices.Where(s => s.Code == filter.Num).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Name))
-                    customsOffices = customsOffices.Where(s => s.OfficeShort == filter.Name).ToList();
-            }
-
+            var customsOffices = await db.CustomsOffices
+                                                        .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.OfficeShort == filter.Name : true)
+                                                        .Where(s => !string.IsNullOrEmpty(filter.Num)? s.Code == filter.Num : true)
+                                                        .ToListAsync();
+            
             appObjResponse.Object = customsOffices.ToArray();
 
             return appObjResponse;
@@ -79,8 +66,6 @@ public class CustomsProvider : ICustomsProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CustomsCatalog item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -131,16 +116,13 @@ public class CustomsProvider : ICustomsProvider
 
     public async Task<AppObjectResponse> NewItemAsync(CustomsCatalog item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-            // check an Existing item
-            var itemExistCheck = await db.CustomsOffices.Where(s => s.Office == item!.Office).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
+            bool isItemExist = db.CustomsOffices.Any(s => s.Office == item!.Office);
+            if (isItemExist)
             {
                 appObjResponse.ErrorAdd($"Таможенный пост уже существует: {item!.Office}");
                 return appObjResponse;
@@ -160,29 +142,26 @@ public class CustomsProvider : ICustomsProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        appObjResponse = new();
         try
         { 
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            // check an Existing item
-            var existedItem = await db.CustomsOffices.Where(s => s.Id == id).FirstOrDefaultAsync();
-
-            if (existedItem != null)
+            using (var _db = _dbContext.CreateDbContextAsync())
             {
-                //db.Entry(item.CreateUser).State = EntityState.Detached;
-                db.Entry(existedItem).State = EntityState.Deleted;
+                var db = await _db;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
+                bool isItemExist = db.CustomsOffices.Any(s => s.Id == id);
+
+                if (isItemExist)
+                {
+                    db.Entry(isItemExist).State = EntityState.Deleted;
+
+                    var bug = db.ChangeTracker.DebugView.LongView;
+                    await db.SaveChangesAsync();
+                }
+                else
+                    appObjResponse.ErrorAdd("Record wasn't deleted");
+
+                return appObjResponse;
             }
-            else
-                appObjResponse.ErrorAdd("Record wasn't deleted");
-
-            return appObjResponse;
-        }
         }
         catch (Exception ex)
         {

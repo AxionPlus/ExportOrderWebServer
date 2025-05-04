@@ -93,8 +93,8 @@
     <div class="Container-item">
         <div class="container-content">
             <MudSelect Class="wrapper-input-select" Style="width: 120px" T="DocumentType" Label="Type" @bind-Value="@Value.Type"
-                       ToStringFunc="@(s => s.ToString())"
-                       Variant="Variant.Outlined" Margin="Margin.Dense">                           
+            ToStringFunc="@(s => s.ToString())"
+            Variant="Variant.Outlined" Margin="Margin.Dense">                           
                 @foreach (DocumentType type in Enum.GetValues(typeof(DocumentType)))
                 {
                     <MudSelectItem Value="@type" />
@@ -102,17 +102,17 @@
             </MudSelect>            
             <div style="width:520px">
                 <MudTextField Class="TextField" Style="width: 260px; font-weight:500; color:var(--mud-palette-primary)" Label="Number" @bind-Value="Value.Name"
-                              Variant="Variant.Outlined" Margin="Margin.Dense" AutoFocus
-                              Mask="@MaskDocumentName"
-                              Required RequiredError="" Clearable="!IsFormReadOnly"/>
+                Variant="Variant.Outlined" Margin="Margin.Dense" AutoFocus
+                Mask="@MaskDocumentName"
+                Required RequiredError="" Clearable/>
             </div>
             <div class="Document_row" style="width:520px">
                 <MudTextField Class="TextField" Style="width:360px; font-weight:500" Label="Description" @bind-Value="Value.Description"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Required RequiredError="" Clearable="!IsFormReadOnly" />
+                Variant="Variant.Outlined" Margin="Margin.Dense"
+                Required RequiredError="" Clearable />
                 <MudSelect Class="wrapper-input-select" Style="width:120px" T="EntityStatus" Label="Status" @bind-Value="Value.Status"
-                           ToStringFunc="@(str => str.ToString())"
-                           Variant="Variant.Outlined" Margin="Margin.Dense">
+                ToStringFunc="@(str => str.ToString())"
+                Variant="Variant.Outlined" Margin="Margin.Dense">
                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
                     {
                         if (status == EntityStatus.New || status == EntityStatus.Completed)
@@ -125,29 +125,29 @@
         </div>
         <div class="container-content">
             <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Shipper"); } )"
-                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-                       StartIcon="@Icons.Material.Filled.ArrowDropDownCircle" Disabled="IsFormReadOnly">
+            Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+            StartIcon="@Icons.Material.Filled.ArrowDropDownCircle">
                 Shipper
             </MudButton>
             <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 520px" @bind-Value="@Value.Shipper!.Name"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-                          Required RequiredError="" Clearable="!IsFormReadOnly" />
+            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
+            Required RequiredError="" Clearable />
             <MudTextField Class="TextField" Placeholder="Shipper En" Style="width: 520px" @bind-Value="@Value.Shipper!.NameEn"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-                          Required RequiredError="" Clearable="!IsFormReadOnly" />
+            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
+            Required RequiredError="" Clearable />
         </div>
         <div class="container-content">
             <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Consignee"); } )"
-                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-                       StartIcon="@Icons.Material.Filled.ArrowDropDownCircle" Disabled="IsFormReadOnly">
+            Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+            StartIcon="@Icons.Material.Filled.ArrowDropDownCircle" >
                 Consignee
             </MudButton>
             <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 520px" @bind-Value="@Value.Consignee!.Name"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-                          Required RequiredError="" Clearable="!IsFormReadOnly" />
+            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
+            Required RequiredError="" Clearable />
             <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 520px" @bind-Value="@Value.Consignee.NameEn"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-                          Required RequiredError="" Clearable="!IsFormReadOnly" />
+            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
+            Required RequiredError="" Clearable />
         </div>
     </div>    
 
@@ -158,7 +158,7 @@
             <HeaderContent>
                 <MudTh Style="width:40px;">
                     <div class="controlIconButtons">
-                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="AddRecord_Click" Size="Size.Small" Color="Color.Primary" Disabled="IsFormReadOnly"/>
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="AddRecord_Click" Size="Size.Small" Color="Color.Primary"/>
                     </div>                
                 </MudTh>
                 <MudTh Style="width:40px">Seq</MudTh>
@@ -172,8 +172,8 @@
 
             <RowTemplate>                
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{ await RemoveRecord(context);})"
-                    Color="Color.Error" Size="Size.Small" Disabled="IsFormReadOnly"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{ await RemoveRecord_Click(context);})"
+                                   Color="Color.Error" Size="Size.Small" />
                 </MudTd>
                 <MudTd>
                     @context.Seq.ToString("000")
@@ -183,26 +183,22 @@
                 </MudTd>
                 <MudTd>                    
                     <MudTextField Class="TextField" T="string" Style="width: 352px" @bind-Value="@context.CommodityName"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    Lines=2 ReadOnly />                    
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField" T="string" Style="width: 352px" @bind-Value="@context.CommodityEngName"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    Lines=2 ReadOnly />                    
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
                 </MudTd>                
                 <MudTd>
                     <div class="GoodWeight">
                         <div class="numField_Label">gross</div>
                         <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt"
-                        Variant="Variant.Outlined" MaxLength="10"
-                        Format="N3" HideSpinButtons="true" Required RequiredError="" />
+                                         Variant="Variant.Outlined" Format="N3" HideSpinButtons="true" ReadOnly/>
                     </div>
                     <div class="GoodWeight">
                         <div class="numField_Label">net</div>
                         <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt"
-                        Variant="Variant.Outlined" MaxLength="10"
-                        Format="N3" HideSpinButtons="true" Required RequiredError="" />
+                                         Variant="Variant.Outlined" Format="N3" HideSpinButtons="true" ReadOnly />
                     </div>                    
                 </MudTd>
                 <MudTd>
@@ -218,9 +214,8 @@
                     </div>
                     <div class="IMOWeight">
                         <div class="numField_Label">UN</div>
-                        <MudTextField @ref="@Unno" Class="wrapper-input NoHeader" T="string" @bind-Value="@context.UNNO"
-                        Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(!context.IsIMO)"
-                        MaxLength="4" />
+                        <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.UNNO"
+                        Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" Disabled="@(!context.IsIMO)" />
                     </div>
                 </MudTd>
             </RowTemplate>
@@ -236,19 +231,19 @@
 }
 
 @code {
-    private MudTable<DocumentRecord>? mudTable;
+    private MudTable<DocumentRecord> mudTable = new();
 
     [Parameter]
     public DocumentEntity? Value { get; set; }
     [Parameter]
     public EventCallback<DocumentEntity> ValueChanged { get; set; }    
-    [Parameter]
-    public bool IsFormReadOnly { get; set; }
-    private MudTextField<string?> Unno = new();
+    
     private PatternMask MaskDocumentName = new PatternMask("00000000/000000/0000000") { Placeholder = '_' };
 
     private async Task GetCustomer_Click(string ShipperOrConsignee)
     {
+        if (Value is null) return;
+
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
 
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
@@ -265,14 +260,14 @@
             switch (ShipperOrConsignee)
             {
                 case "Shipper":
-                    Value!.Shipper!.Name = customer.Name;
+                    Value.Shipper!.Name = customer.Name;
                     Value.Shipper!.NameEn = customer.NameEn;
                     Value.Shipper!.CountryRUS = customer.Country!.RUS;
                     Value.Shipper!.CountryENG = customer.Country.ENG;
                     break;
 
                 case "Consignee":                    
-                    Value!.Consignee!.Name = customer.Name;
+                    Value.Consignee!.Name = customer.Name;
                     Value.Consignee!.NameEn = customer.NameEn;
                     Value.Consignee!.CountryRUS = customer.Country!.RUS;
                     Value.Consignee!.CountryENG = customer.Country.ENG;
@@ -286,6 +281,8 @@
 
     private async Task AddRecord_Click()
     {
+        if (Value is null) return;
+
         DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
         DialogOptions options = new DialogOptions { CloseButton = true, BackdropClick = false, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<CommodityComponent>("SELECT COMMODITY", parameters, options);
@@ -297,9 +294,9 @@
 
             if (commodity is null) return;
 
-            Value!.Records.Add(new ()
+            Value.Records.Add(new ()
             {
-                Seq = Value!.Records.Count() + 1,
+                Seq = Value.Records.Count() + 1,
                 CommodityName = commodity.Name,
                 CommodityEngName = commodity.NameEn,
                 CommodityHSCode = commodity.HSCode,
@@ -309,12 +306,14 @@
                 UNNO = commodity.UNNO,
                 IsIMO = commodity.IsIMO
             });
+
+            await InvokeAsync(StateHasChanged);
         }
 
-        await InvokeAsync(StateHasChanged);
+        //await InvokeAsync(StateHasChanged);
     }
 
-    private async Task RemoveRecord(DocumentRecord record)
+    private async Task RemoveRecord_Click(DocumentRecord record)
     {
         if (record is null || Value is null)
             return;

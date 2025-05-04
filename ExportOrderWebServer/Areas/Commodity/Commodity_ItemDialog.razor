@@ -5,21 +5,14 @@
 @if (Item is not null)
 {
     <MudContainer MaxWidth="MaxWidth.Large">
-        <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
+        <MudForm @ref="@Form">
 
             <div class="ToolBar-container">
                 <MudToolBar Class="ToolBar ToolBar-new">                    
                     <MudSpacer />
                     <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                        <MudTooltip Text=@(IsFormReadOnly ? "Edit" : "Save")>
-                            @if (IsFormReadOnly)
-                            {
-                                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
-                            }
-                            else
-                            {
-                                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />
-                            }                            
+                        <MudTooltip Text="Save">
+                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />                        
                         </MudTooltip>
                     </div>
                 </MudToolBar>
@@ -33,7 +26,7 @@
                                   AutoFocus="true" Immediate="true"
                                   Validation="HSCodeValidation"
                                   Mask="@(new PatternMask("0000000000"))"                                                                    
-                                  Required RequiredError="" Clearable="!IsFormReadOnly" />                
+                                  Required RequiredError="" Clearable />
                     <MudSpacer />
                      
                     <div class="wrapper-checkBox" style="width:170px; margin-inline-start:10px; justify-content:start">
@@ -44,11 +37,11 @@
                         <MudTextField T="string" Style="width:100px; margin-inline:10px" Label="IMO" @bind-Value="@Item.IMO"
                                       Variant="Variant.Outlined" Margin="Margin.Dense"
                                       MaxLength="3"
-                                      Required RequiredError="" Clearable="!IsFormReadOnly" />
+                                      Required RequiredError="" Clearable />
                         <MudTextField @ref="@Unno" T="string" Style="width:100px" Label="UNNO" @bind-Value="@Item.UNNO"
                                       Variant="Variant.Outlined" Margin="Margin.Dense"
                                       Mask="@(new PatternMask("0000"))"
-                                      Required RequiredError="" Clearable="!IsFormReadOnly" />
+                                      Required RequiredError="" Clearable />
                     }
                     else
                     {
@@ -62,7 +55,7 @@
                                   Lines="6"
                                   Immediate="true"
                                   Required RequiredError=""
-                                  Clearable="!IsFormReadOnly" />
+                                  Clearable />
                     <MudSpacer/>
                     <MudTextField T="string" Style="width: 450px; margin-left: 10px" Label="Name En" Text="@Item.NameEn"
                                   TextChanged="(e)=> { Item.NameEn = e.ToUpper(); StateHasChanged();}"
@@ -70,7 +63,7 @@
                                   Lines="6"
                                   Immediate="true"
                                   Required RequiredError=""
-                                  Clearable="!IsFormReadOnly" />
+                                  Clearable />
                  </div>
             </div>
         </MudForm>
@@ -78,14 +71,13 @@
 }
 
 @code {
-    private MudForm? Form { get; set; }    
+    private MudForm Form { get; set; } = new();  
     [Parameter]
     public long Id { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
     private CommodityCatalog? Item { get; set; }
-    private bool IsFormReadOnly { get; set; } = true;
     private bool IsAuth = false;
 
     private MudTextField<string> Hscode = new();
@@ -105,15 +97,12 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-        {
             Item = new() { Name = string.Empty, NameEn = string.Empty, HSCode = string.Empty };
-            IsFormReadOnly = false;
-        }        
         else
         {
             var response = await _CommodityProvider.GetItemAsync(Id);
-            if (!response.HasError)
-                Item = (CommodityCatalog)response.Object!;
+            if (!response.HasErrors && response.Object is not null)
+                Item = (CommodityCatalog)response.Object;
         }
     }
 
@@ -121,7 +110,7 @@
     {
         if (Item is null) return;
 
-        await Form!.Validate();
+        await Form.Validate();
 
         if (Form.IsValid)
         {
@@ -141,38 +130,31 @@
             if (IsNewItem)
             {
                 var response = await _CommodityProvider.NewItemAsync(Item!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                 {
                     Id = Item.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);
                 }
                 else
-                    Snackbar.Add(string.Join(", ", response.Error), Severity.Error);
+                    Snackbar.Add(string.Join(", ", response.Errors), Severity.Error);
             }
             else
             {
                 var response = await _CommodityProvider.ModifyItemAsync(Item!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                 {
                     Snackbar.Add("Save Successed", Severity.Success);
                 }
                 else
-                    Snackbar.Add(string.Join(", ", response.Error), Severity.Error);
+                    Snackbar.Add(string.Join(", ", response.Errors), Severity.Error);
             }
         }
         else
             return;
 
         IsNewItem = false;
-        IsFormReadOnly = true;
 
         await GetItem();
-    }
-
-    private async Task EditItem_Click()
-    {
-        await Task.Delay(50);
-        IsFormReadOnly = false;
     }
 
     Func<string, string?> HSCodeValidation = (str) =>

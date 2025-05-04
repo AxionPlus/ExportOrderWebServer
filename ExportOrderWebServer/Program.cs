@@ -1,6 +1,5 @@
 using ExportOrderWebServer;
-using ExportOrderWebServer.Areas.CntrType.Provider;
-using ExportOrderWebServer.Areas.SupplementaryUnit.Provider;
+
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
@@ -81,12 +80,13 @@ services.AddTransient<ISupplementaryUnitProvider, SupplementaryUnitProvider>();
 services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
 services.AddTransient<StatisticProvider>();
 
-services.AddTransient<ICheckUploadResultService, CheckUploadResultService>();
+services.AddTransient<IUploadResultService, UploadResultService>();
 services.AddTransient<IValidationService, ValidationService>();
 
 services.AddTransient<IExcelFileCreateService, ExcelFileCreateService>(); 
 services.AddTransient<IExcelFileUploadService, ExcelFileUploadService>();
 services.AddTransient<IXmlFileCreateService, XmlFileCreateService>();
+services.AddTransient<IPdfFileCreateService, PdfFileCreateService>();
 
 
 var app = builder.Build();

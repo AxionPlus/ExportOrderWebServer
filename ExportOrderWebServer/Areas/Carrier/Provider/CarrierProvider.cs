@@ -9,12 +9,13 @@ public class CarrierProvider : ICarrierProvider
     public CarrierProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -30,7 +31,7 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
-        appObjResponse = new();
+        //appObjResponse = new();
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -40,26 +41,22 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var Carriers = await db.Carriers.ToListAsync();
+            var Carriers = await db.Carriers
+                                            .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.Name == filter.Name : true)
+                                            .Where(s => !string.IsNullOrEmpty(filter.NameEn) ? s.NameEn == filter.NameEn : true)
+                                            .ToListAsync();
+            
+            //if (!string.IsNullOrEmpty(filter.Name))
+            //    Carriers = Carriers.Where(s => s.Name == filter.Name).ToList();
 
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
-
-                if (!string.IsNullOrEmpty(filter.Name))
-                    Carriers = Carriers.Where(s => s.Name == filter.Name).ToList();
-
-                if (!string.IsNullOrEmpty(filter.NameEn))
-                    Carriers = Carriers.Where(s => s.NameEn == filter.NameEn).ToList();
-            }
+            //if (!string.IsNullOrEmpty(filter.NameEn))
+            //    Carriers = Carriers.Where(s => s.NameEn == filter.NameEn).ToList();            
 
             appObjResponse.Object = Carriers.ToArray();
 
@@ -69,7 +66,7 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CarrierCatalog item)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -144,7 +141,7 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> NewItemAsync(CarrierCatalog item)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -175,10 +172,9 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        appObjResponse = new();
-        return appObjResponse;
+        throw new NotImplementedException();
     }
 
     public async Task<IEnumerable<string>> GetNames()
@@ -200,21 +196,19 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-    #region AUXILARY
-
     public async Task<AppObjectResponse> RemoveDetailsAsync(CarrierTerminalDetails item)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
             // check an Existing item
-            var itemExistCheck = await db.CarrierDetails.Where(s => s.Id == item!.Id).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
+            bool isItemExist = db.CarrierDetails.Any(s => s.Id == item.Id);
+            if (isItemExist)
             {
-                appObjResponse.ErrorAdd($"Carrier details dosn't exists for: {item!.TerminalName}");
+                appObjResponse.ErrorAdd($"Carrier details dosn't exists for: {item.TerminalName}");
                 return appObjResponse;
             }
 
@@ -239,7 +233,7 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> GetTerminalNameAsync(long vesselCallid, string name)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -269,8 +263,5 @@ public class CarrierProvider : ICarrierProvider
         }
 
         return appObjResponse;
-    }
-    
-    #endregion
-
+    }    
 }

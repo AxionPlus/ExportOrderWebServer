@@ -4,23 +4,23 @@
 
 <style>
     .Commodity * div > .mud-dialog-content {
-        padding: 8px 0px;
+    padding: 8px 0px;
     }
 
     .Autocomplete * .mud-input-label-outlined.mud-input-label-margin-dense {
-        transform: translate(10px,8px) scale(1);
+    transform: translate(10px,8px) scale(1);
     }
 
     .Autocomplete * .mud-input>input.mud-input-root-outlined.mud-input-root-adorned-end {
-        padding-inline-start: 10px;
-        padding-top: 6px;
-        padding-bottom: 6px;
-        padding-inline-end: 4px;
+    padding-inline-start: 10px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-inline-end: 4px;
     }
 
     .Autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
-        margin-inline-end: -10px;
-        margin-inline-start: unset;
+    margin-inline-end: -10px;
+    margin-inline-start: unset;
     }
 
 </style>
@@ -28,42 +28,43 @@
 <div class="Container-item">
     <div class="container-content">
         <MudAutocomplete Class="Autocomplete HSCode" T="string" Label="HS code" @bind-Value="Filter.HScode" SearchFunc="@SearchHScodes"
-                         Style="width: 145px" 
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         AutoFocus=true
-                         MaxLength="10" MinCharacters="3" Format="0"
-                         CloseIcon="" OpenIcon=""
-                         ResetValueOnEmptyText="true" Clearable />
+        Style="width: 145px" 
+        Variant="Variant.Outlined" Margin="Margin.Dense"
+        AutoFocus=true
+        MaxLength="10" MinCharacters="3" Format="0"
+        CloseIcon="" OpenIcon=""
+        ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
         <MudAutocomplete Class="Autocomplete" T="string" Label="Name" @bind-Value="Filter.Name" SearchFunc="@SearchNames"
-                         Style="width: 380px"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         MinCharacters="3"
-                         CloseIcon="" OpenIcon=""
-                         ResetValueOnEmptyText="true" Clearable />
+        Style="width: 380px"
+        Variant="Variant.Outlined" Margin="Margin.Dense"
+        MinCharacters="3"
+        CloseIcon="" OpenIcon=""
+        ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
         <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" @bind-Value="Filter.NameEn" SearchFunc="@SearchNamesEn"
-                         Style="width: 380px"
-                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                         MinCharacters="3"
-                         CloseIcon="" OpenIcon=""
-                         ResetValueOnEmptyText="true" Clearable />
-         <MudSpacer />
-         <MudCheckBox Class="wrapper-checkBox" Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Value="@Filter.IsIMO"></MudCheckBox>
-         <MudSpacer />
-         <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="GetItems"
-                    Variant="Variant.Filled" Color="Color.Secondary">Search</MudButton>
+        Style="width: 380px"
+        Variant="Variant.Outlined" Margin="Margin.Dense"
+        MinCharacters="3"
+        CloseIcon="" OpenIcon=""
+        ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudCheckBox Class="wrapper-checkBox" Label="Is IMO" LabelPosition="LabelPosition.End" TriState @bind-Value="@Filter.IsIMO"></MudCheckBox>
+        <MudSpacer />
+        <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="GetItems"
+        Variant="Variant.Filled" Color="Color.Secondary">Search</MudButton>
     </div>
 </div>
 
 
 <div class="Container-table">
-    @if (mudTable != null && !IsSelectable)
+    @if (!IsSelectable)
     {
         <div class="tableMenu">
             <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">@(Items is null ? string.Empty : Items.Count())</span>
+            @* <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">@(Items is null ? string.Empty : Items.Count())</span> *@
+            <TablePager T="CommodityCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
         </div>
     }
 
@@ -86,7 +87,7 @@
                 <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.HSCode!)">HS code</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:430px">
-                    <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:430px">Name En</MudTh>
             <MudTh Style="width:65px">Is IMO</MudTh>
@@ -119,7 +120,7 @@
             {
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary"
-                                    OnClick="@(async()=>{ await RemoveItem_Click(context.HSCode, context.Id); })" />
+                                   OnClick="@(async()=>{ await RemoveItem_Click(context.HSCode, context.Id); })" />
                 </MudTd>
             }
         </RowTemplate>
@@ -132,8 +133,8 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    private MudTable<CommodityCatalog>? mudTable;
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
+    private MudTable<CommodityCatalog> mudTable = new();
 
     [Parameter]
     public bool IsSelectable { get; set; } = false;
@@ -141,10 +142,7 @@
     private IEnumerable<CommodityCatalog>? Items { get; set; } = new List<CommodityCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
-    bool IsLoadingData = false;
-
-
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
+    private bool IsLoadingData = false;
 
     public async Task GetItems()
     {
@@ -160,10 +158,13 @@
 
         var response = await _CommodityProvider.GetItemsAsync(Filter);
 
-        if (!response.HasError)
-            Items = (IEnumerable<CommodityCatalog>)response.Object!;
+        if (!response.HasErrors)
+        {
+            if (response.Object is not null)
+                Items = (IEnumerable<CommodityCatalog>)response.Object;
+        }        
         else
-            Snackbar.Add(response.Error.First(), Severity.Warning);
+            Snackbar.Add(response.Errors.First(), Severity.Warning);
 
         IsLoadingData = false;
 
@@ -196,8 +197,7 @@
 
     private async Task RemoveItem_Click(string name, long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE  Record",
                           (MarkupString)$"<b>Do you want to remove commodity?</b> <br/>HS code:<br/>{name}<br/>",
                           yesText: "YES", cancelText: "NO");
 
@@ -206,7 +206,7 @@
             {
                 var response = await _CommodityProvider.RemoveItemAsync(id);
 
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
                     Snackbar.Add($"Unable to delete", Severity.Warning);
@@ -217,7 +217,7 @@
 
     private void SelectItem_Click(CommodityCatalog item)
     {
-        MudDialog!.Close(item);
+        MudDialog.Close(item);
     }
 
     #region SEARCH FUNCTIONS

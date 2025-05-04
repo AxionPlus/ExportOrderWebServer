@@ -5,10 +5,6 @@
 @inject ILocationProvider _locationProvider
 
 <style>
-    .DatePicker > .mud-input-control {
-        margin-top: unset;
-    }
-
     .mud-input.mud-input-outlined.mud-input-adorned-end {
         padding-inline-end: 4px;
         padding-right: 4px;
@@ -25,21 +21,14 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+    <MudForm @ref="@Form" Style="max-width:fit-content">
 
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text=@(IsFormReadOnly ? "Edit" : "Save")>
-                        @if (IsFormReadOnly)
-                        {
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
-                        }
-                        else
-                        {
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />
-                        }
+                    <MudTooltip Text="Save">                        
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="@Color.Primary" OnClick="SaveItem_Click" />                        
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -51,19 +40,17 @@
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
-                              Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-             </div>
+                              Required RequiredError="" Clearable />
+            </div>
             <div class="container-content">
-                 <MudTextField T="string" Style="width: 410px" Label="Name En" Text="@Item.NameEn"
-                               TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true"
-                               Required RequiredError=""
-                               Clearable="!IsFormReadOnly" />
-             </div>
-             <div class="container-content" style="justify-content: flex-start">
-                 <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 270px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
+                <MudTextField T="string" Style="width: 410px" Label="Name En" Text="@Item.NameEn"
+                              TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"
+                              Required RequiredError="" Clearable />
+            </div>
+            <div class="container-content" style="justify-content: flex-start">
+                <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 270px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
                                   ToStringFunc="@(e => e != null ? e.Name : "")"
                                   SearchFunc="@SearchLocation"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -75,72 +62,72 @@
                                   AdornmentIcon="@Icons.Material.Filled.AddCircle"
                                   AdornmentColor="Color.Primary"
                                   Adornment="Adornment.End"
-                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddLocation_Click(); })"
-                                  Clearable="!IsFormReadOnly" />
-                
-                 <MudSelect Class="wrapper-input" T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
-                            ToStringFunc="@(s => s.ToString())"
-                            Variant="Variant.Outlined" Margin="Margin.Dense">
-                     @foreach (BLTemplate template in Enum.GetValues(typeof(BLTemplate)))
+                                  OnAdornmentClick="AddLocation_Click"
+                                  Clearable />
+                <MudSelect Class="wrapper-input" T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
+                           ToStringFunc="@(s => s.ToString())"
+                           Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @foreach (BLTemplate template in Enum.GetValues(typeof(BLTemplate)))
                     {
                         <MudSelectItem Value="@template" />
                     }
                 </MudSelect>
-             </div>
-            <div class="Container-table">
-                <MudTable Class="Table" @ref="mudTable" Items="@Item.CarrierDetails" Virtualize="true" RowsPerPage="5">
-                   
-                   <HeaderContent>
-                       <MudTh Style="width:30px">
-                            <div class="controlIconButtons">
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetails_Click" Size="Size.Small" Disabled="IsFormReadOnly"></MudIconButton>
-                            </div>
-                       </MudTh>
-                       <MudTh Style="width:150px">Terminal</MudTh>
-                       <MudTh Style="width:170px">Contract</MudTh>
-                       <MudTh Style="width:130px">Dated</MudTh>
-                       <MudTh Style="width:150px">Agent</MudTh>
-                   </HeaderContent>
-
-                   <RowTemplate>
-                       <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(context); })" /></MudTd>
-                       <MudTd>
-                            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="context.TerminalName"
-                                             SearchFunc="@SearchTerminalName"                                             
-                                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                                             CloseIcon="" OpenIcon=""
-                                             ResetValueOnEmptyText="true"
-                                             AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                             AdornmentColor="Color.Primary"
-                                             Adornment="Adornment.End"
-                                             OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddTerminal_Click(); })"
-                                             Clearable="!IsFormReadOnly" />
-                       </MudTd>
-                       <MudTd>
-                            <MudTextField Class="TextField" T="string" @bind-Value="context.Contract"
-                                          Style="width: 170px"
-                                          Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
-                       </MudTd>
-                       <MudTd>
-                            <MudDatePicker Class="DatePicker" @bind-Date="@context.DateContract"
-                                           Style="width: 115px"
-                                           DateFormat="dd.MM.yy"
-                                           ShowWeekNumbers="true"
-                                           Variant="Variant.Outlined"
-                                           IconSize=Size.Small
-                                           AutoClose=true
-                                           DisableToolbar=false
-                                           Required
-                                           Clearable="!IsFormReadOnly" />
-                       </MudTd>
-                       <MudTd>
-                           <MudTextField Class="TextField" Style="width: 150px" T="string" @bind-Value="context.AgentPOL"                                           
-                                         Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
-                       </MudTd>
-                   </RowTemplate>
-               </MudTable>
             </div>
+            <div class="container-content">
+                <div class="Container-table">
+                    <MudTable Class="Table" @ref="mudTable" Items="@Item.CarrierDetails" Virtualize="true" RowsPerPage="5">
 
+                        <HeaderContent>
+                            <MudTh Style="width:38px">
+                                <div class="controlIconButtons">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetails_Click" Size="Size.Small" />
+                                </div>
+                            </MudTh>
+                            <MudTh Style="width:162px">Terminal</MudTh>
+                            <MudTh Style="width:202px">Contract</MudTh>
+                            <MudTh Style="width:125px">Dated</MudTh>
+                            <MudTh Style="width:162px">Agent</MudTh>
+                        </HeaderContent>
+
+                        <RowTemplate>
+                            <MudTd>
+                                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(context); })" />
+                            </MudTd>
+                            <MudTd>
+                                <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="context.TerminalName"
+                                                 SearchFunc="@SearchTerminalName"
+                                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                 CloseIcon="" OpenIcon=""
+                                                 ResetValueOnEmptyText="true"
+                                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                                 AdornmentColor="Color.Primary"
+                                                 Adornment="Adornment.End"
+                                                 OnAdornmentClick="AddTerminal_Click"
+                                                 Clearable />
+                            </MudTd>
+                            <MudTd>
+                                <MudTextField Class="TextField" T="string" Style="width: 190px" @bind-Value="context.Contract"
+                                              Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
+                            </MudTd>
+                            <MudTd>
+                                <MudDatePicker @bind-Date="@context.DateContract"
+                                               DateFormat="dd.MM.yy"
+                                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                                               ShowToolbar="false"
+                                               ShowWeekNumbers="true"
+                                               IconSize=Size.Small
+                                               AutoClose=true
+                                               Required RequiredError="" Clearable />                                
+                            </MudTd>
+                            <MudTd>
+                                <MudTextField Class="TextField" Style="width: 150px" @bind-Value="context.AgentPOL"
+                                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                                              Required RequiredError="" />
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </div>
+            </div>
         </div>
 
     </MudForm>
@@ -160,7 +147,6 @@
     public bool IsNewItem { get; set; } = false;
 
     private CarrierCatalog? Item { get; set; }
-    private bool IsFormReadOnly { get; set; } = true;
     private bool IsLoadingData = false;
     private bool IsAuth = false;
 
@@ -179,14 +165,11 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-        {
-            IsFormReadOnly = false;
             Item = new();
-        }        
         else
         {
             var response = await _carrierProvider.GetItemAsync(Id);
-            if (!response.HasError)
+            if (!response.HasErrors)
                 Item = (CarrierCatalog)response.Object!;
         }
     }
@@ -202,29 +185,29 @@
             if (IsNewItem)
             {
                 var response = await _carrierProvider.NewItemAsync(Item!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                 {
                     Id = Item!.Id;
                     Snackbar.Add("Saved successfully", Severity.Success);                    
                 }
                 else
-                    Snackbar.Add(response.Error.LastOrDefault()!, Severity.Error);
+                    Snackbar.Add(response.Errors.LastOrDefault()!, Severity.Error);
             }
             else
             {
                 var response = await _carrierProvider.ModifyItemAsync(Item!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                 {
                     Snackbar.Add("Save Successed", Severity.Success);
                 }
                 else
-                    Snackbar.Add(response.Error.Last(), Severity.Error);
+                    Snackbar.Add(response.Errors.Last(), Severity.Error);
             }
 
             IsNewItem = false;
-            IsFormReadOnly = true;            
 
-            await GetItem();
+            StateHasChanged();
+            //await GetItem();
             IsLoadingData = false;
         }
         else
@@ -240,7 +223,7 @@
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Locaion", parameters, options);
 
-        var result = await dialog.Result;
+        //var result = await dialog.Result;
     }
 
     private async Task AddTerminal_Click()
@@ -249,13 +232,7 @@
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
 
-        var result = await dialog.Result;
-    }
-
-    private async Task EditItem_Click()
-    {
-        await Task.Delay(50);
-        IsFormReadOnly = false;
+        //var result = await dialog.Result;
     }
 
     private async Task AddDetails_Click()
@@ -305,7 +282,7 @@
         var Locations = new List<LocationCatalog>();
 
         var response = await _locationProvider.GetItemsAsync();
-        if (!response.HasError)
+        if (!response.HasErrors)
             Locations = ((IEnumerable<LocationCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
 
         if (string.IsNullOrWhiteSpace(value))

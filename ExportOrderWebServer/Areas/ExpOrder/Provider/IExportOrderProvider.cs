@@ -2,15 +2,16 @@
 
 public interface IExportOrderProvider : IEntityProvider<ExportOrderEntity>
 {   
-    Task<ExportOrderDTO> GetExportOrderDTOAsync(long Id);
-    Task<ExportOrderDTO> GetBLDTOAsync(long Id);
-    Task<IEnumerable<VoyageManifestDTO>> GetVoyageManifestDTOAsync(long id, bool isImo);
-    Task<IEnumerable<PersonEntity>> GetPersonsAsync();
-    Task<int> LastVersionAsync();
+    Task<List<ExportOrderDTO>?> GetItemsOrderDTOAsync(IEnumerable<long> ids);
+    Task<List<ExportOrderDTO>?> GetItemsBillDTOAsync(IEnumerable<long> ids);
+    Task<IEnumerable<ManifestDTO>?> GetItemsManifestDTOAsync(long id, bool isImo);    
+    
     Task<AppObjectResponse> GetVersionAsync(int version);    
     Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id);
-    Task<AppObjectResponse> SetNewVesselCall(long[] exportOrderIds, long vesselCallid);    //IEnumerable<long>exportOrderIds
+    Task<AppObjectResponse> SetNewVesselCall(long[] exportOrderIds, long vesselCallid);
     Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string UserName = "");
+
+    Task<IEnumerable<PersonEntity>> GetPersonsAsync();
     Task<IEnumerable<string>> GetDocumentExportOrderNums(string documentNum);
     Task<double[]> GetDocumentExportOrderTotalWeights(string documentNum);
     Task<IEnumerable<string>?> GetCntrNumsInVoyage(long eoId, long voyageId);

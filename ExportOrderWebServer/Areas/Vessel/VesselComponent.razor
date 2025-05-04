@@ -29,14 +29,10 @@
     </div> 
 
 <div class="Container-table">
-    @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-        </div>
-    }
+    <div class="tableMenu">
+        <MudSpacer />
+        <TablePager T="VesselEntity" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>    
 
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
@@ -70,23 +66,20 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudTable<VesselEntity>? mudTable;
+    private MudTable<VesselEntity> mudTable = new();
 
     private IEnumerable<VesselEntity>? Items { get; set; } = new List<VesselEntity>();
     private FilterParameters Filter { get; set; } = new();
 
     private bool IsLoadingData = false;
 
-
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
-
     public async Task GetItems()
     {
         IsLoadingData = true;
 
         var response = await _vesselProvider.GetItemsAsync(Filter);
-        if (!response.HasError)
-            Items = ((IEnumerable<VesselEntity>)response.Object!).ToArray();
+        if (!response.HasErrors && response.Object is not null)
+            Items = (IEnumerable<VesselEntity>)response.Object;
 
         await Task.Delay(500);
 
@@ -119,7 +112,7 @@
             {
                 var response = await _vesselProvider.RemoveItemAsync(id);
 
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
                     Snackbar.Add($"Unable to delete", Severity.Warning);

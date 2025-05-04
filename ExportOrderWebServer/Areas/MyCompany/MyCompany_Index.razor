@@ -192,10 +192,10 @@
     private async Task GetItem()
     {
         var response = await _MyCompanyProvider.GetLastItemAsync();
-        if (!response.HasError && response.Object is not null)
+        if (!response.HasErrors && response.Object is not null)
             Item = (MyCompanyEntity)response.Object;
         else
-            Snackbar.Add($"{response.Error.First()}", Severity.Error);
+            Snackbar.Add($"{response.Errors.First()}", Severity.Error);
     }
 
     public async Task SaveItem_Click()
@@ -215,10 +215,10 @@
             else
             {
                 var result = await _MyCompanyProvider.ModifyItemAsync(Item);
-                if (!result.HasError)
+                if (!result.HasErrors)
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
-                    Snackbar.Add($"{result.Error.First()}", Severity.Error);
+                    Snackbar.Add($"{result.Errors.First()}", Severity.Error);
             }
 
         IsNewItem = false;

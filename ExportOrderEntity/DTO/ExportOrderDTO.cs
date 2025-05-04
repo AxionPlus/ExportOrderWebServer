@@ -15,7 +15,7 @@ public class ExportOrderDTO
     public string? BLDate { get; set; }                  // дата коносамента (format "dd.MM.yyyy")
     public string? BLDateOEL { get; set; }               // дата коносамента (format "dd/MM/yyyy")  
     public string? DateOfLoading { get; set; }           // дата погрузки в поручении
-    public string? xmlDated { get; set; }                // дата для xml файла
+    public string? XmlDated { get; set; }                // дата для xml файла
     public string? CarrierNameEn { get; set; }
     public string? TerminalName { get; set; }
     public string VesselName { get; set; }
@@ -56,5 +56,5 @@ public class ExportOrderDTO
     public string? PersonPass { get; set; }
     public string? PersonPhone { get; set; }
 
-    public IEnumerable<ExportOrderRecordDTO> ExportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();
+    public List<ExportOrderRecordDTO> ExportOrderRecordsDTO { get; set; } = new List<ExportOrderRecordDTO>();    //IEnumerable
 }

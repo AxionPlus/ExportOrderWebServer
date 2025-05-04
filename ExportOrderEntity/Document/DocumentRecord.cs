@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ExportOrderEntites.Document;
@@ -11,27 +10,24 @@ public class DocumentRecord
 #pragma warning disable CS8618
     public int Seq { get; set; }    // change to uint
 
-    [Required]
+    //[Required]
     public string CommodityName { get; set; } = string.Empty;
-    [Required]
+    //[Required]
     public string CommodityEngName { get; set; } = string.Empty;
 
     [MaxLength(10)]
-    public string? CommodityHSCode { get; set; }
+    public string CommodityHSCode { get; set; } = string.Empty;
     public string? IMO { get; set; }
     public string? UNNO { get; set; }
     public bool IsIMO { get; set; } = false;
 
-    [Required]
-    public double? NetWt { get; set; }
-    [Required]
-    public double? GrossWt { get; set; }
+    //[Required]
+    public double NetWt { get; set; } = 1;
+    //[Required]
+    public double GrossWt { get; set; } = 1;
     public double? Volume { get; set; }
     
 
     [JsonIgnore]
     public DocumentEntity Document { get; set; }
-
-    //[NotMapped]
-    //public bool IsShowWeight_Details { get; set; } = false;
 }

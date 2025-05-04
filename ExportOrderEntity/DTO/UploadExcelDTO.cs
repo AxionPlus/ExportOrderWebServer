@@ -19,12 +19,3 @@ public class UploadExcelDTO
     public double? SupplementaryUnitQuantity { get; set; }
     public ushort? SupplementaryUnitCode { get; set; }    
 }
-
-public class UploadExcelSummary
-{
-    //public List<UploadExcelDTO>? UploadedDTO { get; set; } = new();
-    public string Description { get; set; } = string.Empty;
-    public IEnumerable<string> Errors { get; set; } = new List<string>();
-    public bool HasErrors => Errors.Any();
-    public bool HasCriticalErrors { get; set; } = false;
-}

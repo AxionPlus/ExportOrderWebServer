@@ -88,7 +88,7 @@
                 @if (IsSelectable)
                 {
                     <MudTooltip Text="upload selected">
-                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Primary" OnClick="@(SelectItem_Click)" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Primary" OnClick="@(SelectItems_Click)" />
                     </MudTooltip>
                 }
             </MudTh>
@@ -167,10 +167,10 @@
 
         var response = await _DocumentProvider.GetItemsAsync(Filter);
 
-        if (!response.HasError)
+        if (!response.HasErrors)
             Items = (IEnumerable<DocumentEntity>)response.Object!;
         else
-            Snackbar.Add(response.Error.First(), Severity.Warning);
+            Snackbar.Add(response.Errors.First(), Severity.Warning);
 
         IsLoadingData = false;
     }
@@ -187,7 +187,7 @@
             {
                 var response = await _DocumentProvider.RemoveItemAsync(id);
 
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
                     Snackbar.Add($"Unable to delete", Severity.Warning);
@@ -203,10 +203,10 @@
         // if (result.IsCompletedSuccessfully)
         //     await GetItems();
 
-        await jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank");
+        await jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}");   //, "_blank"
     }
 
-    private async void SelectItem_Click()
+    private async void SelectItems_Click()
     {
         if (!SelectedItems.Any())
         {
@@ -240,13 +240,13 @@
             if (IsPopoverOpen)
             {
                 var exportOrders = await _ExportOrderProvider.GetDocumentExportOrderNums(docName);
-                double[] total = await _ExportOrderProvider.GetDocumentExportOrderTotalWeights(docName);
+                double[] totals = await _ExportOrderProvider.GetDocumentExportOrderTotalWeights(docName);
 
                 if (exportOrders != Enumerable.Empty<string>())
                 {
                     ExportOrderNums = exportOrders;
-                    ExportOrdersTotalNetWt = total[0].ToString("### ### ###.###");
-                    ExportOrdersTotalGrossWt = total[1].ToString("### ### ###.###");
+                    ExportOrdersTotalNetWt = totals[0].ToString("### ### ###.###");
+                    ExportOrdersTotalGrossWt = totals[1].ToString("### ### ###.###");
                 }
              
                 await InvokeAsync(StateHasChanged);

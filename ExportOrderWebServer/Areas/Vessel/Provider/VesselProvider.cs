@@ -1,23 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace ExportOrderWebServer.Areas.Vessel.Provider;
+﻿namespace ExportOrderWebServer.Areas.Vessel.Provider;
 
 public class VesselProvider : IVesselProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
-
     private AppObjectResponse appObjResponse;
 
     public VesselProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
-
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -30,7 +25,6 @@ public class VesselProvider : IVesselProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
-        appObjResponse = new();
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -40,26 +34,16 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var Vessels = await db.Vessels.ToListAsync();
-
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
-
-                if (!string.IsNullOrEmpty(filter.IMO))
-                    Vessels = Vessels.Where(s => s.IMO== filter.IMO).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Name))
-                    Vessels = Vessels.Where(s => s.Name == filter.Name).ToList();
-            }
+            var Vessels = await db.Vessels
+                                        .Where(s => !string.IsNullOrEmpty(filter.IMO) ? s.IMO == filter.IMO : true)
+                                        .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.Name == filter.Name : true)
+                                        .ToListAsync();
 
             appObjResponse.Object = Vessels.ToArray();
 
@@ -69,8 +53,6 @@ public class VesselProvider : IVesselProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -81,9 +63,9 @@ public class VesselProvider : IVesselProvider
 
                 if (modifyItem!.Name != item.Name)
                 {
-                    var itemExistCheck = await db.Terminals.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+                    bool isItemExist = db.Terminals.Any(s => s.Name!.ToUpper() == item.Name!.ToUpper());
 
-                    if (itemExistCheck is not null)
+                    if (isItemExist)
                     {
                         appObjResponse.ErrorAdd($" {item.Name} exists already");
                         return appObjResponse;
@@ -129,16 +111,13 @@ public class VesselProvider : IVesselProvider
 
     public async Task<AppObjectResponse> NewItemAsync(VesselEntity item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-
-            // check an Existing item
-            var itemExistCheck = await db.Vessels.Where(s => s.Name == item.Name).FirstOrDefaultAsync();
-            if (itemExistCheck != null)
+                        
+            bool isItemExist = db.Vessels.Any(s => s.Name == item.Name);
+            if (isItemExist)
             {
                 appObjResponse.ErrorAdd($"Vessel exists already: {item.Name}");
                 return appObjResponse;
@@ -158,10 +137,9 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        appObjResponse = new();
-        return appObjResponse;
+        throw new NotImplementedException();
     }
 
     public Task<IEnumerable<string>> GetNames()
@@ -177,7 +155,6 @@ public class VesselProvider : IVesselProvider
             return await db.Vessels.OrderBy(s => s.Name).Select(s => s.Name!).ToListAsync();
         }
     }
-
 
     #region AUXILARY METHODS
 

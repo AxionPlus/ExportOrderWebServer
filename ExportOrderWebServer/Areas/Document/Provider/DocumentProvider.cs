@@ -3,7 +3,6 @@
 public class DocumentProvider : IDocumentProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
-
     private AppObjectResponse appObjResponse;
 
     public DocumentProvider(IDbContextFactory<ApplicationDbContext> dbContext)
@@ -12,45 +11,16 @@ public class DocumentProvider : IDocumentProvider
         appObjResponse = new();
     }
 
-    public async Task<DocumentEntity?> GetDocumentAsync(string Num)
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            var result = await db.Documents.AsNoTracking().Include(s => s.Records).FirstOrDefaultAsync(s => s.Name == Num);
-
-            return result;
-        }
-    }
-
-    public async Task<DocumentRecord?> GetDocumentRecordAsync(string? Num, int index)
-    {
-        if (string.IsNullOrWhiteSpace(Num) || index == 0) return null;
-
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            var documentRecord = await db.Set<DocumentRecord>().AsNoTracking()
-                                                               .Include(s => s.Document)
-                                                               .Where(s => s.Document.Name == Num)
-                                                               .FirstOrDefaultAsync(s => s.Seq == index);
-
-            return documentRecord;
-        }
-    }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Documents.AsNoTracking().AsSplitQuery()
-                                                      .Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == id);
+            appObjResponse.Object = await db.Documents.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == id);    //.AsNoTracking().AsSplitQuery()
         }
 
         return appObjResponse;
@@ -58,7 +28,7 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -72,7 +42,7 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -116,7 +86,7 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(DocumentEntity item)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -255,7 +225,7 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> NewItemAsync(DocumentEntity item)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -264,8 +234,8 @@ public class DocumentProvider : IDocumentProvider
             try
             {
                 // check an Existing item
-                var itemExistCheck = await db.Documents.Where(s => s.Name == item.Name).FirstOrDefaultAsync();
-                if (itemExistCheck != null)
+                bool isItemExist = db.Documents.Any(s => s.Name == item.Name);
+                if (isItemExist)
                 {
                     appObjResponse.ErrorAdd($"Document: \n {item.Name} \n is exists already.");
                     return appObjResponse;
@@ -273,13 +243,12 @@ public class DocumentProvider : IDocumentProvider
 
                 item.CreateUser = User!;
 
-                db.Entry(item).State = EntityState.Added;
-
                 foreach (var record in item.Records)
                     db.Entry(record).State = EntityState.Added;
 
+                db.Entry(item).State = EntityState.Added;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 
@@ -345,7 +314,7 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        appObjResponse = new();
+        //appObjResponse = new();
 
         try
         {
@@ -404,29 +373,7 @@ public class DocumentProvider : IDocumentProvider
 
     public Task<AppObjectResponse> GetItemsAsync(object parameters)
     {
-        throw new NotImplementedException();
-        //appObjResponse = new();
-
-        //using (var _db = _dbContext.CreateDbContextAsync())
-        //{
-        //    var db = await _db;
-
-        //    if (parameters.GetType() == typeof(long[]))
-        //    {
-        //        var ids = (long[])parameters;
-
-        //        var documents = await db.Documents.AsNoTracking()
-        //                                          .Include(d => d.Records)
-        //                                          .Where(d => ids.Any(x => x == d.Id))
-        //                                          .ToArrayAsync();
-        //        if (documents is null)
-        //            appObjResponse.ErrorAdd("Documents not found");
-        //        else
-        //            appObjResponse.Object = documents;
-        //    }   
-        //}
-
-        //return appObjResponse;
+        throw new NotImplementedException();        
     }
 
     public async Task<IEnumerable<DocumentEntity>?> GetItemsAsync(long[] ids)
@@ -439,6 +386,20 @@ public class DocumentProvider : IDocumentProvider
                                               .Include(d => d.Records)
                                               .Where(d => ids.Any(x => x == d.Id))
                                               .ToArrayAsync();
+
+            return documents;
+        }
+    }
+
+    public async Task<IEnumerable<DocumentEntity>?> GetItemsAsync(string[]? nums)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var documents = await db.Documents.Include(d => d.Records)
+                                              .Where(d => nums != null && nums.Any(x => x == d.Name))
+                                              .ToListAsync();  //ToArrayAsync
 
             return documents;
         }

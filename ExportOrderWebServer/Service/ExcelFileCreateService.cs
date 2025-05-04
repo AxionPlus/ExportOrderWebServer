@@ -6,7 +6,7 @@ namespace ExportOrderWebServer.Service;
 
 public interface IExcelFileCreateService : IDisposable
 {
-    Task<byte[]> CreateExcelFile_FillBill(IEnumerable<VoyageManifestDTO> items);
+    Task<byte[]> CreateExcelFile_FillBill(IEnumerable<ManifestDTO> items);
     Task<byte[]> CreateExcelFile_Rolis(ExportOrderDTO item);
 }
 
@@ -19,25 +19,20 @@ public class ExcelFileCreateService : IExcelFileCreateService
     private Excel.Sheets? WorkSheets;
     private Excel.Worksheet? WorkSheet;
     private Excel.Range? Range;
-
-    //private readonly IWebHostEnvironment _webHostEnvironment;
+        
     private readonly static string DirResources = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
-    private string TemplateFilePath { get; set; }
-    private string TemporaryFilePath { get; set; }
+    private readonly static string DirTemporary = Path.Combine(DirResources, "TempFiles");
 
-    public ExcelFileCreateService() //IWebHostEnvironment webHostEnvironment
-    {
-        //_webHostEnvironment = webHostEnvironment;
-        //DirTemp = Path.Combine(_webHostEnvironment.WebRootPath, "TempFiles");
+    private string TemplateFilePath { get; set; } = string.Empty;
+    private string TemporaryFilePath { get; set; } = Path.Combine(DirTemporary, $"{Path.GetRandomFileName()}.xlsx");
 
+    public ExcelFileCreateService()
+    {   
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
 
-        TemplateFilePath = string.Empty;
-        TemporaryFilePath = Path.Combine(DirResources, "TempFiles", $"{Path.GetRandomFileName()}.xlsx");
-
-        if (!Directory.Exists(Path.Combine(DirResources, "TempFiles")))
-            Directory.CreateDirectory(Path.Combine(DirResources, "TempFiles"));
+        if (!Directory.Exists(DirTemporary))
+            Directory.CreateDirectory(DirTemporary);
 
         var tid = GetWindowThreadProcessId(ExcelApp.Hwnd, out ExcelAppPid);
     }
@@ -46,13 +41,13 @@ public class ExcelFileCreateService : IExcelFileCreateService
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
     
-    public async Task<byte[]> CreateExcelFile_FillBill(IEnumerable<VoyageManifestDTO> items)
+    public async Task<byte[]> CreateExcelFile_FillBill(IEnumerable<ManifestDTO> items)
     {        
         TemplateFilePath = Path.Combine(DirResources, "TemplateFillBill.xlsx");
 
         if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
         
-        CreateTempFile(TemplateFilePath, TemporaryFilePath);
+        CreateTempFile(TemporaryFilePath);
 
         if (WorkSheet is null) return Array.Empty<byte>();
 
@@ -170,7 +165,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
 
-        CreateTempFile(TemplateFilePath, TemporaryFilePath);
+        CreateTempFile(TemporaryFilePath);
 
         if (WorkSheet is null) return Array.Empty<byte>();
 
@@ -247,10 +242,10 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
     #region SUPPORT METHODS
 
-    private void CreateTempFile(string templatePath, string destinationPath)
+    private void CreateTempFile(string destinationPath)
     {
-        if (File.Exists(templatePath))
-            File.Copy(templatePath, destinationPath);
+        //if (File.Exists(TemplateFilePath))
+        File.Copy(TemplateFilePath, destinationPath);
 
         if (File.Exists(destinationPath))
             Workbook = Workbooks.Open(destinationPath);
@@ -294,8 +289,10 @@ public class ExcelFileCreateService : IExcelFileCreateService
                     if (p.Id == ExcelAppPid)
                         p.Kill();
 
-        foreach (var file in Directory.GetFiles(Path.Combine(DirResources, "TempFiles")))
-                File.Delete(file);     
+        //foreach (var file in Directory.GetFiles(DirTemporary))
+        //        File.Delete(file);
+        if (File.Exists(TemporaryFilePath))
+            File.Delete(TemporaryFilePath);
     }
 
     #endregion

@@ -82,7 +82,7 @@
         IsLoadingData = true;
 
         var response = await _carrierProvider.GetItemsAsync(Filter);
-        if (!response.HasError)
+        if (!response.HasErrors)
             Items = ((IEnumerable<CarrierCatalog>)response.Object!).ToArray();
 
         await Task.Delay(500);
@@ -118,7 +118,7 @@
             {
                 var response = await _carrierProvider.RemoveItemAsync(id);
 
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
                     Snackbar.Add($"Unable to delete", Severity.Warning);

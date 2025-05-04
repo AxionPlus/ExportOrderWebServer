@@ -28,15 +28,11 @@
     </div>
 </div>
 
-<div class="Container-table">
-        @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-        </div>
-    }
+<div class="Container-table">        
+    <div class="tableMenu">
+        <MudSpacer />
+        <TablePager T="CountryCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>    
 
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
@@ -68,7 +64,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudTable<CountryCatalog>? mudTable;
+    private MudTable<CountryCatalog> mudTable = new();
 
     private IEnumerable<CountryCatalog>? Items { get; set; } = new List<CountryCatalog>();
     private FilterParameters Filter { get; set; } = new();
@@ -77,15 +73,13 @@
     public bool IsLoadingData { get; set; } = false;
 
 
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
-
     public async Task GetItems()
     {
         IsLoadingData = true;
 
         var response = await _countryProvider.GetItemsAsync(Filter);
-        if (!response.HasError)
-            Items = ((IEnumerable<CountryCatalog>)response.Object!).ToArray();
+        if (!response.HasErrors && response.Object is not null)
+            Items = (IEnumerable<CountryCatalog>)response.Object;
 
         await Task.Delay(500);       
 
@@ -118,7 +112,7 @@
             {
                 var response = await _countryProvider.RemoveItemAsync(id);
 
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
                     Snackbar.Add($"Unable to delete", Severity.Warning);

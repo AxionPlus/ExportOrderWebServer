@@ -6,7 +6,7 @@ namespace ExportOrderWebServer.Service;
 
 public interface IExcelFileUploadService : IDisposable
 {
-    public Task<List<UploadExcelDTO>?> ReadImportListDeclarations(string filePath);
+    public Task<List<UploadExcelDTO>?> ReadExcelFileExportOrder(string filePath);
 }
 
 public class ExcelFileUploadService : IExcelFileUploadService
@@ -33,7 +33,7 @@ public class ExcelFileUploadService : IExcelFileUploadService
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
-    public async Task<List<UploadExcelDTO>?> ReadImportListDeclarations(string filePath)
+    public async Task<List<UploadExcelDTO>?> ReadExcelFileExportOrder(string filePath)
     {
         FilePath = filePath;
 
@@ -141,6 +141,9 @@ public class ExcelFileUploadService : IExcelFileUploadService
             if (File.Exists(FilePath))
                 File.Delete(FilePath);
         }
-        catch (Exception ex) { Console.WriteLine(ex.Message); }
+        catch (Exception ex)
+        { 
+            Console.WriteLine(ex.Message);
+        }
     }
 }

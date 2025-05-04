@@ -56,18 +56,13 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync()) 
         {
             var db = await _db;
 
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
-
+            
                 var vesselCalls = await db.VesselCalls.AsNoTracking().AsSplitQuery()
                                                     .Include(vc => vc.Vessel)
                                                     .Include(vc => vc.Terminal)
@@ -85,8 +80,8 @@ public class VesselCallProvider : IVesselCallProvider
 
                 vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);                
 
-                appObjResponse.Object = vesselCallDetailsDTO.ToArray();
-            }            
+                appObjResponse.Object = vesselCallDetailsDTO;
+            
 
             return appObjResponse;
         }
@@ -94,8 +89,6 @@ public class VesselCallProvider : IVesselCallProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(VesselCallEntity item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -152,12 +145,12 @@ public class VesselCallProvider : IVesselCallProvider
                 modifyItem.Terminal = item.Terminal;
                 db.Entry(modifyItem.Terminal!).State = EntityState.Unchanged;
 
-                // -------------------------------------------------------------------
-                // compaire a new itemDetails with an existed
+
+                /// compaire a new itemDetails with an existed
                 foreach (var modifyDetail in modifyItem.Details!.ToArray())
                     if (!item.Details!.Any(s => s.Id == modifyDetail.Id))
                     {
-                        // check for existing ExportOrders within VesselCallDetail
+                        /// check for existing ExportOrders within VesselCallDetail
                         if (!db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == modifyDetail.Id))
                         {
                             db.Entry(modifyDetail).State = EntityState.Deleted;
@@ -178,17 +171,10 @@ public class VesselCallProvider : IVesselCallProvider
                         modifyDetail.POD = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;                        
                         db.Entry(modifyDetail.POD!).State = EntityState.Unchanged;
 
-                        //modifyDetail.FinalDestination = item.Details!.FirstOrDefault(s => s.Id == modifyDetail.Id)!.FinalDestination;
-
-                        //if (modifyDetail.FinalDestination != null)
-                        //    db.Entry(modifyDetail.FinalDestination!).State = EntityState.Unchanged;
-                        //else
-                        //    db.Entry(modifyDetail).Reference("FinalDestination").IsModified = true;
-
                         db.Entry(modifyDetail).State = EntityState.Modified;
                     }
 
-                // compaire an existed item with a new
+                /// compaire an existed item with a new
                 foreach (var itemDetail in item.Details!)
                     if (!modifyItem.Details.Any(s => s.Id == itemDetail.Id))
                     {
@@ -208,23 +194,22 @@ public class VesselCallProvider : IVesselCallProvider
 
                 await db.SaveChangesAsync();
 
-                // Change Status for an EXPORT ORDERS related
+                /// Change Status for an EXPORT ORDERS related
                 db.ChangeTracker.Clear();
 
                 var eoList = new List<ExportOrderEntity>();
                 
                 foreach (var detail in item.Details)
                 {
-                    var expOrders = await db.ExportOrders
-                                              .Include(eo => eo.VesselCallDetail)
-                                              .Where(eo => eo.VesselCallDetail!.Id == detail.Id)
-                                              .AsNoTracking().ToListAsync();
+                    var expOrders = await db.ExportOrders.Include(eo => eo.VesselCallDetail)
+                                                         .Where(eo => eo.VesselCallDetail!.Id == detail.Id)
+                                                         .AsNoTracking().ToListAsync();
 
-                    if  (expOrders.Count() > 0)
+                    if  (expOrders.Count > 0)
                         eoList.AddRange(expOrders);
                 }
 
-                if (eoList.Count() > 0)
+                if (eoList.Count > 0)
                 {
                     eoList.ForEach(e => { e.Status = item.Status; });
 
@@ -284,8 +269,6 @@ public class VesselCallProvider : IVesselCallProvider
 
     public async Task<AppObjectResponse> NewItemAsync(VesselCallEntity item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             try
@@ -293,9 +276,9 @@ public class VesselCallProvider : IVesselCallProvider
                 var db = await _db;
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-                var itemExistCheck = await db.VesselCalls.Where(s => s.Vessel.Name == item.Vessel.Name && s.VoyageNo == item.VoyageNo).FirstOrDefaultAsync();
+                bool isItemExist = db.VesselCalls.Any(s => s.Vessel.Name == item.Vessel.Name && s.VoyageNo == item.VoyageNo);
 
-                if (itemExistCheck != null)
+                if (isItemExist)
                 {
                     appObjResponse.ErrorAdd($"Voyage: {item.VoyageNo} for vessel: {item.Vessel.Name} is exists already.");
                     return appObjResponse;
@@ -306,14 +289,16 @@ public class VesselCallProvider : IVesselCallProvider
                 foreach (var detail in item.Details)
                 {
                     detail.CreateUser = User!;
+                    db.Entry(detail.CreateUser).State = EntityState.Unchanged;
 
                     db.Entry(detail.POD!).State = EntityState.Unchanged;
                     if (detail.FinalDestination is not null)
-                        db.Entry(detail.FinalDestination!).State = EntityState.Unchanged;
+                        db.Entry(detail.FinalDestination).State = EntityState.Unchanged;
 
                     db.Entry(detail).State = EntityState.Added;                     
                 }
 
+                db.Entry(item.CreateUser).State = EntityState.Unchanged;
                 db.Entry(item.Vessel).State = EntityState.Unchanged;
                 db.Entry(item.Terminal).State = EntityState.Unchanged;
 
@@ -411,13 +396,8 @@ public class VesselCallProvider : IVesselCallProvider
         //}
     }
 
-
-    #region AUXILARY METHODS
-
     public async Task<AppObjectResponse> GetVesselCallDetailAsync(long vcdId)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             try
@@ -447,22 +427,20 @@ public class VesselCallProvider : IVesselCallProvider
 
     public async Task<AppObjectResponse> RemoveVesselCallDetailAsync(long id)
     {
-        appObjResponse = new();
-
         try
         {
             using (var _db = _dbContext.CreateDbContextAsync())
             {
                 var db = await _db;
 
-                // check an Existing item - Vessel Call Detail
+                /// check an Existing item - Vessel Call Detail
                 var existedItem = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).Include(vcd => vcd.ExportOrders).FirstOrDefault();
 
                 if (existedItem is null)
                     appObjResponse.ErrorAdd("There is no Record to delete.");
                 else
                 {
-                    // Find an Export Orders in Existing Item
+                    /// Find an Export Orders in Existing Item
                     if (db.ExportOrders.Any(eo => eo.VesselCallDetail!.Id == id))
                         appObjResponse.ErrorAdd($"Vessel Call has an Export Orders issued.<br/>Delete all of it's Export Orders first.");
                     else
@@ -498,16 +476,7 @@ public class VesselCallProvider : IVesselCallProvider
     {
         throw new NotImplementedException();
     }
-
-    public async Task<IEnumerable<string>> GetPODs()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.Locations.Select(s => s.Name!).ToListAsync();
-        }
-    }
-
+    
     public async Task<IEnumerable<string>> GetVoyages(string? vessel)
     {
         using var _db = _dbContext.CreateDbContextAsync();
@@ -524,33 +493,7 @@ public class VesselCallProvider : IVesselCallProvider
         return result;
     }
 
-    public async Task<AppObjectResponse> GetItemToCheckAsync(long id)
-    {
-        appObjResponse = new();
-        try
-        {
-            using (var _db = _dbContext.CreateDbContextAsync())
-            {
-                var db = await _db;
-
-                var voyage = await db.VesselCalls.AsNoTracking().AsSplitQuery()
-                                                .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records)
-                                                .FirstOrDefaultAsync(s => s.Id == id);
-
-                if (voyage is null)
-                    appObjResponse.ErrorAdd($"There is no voyage you choose.");
-
-                appObjResponse.Object = voyage;                
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return appObjResponse;
-        }
-
-        return appObjResponse;
-    }
+    #region AUXILARY METHODS
 
     Func<IEnumerable<VesselCallEntity>, IEnumerable<VesselCallDetailDTO>> vcRecords = (Records) =>
     {

@@ -17,15 +17,11 @@
                     </MudTooltip>
                 </div>
             }
-
-            @if (IsFormReadOnly)
-            {
-                <div class="ToolBar-iconbutton" style="margin-left:20px">
-                    <MudTooltip Class="ExitIconButton" Text="Copy Declaration" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
-                    </MudTooltip>
-                </div>
-            }
+            <div class="ToolBar-iconbutton" style="margin-left:20px">
+                <MudTooltip Class="ExitIconButton" Text="Copy Declaration" Delay="500" Duration="1000">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
+                </MudTooltip>
+            </div>
 
             <MudSpacer />
 
@@ -33,22 +29,11 @@
 
             <MudSpacer />
 
-            @if (IsFormReadOnly)
-            {
-                <div class="ToolBar-iconbutton" style="margin-right:20px">
-                    <MudTooltip Class="ExitIconButton" Text="edit" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem" />
-                    </MudTooltip>
-                </div>
-            }
-            else
-            {
-                <div class="ToolBar-iconbutton" style="margin-right:20px">
-                    <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem" />
-                    </MudTooltip>
-                </div>
-            }
+            <div class="ToolBar-iconbutton" style="margin-right:20px">
+                <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="SaveItem" />
+                </MudTooltip>
+            </div>
 
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
@@ -59,17 +44,18 @@
         </MudToolBar>
     </div>
 
-    <MudForm @ref="@Form" ReadOnly="IsFormReadOnly">
+    <MudForm @ref="@Form">
         @if (Item != null)
         {
-            <Document_ItemComponent @bind-Value="Item" IsFormReadOnly="IsFormReadOnly" />
+            <Document_ItemComponent @bind-Value="Item" />
         }
     </MudForm>
 
+    <OverlayLoadingData Visible="@IsLoadingData" />
 </MudContainer>
 
 @code {
-    private MudForm? Form { get; set; }
+    private MudForm Form { get; set; } = new();
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }    
 
@@ -84,24 +70,30 @@
     private DocumentEntity? Item { get; set; }
     private DocumentType Type { get; set; }
     private bool IsAuth = false;
-    public bool IsFormReadOnly { get; set; } = true;
+    private bool IsLoadingData = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool first)
     {
-        await GetItem();
+        if (first)
+        {
+            await GetItem();
+            StateHasChanged();
+        }        
     }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     await GetItem();
+    // }
 
     private async Task GetItem()
     {
         if (IsNewItem)
-        {
             Item = new() { Shipper = new(), Consignee = new(), Status = EntityStatus.New };
-            IsFormReadOnly = false;
-        }
         else
         {
             var response = await _documentProvider.GetItemAsync(Id);
-            if (!response.HasError && response.Object != null)
+            if (!response.HasErrors && response.Object != null)
                 Item = (DocumentEntity)response.Object;
         }
     }
@@ -111,7 +103,7 @@
         if (Item is null) return;
 
         /// Validation
-        await Form!.Validate();
+        await Form.Validate();
 
         if (!Form.IsValid)
         {
@@ -124,42 +116,43 @@
         {
             Snackbar.Add("Declaration Number is not valid", Severity.Warning);
             return;
-        }        
+        }
+
+        IsLoadingData = true;
 
         if (IsNewItem)
         {
             var response = await _documentProvider.NewItemAsync(Item);
-            if (!response.HasError)
+            if (!response.HasErrors)
                 Snackbar.Add("Saved Successfully", Severity.Success);
             else
             {
-                Snackbar.Add($"No Success! {response.Error.FirstOrDefault()}", Severity.Error);
+                Snackbar.Add($"No Success! {response.Errors.FirstOrDefault()}", Severity.Error);
                 return;
             }
         }
         else
         {
             var response = await _documentProvider.ModifyItemAsync(Item);
-            if (!response.HasError)
+            if (!response.HasErrors)
                 Snackbar.Add("Saved Successfully", Severity.Success);
             else
             {
-                Snackbar.Add($"Not Successed:\n{string.Join(",\n", response.Error)}", Severity.Error);
+                Snackbar.Add($"Not Successed:\n{string.Join(",\n", response.Errors)}", Severity.Error);
                 return;
             }
         }
 
-        IsNewItem = false;
-        IsFormReadOnly = true;
-
         Id = Item.Id;
 
-        //await GetItem();
+        IsNewItem = false;
+
+        IsLoadingData = false;
 
         await InvokeAsync(StateHasChanged);
     }
 
-    public async Task CopyItem()
+    public void CopyItem()    //async Task
     {
         if (Item is not null)
         {
@@ -171,19 +164,18 @@
 
             Item.Name = string.Empty;
             IsNewItem = true;
-            await Task.Delay(100);
-            IsFormReadOnly = false;
+            //await Task.Delay(100);
+            //IsFormReadOnly = false;
         }
-    }
-
-    public async Task EditItem()
-    {
-        await Task.Delay(10);
-        IsFormReadOnly = false;
     }
 
     public void CloseWindow()
     {
-        jsRuntime.InvokeVoidAsync("window.close");
+        //jsRuntime.InvokeVoidAsync("window.close");
+
+        if (MudDialog is not null)
+            MudDialog.Close();
+        else
+            jsRuntime.InvokeVoidAsync("window.close");
     }
 }

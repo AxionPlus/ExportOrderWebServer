@@ -96,7 +96,7 @@
         else
         {
             var response = await _DocumentProvider.GetItemAsync(Id);
-            if (!response.HasError)
+            if (!response.HasErrors)
                 Item = (DocumentEntity)response.Object!;
         }
     }
@@ -109,22 +109,22 @@
             if (IsNewItem)
             {
                 var response = await _DocumentProvider.NewItemAsync(Item!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add($"No Success!<br>{response.Error.FirstOrDefault()}", Severity.Error);
+                    Snackbar.Add($"No Success!<br>{response.Errors.FirstOrDefault()}", Severity.Error);
                     return;
                 }                
             }
             else
             {
                 var response = await _DocumentProvider.ModifyItemAsync(Item!);
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add("Save Successed", Severity.Success);
                 else
                 {
-                    Snackbar.Add($"Not Successed { response.Error.FirstOrDefault()}", Severity.Error);
+                    Snackbar.Add($"Not Successed { response.Errors.FirstOrDefault()}", Severity.Error);
                     return;
                 }                
             }

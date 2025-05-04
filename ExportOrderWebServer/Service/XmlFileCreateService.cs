@@ -10,14 +10,17 @@ public interface IXmlFileCreateService : IDisposable
 
 public class XmlFileCreateService : IXmlFileCreateService
 {
-    private string TemporaryFilePath { get; set; } = Path.Combine(
-        AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles", $"{Path.GetRandomFileName()}.xml"
-    );
+    private readonly static string DirTemporary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles");
+    private string TemporaryFilePath { get; set; } = Path.Combine(DirTemporary, $"{Path.GetRandomFileName()}.xml");
+
+    public XmlFileCreateService()
+    {
+        if (!Directory.Exists(DirTemporary))
+            Directory.CreateDirectory(DirTemporary);
+    }
 
     public async Task<byte[]> CreateXMLfile(ExportOrderDTO item)
     { 
-        if (string.IsNullOrEmpty(TemporaryFilePath)) return Array.Empty<byte>();
-
         var Commodities = item.ExportOrderRecordsDTO.GroupBy(r => new { r.DocumentName, r.SeqContent })
                                                     .Select(g => new
                                                     {
@@ -52,7 +55,7 @@ public class XmlFileCreateService : IXmlFileCreateService
                 xml.WriteElementString("BorderCustomCode", item.CustomsOfficeCode);
                 xml.WriteElementString("BorderCustomsOfficeName", item.CustomsOfficeNameShort);
                 xml.WriteElementString("DocumentNumber", item.Num);
-                xml.WriteElementString("DocumentDate", reverseDateStringXml(item.xmlDated));
+                xml.WriteElementString("DocumentDate", reverseDateStringXml(item.XmlDated));
                 xml.WriteElementString("GoodsDescription", string.Empty);
                 xml.WriteElementString("TotalPlacesQuantity", item.ExportOrderRecordsDTO.Sum(r => r.PackageQty).ToString());
                 xml.WriteElementString("TotalVolumeQuantity", item.ExportOrderRecordsDTO.Sum(r => r.PackageQty).ToString());
@@ -133,21 +136,21 @@ public class XmlFileCreateService : IXmlFileCreateService
         }        
     }
 
-    public void Dispose()
-    {
-        if (File.Exists(TemporaryFilePath))
-            File.Delete(TemporaryFilePath);
-    }
-
     private readonly Func<string?, string> reverseDateStringXml = (inDate) =>
     {
         if (string.IsNullOrWhiteSpace(inDate)) return string.Empty;
 
         string date = inDate[..10];  // inDate.Substring(0, 10);
         string time = inDate[11..];  // inDate.Substring(11)
-        
+
         return string.Concat(date.Split('.')[2], "-",
                                 date.Split('.')[1], "-",
                                 date.Split('.')[0], "T", time);
     };
+
+    public void Dispose()
+    {
+        if (File.Exists(TemporaryFilePath))
+            File.Delete(TemporaryFilePath);
+    }
 }

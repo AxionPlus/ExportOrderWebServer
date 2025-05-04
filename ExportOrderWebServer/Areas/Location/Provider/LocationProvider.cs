@@ -11,13 +11,12 @@ public class LocationProvider : ILocationProvider
     public LocationProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -30,7 +29,6 @@ public class LocationProvider : ILocationProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
-        appObjResponse = new();
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -40,31 +38,19 @@ public class LocationProvider : ILocationProvider
         }
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var Locations = await db.Locations.Include(lo => lo.Country).ToListAsync();
+            var Locations = await db.Locations.Include(lo => lo.Country)
+                                              .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.Name == filter.Name : true)
+                                              .Where(s => !string.IsNullOrEmpty(filter.UNLocode) ? s.UnLocode == filter.UNLocode : true)
+                                              .Where(s => !string.IsNullOrEmpty(filter.Country) ? s.Country!.RUS == filter.Country : true)
+                                              .ToListAsync();
 
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
-
-                if (!string.IsNullOrEmpty(filter.Name))
-                    Locations = Locations.Where(s => s.Name == filter.Name).ToList();
-
-                if (!string.IsNullOrEmpty(filter.UNLocode))
-                    Locations = Locations.Where(s => s.UnLocode == filter.UNLocode).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Country))
-                    Locations = Locations.Where(s => s.Country!.RUS == filter.Country).ToList();
-            }
-
-            appObjResponse.Object = Locations.ToArray();
+            appObjResponse.Object = Locations;
 
             return appObjResponse;
         }

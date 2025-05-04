@@ -3,8 +3,7 @@
 public class StatisticProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
-
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public StatisticProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {

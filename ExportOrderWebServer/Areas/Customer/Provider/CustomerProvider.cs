@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace ExportOrderWebServer.Areas.Customer.Provider;
+﻿namespace ExportOrderWebServer.Areas.Customer.Provider;
 
 public class CustomerProvider : ICustomerProvider
 {
@@ -11,13 +9,12 @@ public class CustomerProvider : ICustomerProvider
     public CustomerProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
+        appObjResponse = new();
     }
 
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -30,7 +27,6 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
-        appObjResponse = new();
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -40,31 +36,19 @@ public class CustomerProvider : ICustomerProvider
         }
     }
 
-    public async Task<AppObjectResponse> GetItemsAsync(object parameters)
+    public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var Customers = await db.Customers.Include(cu => cu.Country).ToListAsync();
+            var Customers = await db.Customers.Include(cu => cu.Country)
+                                              .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.Name == filter.Name : true)
+                                              .Where(s => !string.IsNullOrEmpty(filter.NameEn) ? s.NameEn == filter.NameEn : true)
+                                              .Where(s => !string.IsNullOrEmpty(filter.Country) ? s.Country!.RUS == filter.Country : true)
+                                              .ToListAsync();
 
-            if (parameters.GetType() == typeof(FilterParameters))
-            {
-                var filter = (FilterParameters)parameters;
-
-                if (!string.IsNullOrEmpty(filter.Name))
-                    Customers = Customers.Where(s => s.Name == filter.Name).ToList();
-
-                if (!string.IsNullOrEmpty(filter.NameEn))
-                    Customers = Customers.Where(s => s.NameEn == filter.NameEn).ToList();
-
-                if (!string.IsNullOrEmpty(filter.Country))
-                    Customers = Customers.Where(s => s.Country!.RUS == filter.Country).ToList();
-            }
-
-            appObjResponse.Object = Customers.ToArray();
+            appObjResponse.Object = Customers;
 
             return appObjResponse;
         }
@@ -72,8 +56,6 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CustomerCatalog item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -84,9 +66,9 @@ public class CustomerProvider : ICustomerProvider
 
                 if (modifyItem!.Name != item.Name)
                 {
-                    var itemExistCheck = await db.Customers.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+                    bool isItemExist = db.Customers.Any(s => s.Name!.ToUpper() == item.Name!.ToUpper());
 
-                    if (itemExistCheck is not null)
+                    if (isItemExist)
                     {
                         appObjResponse.ErrorAdd($" {item.Name} exists already");
                         return appObjResponse;
@@ -126,24 +108,22 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> NewItemAsync(CustomerCatalog item)
     {
-        appObjResponse = new();
-
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
             // check an Existing item
-            var existItemRu = await db.Customers.Where(s => s.Name!.ToUpper() == item!.Name!.ToUpper()).FirstOrDefaultAsync();
-            if (existItemRu != null)
+            bool isItemRuExist = db.Customers.Any(s => s.Name!.ToUpper() == item!.Name!.ToUpper());
+            if (isItemRuExist)
             {
                 appObjResponse.ErrorAdd($"Customer exists already: {item!.Name}");
                 return appObjResponse;
             }
 
             // check an Existing item
-            var existItemEn = await db.Customers.Where(s => s.NameEn!.ToUpper() == item!.NameEn!.ToUpper()).FirstOrDefaultAsync();
-            if (existItemEn != null)
+            bool isItemEnExist = db.Customers.Any(s => s.NameEn!.ToUpper() == item!.NameEn!.ToUpper());
+            if (isItemEnExist)
             {
                 appObjResponse.ErrorAdd($"Customer exists already: {item!.NameEn}");
                 return appObjResponse;
@@ -214,5 +194,4 @@ public class CustomerProvider : ICustomerProvider
             return await db.Customers.Select(s => s.NameEn!).ToListAsync();
         }
     }
-
 }

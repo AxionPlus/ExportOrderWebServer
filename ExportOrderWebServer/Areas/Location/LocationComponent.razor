@@ -33,17 +33,13 @@
         </div>
     </div>
  
-    @if (Items!.Count() > 0)
+    @if (Items.Count() > 0)
     {
         <div class="Container-table">
-            @if (mudTable != null)
-            {
-                <div class="tableMenu">
-                    <MudSpacer />
-                    <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-                    <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-                </div>
-            }
+            <div class="tableMenu">
+                <MudSpacer />
+                <TablePager T="LocationCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
+            </div>            
             <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
 
                 <HeaderContent>
@@ -79,25 +75,20 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    private MudTable<LocationCatalog>? mudTable;
+    private MudTable<LocationCatalog> mudTable = new();
 
-    private IEnumerable<LocationCatalog>? Items { get; set; } = new List<LocationCatalog>();
+    private IEnumerable<LocationCatalog> Items { get; set; } = new List<LocationCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
     bool IsLoadingData = false;
-
-
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     public async Task GetItems()
     {
         IsLoadingData = true;
 
         var response = await _locationProvider.GetItemsAsync(Filter);
-        if (!response.HasError)
-            Items = ((IEnumerable<LocationCatalog>)response.Object!).ToArray();
-
-        await Task.Delay(500);
+        if (!response.HasErrors && response.Object is not null)
+            Items = (IEnumerable<LocationCatalog>)response.Object;
 
         IsLoadingData = false;
 
@@ -128,7 +119,7 @@
             {
                 var response = await _locationProvider.RemoveItemAsync(id);
 
-                if (!response.HasError)
+                if (!response.HasErrors)
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
                     Snackbar.Add($"Unable to delete", Severity.Warning);

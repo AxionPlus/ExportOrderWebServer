@@ -233,7 +233,7 @@
         {
             var response = await _vesselCallProvider.GetItemAsync(Id);
 
-            if (!response.HasError)
+            if (!response.HasErrors)
                 Item = (VesselCallEntity)response.Object!;
         }
     }
@@ -274,10 +274,10 @@
                 else
                 {
                     var result = await _vesselCallProvider.ModifyItemAsync(Item);
-                    if (!result.HasError)
+                    if (!result.HasErrors)
                         Snackbar.Add("Saved Successfully", Severity.Success);
                     else
-                        Snackbar.Add($"{string.Join("; ", result.Error)}", Severity.Error);
+                        Snackbar.Add($"{string.Join("; ", result.Errors)}", Severity.Error);
                 }
             }
 
@@ -357,7 +357,7 @@
         var Vessels = new List<VesselEntity>();
 
         var response = await _vesselProvider.GetItemsAsync();
-        if (!response.HasError)
+        if (!response.HasErrors)
             Vessels = ((IEnumerable<VesselEntity>)response.Object!).OrderBy(s => s.Name).ToList();
 
         if (string.IsNullOrWhiteSpace(value))
@@ -371,7 +371,7 @@
         var Terminals = new List<TerminalCatalog>();
 
         var response = await _terminalProvider.GetItemsAsync();
-        if (!response.HasError)
+        if (!response.HasErrors)
             Terminals = ((IEnumerable<TerminalCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
 
         if (string.IsNullOrWhiteSpace(value))
@@ -385,7 +385,7 @@
         var Ports = new List<LocationCatalog>();
 
         var response = await _locationProvider.GetItemsAsync();
-        if (!response.HasError)
+        if (!response.HasErrors)
             Ports = ((IEnumerable<LocationCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
 
         if (string.IsNullOrWhiteSpace(value))

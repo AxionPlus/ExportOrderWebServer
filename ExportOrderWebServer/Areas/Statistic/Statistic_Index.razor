@@ -162,7 +162,7 @@
         SetDatePeriod();
 
         var response = await _statisticProvider.GetItemsAsync(Filter);
-        if (!response.HasError)
+        if (!response.HasErrors)
         {
             Item = (StatisticEntity)response.Object!;
 
@@ -177,7 +177,7 @@
             }            
         }
         else
-            Snackbar.Add($"No Success<br>{response.Error.FirstOrDefault()}", Severity.Error);
+            Snackbar.Add($"No Success<br>{response.Errors.FirstOrDefault()}", Severity.Error);
 
         await Task.Delay(100);
         IsLoadingData = false;

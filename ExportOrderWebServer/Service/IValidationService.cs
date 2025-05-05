@@ -2,7 +2,7 @@
 
 namespace ExportOrderWebServer.Service
 {
-    public interface IValidationService
+    public interface IValidationService : IDisposable
     {
         public Task<IEnumerable<string>> ValidateCntrNums(string[] editedCntrNums, long eoId, long voyageId, string? singleCntrNum);
         public int ControlDigit(string cntrNum);
@@ -16,10 +16,10 @@ namespace ExportOrderWebServer.Service
         {
             _ExportOrderProvider = exportOrderProvider;
         }
-        public ValidationService()
-        {
-            
-        }
+
+        //public ValidationService()
+        //{
+        //}
 
         /// <summary>
         /// Проверка номера контейнера в коллекции:
@@ -34,62 +34,71 @@ namespace ExportOrderWebServer.Service
         /// <returns></returns>
         public async Task<IEnumerable<string>> ValidateCntrNums(string[] editedCntrNums, long eoId, long voyageId, string? singleCntrNum = null)
         {
-            List<string> errMessages = new();            
-            
-            /// Коллекция номеров кнтр-ов, исключая редактируемую коллекцию
-            var dbVoyageCntrNums = await _ExportOrderProvider.GetCntrNumsInVoyage(eoId, voyageId);
-            
-            string[] _editedCntrNums = editedCntrNums;
+            List<string> errMessages = new();
 
-            /// Choose checking procedure - Single Cntr or Entire editing collection
-            if (!string.IsNullOrEmpty(singleCntrNum))
-                _editedCntrNums = new string[] { singleCntrNum };
-
-            foreach (string num in _editedCntrNums)
+            try
             {
-                string errPrefix = $"{num}: ";
-                ///LENGTH
-                if (num.Length == 11)
+                /// Коллекция номеров кнтр-ов, исключая редактируемую коллекцию (edited)
+                var dbVoyageCntrNums = await _ExportOrderProvider.GetCntrNumsInVoyage(eoId, voyageId);
+
+                string[] _editedCntrNums = editedCntrNums;
+
+                /// Choose checking procedure - Single Cntr or Entire editing collection
+                if (!string.IsNullOrEmpty(singleCntrNum))
+                    _editedCntrNums = new string[] { singleCntrNum };
+
+                foreach (string num in _editedCntrNums)
                 {
-                    /// FORMAT
-                    if (!Regex.IsMatch(num, "[a-zA-Z]{4}[0-9]{7}"))
-                        errMessages.Add($"{errPrefix} Формат номера Контейнера не соответствует маске 'ABCD1234567'.");
-                    else
+                    string errPrefix = $"{num}: ";
+                    ///LENGTH
+                    if (num.Length == 11)
                     {
-                        /// CONTROL DIGIT
-                        int controlDigit = ControlDigit(num.ToUpper());
+                        /// FORMAT
+                        if (!Regex.IsMatch(num, "[a-zA-Z]{4}[0-9]{7}"))
+                            errMessages.Add($"{errPrefix} Формат номера Контейнера не соответствует маске 'ABCD1234567'.");
+                        else
+                        {
+                            /// CONTROL DIGIT
+                            int controlDigit = ControlDigit(num.ToUpper());
 
-                        if (Convert.ToInt32(num.Substring(10, 1)) != controlDigit)
-                            errMessages.Add($"{errPrefix} Контрольная цифра в номере Контейнера не верна. Правильно - {controlDigit}.");
+                            if (Convert.ToInt32(num.Substring(10, 1)) != controlDigit)
+                                errMessages.Add($"{errPrefix} Контрольная цифра в номере Контейнера не верна. Правильно - {controlDigit}.");
+                        }
                     }
-                }
-                else
-                    errMessages.Add($"{errPrefix} Количество символов в номере Контейнера не верно.");
+                    else
+                        errMessages.Add($"{errPrefix} Количество символов в номере Контейнера не верно.");
 
-                /// DUPPLICATES
-                ///
-                /// <edited pageFound>Поиск в редактируемой коллекции</edited>
-                bool editedFound = false;
-                bool dbFound = false;
+                    /// DUPPLICATES
+                    ///
+                    /// <edited pageFound>Поиск в редактируемой коллекции</edited>
+                    bool editedFound = false;
+                    bool dbFound = false;
 
                     editedFound = editedCntrNums.GroupBy(n => n)
                                                 .Where(g => g.Key == num && g.Count() > 1)
                                                 .Any();
 
-                if (editedFound)
-                    errMessages.Add($"{errPrefix} Контейнер повторяется в этом Поручении.");
-                else
-                {
-                    /// <db dbFound>Поиск в БД, исключая редактируемую коллекцию</db> 
-                    if (dbVoyageCntrNums is not null && dbVoyageCntrNums.Any())
-                        dbFound = dbVoyageCntrNums.Any(n => n == num);
-                    
-                    if (dbFound)
-                        errMessages.Add($"{errPrefix} Контейнер повторяется в этом рейсе.");
-                }                    
-            }
+                    if (editedFound)
+                        errMessages.Add($"{errPrefix} Контейнер повторяется в этом Поручении.");
+                    else
+                    {
+                        /// <db dbFound>Поиск в БД, исключая редактируемую коллекцию</db> 
+                        if (dbVoyageCntrNums is not null && dbVoyageCntrNums.Any())
+                            dbFound = dbVoyageCntrNums.Any(n => n == num);
 
-            return errMessages;
+                        if (dbFound)
+                            errMessages.Add($"{errPrefix} Контейнер повторяется в этом рейсе.");
+                    }
+                }
+
+                return errMessages;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Enumerable.Empty<string>();
+            }
+            
         }
 
         public int ControlDigit(string cntrNum)
@@ -134,5 +143,10 @@ namespace ExportOrderWebServer.Service
 
             return Remainder;
         }
-    }
+
+        public void Dispose()
+        {
+
+        }
+    }   
 }

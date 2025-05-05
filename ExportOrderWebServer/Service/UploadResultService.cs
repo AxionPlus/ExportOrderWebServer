@@ -18,16 +18,19 @@ public class UploadResultService : IUploadResultService
 {
     private readonly ICntrTypeProvider _cntrTypeProvider;
     private readonly IDocumentProvider _documentProvider;
+    public readonly IExportOrderProvider _exportOrderProvider;
     //private readonly IValidationService _validationService; // DELETE and replace with: using service
     private readonly ISupplementaryUnitProvider _supplementaryUnitProvider;
 
     public UploadResultService(ICntrTypeProvider cntrTypeProvider,
                                 IDocumentProvider documentProvider,
+                                IExportOrderProvider exportOrderProvider,
                                 //IValidationService validationService,
                                 ISupplementaryUnitProvider supplementaryUnitProvider)
     {
         _cntrTypeProvider = cntrTypeProvider;
         _documentProvider = documentProvider;
+        _exportOrderProvider = exportOrderProvider;
         //_validationService = validationService;
         _supplementaryUnitProvider = supplementaryUnitProvider;
     }
@@ -47,14 +50,20 @@ public class UploadResultService : IUploadResultService
 
         if (uploadedCntrNums is not null && uploadedCntrNums != Array.Empty<string>())
         {
-            //var cntrNumErros = await _validationService.ValidateCntrNums(uploadedCntrNums!, eoId, voyageId, null);
-            IValidationService validationService = new ValidationService();
+            //using IValidationService validationService = new ValidationService(_exportOrderProvider);
+
+            //var cntrNumErros = await validationService.ValidateCntrNums(uploadedCntrNums!, eoId, voyageId, null);
+
+            //foreach (string err in cntrNumErros)
+            //    errList.Add(err.Insert(0, "---:"));
+
+            using (IValidationService validationService = new ValidationService(_exportOrderProvider))
             {
                 var cntrNumErros = await validationService.ValidateCntrNums(uploadedCntrNums!, eoId, voyageId, null);
 
                 foreach (string err in cntrNumErros)
                     errList.Add(err.Insert(0, "---:"));
-            }                
+            }
         }
 
         /// All RECORDS

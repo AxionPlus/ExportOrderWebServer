@@ -51,6 +51,7 @@ public class ExportOrderDTO
     public string? CustomsOfficeCode { get; set; }
     public string? CustomsOfficeNameShort { get; set; }
     public string? MyCompanyName { get; set; }
+    public string? MyCompanyEmail { get; set; }
     public string? Person { get; set; }
     public string? PersonXml { get; set; }
     public string? PersonPass { get; set; }

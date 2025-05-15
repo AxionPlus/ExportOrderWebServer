@@ -4,8 +4,9 @@
 @inject IMyCompanyProvider _myCompanyProvider
 
 <style>
-    .container-content-Person {
+    .container-content.Person {
         display:flex;
+        justify-content: flex-start;
     }
     .container-content-column {
         display: flex;
@@ -15,7 +16,7 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content" Disabled="IsFormReadOnly">
+    <MudForm @ref="@Form" Style="max-width:fit-content">
         <div class="Container-item">
             <div class="container-content Person">        
                 <MudTextField T="string" Style="width: 200px;" @bind-Value="@Item.FamilyName"
@@ -32,21 +33,24 @@
                               Placeholder="Имя"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" Required RequiredError="" Clearable />
-                 <MudTextField T="string" Style="width: 200px; margin-inline:10px" @bind-Value="@Item.SurName"
-                               Placeholder="Отчество"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable />
-                 <MudTextField T="string" Style="width: 190px;" @bind-Value="@Item.Phone"
-                               Placeholder="+7 000 000 0000"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable />
-            </div>
-            @* <MudDivider Class="my-3" /> *@
+                <MudTextField T="string" Style="width: 200px; margin-inline:10px" @bind-Value="@Item.SurName"
+                              Placeholder="Отчество"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Required RequiredError="" Clearable />
+                <MudTextField T="string" Style="width: 190px" @bind-Value="@Item.Phone"
+                              Placeholder="+7 000 000 0000"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Required RequiredError="" Clearable />
+            </div>            
             <div class="container-content Person">
                 <div class="container-content-column" style="width:200px">место работы:</div>
-                <div class="container-content-column" style="width:400px">
-                    <MudTextField T="string" Style="width: 400px;" @bind-Value="@Item.Company"
+                <div class="container-content-column" style="width:630px">
+                    <MudTextField T="string" Style="width: 305px; margin-right:10px" @bind-Value="@Item.CompanyName"
                                   Placeholder="компания"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Required RequiredError="" Clearable />
+                    <MudTextField T="string" Style="width: 315px;" @bind-Value="@Item.CompanyEmail"
+                                  Placeholder="эл.адресс"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
                                   Immediate="true" Required RequiredError="" Clearable />
                 </div>
@@ -89,44 +93,55 @@
 }
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
     private MudForm? Form { get; set; }
-
-    private PersonEntity? Item { get; set; } = new();
-
-    public long Id { get; set; }
-    private bool IsFormReadOnly { get; set; } = false;
-    private bool IsAuth = false;
+    [Parameter]
+    public long? Id { get; set; }
+    private PersonEntity? Item { get; set; }
     private bool IsLoadingData { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        await GetItem();
+    }
+
+    private async Task GetItem()
+    {
+        if (Id is null)
+            Item = new();
+        else
         {
-            IsAuth = true;
+            IsLoadingData = true;
+
+            var response = await _myCompanyProvider.GetPersonItemAsync((long)Id);
+            if (response is not null && response.Object is not null)
+                Item = (PersonEntity)response.Object;
+
+            IsLoadingData = false;
         }
     }
 
     private async Task SaveItem_Click()
     {
-        await Form!.Validate();
+        if (Item is null || Form is null) return;
+
+        await Form.Validate();
 
         if (Form.IsValid)
         {
-            if (Item is not null)
-            {
-                var response = await _myCompanyProvider.NewPersonItemAsync(Item!);
-                if (!response.HasErrors)
-                {
-                    Id = Item!.Id;
-                    Snackbar.Add("Saved successfully", Severity.Success);
-                }
-                else
-                    Snackbar.Add(response.Errors.LastOrDefault(), Severity.Error);
-            }
+            IsLoadingData = true;
 
-            IsFormReadOnly = true;
+            var response = await _myCompanyProvider.ModifyPersonItemAsync(Item);
+
+            IsLoadingData = false;
+
+            if (response.HasErrors)
+                Snackbar.Add(response.Errors.LastOrDefault()!, Severity.Warning);
+            else
+            {
+                Snackbar.Add("Saved successfully", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
         }
     }    
 }

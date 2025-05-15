@@ -1,7 +1,6 @@
 ﻿@inject ISnackbar Snackbar
 @inject IJSRuntime jSRuntime
 @inject IDialogService DialogService
-@inject NavigationManager Navigation
 @inject IDocumentProvider _DocumentProvider
 @inject IExportOrderProvider _ExportOrderProvider
 
@@ -37,7 +36,7 @@
 <div class="Container-item">
     <div class="container-content">
         <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
-                    Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+                   Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
             Search
         </MudButton>            
         <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" @bind-Value="Filter.Document" SearchFunc="@SearchDocument"
@@ -69,16 +68,13 @@
     </div>
 </div>
 
-<div class="Container-table">
-    @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />
-            <TablePager T="DocumentEntity" Table="mudTable" ItemsCount="@Items?.Count()" />
-        </div>
-    }
+<div class="Container-table">    
+    <div class="tableMenu">
+        <MudSpacer />
+        <TablePager T="DocumentEntity" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>
     <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" @bind-SelectedItems="SelectedItems"
-                MultiSelection="IsSelectable" SelectOnRowClick="false" Virtualize="true" Loading="IsLoadingData" RowsPerPage="10">
+              MultiSelection="IsSelectable" SelectOnRowClick="false" Virtualize="true" Loading="IsLoadingData" RowsPerPage="10">
         <HeaderContent>
             @if (!IsSelectable)
             {
@@ -107,8 +103,8 @@
         <RowTemplate>
             @if (!IsSelectable)
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async()=>{ await OpenItem_Click(context.Id); })" /></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await OpenItem_Click(context.Id))" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async () => await RemoveItem_Click(context.Name, context.Id))" /></MudTd>
             }
             else
             {
@@ -147,7 +143,6 @@
     private string? ExportOrdersTotalNetWt { get; set; } = null;
     private string? ExportOrdersTotalGrossWt { get; set; } = null;
 
-    //private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     public async Task GetItems()
     {        
@@ -167,20 +162,23 @@
 
         var response = await _DocumentProvider.GetItemsAsync(Filter);
 
-        if (!response.HasErrors)
-            Items = (IEnumerable<DocumentEntity>)response.Object!;
+        if (!response.HasErrors && response.Object is not null)
+            Items = (IEnumerable<DocumentEntity>)response.Object;
         else
             Snackbar.Add(response.Errors.First(), Severity.Warning);
 
         IsLoadingData = false;
+
+        StateHasChanged();
     }
 
-    private async Task RemoveItem_Click(string name, long id)
+    private async Task RemoveItem_Click(string? name, long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Declaration:<br/>{name}<br/>",
-                          yesText: "YES", cancelText: "NO");
+        if (string.IsNullOrWhiteSpace(name) || id == 0) return;
+
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE  Record",                          
+                                                (MarkupString)$"<b>Do you want to remove record?</b> <br/>Declaration:<br/>{name}<br/>",
+                                                yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
@@ -191,19 +189,20 @@
                     Snackbar.Add($"Deleted Successfully", Severity.Success);
                 else
                     Snackbar.Add($"Unable to delete", Severity.Warning);
-            }
 
-        await GetItems();
+                await GetItems();
+            }
     }
 
     private async Task OpenItem_Click(long id)
     {
         //var result = await ValueTask.FromResult(jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank"));
-
-        // if (result.IsCompletedSuccessfully)
-        //     await GetItems();
-
-        await jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}");   //, "_blank"
+        
+        await jSRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.OpenPageUrl}document?Id={id}");
+        
+        // var parameters = new DialogParameters { ["Id"] = id };
+        // var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
+        // var dialog = await DialogService.ShowAsync<Document_Item>("Document", parameters, options);
     }
 
     private async void SelectItems_Click()
@@ -216,17 +215,12 @@
 
         long[] ids = SelectedItems.Select(s => s.Id).ToArray();
 
-        // if (MudDialog != null)
-        //     MudDialog.Close(SelectedItems);
-        // else
-        //     await jSRuntime.InvokeVoidAsync("window.close", SelectedItems);
-
         var documents = await _DocumentProvider.GetItemsAsync(ids);
 
         if (MudDialog != null)
             MudDialog.Close(documents);
-        else
-            await jSRuntime.InvokeVoidAsync("window.close", documents);
+        // else
+        //     await jSRuntime.InvokeVoidAsync("window.close", documents);
     }
 
     #region SEARCHERS
@@ -248,7 +242,8 @@
                     ExportOrdersTotalNetWt = totals[0].ToString("### ### ###.###");
                     ExportOrdersTotalGrossWt = totals[1].ToString("### ### ###.###");
                 }
-             
+
+                IsPopoverOpen = false;
                 await InvokeAsync(StateHasChanged);
             }
             else
@@ -261,9 +256,9 @@
         var result = await _DocumentProvider.GetDocumentNames(IsSelectable);
 
         if (string.IsNullOrWhiteSpace(value))
-            return result;
+            return Enumerable.Empty<string>();
 
-        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToArray();        
+        return result.Distinct().Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToArray();        
     }
 
     #endregion

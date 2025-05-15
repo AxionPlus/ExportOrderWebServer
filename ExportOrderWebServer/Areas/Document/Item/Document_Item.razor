@@ -5,36 +5,38 @@
 @inject IJSRuntime jsRuntime
 @inject IDocumentProvider _documentProvider
 
+<PageTitle>Document</PageTitle>
+
 <MudContainer MaxWidth="MaxWidth.Large">
 
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">
-            @if (MudDialog == null)
+            @* @if (MudDialog == null)
             {
                 <div class="ToolBar-iconbutton">
                     <MudTooltip Text="EXIT">
                         <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseWindow" />
                     </MudTooltip>
                 </div>
-            }
+            } *@            
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Text="EXIT">
+                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseWindow" />
+                </MudTooltip>
+            </div>            
             <div class="ToolBar-iconbutton" style="margin-left:20px">
                 <MudTooltip Class="ExitIconButton" Text="Copy Declaration" Delay="500" Duration="1000">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
                 </MudTooltip>
             </div>
-
             <MudSpacer />
-
             <div class="ToolBar-Title"><span>@($"Document")</span></div>
-
             <MudSpacer />
-
             <div class="ToolBar-iconbutton" style="margin-right:20px">
                 <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="SaveItem" />
                 </MudTooltip>
             </div>
-
             <div class="ToolBar-iconbutton">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
             </div>
@@ -68,8 +70,6 @@
     public bool IsNewItem { get; set; } = false;
 
     private DocumentEntity? Item { get; set; }
-    private DocumentType Type { get; set; }
-    private bool IsAuth = false;
     private bool IsLoadingData = false;
 
     protected override async Task OnAfterRenderAsync(bool first)
@@ -77,25 +77,24 @@
         if (first)
         {
             await GetItem();
-            StateHasChanged();
+            //StateHasChanged();
         }        
     }
-
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     await GetItem();
-    // }
 
     private async Task GetItem()
     {
         if (IsNewItem)
-            Item = new() { Shipper = new(), Consignee = new(), Status = EntityStatus.New };
+            Item = new();
         else
         {
             var response = await _documentProvider.GetItemAsync(Id);
             if (!response.HasErrors && response.Object != null)
                 Item = (DocumentEntity)response.Object;
+            else
+                Snackbar.Add(response?.Errors.FirstOrDefault()!);
         }
+
+        await InvokeAsync(StateHasChanged);
     }
 
     public async Task SaveItem()
@@ -111,13 +110,13 @@
             return;
         }        
 
-        /// Validate Declaration Number 
         if (!ValidatePageFields.IsValid_DeclarationNum(Item.Name))
         {
             Snackbar.Add("Declaration Number is not valid", Severity.Warning);
             return;
         }
 
+        /// SAVE
         IsLoadingData = true;
 
         if (IsNewItem)
@@ -128,6 +127,7 @@
             else
             {
                 Snackbar.Add($"No Success! {response.Errors.FirstOrDefault()}", Severity.Error);
+                IsLoadingData = false;
                 return;
             }
         }
@@ -139,11 +139,12 @@
             else
             {
                 Snackbar.Add($"Not Successed:\n{string.Join(",\n", response.Errors)}", Severity.Error);
+                IsLoadingData = false;
                 return;
             }
         }
 
-        Id = Item.Id;
+        //Id = Item.Id;
 
         IsNewItem = false;
 
@@ -152,30 +153,58 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    public void CopyItem()    //async Task
+    public void CopyItem()
     {
-        if (Item is not null)
+        var initialItem = Item;
+        if (initialItem is null) return;
+
+        List<DocumentRecord> records = new();
+        foreach (DocumentRecord record in initialItem.Records.OrderBy(r => r.Seq))
         {
-            Item.Id = 0;
-            Item.Status = EntityStatus.New;
-
-            foreach (var docRecord in Item.Records)
-                docRecord.Id = 0;
-
-            Item.Name = string.Empty;
-            IsNewItem = true;
-            //await Task.Delay(100);
-            //IsFormReadOnly = false;
+            records.Add(new DocumentRecord()
+            {
+                Seq = record.Seq,
+                CommodityName = record.CommodityName,
+                CommodityEngName = record.CommodityEngName,
+                CommodityHSCode = record.CommodityHSCode,
+                IMO = record.IMO,
+                UNNO = record.UNNO,
+                IsIMO = record.IsIMO,
+                NetWt = record.NetWt,
+                GrossWt = record.GrossWt,
+                Volume = record.Volume
+            });
         }
+
+        Item = new()
+        {
+            Type = initialItem.Type,
+            Description = initialItem.Description,
+            ContarctNo = initialItem.ContarctNo,
+            Shipper = initialItem.Shipper,
+            Consignee = initialItem.Consignee,
+            Records = records
+        };
+
+        IsNewItem = true;
+
+        StateHasChanged();
     }
 
-    public void CloseWindow()
+    private async Task CloseWindow()
     {
-        //jsRuntime.InvokeVoidAsync("window.close");
-
         if (MudDialog is not null)
             MudDialog.Close();
         else
-            jsRuntime.InvokeVoidAsync("window.close");
+        {
+            try
+            {
+                await jsRuntime.InvokeVoidAsync("window.close");    //await jsRuntime.InvokeVoidAsync("close");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при закрытии окна: {ex.Message}");
+            }
+        }        
     }
 }

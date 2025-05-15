@@ -1,7 +1,6 @@
 ﻿using AspNetCore.Reporting;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using static MudBlazor.CategoryTypes;
 
 namespace ExportOrderWebServer.Controllers;
 
@@ -59,6 +58,7 @@ public class ViewReportController : ControllerBase
                 x.Commodities,
                 x.CommodityShort,
                 x.MyCompanyName,
+                x.MyCompanyEmail,
                 x.Person
             });
 

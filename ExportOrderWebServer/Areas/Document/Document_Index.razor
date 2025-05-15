@@ -2,7 +2,6 @@
 @attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 @inject IDialogService DialogService
-@inject NavigationManager Navigation
 @inject IJSRuntime jsRuntime
 
 <PageTitle>Documents</PageTitle>
@@ -49,7 +48,7 @@
     </MudToolBar>
 </div>
 
-<DocumentComponent @ref="component" IsSelectable="IsSelectable" />
+<DocumentComponent IsSelectable="IsSelectable" />
 
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -57,20 +56,18 @@
     [Parameter]
     public bool IsSelectable { get; set; } = false;
 
-    public DocumentComponent? component;
-
     private async Task OpenNewItem_Click()
-    {
-        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?IsNewItem={true}", "_blank");
+    {        
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.OpenPageUrl}document?IsNewItem={true}");    //await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?IsNewItem={true}", "_blank");
     }
 
-    public async Task CloseDialog_Click()
+    private void CloseDialog_Click()
     {
-        await Task.Delay(50);
-        MudDialog!.Close(DialogResult.Cancel());
+        if (MudDialog is not null)
+            MudDialog.Cancel();
     }
 
-    public void CloseWindow()
+    private void CloseWindow()
     {
         jsRuntime.InvokeVoidAsync("window.close");
     }

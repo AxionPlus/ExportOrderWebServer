@@ -381,6 +381,8 @@ namespace ExportOrderWebServer.DataSet {
             
             private global::System.Data.DataColumn columnMyCompanyName;
             
+            private global::System.Data.DataColumn columnMyCompanyEmail;
+            
             private global::System.Data.DataColumn columnPerson;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -546,6 +548,14 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn MyCompanyEmailColumn {
+                get {
+                    return this.columnMyCompanyEmail;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public global::System.Data.DataColumn PersonColumn {
                 get {
                     return this.columnPerson;
@@ -606,6 +616,7 @@ namespace ExportOrderWebServer.DataSet {
                         string Commodities, 
                         string CommodityShort, 
                         string MyCompanyName, 
+                        string MyCompanyEmail, 
                         string Person) {
                 dtExportOrderRow rowdtExportOrderRow = ((dtExportOrderRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
@@ -625,6 +636,7 @@ namespace ExportOrderWebServer.DataSet {
                         Commodities,
                         CommodityShort,
                         MyCompanyName,
+                        MyCompanyEmail,
                         Person};
                 rowdtExportOrderRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowdtExportOrderRow);
@@ -671,6 +683,7 @@ namespace ExportOrderWebServer.DataSet {
                 this.columnCommodities = base.Columns["Commodities"];
                 this.columnCommodityShort = base.Columns["CommodityShort"];
                 this.columnMyCompanyName = base.Columns["MyCompanyName"];
+                this.columnMyCompanyEmail = base.Columns["MyCompanyEmail"];
                 this.columnPerson = base.Columns["Person"];
             }
             
@@ -709,6 +722,8 @@ namespace ExportOrderWebServer.DataSet {
                 base.Columns.Add(this.columnCommodityShort);
                 this.columnMyCompanyName = new global::System.Data.DataColumn("MyCompanyName", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnMyCompanyName);
+                this.columnMyCompanyEmail = new global::System.Data.DataColumn("MyCompanyEmail", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnMyCompanyEmail);
                 this.columnPerson = new global::System.Data.DataColumn("Person", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPerson);
                 this.Constraints.Add(new global::System.Data.UniqueConstraint("Constraint1", new global::System.Data.DataColumn[] {
@@ -1927,6 +1942,22 @@ namespace ExportOrderWebServer.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public string MyCompanyEmail {
+                get {
+                    try {
+                        return ((string)(this[this.tabledtExportOrder.MyCompanyEmailColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("Значение для столбца \'MyCompanyEmail\' в таблице \'dtExportOrder\' равно DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tabledtExportOrder.MyCompanyEmailColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string Person {
                 get {
                     try {
@@ -2119,6 +2150,18 @@ namespace ExportOrderWebServer.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetMyCompanyNameNull() {
                 this[this.tabledtExportOrder.MyCompanyNameColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsMyCompanyEmailNull() {
+                return this.IsNull(this.tabledtExportOrder.MyCompanyEmailColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetMyCompanyEmailNull() {
+                this[this.tabledtExportOrder.MyCompanyEmailColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

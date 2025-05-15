@@ -52,6 +52,7 @@ public class PdfFileCreateService : IPdfFileCreateService
                     x.Commodities,
                     x.CommodityShort,
                     x.MyCompanyName,
+                    x.MyCompanyEmail,
                     x.Person
                 });
 

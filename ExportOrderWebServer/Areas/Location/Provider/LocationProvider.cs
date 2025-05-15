@@ -1,22 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace ExportOrderWebServer.Areas.Location.Provider;
+﻿namespace ExportOrderWebServer.Areas.Location.Provider;
 
 public class LocationProvider : ILocationProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public LocationProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
-        appObjResponse = new();
     }
-
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -29,6 +27,8 @@ public class LocationProvider : ILocationProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -40,6 +40,8 @@ public class LocationProvider : ILocationProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -195,8 +197,6 @@ public class LocationProvider : ILocationProvider
         }
     }
 
-    #region AUXILARY METHODS
-
     public async Task<IEnumerable<string>> GetUNLocodes()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -204,7 +204,5 @@ public class LocationProvider : ILocationProvider
             var db = await _db;
             return await db.Locations.Select(s => s.UnLocode!).ToListAsync();
         }
-    }    
-
-    #endregion
+    }
 }

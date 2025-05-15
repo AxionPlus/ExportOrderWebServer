@@ -4,17 +4,17 @@ public class CustomerProvider : ICustomerProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public CustomerProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
-        appObjResponse = new();
     }
-
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -27,6 +27,8 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -38,6 +40,8 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -56,6 +60,8 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CustomerCatalog item)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -108,6 +114,8 @@ public class CustomerProvider : ICustomerProvider
 
     public async Task<AppObjectResponse> NewItemAsync(CustomerCatalog item)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;

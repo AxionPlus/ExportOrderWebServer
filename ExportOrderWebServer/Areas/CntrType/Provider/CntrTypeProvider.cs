@@ -99,5 +99,4 @@ public class CntrTypeProvider : ICntrTypeProvider
             return res;
         }
     }
-
 }

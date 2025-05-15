@@ -9,16 +9,14 @@ public class ExportOrderProvider : IExportOrderProvider
     public ExportOrderProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
-        appObjResponse = new();
     }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-
             var db = await _db;
             try
             {
@@ -46,8 +44,7 @@ public class ExportOrderProvider : IExportOrderProvider
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
+                appObjResponse.ErrorAdd(ex.Message);
                 return appObjResponse;
             }
         }
@@ -95,12 +92,11 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-
             
             var exportOrders = await db.ExportOrders.AsNoTracking().AsSplitQuery()
                                                     .Include(eo => eo.VesselCallDetail).ThenInclude(vcd => vcd!.VesselCall).ThenInclude(vc => vc!.Vessel)
@@ -167,6 +163,8 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string UserName = "")
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
 
@@ -230,8 +228,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 //var dbBug = db.ChangeTracker.DebugView.LongView;
 
                 /// RE-WRITE WITH A NEW ITEM
-                modifyItem.CreateUser = User!;
-                modifyItem.CreateTime = DateTime.Now;
+                modifyItem.CreateUser = User;
                 modifyItem.Num = item.Num;
                 modifyItem.Dated = item.Dated;
                 modifyItem.Carrier = item.Carrier;
@@ -353,13 +350,18 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<AppObjectResponse> NewItemAsync(ExportOrderEntity item)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd("User not found.");
+                return appObjResponse;
+            }
 
             try
             {
@@ -371,13 +373,14 @@ public class ExportOrderProvider : IExportOrderProvider
                     return appObjResponse;
                 }
 
-                item.CreateUser = User!;
+                item.CreateUser = User;
 
-                db.Entry(item).State = EntityState.Added;
-
+                db.Entry(item.CreateUser).State = EntityState.Unchanged;                
                 db.Entry(item.Carrier!).State = EntityState.Unchanged;
                 db.Entry(item.Person!).State = EntityState.Unchanged;
                 db.Entry(item.VesselCallDetail!).State = EntityState.Modified;
+
+                db.Entry(item).State = EntityState.Added;
 
                 /// Documents
                 foreach (var document in item.Documents)
@@ -485,8 +488,7 @@ public class ExportOrderProvider : IExportOrderProvider
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
+                appObjResponse.ErrorAdd(ex.Message);
                 return appObjResponse;
             }
         }
@@ -496,7 +498,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         try
         {
@@ -541,7 +543,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<AppObjectResponse> GetVersionAsync(int version)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -574,7 +576,6 @@ public class ExportOrderProvider : IExportOrderProvider
         }
         catch (Exception ex)
         {
-            appObjResponse.ErrorAdd(ex.Message);
             Console.WriteLine($"{ex.Message}");
             return Enumerable.Empty<PersonEntity>();
         }
@@ -582,7 +583,7 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<AppObjectResponse> GetExportOrderRecordItemAsync(long id)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -602,6 +603,8 @@ public class ExportOrderProvider : IExportOrderProvider
 
     public async Task<AppObjectResponse> SetNewVesselCall(long[] exportOrderIds, long vesselCallDetailId)
     {
+        appObjResponse = new();
+
         try
         {
             using (var _db = _dbContext.CreateDbContextAsync())
@@ -722,13 +725,13 @@ public class ExportOrderProvider : IExportOrderProvider
         }
     }
 
-    public async Task<List<ExportOrderDTO>?> GetItemsOrderDTOAsync(IEnumerable<long> ids)   //IEnumerable
+    public async Task<List<ExportOrderDTO>?> GetItemsOrderDTOAsync(IEnumerable<long> ids)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            var myCompany = await db.MyCompany.OrderBy(c => c.Id).LastOrDefaultAsync();
+            //var myCompany = await db.MyCompany.OrderBy(c => c.Id).LastOrDefaultAsync();
 
             try
             {
@@ -818,21 +821,13 @@ public class ExportOrderProvider : IExportOrderProvider
                                             string.IsNullOrEmpty(s.VesselCallDetail.VesselCall.Terminal.Name) ? null :
                                                 s.Carrier.CarrierDetails.FirstOrDefault(c => c.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract.HasValue ?
                                                     s.Carrier.CarrierDetails.FirstOrDefault(c => c.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
-                    MyCompanyName = myCompany?.Name,
-                    //Person = dbItem.Person == null ? string.Empty :
-                    //                string.Concat(string.IsNullOrWhiteSpace(dbItem.Person.Name) ? string.Empty : string.Concat(dbItem.Person.Name[..1], ". "),
-                    //                                string.IsNullOrWhiteSpace(dbItem.Person.SurName) ? string.Empty : string.Concat(dbItem.Person.SurName[..1], ". "),
-                    //                                string.IsNullOrWhiteSpace(dbItem.Person.FamilyName) ? string.Empty : dbItem.Person.FamilyName,
-                    //                                string.IsNullOrWhiteSpace(dbItem.Person.Phone) ? string.Empty : string.Concat("  т. ", dbItem.Person.Phone)),
+                    //MyCompanyName = myCompany?.Name,
+                    //MyCompanyEmail = myCompany?.Email,
+                    MyCompanyName = s.Person?.CompanyName,
+                    MyCompanyEmail = s.Person?.CompanyEmail,
                     Person = string.Concat(s.Person?.Name?[..1], ". ", s.Person?.SurName?[..1], ". ", s.Person?.FamilyName, "  т. ", s.Person?.Phone),
-                    //PersonXml = s.Person == null ? string.Empty :
-                    //                    string.Concat(string.IsNullOrWhiteSpace(s.Person.Name) ? string.Empty : string.Concat(s.Person.Name, " "),
-                    //                                string.IsNullOrWhiteSpace(s.Person.FamilyName) ? string.Empty : s.Person.FamilyName,
-                    //                                string.IsNullOrWhiteSpace(s.Person.Phone) ? string.Empty : string.Concat(" телефон: ", s.Person.Phone)),
                     PersonXml = string.Concat(s.Person?.Name, " ", s.Person?.FamilyName, " телефон: ", s.Person?.Phone),
-                    //PersonPass = s.Person == null ? string.Empty : s.Person.Passport,
                     PersonPass = s.Person?.Passport,
-                    //PersonPhone = s.Person == null ? string.Empty : s.Person.Phone,
                     PersonPhone = s.Person?.Phone,
                     ExportOrderRecordsDTO = orderRecords(s.Records)
                 }).ToList();
@@ -938,8 +933,6 @@ public class ExportOrderProvider : IExportOrderProvider
                 return null;
             }
         }
-
-
     }
 
     public Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item)
@@ -1147,26 +1140,12 @@ public class ExportOrderProvider : IExportOrderProvider
                         PersonSurName = Item.Person is null ? string.Empty : Item.Person.Name + " " + Item.Person.SurName,
                         PersonBirthYear = Item.Person is null ? string.Empty : Item.Person.BirthYear,
                         PersonBirthPlace = Item.Person is null ? string.Empty : Item.Person.BirthPlace,
-                        PersonCompany = Item.Person is null ? string.Empty : Item.Person.Company,
+                        PersonCompany = Item.Person is null ? string.Empty : Item.Person.CompanyName,
                         PersonAddress = Item.Person is null ? string.Empty : Item.Person.Address,
-                        PersonPass = Item.Person is null ? string.Empty : Item.Person.Passport,
-                        //PersonSign = Item.Person is null ? string.Empty :
-                        //                Item.Person.Name is null ? string.Empty :
-                        //                    Item.Person.Name.Substring(0, 1) + ". " +
-                        //                    (Item.Person.SurName is null ? string.Empty : Item.Person.SurName.Substring(0, 1) + ". ") +
-                        //                    Item.Person.FamilyName,
-                        //PersonSign = Item.Person is null ? string.Empty :
-                        //                Item.Person.Name is null ? string.Empty :
-                        //                    string.Concat(Item.Person.Name.AsSpan(0, 1), ". ",
-                        //                                  Item.Person.SurName is null ? string.Empty :
-                        //                                  string.Concat(Item.Person.SurName.AsSpan(0, 1), ". "),
-                        //                                  Item.Person.FamilyName),
+                        PersonPass = Item.Person is null ? string.Empty : Item.Person.Passport,                        
                         PersonSign = string.Concat(Item.Person?.Name?[..1], ". ",                                                          
                                                    Item.Person?.SurName?[..1], ". ",
                                                    Item.Person?.FamilyName),
-                        //DateExplanation = "\"____\" " +
-                        //                    (Item.VesselCallDetail!.VesselCall!.ETS.HasValue ? 
-                        //                        Item.VesselCallDetail!.VesselCall!.ETS.Value.ToString("MMMM yyyy") : "_____________________") + "г.",
                         DateExplanation = string.Concat("\"____\" ", 
                                                         Item.VesselCallDetail!.VesselCall!.ETS.HasValue ?
                                                             Item.VesselCallDetail!.VesselCall!.ETS.Value.ToString("MMMM yyyy") : "_____________________",
@@ -1251,5 +1230,6 @@ public class ExportOrderProvider : IExportOrderProvider
             _ => unitCode[..3]
         };
     };
+
     #endregion    
 }

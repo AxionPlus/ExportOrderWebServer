@@ -3,16 +3,17 @@
 public class VesselProvider : IVesselProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public VesselProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
-        appObjResponse = new();
     }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -25,6 +26,8 @@ public class VesselProvider : IVesselProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -36,6 +39,8 @@ public class VesselProvider : IVesselProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -53,6 +58,8 @@ public class VesselProvider : IVesselProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -111,6 +118,8 @@ public class VesselProvider : IVesselProvider
 
     public async Task<AppObjectResponse> NewItemAsync(VesselEntity item)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -155,9 +164,7 @@ public class VesselProvider : IVesselProvider
             return await db.Vessels.OrderBy(s => s.Name).Select(s => s.Name!).ToListAsync();
         }
     }
-
-    #region AUXILARY METHODS
-
+        
     public async Task<IEnumerable<string>> GetIMOnos()
     {
         using (var _db = _dbContext.CreateDbContextAsync())
@@ -166,6 +173,4 @@ public class VesselProvider : IVesselProvider
             return await db.Vessels.Select(s => s.IMO!).ToListAsync();
         }
     }
-
-    #endregion
 }

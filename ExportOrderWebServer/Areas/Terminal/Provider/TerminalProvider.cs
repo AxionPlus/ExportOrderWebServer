@@ -4,16 +4,17 @@ public class TerminalProvider : ITerminalProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public TerminalProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
-        appObjResponse = new();
     }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -26,6 +27,8 @@ public class TerminalProvider : ITerminalProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -37,6 +40,8 @@ public class TerminalProvider : ITerminalProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -54,6 +59,8 @@ public class TerminalProvider : ITerminalProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(TerminalCatalog item)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -105,6 +112,8 @@ public class TerminalProvider : ITerminalProvider
 
     public async Task<AppObjectResponse> NewItemAsync(TerminalCatalog item)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;

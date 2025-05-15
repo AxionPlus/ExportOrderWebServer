@@ -1,4 +1,5 @@
 ﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICommodityProvider _CommodityProvider
 
@@ -19,29 +20,27 @@
             </div>
 
             <div class="Container-item">
-                <div class="container-head"></div>
                 <div class="container-content">
                     <MudTextField @ref="@Hscode" T="string" Style="width:200px" Label="HS code" @bind-Value="@Item.HSCode"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  AutoFocus="true" Immediate="true"
-                                  Validation="HSCodeValidation"
-                                  Mask="@(new PatternMask("0000000000"))"                                                                    
-                                  Required RequiredError="" Clearable />
+                    Variant="Variant.Outlined" Margin="Margin.Dense"
+                    AutoFocus="true" Immediate="true"
+                    Validation="HSCodeValidation"
+                    Mask="@(new PatternMask("0000000000"))"                                                                    
+                    Required RequiredError="" Clearable />
                     <MudSpacer />
-                     
                     <div class="wrapper-checkBox" style="width:170px; margin-inline-start:10px; justify-content:start">
-                        <MudCheckBox Label="Is IMO" LabelPosition="LabelPosition.Start" @bind-Value="@Item.IsIMO"></MudCheckBox>
+                        <MudCheckBox T="bool" Label="Is IMO" LabelPosition="LabelPosition.Start" Value="@Item.IsIMO" ValueChanged="@((e)=>{Item.IsIMO=e; IsIMOChanged();})" />
                     </div>                     
                     @if (Item.IsIMO)
                     {
                         <MudTextField T="string" Style="width:100px; margin-inline:10px" Label="IMO" @bind-Value="@Item.IMO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      MaxLength="3"
-                                      Required RequiredError="" Clearable />
-                        <MudTextField @ref="@Unno" T="string" Style="width:100px" Label="UNNO" @bind-Value="@Item.UNNO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Mask="@(new PatternMask("0000"))"
-                                      Required RequiredError="" Clearable />
+                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                        MaxLength="3"
+                        Required RequiredError="" Clearable />
+                        <MudTextField T="string" Style="width:100px" Label="UNNO" @ref="@Unno" @bind-Value="@Item.UNNO"
+                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                        Mask="@(new PatternMask("0000"))"
+                        Required RequiredError="" Clearable />
                     }
                     else
                     {
@@ -49,28 +48,38 @@
                     }
                 </div>
                 <div class="container-content">             
+                    @* <MudTextField T="string" Style="width: 450px" Label="Name" Text="@Item.Name"
+                                  TextChanged="(e)=> { Item.Name = e.ToUpper(); }"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"                                  
+                                  Immediate="true" Lines="6"
+                                  Required RequiredError="" Clearable /> *@
                     <MudTextField T="string" Style="width: 450px" Label="Name" Text="@Item.Name"
-                                  TextChanged=" (e)=> { Item.Name = e.ToUpper(); }"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Lines="6"
-                                  Immediate="true"
-                                  Required RequiredError=""
-                                  Clearable />
-                    <MudSpacer/>
-                    <MudTextField T="string" Style="width: 450px; margin-left: 10px" Label="Name En" Text="@Item.NameEn"
+                    TextChanged="(e)=>NameChanged(e, false)"
+                    Variant="Variant.Outlined" Margin="Margin.Dense"
+                    Immediate="true" Lines="6"
+                    Required RequiredError="" Clearable />
+                    @* <MudSpacer/> *@
+                    <div style="width:10px"></div>
+                    @* <MudTextField T="string" Style="width: 450px; margin-left: 10px" Label="Name En" Text="@Item.NameEn"
                                   TextChanged="(e)=> { Item.NameEn = e.ToUpper(); StateHasChanged();}"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Lines="6"
-                                  Immediate="true"
-                                  Required RequiredError=""
-                                  Clearable />
-                 </div>
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"                                  
+                                  Immediate="true" Lines="6"
+                                  Required RequiredError="" Clearable /> *@
+                    <MudTextField T="string" Style="width: 450px" Label="Name En" Text="@Item.NameEn"
+                    TextChanged="(e)=>NameChanged(e, true)"
+                    Variant="Variant.Outlined" Margin="Margin.Dense"
+                    Immediate="true" Lines="6"
+                    Required RequiredError="" Clearable />
+                </div>
             </div>
         </MudForm>
     </MudContainer>
+
+    <OverlayLoadingData Visible="@IsLoadingData" />
 }
 
 @code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
     private MudForm Form { get; set; } = new();  
     [Parameter]
     public long Id { get; set; }
@@ -79,6 +88,7 @@
 
     private CommodityCatalog? Item { get; set; }
     private bool IsAuth = false;
+    private bool IsLoadingData = false;
 
     private MudTextField<string> Hscode = new();
     private MudTextField<string?> Unno = new();
@@ -106,58 +116,55 @@
         }
     }
 
-    public async Task SaveItem_Click()
+    private async Task SaveItem_Click()
     {
         if (Item is null) return;
 
         await Form.Validate();
 
-        if (Form.IsValid)
+        if (!Form.IsValid) return;
+
+        if (!ValidatePageFields.IsValid_HSCode(Hscode.Text))
         {
-            if (!ValidatePageFields.IsValid_HSCode(Hscode.Text))
+            Snackbar.Add("HS Code is not valid", Severity.Warning);
+            return;
+        }
+
+        if (Item.IsIMO)
+            if (!ValidatePageFields.IsValid_UNNO(Unno.Text))
             {
-                Snackbar.Add("HS Code is not valid", Severity.Warning);
+                Snackbar.Add("UNNO is not valid", Severity.Warning);
                 return;
             }
 
-            if (Item.IsIMO)
-                if (!ValidatePageFields.IsValid_UNNO(Unno.Text))
-                {
-                    Snackbar.Add("UNNO is not valid", Severity.Warning);
-                    return;
-                }            
+        /// SAVE
+        IsLoadingData = true;
 
-            if (IsNewItem)
-            {
-                var response = await _CommodityProvider.NewItemAsync(Item!);
-                if (!response.HasErrors)
-                {
-                    Id = Item.Id;
-                    Snackbar.Add("Saved successfully", Severity.Success);
-                }
-                else
-                    Snackbar.Add(string.Join(", ", response.Errors), Severity.Error);
-            }
+        if (IsNewItem)
+        {
+            var response = await _CommodityProvider.NewItemAsync(Item);
+            if (!response.HasErrors)
+                Snackbar.Add("Saved successfully", Severity.Success);
             else
-            {
-                var response = await _CommodityProvider.ModifyItemAsync(Item!);
-                if (!response.HasErrors)
-                {
-                    Snackbar.Add("Save Successed", Severity.Success);
-                }
-                else
-                    Snackbar.Add(string.Join(", ", response.Errors), Severity.Error);
-            }
+                Snackbar.Add(string.Join(", ", response.Errors), Severity.Error);
         }
         else
-            return;
+        {
+            var response = await _CommodityProvider.ModifyItemAsync(Item);
+            if (!response.HasErrors)
+                Snackbar.Add("Save Successed", Severity.Success);
+            else
+                Snackbar.Add(string.Join(", ", response.Errors), Severity.Error);
+        }        
 
         IsNewItem = false;
-
-        await GetItem();
+        IsLoadingData = false;
+        //await GetItem();
+        //await InvokeAsync(StateHasChanged);
+        MudDialog.Close(DialogResult.Ok(true));
     }
 
-    Func<string, string?> HSCodeValidation = (str) =>
+    private Func<string, string?> HSCodeValidation = (str) =>
     {
         if (string.IsNullOrWhiteSpace(str))
             return string.Empty;
@@ -167,7 +174,50 @@
         return null;
     };
 
+    private async void IsIMOChanged()
+    {
+        if (Item is not null && !Item.IsIMO)
+            if (!string.IsNullOrWhiteSpace(Item.IMO) || !string.IsNullOrWhiteSpace(Item.UNNO))
+            {
+                bool? result = await DialogService.ShowMessageBox("Delete IMO",
+                                                                  (MarkupString)$"Do you want to clear IMO data?",
+                                                                  yesText: "Yes", noText: "NO");
 
+                if (result.HasValue)
+                    if (result.Value)
+                    {                        
+                        Item.IMO = null;
+                        Item.UNNO = null;
+                    }
+                    else
+                    {
+                        Item.IsIMO = true;
+                        StateHasChanged();
+                    }                
+            };
+    }
+
+    private void NameChanged(string? text, bool isEn)
+    {
+        if (Item is null) return;
+
+        if (isEn)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                Item.NameEn = string.Empty;
+            else
+                Item.NameEn = text.Replace("\n", " ").Replace("  ", " ").Trim().ToUpper();
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                Item.Name = string.Empty;
+            else
+                Item.Name = text.Replace("\n", " ").Replace("  ", " ").Trim().ToUpper();
+        }
+
+        StateHasChanged();
+    }
     // private PatternMask Mask_HSCode = new PatternMask("##########")
     // {
     //     MaskChars = new[] { new MaskChar('#', @"[0-9]") }
@@ -177,7 +227,4 @@
     // {
     //     MaskChars = new[] { new MaskChar('#', @"\d") }
     // };
-
-    // public IMask Mask_HSCode = new RegexMask(@"\d");     // work, but number of symbols not controlled
-    // public IMask Mask_UNNO = new RegexMask(@"\d{4}");    // input dosn't work (only matching)
 }

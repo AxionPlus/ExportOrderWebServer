@@ -3,7 +3,9 @@
 
 @inject ISnackbar Snackbar
 @inject IJSRuntime jsRuntime
+@inject IDialogService DialogService
 @inject IMyCompanyProvider _MyCompanyProvider
+@inject AuthenticationStateProvider authenticationStateProvider
 
 <PageTitle>My Company</PageTitle>
 
@@ -14,7 +16,7 @@
     }
 </style>
 
-<MudContainer MaxWidth="MaxWidth.Large">
+<MudContainer MaxWidth="MaxWidth.Medium">
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">            
             <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
@@ -23,7 +25,7 @@
             <MudSpacer />
             <div class="ToolBar-iconbutton" style="margin-right: 20px">
                 <MudTooltip Text="Save">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />                         
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="@(!IsRoleForEdit)" OnClick="SaveItem_Click" />                         
                 </MudTooltip>
             </div>
             <div class="ToolBar-iconbutton">
@@ -34,168 +36,89 @@
             </div>
         </MudToolBar>
     </div>
-
-    <MudForm @ref="Form">
-        <div class="Container-item">
-            <div class="container-content">
-                <MudTextField Class="wrapper-input" T="string" Style="width: 400px;" Placeholder="Наименование компании" @bind-Value="@Item!.Name"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Required RequiredError="" Clearable />
+    @if (Item != null)
+    {
+        <MudForm @ref="Form">
+            <div class="Container-item">
+                <div class="container-content" style="justify-content:flex-start">
+                    <MudTextField Class="wrapper-input" T="string" Style="width: 250px" Placeholder="Наименование компании" @bind-Value="@Item.Name"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Required RequiredError="" Clearable />
+                    <MudTextField Class="wrapper-input" T="string" Style="width: 250px; margin-left:10px" Placeholder="Адрес эл.почты" @bind-Value="@Item.Email"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Required RequiredError="" Clearable />
+                </div>
             </div>
-        </div>
 
-        <div class="Container-table">
-            @if (mudTable != null)
-            {
+            <div class="Container-table">
                 <div class="tableMenu">
                     <MudSpacer />
-                    <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)"
-                                   Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-                    <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Item.Persons!.Count())</span>
+                    <TablePager T="PersonEntity" Table="mudTable" ItemsCount="@Item.Persons.Count()" />
                 </div>
-            }
-            <MudTable Class="Table" @ref="mudTable" Items="@Item.Persons" Hover Loading="IsLoadingData">
-                <HeaderContent>
-                    <MudTh Style="width:40px">
-                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddPerson_Click" Disabled="@(IsLoadingData || Item == null)" />
-                    </MudTh>
-                    <MudTh Style="width: 216px">Фамилия</MudTh>
-                    <MudTh Style="width: 30px"></MudTh>
-                    <MudTh Style="width: 216px">Имя</MudTh>
-                    <MudTh Style="width: 216px">Отчество</MudTh>                    
-                    <MudTh Style="width: 166px">Телефон</MudTh>
-                    <MudTh Style="width: 166px">Компания</MudTh>
-                    <MudTh></MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(() => { RemovePerson_Click(context); })"
-                        Disabled="@IsLoadingData" />
-                    </MudTd>
-                    <MudTd>
-                        <MudTextField T="string" Style="width: 200px;" @bind-Value="@context.FamilyName"
-                                      Placeholder="Фамилия"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Immediate="true" Required RequiredError=""
-                        Clearable />
-                    </MudTd>
-                    <MudTd>
-                        @if(!context.IsNewPerson)
-                        {
-                            <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(context.IsShowPersonDetails == true ? "transform: rotate(180deg);" : "")"
-                            Size="@Size.Small" OnClick="(_)=>{context.IsShowPersonDetails = !context.IsShowPersonDetails;}" />
-                        }
-                    </MudTd>
-                    <MudTd>
-                        <MudTextField T="string" Style="width:200px;" @bind-Value="@context.Name"
-                                      Placeholder="Имя"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Immediate="true" Required RequiredError="" Clearable />
-                    </MudTd>
-                    <MudTd>
-                        <MudTextField T="string" Style="width:200px;" @bind-Value="@context.SurName"
-                                      Placeholder="Отчество"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Immediate="true" Required RequiredError="" Clearable />
-                    </MudTd>
-                    <MudTd>
-                        <MudTextField T="string" Style="width:150px;" @bind-Value="@context.Phone"
-                                      Placeholder="+7 000 000 0000"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Immediate="true" Required RequiredError="" Clearable />
-                    </MudTd>
-                    <MudTd>
-                        <MudTextField T="string" Style="width:250px;" @bind-Value="@context.Company"
-                                      Placeholder="компания"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Immediate="true" Required RequiredError="" Clearable />
-                    </MudTd>
-                    <MudTd></MudTd>
-                </RowTemplate>
-                <ChildRowContent>
-                    @if (context.IsShowPersonDetails)
-                    {                        
-                        <MudTr>
-                            <td colspan="3"></td>
-                            <MudTh Style="width: 200px; text-align: start; margin-inline-start: 20px">год и место рождения:</MudTh>
-                            <td colspan="3">
-                                <MudTd>
-                                    <MudTextField T="string" Style="width: 100px;" @bind-Value="@context.BirthYear"
-                                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                                    Immediate="true" MaxLength="4"
-                                    Required RequiredError="" Clearable />
-                                </MudTd>
-                                <MudTd>
-                                    <MudTextField T="string" Style="width: 515px;" @bind-Value="@context.BirthPlace"
-                                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                                    Immediate="true" Required RequiredError="" Clearable />
-                                </MudTd>
-                            </td>
-                            <td colspan="2"></td>
-                        </MudTr>
-                        <MudTr>
-                            <td colspan="3"></td>
-                            <MudTh Style="width: 200px; text-align: start; margin-inline-start: 20px">место жительства:</MudTh>
-                            <MudTd colspan="4">
-                                <MudTextField T="string" Style="width: 630px;" @bind-Value="@context.Address"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                Immediate="true" Required RequiredError="" Clearable />
-                            </MudTd>
-                        </MudTr>                        
-                        <MudTr>
-                            <td colspan="3"></td>
-                            <MudTh Style="width: 200px; text-align: start; margin-inline-start: 20px">данные паспорта</MudTh>
-                            <MudTd colspan="4">
-                                <MudTextField T="string" Style="width: 630px;" @bind-Value="@context.Passport"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                Immediate="true" Required RequiredError="" Clearable />
-                            </MudTd>
-                        </MudTr>
-                    }
-                </ChildRowContent>
-            </MudTable>
-        </div>
-
-        <OverlayLoadingData Visible="@IsLoadingData" />
-
-    </MudForm>
+                <MudTable Class="Table" @ref="mudTable" Items="@Item.Persons" RowsPerPage="15" Hover Loading="IsLoadingData">
+                    <HeaderContent>
+                        <MudTh Style="width:40px">
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="@Color.Primary"  Disabled="@(!IsRoleForEdit)" OnClick="@(() => ShowPerson_Click(null))" />
+                        </MudTh>
+                        <MudTh Style="width: 200px">Фамилия И.О.</MudTh>
+                        <MudTh Style="width: 150px">Телефон</MudTh>
+                        <MudTh Style="width: 200px">Компания</MudTh>
+                        <MudTh Style="width: 40px"></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Disabled="@(!IsRoleForEdit)" OnClick="@(() => ShowPerson_Click(context.Id))"/>
+                        </MudTd>
+                        <MudTd>@string.Concat(context.FamilyName, " ", context.Name?.Substring(0, 1), ". ", context.SurName?.Substring(0, 1), ".")</MudTd>
+                        <MudTd>@context.Phone</MudTd>
+                        <MudTd>@context.CompanyName</MudTd>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" Disabled="@(!IsRoleForEdit)" OnClick="@(()=>RemovePerson_Click(context))" />
+                        </MudTd>
+                    </RowTemplate>                    
+                </MudTable>
+            </div>
+        </MudForm>
+    }
+    
 </MudContainer>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     private MudForm? Form { get; set; }
-    private MudTable<PersonEntity>? mudTable;
-    private MyCompanyEntity? Item { get; set; } = new();
+    private MudTable<PersonEntity> mudTable = new();
+    private MyCompanyEntity? Item { get; set; }
     private bool IsLoadingData { get; set; } = false;
     private bool IsNewItem { get; set; } = false;
-    //private bool IsFormReadOnly { get; set; } = true;
+    private bool IsRoleForEdit = false;
 
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     protected override async Task OnInitializedAsync()
     {
-        bool IsItemNull = await _MyCompanyProvider.IsItemNullAsync();
+        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
 
-        if (IsItemNull)
-        {
+        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+            IsRoleForEdit = true;
+
+        await GetItem();
+        if (Item is null)
             IsNewItem = true;
-            Item = new() { Persons = new List<PersonEntity>() { new PersonEntity() { IsNewPerson = true, IsShowPersonDetails = true } } };
-        }
-        else
-        {
-            IsNewItem = false;
-            await GetItem();
-        }
     }
 
     private async Task GetItem()
     {
+        IsLoadingData = true;
+
         var response = await _MyCompanyProvider.GetLastItemAsync();
         if (!response.HasErrors && response.Object is not null)
             Item = (MyCompanyEntity)response.Object;
         else
             Snackbar.Add($"{response.Errors.First()}", Severity.Error);
+
+        IsLoadingData = false;
     }
 
     public async Task SaveItem_Click()
@@ -222,15 +145,9 @@
             }
 
         IsNewItem = false;
-        await GetItem();
-
         IsLoadingData = false;
-    }
 
-    private void AddPerson_Click()
-    {
-        if (Item is not null)
-            Item.Persons.Add(new PersonEntity() { IsNewPerson = true , IsShowPersonDetails = true});
+        await GetItem();
     }
 
     private void RemovePerson_Click(PersonEntity item)
@@ -241,18 +158,19 @@
             Item.Persons.Remove(item);
     }
 
-    public async Task CloseDialog_Click()
-    {
-        await Task.Delay(50);
-        if (Item is not null)
-            MudDialog!.Close(DialogResult.Ok(Item.Persons));
-        else
-            MudDialog!.Close(DialogResult.Cancel);
+    private async void ShowPerson_Click(long? id = null)
+    {   
+        var parameters = new DialogParameters { ["Id"] = id };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Person_ItemDialog>("Person", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await GetItem();
+            await InvokeAsync(StateHasChanged);
+        }
+        
     }
-
-    // public void CloseWindow()
-    // {
-    //     jsRuntime.InvokeVoidAsync("window.close", Persons);
-    // }
-
 }

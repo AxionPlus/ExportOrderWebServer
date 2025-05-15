@@ -4,12 +4,11 @@ public class CommodityProvider : ICommodityProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;    
 
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public CommodityProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
-        _dbContext = dbContext;
-        appObjResponse = new();
+        _dbContext = dbContext;        
     }
 
 
@@ -75,11 +74,17 @@ public class CommodityProvider : ICommodityProvider
             {
                 var modifyItem = await db.Commodities.FirstOrDefaultAsync(s => s.Id == item.Id);
 
-                if (modifyItem!.Name != item.Name)
+                if (modifyItem is null)
                 {
-                    var itemExistCheck = await db.Commodities.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
+                    appObjResponse.ErrorAdd($" {item.Name} not found.");
+                    return appObjResponse;
+                }
 
-                    if (itemExistCheck is not null)
+                if (modifyItem.Name != item.Name)
+                {
+                    bool isItemExist = db.Commodities.Any(s => s.Name!.ToUpper() == item.Name!.ToUpper());
+
+                    if (isItemExist)
                     {
                         appObjResponse.ErrorAdd($" {item.Name} exists already");
                         return appObjResponse;
@@ -88,14 +93,13 @@ public class CommodityProvider : ICommodityProvider
 
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
 
-                modifyItem!.CreateUser = User!;
-                modifyItem!.CreateTime = DateTime.Now;
-                modifyItem!.Name = item.Name;
-                modifyItem!.NameEn = item.NameEn;
-                modifyItem!.HSCode = item.HSCode;
-                modifyItem!.IMO = item.IMO;
-                modifyItem!.UNNO = item.UNNO;
-                modifyItem!.IsIMO = item.IsIMO;
+                modifyItem.CreateUser = User!;
+                modifyItem.Name = item.Name;
+                modifyItem.NameEn = item.NameEn;
+                modifyItem.HSCode = item.HSCode;
+                modifyItem.IMO = item.IMO;
+                modifyItem.UNNO = item.UNNO;
+                modifyItem.IsIMO = item.IsIMO;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
@@ -107,9 +111,7 @@ public class CommodityProvider : ICommodityProvider
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
                 appObjResponse.ErrorAdd(ex.Message);
-
                 return appObjResponse;
             }
 
@@ -125,7 +127,11 @@ public class CommodityProvider : ICommodityProvider
         {
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd("User not found.");
+                return appObjResponse;
+            }
             // check an Existing item
             //var itemExistCheck = await db.Commodities.Where(s => s.Name == item!.Name || s.NameEn == item.NameEn).FirstOrDefaultAsync();
             //if (itemExistCheck != null)
@@ -136,7 +142,7 @@ public class CommodityProvider : ICommodityProvider
 
             try
             {
-                item.CreateUser = User!;
+                item.CreateUser = User;
                 db.Entry(item).State = EntityState.Added;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
@@ -165,7 +171,7 @@ public class CommodityProvider : ICommodityProvider
             {
                 var db = await _db;
 
-                // check an Existing item
+                /// check an Existing item
                 var existedItem = await db.Commodities.Where(s => s.Id == id).FirstOrDefaultAsync();
 
                 if (existedItem is null)
@@ -184,8 +190,7 @@ public class CommodityProvider : ICommodityProvider
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            appObjResponse.ErrorAdd(msg);
+            appObjResponse.ErrorAdd(ex.Message);
             return appObjResponse;
         }
     }
@@ -206,11 +211,6 @@ public class CommodityProvider : ICommodityProvider
             var db = await _db;
             return await db.Commodities.AsNoTracking().Select(s => s.NameEn).Distinct().OrderBy(s => s).ToArrayAsync();
         }
-    }
-
-    public Task<AppObjectResponse> GetItemsAsync(object parameters)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<IEnumerable<string>> GetHScodes()

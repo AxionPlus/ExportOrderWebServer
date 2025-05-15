@@ -3,32 +3,38 @@
 public class DocumentProvider : IDocumentProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public DocumentProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
-        appObjResponse = new();
     }
 
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Documents.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == id);    //.AsNoTracking().AsSplitQuery()
-        }
+            var document = await db.Documents.Include(d => d.Records.Where(r => r != null).OrderBy(r => r.Seq))
+                                             .AsNoTracking().AsSplitQuery()
+                                             .FirstOrDefaultAsync(d => d.Id == id);
 
-        return appObjResponse;
+            if (document is null)
+                appObjResponse.ErrorAdd("ДТ не найдена.");
+            else
+                appObjResponse.Object = document;
+
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -42,7 +48,7 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -86,7 +92,7 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(DocumentEntity item)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -225,34 +231,41 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> NewItemAsync(DocumentEntity item)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
             var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd($"User not found.");
+                return appObjResponse;
+            }
+
             try
             {
-                // check an Existing item
+                /// check an Existing item
                 bool isItemExist = db.Documents.Any(s => s.Name == item.Name);
                 if (isItemExist)
                 {
-                    appObjResponse.ErrorAdd($"Document: \n {item.Name} \n is exists already.");
+                    appObjResponse.ErrorAdd($"Декларация уже существует: {item.Name}");
                     return appObjResponse;
                 }
 
-                item.CreateUser = User!;
+                item.CreateUser = User;
 
                 foreach (var record in item.Records)
                     db.Entry(record).State = EntityState.Added;
 
+                db.Entry(item.CreateUser).State = EntityState.Unchanged;
                 db.Entry(item).State = EntityState.Added;
 
                 //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 
-                // HISTORY
+                #region HISTORY
                 //db.ChangeTracker.Clear();
 
                 //bool IsItemExists = await db.Documents.AnyAsync(vc => vc.Id == item.Id);
@@ -300,11 +313,11 @@ public class DocumentProvider : IDocumentProvider
 
                 //    await db.SaveChangesAsync();
                 //}
+                #endregion
             }
             catch (Exception ex)
             {
-                var error = ex.Message;
-                appObjResponse.ErrorAdd(error);
+                appObjResponse.ErrorAdd(ex.Message);
                 return appObjResponse;
             }
 
@@ -314,7 +327,7 @@ public class DocumentProvider : IDocumentProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         try
         {
@@ -322,19 +335,18 @@ public class DocumentProvider : IDocumentProvider
             {
                 var db = await _db;
 
-                // check an Existing item
-                var existedItem = await db.Documents.Where(s => s.Id == id).FirstOrDefaultAsync();
+                var dbItem = await db.Documents.Where(s => s.Id == id).FirstOrDefaultAsync();
 
-                if (existedItem is null)
+                if (dbItem is null)
                 {
                     appObjResponse.ErrorAdd("Record wasn't deleted");
                     return appObjResponse;
                 }
 
-                foreach (var Record in existedItem.Records)
+                foreach (var Record in dbItem.Records)
                     db.Entry(Record).State = EntityState.Deleted;
 
-                db.Entry(existedItem).State = EntityState.Deleted;
+                db.Entry(dbItem).State = EntityState.Deleted;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
                 await db.SaveChangesAsync();
@@ -344,8 +356,7 @@ public class DocumentProvider : IDocumentProvider
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            appObjResponse.ErrorAdd(msg);
+            appObjResponse.ErrorAdd(ex.Message);
             return appObjResponse;
         }
     }
@@ -357,12 +368,12 @@ public class DocumentProvider : IDocumentProvider
             var db = await _db;
 
             var documents = await db.Documents.AsNoTracking()
-                                            .Where(s => !string.IsNullOrEmpty(s.Name))
-                                            .Where(s => isSelectable ? s.Status.Equals(EntityStatus.New) : true)
-                                            .Select(s => s.Name!)
-                                            .OrderBy(s => s)
-                                            .Distinct()                                            
-                                            .ToArrayAsync();
+                                              .Where(s => !string.IsNullOrEmpty(s.Name))
+                                              .Where(s => isSelectable ? s.Status.Equals(EntityStatus.New) : true)
+                                              .Select(s => s.Name!)
+                                              .OrderBy(s => s)
+                                              //.Distinct()
+                                              .ToArrayAsync();
 
             if (documents != null && documents.Any())
                 return documents;

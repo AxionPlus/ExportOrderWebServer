@@ -34,7 +34,7 @@
 </MudContainer>
 
 @code {
-    private VesselCallComponent? component;
+    private VesselCallComponent component = new();
 
     private async Task AddItem_Click()
     {
@@ -45,6 +45,6 @@
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled)
-            await component!.GetItems();
+            await component.GetItems();
     }
 }

@@ -67,7 +67,7 @@
         </div>
         <div class="container-content">
             <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
-                        Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
                 Search
             </MudButton>
             <MudSpacer />
@@ -203,7 +203,7 @@
                 <MudTd>
                     <MudTooltip Text="Add new ExportOrder">
                         <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Disabled="context.Status == EntityStatus.Completed"
-                                        OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })" />
+                                       OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })" />
                     </MudTooltip>                    
                 </MudTd>
             }
@@ -211,8 +211,7 @@
             {
                 <MudTd>
                     <MudTooltip Text="Upload">
-                        <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@(async()=>{ await SelectItem_Click(context.Id, context.Status); })"
-                                       Color="Color.Secondary" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Secondary" OnClick="@(()=>SelectItem_Click(context.Id, context.Status))" />
                     </MudTooltip>
                 </MudTd>
             }
@@ -262,8 +261,6 @@
         }
     }
 
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
-
     public async Task GetItems()
     {
         IsLoadingData = true;
@@ -297,10 +294,9 @@
 
     private async Task RemoveItemDetail_Click(long id, string pod)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE",
-                          (MarkupString)$"Do you want Delete record?<br/>For discharge port:<b>{pod}</b>",
-                          yesText: "DELETE!", cancelText: "NO");        
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                                             (MarkupString)$"Do you want Delete record?<br/>For discharge port:<b>{pod}</b>",
+                                                             yesText: "DELETE!", cancelText: "NO");        
         
         IsLoadingData = true;
 
@@ -320,22 +316,19 @@
         await GetItems();
     }
 
-    private async Task SelectItem_Click(long vcdId, EntityStatus? status)
+    private async void SelectItem_Click(long vcdId, EntityStatus? status)
     {
-        await Task.Delay(50);
-
         if (status.Equals(EntityStatus.Completed))
         {
-            bool? result = await DialogService.ShowMessageBox(
-                "Warning",
-                "Unable select Vessel Call due to status - Completed.",
-                yesText: "Close", cancelText: null);
+            bool? result = await DialogService.ShowMessageBox("Warning",
+                                                              "Unable select Vessel Call due to status - Completed.",
+                                                              yesText: "Close");
 
-            await InvokeAsync(StateHasChanged);
             return;
         }                
 
-        MudDialog!.Close(vcdId);
+        if (MudDialog is not null)
+            MudDialog.Close(vcdId);
     }
 
     private async Task ManifestReport_Click(bool _isImo)

@@ -1,5 +1,4 @@
-﻿
-@inject AuthenticationStateProvider authenticationStateProvider
+﻿@inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
@@ -109,56 +108,56 @@
     <div class="Container-item">
         <div class="container-content ExpOrder" style="padding-bottom:2px">
             <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px; color:var(--mud-palette-primary)" T="string" Label="Number"
-            Value="@Value.Num"
-            ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
-            Variant="Variant.Outlined" Margin="Margin.Dense"
-            Required RequiredError="" Clearable />
+                          Value="@Value.Num"
+                          ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Required RequiredError="" Clearable />
             <div style="width:130px; height:35px">
                 <MudDatePicker Class="wrapper-input-date" Label="Date" @bind-Date="Value.Dated"
-                Variant="Variant.Outlined" Margin="Margin.Dense"
-                DateFormat="dd.MM.yy"
-                Editable="true"
-                IconSize=Size.Small
-                Required RequiredError="" Clearable />
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               DateFormat="dd.MM.yy"
+                               Editable="true"
+                               IconSize=Size.Small
+                               Required RequiredError="" Clearable />
             </div>            
             <MudSpacer />
             <MudTextField Class="TextField" T="string" Style="width: 450px"
-            Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
-            Text="@(Value.VesselCallDetail != null && Value.VesselCallDetail.VesselCall != null ?
+                          Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
+                          Text="@(Value.VesselCallDetail != null && Value.VesselCallDetail.VesselCall != null ?
                                                                         string.Concat(Value.VesselCallDetail.VesselCall.Vessel.Name, " / ",
                                                                                         Value.VesselCallDetail.VesselCall.VoyageNo, " / ",
                                                                                         Value.VesselCallDetail.POD == null ? string.Empty : Value.VesselCallDetail.POD.NameEn) :
                                                                         string.Empty)"
-            Variant="Variant.Outlined" Margin="Margin.Dense"
-            Required RequiredError="" Clearable
-            Adornment="Adornment.Start" IconSize="Size.Small"
-            AdornmentColor="Color.Primary"
-            AdornmentIcon="@Icons.Material.Filled.Waves"
-            OnAdornmentClick="@(async () => { await GetVesselCallDetail_Click(); })" />
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Required RequiredError="" Clearable
+                          Adornment="Adornment.Start" IconSize="Size.Small"
+                          AdornmentColor="Color.Primary"
+                          AdornmentIcon="@Icons.Material.Filled.Waves"
+                          OnAdornmentClick="@(async () => { await GetVesselCallDetail_Click(); })" />
             <MudSpacer />
             <MudAutocomplete T="CarrierCatalog" Style="width: 270px" Label="Carrier" @bind-Value="Value.Carrier"
-            ToStringFunc="@(e => e != null ? e.Name : "")"
-            SearchFunc="@SearchCarrier"
-            Variant="Variant.Outlined" Margin="Margin.Dense"
-            Required RequiredError=""
-            CloseIcon="" OpenIcon="" IconSize="Size.Small"
-            ResetValueOnEmptyText="true"
-            Placeholder="Carrier"
-            MaxItems="20"
-            AdornmentIcon="@Icons.Material.Filled.AddCircle"
-            AdornmentColor="Color.Primary"
-            Adornment="Adornment.End"
-            OnAdornmentClick="@( async ()=> { await AddCarrier_Click(); })"
-            Clearable />
+                             ToStringFunc="@(e => e != null ? e.Name : "")"
+                             SearchFunc="@SearchCarrier"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             Required RequiredError=""
+                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                             ResetValueOnEmptyText="true"
+                             Placeholder="Carrier"
+                             MaxItems="20"
+                             AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                             AdornmentColor="Color.Primary"
+                             Adornment="Adornment.End"
+                             OnAdornmentClick="@( async ()=> { await AddCarrier_Click(); })"
+                             Clearable />
         </div>
         <div class="container-content ExpOrder">            
             <MudSelect Class="wrapper-input-select" T="PersonEntity" Style="width:200px" Label="Person" @bind-Value="@Value.Person"
-            ToStringFunc="@(s => s == null ? string.Empty :
-                                                string.Concat($"{s.FamilyName} ",
-                                                                 $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. ",
-                                                                 $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}."))"
-            Variant="Variant.Outlined" Margin="Margin.Dense"
-            Required RequiredError="">
+                       ToStringFunc="@(s => s == null ? string.Empty :
+                                                           string.Concat($"{s.FamilyName} ",
+                                                                            $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. ",
+                                                                            $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}."))"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       Required RequiredError="">
                 @if (Persons.Count() > 0)
                     @foreach (var person in Persons)
                     {
@@ -168,12 +167,12 @@
                     }
             </MudSelect>
             <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@( async ()=> { await AddPerson_Click(); })"
-            Style="padding: 8px" Size="Size.Small" Color="Color.Primary">
+                           Style="padding: 8px" Size="Size.Small" Color="Color.Primary">
             </MudIconButton>
             <MudSpacer />
             <MudSelect Class="wrapper-input-select" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
-            ToStringFunc="@(str => str.ToString())"
-            Variant="Variant.Outlined" Margin="Margin.Dense">
+                       ToStringFunc="@(str => str.ToString())"
+                       Variant="Variant.Outlined" Margin="Margin.Dense">
                 @switch (Value.Status)
                 {
                     case EntityStatus.New:
@@ -228,7 +227,7 @@
                     @if (Value.Documents != null)
                     {
                         <MudTreeView T="ExportOrderDocumentDTO" Items="@TreeItems" @bind-SelectedValue="SelectedDocument"
-                        Dense="true" Hover="true" SelectionMode="SelectionMode.ToggleSelection">
+                                     Dense="true" Hover="true" SelectionMode="SelectionMode.ToggleSelection">
                             <ItemTemplate>
                                 @if (context.Value != null)
                                 {
@@ -297,9 +296,9 @@
     <div class="Container-table" style="min-height:360px; max-height:400px; overflow:auto">
         <div class="tableMenu">
             <MudButton Class="Button" Style="margin-inline:20px; margin-bottom:2px" OnClick="UploadFile_Click"
-            Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-            StartIcon="@Icons.Material.Filled.UploadFile"
-            Disabled="@(Value.VesselCallDetail is null)">
+                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.UploadFile"
+                       Disabled="@(Value.VesselCallDetail is null)">
                 Upload New List
             </MudButton>
             <MudSpacer />
@@ -307,7 +306,7 @@
         </div>
 
         <MudTable Class="Table" @ref="mudTable" Items="@Value.Records" Context="expOrderRecord"
-        Virtualize="true" HorizontalScrollbar="true" RowsPerPage="8" >
+                  Virtualize="true" HorizontalScrollbar="true" RowsPerPage="8" >
             <HeaderContent>
                 <MudTh Style="width:50px;">
                     <div class="controlIconButtons">
@@ -497,7 +496,7 @@
 
     protected override void OnInitialized()
     {
-        FillUpTreeItems();        //return base.OnInitializedAsync();
+        FillUpTreeItems();
     }
 
     #region DOCUMENTS
@@ -754,11 +753,11 @@
                 });              
             }
 
-            DocumentsDTO = DocumentRecordsDTO.GroupBy(dr => dr.DocumentName).Select(d => new ExportOrderDocumentDTO()
+            DocumentsDTO = DocumentRecordsDTO.GroupBy(dr => dr.DocumentName).Select(g => new ExportOrderDocumentDTO()
             {
-                Id = d.FirstOrDefault()!.DocumentId,
-                DocumentName = d.Key,
-                DocumentRecords = d.ToList()
+                Id = g.FirstOrDefault()!.DocumentId,
+                DocumentName = g.Key,
+                DocumentRecords = g.OrderBy(r=>r.Seq).ToList()
             }).ToList();            
 
             TreeItems = DocumentsDTO.Select(s => new TreeItemData<ExportOrderDocumentDTO>() { Value = s }).ToList();
@@ -811,9 +810,9 @@
 
     private async Task AddPerson_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Person_ItemDialog>("Add new Person", new DialogParameters(), options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Person_ItemDialog>("Person", parameters, options);
 
         var result = await dialog.Result;
 

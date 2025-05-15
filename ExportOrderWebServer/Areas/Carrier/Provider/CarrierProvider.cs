@@ -4,18 +4,17 @@ public class CarrierProvider : ICarrierProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public CarrierProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
-        appObjResponse = new();
     }
 
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -31,7 +30,7 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> GetItemsAsync()
     {
-        //appObjResponse = new();
+        appObjResponse = new();
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -43,6 +42,8 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -52,12 +53,6 @@ public class CarrierProvider : ICarrierProvider
                                             .Where(s => !string.IsNullOrEmpty(filter.NameEn) ? s.NameEn == filter.NameEn : true)
                                             .ToListAsync();
             
-            //if (!string.IsNullOrEmpty(filter.Name))
-            //    Carriers = Carriers.Where(s => s.Name == filter.Name).ToList();
-
-            //if (!string.IsNullOrEmpty(filter.NameEn))
-            //    Carriers = Carriers.Where(s => s.NameEn == filter.NameEn).ToList();            
-
             appObjResponse.Object = Carriers.ToArray();
 
             return appObjResponse;
@@ -66,7 +61,7 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CarrierCatalog item)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -141,7 +136,7 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> NewItemAsync(CarrierCatalog item)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -233,7 +228,7 @@ public class CarrierProvider : ICarrierProvider
 
     public async Task<AppObjectResponse> GetTerminalNameAsync(long vesselCallid, string name)
     {
-        //appObjResponse = new();
+        appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {

@@ -2,7 +2,6 @@
 
 public interface IDocumentProvider : IEntityProvider<DocumentEntity>
 {
-    Task<AppObjectResponse> GetItemsAsync(FilterParameters filter);    
     Task<IEnumerable<DocumentEntity>?> GetItemsAsync(long[] ids); 
     Task<IEnumerable<DocumentEntity>?> GetItemsAsync(string[]? nums);
     Task<IEnumerable<string>> GetDocumentNames(bool isSelectable);

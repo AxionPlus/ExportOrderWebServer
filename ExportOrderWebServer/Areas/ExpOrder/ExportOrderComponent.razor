@@ -115,13 +115,13 @@
             <MudTh Style="max-width:45px">
                 <MudTooltip Delay="500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.TransferWithinAStation" Disabled="@(!SelectedItems.Any())"
-                    Size="Size.Small" Color="Color.Secondary" OnClick="SetNewVesselCall" />
+                                   Size="Size.Small" Color="Color.Secondary" OnClick="SetNewVesselCall" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="max-width:45px">
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                    Size="Size.Small" OnClick="@(async () => await SaveFilesPdf_Click("Order"))" />
+                                   Size="Size.Small" OnClick="@(async () => await SaveFilesPdf_Click("Order"))" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="max-width:50px">XML</MudTh>
@@ -129,7 +129,7 @@
             <MudTh Style="width:130px">                
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                    Size="Size.Small" OnClick="@(async () => await SaveFilesPdf_Click("Bill"))" />
+                                   Size="Size.Small" OnClick="@(async () => await SaveFilesPdf_Click("Bill"))" />
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:160px">
@@ -161,25 +161,25 @@
             <MudTd>
                 <MudTooltip Delay="1500" Duration="1000" Text="view Details">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Edit"
-                    OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
+                                   OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
                 <MudTooltip Delay="1500" Duration="1000" Text="view Export Order">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.Print"
-                    OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
+                                   OnClick="@(async()=>{ await ViewReportExpOrder_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
                 <MudTooltip Delay="1500" Duration="1000" Text="save xml file">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium"
-                    OnClick="@(async()=>{ await SaveXMLfile_Click(context.Id); })" />
+                                   OnClick="@(async()=>{ await SaveXMLfile_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
                 <MudTooltip Delay="1500" Duration="1000" Text="save xlsx file for ROLIS">
                     <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoadingData" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium"
-                    OnClick="@(async()=>{ await SaveFileRolis_Click(context.Id); })" />
+                                   OnClick="@(async()=>{ await SaveFileRolis_Click(context.Id); })" />
                 </MudTooltip>
             </MudTd>
             <MudTd>
@@ -212,8 +212,8 @@
             <MudTd></MudTd>
             <MudTd>
                 <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || IsBtnClicked || !IsRoleForEdit)"
-                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
-                OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
+                               Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
+                               OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
             </MudTd>            
         </RowTemplate>
         <PagerContent></PagerContent>

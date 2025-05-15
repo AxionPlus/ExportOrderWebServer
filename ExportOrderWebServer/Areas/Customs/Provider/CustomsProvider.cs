@@ -4,16 +4,17 @@ public class CustomsProvider : ICustomsProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
 
-    private AppObjectResponse appObjResponse;
+    private AppObjectResponse appObjResponse = new();
 
     public CustomsProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
         _dbContext = dbContext;
-        appObjResponse = new();
     }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -31,6 +32,8 @@ public class CustomsProvider : ICustomsProvider
 
     public async Task<AppObjectResponse> GetItemsAsync(FilterParameters filter)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -66,6 +69,8 @@ public class CustomsProvider : ICustomsProvider
 
     public async Task<AppObjectResponse> ModifyItemAsync(CustomsCatalog item)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -116,6 +121,8 @@ public class CustomsProvider : ICustomsProvider
 
     public async Task<AppObjectResponse> NewItemAsync(CustomsCatalog item)
     {
+        appObjResponse = new();
+
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
@@ -142,6 +149,8 @@ public class CustomsProvider : ICustomsProvider
 
     public async Task<AppObjectResponse> RemoveItemAsync(long id)
     {
+        appObjResponse = new();
+
         try
         { 
             using (var _db = _dbContext.CreateDbContextAsync())

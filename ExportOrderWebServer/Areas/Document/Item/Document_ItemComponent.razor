@@ -1,10 +1,11 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject IJSRuntime jsRuntime
 
 <style>
 
     .Table * .mud-table-cell {
-    padding:4px;
+    padding:2px;
     }
 
     .mud-input > textarea.mud-input-root-outlined.mud-input-root-margin-dense 
@@ -93,8 +94,8 @@
     <div class="Container-item">
         <div class="container-content">
             <MudSelect Class="wrapper-input-select" Style="width: 120px" T="DocumentType" Label="Type" @bind-Value="@Value.Type"
-            ToStringFunc="@(s => s.ToString())"
-            Variant="Variant.Outlined" Margin="Margin.Dense">                           
+                       ToStringFunc="@(s => s.ToString())"
+                       Variant="Variant.Outlined" Margin="Margin.Dense">                           
                 @foreach (DocumentType type in Enum.GetValues(typeof(DocumentType)))
                 {
                     <MudSelectItem Value="@type" />
@@ -102,17 +103,17 @@
             </MudSelect>            
             <div style="width:520px">
                 <MudTextField Class="TextField" Style="width: 260px; font-weight:500; color:var(--mud-palette-primary)" Label="Number" @bind-Value="Value.Name"
-                Variant="Variant.Outlined" Margin="Margin.Dense" AutoFocus
-                Mask="@MaskDocumentName"
-                Required RequiredError="" Clearable/>
+                              Variant="Variant.Outlined" Margin="Margin.Dense" AutoFocus
+                              Mask="@MaskDocumentName"
+                              Required RequiredError="" Clearable/>
             </div>
             <div class="Document_row" style="width:520px">
                 <MudTextField Class="TextField" Style="width:360px; font-weight:500" Label="Description" @bind-Value="Value.Description"
-                Variant="Variant.Outlined" Margin="Margin.Dense"
-                Required RequiredError="" Clearable />
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Required RequiredError="" Clearable />
                 <MudSelect Class="wrapper-input-select" Style="width:120px" T="EntityStatus" Label="Status" @bind-Value="Value.Status"
-                ToStringFunc="@(str => str.ToString())"
-                Variant="Variant.Outlined" Margin="Margin.Dense">
+                           ToStringFunc="@(str => str.ToString())"
+                           Variant="Variant.Outlined" Margin="Margin.Dense">
                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
                     {
                         if (status == EntityStatus.New || status == EntityStatus.Completed)
@@ -125,35 +126,41 @@
         </div>
         <div class="container-content">
             <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Shipper"); } )"
-            Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-            StartIcon="@Icons.Material.Filled.ArrowDropDownCircle">
+                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.ArrowDropDownCircle">
                 Shipper
             </MudButton>
-            <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 520px" @bind-Value="@Value.Shipper!.Name"
-            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-            Required RequiredError="" Clearable />
-            <MudTextField Class="TextField" Placeholder="Shipper En" Style="width: 520px" @bind-Value="@Value.Shipper!.NameEn"
-            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-            Required RequiredError="" Clearable />
+            @if (Value.Shipper is not null)
+            {
+                <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 520px" @bind-Value="@Value.Shipper.Name"
+                              Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
+                              Required RequiredError="" Clearable />
+                <MudTextField Class="TextField" Placeholder="Shipper En" Style="width: 520px" @bind-Value="@Value.Shipper.NameEn"
+                              Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
+                              Required RequiredError="" Clearable />
+            }            
         </div>
         <div class="container-content">
             <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Consignee"); } )"
-            Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-            StartIcon="@Icons.Material.Filled.ArrowDropDownCircle" >
+                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.ArrowDropDownCircle" >
                 Consignee
             </MudButton>
-            <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 520px" @bind-Value="@Value.Consignee!.Name"
-            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-            Required RequiredError="" Clearable />
-            <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 520px" @bind-Value="@Value.Consignee.NameEn"
-            Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-            Required RequiredError="" Clearable />
+            @if (Value.Consignee is not null)
+            {
+                <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 520px" @bind-Value="@Value.Consignee.Name"
+                              Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
+                              Required RequiredError="" Clearable />
+                <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 520px" @bind-Value="@Value.Consignee.NameEn"
+                              Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
+                              Required RequiredError="" Clearable />
+            }            
         </div>
     </div>    
 
     <div class="Container-table">
 
-        <MudTable @ref="mudTable" Class="Table" Items="@Value.Records" RowsPerPage="10" HorizontalScrollbar="true" Height="520px">
+        <MudTable @ref="mudTable" Class="Table" Items="@Value.Records" HorizontalScrollbar="true" FixedHeader RowsPerPage="10" Height="520px">
 
             <HeaderContent>
                 <MudTh Style="width:40px;">
@@ -173,7 +180,7 @@
             <RowTemplate>                
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{ await RemoveRecord_Click(context);})"
-                                   Color="Color.Error" Size="Size.Small" />
+                    Color="Color.Error" Size="Size.Small" />
                 </MudTd>
                 <MudTd>
                     @context.Seq.ToString("000")
@@ -183,7 +190,7 @@
                 </MudTd>
                 <MudTd>                    
                     <MudTextField Class="TextField" T="string" Style="width: 352px" @bind-Value="@context.CommodityName"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
+                    Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField" T="string" Style="width: 352px" @bind-Value="@context.CommodityEngName"
@@ -202,20 +209,21 @@
                     </div>                    
                 </MudTd>
                 <MudTd>
-                    <div class="wrapper-checkBox" style="width:30px">
-                        <MudCheckBox @bind-Value="@context.IsIMO"></MudCheckBox>
-                    </div>
+                    @if (context.IsIMO.Equals(true))
+                    {
+                        <MudTooltip Text="IMO"><MudIcon Icon="@Icons.Custom.Uncategorized.BioHazard" Color="Color.Error"></MudIcon></MudTooltip>
+                    }
                 </MudTd>
                 <MudTd>
                     <div class="IMOWeight">
                         <div class="numField_Label">IMO</div>
                         <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.IMO"
-                        Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(!context.IsIMO)" />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(!context.IsIMO)" ReadOnly />
                     </div>
                     <div class="IMOWeight">
                         <div class="numField_Label">UN</div>
                         <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.UNNO"
-                        Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" Disabled="@(!context.IsIMO)" />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" Disabled="@(!context.IsIMO)" ReadOnly />
                     </div>
                 </MudTd>
             </RowTemplate>
@@ -225,19 +233,18 @@
 
     <div class="totalFooter pt-3">
         <div>
-            <h6>Total commodity records: @Value.Records.Count().ToString("000")</h6>
+            <h6>Total commodity records: @Value?.Records.Count().ToString("000")</h6>
         </div>
     </div>    
 }
 
 @code {
     private MudTable<DocumentRecord> mudTable = new();
-
     [Parameter]
     public DocumentEntity? Value { get; set; }
     [Parameter]
     public EventCallback<DocumentEntity> ValueChanged { get; set; }    
-    
+
     private PatternMask MaskDocumentName = new PatternMask("00000000/000000/0000000") { Placeholder = '_' };
 
     private async Task GetCustomer_Click(string ShipperOrConsignee)
@@ -257,25 +264,48 @@
 
             var customer = (CustomerCatalog)result.Data;
 
+            // switch (ShipperOrConsignee)
+            // {
+            //     case "Shipper":
+            //         Value.Shipper!.Name = customer.Name;
+            //         Value.Shipper!.NameEn = customer.NameEn;
+            //         Value.Shipper!.CountryRUS = customer.Country!.RUS;
+            //         Value.Shipper!.CountryENG = customer.Country.ENG;
+            //         break;
+
+            //     case "Consignee":                    
+            //         Value.Consignee!.Name = customer.Name;
+            //         Value.Consignee!.NameEn = customer.NameEn;
+            //         Value.Consignee!.CountryRUS = customer.Country!.RUS;
+            //         Value.Consignee!.CountryENG = customer.Country.ENG;
+            //         break;
+            // }
+
             switch (ShipperOrConsignee)
             {
                 case "Shipper":
-                    Value.Shipper!.Name = customer.Name;
-                    Value.Shipper!.NameEn = customer.NameEn;
-                    Value.Shipper!.CountryRUS = customer.Country!.RUS;
-                    Value.Shipper!.CountryENG = customer.Country.ENG;
+                    Value.Shipper = new()
+                    {
+                        Name = customer.Name,
+                        NameEn = customer.NameEn,
+                        CountryRUS = customer.Country?.RUS,
+                        CountryENG = customer.Country?.ENG,
+                    };                    
                     break;
 
-                case "Consignee":                    
-                    Value.Consignee!.Name = customer.Name;
-                    Value.Consignee!.NameEn = customer.NameEn;
-                    Value.Consignee!.CountryRUS = customer.Country!.RUS;
-                    Value.Consignee!.CountryENG = customer.Country.ENG;
+                case "Consignee":
+                    Value.Consignee = new()
+                    {
+                        Name = customer.Name,
+                        NameEn = customer.NameEn,
+                        CountryRUS = customer.Country?.RUS,
+                        CountryENG = customer.Country?.ENG,
+                    };                    
                     break;
             }
         }
 
-        dialog.Result.Dispose();
+        //dialog.Result.Dispose();        
         await InvokeAsync(StateHasChanged);
     }
 
@@ -283,8 +313,8 @@
     {
         if (Value is null) return;
 
-        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
-        DialogOptions options = new DialogOptions { CloseButton = true, BackdropClick = false, MaxWidth = MaxWidth.Large };
+        var parameters = new DialogParameters { ["IsSelectable"] = true };
+        var options = new DialogOptions { CloseButton = true, BackdropClick = false, MaxWidth = MaxWidth.Large };
         var dialog = await DialogService.ShowAsync<CommodityComponent>("SELECT COMMODITY", parameters, options);
         var result = await dialog.Result;
 
@@ -294,9 +324,11 @@
 
             if (commodity is null) return;
 
+            int index = Value.Records.Count;
+
             Value.Records.Add(new ()
             {
-                Seq = Value.Records.Count() + 1,
+                Seq = ++index,
                 CommodityName = commodity.Name,
                 CommodityEngName = commodity.NameEn,
                 CommodityHSCode = commodity.HSCode,
@@ -308,9 +340,8 @@
             });
 
             await InvokeAsync(StateHasChanged);
+            await FocusLastRow();            
         }
-
-        //await InvokeAsync(StateHasChanged);
     }
 
     private async Task RemoveRecord_Click(DocumentRecord record)
@@ -318,10 +349,9 @@
         if (record is null || Value is null)
             return;
 
-        bool? result = await DialogService.ShowMessageBox(
-                 "Delete record",
-                 (MarkupString)$"<b>Do you want to remove record No {record.Seq.ToString()}?<b>",
-                 yesText: "REMOVE", cancelText: "NO");
+        bool? result = await DialogService.ShowMessageBox("Delete record",                 
+                                                          (MarkupString)$"<b>Do you want to remove record No {record.Seq.ToString()}?<b>",
+                                                          yesText: "REMOVE", cancelText: "NO");
 
         if (!result.HasValue) return;
 
@@ -329,12 +359,21 @@
         {
             Value.Records.Remove(record);
 
-            int seq = 0;
-            foreach (var item in Value.Records)
-                item.Seq = ++seq;
+            if (Value.Records.Any())
+            {
+                int seq = 0;
+                foreach (var item in Value.Records.OrderBy(r => r.Seq))
+                    item.Seq = ++seq;
+            }            
         }
 
-        await InvokeAsync(StateHasChanged);
+        //await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task FocusLastRow()
+    {
+        if (Value is not null && Value.Records is not null && Value.Records.Any())
+            await jsRuntime.InvokeVoidAsync("focusLastRow");
     }
 
     // private PatternMask MaskDocumentName = new PatternMask("########/d#m###/#######")

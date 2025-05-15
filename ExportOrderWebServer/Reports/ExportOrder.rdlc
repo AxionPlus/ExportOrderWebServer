@@ -81,6 +81,10 @@
           <DataField>MyCompanyName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="MyCompanyEmail">
+          <DataField>MyCompanyEmail</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="Person">
           <DataField>Person</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -394,7 +398,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>export@axionplus.ru</Value>
+                                  <Value>=Fields!MyCompanyEmail.Value</Value>
                                   <Style>
                                     <FontStyle>Italic</FontStyle>
                                   </Style>

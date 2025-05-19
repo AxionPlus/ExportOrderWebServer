@@ -434,8 +434,7 @@ public class VesselCallProvider : IVesselCallProvider
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                appObjResponse.ErrorAdd(msg);
+                appObjResponse.ErrorAdd(ex.Message);
                 return appObjResponse;
             }
         }

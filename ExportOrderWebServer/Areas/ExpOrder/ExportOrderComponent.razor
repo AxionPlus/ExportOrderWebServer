@@ -423,8 +423,6 @@
 
             if (response.IsSuccessStatusCode)
             {
-                //string filePath = response.Content.Headers.ContentDisposition?.FileNameStar ?? string.Empty;    // prev.: FileName
-
                 var stream = await response.Content.ReadAsStreamAsync();
                 using (var memoryStream = new MemoryStream())
                 {

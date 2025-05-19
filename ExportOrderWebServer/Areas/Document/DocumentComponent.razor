@@ -1,6 +1,7 @@
 ﻿@inject ISnackbar Snackbar
-@inject IJSRuntime jSRuntime
+@inject IJSRuntime jsRuntime
 @inject IDialogService DialogService
+@inject NavigationManager Navigation
 @inject IDocumentProvider _DocumentProvider
 @inject IExportOrderProvider _ExportOrderProvider
 
@@ -103,8 +104,10 @@
         <RowTemplate>
             @if (!IsSelectable)
             {
-                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await OpenItem_Click(context.Id))" /></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async () => await RemoveItem_Click(context.Name, context.Id))" /></MudTd>
+@*                 <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await OpenItem_Click(context.Id))" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async () => await RemoveItem_Click(context.Name, context.Id))" /></MudTd> *@
+                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>OpenItem_Click(context.Id))" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(()=>RemoveItem_Click(context.Name, context.Id))" /></MudTd>
             }
             else
             {
@@ -115,7 +118,7 @@
                 <MudLink OnClick="@(()=> ShowExportOrderNums_Click(context.Name))">@context.Name</MudLink>
                 <PopoverExpOrderList DocumentName="@context.Name" IsPopoverOpen="@IsPopoverOpen" ExportOrderNums="@ExportOrderNums"
                                      ExportOrdersTotalNetWt="@ExportOrdersTotalNetWt" ExportOrdersTotalGrossWt="@ExportOrdersTotalGrossWt"
-                                     CloseButton_Click="@(()=> IsPopoverOpen = false)" />
+                                     CloseButton_Click="@(()=> { IsPopoverOpen = false; ClearPopoverExpOrderList(); })" />
             </MudTd>
             <MudTd Style="text-align: start">@(context.Shipper == null ? "---" : context.Shipper.Name)</MudTd>
             <MudTd Style="text-align: start">@(context.Consignee == null ? "---" : context.Consignee.Name)</MudTd>
@@ -197,12 +200,14 @@
     private async Task OpenItem_Click(long id)
     {
         //var result = await ValueTask.FromResult(jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank"));
+        //await jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank");
         
-        await jSRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.OpenPageUrl}document?Id={id}");
+        await jsRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.MainPageUrl}document?Id={id}", "_blank");
+        
         
         // var parameters = new DialogParameters { ["Id"] = id };
         // var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
-        // var dialog = await DialogService.ShowAsync<Document_Item>("Document", parameters, options);
+        // var dialog = await DialogService.ShowAsync<Document_Item>("Document", parameters, options);     
     }
 
     private async void SelectItems_Click()
@@ -219,8 +224,6 @@
 
         if (MudDialog != null)
             MudDialog.Close(documents);
-        // else
-        //     await jSRuntime.InvokeVoidAsync("window.close", documents);
     }
 
     #region SEARCHERS
@@ -228,7 +231,9 @@
     private async void ShowExportOrderNums_Click(string? docName)
     {
         if (!string.IsNullOrWhiteSpace(docName))
-        {
+        {            
+            ClearPopoverExpOrderList();
+
             IsPopoverOpen = !IsPopoverOpen;
 
             if (IsPopoverOpen)
@@ -236,19 +241,25 @@
                 var exportOrders = await _ExportOrderProvider.GetDocumentExportOrderNums(docName);
                 double[] totals = await _ExportOrderProvider.GetDocumentExportOrderTotalWeights(docName);
 
-                if (exportOrders != Enumerable.Empty<string>())
+                if (exportOrders != null && exportOrders.Any())
                 {
                     ExportOrderNums = exportOrders;
-                    ExportOrdersTotalNetWt = totals[0].ToString("### ### ###.###");
-                    ExportOrdersTotalGrossWt = totals[1].ToString("### ### ###.###");
+                    ExportOrdersTotalNetWt = totals[0].ToString("### ### ##0.###").Trim();
+                    ExportOrdersTotalGrossWt = totals[1].ToString("### ### ##0.###").Trim();
                 }
+                else
+                    ExportOrderNums = new string[] { "Нет поручений." };
 
-                IsPopoverOpen = false;
                 await InvokeAsync(StateHasChanged);
             }
-            else
-                ExportOrderNums = Enumerable.Empty<string>();
         }
+    }
+
+    private void ClearPopoverExpOrderList()
+    {
+        ExportOrderNums = Enumerable.Empty<string>();
+        ExportOrdersTotalNetWt = null;
+        ExportOrdersTotalGrossWt = null;
     }
 
     private async Task<IEnumerable<string>> SearchDocument(string value, CancellationToken token)

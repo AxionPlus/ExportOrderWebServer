@@ -160,7 +160,7 @@
 
     <div class="Container-table">
 
-        <MudTable @ref="mudTable" Class="Table" Items="@Value.Records" HorizontalScrollbar="true" FixedHeader RowsPerPage="10" Height="520px">
+        <MudTable @ref="mudTable" Class="Table" Items="@Value.Records" HorizontalScrollbar="true" FixedHeader Height="520px">
 
             <HeaderContent>
                 <MudTh Style="width:40px;">
@@ -180,17 +180,13 @@
             <RowTemplate>                
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{ await RemoveRecord_Click(context);})"
-                    Color="Color.Error" Size="Size.Small" />
+                                   Color="Color.Error" Size="Size.Small" />
                 </MudTd>
-                <MudTd>
-                    @context.Seq.ToString("000")
-                </MudTd>
-                <MudTd>
-                    <b>@context.CommodityHSCode</b>
-                </MudTd>
+                <MudTd>@context.Seq.ToString("000")</MudTd>
+                <MudTd><b>@context.CommodityHSCode</b></MudTd>
                 <MudTd>                    
                     <MudTextField Class="TextField" T="string" Style="width: 352px" @bind-Value="@context.CommodityName"
-                    Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField" T="string" Style="width: 352px" @bind-Value="@context.CommodityEngName"
@@ -211,19 +207,21 @@
                 <MudTd>
                     @if (context.IsIMO.Equals(true))
                     {
-                        <MudTooltip Text="IMO"><MudIcon Icon="@Icons.Custom.Uncategorized.BioHazard" Color="Color.Error"></MudIcon></MudTooltip>
+                        <MudTooltip Text="IMO" Delay="1000" Duration="1500">
+                            <MudIcon Icon="@Icons.Custom.Uncategorized.BioHazard" Color="Color.Error"></MudIcon>
+                        </MudTooltip>
                     }
                 </MudTd>
                 <MudTd>
                     <div class="IMOWeight">
                         <div class="numField_Label">IMO</div>
                         <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.IMO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(!context.IsIMO)" ReadOnly />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                     </div>
                     <div class="IMOWeight">
                         <div class="numField_Label">UN</div>
                         <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.UNNO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" Disabled="@(!context.IsIMO)" ReadOnly />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                     </div>
                 </MudTd>
             </RowTemplate>
@@ -251,11 +249,9 @@
     {
         if (Value is null) return;
 
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
-        DialogOptions options = new DialogOptions { CloseButton = true, BackdropClick = false, MaxWidth = MaxWidth.ExtraLarge };
-        dialog = await DialogService.ShowAsync<CustomerComponent>("Select Customer", parameters, options);
+        var parameters = new DialogParameters { ["IsSelectable"] = true };
+        var options = new DialogOptions { CloseButton = true, BackdropClick = false, MaxWidth = MaxWidth.ExtraLarge };
+        var dialog = await DialogService.ShowAsync<CustomerComponent>("Select Customer", parameters, options);
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled)
@@ -263,23 +259,6 @@
             if (result.Data is null) return;
 
             var customer = (CustomerCatalog)result.Data;
-
-            // switch (ShipperOrConsignee)
-            // {
-            //     case "Shipper":
-            //         Value.Shipper!.Name = customer.Name;
-            //         Value.Shipper!.NameEn = customer.NameEn;
-            //         Value.Shipper!.CountryRUS = customer.Country!.RUS;
-            //         Value.Shipper!.CountryENG = customer.Country.ENG;
-            //         break;
-
-            //     case "Consignee":                    
-            //         Value.Consignee!.Name = customer.Name;
-            //         Value.Consignee!.NameEn = customer.NameEn;
-            //         Value.Consignee!.CountryRUS = customer.Country!.RUS;
-            //         Value.Consignee!.CountryENG = customer.Country.ENG;
-            //         break;
-            // }
 
             switch (ShipperOrConsignee)
             {

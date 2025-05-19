@@ -22,7 +22,7 @@ public class DownloadFileController : ControllerBase
     {
         var ids = new List<long>() { Id };
 
-        var items = await _exportOrderProvider.GetItemsOrderDTOAsync(ids); //var item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
+        var items = await _exportOrderProvider.GetItemsExportOrderDTOAsync(ids);
 
         if (items is null) return BadRequest("Данные не получены.");
 
@@ -45,7 +45,7 @@ public class DownloadFileController : ControllerBase
     public async Task<IActionResult> SaveFileXML(long Id)
     {
         var ids = new List<long>() { Id };
-        var items = await _exportOrderProvider.GetItemsOrderDTOAsync(ids);   //var item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
+        var items = await _exportOrderProvider.GetItemsExportOrderDTOAsync(ids);   //var item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
 
         if (items is null) return BadRequest("Данные не получены.");
 
@@ -103,7 +103,7 @@ public class DownloadFileController : ControllerBase
         if (ids is null || !ids.Any())
             return BadRequest("List of selected records is empty.");
 
-        var Items = await _exportOrderProvider.GetItemsOrderDTOAsync(ids);
+        var Items = await _exportOrderProvider.GetItemsExportOrderDTOAsync(ids);
 
         if (Items is null || !Items.Any())
             return BadRequest("Records not found");

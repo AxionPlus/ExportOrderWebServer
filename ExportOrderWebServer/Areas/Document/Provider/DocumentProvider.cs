@@ -1,4 +1,5 @@
-﻿namespace ExportOrderWebServer.Areas.Document.Provider;
+﻿
+namespace ExportOrderWebServer.Areas.Document.Provider;
 
 public class DocumentProvider : IDocumentProvider
 {
@@ -54,18 +55,18 @@ public class DocumentProvider : IDocumentProvider
         {
             var db = await _db;
 
-            var documents = await db.Documents.AsNoTracking()//.Include(d => d.Records)
-                                                .Where(s => !string.IsNullOrEmpty(s.Name))
-                                                .Where(s => string.IsNullOrEmpty(filter.Document) ? true : s.Name == filter.Document)
-                                                .Where(s => string.IsNullOrEmpty(filter.Shipper) ? true :
-                                                                s.Shipper == null ? true : s.Shipper.Name == filter.Shipper)
-                                                .Where(s => string.IsNullOrEmpty(filter.Consignee) ? true :
-                                                                s.Consignee == null ? true : s.Consignee.Name == filter.Consignee)
-                                                .Where(s => string.IsNullOrEmpty(filter.CargoDescriptionShort) ? true :
-                                                                s.Description == null ? true : s.Description == filter.CargoDescriptionShort)
-                                                .Where(s => filter.Status.Equals(null) ? true : s.Status.Equals(filter.Status))
-                                                .OrderByDescending(s => s.CreateTime)
-                                                .ToListAsync();
+            var documents = await db.Documents.AsNoTracking()
+                                              .Where(s => !string.IsNullOrEmpty(s.Name))
+                                              .Where(s => string.IsNullOrEmpty(filter.Document) ? true : s.Name == filter.Document)
+                                              .Where(s => string.IsNullOrEmpty(filter.Shipper) ? true :
+                                                              s.Shipper == null ? true : s.Shipper.Name == filter.Shipper)
+                                              .Where(s => string.IsNullOrEmpty(filter.Consignee) ? true :
+                                                              s.Consignee == null ? true : s.Consignee.Name == filter.Consignee)
+                                              .Where(s => string.IsNullOrEmpty(filter.CargoDescriptionShort) ? true :
+                                                              s.Description == null ? true : s.Description == filter.CargoDescriptionShort)
+                                              .Where(s => filter.Status.Equals(null) ? true : s.Status.Equals(filter.Status))
+                                              .OrderByDescending(s => s.CreateTime)
+                                              .ToListAsync();
 
             if (documents is null)
                 appObjResponse.ErrorAdd("Documents not found.");
@@ -100,48 +101,43 @@ public class DocumentProvider : IDocumentProvider
 
             try
             {
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd("User NOT found.");
+                    return appObjResponse;
+                }
+
                 var modifyItem = await db.Documents.Include(d => d.Records).AsSplitQuery().FirstOrDefaultAsync(d => d.Id == item.Id);
 
                 if (modifyItem is null)
                 {
-                    appObjResponse.ErrorAdd($" {item.Name} NOT found.");
+                    appObjResponse.ErrorAdd($"{item.Name} NOT found.");
+                    return appObjResponse;
+                }
+                
+                bool isItemExist = db.Documents.Any(s => s.Id != item.Id &&
+                                                    !string.IsNullOrWhiteSpace(s.Name) &&
+                                                    s.Name == item.Name);
+
+                if (isItemExist)
+                {
+                    appObjResponse.ErrorAdd($"Декларация уже существует: {item.Name}");
                     return appObjResponse;
                 }
 
-                if (modifyItem!.Name != item.Name)
-                {
-                    //var itemExistCheck = await db.Documents.Where(s => s.Name!.ToUpper() == item.Name!.ToUpper()).FirstOrDefaultAsync();
-
-                    //if (itemExistCheck is not null)
-                    //{
-                    //    appObjResponse.ErrorAdd($" {item.Name} exists already");
-                    //    return appObjResponse;
-                    //}
-
-                    bool isItemExist = db.Documents.Any(s => s.Name!.ToUpper() == item.Name!.ToUpper());
-
-                    if (isItemExist)
-                    {
-                        appObjResponse.ErrorAdd($" {item.Name} exists already");
-                        return appObjResponse;
-                    }
-                }
-
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-
-                modifyItem!.CreateUser = User!;
-                modifyItem!.CreateTime = DateTime.Now;
-                modifyItem!.Status = item.Status;
-                modifyItem!.Name = item.Name;
-                modifyItem!.Type = item.Type;
-                modifyItem!.Description = item.Description;
-                modifyItem!.ContarctNo = item.ContarctNo;
-                modifyItem!.Shipper = item.Shipper;
-                modifyItem!.Consignee = item.Consignee;
+                modifyItem.CreateUser = User!;
+                modifyItem.Status = item.Status;
+                modifyItem.Name = item.Name;
+                modifyItem.Type = item.Type;
+                modifyItem.Description = item.Description;
+                modifyItem.ContarctNo = item.ContarctNo;
+                modifyItem.Shipper = item.Shipper;
+                modifyItem.Consignee = item.Consignee;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;                
 
-                // compaire new item with an existed
+                /// Compaire new items with an existed
                 foreach (var modifyRecord in modifyItem.Records)
                     if (!item.Records.Any(s => s.Id == modifyRecord.Id))
                     {
@@ -160,14 +156,17 @@ public class DocumentProvider : IDocumentProvider
                         modifyRecord.IsIMO = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IsIMO;
                         modifyRecord.NetWt = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.NetWt;
                         modifyRecord.GrossWt = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.GrossWt;
+
+                        //db.Entry(modifyRecord).State = EntityState.Modified;
                     }
 
-                // add a new records wich Id == 0 
-                foreach (var itemRecord in item.Records.Where(dr => dr.Id == 0))
-                {
-                    db.Entry(itemRecord).State = EntityState.Added;
-                    modifyItem.Records.Add(itemRecord);
-                }
+                /// Compaire existed items with a new 
+                foreach (var itemRecord in item.Records)
+                    if (!modifyItem.Records.Any(s => s.Id == itemRecord.Id))
+                    {
+                        db.Entry(itemRecord).State = EntityState.Added;
+                        modifyItem.Records.Add(itemRecord);
+                    }
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
@@ -413,6 +412,36 @@ public class DocumentProvider : IDocumentProvider
                                               .ToListAsync();  //ToArrayAsync
 
             return documents;
+        }
+    }
+
+    public async Task<AppObjectResponse> NewItemsUploadXmlAsync(List<ReadXmlDocumentDTO> readDTOs, string? UserName = "")
+    {
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd($"User not found{UserName}");
+                return appObjResponse;
+            }
+
+            // ... write Entity
+            try
+            {                
+                List<DocumentEntity> newItems = new();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return appObjResponse;
+            }
+
+            return appObjResponse;
         }
     }
 }

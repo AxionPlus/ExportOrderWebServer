@@ -1,7 +1,6 @@
 ﻿@inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
-@inject NavigationManager Navigation
 @inject IJSRuntime jsRuntime
 
 @inject IExportOrderProvider _exportOrderProvider
@@ -505,7 +504,7 @@
     {
         if (Value is null) return;
 
-        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
+        var parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<Document_Index>(null, parameters, options);
 

@@ -1,5 +1,4 @@
 ﻿@page "/exportorder"
-@using System.Text.RegularExpressions
 @attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 @inject ISnackbar Snackbar
@@ -72,8 +71,7 @@
 
     private ExportOrderEntity? Item { get; set; }
 
-    private bool IsLoadingData { get; set; } = false;
-    private bool IsAuth = false;
+    private bool IsLoadingData { get; set; } = false;    
     private bool IsRoleForEdit = false;
 
 
@@ -82,19 +80,16 @@
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 
         ApplicationUser = authState.User.Identity?.Name;
+
         if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
-        {
             IsRoleForEdit = true;
-            IsAuth = true;
-        }
-        else if (authState.User.IsInRole("Manager")) IsAuth = true;        
 
         await GetItem();
     }
 
     private async Task GetItem()
     {
-        var response = new AppObjectResponse();
+        AppObjectResponse response = new();
 
         if (IsNewItem)
         {
@@ -136,19 +131,19 @@
             /// Save
             if (IsNewItem)
             {
-                var response = await _exportOrderProvider.NewItemAsync(Item);
+                var response = await _exportOrderProvider.NewItemAsync(Item, ApplicationUser);
                 if (!response.HasErrors)
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
                 {
-                    Snackbar.Add($"No Success<br>{response.Errors.FirstOrDefault()}", Severity.Error);
+                    Snackbar.Add($"{response.Errors.FirstOrDefault()}", Severity.Error);
                     IsLoadingData = false;
                     return;
                 }
             }
             else
             {
-                var response = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser!);
+                var response = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser);
                 if (!response.HasErrors)
                     Snackbar.Add("Saved Successfully", Severity.Success);
                 else
@@ -201,7 +196,12 @@
     private void CloseDialogOrPage()
     {
         if (MudDialog != null)
-            MudDialog!.Close();
+        {
+            if (IsNewItem)
+                MudDialog.Cancel();
+            else
+                MudDialog.Close();
+        }        
         else
             jsRuntime.InvokeVoidAsync("window.close");
     }

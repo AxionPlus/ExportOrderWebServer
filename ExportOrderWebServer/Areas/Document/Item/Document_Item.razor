@@ -10,18 +10,11 @@
 <MudContainer MaxWidth="MaxWidth.Large">
 
     <div class="ToolBar-container">
-        <MudToolBar Class="ToolBar ToolBar-new">
-            @* @if (MudDialog == null)
-            {
-                <div class="ToolBar-iconbutton">
-                    <MudTooltip Text="EXIT">
-                        <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseWindow" />
-                    </MudTooltip>
-                </div>
-            } *@            
+        <MudToolBar Class="ToolBar ToolBar-new">                     
             <div class="ToolBar-iconbutton">
                 <MudTooltip Text="EXIT">
-                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" Icon="@Icons.Material.Outlined.ExitToApp" OnClick="CloseWindow" />
+                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" OnClick="CloseWindow_Click"
+                                   Icon="@Icons.Material.Outlined.ExitToApp" />
                 </MudTooltip>
             </div>            
             <div class="ToolBar-iconbutton" style="margin-left:20px">
@@ -47,14 +40,12 @@
     </div>
 
     <MudForm @ref="@Form">
-        @if (Item != null)
-        {
-            <Document_ItemComponent @bind-Value="Item" />
-        }
+        <Document_ItemComponent @bind-Value="Item" />
     </MudForm>
-
-    <OverlayLoadingData Visible="@IsLoadingData" />
+    
 </MudContainer>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     private MudForm Form { get; set; } = new();
@@ -77,7 +68,6 @@
         if (first)
         {
             await GetItem();
-            //StateHasChanged();
         }        
     }
 
@@ -87,14 +77,19 @@
             Item = new();
         else
         {
+            IsLoadingData = true;
+
             var response = await _documentProvider.GetItemAsync(Id);
             if (!response.HasErrors && response.Object != null)
                 Item = (DocumentEntity)response.Object;
             else
                 Snackbar.Add(response?.Errors.FirstOrDefault()!);
-        }
 
-        await InvokeAsync(StateHasChanged);
+            IsLoadingData = false;
+        }
+        
+        //await InvokeAsync(StateHasChanged);
+        StateHasChanged();
     }
 
     public async Task SaveItem()
@@ -144,8 +139,6 @@
             }
         }
 
-        //Id = Item.Id;
-
         IsNewItem = false;
 
         IsLoadingData = false;
@@ -191,7 +184,7 @@
         StateHasChanged();
     }
 
-    private async Task CloseWindow()
+    private async Task CloseWindow_Click()
     {
         if (MudDialog is not null)
             MudDialog.Close();
@@ -199,11 +192,12 @@
         {
             try
             {
-                await jsRuntime.InvokeVoidAsync("window.close");    //await jsRuntime.InvokeVoidAsync("close");
+                await jsRuntime.InvokeVoidAsync("window.close"); //await jsRuntime.InvokeVoidAsync("close");                
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка при закрытии окна: {ex.Message}");
+                
             }
         }        
     }

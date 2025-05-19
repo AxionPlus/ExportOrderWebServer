@@ -161,15 +161,22 @@ public class ExportOrderProvider : IExportOrderProvider
         throw new NotImplementedException();
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string UserName = "")
+    public async Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item, string? UserName = "")
     {
         appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
-
             var db = await _db;
             db.Database.SetCommandTimeout(560);
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd($"User not found{UserName}");
+                return appObjResponse;
+            }
+
             try
             {
                 var modifyItem = await db.ExportOrders.AsTracking().AsSplitQuery()
@@ -192,15 +199,7 @@ public class ExportOrderProvider : IExportOrderProvider
                         appObjResponse.ErrorAdd($"Export Order {item.Num} dtd {item.Dated!.Value.ToShortDateString()} exists already");
                         return appObjResponse;
                     }
-                }
-
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
-
-                if (User is null)
-                {
-                    appObjResponse.ErrorAdd($"user not found{UserName}");
-                    return appObjResponse;
-                }
+                }                
 
                 /// DELETE AN EXISTING modifyItem.Records
                 if (modifyItem.Records.Count > 0)
@@ -224,8 +223,6 @@ public class ExportOrderProvider : IExportOrderProvider
                 foreach (var itemDocument in item.Documents)
                     if (!modifyItem.Documents.Any(s => s.Id == itemDocument.Id))
                         modifyItem.Documents.Add(itemDocument);
-
-                //var dbBug = db.ChangeTracker.DebugView.LongView;
 
                 /// RE-WRITE WITH A NEW ITEM
                 modifyItem.CreateUser = User;
@@ -251,7 +248,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     foreach (var content in record.Contents)
                         db.Entry(content).State = EntityState.Added;
                 }
-                //dbBug = db.ChangeTracker.DebugView.LongView;
+                
                 db.Entry(modifyItem).State = EntityState.Modified;
 
                 var bug = db.ChangeTracker.DebugView.LongView;
@@ -348,7 +345,7 @@ public class ExportOrderProvider : IExportOrderProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(ExportOrderEntity item)
+    public async Task<AppObjectResponse> NewItemAsync(ExportOrderEntity item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -356,7 +353,7 @@ public class ExportOrderProvider : IExportOrderProvider
         {
             var db = await _db;
 
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName); //ApplicationParameter.ApplicationUser
             if (User is null)
             {
                 appObjResponse.ErrorAdd("User not found.");
@@ -571,7 +568,10 @@ public class ExportOrderProvider : IExportOrderProvider
 
                 var Items = await db.Persons.AsNoTracking().ToListAsync();
 
-                return Items!;
+                if (Items is null || !Items.Any())
+                    return Enumerable.Empty<PersonEntity>();
+                else
+                    return Items.OrderBy(s => s.FamilyName);
             }
         }
         catch (Exception ex)
@@ -725,13 +725,11 @@ public class ExportOrderProvider : IExportOrderProvider
         }
     }
 
-    public async Task<List<ExportOrderDTO>?> GetItemsOrderDTOAsync(IEnumerable<long> ids)
+    public async Task<List<ExportOrderDTO>?> GetItemsExportOrderDTOAsync(IEnumerable<long> ids)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-
-            //var myCompany = await db.MyCompany.OrderBy(c => c.Id).LastOrDefaultAsync();
 
             try
             {
@@ -746,7 +744,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                     .Include(x => x.Records).ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
                                     .Include(x => x.Records).ThenInclude(r => r.Contents).ThenInclude(co => co.SupplementaryUnit)
                                     .Where(x => ids.Any(i => i == x.Id))
-                                    .ToListAsync();    //ToArrayAsync
+                                    .ToListAsync();
 
                 if (dbItems is null || !dbItems.Any())
                     return null;
@@ -820,9 +818,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                         s.VesselCallDetail == null ? null :
                                             string.IsNullOrEmpty(s.VesselCallDetail.VesselCall.Terminal.Name) ? null :
                                                 s.Carrier.CarrierDetails.FirstOrDefault(c => c.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract.HasValue ?
-                                                    s.Carrier.CarrierDetails.FirstOrDefault(c => c.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
-                    //MyCompanyName = myCompany?.Name,
-                    //MyCompanyEmail = myCompany?.Email,
+                                                    s.Carrier.CarrierDetails.FirstOrDefault(c => c.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",                    
                     MyCompanyName = s.Person?.CompanyName,
                     MyCompanyEmail = s.Person?.CompanyEmail,
                     Person = string.Concat(s.Person?.Name?[..1], ". ", s.Person?.SurName?[..1], ". ", s.Person?.FamilyName, "  т. ", s.Person?.Phone),
@@ -842,7 +838,7 @@ public class ExportOrderProvider : IExportOrderProvider
         }        
     }
 
-    public async Task<List<ExportOrderDTO>?> GetItemsBillDTOAsync(IEnumerable<long> ids)    //IEnumerable
+    public async Task<List<ExportOrderDTO>?> GetItemsBillDTOAsync(IEnumerable<long> ids)
     {
         using (var _db = _dbContext.CreateDbContextAsync())
         {
@@ -936,6 +932,11 @@ public class ExportOrderProvider : IExportOrderProvider
     }
 
     public Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<AppObjectResponse> NewItemAsync(ExportOrderEntity item)
     {
         throw new NotImplementedException();
     }

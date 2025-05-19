@@ -9,9 +9,8 @@
         <MudSpacer />
         <div class="ToolBar-Title"><span>export orders</span></div>
         <MudSpacer />
-
         <div class="ToolBar-iconbutton" style="margin-right: 20px">
-            <MudTooltip Text="new record">
+            <MudTooltip Text="new Order" Delay="1000" Duration="1500">
                 <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
             </MudTooltip>
         </div>
@@ -32,8 +31,8 @@
 
     private async Task AddItem_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
+        var parameters = new DialogParameters { ["IsNewItem"] = true };
+        var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<ExportOrder_Item>(null, parameters, options);
 
         var result = await dialog.Result;

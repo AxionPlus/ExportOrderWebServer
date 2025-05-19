@@ -27,7 +27,7 @@ public class ViewReportController : ControllerBase
     {
         var ids = new List<long>() { Id };
 
-        var items = await _exportOrderProvider.GetItemsOrderDTOAsync(ids);   //var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
+        var items = await _exportOrderProvider.GetItemsExportOrderDTOAsync(ids);   //var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
 
         if (items is null) return BadRequest("Records not found.");
 

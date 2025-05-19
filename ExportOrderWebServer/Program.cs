@@ -86,6 +86,7 @@ services.AddTransient<IValidationService, ValidationService>();
 services.AddTransient<IExcelFileCreateService, ExcelFileCreateService>(); 
 services.AddTransient<IExcelFileUploadService, ExcelFileUploadService>();
 services.AddTransient<IXmlFileCreateService, XmlFileCreateService>();
+services.AddTransient<IXmlFileReadService, XmlFileReadService>();
 services.AddTransient<IPdfFileCreateService, PdfFileCreateService>();
 
 
@@ -116,10 +117,10 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-//app.UseCors(x => x
-//                .AllowAnyMethod()
-//                .AllowAnyHeader()
-//                .SetIsOriginAllowed(origin => true) // allow any origin  
-//                .AllowCredentials());               // allow credentials 
+app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin  
+                .AllowCredentials());               // allow credentials 
 
 app.Run();

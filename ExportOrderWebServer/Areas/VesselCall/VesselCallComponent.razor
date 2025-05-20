@@ -289,7 +289,7 @@
     private async Task AddExportOrder_Click(long vcdId)
     {
         //var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));
-        await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank");
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank");
     }
 
     private async Task RemoveItemDetail_Click(long id, string pod)

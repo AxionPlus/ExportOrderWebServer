@@ -49,23 +49,4 @@
     {        
         await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}document?IsNewItem={true}");    //await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?IsNewItem={true}", "_blank");
     }
-
-    // private void CloseDialog_Click()
-    // {
-    //     if (MudDialog is not null)
-    //         MudDialog.Cancel();
-    // }
-
-    // private void CloseWindow()
-    // {
-    //     jsRuntime.InvokeVoidAsync("window.close");
-    // }
-
-    // private async Task CloseWindow_Click()
-    // {
-    //     if (MudDialog is not null)
-    //         MudDialog.Close();
-    //     else
-    //         await jsRuntime.InvokeVoidAsync("window.close");
-    // }
 }

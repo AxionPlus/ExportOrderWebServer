@@ -131,7 +131,7 @@ public class DocumentProvider : IDocumentProvider
                 modifyItem.Name = item.Name;
                 modifyItem.Type = item.Type;
                 modifyItem.Description = item.Description;
-                modifyItem.ContarctNo = item.ContarctNo;
+                //modifyItem.ContarctNo = item.ContarctNo;
                 modifyItem.Shipper = item.Shipper;
                 modifyItem.Consignee = item.Consignee;
 
@@ -146,19 +146,6 @@ public class DocumentProvider : IDocumentProvider
                     }                        
                     else
                     {
-                        //modifyRecord.Id = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.Id;
-                        //modifyRecord.Seq = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.Seq;
-                        //modifyRecord.CommodityName = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityName;
-                        //modifyRecord.CommodityEngName = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityEngName;
-                        //modifyRecord.CommodityHSCode = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityHSCode;
-                        //modifyRecord.IMO= item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IMO;
-                        //modifyRecord.UNNO = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.UNNO;
-                        //modifyRecord.IsIMO = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IsIMO;
-                        //modifyRecord.NetWt = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.NetWt;
-                        //modifyRecord.GrossWt = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.GrossWt;
-
-                        //db.Entry(modifyRecord).State = EntityState.Modified;
-
                         var itemRecord = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id);
                         if (itemRecord is not null)
                         {
@@ -177,27 +164,6 @@ public class DocumentProvider : IDocumentProvider
                     }
 
                 /// Compaire existed items with a new 
-                /// 
-                //foreach (var itemRecord in item.Records)
-                //    if (!modifyItem.Records.Any(s => s.Id == itemRecord.Id))
-                //    {
-                //        itemRecord.Document = modifyItem;
-                //        db.Entry(itemRecord.Document).State = EntityState.Unchanged;
-
-                //        db.Entry(itemRecord).State = EntityState.Added;
-                //        //modifyItem.Records.Add(itemRecord);
-                //    }
-                //------------------------------------------------------------------
-                //foreach (var itemRecord in item.Records.ToArray())
-                //    if (modifyItem.Records.Any(s => s.Id == itemRecord.Id))
-                //        item.Records.Remove(itemRecord);
-
-                //foreach (var itemRecord in item.Records)
-                //{
-                //    db.Entry(itemRecord).State = EntityState.Added;
-                //    modifyItem.Records.Add(itemRecord);
-                //}
-
                 foreach (var itemRecord in item.Records.ToArray())
                     if (modifyItem.Records.Any(s => s.Id == itemRecord.Id))
                         item.Records.Remove(itemRecord);
@@ -208,7 +174,7 @@ public class DocumentProvider : IDocumentProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 

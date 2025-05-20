@@ -199,15 +199,7 @@
 
     private async Task OpenItem_Click(long id)
     {
-        //var result = await ValueTask.FromResult(jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank"));
-        //await jSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?Id={id}", "_blank");
-        
-        await jsRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.MainPageUrl}document?Id={id}", "_blank");
-        
-        
-        // var parameters = new DialogParameters { ["Id"] = id };
-        // var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
-        // var dialog = await DialogService.ShowAsync<Document_Item>("Document", parameters, options);     
+        await jsRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.MainPageUrl}document?Id={id}", "_blank");        
     }
 
     private async void SelectItems_Click()

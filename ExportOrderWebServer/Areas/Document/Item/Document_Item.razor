@@ -180,7 +180,7 @@
         {
             Type = initialItem.Type,
             Description = initialItem.Description,
-            ContarctNo = initialItem.ContarctNo,
+            //ContarctNo = initialItem.ContarctNo,
             Shipper = initialItem.Shipper,
             Consignee = initialItem.Consignee,
             Records = records
@@ -217,31 +217,7 @@
                 Item.Records.Clear();
 
             Item.Records = (List<DocumentRecord>)dialogResult.Data;
-        }        
-
-        // if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data is not null)
-        // {
-        //     var newItemRecords = (List<DocumentRecord>)dialogResult.Data;
-
-        //     if (!Item.Records.Any())
-        //         Item.Records = newItemRecords;
-        //     else
-        //     {
-        //         bool? msg = await DialogService.ShowMessageBox("Удаление записей",
-        //                                                     (MarkupString)$"ДТ содержит товары.<br><b>Удалить текущие товары перед загрузкой новых?<b>",
-        //                                                     yesText: "Да", cancelText: "Отмена");
-
-        //         if (msg.HasValue)
-        //             if (msg.Value)
-        //             {
-        //                 Item.Records.Clear();
-        //                 Item.Records.AddRange(newItemRecords);
-        //                 StateHasChanged();
-        //             }
-                
-        //         return;
-        //     }
-        // }
+        }
     }
 
     private async Task CloseWindow_Click()
@@ -252,7 +228,7 @@
         {
             try
             {
-                await jsRuntime.InvokeVoidAsync("window.close"); //await jsRuntime.InvokeVoidAsync("close");                
+                await jsRuntime.InvokeVoidAsync("window.close");
             }
             catch (Exception ex)
             {

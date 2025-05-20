@@ -10,21 +10,22 @@ public class UploadedResult
 
 public interface IUploadResultService //: IDisposable
 {
-    Task<List<string>> CheckUploadedExportOrder(List<UploadExcelDTO> uploadResult, long eoId, long voyageId);    // IEnumerable<string>
-    Task<List<string>> CheckUploadedDocuments(List<ReadXmlDocumentDTO> uploadedDocuments);
-    Task<UploadedResult?> GetUploadedResult_ExportOrder(List<UploadExcelDTO> uploaded);
+    Task<List<string>> CheckUploadedExportOrder(List<ReadExcelExportOrderRecordDTO> readResult, long eoId, long voyageId);
+    Task<List<string>> CheckUploadedDocumentRecords(List<ReadXmlDocumentRecordDTO> readResult, string DocumentName);
+    Task<UploadedResult?> GetUploadedResult_ExportOrder(List<ReadExcelExportOrderRecordDTO> uploaded);
 }
 
 public class UploadResultService : IUploadResultService
 {
     private readonly ICntrTypeProvider _cntrTypeProvider;
     private readonly IDocumentProvider _documentProvider;
-    private readonly IExportOrderProvider _exportOrderProvider;  // public
+    private readonly IExportOrderProvider _exportOrderProvider;
     private readonly ISupplementaryUnitProvider _supplementaryUnitProvider;
 
     public UploadResultService(ICntrTypeProvider cntrTypeProvider,
                                 IDocumentProvider documentProvider,
                                 IExportOrderProvider exportOrderProvider,
+                                ICommodityProvider commodityProvider,
                                 ISupplementaryUnitProvider supplementaryUnitProvider)
     {
         _cntrTypeProvider = cntrTypeProvider;
@@ -33,18 +34,18 @@ public class UploadResultService : IUploadResultService
         _supplementaryUnitProvider = supplementaryUnitProvider;
     }
 
-    public async Task<List<string>> CheckUploadedExportOrder(List<UploadExcelDTO> uploadResult, long eoId, long voyageId)   //IEnumerable<string>
+    public async Task<List<string>> CheckUploadedExportOrder(List<ReadExcelExportOrderRecordDTO> readResult, long eoId, long voyageId)
     {
         List<string> errList = new();
 
         var dbCntrTypes = await _cntrTypeProvider.GetCntrTypes();
         var dbSupplementaryUnitCodes = await _supplementaryUnitProvider.GetUnitCodesAsync();
 
-        string[]? uploadedDocumentNames = uploadResult.Where(s => !string.IsNullOrWhiteSpace(s.DocumentName)).Select(s => s.DocumentName!).Distinct().ToArray();
+        string[]? uploadedDocumentNames = readResult.Where(s => !string.IsNullOrWhiteSpace(s.DocumentName)).Select(s => s.DocumentName!).Distinct().ToArray();
         var dbDocuments = await _documentProvider.GetItemsAsync(uploadedDocumentNames);
 
         /// CONTAINERS ONLY
-        var uploadedCntrNums = uploadResult.Where(s => !string.IsNullOrWhiteSpace(s.CntrNum)).GroupBy(s => s.CntrNum).Select(g => g.Key).ToArray();
+        var uploadedCntrNums = readResult.Where(s => !string.IsNullOrWhiteSpace(s.CntrNum)).GroupBy(s => s.CntrNum).Select(g => g.Key).ToArray();
 
         if (uploadedCntrNums is not null && uploadedCntrNums != Array.Empty<string>())
         {
@@ -65,7 +66,7 @@ public class UploadResultService : IUploadResultService
         }
 
         /// All RECORDS
-        foreach (var record in uploadResult)
+        foreach (var record in readResult)
         {
             string errMessagePrefix = $"{record.DocumentName}:{record.CntrNum}:";
 
@@ -184,7 +185,7 @@ public class UploadResultService : IUploadResultService
         return errList;
     }
 
-    public async Task<UploadedResult?> GetUploadedResult_ExportOrder(List<UploadExcelDTO> uploadedDTO)
+    public async Task<UploadedResult?> GetUploadedResult_ExportOrder(List<ReadExcelExportOrderRecordDTO> uploadedDTO)
     {
         try
         {
@@ -284,45 +285,34 @@ public class UploadResultService : IUploadResultService
         }        
     }
 
-    public async Task<List<string>> CheckUploadedDocuments(List<ReadXmlDocumentDTO> uploadedDocuments)
+    public async Task<List<string>> CheckUploadedDocumentRecords(List<ReadXmlDocumentRecordDTO> readResult, string DocumentName)
     {
         List<string> errList = new();
-        List<DocumentEntity> dbDocuments = new();
 
-        var dbDocumentsResponse = await _documentProvider.GetItemsAsync();
-        if (dbDocumentsResponse is not null && dbDocumentsResponse.Object is not null)
-            dbDocuments = (List<DocumentEntity>)dbDocumentsResponse.Object;
-
-        foreach (ReadXmlDocumentDTO uploadedDocument in uploadedDocuments)
+        foreach (ReadXmlDocumentRecordDTO readRecord in readResult)
         {
-            string errPrefix = $"{uploadedDocument.Name ?? string.Empty}: ";
+            string errPrefix = $"товар {readRecord.Seq}: ";
 
-            if (dbDocuments.Where(s => !string.IsNullOrWhiteSpace(s.Name))
-                           .Any(s => s.Name == uploadedDocument.Name))
-                errList.Add($"{errPrefix}Exists already.");
+            if (string.IsNullOrEmpty(readRecord.CommodityName))
+                errList.Add($"{errPrefix}Commodity name is missed.");
 
-            if (!string.IsNullOrEmpty(uploadedDocument.ShipperName))
-                errList.Add($"{errPrefix}Shipper is missed.");
+            if (string.IsNullOrEmpty(readRecord.CommodityHSCode))
+                errList.Add($"{errPrefix}HS Code is missed.");
 
-            if (!string.IsNullOrEmpty(uploadedDocument.ConsigneeName))
-                errList.Add($"{errPrefix}Consignee is missed.");
+            if (string.IsNullOrEmpty(readRecord.GrossWt))
+                errList.Add($"{errPrefix}Gross weight is missed.");
 
-            if (uploadedDocument.Records is null || !uploadedDocument.Records.Any())
-                errList.Add($"{errPrefix}Commodity records is missed.");
-            else
-            {
-                foreach (ReadXmlDocumentRecordsDTO record in uploadedDocument.Records)
-                {
-                    string errRecordPrefix = $"{errPrefix} товар {record.Seq}: ";
-
-                    if (string.IsNullOrEmpty(record.CommodityName))
-                        errList.Add($"{errRecordPrefix}Commodity name is missed.");
-
-                    if (string.IsNullOrEmpty(record.CommodityHSCode))
-                        errList.Add($"{errRecordPrefix}HS Code is missed.");
-                }
-            }                
+            if (string.IsNullOrEmpty(readRecord.NetWt))
+                errList.Add($"{errPrefix}Netto weight is missed.");
         }
+
+        /// COMPARE with Current Document Name
+        var uploadedDocumentName = readResult.FirstOrDefault(s => !string.IsNullOrEmpty(s.DocumentName))?.DocumentName;
+
+        if (!string.IsNullOrEmpty(uploadedDocumentName) && uploadedDocumentName != DocumentName)
+            errList.Add($"Номер ДТ не совпадает с подгружаемым: {uploadedDocumentName}.");
+
+        await Task.Delay(10);
 
         //if (errList.Any())
         //    errList = errList.OrderBy(s => s[..23]).ToList();

@@ -80,7 +80,7 @@
     private string FileName = string.Empty;
     private IBrowserFile? BrowserFile;
 
-    private List<UploadExcelDTO>? UploadedExcelDTO { get; set; }
+    private List<ReadExcelExportOrderRecordDTO>? UploadedExcelDTO { get; set; }
     private AppObjectResponse _AppObjectResponse { get; set; } = new();
 
     private bool IsLoadingData { get; set; } = false;
@@ -158,7 +158,7 @@
 
             if (response.IsSuccessStatusCode)
             {
-                UploadedExcelDTO = await response.Content.ReadFromJsonAsync<List<UploadExcelDTO>?>();
+                UploadedExcelDTO = await response.Content.ReadFromJsonAsync<List<ReadExcelExportOrderRecordDTO>?>();
 
                 if (UploadedExcelDTO is null)
                     Snackbar.Add($"Data not uploaded", Severity.Error);

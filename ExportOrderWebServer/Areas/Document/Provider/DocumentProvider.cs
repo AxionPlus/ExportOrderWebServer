@@ -138,35 +138,73 @@ public class DocumentProvider : IDocumentProvider
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;                
 
                 /// Compaire new items with an existed
-                foreach (var modifyRecord in modifyItem.Records)
+                foreach (var modifyRecord in modifyItem.Records.ToArray())
                     if (!item.Records.Any(s => s.Id == modifyRecord.Id))
                     {
                         db.Entry(modifyRecord).State = EntityState.Deleted;
-                        //modifyItem.Records.Remove(modifyRecord);
+                        modifyItem.Records.Remove(modifyRecord);
                     }                        
                     else
                     {
-                        modifyRecord.Id = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.Id;
-                        modifyRecord.Seq = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.Seq;
-                        modifyRecord.CommodityName = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityName;
-                        modifyRecord.CommodityEngName = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityEngName;
-                        modifyRecord.CommodityHSCode = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityHSCode;
-                        modifyRecord.IMO= item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IMO;
-                        modifyRecord.UNNO = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.UNNO;
-                        modifyRecord.IsIMO = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IsIMO;
-                        modifyRecord.NetWt = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.NetWt;
-                        modifyRecord.GrossWt = item.Records!.FirstOrDefault(s => s.Id == modifyRecord.Id)!.GrossWt;
+                        //modifyRecord.Id = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.Id;
+                        //modifyRecord.Seq = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.Seq;
+                        //modifyRecord.CommodityName = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityName;
+                        //modifyRecord.CommodityEngName = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityEngName;
+                        //modifyRecord.CommodityHSCode = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.CommodityHSCode;
+                        //modifyRecord.IMO= item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IMO;
+                        //modifyRecord.UNNO = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.UNNO;
+                        //modifyRecord.IsIMO = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.IsIMO;
+                        //modifyRecord.NetWt = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.NetWt;
+                        //modifyRecord.GrossWt = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id)!.GrossWt;
 
                         //db.Entry(modifyRecord).State = EntityState.Modified;
+
+                        var itemRecord = item.Records.FirstOrDefault(s => s.Id == modifyRecord.Id);
+                        if (itemRecord is not null)
+                        {
+                            modifyRecord.Seq = itemRecord.Seq;
+                            modifyRecord.CommodityName = itemRecord.CommodityName;
+                            modifyRecord.CommodityEngName = itemRecord.CommodityEngName;
+                            modifyRecord.CommodityHSCode = itemRecord.CommodityHSCode;
+                            modifyRecord.IMO = itemRecord.IMO;
+                            modifyRecord.UNNO = itemRecord.UNNO;
+                            modifyRecord.IsIMO = itemRecord.IsIMO;
+                            modifyRecord.NetWt = itemRecord.NetWt;
+                            modifyRecord.GrossWt = itemRecord.GrossWt;
+
+                            //db.Entry(modifyRecord).State = EntityState.Modified;
+                        }
                     }
 
                 /// Compaire existed items with a new 
-                foreach (var itemRecord in item.Records)
-                    if (!modifyItem.Records.Any(s => s.Id == itemRecord.Id))
-                    {
+                /// 
+                //foreach (var itemRecord in item.Records)
+                //    if (!modifyItem.Records.Any(s => s.Id == itemRecord.Id))
+                //    {
+                //        itemRecord.Document = modifyItem;
+                //        db.Entry(itemRecord.Document).State = EntityState.Unchanged;
+
+                //        db.Entry(itemRecord).State = EntityState.Added;
+                //        //modifyItem.Records.Add(itemRecord);
+                //    }
+                //------------------------------------------------------------------
+                //foreach (var itemRecord in item.Records.ToArray())
+                //    if (modifyItem.Records.Any(s => s.Id == itemRecord.Id))
+                //        item.Records.Remove(itemRecord);
+
+                //foreach (var itemRecord in item.Records)
+                //{
+                //    db.Entry(itemRecord).State = EntityState.Added;
+                //    modifyItem.Records.Add(itemRecord);
+                //}
+
+                foreach (var itemRecord in item.Records.ToArray())
+                    if (modifyItem.Records.Any(s => s.Id == itemRecord.Id))
+                        item.Records.Remove(itemRecord);
+                    else
                         db.Entry(itemRecord).State = EntityState.Added;
-                        modifyItem.Records.Add(itemRecord);
-                    }
+
+                modifyItem.Records.AddRange(item.Records.OrderBy(s => s.Seq));
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
@@ -415,7 +453,8 @@ public class DocumentProvider : IDocumentProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemsUploadXmlAsync(List<ReadXmlDocumentDTO> readDTOs, string? UserName = "")
+    // RESERVED
+    public async Task<AppObjectResponse> NewItemsUploadXmlAsync(List<ReadXmlDocumentRecordDTO> readDTOs, string? UserName = "")
     {
         appObjResponse = new();
 

@@ -8,21 +8,23 @@ namespace ExportOrderWebServer.Controllers;
 //[ApiController]
 public class UploadFileController : ControllerBase
 {
-    private readonly IUploadResultService _UploadResultService;    
+    private readonly IUploadResultService _UploadResultService;
+    private readonly ICommodityProvider _CommodityProvider;
     private AppObjectResponse _AppObjectResponse = new();
     private readonly static string DirTemporary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles");
 
-    public UploadFileController(IUploadResultService uploadResultService)
+    public UploadFileController(IUploadResultService uploadResultService, ICommodityProvider commodityProvider)
     {
         _UploadResultService = uploadResultService;
+        _CommodityProvider = commodityProvider;
 
         if (!Directory.Exists(DirTemporary))
-            Directory.CreateDirectory(DirTemporary);
+            Directory.CreateDirectory(DirTemporary);        
     }
 
 
-    [HttpPost, Route("UploadFromFileExcel")]    // file/UploadFileController/UploadFromExcel
-    public async Task<List<UploadExcelDTO>?> UploadFromExcel([FromForm] IFormFile file) //AppObjectResponse?
+    [HttpPost, Route("UploadFromFileExcel")]    // file/UploadFileController/UploadFromFileExcel
+    public async Task<List<ReadExcelExportOrderRecordDTO>?> UploadFromExcel([FromForm] IFormFile file) //AppObjectResponse?
     {
         if (file == null) return null;
 
@@ -45,39 +47,58 @@ public class UploadFileController : ControllerBase
         }
     }
 
-    [HttpPost, Route("UploadFromFileXML")]    // file/UploadFileController/UploadFromExcel
-    public async Task<AppObjectResponse?> UploadFromXML([FromForm] IEnumerable<IFormFile> files)
+    [HttpPost, Route("UploadFromFileXML")]    // file/UploadFileController/UploadFromFileXML
+    public async Task<AppObjectResponse?> UploadFromXML([FromForm] IFormFile file, string DocumentName)
     {
         _AppObjectResponse = new();
 
-        string DirTemporaryXml = Path.Combine(DirTemporary, $"UploadedXmlFiles_{new Random().Next(0,100)}");
-
-        if (!Directory.Exists(DirTemporaryXml))
-            Directory.CreateDirectory(DirTemporaryXml);
-
-        foreach (var file in files)
-            if (file != null)
-            {
-                string filePath = Path.Combine(DirTemporaryXml, string.Concat(Path.GetRandomFileName(), "_", Path.GetExtension(file.FileName)));
-                using var stream = new FileStream(filePath, FileMode.Create);
-                file.CopyTo(stream);
-            }
-            else
-                _AppObjectResponse.ErrorAdd("File not found.");
+        string filePath = Path.Combine(DirTemporary, string.Concat(Path.GetRandomFileName(), "_", Path.GetExtension(file.FileName)));
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            file.CopyTo(stream); //stream.Flush();        
+        }            
 
         using (IXmlFileReadService xmlFileReadService = new XmlFileReadService())
         {
-            var uploadResult = await xmlFileReadService.ReadXmlFileDocuments(DirTemporaryXml);
+            var readResult = await xmlFileReadService.ReadXmlFileDocumentRecords(filePath);
 
-            if (uploadResult is not null && uploadResult.Any())
-            {   
-                _AppObjectResponse.Object = uploadResult;
-                _AppObjectResponse.Description = $"Всего ДТ: {uploadResult.Count}";
+            if (readResult is not null && readResult.Any())
+            {
+                /// CHECK uploaded DATA
+                var errors = await _UploadResultService.CheckUploadedDocumentRecords(readResult, DocumentName);
+                if (errors is not null && errors.Any())
+                    _AppObjectResponse.Errors.AddRange(errors);
 
-                /// Check uploaded DATA
-                var checkResponse = await _UploadResultService.CheckUploadedDocuments(uploadResult);
-                if (checkResponse is not null && checkResponse.Any())
-                    _AppObjectResponse.Errors.AddRange(checkResponse);
+
+                /// CREATE new Document Records                
+                List<DocumentRecord> newDocumentRecords = new();
+
+                List<CommodityCatalog> dbCommodities = new();
+                var commodityResponse = await _CommodityProvider.GetItemsAsync();
+                if (commodityResponse is not null && commodityResponse.Object is not null)
+                    dbCommodities = (List<CommodityCatalog>)commodityResponse.Object;
+
+                foreach (ReadXmlDocumentRecordDTO record in readResult.OrderBy(s => s.Seq))
+                {
+                    DocumentRecord newDocumentRecord = new()
+                    {
+                        Seq = record.Seq,
+                        CommodityHSCode = record.CommodityHSCode ?? string.Empty,
+                        CommodityName = record.CommodityName ?? string.Empty,
+                        GrossWt = double.TryParse(record.GrossWt, out double _gw) ? _gw : 0,
+                        NetWt = double.TryParse(record.NetWt, out double _nw) ? _nw : 0,
+                    };
+
+                    /// Commodity in English only
+                    var dbCommodity = dbCommodities.FirstOrDefault(s => s.HSCode == record.CommodityHSCode && s.Name == record.CommodityName);
+                    if (dbCommodity != null)
+                        newDocumentRecord.CommodityEngName = dbCommodity.NameEn;
+
+                    newDocumentRecords.Add(newDocumentRecord);
+                }
+
+                _AppObjectResponse.Object = newDocumentRecords;
+                _AppObjectResponse.Description = $"Всего товаров: {newDocumentRecords.Count}";
             }
             else
                 _AppObjectResponse.ErrorAdd("Xml file wasn't read.");

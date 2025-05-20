@@ -2,7 +2,7 @@
 
 namespace ExportOrderEntites.DTO;
 
-public class UploadExcelDTO
+public class ReadExcelExportOrderRecordDTO
 {
     [Key]
     public long Id { get; set; }

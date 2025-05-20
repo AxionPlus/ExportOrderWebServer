@@ -125,11 +125,13 @@
             </div>
         </div>
         <div class="container-content">
-            <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Shipper"); } )"
-                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-                       StartIcon="@Icons.Material.Filled.ArrowDropDownCircle">
-                Shipper
-            </MudButton>
+            <MudTooltip Text="Выбрать отправителя" Delay="1000" Duration="1500">
+                <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Shipper"); } )"
+                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.ArrowDropDownCircle">
+                    Shipper
+                </MudButton>
+            </MudTooltip>
             @if (Value.Shipper is not null)
             {
                 <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 520px" @bind-Value="@Value.Shipper.Name"
@@ -141,11 +143,13 @@
             }            
         </div>
         <div class="container-content">
-            <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Consignee"); } )"
-                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-                       StartIcon="@Icons.Material.Filled.ArrowDropDownCircle" >
-                Consignee
-            </MudButton>
+            <MudTooltip Text="Выбрать получателя" Delay="1000" Duration="1500">
+                <MudButton Class="Button" Style="width: 120px" OnClick="@(async () => { await GetCustomer_Click("Consignee"); } )"
+                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.ArrowDropDownCircle" >
+                    Consignee
+                </MudButton>
+            </MudTooltip>
             @if (Value.Consignee is not null)
             {
                 <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 520px" @bind-Value="@Value.Consignee.Name"
@@ -165,16 +169,18 @@
             <HeaderContent>
                 <MudTh Style="width:40px;">
                     <div class="controlIconButtons">
-                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="AddRecord_Click" Size="Size.Small" Color="Color.Primary"/>
+                        <MudTooltip Text="Добавить один товар" Delay="1000" Duration="1500">
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="AddRecord_Click" Size="Size.Small" Color="Color.Primary"/>
+                        </MudTooltip>
                     </div>                
                 </MudTh>
                 <MudTh Style="width:40px">Seq</MudTh>
                 <MudTh Style="width:100px">HS code</MudTh>
                 <MudTh Style="width:360px">Товар (рус.)</MudTh>
-                <MudTh Style="width:360px">Goods (in english) </MudTh>
-                <MudTh Style="width:188px">Weight</MudTh>
+                <MudTh Style="width:360px">Товар (En.)</MudTh>
+                <MudTh Style="width:188px">Вес</MudTh>
                 <MudTh Style="width:38px">IMO</MudTh>
-                <MudTh Style="width:106px">details</MudTh>
+                <MudTh Style="width:106px">номер</MudTh>
             </HeaderContent>
 
             <RowTemplate>                
@@ -185,12 +191,16 @@
                 <MudTd>@context.Seq.ToString("000")</MudTd>
                 <MudTd><b>@context.CommodityHSCode</b></MudTd>
                 <MudTd>                    
-                    <MudTextField Class="TextField" T="string" Style="width: 352px" @bind-Value="@context.CommodityName"
+                    <MudTextField Class="TextField" T="string" Style="width:352px" @bind-Value="@context.CommodityName"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField" T="string" Style="width: 352px" @bind-Value="@context.CommodityEngName"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
+                    <MudTextField Class="TextField" T="string" Style="width:352px" Value="@context.CommodityEngName"
+                                  ValueChanged="@((e) => { e.ToUpper(); context.CommodityEngName = e.ToUpper();})"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 Required RequiredError=""
+                                  Adornment="Adornment.End" IconSize="Size.Small"
+                                  AdornmentIcon="@Icons.Material.Filled.CopyAll"
+                                  OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" />                    
                 </MudTd>                
                 <MudTd>
                     <div class="GoodWeight">
@@ -216,12 +226,12 @@
                     <div class="IMOWeight">
                         <div class="numField_Label">IMO</div>
                         <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.IMO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </div>
                     <div class="IMOWeight">
                         <div class="numField_Label">UN</div>
                         <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.UNNO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" />
                     </div>
                 </MudTd>
             </RowTemplate>
@@ -294,7 +304,8 @@
 
         var parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { CloseButton = true, BackdropClick = false, MaxWidth = MaxWidth.Large };
-        var dialog = await DialogService.ShowAsync<CommodityComponent>("SELECT COMMODITY", parameters, options);
+        var dialog = await DialogService.ShowAsync<CommodityComponent>("Выбор товара", parameters, options);
+
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled && result.Data is not null)
@@ -329,30 +340,41 @@
             return;
 
         bool? result = await DialogService.ShowMessageBox("Delete record",                 
-                                                          (MarkupString)$"<b>Do you want to remove record No {record.Seq.ToString()}?<b>",
-                                                          yesText: "REMOVE", cancelText: "NO");
+                                                          (MarkupString)$"<b>Удалить товар {record.Seq.ToString()}?<b>",
+                                                          yesText: "Удалить", cancelText: "Нет");
 
-        if (!result.HasValue) return;
+        if (result.HasValue)
+            if (result.Value)
+                Value.Records.Remove(record);
 
-        if (result.Value)
-        {
-            Value.Records.Remove(record);
-
-            if (Value.Records.Any())
-            {
-                int seq = 0;
-                foreach (var item in Value.Records.OrderBy(r => r.Seq))
-                    item.Seq = ++seq;
-            }            
-        }
-
-        //await InvokeAsync(StateHasChanged);
+        return;
     }
 
     private async Task FocusLastRow()
     {
         if (Value is not null && Value.Records is not null && Value.Records.Any())
             await jsRuntime.InvokeVoidAsync("focusLastRow");
+    }
+
+    private async Task ApplyNameEnToAll(string? text)
+    {
+        if (Value is null || string.IsNullOrWhiteSpace(text))
+            return;
+
+        bool? msg = await DialogService.ShowMessageBox("Товары на анл.",
+                                                       (MarkupString)$"{text}<br><br><b>Применить это наименование ко всем товарам в ДТ?</b>",
+                                                       yesText: "Да", cancelText: "Отмена");
+
+        if (msg.HasValue)
+            if (msg.Value)
+            {
+                foreach (var record in Value.Records)
+                    record.CommodityEngName = text;
+                
+                StateHasChanged();
+            }                
+
+        return;
     }
 
     // private PatternMask MaskDocumentName = new PatternMask("########/d#m###/#######")

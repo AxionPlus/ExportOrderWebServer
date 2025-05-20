@@ -6,7 +6,7 @@ namespace ExportOrderWebServer.Service;
 
 public interface IExcelFileUploadService : IDisposable
 {
-    public Task<List<UploadExcelDTO>?> ReadExcelFileExportOrder(string filePath);
+    public Task<List<ReadExcelExportOrderRecordDTO>?> ReadExcelFileExportOrder(string filePath);
 }
 
 public class ExcelFileUploadService : IExcelFileUploadService
@@ -33,7 +33,7 @@ public class ExcelFileUploadService : IExcelFileUploadService
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
-    public async Task<List<UploadExcelDTO>?> ReadExcelFileExportOrder(string filePath)
+    public async Task<List<ReadExcelExportOrderRecordDTO>?> ReadExcelFileExportOrder(string filePath)
     {
         FilePath = filePath;
 
@@ -43,7 +43,7 @@ public class ExcelFileUploadService : IExcelFileUploadService
         WorkSheets = Workbook?.Worksheets;
         WorkSheet = WorkSheets?.Item[1];
 
-        var UploadExcel = new List<UploadExcelDTO>();
+        var UploadExcel = new List<ReadExcelExportOrderRecordDTO>();
 
         try
         {
@@ -64,7 +64,7 @@ public class ExcelFileUploadService : IExcelFileUploadService
 
             foreach (var record in recordsArray)
             {
-                UploadExcel.Add(new UploadExcelDTO()
+                UploadExcel.Add(new ReadExcelExportOrderRecordDTO()
                 {
                     DocumentName = record[0]?.Trim(),
                     SeqCommodity = int.TryParse(record[1], out int _cIndex) ? _cIndex : 0,

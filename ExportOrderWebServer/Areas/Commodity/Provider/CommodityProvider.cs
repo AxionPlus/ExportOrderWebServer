@@ -82,7 +82,7 @@ public class CommodityProvider : ICommodityProvider
 
                 if (modifyItem.Name != item.Name)
                 {
-                    bool isItemExist = db.Commodities.Any(s => s.Name!.ToUpper() == item.Name!.ToUpper());
+                    bool isItemExist = db.Commodities.Any(s => s.Name.ToUpper() == item.Name.ToUpper());
 
                     if (isItemExist)
                     {
@@ -105,7 +105,7 @@ public class CommodityProvider : ICommodityProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
             }
@@ -132,27 +132,29 @@ public class CommodityProvider : ICommodityProvider
                 appObjResponse.ErrorAdd("User not found.");
                 return appObjResponse;
             }
-            // check an Existing item
-            //var itemExistCheck = await db.Commodities.Where(s => s.Name == item!.Name || s.NameEn == item.NameEn).FirstOrDefaultAsync();
-            //if (itemExistCheck != null)
-            //{
-            //    appObjResponse.ErrorAdd($"Commodity exists already.<br>HS code: {item!.HSCode}<br>Name: {item.Name} ");
-            //    return appObjResponse;
-            //}
+            
+            /// Check an Existing item
+            bool isItemExist = db.Commodities.Any(s => s.Name.ToUpper() == item.Name.ToUpper() && s.HSCode == item.HSCode);
+            if (isItemExist)
+            {
+                appObjResponse.ErrorAdd($"Commodity exists already.<br>HS code: {item!.HSCode}<br>Name: {item.Name} ");
+                return appObjResponse;
+            }
 
             try
             {
                 item.CreateUser = User;
+                db.Entry(item.CreateUser).State = EntityState.Unchanged;
+
                 db.Entry(item).State = EntityState.Added;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 appObjResponse.ErrorAdd(ex.Message);
                 return appObjResponse;
             }

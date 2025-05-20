@@ -25,6 +25,11 @@
             <MudSpacer />
             <div class="ToolBar-Title"><span>@($"Document")</span></div>
             <MudSpacer />
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="Upload New Documents" Delay="1000" Duration="1500">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.FileUpload" OnClick="UploadNewItemRecords_Click" />
+                </MudTooltip>
+            </div>
             <div class="ToolBar-iconbutton" style="margin-right:20px">
                 <MudTooltip Class="ExitIconButton" Text="SAVE" Delay="500" Duration="1000">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="SaveItem" />
@@ -49,7 +54,7 @@
 
 @code {
     private MudForm Form { get; set; } = new();
-
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }    
 
     [SupplyParameterFromQuery]
@@ -87,7 +92,7 @@
 
             IsLoadingData = false;
         }
-        
+
         //await InvokeAsync(StateHasChanged);
         StateHasChanged();
     }
@@ -140,10 +145,12 @@
         }
 
         IsNewItem = false;
+        Id = Item.Id;
 
         IsLoadingData = false;
 
-        await InvokeAsync(StateHasChanged);
+        //await InvokeAsync(StateHasChanged);
+        await GetItem();
     }
 
     public void CopyItem()
@@ -182,6 +189,59 @@
         IsNewItem = true;
 
         StateHasChanged();
+    }
+
+    private async Task UploadNewItemRecords_Click()
+    {
+        if (Item is null) return;
+
+        if (Item.Records.Any())
+        {
+            bool? msg = await DialogService.ShowMessageBox("Удаление записей",
+                                                            (MarkupString)$"ДТ содержит товары.<br><b>Удалить текущие товары перед загрузкой новых?<b>",
+                                                            yesText: "Да", cancelText: "Отмена");
+
+            if (!msg.HasValue)
+                return;
+        }
+
+        var parameters = new DialogParameters { ["ApplicationUser"] = ApplicationUser, ["DocumentName"] = Item.Name };
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
+        var dialog = DialogService.Show<UploadDocuments>("Импорт списка товаров из ДТ", parameters, options);
+
+        var dialogResult = await dialog.Result;
+
+        if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data is not null)
+        {
+            if (Item.Records.Any())
+                Item.Records.Clear();
+
+            Item.Records = (List<DocumentRecord>)dialogResult.Data;
+        }        
+
+        // if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data is not null)
+        // {
+        //     var newItemRecords = (List<DocumentRecord>)dialogResult.Data;
+
+        //     if (!Item.Records.Any())
+        //         Item.Records = newItemRecords;
+        //     else
+        //     {
+        //         bool? msg = await DialogService.ShowMessageBox("Удаление записей",
+        //                                                     (MarkupString)$"ДТ содержит товары.<br><b>Удалить текущие товары перед загрузкой новых?<b>",
+        //                                                     yesText: "Да", cancelText: "Отмена");
+
+        //         if (msg.HasValue)
+        //             if (msg.Value)
+        //             {
+        //                 Item.Records.Clear();
+        //                 Item.Records.AddRange(newItemRecords);
+        //                 StateHasChanged();
+        //             }
+                
+        //         return;
+        //     }
+        // }
     }
 
     private async Task CloseWindow_Click()

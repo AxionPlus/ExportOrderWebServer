@@ -3,72 +3,70 @@
 
 @inject ISnackbar Snackbar
 @inject IHttpClientFactory httpClient
-@inject IDocumentProvider _DocumentProvider
 
 <MudStack Style="width: 100%">
-    <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1"
+    <MudFileUpload Class="flex-1" T="IBrowserFile" OnFilesChanged="OnInputFileChanged" Accept=".xml" MaximumFileCount="1"                    
                    InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
                    @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
         <ActivatorContent>
             <MudPaper Height="100px" Outlined="true" Class="@DragClass">
                 <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
-                @if (FileNames is not null && FileNames.Any())
-                    foreach (var file in FileNames)
-                    {
-                        <MudChip T="string" Color="Color.Dark" Text="@file" />
-                    }
+                @if (_BrowserFile != null)
+                {
+                    <MudChip T="string" Color="Color.Dark" Text="@_BrowserFile.Name" />
+                }       
             </MudPaper>
         </ActivatorContent>
     </MudFileUpload>
     <MudToolBar Class="gap-4">
         <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CheckAndUploadFile"
                    Style="margin-inline-start:10px"
-                   Disabled="@(!FileNames.Any())"
+                   Disabled="@(_BrowserFile == null)"
                    StartIcon="@Icons.Material.Filled.UploadFile">
             @(IsChecked ? "Upload" : "Check") @(" ") File(s)
         </MudButton>
         <MudSpacer />
         <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ClearDragClass"
                    Style="margin-inline-end:10px"
-                   Disabled="@(!FileNames.Any())">
+                   Disabled="@(_BrowserFile == null)"
+                   StartIcon="@Icons.Material.Filled.Clear">
             Clear
         </MudButton>
     </MudToolBar>
-    @if (AppObjResponse is not null)
+    @if (_AppObjResponse is not null)
     {
-        <div class="container-content column" style="width:100%; display: flex; flex-direction:column; padding-inline-start:10px">
-            @if (AppObjResponse.HasErrors)
-            {           
-                <MudText><b>Описание ошибки:</b></MudText>
-                @foreach (var error in AppObjResponse.Errors)
+        <MudDivider Class="my-2"></MudDivider>
+        <h4 style="padding-inline:10px">@(_AppObjResponse.Description)<br></h4>
+        <div class="container-content column" style="width:100%; display: flex; flex-direction:column; padding-inline:10px">
+            @if (_AppObjResponse.HasErrors)
+            {
+                <h6 style="color:brown"><b>Описание ошибки:</b></h6>
+                @foreach (var error in _AppObjResponse.Errors)
                 {
-                    <span style="padding-inline-start:10px">@(error)<br></span>
+                    @(error)
                 }
             }
-            else
-            {
-                <span style="padding-inline-start:10px">@(AppObjResponse.Description)<br></span>
-            }            
         </div>
+        <MudDivider Class="my-2"></MudDivider>
     }
 </MudStack>
 
 <OverlayLoadingData Visible="IsLoadingData" Text="@(IsChecked ? "Uploading..." : "Checking...")" />
 
 @code {
-    [Parameter]
-    public string? ApplicationUser { get; set; }
-
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; } = new();
 
-    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
-    private string DragClass = DefaultDragClass;    
-    private List<string> FileNames = new List<string>();
-    //IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
-    IReadOnlyList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
+    [Parameter]
+    public string? ApplicationUser { get; set; }
+    [Parameter]
+    public string DocumentName { get; set; } = string.Empty;
 
-    private AppObjectResponse? AppObjResponse { get; set; }
+    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
+    private string DragClass = DefaultDragClass;
+    IBrowserFile? _BrowserFile { get; set; }
+
+    private AppObjectResponse? _AppObjResponse { get; set; }
 
     private bool IsLoadingData = false;
     private bool IsChecked { get; set; }
@@ -76,15 +74,10 @@
     private void OnInputFileChanged(InputFileChangeEventArgs e)
     {
         ClearDragClass();
-
-        //BrowserFiles = (IList<IBrowserFile>)e.GetMultipleFiles();
-        //var files = e.GetMultipleFiles();
-        // foreach (var file in files)
+        _BrowserFile = (IBrowserFile)e.File;
+        // BrowserFiles = e.GetMultipleFiles();
+        // foreach (var file in BrowserFiles)
         //     FileNames.Add(file.Name);
-
-        BrowserFiles = e.GetMultipleFiles();
-        foreach (var file in BrowserFiles)
-            FileNames.Add(file.Name);
     }
 
     private void SetDragClass()
@@ -95,9 +88,10 @@
     private void ClearDragClass()
     {
         DragClass = DefaultDragClass;
-        FileNames.Clear();
-        AppObjResponse = new();
         IsChecked = false;
+
+        _BrowserFile = null;
+        _AppObjResponse = null;        
     }
 
     private async Task CheckAndUploadFile()
@@ -105,56 +99,42 @@
         if (IsChecked)
         {
             /// UPLOAD DATA
-            if (AppObjResponse is not null && AppObjResponse.Object is not null)
+            if (_AppObjResponse is not null && _AppObjResponse.Object is not null)
             {
-                var readDTOs = (List<ReadXmlDocumentDTO>)AppObjResponse.Object;
+                var uploadResult = (List<DocumentRecord>)_AppObjResponse.Object;
 
-                if (readDTOs is not null && readDTOs.Any())
+                if (uploadResult is not null && uploadResult.Any())
                 {
-                    IsLoadingData = true;
-                    var uploadResponse = await _DocumentProvider.NewItemsUploadXmlAsync(readDTOs, ApplicationUser);
-                    IsLoadingData = false;
-
-                    if (uploadResponse is not null)
-                        if (!uploadResponse.HasErrors)
-                        {
-                            Snackbar.Add("ДТ загружены.", Severity.Success);
-                            MudDialog.Close();
-                        }
-                        else
-                        {
-                            Snackbar.Add($"Данные не загружены: {uploadResponse?.Errors.First()!}", Severity.Error);
-                            ClearDragClass();
-                        }
+                    MudDialog.Close(uploadResult);
+                    return;
                 }
             }
+            
+            Snackbar.Add($"Данные не загружены.", Severity.Error);
+            ClearDragClass();
 
             return;
         }
 
         /// CHECK uploaded files
-        if (BrowserFiles is null || !BrowserFiles.Any()) return;
+        if (_BrowserFile is null) return;
 
         IsLoadingData = true;
 
         long maxFileSize = 1024 * 1000;
 
+        var fileContent = new StreamContent(_BrowserFile.OpenReadStream(maxFileSize));
+
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(_BrowserFile.ContentType);
+
         var content = new MultipartFormDataContent();
 
-        foreach (var file in BrowserFiles)
-        {
-            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+        content.Add(
+            content: fileContent,
+            name: "\"file\"",
+            fileName: _BrowserFile.Name);
 
-            if (fileContent is null)
-                continue;
-
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-
-            content.Add(
-                content: fileContent,
-                name: "\"files\"",
-                fileName: file.Name);
-        }        
+        content.Add(new StringContent(DocumentName, System.Text.Encoding.UTF8, "application/txt"));
 
         using (var client = httpClient.CreateClient())
         {
@@ -170,11 +150,11 @@
                     Snackbar.Add($"Data wasn't read.", Severity.Error);
                 else
                 {
-                    AppObjResponse = new();
+                    _AppObjResponse = new();
 
-                    AppObjResponse.Description = readResponse.Description;
-                    AppObjResponse.Errors = readResponse.Errors;
-                    AppObjResponse.Object = JsonConvert.DeserializeObject<List<ReadXmlDocumentDTO>>(readResponse.Object?.ToString()!);
+                    _AppObjResponse.Description = readResponse.Description;
+                    _AppObjResponse.Errors = readResponse.Errors;
+                    _AppObjResponse.Object = JsonConvert.DeserializeObject<List<DocumentRecord>>(readResponse.Object?.ToString()!);
                     
                     IsChecked = true;   /// CHECKED AND READY TO UPLOAD
                 }                

@@ -30,7 +30,7 @@
         <MudAutocomplete Class="Autocomplete HSCode" T="string" Label="HS code" @bind-Value="Filter.HScode" SearchFunc="@SearchHScodes"
                          Style="width: 145px" 
                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                         AutoFocus=true
+                         AutoFocus Immediate
                          MaxLength="10" MinCharacters="3" Format="0"
                          CloseIcon="" OpenIcon=""
                          ResetValueOnEmptyText="true" Clearable />
@@ -234,8 +234,8 @@
 
         if (string.IsNullOrWhiteSpace(value))
             return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        
+        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));        
     }
 
     private async Task<IEnumerable<string>> SearchNames(string value, CancellationToken token)

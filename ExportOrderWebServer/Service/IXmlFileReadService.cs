@@ -4,145 +4,86 @@ namespace ExportOrderWebServer.Service;
 
 public interface IXmlFileReadService : IDisposable
 {
-    public Task<List<ReadXmlDocumentDTO>?> ReadXmlFileDocuments(string dirPath);
+    public Task<List<ReadXmlDocumentRecordDTO>?> ReadXmlFileDocumentRecords(string filePath);
 }
 
 public class XmlFileReadService : IXmlFileReadService
 {
-    private static string? DirPath { get; set; }
+    private string? FilePath { get; set; }
 
     public XmlFileReadService() { }
 
-    public async Task<List<ReadXmlDocumentDTO>?> ReadXmlFileDocuments(string dirPath)
+    public async Task<List<ReadXmlDocumentRecordDTO>?> ReadXmlFileDocumentRecords(string filePath)
     {
-        DirPath = dirPath;
-
-        List<ReadXmlDocumentDTO> readListXmlDTO = new();
-
-        foreach (var file in Directory.GetFiles(DirPath))
+        FilePath = filePath;
+        
+        if (!File.Exists(FilePath))
         {
-            if (!File.Exists(file))
+            return null;
+            throw new FileNotFoundException(FilePath);
+        }            
+
+        XmlDocument doc = new();    //XDocument xDoc = XDocument.Load(FilePath);
+        doc.Load(FilePath);         //doc.LoadXml(file);
+
+        if (doc.DocumentElement == null || doc.DocumentElement.Name != "gdgdc:GoodsDeclaration")  //if (doc.DocumentElement == null || !doc.DocumentElement.Name.Contains("GoodsDeclaration"))
+            return null;
+        
+        List<ReadXmlDocumentRecordDTO> readDTOs = new();
+
+        /// DOCUMENT NAME
+        string readDocumentName = string.Empty;
+
+        foreach (XmlNode node in doc.ChildNodes)
+            if (node.NodeType == XmlNodeType.Comment)
+                if (node.InnerText.Contains("NOM_REG:"))
+                    readDocumentName = node.InnerText.Replace("NOM_REG:", "").Trim();
+
+        /// RECORDS
+        foreach (XmlNode childNode in doc.DocumentElement.ChildNodes)
+        {
+            switch (childNode.Name)
             {
-                continue;
-                throw new FileNotFoundException(file);
-            }            
-
-            XmlDocument doc = new();
-
-            //doc.LoadXml(file);
-            doc.Load(file);
-
-            if (doc.DocumentElement == null || !doc.DocumentElement.Name.Contains("GoodsDeclaration"))
-                return null;
-
-            foreach(XmlNode childNode in doc.DocumentElement.ChildNodes)
-            {
-                ReadXmlDocumentDTO DTO = new();
-
-                switch (childNode.Name)
-                {
-                    case "casdo:DeclarationKindCode":
-                        DTO.DocumentType = childNode.InnerText; break;
-
-                    case "cacdo:GDGoodsShipmentDetails":
-                        foreach (XmlNode shipmentDetails in childNode.ChildNodes)
+                case "cacdo:GDGoodsShipmentDetails":
+                    foreach (XmlNode shipmentDetails in childNode.ChildNodes)
+                    {
+                        switch (shipmentDetails.Name)
                         {
-                            string shipper = string.Empty;
-                            string consignee = string.Empty;                            
+                            case "cacdo:GDGoodsItemDetails":
+                                ReadXmlDocumentRecordDTO dto = new() { DocumentName = readDocumentName };
 
-                            switch (shipmentDetails.Name)
-                            {
-                                case "cacdo:ConsignorDetails":
-                                    DTO.ShipperName = shipmentDetails.InnerText; break;
-                                
-                                case "cacdo:ConsigneeDetails":
-                                    foreach (XmlNode consigneeDetails in shipmentDetails.ChildNodes)
+                                foreach (XmlNode goodsItemDetails in shipmentDetails.ChildNodes)
+                                {
+                                    switch (goodsItemDetails.Name)
                                     {
-                                        switch (consigneeDetails.Name)
-                                        {
-                                            case "csdo:SubjectBriefName":
-                                                consignee = consigneeDetails.InnerText; break;
-
-                                            case "ccdo:SubjectAddressDetails":
-                                                foreach (XmlNode consigneeAddress in consigneeDetails.ChildNodes)
-                                                {
-                                                    switch (consigneeAddress.Name)
-                                                    {
-                                                        case "csdo:PostCode":
-                                                            consignee = string.Concat(consignee, ", ", consigneeAddress.InnerText); break;
-                                                        case "csdo:BuildingNumberId":
-                                                            consignee = string.Concat(consignee, ", ", consigneeAddress.InnerText); break;
-                                                        case "csdo:StreetName":
-                                                            consignee = string.Concat(consignee, ", ", consigneeAddress.InnerText); break;
-                                                        case "csdo:CityName":
-                                                            consignee = string.Concat(consignee, ", ", consigneeAddress.InnerText); break;
-                                                        case "csdo:RegionName":
-                                                            consignee = string.Concat(consignee, ", ", consigneeAddress.InnerText); break;
-                                                        case "UnifiedCountryCode":
-                                                            DTO.ConsigneeCountry = consigneeAddress.InnerText; break;
-                                                    }
-                                                    DTO.ConsigneeName = consignee;
-                                                }
-                                                break;
-                                        }
+                                        case "casdo:ConsignmentItemOrdinal":                                            
+                                            dto.Seq = int.TryParse(goodsItemDetails.InnerText, out int _seq) ? _seq : 0; break;
+                                        case "csdo:CommodityCode":
+                                            dto.CommodityHSCode = goodsItemDetails.InnerText; break;
+                                        case "casdo:GoodsDescriptionText":
+                                            dto.CommodityName = goodsItemDetails.InnerText; break;
+                                        case "csdo:UnifiedGrossMassMeasure":
+                                            dto.GrossWt = goodsItemDetails.InnerText; break;
+                                        case "csdo:UnifiedNetMassMeasure":
+                                            dto.NetWt = goodsItemDetails.InnerText; break;
                                     }
-                                    break;
-
-                                case "cacdo:GDGoodsItemDetails":
-                                    
-                                    //int indexRecord = 0;
-
-                                    foreach (XmlNode goodsItemDetails in shipmentDetails.ChildNodes)
-                                    {
-                                        ReadXmlDocumentRecordsDTO recordDTO = new();
-
-                                        //recordDTO.Seq = ++indexRecord;
-                                        ++recordDTO.Seq;
-
-                                        switch (goodsItemDetails.Name)
-                                        {
-                                            case "csdo:CommodityCode":
-                                                recordDTO.CommodityHSCode = goodsItemDetails.InnerText; break;
-                                            case "csdo:GoodsDescriptionText":
-                                                recordDTO.CommodityName = goodsItemDetails.InnerText; break;
-                                            case "csdo:UnifiedGrossMassMeasure":
-                                                recordDTO.GrossWt = goodsItemDetails.InnerText; break;
-                                            case "csdo:UnifiedNetMassMeasure":
-                                                recordDTO.NetWt = goodsItemDetails.InnerText; break;
-                                            //case "csdo:GoodsItemGroupDetails":
-                                            //    foreach (XmlNode goodsItemGroupDetails in goodsItemDetails.ChildNodes)
-                                            //    {
-
-                                            //    }
-                                            //    break;
-                                        }
-
-                                       DTO.Records.Add(recordDTO);
-                                    }
-                                    break;
-
-                                case "cacdo:PrecedingDocDetails":
-                                    DTO.Name = shipmentDetails.InnerText; break;                                    
-                            }                            
+                                }
+                                readDTOs.Add(dto);
+                            break;
                         }
-                        break;
-                }
-
-                readListXmlDTO.Add(DTO);
-            }            
+                    }
+                break;
+            }
         }
 
-        await Task.Delay(1000);
+        await Task.Delay(10);
 
-        if (readListXmlDTO is not null && readListXmlDTO.Any())
-            return readListXmlDTO;
-        else
-            return null;
+        return readDTOs;
     }
 
     public void Dispose()
     {
-        if (Directory.Exists(DirPath))
-            Directory.Delete(DirPath, true);
+        if (File.Exists(FilePath))
+            File.Delete(FilePath);
     }
 }

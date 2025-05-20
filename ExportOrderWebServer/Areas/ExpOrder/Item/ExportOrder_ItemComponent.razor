@@ -241,7 +241,7 @@
                                                 <MudSpacer />
                                                 <MudTooltip Text="Список поручений по этой ДТ" Delay="1000">
                                                     <MudIconButton Icon="@Icons.Custom.FileFormats.FileDocument" Size="Size.Small"
-                                                    OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
+                                                                    OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
                                                     </MudIconButton>
                                                 </MudTooltip>
                                             </div>                                            
@@ -260,17 +260,17 @@
                             </ItemTemplate>
                         </MudTreeView>
                         <PopoverExpOrderList DocumentName="@DocumentName" IsPopoverOpen="@IsPopoverOpen" ExportOrderNums="@ExportOrderNums"
-                        ExportOrdersTotalNetWt="@ExportOrdersTotalNetWt" ExportOrdersTotalGrossWt="@ExportOrdersTotalGrossWt"
-                        CloseButton_Click="@(()=> IsPopoverOpen = false)" />
+                                             ExportOrdersTotalNetWt="@ExportOrdersTotalNetWt" ExportOrdersTotalGrossWt="@ExportOrdersTotalGrossWt"
+                                             CloseButton_Click="@(()=> IsPopoverOpen = false)" />
                     }
                 </MudPaper>
                 <div style="display:flex; margin-top:3px">
                     <span style="margin-top:12px; margin-right:6px"><b>Товар кратко:</b></span>
                     <MudTextField Class="TextField" Style="width: 350px" T="string" @bind-Value="@Value.CommodityShort"
-                    Text="@Value.CommodityShort"
-                    TextChanged="(e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    Immediate="true" Clearable />
+                                  Text="@Value.CommodityShort"
+                                  TextChanged="(e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Clearable />
                 </div>                
             </div>
             <div class="documents-info" style="margin-left: 15px; max-width:fit-content">
@@ -344,15 +344,15 @@
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField" T="string" @ref="ContainerField" Value="@expOrderRecord.CntrNum"
-                    ValueChanged="async (e) => { expOrderRecord.CntrNum = e.ToUpper(); await CheckTextFieldCntrNum(e.ToUpper()); }"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    Required RequiredError="" />
+                                  ValueChanged="async (e) => { expOrderRecord.CntrNum = e.ToUpper(); await CheckTextFieldCntrNum(e.ToUpper()); }"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Required RequiredError="" />
                 </MudTd>
                 <MudTd>
                     <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
-                    CloseIcon="" OpenIcon="">
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
+                               CloseIcon="" OpenIcon="">
                         @if (CntrTypes.Count() > 0)
                             @foreach (var type in CntrTypes)
                             {
@@ -362,35 +362,33 @@
                 </MudTd>
                 <MudTd>
                     <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecord.CntrTareWt"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    Required RequiredError="" HideSpinButtons="true" />
+                                     Variant="Variant.Outlined" Margin="Margin.Dense"
+                                     Required RequiredError="" HideSpinButtons="true" />
                 </MudTd>
                 <MudTd>                   
                     <MudTextField Class="TextField" Style="width: 292px" T="string" @bind-Value="expOrderRecord.Seal"
-                    Text="@expOrderRecord.Seal"
-                    TextChanged="@((e) => e?.ToUpper())"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"/>
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
                     <MudTextField Class="QuantityField" Style="width: 80px" T="string"
-                    Text="@(expOrderRecord.Contents.Sum(s => s.PackageQty.HasValue ? s.PackageQty.Value : 0).ToString())"
-                    Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly/>
+                                  Text="@(expOrderRecord.Contents.Sum(s => s.PackageQty.HasValue ? s.PackageQty.Value : 0).ToString())"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly/>
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                    Text="@(expOrderRecord.Contents.Sum(s => s.NetWt.HasValue ? s.NetWt.Value : 0).ToString("## ##0.###"))"
-                    Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                                  Text="@(expOrderRecord.Contents.Sum(s => s.NetWt.HasValue ? s.NetWt.Value : 0).ToString("## ##0.###"))"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField_Sum" T="string"
-                    Text="@(expOrderRecord.Contents.Sum(s => s.GrossWt.HasValue ? s.GrossWt.Value : 0).ToString("## ##0.###"))"
-                    Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                                  Text="@(expOrderRecord.Contents.Sum(s => s.GrossWt.HasValue ? s.GrossWt.Value : 0).ToString("## ##0.###"))"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecord.IsShowCntrContent ? "transform: rotate(180deg);" : "")"
-                    Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
+                                   Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
                 </MudTd>
                 <MudTd></MudTd>
             </RowTemplate>

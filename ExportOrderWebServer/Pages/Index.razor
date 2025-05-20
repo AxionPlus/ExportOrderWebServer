@@ -1,16 +1,14 @@
 ﻿@page "/"
-@inject AuthenticationStateProvider authenticationStateProvider;
+@inject AuthenticationStateProvider authenticationStateProvider
 
-<PageTitle>Axion Export Order</PageTitle>
+<PageTitle>Axion - TRIS</PageTitle>
 
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/Identity/Account/Logout" />
-
         <MudSpacer />
         <img src="Logo_Axion.png" asp-append-version="true" height="24" width="34" class="mr-1" />
         <MudSpacer />
-
         <div class="ToolBar-iconbutton">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
@@ -21,32 +19,28 @@
 </div>
 
 <br />
-
-<div class="container-content" style="text-align:center">
-    @* <img src="Logo_Axion.png" asp-append-version="true" width="200px" /> *@
-</div>
 <br />
+
+@* <div class="container-content" style="text-align:center">
+    <img src="Logo_Axion.png" asp-append-version="true" width="200px" />
+</div>
+<br /> *@
 <h1 style="text-align:center">Hello</h1>
 <h1 style="text-align:center">@ApplicationParameter.ApplicationUser</h1>
-
 @* <MudButton OnClick="menu_click">Menu</MudButton> *@
-
-@* <AuthorizeView Roles="Admin">
-    <MudButton OnClick="TEST_click">TEST</MudButton>
-</AuthorizeView> *@
 
 @code {
     [CascadingParameter]
     protected EventCallback ShowMainMenu { get; set; }
 
-    private async Task menu_click()
-    {
-        await ShowMainMenu.InvokeAsync();
-    }
-
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
+        ApplicationParameter.ApplicationUser = authState?.User.Identity?.Name ?? string.Empty;    //ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
     }
+
+    // private async Task menu_click()
+    // {
+    //     await ShowMainMenu.InvokeAsync();
+    // }
 }

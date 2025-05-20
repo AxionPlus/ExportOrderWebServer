@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-@inject AuthenticationStateProvider authenticationStateProvider;
+@inject AuthenticationStateProvider authenticationStateProvider
 
 <PageTitle>Export Order</PageTitle>
 <MudThemeProvider />
@@ -51,7 +51,7 @@
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        ApplicationParameter.ApplicationUser = authState.User.Identity.Name;
-        ApplicationUser = authState.User.Identity.Name;
+        ApplicationParameter.ApplicationUser = authState?.User.Identity?.Name ?? string.Empty;
+        ApplicationUser = authState?.User.Identity?.Name;
     }
 }

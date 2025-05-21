@@ -62,7 +62,7 @@ public class CommodityProvider : ICommodityProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(CommodityCatalog item)
+    public async Task<AppObjectResponse> ModifyItemAsync(CommodityCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -72,6 +72,13 @@ public class CommodityProvider : ICommodityProvider
 
             try
             {
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd("User NOT found.");
+                    return appObjResponse;
+                }
+
                 var modifyItem = await db.Commodities.FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem is null)
@@ -91,7 +98,7 @@ public class CommodityProvider : ICommodityProvider
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                
 
                 modifyItem.CreateUser = User!;
                 modifyItem.Name = item.Name;
@@ -119,20 +126,21 @@ public class CommodityProvider : ICommodityProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(CommodityCatalog item)
+    public async Task<AppObjectResponse> NewItemAsync(CommodityCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
             if (User is null)
             {
-                appObjResponse.ErrorAdd("User not found.");
+                appObjResponse.ErrorAdd($"User NOT found.");
                 return appObjResponse;
             }
-            
+
             /// Check an Existing item
             bool isItemExist = db.Commodities.Any(s => s.Name.ToUpper() == item.Name.ToUpper() && s.HSCode == item.HSCode);
             if (isItemExist)

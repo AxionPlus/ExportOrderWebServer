@@ -57,7 +57,7 @@ public class CountryProvider : ICountryProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(CountryCatalog item)
+    public async Task<AppObjectResponse> ModifyItemAsync(CountryCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -67,6 +67,13 @@ public class CountryProvider : ICountryProvider
 
             try
             {
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
+
                 var modifyItem = await db.Countries.FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem is null)
@@ -86,9 +93,7 @@ public class CountryProvider : ICountryProvider
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-
-                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateUser = User;
                 modifyItem!.CreateTime = DateTime.Now;
                 modifyItem!.RUS = item.RUS;
                 modifyItem!.ENG = item.ENG;
@@ -97,7 +102,7 @@ public class CountryProvider : ICountryProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
             }
@@ -112,14 +117,20 @@ public class CountryProvider : ICountryProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(CountryCatalog item)
+    public async Task<AppObjectResponse> NewItemAsync(CountryCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd($"User NOT found.");
+                return appObjResponse;
+            }
 
             bool isItemExist = db.Countries.Any(s => s.ENG == item.ENG);
             if (isItemExist)
@@ -128,10 +139,10 @@ public class CountryProvider : ICountryProvider
                 return appObjResponse;
             }
 
-            item.CreateUser = User!;
+            item.CreateUser = User;
             db.Entry(item).State = EntityState.Added;
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+            //var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
 

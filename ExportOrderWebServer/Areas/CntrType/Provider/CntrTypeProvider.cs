@@ -26,7 +26,7 @@ public class CntrTypeProvider : ICntrTypeProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemsAsync(List<CntrTpSz> NewItems)
+    public async Task<AppObjectResponse> NewItemsAsync(List<CntrTpSz> NewItems, string? UserName = "")
     {
         appObjResponse = new();
 

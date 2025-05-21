@@ -58,7 +58,7 @@ public class CustomerProvider : ICustomerProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(CustomerCatalog item)
+    public async Task<AppObjectResponse> ModifyItemAsync(CustomerCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -68,6 +68,13 @@ public class CustomerProvider : ICustomerProvider
 
             try
             {
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
+
                 var modifyItem = await db.Customers.Include(cu => cu.Country).AsNoTracking().FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem!.Name != item.Name)
@@ -81,9 +88,7 @@ public class CustomerProvider : ICustomerProvider
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-
-                modifyItem!.CreateUser = User!;
+                modifyItem!.CreateUser = User;
                 modifyItem!.CreateTime = DateTime.Now;
                 modifyItem!.Name = item.Name;
                 modifyItem!.NameEn = item.NameEn;
@@ -97,14 +102,13 @@ public class CustomerProvider : ICustomerProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 appObjResponse.ErrorAdd(ex.Message);
-
                 return appObjResponse;
             }
 
@@ -112,14 +116,20 @@ public class CustomerProvider : ICustomerProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(CustomerCatalog item)
+    public async Task<AppObjectResponse> NewItemAsync(CustomerCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd($"User NOT found.");
+                return appObjResponse;
+            }
 
             // check an Existing item
             bool isItemRuExist = db.Customers.Any(s => s.Name!.ToUpper() == item!.Name!.ToUpper());
@@ -137,12 +147,12 @@ public class CustomerProvider : ICustomerProvider
                 return appObjResponse;
             }
 
-            item.CreateUser = User!;
+            item.CreateUser = User;
 
             db.Entry(item.Country!).State = EntityState.Unchanged;
             db.Entry(item).State = EntityState.Added;
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+            //var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
 

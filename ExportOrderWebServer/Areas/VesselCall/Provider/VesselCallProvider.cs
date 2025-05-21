@@ -86,7 +86,7 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(VesselCallEntity item)
+    public async Task<AppObjectResponse> ModifyItemAsync(VesselCallEntity item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -96,10 +96,10 @@ public class VesselCallProvider : IVesselCallProvider
 
             try
             {
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
                 if (User is null)
                 {
-                    appObjResponse.ErrorAdd($"User not found.");
+                    appObjResponse.ErrorAdd($"User NOT found.");
                     return appObjResponse;
                 }
 
@@ -196,7 +196,7 @@ public class VesselCallProvider : IVesselCallProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 
@@ -272,7 +272,7 @@ public class VesselCallProvider : IVesselCallProvider
         }        
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(VesselCallEntity item)
+    public async Task<AppObjectResponse> NewItemAsync(VesselCallEntity item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -281,10 +281,11 @@ public class VesselCallProvider : IVesselCallProvider
             try
             {            
                 var db = await _db;
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
                 if (User is null)
                 {
-                    appObjResponse.ErrorAdd($"User not found.");
+                    appObjResponse.ErrorAdd($"User NOT found.");
                     return appObjResponse;
                 }
 
@@ -296,7 +297,7 @@ public class VesselCallProvider : IVesselCallProvider
                     return appObjResponse;
                 }
 
-                item.CreateUser = User!;
+                item.CreateUser = User;
 
                 foreach (var detail in item.Details)
                 {
@@ -318,7 +319,7 @@ public class VesselCallProvider : IVesselCallProvider
 
                 db.Entry(item).State = EntityState.Added;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 

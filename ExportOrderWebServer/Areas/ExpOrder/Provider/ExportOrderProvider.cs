@@ -931,16 +931,6 @@ public class ExportOrderProvider : IExportOrderProvider
         }
     }
 
-    public Task<AppObjectResponse> ModifyItemAsync(ExportOrderEntity item)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<AppObjectResponse> NewItemAsync(ExportOrderEntity item)
-    {
-        throw new NotImplementedException();
-    }
-
     #region AUXILIARY
 
     private readonly Func<List<ExportOrderRecord>, List<ExportOrderRecordDTO>> orderRecords = (_eoRecords) =>

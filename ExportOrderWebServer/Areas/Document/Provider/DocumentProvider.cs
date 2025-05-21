@@ -101,7 +101,7 @@ public class DocumentProvider : IDocumentProvider
 
             try
             {
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName); //ApplicationParameter.ApplicationUser
                 if (User is null)
                 {
                     appObjResponse.ErrorAdd("User NOT found.");
@@ -239,7 +239,8 @@ public class DocumentProvider : IDocumentProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
             if (User is null)
             {
                 appObjResponse.ErrorAdd($"User NOT found.");
@@ -448,16 +449,5 @@ public class DocumentProvider : IDocumentProvider
 
             return appObjResponse;
         }
-    }
-
-    // DELETE after modify IEntityProvider
-    public Task<AppObjectResponse> ModifyItemAsync(DocumentEntity item)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<AppObjectResponse> NewItemAsync(DocumentEntity item)
-    {
-        throw new NotImplementedException();
     }
 }

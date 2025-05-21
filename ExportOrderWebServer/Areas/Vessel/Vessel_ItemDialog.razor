@@ -13,20 +13,13 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+    <MudForm @ref="@Form" Style="max-width:fit-content">
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">                
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text=@(IsFormReadOnly ? "Edit" : "Save")>
-                        @if (IsFormReadOnly)
-                        {
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
-                        }
-                        else
-                        {
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />
-                        }                        
+                    <MudTooltip Text="Save">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="!IsLoadingData" OnClick="SaveItem_Click" />
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -38,15 +31,14 @@
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" AutoFocus="true"
-                              Required RequiredError=""
-                              Clearable="!IsFormReadOnly" />
+                              Required RequiredError="" Clearable />
              </div>
             <div class="container-content" style="justify-content: flex-start">
                 <MudAutocomplete T="CountryCatalog" Style="width: 280px; margin-right:10px" Label="Flag" @bind-Value="Item.Flag"
                                  ToStringFunc="@(e => e != null ? e.RUS : "")"
                                  SearchFunc="@SearchCountry"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 Required RequiredError=""
+                                 Required RequiredError="" Clearable
                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                  ResetValueOnEmptyText="true"
                                  Placeholder="Flag"
@@ -54,116 +46,95 @@
                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
                                  AdornmentColor="Color.Primary"
                                  Adornment="Adornment.End"
-                                 OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddFlag_Click(); })"
-                                 Clearable="!IsFormReadOnly" />
+                                 OnAdornmentClick="@( async ()=> { if (!IsLoadingData) await AddFlag_Click(); })" />
             </div>
             <div class="container-content" style="justify-content: flex-start">
                 <MudTextField T="string" Style="width: 130px; margin-right: 20px" Label="IMO no" @bind-Text="@Item.IMO"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" MaxLength="10"
-                              Required RequiredError=""
-                              Clearable="!IsFormReadOnly" />
+                              Required RequiredError="" Clearable />
                 <MudTextField T="string" Style="width: 130px" Label="Terminal code" @bind-Text="@Item.TerminalCode"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
-                              Required RequiredError=""
-                              Clearable="!IsFormReadOnly" />
+                              Required RequiredError="" Clearable />
             </div>
             <div class="container-content">
                 <MudTextField T="string" Style="width: 280px" Label="Captain's Family" @bind-Text="@Item.CaptainFamily"
                               Placeholder="Фамилия"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"                               
-                              Clearable="!IsFormReadOnly" />
+                              Immediate="true" Clearable />
             </div>
             <div class="container-content">
                 <MudTextField T="string" Style="width: 360px" Label="Captain's Name" @bind-Text="@Item.CaptainName"
                               Placeholder="Имя Отчество"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"                               
-                              Clearable="!IsFormReadOnly" />
+                              Immediate="true" Clearable />
             </div>
         </div>
     </MudForm>
 }
 
 @code {
+    private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
+
     [Parameter]
     public long Id { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
     private VesselEntity? Item { get; set; }
-    private bool IsFormReadOnly { get; set; } = true;
-    private bool IsAuth = false;
+    private bool IsLoadingData { get; set; } = false;
 
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        ApplicationUser = authState.User.Identity?.Name;
         await GetItem();
-
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
-        {
-            IsAuth = true;
-        }
     }
 
     private async Task GetItem()
     {
         if (IsNewItem)
-        {
             Item = new();
-            IsFormReadOnly = false;
-        }        
         else
         {
             var response = await _vesselProvider.GetItemAsync(Id);
-            if (!response.HasErrors)
-                Item = (VesselEntity)response.Object!;
+            if (!response.HasErrors && response.Object is not null)
+                Item = (VesselEntity)response.Object;
         }
     }
 
     public async Task SaveItem_Click()
     {
-        await Form!.Validate();
+        if (Item is null || Form is null) return;
+
+        await Form.Validate();
 
         if (Form.IsValid)
         {
+            IsLoadingData = true;
+
+            AppObjectResponse appObjectResponse = new();
+
             if (IsNewItem)
-            {
-                var response = await _vesselProvider.NewItemAsync(Item!);
-                if (!response.HasErrors)
-                {
-                    Id = Item!.Id;
-                    Snackbar.Add("Saved successfully", Severity.Success);                    
-                }
-                else
-                    Snackbar.Add(response.Errors.LastOrDefault()!, Severity.Error);
-            }
+                appObjectResponse = await _vesselProvider.NewItemAsync(Item, ApplicationUser);
             else
-            {
-                var response = await _vesselProvider.ModifyItemAsync(Item!);
-                if (!response.HasErrors)
-                {
-                    Snackbar.Add("Save Successed", Severity.Success);
-                }
-                else
-                    Snackbar.Add(response.Errors.Last(), Severity.Error);
-            }
+                appObjectResponse = await _vesselProvider.ModifyItemAsync(Item, ApplicationUser);
+
+            if (!appObjectResponse.HasErrors)
+                Snackbar.Add("Save Successed", Severity.Success);
+            else
+                Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
 
             IsNewItem = false;
-            IsFormReadOnly = true;
+            Id = Item.Id;
 
-            await GetItem();            
+            IsLoadingData = false;
+            MudDialog.Close(DialogResult.Ok(true));
         }
-    }
-
-    private async Task EditItem_Click()
-    {
-        await Task.Delay(50);
-        IsFormReadOnly = false;
     }
 
     private async Task AddFlag_Click()
@@ -171,8 +142,6 @@
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<Country_ItemDialog>("New Country", parameters, options);
-
-        var result = await dialog.Result;
     }
 
     private async Task<IEnumerable<CountryCatalog>> SearchCountry(string value, CancellationToken token)

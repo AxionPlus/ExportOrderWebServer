@@ -86,10 +86,11 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-
     private MudForm? Form { get; set; }
     private MudTable<PersonEntity> mudTable = new();
+
     private MyCompanyEntity? Item { get; set; }
     private bool IsLoadingData { get; set; } = false;
     private bool IsNewItem { get; set; } = false;
@@ -98,11 +99,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
             IsRoleForEdit = true;
 
+        ApplicationUser = authState.User.Identity?.Name;
         await GetItem();
         if (Item is null)
             IsNewItem = true;
@@ -132,12 +134,12 @@
         if (Form.IsValid)
             if (IsNewItem)
             {
-                await _MyCompanyProvider.NewItemAsync(Item);
+                await _MyCompanyProvider.NewItemAsync(Item, ApplicationUser);
                 Snackbar.Add("Save Successed", Severity.Success);
             }
             else
             {
-                var result = await _MyCompanyProvider.ModifyItemAsync(Item);
+                var result = await _MyCompanyProvider.ModifyItemAsync(Item, ApplicationUser);
                 if (!result.HasErrors)
                     Snackbar.Add("Save Successed", Severity.Success);
                 else

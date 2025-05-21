@@ -4,7 +4,7 @@ public interface ISupplementaryUnitProvider
 {    
     Task<IEnumerable<SupplementaryUnitCatalog>?> GetItemsAsync();
     Task<IEnumerable<ushort>?> GetUnitCodesAsync();    
-    Task<AppObjectResponse> NewItemAsync(SupplementaryUnitCatalog item);
+    Task<AppObjectResponse> NewItemAsync(SupplementaryUnitCatalog item, string? UserName = "");
 }
 
 public class SupplementaryUnitProvider : ISupplementaryUnitProvider
@@ -44,7 +44,7 @@ public class SupplementaryUnitProvider : ISupplementaryUnitProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(SupplementaryUnitCatalog item)
+    public async Task<AppObjectResponse> NewItemAsync(SupplementaryUnitCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -54,7 +54,12 @@ public class SupplementaryUnitProvider : ISupplementaryUnitProvider
 
             try
             {
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
 
                 var dbItems = await db.SupplementaryUnits.AsNoTracking().ToArrayAsync();
 
@@ -67,10 +72,10 @@ public class SupplementaryUnitProvider : ISupplementaryUnitProvider
                     return appObjResponse;
                 }
 
-                item.CreateUser = User!;
+                item.CreateUser = User;
                 db.Entry(item).State = EntityState.Added;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 

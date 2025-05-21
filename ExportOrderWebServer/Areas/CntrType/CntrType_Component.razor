@@ -80,6 +80,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     private MudTable<CntrTpSz> mudTable = new();
 
     private List<CntrTpSz>? Items { get; set; } = new();

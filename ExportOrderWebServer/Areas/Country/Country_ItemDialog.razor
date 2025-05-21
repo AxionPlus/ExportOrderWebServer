@@ -5,20 +5,13 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly" o>
+    <MudForm @ref="@Form" Style="max-width:fit-content">
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">                
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text=@(IsFormReadOnly ? "Edit" : "Save")>
-                        @if (IsFormReadOnly)
-                        {
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Edit" OnClick="EditItem_Click" />
-                        }
-                        else
-                        {
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem_Click" />
-                        }                        
+                    <MudTooltip Text="Save">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="!IsLoadingData" OnClick="SaveItem_Click" />
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -30,8 +23,7 @@
                               TextChanged="async (e)=> { Item.RUS = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
-                              Required RequiredError=""
-                              Clearable="!IsFormReadOnly" />
+                              Required RequiredError="" Clearable />
 
             </div>
             <div class="container-content">
@@ -39,93 +31,74 @@
                               TextChanged="@(async (e)=> { Item.ENG = e.ToUpper(); })"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
-                              Required RequiredError=""
-                              Clearable="!IsFormReadOnly" />
+                              Required RequiredError="" Clearable />
 
             </div>
         </div>
     </MudForm>    
 }
 
-
 @code {
+    private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
 
-    [CascadingParameter]
-    private MudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public long Id { get; set; }
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
     private CountryCatalog? Item { get; set; }
-    private bool IsFormReadOnly { get; set; } = true;
-    private bool IsAuth = false;
+    private bool IsLoadingData { get; set; } = false;
 
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();        
+        ApplicationUser = authState.User.Identity?.Name;
         await GetItem();
-
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
-        {
-            IsAuth = true;
-        }
     }
 
     private async Task GetItem()
     {
         if (IsNewItem)
-        {
-            IsFormReadOnly = false;
             Item = new();
-        }        
         else
         {
             var response = await _countryProvider.GetItemAsync(Id);
-            if (!response.HasErrors)
-                Item = (CountryCatalog)response.Object!;
+            if (!response.HasErrors && response.Object is not null)
+                Item = (CountryCatalog)response.Object;
         }
     }
 
     public async Task SaveItem_Click()
     {
-        await Form!.Validate();
+        if (Item is null || Form is null) return;
+
+        await Form.Validate();
 
         if (Form.IsValid)
         {
+            IsLoadingData = true;
+
+            AppObjectResponse appObjectResponse = new();
+
             if (IsNewItem)
-            {
-                var response = await _countryProvider.NewItemAsync(Item!);
-                if (!response.HasErrors)
-                {
-                    Id = Item!.Id;
-                    Snackbar.Add("Saved successfully", Severity.Success);
-                }
-                else
-                    Snackbar.Add(response.Errors.LastOrDefault()!, Severity.Error);
-            }
+                appObjectResponse = await _countryProvider.NewItemAsync(Item, ApplicationUser);
             else
-            {
-                var response = await _countryProvider.ModifyItemAsync(Item!);
-                if (!response.HasErrors)
-                    Snackbar.Add("Save Successed", Severity.Success);
-                else
-                    Snackbar.Add(response.Errors.Last(), Severity.Error);
-            }
+                appObjectResponse = await _countryProvider.ModifyItemAsync(Item, ApplicationUser);
+
+            if (!appObjectResponse.HasErrors)
+                Snackbar.Add("Save Successed", Severity.Success);
+            else
+                Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
 
             IsNewItem = false;
-            IsFormReadOnly = true;
+            Id = Item.Id;
+
+            IsLoadingData = false;
 
             await GetItem();
         }        
     }
-
-    public async Task EditItem_Click()
-    {
-        await Task.Delay(50);
-        IsFormReadOnly = false;
-    }
-
 }

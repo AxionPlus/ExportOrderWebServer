@@ -22,11 +22,11 @@
             <div class="Container-item">
                 <div class="container-content">
                     <MudTextField @ref="@Hscode" T="string" Style="width:200px" Label="HS code" @bind-Value="@Item.HSCode"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    AutoFocus="true" Immediate="true"
-                    Validation="HSCodeValidation"
-                    Mask="@(new PatternMask("0000000000"))"                                                                    
-                    Required RequiredError="" Clearable />
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  AutoFocus="true" Immediate="true"
+                                  Validation="HSCodeValidation"
+                                  Mask="@(new PatternMask("0000000000"))"                                                                    
+                                  Required RequiredError="" Clearable />
                     <MudSpacer />
                     <div class="wrapper-checkBox" style="width:170px; margin-inline-start:10px; justify-content:start">
                         <MudCheckBox T="bool" Label="Is IMO" LabelPosition="LabelPosition.Start" Value="@Item.IsIMO" ValueChanged="@((e)=>{Item.IsIMO=e; IsIMOChanged();})" />
@@ -34,42 +34,31 @@
                     @if (Item.IsIMO)
                     {
                         <MudTextField T="string" Style="width:100px; margin-inline:10px" Label="IMO" @bind-Value="@Item.IMO"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                        MaxLength="3"
-                        Required RequiredError="" Clearable />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      MaxLength="3"
+                                      Required RequiredError="" Clearable />
                         <MudTextField T="string" Style="width:100px" Label="UNNO" @ref="@Unno" @bind-Value="@Item.UNNO"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                        Mask="@(new PatternMask("0000"))"
-                        Required RequiredError="" Clearable />
+                                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Mask="@(new PatternMask("0000"))"
+                                      Required RequiredError="" Clearable />
                     }
                     else
                     {
                         <div style="width:220px"></div>
                     }
                 </div>
-                <div class="container-content">             
-                    @* <MudTextField T="string" Style="width: 450px" Label="Name" Text="@Item.Name"
-                                  TextChanged="(e)=> { Item.Name = e.ToUpper(); }"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"                                  
-                                  Immediate="true" Lines="6"
-                                  Required RequiredError="" Clearable /> *@
+                <div class="container-content">                    
                     <MudTextField T="string" Style="width: 450px" Label="Name" Text="@Item.Name"
-                    TextChanged="(e)=>NameChanged(e, false)"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    Immediate="true" Lines="6"
-                    Required RequiredError="" Clearable />
-                    @* <MudSpacer/> *@
-                    <div style="width:10px"></div>
-                    @* <MudTextField T="string" Style="width: 450px; margin-left: 10px" Label="Name En" Text="@Item.NameEn"
-                                  TextChanged="(e)=> { Item.NameEn = e.ToUpper(); StateHasChanged();}"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"                                  
+                                  TextChanged="(e)=>NameChanged(e, false)"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
                                   Immediate="true" Lines="6"
-                                  Required RequiredError="" Clearable /> *@
+                                  Required RequiredError="" Clearable />                    
+                    <div style="width:10px"></div>                    
                     <MudTextField T="string" Style="width: 450px" Label="Name En" Text="@Item.NameEn"
-                    TextChanged="(e)=>NameChanged(e, true)"
-                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                    Immediate="true" Lines="6"
-                    Required RequiredError="" Clearable />
+                                  TextChanged="(e)=>NameChanged(e, true)"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true" Lines="6"
+                                  Required RequiredError="" Clearable />
                 </div>
             </div>
         </MudForm>
@@ -79,6 +68,7 @@
 }
 
 @code {
+    private string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
     private MudForm Form { get; set; } = new();  
     [Parameter]
@@ -95,13 +85,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetItem();
-
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager") || authState.User.IsInRole("Manager"))
         {
             IsAuth = true;
         }
+
+        ApplicationUser = authState.User.Identity?.Name;
+
+        await GetItem();
     }
 
     private async Task GetItem()
@@ -140,27 +132,21 @@
         /// SAVE
         IsLoadingData = true;
 
+        AppObjectResponse appObjectResponse = new();
+
         if (IsNewItem)
-        {
-            var response = await _CommodityProvider.NewItemAsync(Item);
-            if (!response.HasErrors)
-                Snackbar.Add("Saved successfully", Severity.Success);
-            else
-                Snackbar.Add(string.Join(", ", response.Errors), Severity.Error);
-        }
+            appObjectResponse = await _CommodityProvider.NewItemAsync(Item, ApplicationUser);
         else
-        {
-            var response = await _CommodityProvider.ModifyItemAsync(Item);
-            if (!response.HasErrors)
-                Snackbar.Add("Save Successed", Severity.Success);
-            else
-                Snackbar.Add(string.Join(", ", response.Errors), Severity.Error);
-        }        
+            appObjectResponse = await _CommodityProvider.ModifyItemAsync(Item, ApplicationUser);
+
+        if (!appObjectResponse.HasErrors)
+            Snackbar.Add("Save Successed", Severity.Success);
+        else
+            Snackbar.Add(string.Join(", ", appObjectResponse.Errors), Severity.Error);
 
         IsNewItem = false;
         IsLoadingData = false;
-        //await GetItem();
-        //await InvokeAsync(StateHasChanged);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

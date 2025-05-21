@@ -67,7 +67,7 @@ public class CustomsProvider : ICustomsProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(CustomsCatalog item)
+    public async Task<AppObjectResponse> ModifyItemAsync(CustomsCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -77,6 +77,13 @@ public class CustomsProvider : ICustomsProvider
 
             try
             {
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
+
                 var modifyItem = await db.CustomsOffices.FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem!.Office != item.Office)
@@ -92,10 +99,7 @@ public class CustomsProvider : ICustomsProvider
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-
-                modifyItem!.CreateUser = User!;
-                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.CreateUser = User;
                 modifyItem!.Code = item.Code;
                 modifyItem!.Office = item.Office;
                 modifyItem!.OfficeShort = item.OfficeShort;
@@ -104,14 +108,13 @@ public class CustomsProvider : ICustomsProvider
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 appObjResponse.ErrorAdd(ex.Message);
-
                 return appObjResponse;
             }
 
@@ -119,14 +122,20 @@ public class CustomsProvider : ICustomsProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(CustomsCatalog item)
+    public async Task<AppObjectResponse> NewItemAsync(CustomsCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd($"User NOT found.");
+                return appObjResponse;
+            }
 
             bool isItemExist = db.CustomsOffices.Any(s => s.Office == item!.Office);
             if (isItemExist)
@@ -135,11 +144,11 @@ public class CustomsProvider : ICustomsProvider
                 return appObjResponse;
             }
 
-            item.CreateUser = User!;
+            item.CreateUser = User;
 
             db.Entry(item).State = EntityState.Added;
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+            //var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
 

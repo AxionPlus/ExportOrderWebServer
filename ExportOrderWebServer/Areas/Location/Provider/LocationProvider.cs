@@ -58,7 +58,7 @@ public class LocationProvider : ILocationProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(LocationCatalog item)
+    public async Task<AppObjectResponse> ModifyItemAsync(LocationCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -68,6 +68,13 @@ public class LocationProvider : ILocationProvider
 
             try
             {
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
+
                 var modifyItem = await db.Locations.Include(lo => lo.Country).FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem!.Name != item.Name)
@@ -83,10 +90,7 @@ public class LocationProvider : ILocationProvider
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-
-                modifyItem!.CreateUser = User!;
-                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.CreateUser = User;
                 modifyItem!.Name = item.Name;
                 modifyItem!.NameEn = item.NameEn;
                 modifyItem!.UnLocode = item.UnLocode;
@@ -98,15 +102,13 @@ public class LocationProvider : ILocationProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
                 appObjResponse.ErrorAdd(ex.Message);
-
                 return appObjResponse;
             }
 
@@ -114,14 +116,20 @@ public class LocationProvider : ILocationProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(LocationCatalog item)
+    public async Task<AppObjectResponse> NewItemAsync(LocationCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd($"User NOT found.");
+                return appObjResponse;
+            }
 
             // check an Existing item
             var itemExistCheck = await db.Locations.Where(s => s.UnLocode == item!.UnLocode).FirstOrDefaultAsync();
@@ -131,12 +139,12 @@ public class LocationProvider : ILocationProvider
                 return appObjResponse;
             }
 
-            item.CreateUser = User!;
+            item.CreateUser = User;
 
             db.Entry(item.Country!).State = EntityState.Unchanged;
             db.Entry(item).State = EntityState.Added;
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+            //var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
 

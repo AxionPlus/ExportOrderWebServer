@@ -32,7 +32,7 @@ public class MyCompanyProvider : IMyCompanyProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(MyCompanyEntity item)
+    public async Task<AppObjectResponse> NewItemAsync(MyCompanyEntity item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -40,10 +40,10 @@ public class MyCompanyProvider : IMyCompanyProvider
         {
             var db = await _db;
 
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
             if (User is null)
             {
-                appObjResponse.ErrorAdd("User not found.");
+                appObjResponse.ErrorAdd($"User NOT found.");
                 return appObjResponse;
             }
 
@@ -65,7 +65,7 @@ public class MyCompanyProvider : IMyCompanyProvider
 
             db.Entry(item).State = EntityState.Added;
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+            //var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
 
@@ -73,7 +73,7 @@ public class MyCompanyProvider : IMyCompanyProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(MyCompanyEntity item)
+    public async Task<AppObjectResponse> ModifyItemAsync(MyCompanyEntity item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -83,10 +83,10 @@ public class MyCompanyProvider : IMyCompanyProvider
 
             try
             {
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
                 if (User is null)
                 {
-                    appObjResponse.ErrorAdd("User not found");
+                    appObjResponse.ErrorAdd($"User NOT found.");
                     return appObjResponse;
                 }
 
@@ -151,7 +151,7 @@ public class MyCompanyProvider : IMyCompanyProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
             }

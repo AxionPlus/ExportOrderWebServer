@@ -56,7 +56,7 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(VesselEntity item)
+    public async Task<AppObjectResponse> ModifyItemAsync(VesselEntity item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -65,7 +65,14 @@ public class VesselProvider : IVesselProvider
             var db = await _db;
 
             try
-            {   
+            {
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
+
                 var modifyItem = await db.Vessels.Include(ve => ve.Flag).AsNoTracking().FirstOrDefaultAsync(s => s.Id == item.Id);
 
                 if (modifyItem!.Name != item.Name)
@@ -79,10 +86,7 @@ public class VesselProvider : IVesselProvider
                     }
                 }
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-
-                modifyItem!.CreateUser = User!;
-                modifyItem!.CreateTime = DateTime.Now;
+                modifyItem!.CreateUser = User;
                 modifyItem!.Name = item.Name;
                 modifyItem!.IMO = item.IMO;
                 modifyItem!.Flag = item.Flag;
@@ -100,15 +104,13 @@ public class VesselProvider : IVesselProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                var bug = db.ChangeTracker.DebugView.LongView;
+                //var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
                 appObjResponse.ErrorAdd(ex.Message);
-
                 return appObjResponse;
             }
 
@@ -116,15 +118,21 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(VesselEntity item)
+    public async Task<AppObjectResponse> NewItemAsync(VesselEntity item, string? UserName = "")
     {
         appObjResponse = new();
 
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.ApplicationUser);
-                        
+
+            var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+            if (User is null)
+            {
+                appObjResponse.ErrorAdd($"User NOT found.");
+                return appObjResponse;
+            }
+
             bool isItemExist = db.Vessels.Any(s => s.Name == item.Name);
             if (isItemExist)
             {
@@ -132,13 +140,13 @@ public class VesselProvider : IVesselProvider
                 return appObjResponse;
             }
 
-            item.CreateUser = User!;
+            item.CreateUser = User;
 
             db.Entry(item.Flag!).State = EntityState.Unchanged;
 
             db.Entry(item).State = EntityState.Added;
 
-            var bug = db.ChangeTracker.DebugView.LongView;
+            //var bug = db.ChangeTracker.DebugView.LongView;
 
             await db.SaveChangesAsync();
 

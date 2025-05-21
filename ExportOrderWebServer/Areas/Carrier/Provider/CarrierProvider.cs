@@ -59,7 +59,7 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-    public async Task<AppObjectResponse> ModifyItemAsync(CarrierCatalog item)
+    public async Task<AppObjectResponse> ModifyItemAsync(CarrierCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -134,7 +134,7 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-    public async Task<AppObjectResponse> NewItemAsync(CarrierCatalog item)
+    public async Task<AppObjectResponse> NewItemAsync(CarrierCatalog item, string? UserName = "")
     {
         appObjResponse = new();
 

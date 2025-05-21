@@ -27,8 +27,8 @@
             <MudToolBar Class="ToolBar ToolBar-new">
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="Save">                        
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="@Color.Primary" OnClick="SaveItem_Click" />                        
+                    <MudTooltip Text="Save">
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="@Color.Primary" Disabled="!IsLoadingData" OnClick="SaveItem_Click" />
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -51,19 +51,18 @@
             </div>
             <div class="container-content" style="justify-content: flex-start">
                 <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 270px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
-                                  ToStringFunc="@(e => e != null ? e.Name : "")"
-                                  SearchFunc="@SearchLocation"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Required RequiredError=""
-                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                  ResetValueOnEmptyText="true"
-                                  Placeholder="Location"
-                                  MaxItems="20"                                  
-                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                  AdornmentColor="Color.Primary"
-                                  Adornment="Adornment.End"
-                                  OnAdornmentClick="AddLocation_Click"
-                                  Clearable />
+                                 ToStringFunc="@(e => e != null ? e.Name : "")"
+                                 SearchFunc="@SearchLocation"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                 Required RequiredError="" Clearable
+                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                 ResetValueOnEmptyText="true"
+                                 Placeholder="Location"
+                                 MaxItems="20"                                  
+                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                 AdornmentColor="Color.Primary"
+                                 Adornment="Adornment.End"
+                                 OnAdornmentClick="AddLocation_Click" />
                 <MudSelect Class="wrapper-input" T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
                            ToStringFunc="@(s => s.ToString())"
                            Variant="Variant.Outlined" Margin="Margin.Dense">
@@ -136,6 +135,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
     private MudTable<CarrierTerminalDetails>? mudTable;
 
@@ -148,18 +148,12 @@
 
     private CarrierCatalog? Item { get; set; }
     private bool IsLoadingData = false;
-    private bool IsAuth = false;
-
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();        
+        ApplicationUser = authState.User.Identity?.Name;
         await GetItem();
-
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager") || user.User.IsInRole("Manager"))
-        {
-            IsAuth = true;
-        }
     }
 
     private async Task GetItem()
@@ -169,52 +163,44 @@
         else
         {
             var response = await _carrierProvider.GetItemAsync(Id);
-            if (!response.HasErrors)
+            if (!response.HasErrors && response.Object is not null)
                 Item = (CarrierCatalog)response.Object!;
         }
     }
 
     private async Task SaveItem_Click()
     {
-        IsLoadingData = true;
+        if (Item is null || Form is null) return;
 
-        await Form!.Validate();
+        await Form.Validate();
 
         if (Form.IsValid)
         {
+            IsLoadingData = true;
+
+            AppObjectResponse appObjectResponse = new();
+
             if (IsNewItem)
-            {
-                var response = await _carrierProvider.NewItemAsync(Item!);
-                if (!response.HasErrors)
-                {
-                    Id = Item!.Id;
-                    Snackbar.Add("Saved successfully", Severity.Success);                    
-                }
-                else
-                    Snackbar.Add(response.Errors.LastOrDefault()!, Severity.Error);
-            }
+                appObjectResponse = await _carrierProvider.NewItemAsync(Item, ApplicationUser);
             else
-            {
-                var response = await _carrierProvider.ModifyItemAsync(Item!);
-                if (!response.HasErrors)
-                {
-                    Snackbar.Add("Save Successed", Severity.Success);
-                }
-                else
-                    Snackbar.Add(response.Errors.Last(), Severity.Error);
-            }
+                appObjectResponse = await _carrierProvider.ModifyItemAsync(Item, ApplicationUser);
+
+
+            if (!appObjectResponse.HasErrors)
+                Snackbar.Add("Save Successed", Severity.Success);
+            else
+                Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
 
             IsNewItem = false;
+            Id = Item.Id;
 
-            StateHasChanged();
-            //await GetItem();
             IsLoadingData = false;
+            //StateHasChanged();
+            await GetItem();
+            
         }
         else
-        {
-            Snackbar.Add("Fill up all reqired fields", Severity.Error);
-            IsLoadingData = false;
-        }
+            Snackbar.Add("Заполните поля отмеченные красным.", Severity.Warning);
     }
 
     private async Task AddLocation_Click()
@@ -222,8 +208,6 @@
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Locaion", parameters, options);
-
-        //var result = await dialog.Result;
     }
 
     private async Task AddTerminal_Click()
@@ -231,34 +215,27 @@
         DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
         DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
-
-        //var result = await dialog.Result;
     }
 
-    private async Task AddDetails_Click()
+    private void AddDetails_Click()
     {
-        await Task.Delay(50);
-
         if (Item is not null)
             Item.CarrierDetails.Add(new());
 
-        await InvokeAsync(StateHasChanged);
+        StateHasChanged();
     }
 
     private async Task RemoveDetails_Click(CarrierTerminalDetails item)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>{item.TerminalName}<br/>",
-                          yesText: "YES", cancelText: "NO");
-
-        var response = new AppObjectResponse();
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE  Record",
+                                                                (MarkupString)$"<b>Удалить запись?</b> <br/>{item.TerminalName}<br/>",
+                                                                yesText: "YES", cancelText: "NO");
 
         if (item is null) return;
 
         if (msgResult.HasValue)
             if (msgResult.Value)
-                Item!.CarrierDetails.Remove(item);
+                Item?.CarrierDetails.Remove(item);
 
         await InvokeAsync(StateHasChanged);
     }

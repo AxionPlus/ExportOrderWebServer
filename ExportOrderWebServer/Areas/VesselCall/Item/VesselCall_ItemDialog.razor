@@ -55,7 +55,7 @@
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
                     <MudTooltip Text="Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="SaveItem_Click" />
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" Disabled="!IsLoadingData" OnClick="SaveItem_Click" />
                     </MudTooltip>
                 </div>                
             </MudToolBar>
@@ -190,6 +190,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    private string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
     private MudForm? Form { get; set; }
     private MudTable<VesselCallDetail>? mudTable;
@@ -209,11 +210,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
-
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
             IsRoleForEdit = true;
 
+        ApplicationUser = authState.User.Identity?.Name;
         await GetItem();
     }
 
@@ -239,48 +240,44 @@
         {
             if (!Item.Details.Any())
             {
-                Snackbar.Add("Fill up at least one Port of Discharge", Severity.Warning);
+                Snackbar.Add("Необходимо выбрать по крайней мере один порт.<br>Добавьте порт.", Severity.Warning);
                 IsLoadingData = false;
                 return;
             }                
 
             IsLoadingData = true;
 
+            AppObjectResponse appObjectResponse = new();
+
             if (IsNewItem)
-            {
-                await _vesselCallProvider.NewItemAsync(Item);
-                Snackbar.Add("Saved Successfully", Severity.Success);
-            }
+                appObjectResponse = await _vesselCallProvider.NewItemAsync(Item, ApplicationUser);
             else
             {
                 if (Item.Status == EntityStatus.Completed)  //&& !IsRoleForEdit
                     Snackbar.Add($"Voyage is Completed.<br>You can't change this Voyage.", Severity.Warning);
                 else
-                {
-                    var result = await _vesselCallProvider.ModifyItemAsync(Item);
-                    if (!result.HasErrors)
-                        Snackbar.Add("Saved Successfully", Severity.Success);
-                    else
-                        Snackbar.Add($"{string.Join("; ", result.Errors)}", Severity.Error);
-                }
+                    appObjectResponse = await _vesselCallProvider.ModifyItemAsync(Item, ApplicationUser);
             }
 
+            if (!appObjectResponse.HasErrors)
+                Snackbar.Add("Saved Successfully", Severity.Success);
+            else
+                Snackbar.Add($"{string.Join("<br>", appObjectResponse.Errors)}", Severity.Error);
+
             IsNewItem = false;
+            Id = Item.Id;
 
             IsLoadingData = false;
 
             MudDialog.Close(DialogResult.Ok(true));
-            //await InvokeAsync(StateHasChanged);
-
-            //IsLoadingData = false;
         }
         else
-            Snackbar.Add("Fill up all reqired fields", Severity.Error);
+            Snackbar.Add("Заполните поля отмеченные красным.", Severity.Warning);
     }
 
     private void AddDetailItem()
     {
-        Item!.Details.Add(new());
+        Item?.Details.Add(new());
     }
 
     private void RemoveDetail_Click(VesselCallDetail itemDetails)
@@ -295,37 +292,6 @@
 
         Item?.Details.Remove(itemDetails);
     }
-
-    #region ADD from Catalog
-
-    // private async Task AddVessel_Click()
-    // {
-    //     DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-    //     DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-    //     var dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("New Vessel", parameters, options);
-
-    //     var result = await dialog.Result;
-    // }
-
-    // private async Task AddTerminal_Click()
-    // {
-    //     DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-    //     DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-    //     var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
-
-    //     var result = await dialog.Result;
-    // }
-
-    // private async Task AddPort_Click()
-    // {
-    //     DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-    //     DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-    //     var dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Location", parameters, options);
-
-    //     var result = await dialog.Result;
-    // }
-
-    # endregion
 
     #region SEARCH FUNCTIONS
 

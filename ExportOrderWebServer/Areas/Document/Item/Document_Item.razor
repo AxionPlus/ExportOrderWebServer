@@ -121,7 +121,7 @@
 
         if (IsNewItem)
         {
-            var response = await _documentProvider.NewItemAsync(Item);
+            var response = await _documentProvider.NewItemAsync(Item, ApplicationUser);
             if (!response.HasErrors)
                 Snackbar.Add("Saved Successfully", Severity.Success);
             else
@@ -133,7 +133,7 @@
         }
         else
         {
-            var response = await _documentProvider.ModifyItemAsync(Item);
+            var response = await _documentProvider.ModifyItemAsync(Item, ApplicationUser);
             if (!response.HasErrors)
                 Snackbar.Add("Saved Successfully", Severity.Success);
             else

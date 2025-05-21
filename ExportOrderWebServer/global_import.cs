@@ -33,5 +33,3 @@ global using ExportOrderWebServer.Areas.User.Provider;
 global using ExportOrderWebServer.Areas.Vessel.Provider;
 global using ExportOrderWebServer.Areas.VesselCall.Provider;
 global using ExportOrderWebServer.Areas.SupplementaryUnit.Provider;
-
-//global using ExportOrderWebServer.Resources;

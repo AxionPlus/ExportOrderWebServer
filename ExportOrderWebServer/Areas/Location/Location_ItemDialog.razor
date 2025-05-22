@@ -6,13 +6,13 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsLoadingData">
+    <MudForm @ref="@Form" Style="max-width:fit-content">
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">                
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
                     <MudTooltip Text="Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="!IsLoadingData" OnClick="SaveItem_Click" />
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -57,6 +57,8 @@
              </div>
          </div>
      </MudForm>
+
+    <OverlayLoadingData Visible="@IsLoadingData" />
 }
 
 @code {

@@ -18,13 +18,13 @@
 
 @if (Item is not null)
 {
-    <MudForm @ref="@Form" Style="max-width:fit-content" ReadOnly="IsFormReadOnly">
+    <MudForm @ref="@Form" Style="max-width:fit-content">
         <div class="ToolBar-container">
             <MudToolBar Class="ToolBar ToolBar-new">                
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
                     <MudTooltip Text="Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="!IsFormReadOnly" OnClick="SaveItem_Click" />
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -36,34 +36,33 @@
                               TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" Lines="6"
-                              Required RequiredError=""
-                              Clearable="!IsFormReadOnly" />
+                              Required RequiredError="" Clearable />
              </div>
              <div class="container-content">
                 <MudTextField Class="TextField_Names" T="string" Style="width: 600px" Label="Name En" Text="@Item.NameEn"
                               TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" Lines="6"
-                              Required RequiredError=""
-                              Clearable="!IsFormReadOnly" />
+                              Required RequiredError="" Clearable />
              </div>
              <div class="container-content" style="justify-content: flex-start">
-                 <MudAutocomplete T="CountryCatalog" Style="width: 300px; margin-right:20px" Label="Country" @bind-Value="Item.Country"
-                                  ToStringFunc="@(e => e != null ? e.RUS : "")"
-                                  SearchFunc="@SearchCountry"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"                               
-                                  Required RequiredError=""
-                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                  ResetValueOnEmptyText="true"
-                                  Placeholder="Country"
-                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                  AdornmentColor="Color.Primary"
-                                  Adornment="Adornment.End"
-                                  OnAdornmentClick="@( async ()=> { if (!IsFormReadOnly) await AddCountry_Click(); })"
-                                  Clearable="!IsFormReadOnly" />
+                <MudAutocomplete T="CountryCatalog" Style="width: 300px; margin-right:20px" Label="Country" @bind-Value="Item.Country"
+                                 ToStringFunc="@(e => e != null ? e.RUS : "")"
+                                 SearchFunc="@SearchCountry"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                 Required RequiredError="" Clearable
+                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                 ResetValueOnEmptyText="true"
+                                 Placeholder="Country"
+                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
+                                 AdornmentColor="Color.Primary"
+                                 Adornment="Adornment.End"
+                                 OnAdornmentClick="@( async ()=> { if (!IsLoadingData) await AddCountry_Click(); })" />
              </div>
          </div>
     </MudForm>
+
+    <OverlayLoadingData Visible="@IsLoadingData" />
 }
 
 @code {
@@ -77,7 +76,7 @@
     public bool IsNewItem { get; set; } = false;
 
     private CustomerCatalog? Item { get; set; }
-    private bool IsFormReadOnly { get; set; } = true;
+    private bool IsLoadingData { get; set; } = false;
 
 
     protected override async Task OnInitializedAsync()
@@ -107,7 +106,7 @@
 
         if (Form.IsValid)
         {
-            IsFormReadOnly = true;
+            IsLoadingData = true;
 
             AppObjectResponse appObjectResponse = new();
 
@@ -124,7 +123,7 @@
             IsNewItem = false;
             Id = Item.Id;
 
-            IsFormReadOnly = false;
+            IsLoadingData = false;
 
             MudDialog.Close(DialogResult.Ok(true));
         }

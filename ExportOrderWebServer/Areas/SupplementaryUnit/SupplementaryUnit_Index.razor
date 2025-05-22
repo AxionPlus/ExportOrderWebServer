@@ -157,10 +157,12 @@
             return;
         }        
         
-        Snackbar.Add("New Item saved successfully.", Severity.Success);
-        
+        Snackbar.Add("New Item saved successfully.", Severity.Success);        
+        IsLoadingData = false;
+
         NewItem = new();
         IsNewItemActivated = false;
+
         await GetItems();
     }
 }

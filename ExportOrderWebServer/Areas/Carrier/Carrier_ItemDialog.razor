@@ -28,7 +28,7 @@
                 <MudSpacer />
                 <div class="ToolBar-iconbutton" style="margin-right: 20px">
                     <MudTooltip Text="Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="@Color.Primary" Disabled="!IsLoadingData" OnClick="SaveItem_Click" />
+                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="@Color.Primary" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
                     </MudTooltip>
                 </div>
             </MudToolBar>
@@ -102,11 +102,11 @@
                                                  AdornmentColor="Color.Primary"
                                                  Adornment="Adornment.End"
                                                  OnAdornmentClick="AddTerminal_Click"
-                                                 Clearable />
+                                                 Required RequiredError="" Clearable />
                             </MudTd>
                             <MudTd>
                                 <MudTextField Class="TextField" T="string" Style="width: 190px" @bind-Value="context.Contract"
-                                              Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" />
+                                              Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" Clearable />
                             </MudTd>
                             <MudTd>
                                 <MudDatePicker @bind-Date="@context.DateContract"
@@ -116,12 +116,12 @@
                                                ShowWeekNumbers="true"
                                                IconSize=Size.Small
                                                AutoClose=true
-                                               Required RequiredError="" Clearable />                                
+                                               Required RequiredError="" Clearable />
                             </MudTd>
                             <MudTd>
                                 <MudTextField Class="TextField" Style="width: 150px" @bind-Value="context.AgentPOL"
                                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                                              Required RequiredError="" />
+                                              Required RequiredError="" Clearable />
                             </MudTd>
                         </RowTemplate>
                     </MudTable>

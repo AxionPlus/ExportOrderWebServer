@@ -1,0 +1,76 @@
+﻿@page "/releaseImport"
+@page "/releaseImport/{BillOfLadingNo}"
+@inject IJSRuntime JSRuntime
+@attribute [Authorize(Roles = "Admin, ImpDept")]
+<script>
+    window.registerViewportChangeCallback = (dotnetHelper) => {
+    window.addEventListener('load', () => {
+    dotnetHelper.invokeMethodAsync('OnResize', window.innerWidth, window.innerHeight);
+    });
+    window.addEventListener('resize', () => {
+    dotnetHelper.invokeMethodAsync('OnResize', window.innerWidth, window.innerHeight);
+    });
+    }
+</script>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="padding-bottom:15px;overflow:auto">
+
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>@($"BL: {BillOfLadingNo}")</span></div>
+            <MudSpacer />
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+
+
+  
+        <ReleaseImportItem_Component @bind-BillOfLadingNo="@BillOfLadingNo" Reload  />
+
+    
+
+
+
+</MudContainer>
+@code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
+    private MudForm? Form { get; set; }
+
+
+    private Breakpoint _breakpoint = new();
+
+    [Parameter]
+    public string? BillOfLadingNo { get; set; }
+
+    private bool IsDisabled = false;
+    private bool IsLoadingData = false;
+
+    public int ViewportWidth { get; set; }
+    public int ViewportHeight { get; set; }
+
+    [JSInvokable]
+    public void OnResize(int width, int height)
+    {
+        if (ViewportWidth == width && ViewportHeight == height) return;
+        ViewportWidth = width;
+        ViewportHeight = height;
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("window.registerViewportChangeCallback", DotNetObjectReference.Create(this));
+        }
+    }
+
+}

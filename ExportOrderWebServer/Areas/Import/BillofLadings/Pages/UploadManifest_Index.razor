@@ -1,0 +1,210 @@
+﻿@page "/uploadmanifest"
+
+@attribute [Authorize(Roles = "Admin, ImpDept")]
+
+@inject ISnackbar Snackbar
+@inject IHttpClientFactory httpClient
+@inject NavigationManager Navigation
+@inject IJSRuntime jsRuntime
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+
+        <MudSpacer />
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
+
+<MudStack Style="width: 100%">
+    <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+                   @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+        <ActivatorContent>
+            <MudPaper Height="300px" Outlined="true" Class="@DragClass">
+                <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
+                @foreach (var file in fileNames)
+                {
+                    <MudChip T="string" Color="Color.Dark" Text="@file" />
+                }
+            </MudPaper>
+        </ActivatorContent>
+    </MudFileUpload>
+    <MudToolBar  Class="gap-4">
+        <MudButton OnClick="CheckAndUploadFiles" Disabled="@(!fileNames.Any())" Color="Color.Primary" Variant="Variant.Filled">
+            @(UploadedData ? "Upload File(s)" : "Check File(s)")
+        </MudButton>
+        <MudButton OnClick="Clear" Disabled="@(!fileNames.Any())" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
+        <div style="width: 50px"></div>
+        <MudButton OnClick="DownloadTemplate" Disabled="@IsLoadingData" Color="Color.Dark" Variant="Variant.Filled" StartIcon="@Icons.Material.Outlined.Download">
+            Manifest Template
+        </MudButton>
+    </MudToolBar>
+</MudStack>
+
+
+@* @if (UploadedDataBls is not null)
+{ *@
+
+@*     <h5>Bills Of Ladding: @UploadedDataBls!.BillCount</h5>
+    <h5>Containers: @UploadedDataBls.CntrCount</h5>
+
+    @if (UploadedDataBls.Errors.Count() > 0)
+    {
+        <h5>Errors:</h5>
+        <div>
+            <MudCheckBox T="bool" Value="@SelectAllItems" ValueChanged="@(()=>
+                {
+                                 SelectAllItems = !SelectAllItems;
+                    if(SelectAllItems)
+                     {
+                     foreach (var err in UploadedDataBls.Errors.Where(s => s.ErrorType == ErrorObjectType.Warning))
+                                UpdateBillOfLadingList.Add(err.Object.ToString());
+                     }
+                     else{
+                     UpdateBillOfLadingList.Clear();
+                     }
+
+
+
+
+                })">Select ALL</MudCheckBox>
+        </div>
+        foreach (var err in UploadedDataBls.Errors.Where(s => s.ErrorType == ErrorObjectType.Warning))
+        {
+            <div>
+
+                <h6> - @err.Content</h6>
+                <MudCheckBox T="bool" Value="@(UpdateBillOfLadingList.Contains(err.Object.ToString()))" ValueChanged="()=>
+                {
+
+                     var bl = err.Object.ToString();
+                        if (UpdateBillOfLadingList.Contains(bl))
+                            UpdateBillOfLadingList.Remove(bl);
+                        else
+                            UpdateBillOfLadingList.Add(bl);
+
+                }">Update</MudCheckBox>
+            </div>
+
+        }
+        foreach (var err in UploadedDataBls.Errors.Where(s => s.ErrorType == ErrorObjectType.Сritical))
+        {
+            <h6> - @err.Content</h6>
+        }
+
+        if (UploadedDataBls.HasErrorsCntrList)
+        {
+            foreach (var errCntrList in UploadedDataBls.ErrorsCntrList)
+            {
+                <h6>@errCntrList</h6>
+            }
+        }
+    }
+} *@
+
+<OverlayLoadingData Visible="IsLoadingData" Text="@(UploadedData ? "Uploading...":"Checking...")" />
+
+@code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
+    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
+    private string DragClass = DefaultDragClass;
+    private List<string> fileNames = new List<string>();
+    IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
+    private List<string> UpdateBillOfLadingList = new List<string>();
+    private int maxAllowedFiles = 1;
+    private bool IsLoadingData = false;
+    private bool UploadedData = false;
+    private bool HasErrors = false;
+    // private UploadedDataBl? UploadedDataBls { get; set; }
+    private bool SelectAllItems { get; set; }
+
+
+    private async Task OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        ClearDragClass();
+
+        BrowserFiles = (IList<IBrowserFile>)e.GetMultipleFiles();
+        using var content = new MultipartFormDataContent();
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            fileNames.Add(file.Name);
+        }
+
+        UploadedData = false;
+    }
+
+    private async Task Clear()
+    {
+        fileNames.Clear();
+        ClearDragClass();
+        UploadedData = false;
+        HasErrors = false;
+        await Task.Delay(100);
+    }
+
+    private void SetDragClass()
+    {
+        DragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        DragClass = DefaultDragClass;
+    }
+
+    private async Task CheckAndUploadFiles()
+    {
+        IsLoadingData = true;
+        long maxFileSize = 1024 * 500;
+        using var content = new MultipartFormDataContent();
+
+        foreach (var file in BrowserFiles)
+        {
+            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+
+            fileContent.Headers.ContentType =
+                new MediaTypeHeaderValue(file.ContentType);
+
+            content.Add(
+                content: fileContent,
+                name: "\"file\"",
+                fileName: file.Name);
+        }
+        content.Add(new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(ApplicationUser), System.Text.Encoding.UTF8, "application/json"));
+        // var client = httpClient.CreateClient();
+        // client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
+
+        using (var client = httpClient.CreateClient())
+        {
+            client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
+
+ 
+            var response = await client.PostAsync($"http://localhost:7070/file/BillofLading/UploadImportManifest", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    // UploadedDataBls = await response.Content.ReadFromJsonAsync<UploadedDataBl>();
+
+                    // if (UploadedDataBls is not null)
+                    //     if (!UploadedDataBls.HasErrors)
+                    //         UploadedData = true;
+                    //     else
+                    //         HasErrors = true;
+                }
+            }
+        
+
+        IsLoadingData = false;
+        //client.Dispose();
+    }
+
+    private async Task DownloadTemplate()
+    {
+        // await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.LocalHostGETUrl}file/DownloadFile/DownloadTemplateManifest", "_blank");
+    }
+}

@@ -1,5 +1,8 @@
 using ExportOrderWebServer;
-
+using ExportOrderWebServer.Areas.Import;
+using ExportOrderWebServer.Areas.Import.BillofLadings.Provider;
+using ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider;
+using ExportOrderWebServer.Areas.Import.ReleaseRecords.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
@@ -14,7 +17,8 @@ services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(connectionString,
                     optionsBuilder => optionsBuilder.MigrationsAssembly("ExportOrderWebServer"));
-});
+},
+ServiceLifetime.Transient);
 
 services.AddDbContextFactory<ApplicationDbContext>(options =>
 { 
@@ -54,12 +58,13 @@ services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJ
     // options
 });
 //builder.Services.AddAuthentication("tris.Identity").AddCookie();
-
+services.AddHostedService<TimedHostedService>();
 services.AddRazorPages();
 services.AddServerSideBlazor();
 services.AddDatabaseDeveloperPageExceptionFilter();
 services.AddHttpClient();
 services.AddMudServices();
+services.AddControllers();
 
 services.AddTransient<IUserProvider, UserProvider>();
 services.AddTransient<ICarrierProvider, CarrierProvider>();
@@ -76,6 +81,9 @@ services.AddTransient<IDocumentProvider, DocumentProvider>();
 services.AddTransient<IExportOrderProvider, ExportOrderProvider>();
 services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 services.AddTransient<ISupplementaryUnitProvider, SupplementaryUnitProvider>();
+services.AddTransient<IBillofLadingProvider, BillofLadingProvider>();
+services.AddTransient<IReleaseImportProvider, ReleaseImportProvider>();
+services.AddTransient<IReleaseService, ReleaseService>();
 
 services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
 services.AddTransient<StatisticProvider>();
@@ -90,6 +98,9 @@ services.AddTransient<IXmlFileReadService, XmlFileReadService>();
 services.AddTransient<IPdfFileCreateService, PdfFileCreateService>();
 
 
+#if DEBUG
+
+#endif
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

@@ -3,6 +3,7 @@ using System;
 using ExportOrderDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250524045556_importRelease_24_05")]
+    partial class importRelease_24_05
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1204,46 +1207,6 @@ namespace ExportOrderWebServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ReleaseContainerRecords", (string)null);
-                });
-
-            modelBuilder.Entity("ExportOrderEntites.ReleaseRecord.ReleaseRemark", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DocNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("LockToken")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Remark")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("Timestamp")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ReleaseRemarks", (string)null);
                 });
 
             modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallDetail", b =>

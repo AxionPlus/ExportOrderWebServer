@@ -41,4 +41,9 @@ public class FilterParameters
     public string? Shipper { get; set; }
     public string? Consignee { get; set; }
     public string? CargoDescriptionShort { get; set; }
+    public string? BolNo { get; set; }
+    public List<string> BolsNo { get; set; } = new List<string>();
+
+
+
 }

@@ -1,0 +1,31 @@
+﻿@page "/billofladings"
+@attribute [Authorize(Roles = "Admin, ImpDept")]
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />  
+        <MudSpacer />
+        <div class="ToolBar-Title"><span>Bills of Lading</span></div>
+        <MudSpacer />        
+        <div class="ToolBar-iconbutton" style="margin-inline-start:20px">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin"  />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
+
+
+    <BillOfLading_IndexComponentImport />
+
+
+@code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
+    [Parameter]
+    public string IsExport { get; set; } = string.Empty;
+}

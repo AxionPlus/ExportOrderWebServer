@@ -1,0 +1,46 @@
+﻿<div class="FieldContainer" style="@Style">
+    <div class="fieldName">@Label</div>
+    <MudDatePicker Class="DatePicker" Date="@Date"
+                   DateChanged="@(
+                                async(e)=>{
+                                Date= e;
+                                await DateChanged.InvokeAsync(e);
+                                    })"
+                   Editable="true"
+                   Mask="@(new DateMask("dd.MM.yy"))"
+                   DateFormat="dd.MM.yy"
+                   ShowWeekNumbers="true"
+                   ShowToolbar="false"
+                   Variant="Variant.Outlined"
+                   Disabled="@Disabled"
+                   ReadOnly="@ReadOnly"
+                   ErrorText=""
+                   MinDate="MinDate"
+                   Required="@Required" RequiredError="" Clearable="@Clearable" />
+</div>
+
+@code {
+    [Parameter]
+    public bool Clearable { get; set; }
+    [Parameter]
+    public bool Required { get; set; }
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    [Parameter]
+    public string? Style { get; set; }
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public DateTime? Date { get; set; }
+    [Parameter]
+    public DateTime? MinDate { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> DateChanged { get; set; }
+}
+
+

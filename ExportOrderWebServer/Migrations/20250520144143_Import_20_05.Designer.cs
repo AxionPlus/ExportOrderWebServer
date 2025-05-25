@@ -3,6 +3,7 @@ using System;
 using ExportOrderDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250520144143_Import_20_05")]
+    partial class Import_20_05
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -779,45 +782,6 @@ namespace ExportOrderWebServer.Migrations
                     b.ToTable("DocumentRecord");
                 });
 
-            modelBuilder.Entity("ExportOrderEntites.EmailLogRecords.EmailLogRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("DateReciept")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("EmailSubject")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileContent")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("From")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsHandle")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EmailLogRecords", (string)null);
-                });
-
             modelBuilder.Entity("ExportOrderEntites.ExportOrder.ContainerContent", b =>
                 {
                     b.Property<long>("Id")
@@ -1160,9 +1124,6 @@ namespace ExportOrderWebServer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("LineName")
-                        .HasColumnType("text");
-
                     b.Property<long>("LockToken")
                         .HasColumnType("bigint");
 
@@ -1180,9 +1141,6 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("TerminalErrorResponse")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TerminalName")
                         .HasColumnType("text");
 
                     b.Property<long>("Timestamp")
@@ -1204,46 +1162,6 @@ namespace ExportOrderWebServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ReleaseContainerRecords", (string)null);
-                });
-
-            modelBuilder.Entity("ExportOrderEntites.ReleaseRecord.ReleaseRemark", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DocNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("LockToken")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Remark")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("Timestamp")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ReleaseRemarks", (string)null);
                 });
 
             modelBuilder.Entity("ExportOrderEntites.VesselCall.VesselCallDetail", b =>

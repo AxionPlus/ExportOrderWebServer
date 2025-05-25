@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using ExportOrderEntites.BillofLading;
+using ExportOrderEntites.EmailLogRecords;
+using ExportOrderEntites.ReleaseRecord;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ExportOrderDbContext;
@@ -65,6 +68,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
         #region Tables
         modelBuilder.Entity<ExportOrderRecord>(entity => { entity.ToTable(name: "ExportOrder_Records"); });
+
+        modelBuilder.Entity<BillofLadingEntity>(entity => { entity.ToTable(name: "BillofLadings"); });
+        modelBuilder.Entity<BillofLadingContainerRecord>(entity => { entity.ToTable(name: "BillofLading_ContainerRecords"); });
+        modelBuilder.Entity<ReleaseImportContainerRecordEntity>(entity => { entity.ToTable(name: "ReleaseContainerRecords"); });
+        modelBuilder.Entity<EmailLogRecord>(entity => { entity.ToTable(name: "EmailLogRecords"); });
+        modelBuilder.Entity<ReleaseRemark>(entity => { entity.ToTable(name: "ReleaseRemarks"); });
 
         //modelBuilder.Entity<DocumentHistory>(entity => { entity.ToTable(name: "History_Documents"); });
         //modelBuilder.Entity<ExportOrderHistory>(entity => { entity.ToTable(name: "History_ExportOrders"); });

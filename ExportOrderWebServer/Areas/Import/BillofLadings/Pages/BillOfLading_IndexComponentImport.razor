@@ -1,0 +1,137 @@
+﻿@using ExportOrderWebServer.Areas.Import.BillofLadings.Dto
+@using ExportOrderWebServer.Areas.Import.BillofLadings.Provider
+@inject IDialogService DialogService
+@inject IJSRuntime jsRuntime
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject HttpClient Http
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IHttpCustomMethods HttpMethods
+@inject IBillofLadingProvider BillOfLadingProvider
+
+<style>
+    .mud-badge.mud-badge-top.right.mud-badge-overlap {
+        inset: auto auto calc(100% - 23px) calc(100% - 24px);
+    }
+
+    .mud-badge {
+        font-size: 11px;
+        height: 18px;
+        min-width: 18px;
+    }
+</style>
+
+<MudForm @ref="searchForm">
+    <div class="Container-item">
+        <div class="container-content">
+            <BillOfLadingSearchField @bind-BlNo="Filter.BolNo" @bind-BlsNo="Filter.BolsNo" Style="width:215px;margin-left:10px" />
+            <BillOfLadingSearchField Label="Container" @bind-BlNo="Filter.CntrNum" @bind-BlsNo="Filter.CntrsNum" Style="width:185px;margin-left:10px" />
+            @*             <CustomerSearchField @ref="Customer" @bind-Value="Filter.BookingParty" Label="Customer" Style="width:250px; margin-inline:10px" ConfirmEntity />
+          <VesselCall_TextField @bind-Filter="@Filter" /> *@  
+            <MudSpacer />
+            <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Secondary" Disabled="@IsLoadingData"
+                       OnClick="SearchItems_Click">Search</MudButton>
+        </div>
+    </div>
+</MudForm>
+
+<div class="Container-table">
+
+    <div class="tableMenu">
+        <div style="display:flex; margin-inline:3px;align-items: center">
+        </div>
+
+        <MudSpacer />
+        <TablePager T="BillOfLadingDto" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>
+
+    <MudTable @ref="mudTable" T="BillOfLadingDto" Class="Table P4" Items="@Items" Virtualize="true" RowsPerPage="50" Context="BlRecord" CustomFooter="true">
+        <HeaderContent>
+            <MudTh Style="width:30px">
+                <MudCheckBox T="bool" Value="SelectAllItems" ValueChanged="@((b)=>
+                                {
+                                    SelectAllItems = b;
+                                    foreach (var item in Items)
+                                      item.IsSelect = b;
+                                })" Disabled="@(Items.Count()==0)"></MudCheckBox>
+            </MudTh>
+            <MudTd>Bill of Lading</MudTd>
+            <MudTd>Shipper</MudTd>
+            <MudTd>Consignee</MudTd>
+            <MudTd>Containers</MudTd>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudCheckBox @bind-Value="@BlRecord.IsSelect" />
+            </MudTd>
+                                            <MudTd>
+                                                <MudLink OnClick="() => OpenRelease_Click(BlRecord)">     @BlRecord.Num</MudLink>
+             
+            </MudTd>
+            <MudTd> @BlRecord.ShipperName</MudTd>
+            <MudTd> @BlRecord.ConsigneeName</MudTd>
+            <MudTd> @(string.Join(";", BlRecord.ContainerRecords.GroupBy(s=>s.ContainerType).Select(g=> $"{g.Count():00}x{g.Key}")))</MudTd>
+
+        </RowTemplate>
+        <PagerContent />
+    </MudTable>
+</div>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
+
+@code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
+    private MudTable<BillOfLadingDto>? mudTable;
+    private MudForm searchForm;
+    private FilterParameters Filter { get; set; } = new();
+    bool IsLoadingData = false;
+    private IEnumerable<BillOfLadingDto> Items { get; set; } = new List<BillOfLadingDto>();
+    private bool SelectAllItems = false;
+    private Dictionary<string, int> FooterItems { get; set; } = new Dictionary<string, int>();
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+    //     ApplicationUser = authState.User.Identity?.Name;
+    // }
+
+    private async Task SearchItems_Click()
+    {
+        await searchForm.Validate();
+
+        if (string.IsNullOrWhiteSpace(Filter.BolNo))
+            if (string.IsNullOrWhiteSpace(Filter.CntrNum))
+            // if (string.IsNullOrWhiteSpace(Filter.VesselName))
+            //     if (string.IsNullOrWhiteSpace(Filter.VesselVoyage))
+            //         if (string.IsNullOrWhiteSpace(Filter.BookingParty))
+            {
+                Snackbar.Add("Some search fields should be used", Severity.Warning);
+                return;
+            }
+
+        IsLoadingData = true;
+
+        Items = await BillOfLadingProvider.GetItemsAsync(Filter);
+
+
+
+        IsLoadingData = false;
+    }
+
+    private async Task OpenRelease_Click(BillOfLadingDto billOfLading)
+    {
+        bool? msgResult = await DialogService.ShowMessageBox(
+            "Release Mode",
+            $"Do you want to open Release Mode?",
+            yesText: "Yes", cancelText: "No");
+
+        if (!msgResult.HasValue) return;
+        if (!msgResult.Value) return;
+
+
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.OpenPageUrl}releaseImport/{billOfLading.Num}", "_blank");
+
+
+    }
+
+}

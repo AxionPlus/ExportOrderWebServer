@@ -42,4 +42,11 @@
             <MudNavLink Href="/supplementaryUnit" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Supplementary Units</MudNavLink>
         </MudNavGroup>    
     </AuthorizeView>
+    <AuthorizeView Roles="Admin, ImpDept">
+        <MudNavLink Href="/billofladings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">bill of ladings</MudNavLink>
+        <MudNavLink Href="/uploadmanifest" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">upload manifest</MudNavLink>
+        <MudNavLink Href="/releaseImport" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">release Import</MudNavLink>
+        <MudNavLink Href="/releaseRecords" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">release Records</MudNavLink>
+    </AuthorizeView>
+
 </MudNavMenu>

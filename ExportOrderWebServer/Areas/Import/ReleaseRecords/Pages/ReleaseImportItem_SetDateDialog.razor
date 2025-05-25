@@ -1,0 +1,24 @@
+﻿<div style="margin:10px; display:flex;    flex-direction: column;
+    align-items: center; align-content: center;">
+    <h6>Pls, set Release Date to</h6>
+    <div style="width:130px; margin:10px">
+        <DatePicker MinDate="DateTime.Today" @bind-Date="Date" />
+    </div>
+    <MudButton Style="margin-top:10px" OnClick="Close" Color="Color.Success">Release</MudButton>
+</div>
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    private DateTime? Date { get; set; } = DateTime.Today.AddDays(1);
+
+
+    private void Close()
+    {
+
+
+        MudDialog?.Close(Date);
+    }
+
+
+
+
+}

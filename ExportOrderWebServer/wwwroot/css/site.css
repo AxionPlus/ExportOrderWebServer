@@ -1,20 +1,98 @@
-:root {
-    --mud-palette-primary: #3592b4 !important;
-    --grey-30: #e3e3e3;
-    --grey-08: #fafafa;
-}
-
 body {
     height: 100vh;
 }
 
-.page-container {
+:root {
+    --mud-palette-primary: #3592b4 !important;
+    --containerBackGround: #f3f3f3 !important;
+    --tableThead: lightskyblue;
+}
+
+
+.Page-container {
     display: flex;
     position: relative;
     flex-direction: column;
     height: 100%;
 }
 
+.uppercase * input, input {
+    text-transform: uppercase;
+}
+
+.Container-item {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
+    box-shadow: var(--mud-elevation-1);
+    background-color: var(--containerBackGround);
+}
+
+    .Container-item > .container-head {
+        padding-inline: 10px;
+        background-color: #3592b4;
+        color: white;
+        font-weight: 700;
+    }
+
+        .Container-item > .container-head span {
+            margin-bottom: auto;
+            margin-top: auto;
+        }
+
+    .Container-item > .container-content {
+        padding: 10px;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        background-color: var(--grey-08);
+    }
+
+    .Container-item * .container-content {
+        padding: 10px;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        background-color: var(--grey-08);
+    }
+
+    .Container-item > .container-content.column {
+        flex-direction: column;
+    }
+
+
+.container-head span {
+    padding-left: 15px;
+}
+
+.container-head h4 {
+    padding-left: 25px
+}
+
+.Container-table {
+    margin-top: 15px !important;
+    background-color: var(--containerBackGround);
+    transition: box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
+    box-shadow: var(--mud-elevation-1);
+}
+
+
+.Tabs {
+}
+
+    .Tabs * .mud-tabs-toolbar .mud-tabs-toolbar-inner {
+        min-height: 32px;
+    }
+
+    .Tabs * .mud-tab {
+        padding: 5px 6px;
+        min-height: 36px;
+    }
 /*TOOLBAR*/
 .ToolBar-container {
     color: var(--mud-palette-text-primary);
@@ -30,13 +108,8 @@ body {
     height: 36px;
 }
 
-.ToolBar-Title > span {
-    text-transform: uppercase;
-    font-weight: 700;
-}
-
 .ToolBar-new {
-    background-color: var(--grey-30);
+    background-color: #fbfbfb;
 }
 
 .ToolBar-mapping {
@@ -63,119 +136,127 @@ body {
     background-color: #FFCDD2;
 }
 
+.mud-icon-button.ToolBar-IconButton {
+    padding: 2px;
+}
+
 .ToolBar-IconButton .mud-icon-size-medium {
     font-size: 1.4rem;
 }
 
-.ToolBar-IconButton .mud-icon-size-medium:hover {
-    font-size: 1.5rem;
-}
+    .ToolBar-IconButton .mud-icon-size-medium:hover {
+        font-size: 1.5rem;
+    }
 
 .ToolBar-iconbutton {
     width: 1.5rem;
     margin-inline: 2px;
 }
-.mud-icon-button.ToolBar-IconButton {
-    padding: 2px;
+
+.ToolBar .MenuIconBtn {
 }
 
-/*CONTAINER-ITEM*/
-.Container-item {
-    margin-top: 15px;
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
-    box-shadow: var(--mud-elevation-1);
-    background-color: var(--containerBackGround);
+.ToolBar-Title > span {
+    text-transform: uppercase;
+    font-weight: 700;
 }
 
-    .Container-item > .container-head {
-        padding-inline: 10px;
-        background-color: #3592b4;
-        color: white;
-        font-weight: 700;
+@media (min-width: 600px) {
+    .ToolBar.mud-toolbar-gutters {
+        padding-left: 12px;
+    }
+}
+
+
+.Select {
+}
+
+.mud-select.Select .mud-input.mud-input-outlined.mud-input-adorned-end {
+    padding-inline-end: 2px;
+}
+
+
+.TextField {
+}
+
+    .TextField .mud-input > input.mud-input-root-outlined, .TextField * div.mud-input-slot.mud-input-root-outlined {
+        padding: 8px 0px 4px 8px;
+        font-size: 0.92rem;
+        font-weight: 500;
     }
 
-        .Container-item > .container-head span {
-            margin-bottom: auto;
-            margin-top: auto;
-        }
-
-    .Container-item > .radioGroup_head {
-        padding-inline: 36px;
-        background: silver;
+    .TextField.Dense .mud-input > input.mud-input-root-outlined, .TextField.Dense * div.mud-input-slot.mud-input-root-outlined {
+        padding: 2px 0px 1px 5px;
+        font-size: 0.90rem;
+        font-weight: 500;
     }
 
-    .Container-item > .container-content {
-        padding: 10px;
-        width: 100%;
+    .TextField .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .TextField .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
+        transform: translate(14px,-6px) scale(.70);
+        font-weight: 400;
+    }
+
+    .TextField * .mud-icon-size-small {
+        font-size: 1.1rem;
+    }
+
+    .TextField * .mud-icon-button-size-small {
+        padding: 1px;
+    }
+
+    .TextField .mud-input-label-outlined {
+        transform: translate(14px,9px) scale(0.9);
+        background-color: var(--containerBackGround)
+    }
+
+    .TextField > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .TextField > .mud-input-control-input-container > .mud-input-label-inputcontrol {
+        font-weight: 500;
+    }
+
+    .TextField.NoHead.mud-input-control {
+        margin-top: unset;
+    }
+
+    .TextField * .mud-icon-button-edge-margin-end {
+        margin-inline-end: 4px;
+    }
+
+    .TextField * .mud-input > textarea.mud-input-root-outlined {
+        margin: 5px 8px;
+    }
+
+.Table {
+}
+
+    .Table.MultiSelect * tr > th:first-child {
+        width: 30px;
+    }
+
+    .Table * thead {
+        background-color: var(--tableThead);
+    }
+
+    .Table * .mud-table-row .mud-table-cell .CheckBox {
         display: flex;
-        flex-direction: row;
         align-items: center;
-        justify-content: space-between;
-        background-color: var(--grey-08);
     }
 
-    .Container-item * .container-content {
-        padding: 10px;
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        background-color: var(--grey-08);
+    .Table .mud-table-root .mud-table-head .mud-table-cell {
+        color: var(--mud-palette-text-primary);
+        font-weight: 500;
+        text-align: center;
+        line-height: 1.1rem;
     }
 
-    .Container-item > .container-content.column {
-        flex-direction: column;
-    }
-
-    .Container-item > .container-content.row {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-.dialog-container {
-    width: 100%;
-    height: 100%;
-    padding-inline: 20px;
-}
-
-/*CONTAINER TABLE*/
-.Container-table {
-    margin-top: 15px !important;
-    background-color: var(--containerBackGround);
-    transition: box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
-    box-shadow: var(--mud-elevation-1);
-}
-
-    .Container-table .tableMenu {
-        display: flex;
-        justify-content: space-between;
-        padding-right: 10px;
-        height: 30px;
-    }
-
-        .Container-table .tableMenu * .mud-pagination-small .mud-pagination-item > * {
-            height: 24px;
-            min-width: 24px;
-        }
-
-.Table * thead {
-    background-color: lightblue;
-}
-
-.Table .mud-table-root .mud-table-head .mud-table-cell {
-    color: var(--mud-palette-text-primary);
-    font-weight: 500;
-    text-align: center;
-    background-color: lightblue;
-}
-
-    
-    .Table * .mud-table-cell * .mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
+    .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
         padding: 4px 0px 1px 6px;
         font-size: 0.92rem;
         font-weight: 500;
@@ -185,6 +266,11 @@ body {
         padding: 4px 0px 1px 6px;
         font-size: 0.92rem;
         font-weight: 500;
+    }
+
+
+    .Table * .mud-table-cell *.mud-input-control {
+        margin-top: unset;
     }
 
     .Table * .mud-table-cell * .mud-input.mud-input-outlined.mud-input-adorned-end {
@@ -218,8 +304,12 @@ body {
         padding: 4px;
     }
 
+    .Table.P2 * .mud-table-cell {
+        padding: 2px;
+    }
+
     .Table * .mud-table-cell {
-        padding: 6px;
+        padding: 8px;
         text-align: center;
     }
 
@@ -241,6 +331,7 @@ body {
             margin: 0px;
         }
 
+
         .Table * .mud-table-cell .mud-autocomplete .mud-input-control * .mud-icon-button {
             margin-right: 2px;
         }
@@ -249,201 +340,393 @@ body {
             margin-inline-end: -8px;
         }
 
-/*INPUT_Controls*/
-.mud-input-control.TextField {
-    display: flex;
-    flex-direction: row;
-    flex: none;
+.Autocomplete {
 }
 
-.container-content > .mud-input-control {
-    flex:unset;
-}
+    .Autocomplete .mud-input > input.mud-input-root-outlined, .Autocomplete * div.mud-input-slot.mud-input-root-outlined {
+        padding: 8px 0px 4px 8px;
+        font-size: 0.92rem;
+        font-weight: 500;
+    }
 
-.mud-select.mud-autocomplete {
-    flex-grow: 0;
-}
+    .Autocomplete .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
 
-.container-content > .mud-select {
-    flex-grow: 0;
-    align-items: center;
-}
+    .Autocomplete .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
+        transform: translate(14px,-6px) scale(.70);
+        font-weight: 400;
+    }
 
-.controlIconButtons {
+    .Autocomplete .mud-input-label-outlined {
+        transform: translate(14px,9px) scale(0.9);
+        background-color: var(--containerBackGround)
+    }
+
+    .Autocomplete > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .Autocomplete > .mud-input-control-input-container > .mud-input-label-inputcontrol {
+        font-weight: 500;
+    }
+
+    .Autocomplete * .mud-icon-size-small {
+        font-size: 1.1rem;
+    }
+
+    .Autocomplete * .mud-icon-button-size-small {
+        padding: 1px;
+    }
+
+    .Autocomplete * input {
+        text-transform: uppercase;
+    }
+
+.CheckBox {
     display: flex;
     justify-content: center;
 }
 
-    .controlIconButtons .mud-button-outlined-size-small.mud-icon-button {
+    .CheckBox .mud-icon-button {
         padding: 2px;
     }
 
-.mud-input-control * .mud-input-label-outlined {
-    background-color: var(--grey-08);
+.IconButton {
 }
 
-.mud-input-label-outlined.mud-input-label-margin-dense {
-    transform: translate(14px, 9px) scale(1);
-}
-
-.mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
-    transform: translate(14px,-10px) scale(.80);
-}
-
-/*WRAPPER INPUT*/
-.wrapper-input {
-}
-    .wrapper-input-select * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        height: 35px;
-        padding-right: unset;
-        padding-inline-end: unset;
+    .IconButton.mud-icon-button {
+        padding: 2px;
     }
 
-    .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-        padding-top: 5px;
-        padding-bottom: 4px;
-        font-size: 14px;
+
+.DatePicker {
+}
+
+    .DatePicker .mud-input > input.mud-input-root-outlined, .DatePicker * div.mud-input-slot.mud-input-root-outlined {
+        padding: 8px 0px 4px 8px;
+        font-size: 0.92rem;
         font-weight: 500;
     }
 
-    .wrapper-input * .mud-input > input.mud-input-root-outlined, div.mud-input-slot.mud-input-root-outlined {
-        padding: 10px 1px 5px 3px;
-        text-align: center;
-        font-size: 15px;
+    .DatePicker.Dense .mud-input > input.mud-input-root-outlined, .DatePicker.Dense * div.mud-input-slot.mud-input-root-outlined {
+        padding: 3px 0px 1px 4px;
+        font-size: 0.92rem;
         font-weight: 500;
     }
 
-    .wrapper-input .mud-input-control > .mud-input-control-input-container > .mud-input-label-inputcontrol {
-        color: var(--mud-palette-primary);
-        background-color: var(--grey-08);
+    .DatePicker.Dense > div.mud-input-control {
+        margin: auto;
+    }
+
+    .DatePicker .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .DatePicker .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
+        transform: translate(14px,-6px) scale(.70);
+        font-weight: 400;
+    }
+
+    .DatePicker .mud-input-label-outlined {
+        transform: translate(14px,9px) scale(0.9);
+        background-color: var(--containerBackGround)
+    }
+
+    .DatePicker > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
+    .DatePicker > .mud-input-control-input-container > .mud-input-label-inputcontrol {
         font-weight: 500;
     }
 
-.wrapper-input * .mud-icon-button-edge-margin-end {
-    margin-right: 2px;
-    margin-inline-end: 4px;
-    margin-inline-start: unset;
-    margin-top: 4px;
-}
-
-    .wrapper-input * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 2px;
+    .DatePicker * .mud-icon-size-small {
+        font-size: 1.1rem;
     }
 
-    .wrapper-input * .mud-icon-button-size-small {
+    .DatePicker * .mud-icon-button-size-small {
+        padding: 1px;
+    }
+
+    .DatePicker * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end: 8px;
+    }
+
+    .DatePicker * .mud-input-adornment-end {
+        margin-inline-start: 4px;
+    }
+
+
+    .DatePicker * mud-input-adornment .mud-icon-button-edge-end {
+        margin-right: 0px;
+        margin-inline-end: -4px;
         padding: 0px;
     }
 
-    .wrapper-input * .mud-icon-size-small {
-        color: red;        
-        font-size: 1rem;
-    }
-
-        .wrapper-input * .mud-icon-size-small:hover {
-            color: var(--grey-08);
-            background-color: red;
-        }
-
-    .wrapper-input * .mud-input-adornment .mud-icon-button {
-        padding: 2px;
-    }
-
-    .wrapper-input * .mud-input-adornment .mud-icon-button-edge-end {
-        margin-inline-end: 3px
-    }
-
-    .wrapper-input.NoHeader .mud-input-control {
-        margin-top: 0px;
-    }
-
-.mud-input-control.wrapper-input.NoHeader {
-    margin-top: 0px;
-}
-
-.wrapper-input.NoHeader * .mud-input > input.mud-input-root-outlined {
-    padding: 5px 1px 3px 4px;
-}
-
-/* DATE*/
-.wrapper-input-date {
-    flex:unset;
-}
-
-    .wrapper-input-date * .mud-input > input.mud-input-root-outlined {
-        padding: 8px 1px 5px 6px;
-        text-align: center;
-        font-size: 15px;
-        font-weight: 500;
-    }
-
-    .wrapper-input-date * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 0px;
-    }
-
-    .wrapper-input-date .mud-input-adornment .mud-icon-button {
-        padding: 5px;
-    }
-
-    .wrapper-input-date .mud-input-adornment .mud-icon-button-edge-end {
-        margin-inline-end: 0px;
-    }
-
-    .wrapper-input-date .mud-input-adornment .mud-icon-size-medium {
+    .DatePicker * .mud-icon-button-label > .mud-icon-size-medium {
         font-size: 1.4rem;
     }
 
-    .wrapper-input-date .mud-input-adornment .mud-icon-size-medium:hover {
-        font-size: 1.5rem;
+    .DatePicker * .mud-input-adornment .mud-icon-button-edge-end {
+        margin-right: 0px;
+        margin-inline-end: -4px;
+        padding: 0px;
     }
 
-    .wrapper-input-date .mud-input-adornment-end {
-        margin-inline-start: 0px;
-    }
-
-    .wrapper-input.wrapper-input-date * .mud-input-adornment .mud-icon-button:hover, .mud-icon-button:focus-visible {
-        background-color: transparent;
-    }
-    
-    .wrapper-input-date * .mud-input-label-outlined {
-        background-color: var(--grey-08);
-        transform: translate(10px, 10px) scale(1);
-    }
-
-/*BUTTON*/
-.wrapper-button {
+.TabPanel {
 }
 
-    .wrapper-button .mud-fab-primary:hover, .mud-fab-primary:focus-visible {
-        background-color: #1979a5;
+    .TabPanel.mud-tab {
+        padding: 5px 0px 0px 3px;
+        min-height: 21px;
     }
 
-.mud-button-filled.mud-button-filled-primary:hover.wrapper-button, .mud-button-filled.mud-button-filled-primary:focus-visible.wrapper-button {
-    background-color: #1979a5;
+    .TabPanel * .mud-icon-button {
+        padding: unset;
+        margin-left: 3px;
+    }
+
+    .TabPanel * .mud-icon-size-medium {
+        font-size: 1.15rem;
+    }
+
+
+
+.NumericField {
+}
+
+    .NumericField.mud-input-control.mud-input-number-control.mud-input-showspin .mud-input:not(.mud-input-adorned-end).mud-input-outlined input {
+        padding-inline-start: 8px;
+    }
+
+    .NumericField * .mud-button-label > .mud-icon-size-medium {
+        font-size: 1.15rem;
+    }
+
+
+.FieldContainer {
+    display: block;
+    padding-top: 6px;
+    padding-bottom: 2px;
+}
+
+    .FieldContainer .mud-input-control {
+        margin-top: 2px;
+    }
+
+    .FieldContainer > .fieldName {
+        padding-left: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+        .FieldContainer > .fieldName.checkBox {
+            display: flex;
+            justify-content: center;
+            padding-left: unset
+        }
+
+        .FieldContainer > .fieldName.mtySpace {
+            margin-top: 17px;
+        }
+
+    .FieldContainer .context {
+        display: flex;
+    }
+
+    .FieldContainer * .mud-input-control-helper-container {
+        display: none;
+    }
+
+
+.mud-list-item-gutters {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.mud-list-item {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.mud-list-item-text > p {
+    font-size: 0.9rem;
 }
 
 
-.wrapper-button * .mud-icon-root.mud-svg-icon {
-    font-size: 1.6rem;
-}
-
-.wrapper-checkBox {
+.ChipSet {
     display: flex;
-    align-items: center;
-    justify-content:center;
+    align-items: flex-end;
+    padding-bottom: 3px;
 }
 
-    .wrapper-checkBox * .mud-checkbox .mud-icon-button {
+    .ChipSet .mud-chip-filled {
+        background-color: #3592b44a;
+    }
+
+    .ChipSet .mud-chip {
+        padding: 0px 8px;
+    }
+
+        .ChipSet .mud-chip.mud-chip-size-medium {
+            height: 26px;
+            font-size: 12px;
+            border-radius: 10px;
+        }
+
+        .ChipSet .mud-chip .mud-chip-close-button .mud-icon-size-small {
+            font-size: 1.05rem;
+        }
+
+.tableMenu {
+    min-height: 30px;
+}
+
+.Container-table .tableMenu {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 10px;
+    height: 30px;
+}
+
+    .Container-table .tableMenu .mud-pagination-small .mud-pagination-item > * {
+        height: 21px;
+        min-width: 21px;
+    }
+
+
+.RadioButton {
+}
+
+    .RadioButton * .mud-icon-button {
         padding: 4px;
     }
 
-/*ICON BUTTON*/
-.wrapper-iconbutton {
-    width: 1.6rem;
+    .RadioButton * .mud-radio-content-placement-end {
+        margin-inline-start: 0px;
+    }
+
+
+.TextAlignCenter {
 }
 
-@media (min-width: 600px) {
+    .TextAlignCenter * input {
+        text-align: center;
+    }
 
-    .mud-container {
-        min-width: 960px;
+
+
+.table-rows-select {
+}
+
+    .table-rows-select * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-right: 1px;
+        padding-inline-end: 4px;
+        padding-inline-start: unset;
+    }
+
+    .table-rows-select * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end, div.mud-input-slot.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-right: 0;
+        padding-inline-end: 5px;
+        padding-inline-start: 7px;
+    }
+
+    .table-rows-select * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense, div.mud-input-slot.mud-input-root-outlined.mud-input-root-margin-dense {
+        padding-top: 5px;
+        padding-bottom: 4px;
+    }
+
+    .table-rows-select * .mud-icon-size-small {
+        font-size: 0.8rem;
+    }
+
+    .table-rows-select * .mud-icon-size-medium {
+        font-size: 0.8rem;
+    }
+
+    .table-rows-select * .mud-icon-button-size-small {
+        padding: 0px;
+        font-size: 0.8rem;
+    }
+
+    .table-rows-select * .mud-input-control.mud-input-control-margin-dense {
+        margin: 0px;
+    }
+
+    .table-rows-select * .mud-icon-button-size-small.mud-icon-button-edge-end {
+        margin-right: -3px;
+        margin-inline-end: -3px;
+        margin-inline-start: unset;
+    }
+
+
+
+    .table-rows-select * .mud-input {
+        color: #444444;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 400;
+        font-size: 14px;
+    }
+
+
+        .table-rows-select * .mud-input.mud-input-outlined .mud-input-outlined-border {
+            border-radius: 3px;
+            border-color: #79a8be;
+            border-width: 0.5px;
+        }
+
+
+    .table-rows-select * .mud-input-outlined {
+        border-color: #79a8be;
+    }
+
+.table-rows-mudSelect > div > div {
+    padding: 0px !important;
+}
+
+
+.mud-list > div {
+    padding: 2px 5px;
+}
+
+.mud-list * .mud-list-item-text {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+    .mud-list * .mud-list-item-text > p {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 400;
+        font-size: 12px;
+    }
+
+@media (hover: hover) and (pointer: fine) {
+    .mud-list-item-clickable:hover {
+        background-color: #75D2FF !important;
+        color: white;
+    }
+
+    .mud-list * .mud-list-item-text:hover > p {
+        font-weight: 500;
+    }
+}
+
+.table-rows-select * .mud-icon-root.mud-svg-icon {
+    fill: #4698BF;
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+    .mud-input.mud-input-outlined:not(.mud-disabled):not(:focus-within):hover .mud-input-outlined-border {
+        border-width: 1px;
+        border-color: #79a8be;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }

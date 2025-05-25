@@ -1,0 +1,362 @@
+﻿@page "/releaseRecords"
+@using ExportOrderEntites.ReleaseRecord
+@using ExportOrderWebServer.Areas.Import.BillofLadings.Pages
+@using ExportOrderWebServer.Areas.Import.ReleaseRecords.Dto
+@using ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
+@attribute [Authorize(Roles = "Admin, ImpDept")]
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IReleaseImportProvider ReleaseImportProvider
+
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+        <MudSpacer />
+        <div class="ToolBar-Title"><span>Bills of Lading</span></div>
+        <MudSpacer />
+        <div class="ToolBar-iconbutton" style="margin-inline-start:20px">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+        </div>
+        <div class="ToolBar-iconbutton">
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+        </div>
+    </MudToolBar>
+</div>
+
+<MudForm @ref="searchForm">
+    <div class="Container-item">
+        <div class="container-content">
+            <BillOfLadingSearchField @bind-BlNo="Filter.BolNo" @bind-BlsNo="Filter.BolsNo" Style="width:215px;margin-left:10px" />
+            <BillOfLadingSearchField Label="Container" @bind-BlNo="Filter.CntrNum" @bind-BlsNo="Filter.CntrsNum" Style="width:185px;margin-left:10px" />
+            @*             <CustomerSearchField @ref="Customer" @bind-Value="Filter.BookingParty" Label="Customer" Style="width:250px; margin-inline:10px" ConfirmEntity />
+          <VesselCall_TextField @bind-Filter="@Filter" /> *@  
+            <MudSpacer />
+            <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Secondary" Disabled="@IsLoadingData"
+                       OnClick="BlDataRefresh_Click">Search</MudButton>
+        </div>
+    </div>
+</MudForm>
+
+<div class="Container-table">
+    <div class="tableMenu">
+        <div class="d-inline-flex">
+            <MudCheckBox Class="CheckBox" T="bool" Value="IsMultiSelect"
+                         ValueChanged="@((e) => { IsMultiSelect = e; foreach (var item in FilterContainerRecords) { item.IsSelect = false; } IsSelectRecords = false; })">Multi Select</MudCheckBox>
+            <div style="padding-left:5px">
+                <MudIconButton Icon="@Icons.Material.Filled.LocalAtm" Size="Size.Small" Style="margin:auto" Disabled="@(!FilterContainerRecords.Any(s => s.IsSelect))" Color="Color.Secondary" OnClick="CreateRlsContainers" />
+            </div>
+            <div style="padding-left:5px">
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Style="margin:auto" Disabled="@(!FilterContainerRecords.Any(s => s.IsSelect))" Color="Color.Error" OnClick="RemoveRlsContainers" />
+            </div>
+        </div>
+
+        @*         <div class="d-inline-flex">
+        <MudButton Class="wrapper-button" Size="Size.Small" Variant="Variant.Filled" Color="Color.Dark" OnClick="ShowSpecialReleaseRequestDialog_Click">
+        Send Request for Special Release
+        </MudButton>
+        </div> *@
+        <div class="d-inline-flex">
+
+            <TextField Style="padding-top: 2px; padding-bottom: 2px;min-width:350px" @bind-Value="EmailToSend" Dense Placeholder="укажите email адреса через точку заятой (;)" UpperCase />
+        </div>
+        <MudLink Underline="Underline.None">Send Release</MudLink>
+    </div>
+    <MudTable Class="Table P2" Items="FilterContainerRecords" Context="Record">
+        <HeaderContent>
+            <MudTh Style="@(IsMultiSelect ? "width:30px" : "width:64px")">
+                @if (IsMultiSelect)
+                {
+                    <MudCheckBox T="bool" Value="@IsSelectRecords" ValueChanged="(select) => CheckedChanged(select)" />
+                }
+                else
+                {
+                    {
+                    }
+                }
+            </MudTh>
+            <MudTh Style="width:330px">BILL OF LADING</MudTh>
+            <MudTh Style="width:130px">
+              CONTAINER
+            </MudTh>
+            <MudTh Style="width:50px">Type</MudTh>
+            <MudTh Style="width:95px">
+                <div style="display: inline-flex!important; align-items: center;">
+                    <div>Release to</div>
+
+                </div>
+            </MudTh>
+            <MudTh Style="width:150px">Secret Key</MudTh>
+            <MudTh Style="width:60px">
+                ReleaseMode
+            </MudTh>
+            <AuthorizeView Roles="Admin">
+                <MudTh Style="width:140px">Status</MudTh>
+            </AuthorizeView>
+            <MudTh>Has Sent</MudTh>
+            <MudTd>Remarks </MudTd>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                @if (IsMultiSelect)
+                {
+                    <MudCheckBox @bind-Value="@Record.IsSelect" Disabled="@(Record.ReleaseStatus == ReleaseStatus.SentTerminal)" />
+                }
+                else if (Record.ReleaseTo.HasValue)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.SkipNext" Size="Size.Small" Style="margin:auto" Color="Color.Success" OnClick="() => CreateReleaseImport_Click(Record)" Disabled="Record.ReleaseStatus != ReleaseStatus.ConfirmedTerminal" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Style="margin:auto" Color="Color.Error" OnClick="() => RemoveReleaseImport_Click(Record)" Disabled="Record.ReleaseStatus == ReleaseStatus.SentTerminal" />
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.SkipNext" Size="Size.Small" Style="margin:auto" Color="Color.Success" OnClick="() => CreateReleaseImport_Click(Record)" />
+                }
+            </MudTd>
+            <MudTd> @Record.BillofLadingNum</MudTd>
+            <MudTd> @Record.ContainerNum</MudTd>
+            <MudTd> @Record.ContainerType</MudTd>
+            <MudTd> @(Record.ReleaseTo.HasValue? Record.ReleaseTo.Value.ToString("dd.MM.yy")   : "--.--.--")</MudTd>
+            <MudTd>
+                @if (Record.ReleaseTo.HasValue)
+                    @switch (Record.ReleaseStatus)
+                    {
+
+                        case ReleaseStatus.ConfirmedTerminal:
+                            @(string.IsNullOrWhiteSpace(Record.ReleaseUID) ? "-- -- --" : Record.ReleaseUID)
+                            break;
+                        default:
+                            <MudProgressCircular Color="Color.Primary" Style="height:17px;width:17px;" Indeterminate="true" />
+                            break;
+                    }
+            </MudTd>
+            <MudTd> @(Record.ReleaseTo.HasValue? Record.ReleaseMode.ToString() : "-- -- --")</MudTd>
+            <AuthorizeView Roles="Admin">
+                <MudTd> @(Record.ReleaseTo.HasValue? Record.ReleaseStatus.ToString() : "-- -- --")</MudTd>
+            </AuthorizeView>
+            <MudTd> @(Record.SentToCustomerNoticeTime.HasValue? Record.SentToCustomerNoticeTime.Value.ToString("dd.MM.yy")   : "--.--.--")</MudTd>
+            <MudTd>  @string.Join(';', Record.Remarks) </MudTd>
+            <MudTd>   </MudTd>
+
+        </RowTemplate>
+    </MudTable>
+
+</div>
+
+@code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
+    private MudForm searchForm;
+    private FilterParameters Filter { get; set; } = new();
+    bool IsLoadingData = false;
+    bool IsMultiSelect = false;
+    bool IsSelectRecords = false;
+    DateTime? ReleaseTo = DateTime.Today.AddDays(1);
+    private string? EmailToSend { get; set; }
+    IEnumerable<ReleaseRecordDto> FilterContainerRecords = new List<ReleaseRecordDto>();
+
+
+    async Task BlDataRefresh_Click()
+    {
+        await searchForm.Validate();
+
+        // if (string.IsNullOrWhiteSpace(Filter.BolNo))
+            // if (string.IsNullOrWhiteSpace(Filter.CntrNum))
+                // // if (string.IsNullOrWhiteSpace(Filter.VesselName))
+                // //     if (string.IsNullOrWhiteSpace(Filter.VesselVoyage))
+                // //         if (string.IsNullOrWhiteSpace(Filter.BookingParty))
+            // {
+                // Snackbar.Add("Some search fields should be used", Severity.Warning);
+                // return;
+            // }
+
+        IsLoadingData = true;
+
+        FilterContainerRecords = await ReleaseImportProvider.GetRecords(Filter);
+
+
+        IsMultiSelect = false;
+        IsLoadingData = false;
+    }
+    private async Task CreateRlsContainers()
+    {
+        var Records = FilterContainerRecords.Where(s => s.IsSelect).ToList();
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<ReleaseImportItem_SetDateDialog>("Дата релиза", options);
+        var result = await dialog.Result;
+
+        if (result is null)
+            return;
+        if (result.Canceled)
+            return;
+
+        if (result.Data is null)
+            return;
+
+        ReleaseTo = (DateTime)result.Data;
+
+
+
+        var str = new StringBuilder();
+        str.AppendLine($"<div>Do you want to Issue Release(s) for:</div>");
+        foreach (var record in Records)
+            str.AppendLine($"<div>{record.ContainerNum} to {ReleaseTo:dd.MM.yy}</div>");
+
+        bool? msgResult = await DialogService.ShowMessageBox(
+                                                "Release(s)?",
+                                                (MarkupString)str.ToString(),
+                                                yesText: "Yes", cancelText: "No");
+
+        if (!msgResult.HasValue) return;
+        if (!msgResult.Value) return;
+
+        foreach (var record in Records)
+            record.ReleaseTo = ReleaseTo;
+
+
+        var continueList = Records.Where(s => s.ReleaseStatus == ReleaseStatus.ConfirmedTerminal);
+        var newList = Records.Where(s => s.ReleaseStatus != ReleaseStatus.ConfirmedTerminal);
+
+        if (continueList.Any())
+            await ReleaseImportProvider.ContinueRecords(continueList, ApplicationUser);
+
+        if (newList.Any())
+            await ReleaseImportProvider.CreateRecords(newList, ApplicationUser);
+
+
+
+        await BlDataRefresh_Click();
+    }
+
+    private async Task RemoveRlsContainers()
+    {
+        var Records = FilterContainerRecords.Where(s => s.IsSelect).ToList();
+
+        var str = new StringBuilder();
+        str.AppendLine($"<div>Do you want to Cancel Release(s) for:</div>");
+        foreach (var record in Records)
+            str.AppendLine($"<div>{record.ContainerNum} to {record.ReleaseTo:dd.MM.yy}</div>");
+
+        bool? msgResult = await DialogService.ShowMessageBox(
+            "Release(s)?",
+            (MarkupString)str.ToString(),
+            yesText: "Yes", cancelText: "No");
+
+        if (!msgResult.HasValue) return;
+        if (!msgResult.Value) return;
+
+
+        await ReleaseImportProvider.CancelRecords(Records, ApplicationUser);
+
+    }
+
+
+    private async Task CreateReleaseImport_Click(ReleaseRecordDto record)
+    {
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<ReleaseImportItem_SetDateDialog>("Дата релиза", options);
+        var result = await dialog.Result;
+
+        if (result is null)
+            return;
+        if (result.Canceled)
+            return;
+
+        if (result.Data is null)
+            return;
+
+        ReleaseTo = (DateTime)result.Data;
+
+        record.ReleaseTo = (DateTime)result.Data;
+        // Уточнить
+        bool? msgResult = await DialogService.ShowMessageBox(
+                                    "Release(s)?",
+                                    $"Do you want to Issue Release(s) to {record.ReleaseTo:dd.MM.yy}?",
+                                    yesText: "Yes", cancelText: "No");
+
+        if (!msgResult.HasValue) return;
+        if (!msgResult.Value) return;
+
+        if (record.ReleaseStatus == ReleaseStatus.ConfirmedTerminal)
+            await ReleaseImportProvider.ContinueRecords(new[] { record }, ApplicationUser);
+        else
+            await ReleaseImportProvider.CreateRecords(new[] { record }, ApplicationUser);
+
+        await BlDataRefresh_Click();
+
+
+    }
+    private async Task RemoveReleaseImport_Click(ReleaseRecordDto record)
+    {
+        bool? msgResult = await DialogService.ShowMessageBox(
+                                                    "Release(s)?",
+                                                    $"Do you want to Issue Release(s) to {record.ReleaseTo:dd.MM.yy}?",
+                                                    yesText: "Yes", cancelText: "No");
+
+        if (!msgResult.HasValue) return;
+
+        if (msgResult.HasValue)
+            if (!msgResult.Value) return;
+
+        // var reponse = await HttpMethods.POST_ReleaseModuleAPI($"ReleaseImport/RemoveReleaseImport", "");
+
+        await BlDataRefresh_Click();
+
+        // using (var Http = _http.CreateClient())
+        // {
+        //     Http.Timeout = new TimeSpan(0, 10, 0);
+        //     var response = await Http.GetAsync($"{ApplicationParameter.ReleaseImportModuleApiUrl}ReleaseImport/RemoveReleaseImport/{BillOfLadingNo}").ConfigureAwait(false);
+        //     if (response.IsSuccessStatusCode)
+        //     {
+        //         var resultString = await response.Content.ReadAsStringAsync();
+        //         BLData = Newtonsoft.Json.JsonConvert.DeserializeObject<ReleaseImportBLData>(resultString);
+        //     }
+        //     else
+        //     {
+        //         Snackbar.Add("GetBLData Error", Severity.Error);
+
+        //     }
+
+
+        // }
+    }
+    private async Task ContinueReleaseImport_Click()
+    {
+        var newRls = new List<ReleaseRecordDto>();
+        var updateRls = new List<ReleaseRecordDto>();
+
+        var Records = FilterContainerRecords.Where(s => s.IsSelect).ToList();
+
+
+        var str = new StringBuilder();
+        str.AppendLine($"<div>Do you want to renew Release(s) for:</div>");
+        foreach (var record in Records)
+            str.AppendLine($"<div>{record.ContainerNum} to {record.ReleaseTo:dd.MM.yy}</div>");
+
+
+        bool? msgResult = await DialogService.ShowMessageBox(
+                            "Release(s)?",
+                               (MarkupString)str.ToString(),
+                            yesText: "Yes", cancelText: "No");
+
+        if (!msgResult.HasValue) return;
+
+        if (msgResult.HasValue)
+            if (!msgResult.Value) return;
+
+        IsLoadingData = true;
+
+
+        await Task.Delay(1500);
+        await BlDataRefresh_Click();
+    }
+    void CheckedChanged(bool select)
+    {
+        IsSelectRecords = select;
+        foreach (var item in FilterContainerRecords)
+            if (item.ReleaseStatus != ReleaseStatus.SentTerminal)
+                item.IsSelect = select;
+    }
+}

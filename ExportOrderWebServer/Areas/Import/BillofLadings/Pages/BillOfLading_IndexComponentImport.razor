@@ -129,7 +129,7 @@
         if (!msgResult.Value) return;
 
 
-        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.OpenPageUrl}releaseImport/{billOfLading.Num}", "_blank");
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}releaseImport/{billOfLading.Num}", "_blank");
 
 
     }

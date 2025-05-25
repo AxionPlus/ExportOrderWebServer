@@ -7,7 +7,7 @@ namespace ExportOrderWebServer.Service;
 
 public interface IExcelFileUploadService : IDisposable
 {
-    public Task<List<UploadExcelDTO>?> ReadExcelFileExportOrder(string filePath);
+    public Task<List<ReadExcelExportOrderRecordDTO>?> ReadExcelFileExportOrder(string filePath);
     public IEnumerable<BillOfLadingDto> ReadExcelFileImportManifest(string filePath);
 }
 

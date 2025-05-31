@@ -28,13 +28,19 @@ public class ValidatePageFields
             return false;
     }
 
-    public static bool IsValid_DeclarationNum(string? text)
+    public static bool IsValid_DeclarationNum(string? text, DocumentType docType)
     {
         if (string.IsNullOrEmpty(text)) return false;
 
         bool response = false;
+        string pattern = string.Empty;
 
-        string pattern = @"^\d{8}/[0-3]{1}\d{1}(0|1){1}\d{3}/\d{7}$";
+        //string pattern = @"^\d{8}/[0-3]{1}\d{1}(0|1){1}\d{3}/\d{7}$";
+
+        if (docType == DocumentType.ПД)
+            pattern = @"\d{8}/[0-3]{1}\d{1}(0|1){1}\d{3}/([0-9]|[A-Z]){7}";
+        else
+            pattern = @"\d{8}/[0-3]{1}\d{1}(0|1){1}\d{3}/\d{7}";
 
         if (Regex.IsMatch(text, pattern))
         {

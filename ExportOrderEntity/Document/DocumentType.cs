@@ -3,5 +3,6 @@
 public enum DocumentType
 {
     ДТ,
-    ТТ
+    ТТ,
+    ПД
 }

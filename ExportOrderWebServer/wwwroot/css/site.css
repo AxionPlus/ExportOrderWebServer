@@ -81,6 +81,9 @@ body {
     box-shadow: var(--mud-elevation-1);
 }
 
+.mud-input-control {
+    flex:unset;
+}
 
 .Tabs {
 }
@@ -93,6 +96,7 @@ body {
         padding: 5px 6px;
         min-height: 36px;
     }
+
 /*TOOLBAR*/
 .ToolBar-container {
     color: var(--mud-palette-text-primary);
@@ -167,8 +171,17 @@ body {
     }
 }
 
+/*TOOLTIP*/
+.mud-tooltip-root {
+    height: fit-content;
+}
 
+/*SELECT*/
 .Select {
+}
+
+.mud-select {
+    flex-grow:inherit;
 }
 
 .mud-select.Select .mud-input.mud-input-outlined.mud-input-adorned-end {
@@ -194,6 +207,9 @@ body {
     .TextField .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
         line-height: 16px;
     }
+    /*    .TextField > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }*/
 
     .TextField .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
         transform: translate(14px,-6px) scale(.70);
@@ -213,10 +229,6 @@ body {
         background-color: var(--containerBackGround)
     }
 
-    .TextField > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 16px;
-    }
-
     .TextField > .mud-input-control-input-container > .mud-input-label-inputcontrol {
         font-weight: 500;
     }
@@ -233,6 +245,7 @@ body {
         margin: 5px 8px;
     }
 
+/*TABLE*/
 .Table {
 }
 
@@ -243,6 +256,10 @@ body {
     .Table * thead {
         background-color: var(--tableThead);
     }
+
+.mud-table-sticky-header * .mud-table-root .mud-table-head * .mud-table-cell {
+    background-color: var(--tableThead);
+}
 
     .Table * .mud-table-row .mud-table-cell .CheckBox {
         display: flex;

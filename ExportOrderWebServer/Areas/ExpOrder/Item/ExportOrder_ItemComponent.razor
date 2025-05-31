@@ -112,7 +112,7 @@
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required RequiredError="" Clearable />
             <div style="width:130px; height:35px">
-                <MudDatePicker Class="wrapper-input-date" Label="Date" @bind-Date="Value.Dated"
+                <MudDatePicker Class="DatePicker" Label="Date" @bind-Date="Value.Dated"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                DateFormat="dd.MM.yy"
                                Editable="true"
@@ -134,7 +134,7 @@
                           AdornmentIcon="@Icons.Material.Filled.Waves"
                           OnAdornmentClick="@(async () => { await GetVesselCallDetail_Click(); })" />
             <MudSpacer />
-            <MudAutocomplete T="CarrierCatalog" Style="width: 270px" Label="Carrier" @bind-Value="Value.Carrier"
+            <MudAutocomplete Class="Autocomplete" T="CarrierCatalog" Style="width: 270px" Label="Carrier" @bind-Value="Value.Carrier"
                              ToStringFunc="@(e => e != null ? e.Name : "")"
                              SearchFunc="@SearchCarrier"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -149,8 +149,8 @@
                              OnAdornmentClick="@( async ()=> { await AddCarrier_Click(); })"
                              Clearable />
         </div>
-        <div class="container-content ExpOrder">            
-            <MudSelect Class="wrapper-input-select" T="PersonEntity" Style="width:200px" Label="Person" @bind-Value="@Value.Person"
+        <div class="container-content ExpOrder">
+            <MudSelect Class="Autocomplete" T="PersonEntity" Style="width:200px" Label="Person" @bind-Value="@Value.Person"
                        ToStringFunc="@(s => s == null ? string.Empty :
                                                            string.Concat($"{s.FamilyName} ",
                                                                             $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. ",
@@ -169,7 +169,7 @@
                            Style="padding: 8px" Size="Size.Small" Color="Color.Primary">
             </MudIconButton>
             <MudSpacer />
-            <MudSelect Class="wrapper-input-select" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
+            <MudSelect Class="Autocomplete" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
                        ToStringFunc="@(str => str.ToString())"
                        Variant="Variant.Outlined" Margin="Margin.Dense">
                 @switch (Value.Status)
@@ -206,17 +206,13 @@
     <div class="Container-item">
         <div class="container-content ExpOrder">
             <div class="documents">
-                <div class="controlIconButtons">
-                    <div style="width: 10px"></div>
+                <div class="controlIconButtons" style="display:flex">
+                    <MudTooltip Text="Add Document (добавить Декларацию)" Duration="1500" Delay="500">
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="AddDocuments_Click"></MudIconButton>
+                    </MudTooltip>
                     <MudSpacer />
                     <h6 class="container-content-head">Documents:</h6>                    
-                    <MudSpacer />
-                    <MudTooltip Text="Add Document (добавить Декларацию)" Duration="1500" Delay="500">
-                        <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="AddDocuments_Click"></MudIconButton>
-                    </MudTooltip>
-                    <MudTooltip Text="Download Template (загрузить проформу)" Duration="1500" Delay="500">
-                        <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" OnClick="DownloadExcelTemplate"></MudIconButton>
-                    </MudTooltip>
+                    <MudSpacer />                    
                     <MudTooltip Text="Remove selected Documents (удалить выбранные Декларации)" Duration="1500" Delay="500">
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="RemoveDocument"></MudIconButton>
                     </MudTooltip>                    
@@ -294,12 +290,15 @@
 
     <div class="Container-table" style="min-height:360px; max-height:400px; overflow:auto">
         <div class="tableMenu">
-            <MudButton Class="Button" Style="margin-inline:20px; margin-bottom:2px" OnClick="UploadFile_Click"
+            <MudButton Class="Button" Style="margin-inline:80px; margin-bottom:2px" OnClick="UploadFile_Click"
                        Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
                        StartIcon="@Icons.Material.Filled.UploadFile"
                        Disabled="@(Value.VesselCallDetail is null)">
-                Upload New List
+                Upload New
             </MudButton>
+            <MudTooltip Text="Download Template (загрузить проформу)" Duration="1500" Delay="500">
+                <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" OnClick="DownloadExcelTemplate"></MudIconButton>
+            </MudTooltip>
             <MudSpacer />
             <TablePager T="ExportOrderRecord" Table="mudTable" ItemsCount="@Value.Records.Count()" />
         </div>

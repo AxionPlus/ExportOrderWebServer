@@ -1,4 +1,5 @@
-﻿@inject ISnackbar Snackbar
+﻿@using System.Text.RegularExpressions;
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IJSRuntime jsRuntime
 
@@ -93,7 +94,7 @@
 {
     <div class="Container-item">
         <div class="container-content">
-            <MudSelect Class="wrapper-input-select" Style="width: 120px" T="DocumentType" Label="Type" @bind-Value="@Value.Type"
+            <MudSelect Class="Autocomplete" Style="width: 120px" T="DocumentType" Label="Type" @bind-Value="@Value.Type"
                        ToStringFunc="@(s => s.ToString())"
                        Variant="Variant.Outlined" Margin="Margin.Dense">                           
                 @foreach (DocumentType type in Enum.GetValues(typeof(DocumentType)))
@@ -101,26 +102,21 @@
                     <MudSelectItem Value="@type" />
                 }
             </MudSelect>            
-            <div style="width:520px">
+            <div style="width:530px">
                 <MudTextField Class="TextField" Style="width: 260px; font-weight:500; color:var(--mud-palette-primary)" Label="Number" @bind-Value="Value.Name"
                               Variant="Variant.Outlined" Margin="Margin.Dense" AutoFocus
-                              Mask="@MaskDocumentName"
-                              Required RequiredError="" Clearable/>
+                              Required RequiredError="" Clearable
+                              Mask="@(new PatternMask("00000000/000000/0000000") { Placeholder = '_' })"/>
             </div>
-            <div class="Document_row" style="width:520px">
+            <div class="Document_row" style="width:530px">
                 <MudTextField Class="TextField" Style="width:360px; font-weight:500" Label="Description" @bind-Value="Value.Description"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Required RequiredError="" Clearable />
-                <MudSelect Class="wrapper-input-select" Style="width:120px" T="EntityStatus" Label="Status" @bind-Value="Value.Status"
+                <MudSelect Class="Autocomplete" Style="width:140px" T="EntityStatus" Label="Status" @bind-Value="Value.Status"
                            ToStringFunc="@(str => str.ToString())"
                            Variant="Variant.Outlined" Margin="Margin.Dense">
-                    @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
-                    {
-                        if (status == EntityStatus.New || status == EntityStatus.Completed)
-                        {
-                            <MudSelectItem Value="@status" />
-                        }
-                    }
+                    <MudSelectItem Value="@EntityStatus.New" />
+                    <MudSelectItem Value="@EntityStatus.Completed" />                    
                 </MudSelect>
             </div>
         </div>
@@ -134,10 +130,10 @@
             </MudTooltip>
             @if (Value.Shipper is not null)
             {
-                <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 520px" @bind-Value="@Value.Shipper.Name"
+                <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 530px" @bind-Value="@Value.Shipper.Name"
                               Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
                               Required RequiredError="" Clearable />
-                <MudTextField Class="TextField" Placeholder="Shipper En" Style="width: 520px" @bind-Value="@Value.Shipper.NameEn"
+                <MudTextField Class="TextField" Placeholder="Shipper En" Style="width: 530px" @bind-Value="@Value.Shipper.NameEn"
                               Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
                               Required RequiredError="" Clearable />
             }            
@@ -152,10 +148,10 @@
             </MudTooltip>
             @if (Value.Consignee is not null)
             {
-                <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 520px" @bind-Value="@Value.Consignee.Name"
+                <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 530px" @bind-Value="@Value.Consignee.Name"
                               Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
                               Required RequiredError="" Clearable />
-                <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 520px" @bind-Value="@Value.Consignee.NameEn"
+                <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 530px" @bind-Value="@Value.Consignee.NameEn"
                               Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
                               Required RequiredError="" Clearable />
             }            
@@ -253,7 +249,19 @@
     [Parameter]
     public EventCallback<DocumentEntity> ValueChanged { get; set; }    
 
-    private PatternMask MaskDocumentName = new PatternMask("00000000/000000/0000000") { Placeholder = '_' };
+    private string MaskDocumentName
+    {
+        get
+        {
+            string patternOrdinary = @"^\d{8}/[0-3]{1}\d{1}(0|1){1}\d{3}/\d{7}$";
+            string patternPassenger = @"^\d{8}/[0-3]{1}\d{1}(0|1){1}\d{3}/\[0-9]|[A-Z]{7}$";
+
+            if (Value?.Type == DocumentType.ПД)
+                return patternPassenger;
+            else
+                return patternOrdinary;
+        }
+    }
 
     private async Task GetCustomer_Click(string ShipperOrConsignee)
     {

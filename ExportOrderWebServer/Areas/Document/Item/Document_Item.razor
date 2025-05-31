@@ -110,7 +110,7 @@
             return;
         }        
 
-        if (!ValidatePageFields.IsValid_DeclarationNum(Item.Name))
+        if (!ValidatePageFields.IsValid_DeclarationNum(Item.Name, Item.Type))
         {
             Snackbar.Add("Declaration Number is not valid", Severity.Warning);
             return;

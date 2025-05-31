@@ -1,7 +1,6 @@
 ﻿@inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
-@inject NavigationManager Navigation
 @inject HttpClient Http
 @inject IJSRuntime jsRuntime
 @inject IVesselCallProvider _vesselCallProvider
@@ -14,12 +13,7 @@
     .Container-item {
         display: flex;
         flex-direction: row;
-        background-color: var(--grey-08);
         justify-content: space-between;
-    }
-
-    .Container-item > .container-column {
-        background-color: var(--grey-08);
     }
 
     .mud-input-control.mud-input-control-margin-dense {
@@ -71,16 +65,13 @@
                 Search
             </MudButton>
             <MudSpacer />
-            <MudSelect Class="wrapper-input-select" Style="width:142px" T="EntityStatus?" Label="Status" @bind-Value="@Filter.Status"
-                       ToStringFunc="@(s => s is not null ? s.ToString() : string.Empty)"
+            <MudSelect Class="Autocomplete" Style="width:142px" T="EntityStatus?" Label="Status" @bind-Value="@Filter.Status"
+                       ToStringFunc="@(s => s == null ? null : s.ToString())"
                        Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
                        Disabled="IsSelectable">
                 @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
                 {
-                    if (status == EntityStatus.New || status == EntityStatus.Completed)
-                    {
-                        <MudSelectItem Value="@status" />
-                    }
+                    <MudSelectItem Value="@status" />
                 }
             </MudSelect>            
         </div>
@@ -93,7 +84,7 @@
                              CloseIcon="" OpenIcon=""
                              ResetValueOnEmptyText="true" Clearable />
             <div style="width:130px; height:35px">
-                <MudDatePicker Class="wrapper-input-date" Label="From" @bind-Date="Filter.DateFrom"
+                <MudDatePicker Class="DatePicker" Label="From" @bind-Date="Filter.DateFrom"
                                DateFormat="dd.MM.yy"
                                ShowWeekNumbers="true"
                                Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -102,7 +93,7 @@
                                Clearable />
             </div>
             <div style="width:130px; height:35px">
-                <MudDatePicker Class="wrapper-input-date" Label="To" @bind-Date="Filter.DateTo"
+                <MudDatePicker Class="DatePicker" Label="To" @bind-Date="Filter.DateTo"
                                DateFormat="dd.MM.yy"
                                ShowWeekNumbers="true"
                                Variant="Variant.Outlined" Margin="Margin.Dense"

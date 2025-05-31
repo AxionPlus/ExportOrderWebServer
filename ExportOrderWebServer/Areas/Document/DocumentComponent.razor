@@ -53,7 +53,7 @@
                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
         <MudTextField Class="TextField" Label="Cargo" Style="width: 270px" @bind-Value="@Filter.CargoDescriptionShort"
                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
-        <MudSelect Class="wrapper-input-select" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
+        <MudSelect Class="Autocomplete" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
                    Style="width:145px"
                    ToStringFunc="@(s => s == null ? string.Empty : s.ToString())"
                    Variant="Variant.Outlined" Margin="Margin.Dense" Clearable

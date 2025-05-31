@@ -62,20 +62,7 @@
         </div>
 
         <div class="Container-item" style="flex-direction:column">
-            <div class="container-content" style="justify-content:flex-start">
-                @* <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item.Vessel"
-                                ToStringFunc="@(e => e != null ? e.Name : "")"
-                                SearchFunc="SearchVessel"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                Required RequiredError=""
-                                CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                ResetValueOnEmptyText="true"
-                                MaxItems="20"                                  
-                                AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                AdornmentColor="Color.Primary"
-                                Adornment="Adornment.End"
-                                OnAdornmentClick="AddVessel_Click"
-                                Clearable /> *@
+            <div class="container-content" style="justify-content:flex-start">                
                 <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item.Vessel"
                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                  SearchFunc="SearchVessel"
@@ -90,7 +77,7 @@
                               Immediate="true"
                               Required RequiredError="" Clearable />
                 <div style="width:130px; height:33px; margin-right: 4px">
-                    <MudDatePicker Class="wrapper-input-date" Label="ETA" @bind-Date="Item.ETA"
+                    <MudDatePicker Class="DatePicker" Label="ETA" @bind-Date="Item.ETA"
                                    DateFormat="dd.MM.yy"
                                    ShowWeekNumbers="true"
                                    Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -99,15 +86,12 @@
                                    Required RequiredError="" Clearable />
                 </div>
                 <MudSpacer />
-                <MudSelect Class="wrapper-input-select" Style="width:125px" T="EntityStatus" Label="Status" @bind-Value="Item.Status"
+                <MudSelect Class="Autocomplete" Style="width:125px" T="EntityStatus" Label="Status" @bind-Value="Item.Status"
                            ToStringFunc="@(str => str.ToString())"
                            Variant="Variant.Outlined" Margin="Margin.Dense">
                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
                     {
-                        if (status == EntityStatus.New || status == EntityStatus.Completed)
-                        {
                             <MudSelectItem Value="@status" />
-                        }
                     }
                 </MudSelect>                 
             </div>
@@ -126,8 +110,8 @@
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true"
                               Required RequiredError="" Clearable />
-                <div style="width:130px; height:33px">
-                    <MudDatePicker Class="wrapper-input-date" Label="ETS" @bind-Date="Item.ETS"
+                <div style="width:130px">
+                    <MudDatePicker Class="DatePicker" Label="ETS" @bind-Date="Item.ETS"
                                    DateFormat="dd.MM.yy"
                                    ShowWeekNumbers="true"
                                    Variant="Variant.Outlined" Margin="Margin.Dense"

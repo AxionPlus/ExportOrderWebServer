@@ -106,7 +106,7 @@
                 <MudTextField Class="TextField" Style="width: 260px; font-weight:500; color:var(--mud-palette-primary)" Label="Number" @bind-Value="Value.Name"
                               Variant="Variant.Outlined" Margin="Margin.Dense" AutoFocus
                               Required RequiredError="" Clearable
-                              Mask="@(new PatternMask("00000000/000000/0000000") { Placeholder = '_' })"/>
+                              Pattern="@MaskDocumentName" />
             </div>
             <div class="Document_row" style="width:530px">
                 <MudTextField Class="TextField" Style="width:360px; font-weight:500" Label="Description" @bind-Value="Value.Description"
@@ -249,6 +249,8 @@
     [Parameter]
     public EventCallback<DocumentEntity> ValueChanged { get; set; }    
 
+    private PatternMask _MaskDocumentName = new PatternMask("00000000/000000/0000000") { Placeholder = '_' };
+    
     private string MaskDocumentName
     {
         get

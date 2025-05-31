@@ -230,6 +230,8 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Services
                                 sentItem.ReleaseStatus = ReleaseStatus.XCancelled;
                                 db.Entry(new ReleaseRemark()
                                 {
+                                    BillOfLadingNum = sentItem.BillOfLadingNum,
+                                    ContainerNum = sentItem.ContainerNum,
                                     DocNumber = sentItem.DocNumber,
                                     Remark = "подтверждение отмены релиза",
                                     CreatedAt = DateTimeOffset.Now,
@@ -255,6 +257,8 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Services
                                 {
                                     db.Entry(new ReleaseRemark()
                                     {
+                                        BillOfLadingNum = sentItem.BillOfLadingNum,
+                                        ContainerNum = sentItem.ContainerNum,
                                         DocNumber = sentItem.DocNumber,
                                         Remark = response.ErrorMessage,
                                         CreatedAt = DateTimeOffset.Now,
@@ -272,6 +276,8 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Services
 
                                     db.Entry(new ReleaseRemark()
                                     {
+                                        BillOfLadingNum = sentItem.BillOfLadingNum,
+                                        ContainerNum = sentItem.ContainerNum,
                                         DocNumber = sentItem.DocNumber,
                                         Remark = response.ErrorMessage,
                                         CreatedAt = DateTimeOffset.Now,
@@ -297,7 +303,16 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Services
                             db.ChangeTracker.Clear();
                         }
                         else
+                        {
                             appObjResponse.ErrorAdd($"Release {response.ReleaseUID} not found.");
+                            if (item.CreateTime.AddDays(1) <= DateTime.Now)
+                            {
+                                item.IsHandle = true;
+                                db.Entry(item).State = EntityState.Modified;
+                                await db.SaveChangesAsync();
+                            }
+                        }
+
                     }
                 }
             }

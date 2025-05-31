@@ -262,6 +262,8 @@ public class ViewReportController : ControllerBase
             int pageIndex = (int)(DateTime.Now.Ticks >> 10);
             string pathReport = Path.Combine(_webHostEnvironment.ContentRootPath, "Reports", fileName);
 
+            Console.WriteLine(pathReport);
+
             LocalReport localReport = new(pathReport);
 
             localReport.AddDataSource("dsBL", dsItem);
@@ -478,5 +480,20 @@ public class ViewReportController : ControllerBase
             Console.WriteLine(ex.Message);
             return Ok();
         }
-    }  
+    }
+
+
+    [HttpGet]
+    [Route("GetExcelReport/{filePath}")]
+    public async Task<IActionResult> GetExcelReport(string filePath)
+    {
+        string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Temp");
+
+        var FilePath = Path.Combine(dirName, $"{filePath}.xlsx");
+
+        byte[] fileBytes = System.IO.File.ReadAllBytes(FilePath);
+
+        return File(fileBytes, "application/xlsx", $"{filePath}.xlsx");
+
+    }
 }

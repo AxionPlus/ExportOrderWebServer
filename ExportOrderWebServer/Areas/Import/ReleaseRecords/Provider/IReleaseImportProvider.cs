@@ -50,23 +50,73 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
                     .AsNoTracking()
                     .ToArrayAsync();
 
-                var Records = _Records.Select(rls => new ReleaseImportContainerRecordEntity()
-                {
-                    BillOfLadingNum = rls.BillOfLadingNum,
-                    ContainerType = rls.ContainerType,
-                    ContainerNum = rls.ContainerNum,
-                    ReleaseMode = ReleaseMode.Update,
-                    DocNumber = rls.DocNumber,
-                    CreatedAt = DateTimeOffset.UtcNow,
-                    UserName = userName,
-                    ReleaseStatus = ReleaseStatus.NeedSendTerminal,
-                    ReleaseTo = continueList.First(s => s.Id == rls.Id).ReleaseTo!.Value,
-                    ReleaseUID = rls.ReleaseUID,
-                    Timestamp = DateTime.Now.Ticks,
-                });
-                foreach (var record in Records)
-                    db.Entry(record).State = EntityState.Added;
+                if (!_Records.Any())
+                    return;
 
+                var UpdateRecords = _Records.Where(rec => rec.ReleaseTo.Date >= DateTime.Today);
+                var CreateNewRecords = _Records.Where(rec => rec.ReleaseTo.Date < DateTime.Today);
+
+
+                if (UpdateRecords.Any())
+                {
+                    var Records = CreateNewRecords.Select(rls => new ReleaseImportContainerRecordEntity()
+                    {
+                        BillOfLadingNum = rls.BillOfLadingNum,
+                        ContainerType = rls.ContainerType,
+                        ContainerNum = rls.ContainerNum,
+                        ReleaseMode = ReleaseMode.Update,
+                        DocNumber = rls.DocNumber,
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        UserName = userName,
+                        ReleaseStatus = ReleaseStatus.NeedSendTerminal,
+                        ReleaseTo = continueList.First(s => s.Id == rls.Id).ReleaseTo!.Value,
+                        ReleaseUID = rls.ReleaseUID,
+                        Timestamp = DateTime.Now.Ticks,
+                    });
+                    foreach (var record in Records)
+                    {
+                        db.Entry(new ReleaseRemark()
+                        {
+                            BillOfLadingNum = record.BillOfLadingNum,
+                            ContainerNum = record.ContainerNum,
+                            DocNumber = record.DocNumber,
+                            Remark = $"релиз продлен по {record.ReleaseTo.ToShortTimeString()}"
+                        }).State = EntityState.Added;
+                        db.Entry(record).State = EntityState.Added;
+                    }
+
+                }
+
+                if (CreateNewRecords.Any())
+                {
+                    var Records = CreateNewRecords.Select(rls => new ReleaseImportContainerRecordEntity()
+                    {
+                        BillOfLadingNum = rls.BillOfLadingNum,
+                        ContainerType = rls.ContainerType,
+                        ContainerNum = rls.ContainerNum,
+                        ReleaseMode = ReleaseMode.Create,
+                        // DocNumber = rls.DocNumber,
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        UserName = userName,
+                        ReleaseStatus = ReleaseStatus.NeedSendTerminal,
+                        ReleaseTo = continueList.First(s => s.Id == rls.Id).ReleaseTo!.Value,
+                        ReleaseUID = rls.ReleaseUID,
+                        Timestamp = DateTime.Now.Ticks,
+                        TerminalName = "NLE",
+                        LineName = "SOLING_AGE",
+                    });
+                    foreach (var record in Records)
+                    {
+                        db.Entry(new ReleaseRemark()
+                        {
+                            BillOfLadingNum = record.BillOfLadingNum,
+                            ContainerNum = record.ContainerNum,
+                            DocNumber = record.DocNumber,
+                            Remark = $"релиз продлен по {record.ReleaseTo.ToShortTimeString()}"
+                        }).State = EntityState.Added;
+                        db.Entry(record).State = EntityState.Added;
+                    }
+                }
                 await db.SaveChangesAsync();
             }
         }
@@ -100,7 +150,16 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
 
 
                 foreach (var record in Records)
+                {
+                    db.Entry(new ReleaseRemark()
+                    {
+                        BillOfLadingNum = record.BillOfLadingNum,
+                        ContainerNum = record.ContainerNum,
+                        DocNumber = record.DocNumber,
+                        Remark = $"релиз создан по {record.ReleaseTo.ToShortTimeString()}"
+                    }).State = EntityState.Added;
                     db.Entry(record).State = EntityState.Added;
+                }
 
                 await db.SaveChangesAsync();
 
@@ -184,7 +243,7 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
 
                 var containers = await db.Set<BillofLadingEntity>()
                     .Include(s => s.ContainerRecords)
-                    .Where(s => !billofLadingsNum.Any() || billofLadingsNum.Any(c => c == s.Num))
+                    .Where(s => filter.BolNo == "*" ? true : !billofLadingsNum.Any() || billofLadingsNum.Any(c => c == s.Num))
                     .Where(s => !containersNum.Any() || s.ContainerRecords.Any(cntr => containersNum.Any(c => c == cntr.ContainerNum)))
                     .SelectMany(s => s.ContainerRecords, (bill, rec) => new ReleaseRecordDto()
                     {
@@ -196,7 +255,7 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
                     .ToArrayAsync();
 
                 var _list = await db.Set<ReleaseImportContainerRecordEntity>()
-                    .Where(rls => !billofLadingsNum.Any() || billofLadingsNum.Any(s => rls.BillOfLadingNum == s))
+                    .Where(rls => filter.BolNo == "*" ? true : !billofLadingsNum.Any() || billofLadingsNum.Any(s => rls.BillOfLadingNum == s))
                     .Where(rls => !containersNum.Any() || containersNum.Any(s => rls.ContainerNum == s))
                     .Where(rls => new[] { 0, 1, 10, 3, 4, 5 }.Any(s => s == (int)rls.ReleaseStatus))
                     .GroupBy(rls => rls.ContainerNum)
@@ -228,7 +287,7 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
                         .DefaultIfEmpty(),
                    (rec, rls) => new ReleaseRecordDto()
                    {
-                       Id = rec.Id,
+                       Id = rls?.Id,
                        DocNumber = rls?.DocNumber,
                        BillofLadingNum = rec.BillofLadingNum,
                        ContainerNum = rec.ContainerNum,
@@ -240,7 +299,7 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
                        Remarks = docRemarks.Where(s => string.IsNullOrWhiteSpace(rls?.DocNumber) ? false : s.DocNumber == rls.DocNumber).Select(doc => doc.Remark),
 
                    })
-                    .Where(s => !billofLadingsNum.Any() || billofLadingsNum.Any(c => c == s.BillofLadingNum))
+                    .Where(s => filter.BolNo == "*" ? true : !billofLadingsNum.Any() || billofLadingsNum.Any(c => c == s.BillofLadingNum))
                     .Where(s => !containersNum.Any() || containersNum.Any(c => c == s.ContainerNum))
                     .ToList();
 

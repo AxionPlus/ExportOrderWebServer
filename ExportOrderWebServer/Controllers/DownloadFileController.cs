@@ -10,11 +10,13 @@ public class DownloadFileController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IExportOrderProvider _exportOrderProvider;
+    private readonly IExcelFileCreateService _excelFileCreateService;
 
-    public DownloadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider)
+    public DownloadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider, IExcelFileCreateService ExcelFileCreateService)
     {
         _webHostEnvironment = webHostEnvironment;
         _exportOrderProvider = exportOrderProvider;
+        _excelFileCreateService = ExcelFileCreateService;
     }
 
     [HttpGet, Route("SaveFileExcelRolis")]  // file/DownloadFileController/SaveFileExcelRolis
@@ -136,4 +138,20 @@ public class DownloadFileController : ControllerBase
         else
             return File(buffer, "application/zip"); //, $"{fileName}"
     }
+
+
+    [HttpPost, Route("GetExcelReport")]
+    public async Task<IActionResult> GetExcelReport([FromBody] object obj)
+    {
+         var array= Newtonsoft.Json.JsonConvert.DeserializeObject<object[,]>(obj.ToString());
+
+        using IPdfFileCreateService _pdfFileCreateService = new PdfFileCreateService();
+        var buffer = await _excelFileCreateService.CreateExcelReport( array, $"Release list_{DateTime.Now}");
+
+        if (buffer == Array.Empty<byte>())
+            return BadRequest("Файл не записан.");
+        else
+            return File(buffer, "application/zip"); //, $"{fileName}"
+    }
+
 }

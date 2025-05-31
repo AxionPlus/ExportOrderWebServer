@@ -63,6 +63,16 @@ namespace ExportOrderWebServer.Resources {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Byte[].
         /// </summary>
+        internal static byte[] EmptyWorkSheet {
+            get {
+                object obj = ResourceManager.GetObject("EmptyWorkSheet", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Byte[].
+        /// </summary>
         internal static byte[] TemplateFillBill {
             get {
                 object obj = ResourceManager.GetObject("TemplateFillBill", resourceCulture);

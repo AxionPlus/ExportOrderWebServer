@@ -4,11 +4,11 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Dto
 {
     public class ReleaseRecordDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public bool IsSelect { get; set; }
         public string? BillofLadingNum { get; set; }
         public string? ContainerNum { get; set; }
-        public string DocNumber { get; set; }
+        public string? DocNumber { get; set; }
 
         public required string ContainerType { get; set; }
         public DateTime? ReleaseTo { get; set; }

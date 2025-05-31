@@ -3,18 +3,23 @@
 @using ExportOrderWebServer.Areas.Import.BillofLadings.Pages
 @using ExportOrderWebServer.Areas.Import.ReleaseRecords.Dto
 @using ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
+@using Newtonsoft.Json
 @attribute [Authorize(Roles = "Admin, ImpDept")]
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IReleaseImportProvider ReleaseImportProvider
+@inject IJSRuntime JSRuntime
+@inject IHttpClientFactory httpClient
+
+@inject IExcelFileCreateService ExcelFileCreateService
 
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
         <MudSpacer />
-        <div class="ToolBar-Title"><span>Bills of Lading</span></div>
+        <div class="ToolBar-Title"><span>Release records</span></div>
         <MudSpacer />
         <div class="ToolBar-iconbutton" style="margin-inline-start:20px">
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
@@ -41,6 +46,7 @@
 
 <div class="Container-table">
     <div class="tableMenu">
+
         <div class="d-inline-flex">
             <MudCheckBox Class="CheckBox" T="bool" Value="IsMultiSelect"
                          ValueChanged="@((e) => { IsMultiSelect = e; foreach (var item in FilterContainerRecords) { item.IsSelect = false; } IsSelectRecords = false; })">Multi Select</MudCheckBox>
@@ -51,7 +57,9 @@
                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Style="margin:auto" Disabled="@(!FilterContainerRecords.Any(s => s.IsSelect))" Color="Color.Error" OnClick="RemoveRlsContainers" />
             </div>
         </div>
-
+        <MudTooltip Text="Выгрузить xls отчет" Delay="1200" Duration="1000">
+            <MudIconButton Style="padding:2.5px" Icon="@Icons.Material.Filled.Download" OnClick="ReportInvoices_Click" />
+        </MudTooltip>
         @*         <div class="d-inline-flex">
         <MudButton Class="wrapper-button" Size="Size.Small" Variant="Variant.Filled" Color="Color.Dark" OnClick="ShowSpecialReleaseRequestDialog_Click">
         Send Request for Special Release
@@ -78,7 +86,7 @@
             </MudTh>
             <MudTh Style="width:330px">BILL OF LADING</MudTh>
             <MudTh Style="width:130px">
-              CONTAINER
+                CONTAINER
             </MudTh>
             <MudTh Style="width:50px">Type</MudTh>
             <MudTh Style="width:95px">
@@ -156,19 +164,22 @@
     IEnumerable<ReleaseRecordDto> FilterContainerRecords = new List<ReleaseRecordDto>();
 
 
+
+
+
     async Task BlDataRefresh_Click()
     {
         await searchForm.Validate();
 
-        // if (string.IsNullOrWhiteSpace(Filter.BolNo))
-            // if (string.IsNullOrWhiteSpace(Filter.CntrNum))
-                // // if (string.IsNullOrWhiteSpace(Filter.VesselName))
-                // //     if (string.IsNullOrWhiteSpace(Filter.VesselVoyage))
-                // //         if (string.IsNullOrWhiteSpace(Filter.BookingParty))
-            // {
-                // Snackbar.Add("Some search fields should be used", Severity.Warning);
-                // return;
-            // }
+        if (string.IsNullOrWhiteSpace(Filter.BolNo))
+            if (string.IsNullOrWhiteSpace(Filter.CntrNum))
+            // if (string.IsNullOrWhiteSpace(Filter.VesselName))
+            //     if (string.IsNullOrWhiteSpace(Filter.VesselVoyage))
+            //         if (string.IsNullOrWhiteSpace(Filter.BookingParty))
+            {
+                Snackbar.Add("Some search fields should be used", Severity.Warning);
+                return;
+            }
 
         IsLoadingData = true;
 
@@ -228,7 +239,6 @@
 
         await BlDataRefresh_Click();
     }
-
     private async Task RemoveRlsContainers()
     {
         var Records = FilterContainerRecords.Where(s => s.IsSelect).ToList();
@@ -250,8 +260,6 @@
         await ReleaseImportProvider.CancelRecords(Records, ApplicationUser);
 
     }
-
-
     private async Task CreateReleaseImport_Click(ReleaseRecordDto record)
     {
 
@@ -358,5 +366,70 @@
         foreach (var item in FilterContainerRecords)
             if (item.ReleaseStatus != ReleaseStatus.SentTerminal)
                 item.IsSelect = select;
+    }
+
+
+    private async Task ReportInvoices_Click()
+    {
+        int columns = 5;
+        int rows = FilterContainerRecords!.Count();
+
+        object[,] array = new object[rows + 1, columns];
+
+        // Header
+        array[0, 0] = "BillofLadingNum";
+        array[0, 1] = "ContainerNum";
+        array[0, 2] = "ContainerType";
+        array[0, 3] = "ReleaseUID";
+        array[0, 4] = "ReleaseTo";
+
+        // Content
+        long indexRow = 1;
+        foreach (var item in FilterContainerRecords!)
+        {
+            array[indexRow, 0] = item.BillofLadingNum;
+            array[indexRow, 1] = item.ContainerNum;
+            array[indexRow, 2] = item.ContainerType;
+            array[indexRow, 3] = string.IsNullOrWhiteSpace(item.ReleaseUID) ? "NAN" : item.ReleaseUID;
+            array[indexRow, 4] = !item.ReleaseTo.HasValue ? "NAN" : item.ReleaseTo.Value.Date.ToShortDateString()!;
+
+            indexRow++;
+        }
+
+        var fileName = $"Release list_{DateTime.Now}";
+
+        using (var Http = httpClient.CreateClient())
+        {
+           // Http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            Http.Timeout = new TimeSpan(0, 10, 0);
+
+            var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(array), Encoding.UTF8, "application/json");
+            var response = await Http.PostAsync($"{ApplicationParameter.PostDownloadFileUrl}GetExcelReport", content);
+            if (response.IsSuccessStatusCode)
+            {
+
+                var bytes = await response.Content.ReadAsByteArrayAsync();
+
+
+                try
+                {
+                    if (bytes == Array.Empty<byte>())
+                        Snackbar.Add("File Stream error.", Severity.Error);
+                    else
+                    {
+                        await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                            $"{fileName}.xlsx",
+                            Convert.ToBase64String(bytes));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    IsLoadingData = false;
+                    return;
+                }
+            }
+
+        }
     }
 }

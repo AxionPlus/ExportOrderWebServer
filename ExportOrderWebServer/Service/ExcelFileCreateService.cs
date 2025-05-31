@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.JSInterop;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Service;
@@ -8,10 +10,11 @@ public interface IExcelFileCreateService : IDisposable
 {
     Task<byte[]> CreateExcelFile_FillBill(IEnumerable<ManifestDTO> items);
     Task<byte[]> CreateExcelFile_Rolis(ExportOrderDTO item);
+    Task<byte[]> CreateExcelReport(object[,] Array, string reportName);
 }
 
 public class ExcelFileCreateService : IExcelFileCreateService
-{    
+{
     private readonly uint ExcelAppPid;
     private readonly Excel.Application ExcelApp;
     private readonly Excel.Workbooks Workbooks;
@@ -19,7 +22,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
     private Excel.Sheets? WorkSheets;
     private Excel.Worksheet? WorkSheet;
     private Excel.Range? Range;
-        
+    private readonly IJSRuntime JSRuntime;
+
     private readonly static string DirResources = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
     private readonly static string DirTemporary = Path.Combine(DirResources, "TempFiles");
 
@@ -27,7 +31,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
     private string TemporaryFilePath { get; set; } = Path.Combine(DirTemporary, $"{Path.GetRandomFileName()}.xlsx");
 
     public ExcelFileCreateService()
-    {   
+    {
         ExcelApp = new Excel.Application();
         Workbooks = ExcelApp.Workbooks;
 
@@ -40,13 +44,13 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
-    
+
     public async Task<byte[]> CreateExcelFile_FillBill(IEnumerable<ManifestDTO> items)
-    {        
+    {
         TemplateFilePath = Path.Combine(DirResources, "TemplateFillBill.xlsx");
 
         if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
-        
+
         CreateTempFile(TemporaryFilePath);
 
         if (WorkSheet is null) return Array.Empty<byte>();
@@ -62,9 +66,9 @@ public class ExcelFileCreateService : IExcelFileCreateService
                 WorkSheet!.Copy(After: WorkSheets!.Item[i]);
 
             foreach (var carrier in carrierGroup)
-            {                
+            {
                 ++indexCarrier;
-                
+
                 var item = carrier.Select(s => new
                 {
                     s.CarrierNameEn,
@@ -156,9 +160,9 @@ public class ExcelFileCreateService : IExcelFileCreateService
             Console.WriteLine(ex.Message);
             Dispose();
             return Array.Empty<byte>();
-        }        
+        }
     }
-    
+
     public async Task<byte[]> CreateExcelFile_Rolis(ExportOrderDTO item)
     {
         TemplateFilePath = Path.Combine(DirResources, "TemplateNutepRolis.xlsx");
@@ -296,4 +300,37 @@ public class ExcelFileCreateService : IExcelFileCreateService
     }
 
     #endregion
+
+
+    public async Task<byte[]> CreateExcelReport(object[,] Array, string reportName)
+    {
+        TemplateFilePath = Path.Combine(DirResources, "EmptyWorkSheet.xlsx");
+
+        if (!File.Exists(TemplateFilePath)) return  new byte[]{};
+
+        CreateTempFile(TemporaryFilePath);
+
+
+        long rows = Array.GetLength(0);
+        int columns = Array.GetLength(1);
+
+        WorkSheet = WorkSheets!.Item[1];
+
+        var startCell = WorkSheet.Cells[1, 1];
+        var endCell = WorkSheet.Cells[rows, columns];
+
+        Excel.Range? HeaderRange = WorkSheet.Range[startCell, WorkSheet.Cells[1, columns]];
+        HeaderRange.Font.Bold = true;
+        HeaderRange.Interior.Color = Excel.XlRgbColor.rgbLightGray;
+
+        Range = WorkSheet.Range[startCell, endCell];
+
+        Range.Value = Array;
+        Range.Columns.AutoFit();
+
+        SaveTempFile();
+
+        byte[] fileBytes = File.ReadAllBytes(TemporaryFilePath);
+        return fileBytes;
+    }
 }

@@ -53,6 +53,8 @@
 
     public class ReleaseRemark : EntityBase
     {
+        public required string BillOfLadingNum { get; set; }
+        public required string ContainerNum { get; set; }
         public required string DocNumber { get; set; }
         public required string Remark { get; set; }
 

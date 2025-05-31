@@ -7,7 +7,9 @@
     <UserSecretsId>aspnet-ExportOrderWebServer-14a3b946-cfd5-4d08-8a01-86308f475f62</UserSecretsId>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-
+	<PropertyGroup>
+		<DiscoverPrecompressedAssets>false</DiscoverPrecompressedAssets>
+	</PropertyGroup>
   <ItemGroup>
     <None Remove="Reports\BLoel.rdlc" />
     <None Remove="Reports\CustomsLetter.rdlc" />
@@ -79,6 +81,7 @@
     <PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
     <PackageReference Include="System.Security.Permissions" Version="7.0.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="6.2.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
@@ -237,7 +240,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Resource.resx">

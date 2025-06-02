@@ -26,20 +26,20 @@
     margin-bottom: unset;
     }
 
-    .mud-select.mud-autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
+/*     .mud-select.mud-autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
     margin-right: 0px;
     margin-inline-end: 3px;        
-    }
+    } */
 
-    .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
+/*     .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
     padding-right: unset;
     padding-inline-end: unset;
     padding-inline-start: unset;
-    }
+    } */
 
-    .mud-select.mud-autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
+/*     .mud-select.mud-autocomplete * .mud-icon-button-size-small.mud-icon-button-edge-end {
     margin-inline-end: unset;
-    }    
+    }     */
 
     .Table * .mud-table-cell {
     padding: 5px;
@@ -91,7 +91,7 @@
                            Variant="Variant.Outlined" Margin="Margin.Dense">
                     @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
                     {
-                            <MudSelectItem Value="@status" />
+                        <MudSelectItem Value="@status" />
                     }
                 </MudSelect>                 
             </div>

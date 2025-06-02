@@ -1,4 +1,4 @@
-﻿@page "/uploadDocumentsXmlFile"
+﻿@page "/uploadDocumentXmlFile"
 @using Newtonsoft.Json
 
 @inject ISnackbar Snackbar
@@ -109,16 +109,16 @@
                     return;
                 }
             }
-            
+
             Snackbar.Add($"Данные не загружены.", Severity.Error);
             ClearDragClass();
 
             return;
         }
-
-        /// CHECK uploaded files
+                
         if (_BrowserFile is null) return;
 
+        /// CHECK file before upload
         IsLoadingData = true;
 
         long maxFileSize = 1024 * 1000;
@@ -150,13 +150,16 @@
                     Snackbar.Add($"Data wasn't read.", Severity.Error);
                 else
                 {
-                    _AppObjResponse = new();
-
-                    _AppObjResponse.Description = readResponse.Description;
-                    _AppObjResponse.Errors = readResponse.Errors;
-                    _AppObjResponse.Object = JsonConvert.DeserializeObject<List<DocumentRecord>>(readResponse.Object?.ToString()!);
+                    _AppObjResponse = new()
+                    {
+                        Errors = readResponse.Errors,
+                        Description = readResponse.Description,                        
+                        Object = readResponse.Object == null ? null : JsonConvert.DeserializeObject<List<DocumentRecord>>(readResponse.Object?.ToString()!)
+                    };
                     
-                    IsChecked = true;   /// CHECKED AND READY TO UPLOAD
+                    /// CHECKED AND READY TO UPLOAD
+                    if (_AppObjResponse.Object != null)
+                        IsChecked = true;
                 }                
             }
             else

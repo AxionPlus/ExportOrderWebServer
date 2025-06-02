@@ -1,36 +1,34 @@
 ﻿@inject ISnackbar Snackbar
 @inject IJSRuntime jsRuntime
 @inject IDialogService DialogService
-@inject NavigationManager Navigation
 @inject IDocumentProvider _DocumentProvider
 @inject IExportOrderProvider _ExportOrderProvider
 
 <style>
-
     .Table.MultiSelection * table tr > th:first-child {
-    width: 30px;
+        width: 30px;
     }
 
-    .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
+/*     .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
     padding-inline-start: 4px;
-    }
+    } */
 
     .mud-input-control.mud-input-control-margin-dense {
-    margin: unset;
+        margin: unset;
     }
 
     .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-    padding: 8px;
+        padding: 8px;
     }
 
     .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
-    margin-top: unset;
-    margin-bottom: unset;
+        margin-top: unset;
+        margin-bottom: unset;
     }
 
     .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
-    padding-inline-end: 6px;
-    padding-inline-start: unset;
+        padding-inline-end: 6px;
+        padding-inline-start: unset;
     }
 </style>
 
@@ -71,48 +69,34 @@
 
 <div class="Container-table">    
     <div class="tableMenu">
+        @if (IsSelectable)
+        {
+            <MudTooltip Text="upload selected" Duration="1500" Delay="1000">
+                <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Primary" OnClick="@(SelectItems_Click)" />
+            </MudTooltip>
+        }
         <MudSpacer />
         <TablePager T="DocumentEntity" Table="mudTable" ItemsCount="@Items?.Count()" />
     </div>
     <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" @bind-SelectedItems="SelectedItems"
-              MultiSelection="IsSelectable" SelectOnRowClick="false" Virtualize="true" Loading="IsLoadingData" RowsPerPage="10">
+              MultiSelection="IsSelectable" SelectOnRowClick="false" Virtualize="true" Loading="IsLoadingData" RowsPerPage="15">
         <HeaderContent>
-            @if (!IsSelectable)
-            {
-                <MudTh Style="width:30px"></MudTh>
-            }                
-            <MudTh Style="width:30px">
-                @if (IsSelectable)
-                {
-                    <MudTooltip Text="upload selected">
-                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Primary" OnClick="@(SelectItems_Click)" />
-                    </MudTooltip>
-                }
-            </MudTh>
+            <MudTh Style="width:30px"></MudTh>
             <MudTh Style="width:50px">Type</MudTh>
             <MudTh Style="width:230px">
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="text-align:start">
+            <MudTh Style="text-align:start; width:300px">
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Shipper!.Name!)">Shipper</MudTableSortLabel>
             </MudTh>
             <MudTh Style="text-align:start">
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Consignee!.Name!)">Consignee</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:80px">Status</MudTh>
+            <MudTh Style="width:30px"></MudTh>
         </HeaderContent>
         <RowTemplate>
-            @if (!IsSelectable)
-            {
-@*                 <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await OpenItem_Click(context.Id))" /></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async () => await RemoveItem_Click(context.Name, context.Id))" /></MudTd> *@
-                <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>OpenItem_Click(context.Id))" /></MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(()=>RemoveItem_Click(context.Name, context.Id))" /></MudTd>
-            }
-            else
-            {
-                <MudTd></MudTd>                
-            }            
+            <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>OpenItem_Click(context.Id))" /></MudTd>            
             <MudTd>@context.Type.ToString()</MudTd>
             <MudTd>
                 <MudLink OnClick="@(()=> ShowExportOrderNums_Click(context.Name))">@context.Name</MudLink>
@@ -123,6 +107,7 @@
             <MudTd Style="text-align: start">@(context.Shipper == null ? "---" : context.Shipper.Name)</MudTd>
             <MudTd Style="text-align: start">@(context.Consignee == null ? "---" : context.Consignee.Name)</MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(() => RemoveItem_Click(context.Name, context.Id))" /></MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -199,7 +184,7 @@
 
     private async Task OpenItem_Click(long id)
     {
-        await jsRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.MainPageUrl}document?Id={id}", "_blank");        
+        await jsRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.MainPageUrl}document?Id={id}", "_blank");
     }
 
     private async void SelectItems_Click()

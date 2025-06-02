@@ -12,90 +12,90 @@
 <style>
 
     .Container-item > .container-content.ExpOrder {
-    align-items: flex-start;
-    justify-content: flex-start;
+        align-items: flex-start;
+        justify-content: flex-start;
     }
 
     .mud-picker-inline { flex: unset; }
 
     .wrapper-input-date > .mud-input-control {
-    margin-top: 3px;
+        margin-top: 3px;
     }
 
     .mud-input.mud-input-outlined.mud-input-adorned-end {
-    padding-inline-end: 4px;
-    padding-right: 4px;
+        padding-inline-end: 4px;
+        padding-right: 4px;
     }
 
     .mud-icon-button { padding: 3px; }
 
     .wrapper-input * .mud-icon-size-small {
-    color:currentColor;
+        color:currentColor;
     }
 
     .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
-    margin-top: 1px;
+        margin-top: 1px;
     }
 
     .wrapper-input-select * .mud-icon-button-size-small.mud-icon-button-edge-end {
-    margin-inline-end: unset;
+        margin-inline-end: unset;
     }
 
     .sub-Table {
-    background-color: lightblue;
-    transition: none;
-    box-shadow: none;
+        background-color: lightblue;
+        transition: none;
+        box-shadow: none;
     }
 
     .Table * .mud-table-cell { padding: 4px; }
 
     .Table * .mud-table-cell *.mud-input-control {
-    margin: unset;
+        margin: unset;
     }
 
     .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined {
-    padding: 4px 4px 1px 4px;
+        padding: 4px 4px 1px 4px;
     }
 
     .mud-table-foot > .mud-table-row {
-    background-color: lightgray;
+        background: lightgray;
     }
 
     .mud-list-item-gutters {
-    padding-left:4px;
-    padding-right:4px;
+        padding-left:4px;
+        padding-right:4px;
     }
 
     .mud-list.mud-list-padding {
-    padding-top:2px;
-    padding-bottom:2px;
+        padding-top:2px;
+        padding-bottom:2px;
     }
 
     .SelectField * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
-    text-align:center;
+        text-align:center;
     }
 
     .TextField_Sum * .mud-input > input.mud-input-root-outlined {
-    text-align: end;
+        text-align: end;
     }
 
-    .NumericField_Content * .mud-input > input.mud-input-root-outlined {
-    text-align: end;
-    }
+/*     .NumericField_Content * .mud-input > input.mud-input-root-outlined {
+        text-align: end;
+    } */
 
     .QuantityField * .mud-input > input.mud-input-root-outlined {
-    text-align: center;
+        text-align: center;
     }
 
     .Summary {
-    margin-top: 3px;
-    margin-bottom: 3px;
-    color: var(--mud-palette-primary);
+        margin-top: 3px;
+        margin-bottom: 3px;
+        color: var(--mud-palette-primary);
     }
 
     .container-content-head {
-    margin-bottom: unset;
-    align-self: center;
+        margin-bottom: unset;
+        align-self: center;
     }
 
     .infoSC { margin-bottom: 3px; }
@@ -503,7 +503,8 @@
 
         var parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Document_Index>(null, parameters, options);
+        //var dialog = await DialogService.ShowAsync<Document_Index>(null, parameters, options);
+        var dialog = await DialogService.ShowAsync<DocumentComponent>(null, parameters, options);
 
         var result = await dialog.Result;
 

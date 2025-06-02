@@ -37,16 +37,14 @@
     </MudToolBar>
 </div>
 
-<DocumentComponent IsSelectable="IsSelectable" />
+<DocumentComponent />
 
 @code {
     [CascadingParameter] public string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    [SupplyParameterFromQuery]
-    [Parameter] public bool IsSelectable { get; set; } = false;
-
+    
     private async Task OpenNewItem_Click()
     {        
-        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}document?IsNewItem={true}");    //await jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}document?IsNewItem={true}", "_blank");
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}document", "_blank");
     }
 }

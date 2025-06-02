@@ -188,7 +188,7 @@ body {
     padding-inline-end: 2px;
 }
 
-
+/*TEXT_FIELD*/
 .TextField {
 }
 
@@ -207,9 +207,20 @@ body {
     .TextField .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
         line-height: 16px;
     }
-    /*    .TextField > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 16px;
-    }*/
+
+    .TextField.Numeric * .mud-input > input.mud-input-root-outlined {
+        text-align: end;
+    }
+
+    .TextField.Weight * .mud-input > input.mud-input-root-outlined {
+        padding: 3px;
+        text-align: end;
+    }
+
+    .TextField.IMO * .mud-input > input.mud-input-root-outlined {
+        padding: 3px;
+        text-align: center;
+    }
 
     .TextField .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
         transform: translate(14px,-6px) scale(.70);
@@ -273,7 +284,7 @@ body {
         line-height: 1.1rem;
     }
 
-    .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
+/*    .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
         padding: 4px 0px 1px 6px;
         font-size: 0.92rem;
         font-weight: 500;
@@ -283,7 +294,7 @@ body {
         padding: 4px 0px 1px 6px;
         font-size: 0.92rem;
         font-weight: 500;
-    }
+    }*/
 
 
     .Table * .mud-table-cell *.mud-input-control {
@@ -291,8 +302,8 @@ body {
     }
 
     .Table * .mud-table-cell * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-right: 0px;
-        padding-inline-end: 8px;
+        padding-right: unset;
+        padding-inline-end: unset;
         padding-inline-start: unset;
     }
 

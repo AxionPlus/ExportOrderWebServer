@@ -4,88 +4,79 @@
 @inject IJSRuntime jsRuntime
 
 <style>
-
     .Table * .mud-table-cell {
-    padding:2px;
+        padding: 2px;
     }
 
-    .mud-input > textarea.mud-input-root-outlined.mud-input-root-margin-dense 
-    {
-    margin: 6px 6px;
+    .mud-input > textarea.mud-input-root-outlined.mud-input-root-margin-dense {
+        margin: 5px 5px;
     }
 
     .mud-input > input.mud-input-root.mud-input-root-margin-dense {
-    padding: 8px;
+        padding: 8px;
     }
 
     .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
-    padding-inline-start: 4px;
+        padding-inline-start: 4px;
     }
 
     .mud-input-control.mud-input-control-margin-dense {
-    margin: unset;
+        margin: unset;
     }
 
     .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
-    margin-top: unset;
-    margin-bottom: unset;
+        margin-top: unset;
+        margin-bottom: unset;
     }
 
     .mud-input-control.TextField > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-    line-height: 14px;
+        line-height: 14px;
     }
 
     .Document_row {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
     .mud-icon-button-edge-margin-end {
-    margin-right: unset;
-    margin-inline-end: unset;
-    margin-inline-start: unset;
+        margin-right: unset;
+        margin-inline-end: unset;
+        margin-inline-start: unset;
     }
 
     .mud-select {
-    flex-grow: 0;
+        flex-grow: 0;
     }
 
     .mud-icon-button-size-small.mud-icon-button-edge-end {
-    margin-inline-end: 3px;
+        margin-inline-end: 3px;
     }
 
-    .GoodWeight {
-    display: flex;
-    width: 176px;
-    }
-    .GoodWeight > .numField_Label {
-    width: 38px; margin: 4px; text-align: end;
-    }
-
-    .GoodWeight * .mud-input.mud-input-outlined {
-    width: 130px;
+    .mud-input-adornment-end {
+        margin-left: 4px;
+        margin-inline-start: 4px;
     }
 
     .IMOWeight {
-    display: flex;
-    width:90px;
+        display: flex;
+        width:90px;
     }
 
     .IMOWeight> .numField_Label {
-    width:30px; margin:4px; text-align:end;
+        width:30px; margin:4px; text-align:end;
     }
 
     .IMOWeight * .mud-input.mud-input-outlined {
-    width: 50px;
+        width: 50px;
     }
 
     .mud-input-control.wrapper-input.NoHeader {
-    margin-top: 1px;
+        margin-top: 1px;
     }
 
     .wrapper-input.NoHeader * .mud-input > input.mud-input-root-outlined {
-    padding: 3px;
+        padding: 3px;
     }
 
 </style>
@@ -159,9 +150,7 @@
     </div>    
 
     <div class="Container-table">
-
         <MudTable @ref="mudTable" Class="Table" Items="@Value.Records" HorizontalScrollbar="true" FixedHeader Height="520px">
-
             <HeaderContent>
                 <MudTh Style="width:40px;">
                     <div class="controlIconButtons">
@@ -174,11 +163,11 @@
                 <MudTh Style="width:100px">HS code</MudTh>
                 <MudTh Style="width:360px">Товар (рус.)</MudTh>
                 <MudTh Style="width:360px">Товар (En.)</MudTh>
-                <MudTh Style="width:188px">Вес</MudTh>
-                <MudTh Style="width:38px">IMO</MudTh>
+                <MudTh Style="width:88px">Netto</MudTh>
+                <MudTh Style="width:88px">Gross</MudTh>
+                <MudTh Style="width:40px">IMO</MudTh>
                 <MudTh Style="width:106px">номер</MudTh>
             </HeaderContent>
-
             <RowTemplate>                
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{ await RemoveRecord_Click(context);})"
@@ -187,28 +176,24 @@
                 <MudTd>@context.Seq.ToString("000")</MudTd>
                 <MudTd><b>@context.CommodityHSCode</b></MudTd>
                 <MudTd>                    
-                    <MudTextField Class="TextField" T="string" Style="width:352px" @bind-Value="@context.CommodityName"
+                    <MudTextField Class="TextField" T="string" Style="width:356px" @bind-Value="@context.CommodityName"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField" T="string" Style="width:352px" Value="@context.CommodityEngName"
+                    <MudTextField Class="TextField" T="string" Style="width:356px" Value="@context.CommodityEngName"
                                   ValueChanged="@((e) => { e.ToUpper(); context.CommodityEngName = e.ToUpper();})"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 Required RequiredError=""
                                   Adornment="Adornment.End" IconSize="Size.Small"
                                   AdornmentIcon="@Icons.Material.Filled.CopyAll"
                                   OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" />                    
-                </MudTd>                
+                </MudTd>
                 <MudTd>
-                    <div class="GoodWeight">
-                        <div class="numField_Label">gross</div>
-                        <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.GrossWt"
-                                         Variant="Variant.Outlined" Format="N3" HideSpinButtons="true" ReadOnly/>
-                    </div>
-                    <div class="GoodWeight">
-                        <div class="numField_Label">net</div>
-                        <MudNumericField Class="wrapper-input NoHeader" @bind-Value="@context.NetWt"
-                                         Variant="Variant.Outlined" Format="N3" HideSpinButtons="true" ReadOnly />
-                    </div>                    
+                    <MudTextField Class="TextField Weight" T="double" Format="## ##0.###" @bind-Value="@context.NetWt"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                </MudTd>
+                <MudTd>
+                    <MudTextField Class="TextField Weight" T="double" Format="## ##0.###" @bind-Value="@context.GrossWt"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
                 <MudTd>
                     @if (context.IsIMO.Equals(true))
@@ -221,25 +206,25 @@
                 <MudTd>
                     <div class="IMOWeight">
                         <div class="numField_Label">IMO</div>
-                        <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.IMO"
+                        <MudTextField Class="TextField IMO" T="string" @bind-Value="@context.IMO"
                                       Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </div>
                     <div class="IMOWeight">
                         <div class="numField_Label">UN</div>
-                        <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.UNNO"
+                        <MudTextField Class="TextField IMO" T="string" @bind-Value="@context.UNNO"
                                       Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" />
                     </div>
                 </MudTd>
             </RowTemplate>
-
         </MudTable>
     </div>
 
-    <div class="totalFooter pt-3">
-        <div>
+    @if (Value is not null && Value.Records is not null && Value.Records.Any())
+    {
+        <div class="pt-3">
             <h6>Total commodity records: @Value?.Records.Count().ToString("000")</h6>
-        </div>
-    </div>    
+        </div>    
+    }
 }
 
 @code {

@@ -11,12 +11,12 @@
 
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">                     
-            <div class="ToolBar-iconbutton">
+@*             <div class="ToolBar-iconbutton">
                 <MudTooltip Text="EXIT">
                     <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" OnClick="CloseWindow_Click"
                                    Icon="@Icons.Material.Outlined.ExitToApp" />
                 </MudTooltip>
-            </div>            
+            </div>   *@          
             <div class="ToolBar-iconbutton" style="margin-left:20px">
                 <MudTooltip Class="ExitIconButton" Text="Copy Declaration" Delay="500" Duration="1000">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
@@ -27,7 +27,7 @@
             <MudSpacer />
             <div class="ToolBar-iconbutton" style="margin-right: 20px">
                 <MudTooltip Text="Upload New Documents" Delay="1000" Duration="1500">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.FileUpload" OnClick="UploadNewItemRecords_Click" />
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.FileUpload" OnClick="UploadNewItemFromXml_Click" />
                 </MudTooltip>
             </div>
             <div class="ToolBar-iconbutton" style="margin-right:20px">
@@ -55,15 +55,15 @@
 @code {
     private MudForm Form { get; set; } = new();
     [CascadingParameter] public string? ApplicationUser { get; set; }
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }    
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     [SupplyParameterFromQuery]
     [Parameter]
-    public long Id { get; set; }
+    public long Id { get; set; } = 0;
 
-    [SupplyParameterFromQuery]
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
+    // [SupplyParameterFromQuery]
+    // [Parameter]
+    // public bool IsNewItem { get; set; } = false;
 
     private DocumentEntity? Item { get; set; }
     private bool IsLoadingData = false;
@@ -78,7 +78,7 @@
 
     private async Task GetItem()
     {
-        if (IsNewItem)
+        if (Id == 0)          //IsNewItem
             Item = new();
         else
         {
@@ -93,8 +93,8 @@
             IsLoadingData = false;
         }
 
-        //await InvokeAsync(StateHasChanged);
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
+        //StateHasChanged();
     }
 
     public async Task SaveItem()
@@ -119,7 +119,7 @@
         /// SAVE
         IsLoadingData = true;
 
-        if (IsNewItem)
+        if (Id == 0)
         {
             var response = await _documentProvider.NewItemAsync(Item, ApplicationUser);
             if (!response.HasErrors)
@@ -144,7 +144,7 @@
             }
         }
 
-        IsNewItem = false;
+        //IsNewItem = false;
         Id = Item.Id;
 
         IsLoadingData = false;
@@ -180,18 +180,17 @@
         {
             Type = initialItem.Type,
             Description = initialItem.Description,
-            //ContarctNo = initialItem.ContarctNo,
             Shipper = initialItem.Shipper,
             Consignee = initialItem.Consignee,
             Records = records
         };
 
-        IsNewItem = true;
+        //IsNewItem = true;
 
         StateHasChanged();
     }
 
-    private async Task UploadNewItemRecords_Click()
+    private async Task UploadNewItemFromXml_Click()
     {
         if (Item is null) return;
 
@@ -205,9 +204,15 @@
                 return;
         }
 
+        if (string.IsNullOrWhiteSpace(Item.Name))
+        {
+            Snackbar.Add("Сначала заполните поле с номером ДТ.", Severity.Warning);
+            return;
+        }
+
         var parameters = new DialogParameters { ["ApplicationUser"] = ApplicationUser, ["DocumentName"] = Item.Name };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<UploadDocuments>("Импорт списка товаров из ДТ", parameters, options);
+        var dialog = DialogService.Show<UploadDocument>("Импорт списка товаров из ДТ", parameters, options);
 
         var dialogResult = await dialog.Result;
 
@@ -228,7 +233,7 @@
         {
             try
             {
-                await jsRuntime.InvokeVoidAsync("window.close");
+                await jsRuntime.InvokeVoidAsync("closeWindow"); //window.close
             }
             catch (Exception ex)
             {

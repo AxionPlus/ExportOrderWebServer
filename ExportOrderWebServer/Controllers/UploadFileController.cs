@@ -60,15 +60,14 @@ public class UploadFileController : ControllerBase
 
         using (IXmlFileReadService xmlFileReadService = new XmlFileReadService())
         {
-            var readResult = await xmlFileReadService.ReadXmlFileDocumentRecords(filePath);
+            var readResult = await xmlFileReadService.ReadXmlFileDocument(filePath);
 
+            /// CHECK uploaded DATA
             if (readResult is not null && readResult.Any())
-            {
-                /// CHECK uploaded DATA
+            {                
                 var errors = await _UploadResultService.CheckUploadedDocumentRecords(readResult, DocumentName);
                 if (errors is not null && errors.Any())
                     _AppObjectResponse.Errors.AddRange(errors);
-
 
                 /// CREATE new Document Records                
                 List<DocumentRecord> newDocumentRecords = new();

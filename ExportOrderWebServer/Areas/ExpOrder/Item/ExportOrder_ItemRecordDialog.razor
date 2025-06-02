@@ -7,12 +7,12 @@
 
 <style>
     .Table * .mud-table-cell .mud-input-control * .mud-icon-size-small {
-    margin-top: unset;
+        margin-top: unset;
     }
 
     .wrapper-input * .mud-icon-button-size-small.mud-icon-button-edge-end {
-    margin-top: 2px;
-    margin-inline-end: 3px;
+        margin-top: 2px;
+        margin-inline-end: 3px;
     }
 </style>
 
@@ -37,7 +37,7 @@
                                     ADD new content</MudIconButton>
                             </MudTh>
                             <MudTh Style="width:240px">Document</MudTh>
-                            <MudTh Style="width:142px">HS Code</MudTh>
+                            <MudTh Style="width:130px">HS Code</MudTh>
                             <MudTh Style="width:200px">Commodity Name</MudTh>
                             <MudTh Style="width: 70px">PkgQty</MudTh>
                             <MudTh Style="width:120px">PkgName</MudTh>
@@ -59,7 +59,7 @@
                                                OnClick="@(async () => { RemoveContainerContent_Click(context); })" />
                             </MudTd>
                             <MudTd>
-                                <MudSelect Class="wrapper-input" T="string" Style="width:200px" Value="@context.DocumentName"
+                                <MudSelect Class="wrapper-input" T="string" Style="width:232px" Value="@context.DocumentName"
                                            ValueChanged="@(t => { context.DocumentName = t; context.DocumentRecord = new DocumentRecord(); })"
                                            Variant="Variant.Outlined" OpenIcon="" Required RequiredError="" Clearable>
                                     @if (DocumentNames != null)
@@ -70,7 +70,7 @@
                                 </MudSelect>
                             </MudTd>
                             <MudTd>
-                                <MudSelect Class="wrapper-input" Style="width:120px" T="DocumentRecord" @bind-Value="@context.DocumentRecord"
+                                <MudSelect Class="wrapper-input" Style="width:122px" T="DocumentRecord" @bind-Value="@context.DocumentRecord"
                                            ToStringFunc="@(dr => dr != null ? dr.CommodityHSCode : "")"
                                            Variant="Variant.Outlined" Margin="Margin.Dense"
                                            OpenIcon="" Required RequiredError="" Clearable>
@@ -86,22 +86,28 @@
                             </MudTd>
                             <MudTd>@(context.DocumentRecord is not null ? context.DocumentRecord.CommodityName : "")</MudTd>
                             <MudTd>
-                                <MudNumericField Class="wrapper-input NoHeader" T="uint?"  @bind-Value="@context.PackageQty" Variant="Variant.Outlined" HideSpinButtons  />
+                                @* <MudNumericField Class="wrapper-input NoHeader" T="uint?"  @bind-Value="@context.PackageQty" Variant="Variant.Outlined" HideSpinButtons  /> *@
+                                <MudTextField Class="TextField Numeric" T="uint?" @bind-Value="@context.PackageQty" Variant="Variant.Outlined" Margin="Margin.Dense" />
                             </MudTd>
                             <MudTd>
-                                <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.PackageName" Variant="Variant.Outlined" />
+                                @* <MudTextField Class="wrapper-input NoHeader" T="string" @bind-Value="@context.PackageName" Variant="Variant.Outlined" /> *@
+                                <MudTextField Class="TextField" T="string" @bind-Value="@context.PackageName" Variant="Variant.Outlined" Margin="Margin.Dense" />
                             </MudTd>
                             <MudTd>
-                                <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.NetWt" Variant="Variant.Outlined" HideSpinButtons />
+                                @* <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.NetWt" Variant="Variant.Outlined" HideSpinButtons /> *@
+                                <MudTextField Class="TextField Numeric" T="double?" @bind-Value="@context.NetWt" Variant="Variant.Outlined" Margin="Margin.Dense" />
                             </MudTd>
                             <MudTd>
-                                <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.GrossWt" Variant="Variant.Outlined" HideSpinButtons />
+                                @* <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.GrossWt" Variant="Variant.Outlined" HideSpinButtons /> *@
+                                <MudTextField Class="TextField Numeric" T="double?" @bind-Value="@context.GrossWt" Variant="Variant.Outlined" Margin="Margin.Dense" />
                             </MudTd>
                             <MudTd>
-                                <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.Volume" Variant="Variant.Outlined" HideSpinButtons Disabled />
+                                @* <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.Volume" Variant="Variant.Outlined" HideSpinButtons Disabled /> *@
+                                <MudTextField Class="TextField Numeric" T="double?" @bind-Value="@context.Volume" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled />
                             </MudTd>
                             <MudTd Style="width: 95px">
-                                <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.SupplementaryUnitQuantity" Variant="Variant.Outlined" HideSpinButtons />
+                                @* <MudNumericField Class="wrapper-input NoHeader" T="double?" @bind-Value="@context.SupplementaryUnitQuantity" Variant="Variant.Outlined" HideSpinButtons /> *@
+                                <MudTextField Class="TextField Numeric" T="double?" @bind-Value="@context.SupplementaryUnitQuantity" Variant="Variant.Outlined" Margin="Margin.Dense" />
                             </MudTd>
                             <MudTd Style="width: 60px">
                                 <MudAutocomplete Class="wrapper-input NoHeader" T="SupplementaryUnitCatalog" @bind-Value="context.SupplementaryUnit"

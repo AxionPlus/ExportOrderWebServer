@@ -15,3 +15,22 @@ window.focusLastRow = function () {
         lastRow.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 }
+
+function closeWindow() {
+    if (confirm("Do you want to close Window?")) {
+        try {
+            // Пытаемся закрыть вкладку
+            window.close();
+
+            // Если window.close() не сработал, но и не выбросил ошибку
+            setTimeout(() => {
+                if (!window.closed) {
+                    alert("Pls close Window manually, since it was open that way (Ctrl + W / Cmd + W)");
+                }
+            }, 100);
+        } catch (e) {
+            // Если браузер явно запретил закрытие
+            alert("Pls close Window manually, since it was open that way (Ctrl + W / Cmd + W)");
+        }
+    }
+}

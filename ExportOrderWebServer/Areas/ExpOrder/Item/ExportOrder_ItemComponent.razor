@@ -503,8 +503,7 @@
 
         var parameters = new DialogParameters { ["IsSelectable"] = true };
         var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
-        //var dialog = await DialogService.ShowAsync<Document_Index>(null, parameters, options);
-        var dialog = await DialogService.ShowAsync<DocumentComponent>(null, parameters, options);
+        var dialog = await DialogService.ShowAsync<Document_Index>(null, parameters, options);
 
         var result = await dialog.Result;
 

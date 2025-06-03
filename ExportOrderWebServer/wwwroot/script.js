@@ -1,10 +1,10 @@
 function jsSaveAsFile(filename, byteBase64) {
-  var link = document.createElement('a');
-  link.download = filename;
-  link.href = "data:application/octet-stream;base64," + byteBase64;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    var link = document.createElement('a');
+    link.download = filename;
+    link.href = "data:application/octet-stream;base64," + byteBase64;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 window.focusLastRow = function () {
@@ -32,5 +32,6 @@ function closeWindow() {
             // Если браузер явно запретил закрытие
             alert("Pls close Window manually, since it was open that way (Ctrl + W / Cmd + W)");
         }
+
     }
 }

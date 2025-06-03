@@ -11,7 +11,7 @@ public class DownloadFileController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IExportOrderProvider _exportOrderProvider;
 
-    public DownloadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider, IExcelFileCreateService ExcelFileCreateService)
+    public DownloadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider)
     {
         _webHostEnvironment = webHostEnvironment;
         _exportOrderProvider = exportOrderProvider;

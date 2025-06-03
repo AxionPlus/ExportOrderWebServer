@@ -3,7 +3,7 @@
 namespace ExportOrderWebServer.Areas.Import;
 public class TimedHostedService : IHostedService, IDisposable
 {
-    private TimeSpan loopTime = TimeSpan.FromSeconds(90);
+    private TimeSpan loopTime = TimeSpan.FromSeconds(45);
     private TimeSpan loopTime_2 = TimeSpan.FromSeconds(60);
     private TimeSpan loopTime_3 = TimeSpan.FromSeconds(250);
     private TimeSpan loopTime_4 = TimeSpan.FromSeconds(300);
@@ -50,7 +50,7 @@ public class TimedHostedService : IHostedService, IDisposable
                 Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false).GetAwaiter().GetResult();
                 await _releaseImportService.CheckReleaseImportResponseAsync(dbContext);
                 _logger.LogInformation($"complete execute CheckReleaseImportResponseAsync {DateTime.Now}");
-                StaticParam.IMAP_BUSY = true;
+                StaticParam.IMAP_BUSY = false;
             }
         }
         catch (Exception ex)

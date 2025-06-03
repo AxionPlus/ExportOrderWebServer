@@ -65,7 +65,7 @@
     // [Parameter]
     // public bool IsNewItem { get; set; } = false;
 
-    private DocumentEntity? Item { get; set; }
+    private DocumentEntity Item { get; set; } = new();
     private bool IsLoadingData = false;
 
     protected override async Task OnAfterRenderAsync(bool first)
@@ -78,9 +78,7 @@
 
     private async Task GetItem()
     {
-        if (Id == 0)          //IsNewItem
-            Item = new();
-        else
+        if (!IsNewItem)
         {
             IsLoadingData = true;
 
@@ -234,7 +232,8 @@
         {
             try
             {
-                await jsRuntime.InvokeVoidAsync("closeWindow"); //window.close
+                //await jsRuntime.InvokeVoidAsync("window.close");
+                await jsRuntime.InvokeVoidAsync("closeWindow");
             }
             catch (Exception ex)
             {

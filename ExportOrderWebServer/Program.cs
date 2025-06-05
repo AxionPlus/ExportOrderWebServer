@@ -1,8 +1,10 @@
 using ExportOrderWebServer;
 using ExportOrderWebServer.Areas.Import;
 using ExportOrderWebServer.Areas.Import.BillofLadings.Provider;
+using ExportOrderWebServer.Areas.Import.ImportManifest.Provider;
 using ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider;
 using ExportOrderWebServer.Areas.Import.ReleaseRecords.Services;
+using ExportOrderWebServer.Areas.Import.VesselCall.Provider;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
@@ -58,7 +60,7 @@ services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJ
     // options
 });
 //builder.Services.AddAuthentication("tris.Identity").AddCookie();
-services.AddHostedService<TimedHostedService>();
+//services.AddHostedService<TimedHostedService>();
 services.AddRazorPages();
 services.AddServerSideBlazor();
 services.AddDatabaseDeveloperPageExceptionFilter();
@@ -75,6 +77,7 @@ services.AddTransient<ICustomsProvider, CustomsProvider>();
 services.AddTransient<ILocationProvider, LocationProvider>();
 services.AddTransient<ITerminalProvider, TerminalProvider>();
 services.AddTransient<IVesselProvider, VesselProvider>();
+services.AddTransient<IImportVesselCallProvider, ImportVesselCallProvider>();
 services.AddTransient<IVesselCallProvider, VesselCallProvider>();
 services.AddTransient<ICntrTypeProvider, CntrTypeProvider>();
 services.AddTransient<IDocumentProvider, DocumentProvider>();
@@ -84,6 +87,7 @@ services.AddTransient<ISupplementaryUnitProvider, SupplementaryUnitProvider>();
 services.AddTransient<IBillofLadingProvider, BillofLadingProvider>();
 services.AddTransient<IReleaseImportProvider, ReleaseImportProvider>();
 services.AddTransient<IReleaseService, ReleaseService>();
+services.AddTransient<IImportManifestProvider, ImportManifestProvider>();
 
 services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
 services.AddTransient<StatisticProvider>();

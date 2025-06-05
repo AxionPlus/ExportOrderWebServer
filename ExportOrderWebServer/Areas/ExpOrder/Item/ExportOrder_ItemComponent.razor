@@ -1,4 +1,5 @@
-﻿@inject AuthenticationStateProvider authenticationStateProvider
+﻿@using ExportOrderWebServer.Areas.Import.VesselCall.Provider
+@inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IJSRuntime jsRuntime
@@ -6,7 +7,7 @@
 @inject IExportOrderProvider _exportOrderProvider
 @inject ICntrTypeProvider _cntrTypeProvider
 @inject ICarrierProvider _carrierProvider
-@inject IVesselCallProvider _vesselCallProvider
+@inject IImportVesselCallProvider _vesselCallProvider
 @inject IValidationService _validationService
 
 <style>

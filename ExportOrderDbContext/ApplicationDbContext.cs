@@ -1,5 +1,6 @@
 ﻿using ExportOrderEntites.BillofLading;
 using ExportOrderEntites.EmailLogRecords;
+using ExportOrderEntites.ImportVesselCall;
 using ExportOrderEntites.ReleaseRecord;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -27,6 +28,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CntrTpSz> ContainerTypeSize { get; set; }
     public DbSet<VesselEntity> Vessels { get; set; }
     public DbSet<VesselCallEntity> VesselCalls { get; set; }
+    public DbSet<ImportVesselCallEntity> ImportVesselCalls { get; set; }
     public DbSet<DocumentEntity> Documents { get; set; }
     public DbSet<ExportOrderEntity> ExportOrders { get; set; }
     public DbSet<MyCompanyEntity> MyCompany { get; set; }
@@ -60,6 +62,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.ApplyConfiguration(new VesselConfiguration());
         modelBuilder.ApplyConfiguration(new VesselCallConfiguration());
         modelBuilder.ApplyConfiguration(new VesselCallDetailConfiguration());
+        modelBuilder.ApplyConfiguration(new ImportVesselCallConfiguration());
+        modelBuilder.ApplyConfiguration(new ImportVesselCallDetailConfiguration());
 
         modelBuilder.ApplyConfiguration(new DocumentHistoryConfiguration());
         modelBuilder.ApplyConfiguration(new ExportOrderHistoryConfiguration());

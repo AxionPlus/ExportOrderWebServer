@@ -1,8 +1,9 @@
-﻿@using ExportOrderWebServer.Areas.Import.VesselCall.Provider
+﻿@using ExportOrderEntites.ImportVesselCall
+@using ExportOrderWebServer.Areas.Import.VesselCall.Provider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
-@inject IVesselCallProvider _vesselCallProvider
+@inject IImportVesselCallProvider _vesselCallProvider
 @inject IVesselProvider _vesselProvider
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
@@ -178,7 +179,7 @@
     private string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
     private MudForm? Form { get; set; }
-    private MudTable<VesselCallDetail>? mudTable;
+    private MudTable<ImportVesselCallDetail>? mudTable;
 
     [Parameter]
     public long Id { get; set; }
@@ -187,7 +188,7 @@
     [Parameter]
     public bool IsNewItem { get; set; } = false;
 
-    private VesselCallEntity? Item { get; set; }
+    private ImportVesselCallEntity? Item { get; set; }
 
     private bool IsLoadingData = false;
     private bool IsRoleForEdit = false;
@@ -206,12 +207,12 @@
     private async Task GetItem()
     {
         if (IsNewItem)
-            Item = new() { Details = new List<VesselCallDetail>() { new() } };
+            Item = new() { Details = new List<ImportVesselCallDetail>() { new() } };
         else
         {
             var response = await _vesselCallProvider.GetItemAsync(Id);
             if (!response.HasErrors && response.Object is not null)
-                Item = (VesselCallEntity)response.Object;
+                Item = (ImportVesselCallEntity)response.Object;
         }
     }
 
@@ -265,13 +266,13 @@
         Item?.Details.Add(new());
     }
 
-    private void RemoveDetail_Click(VesselCallDetail itemDetails)
+    private void RemoveDetail_Click(ImportVesselCallDetail itemDetails)
     {
-        if (itemDetails.ExportOrders.Count() > 0)
+        if (itemDetails.BillofLadings.Count() > 0)
         {
             string portName = itemDetails.POD is null ? string.Empty : (string.IsNullOrWhiteSpace(itemDetails.POD.Name) ? string.Empty : itemDetails.POD.Name);
 
-            Snackbar.Add($"В этом рейсе есть поручения.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки:<br>{portName}", Severity.Warning);
+            Snackbar.Add($"В этом рейсе есть Коносаменты.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки:<br>{portName}", Severity.Warning);
             return;            
         }
 

@@ -1,4 +1,5 @@
 ﻿
+using ExportOrderEntites.ImportVesselCall;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -76,5 +77,43 @@ public class VesselCallHistoryConfiguration : IEntityTypeConfiguration<VesselCal
                     (c1, c2) => c1.SequenceEqual(c2),
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                     c => c.ToList()));
+    }
+}
+
+public class ImportVesselCallConfiguration : IEntityTypeConfiguration<ImportVesselCallEntity>
+{
+    public void Configure(EntityTypeBuilder<ImportVesselCallEntity> builder)
+    {
+        var converter = new ValueConverter<byte[], long>(
+            v => BitConverter.ToInt64(v, 0),
+            v => BitConverter.GetBytes(v));
+
+        builder
+            .Property(s => s.Version)
+            .HasColumnName("xmin")
+            .HasColumnType("xid")
+            .HasConversion(converter);
+
+        builder.HasMany(s => s.Details);
+    }
+}
+
+public class ImportVesselCallDetailConfiguration : IEntityTypeConfiguration<ImportVesselCallDetail>
+{
+    public void Configure(EntityTypeBuilder<ImportVesselCallDetail> builder)
+    {
+        var converter = new ValueConverter<byte[], long>(
+            v => BitConverter.ToInt64(v, 0),
+            v => BitConverter.GetBytes(v));
+
+        builder
+            .Property(s => s.Version)
+            .HasColumnName("xmin")
+            .HasColumnType("xid")
+            .HasConversion(converter);
+
+        builder.HasMany(s => s.BillofLadings);
+
+        builder.ToTable("ImportVesselCall_Details");
     }
 }

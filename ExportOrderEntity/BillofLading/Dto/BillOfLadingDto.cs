@@ -1,5 +1,5 @@
 ﻿
-namespace ExportOrderWebServer.Areas.Import.BillofLadings.Dto
+namespace ExportOrderEntites.BillofLading.Dto
 {
     public class BillOfLadingDto
     {
@@ -27,6 +27,14 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Dto
         public string? NotifyEmail { get; set; }
         public string? AdditionalInfo { get; set; }
 
+        public string? ShipperNameRu { get; set; }
+        public string? ShipperAddressRu { get; set; }
+        public string? ShipperCountryRu { get; set; }
+        public string? ConsigneeNameRu { get; set; }
+        public string? ConsigneeAddressRu { get; set; }
+        public string? ConsigneeCountryRu { get; set; }
+
+        public CustomsDeliveryMode? CustomsDeliveryMode { get; set; }
         /// <summary>
         /// 
         /// Origin of Goods
@@ -39,12 +47,14 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Dto
         public string? F_POD { get; set; }
 
         public IEnumerable<BillOfLadingContainerRecordDto> ContainerRecords { get; set; }
+        public uint Version { get; set; }
     }
 
 
 
     public class BillOfLadingContainerRecordDto
     {
+        public Guid  Id { get; set; }
         public required string ContainerNum { get; set; }
         public required string ContainerType { get; set; }
         public required int TareWeight { get; set; }
@@ -62,6 +72,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Dto
         public  int PackageQty { get; set; }
         public  string? CommodityCode { get; set; }
         public  string? GoodsDescription { get; set; }
-
+        public string? GoodsDescriptionRu { get; set; }
+        public uint Version { get; set; }
     }
 }

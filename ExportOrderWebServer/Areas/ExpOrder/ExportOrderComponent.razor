@@ -1,4 +1,5 @@
-﻿@inject ISnackbar Snackbar
+﻿@using ExportOrderWebServer.Areas.Import.VesselCall.Provider
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject HttpClient Http
 @inject IHttpCustomMethods HttpCustomMethod
@@ -7,7 +8,7 @@
 @inject IHttpClientFactory httpClient
 @inject IExportOrderProvider _exportOrderProvider
 @inject IVesselProvider _vesselProvider
-@inject IVesselCallProvider _vesselCallProvider
+@inject IImportVesselCallProvider _vesselCallProvider
 @inject ILocationProvider _locationProvider
 @inject ICarrierProvider _carrierProvider
 

@@ -59,11 +59,11 @@
 
     [SupplyParameterFromQuery]
     [Parameter]
-    public long Id { get; set; } = 0;
+    public long Id { get; set; }
 
-    // [SupplyParameterFromQuery]
-    // [Parameter]
-    // public bool IsNewItem { get; set; } = false;
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public bool IsNewItem { get; set; } = false;
 
     private DocumentEntity Item { get; set; } = new();
     private bool IsLoadingData = false;

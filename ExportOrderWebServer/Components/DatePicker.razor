@@ -15,7 +15,6 @@
                    Disabled="@Disabled"
                    ReadOnly="@ReadOnly"
                    ErrorText=""
-                   MinDate="MinDate"
                    Required="@Required" RequiredError="" Clearable="@Clearable" />
 </div>
 
@@ -36,8 +35,6 @@
 
     [Parameter]
     public DateTime? Date { get; set; }
-    [Parameter]
-    public DateTime? MinDate { get; set; }
 
     [Parameter]
     public EventCallback<DateTime?> DateChanged { get; set; }

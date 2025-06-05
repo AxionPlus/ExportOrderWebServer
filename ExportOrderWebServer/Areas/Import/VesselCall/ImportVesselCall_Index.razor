@@ -1,0 +1,50 @@
+﻿@page "/Importvesselcall"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Vessel Call</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large">
+
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>vessel calls</span></div>
+            <MudSpacer />
+
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="new vessel call">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+
+    <ImportVesselCallComponent @ref="component" />
+
+</MudContainer>
+
+@code {
+    private ImportVesselCallComponent component = new();
+
+    private async Task AddItem_Click()
+    {
+        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>("Import Vessel Call", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+            await component.GetItems();
+    }
+}

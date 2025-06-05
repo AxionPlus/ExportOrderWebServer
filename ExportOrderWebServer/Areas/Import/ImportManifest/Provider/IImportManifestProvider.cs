@@ -1,15 +1,15 @@
 ﻿using ExportOrderEntites.BillofLading;
 using ExportOrderEntites.BillofLading.Dto;
-using Microsoft.Office.Interop.Excel;
 
-namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
+namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
 {
-    public interface IBillofLadingProvider
+    public interface IImportManifestProvider
     {
         Task AddRecords(IEnumerable<BillOfLadingDto> records, string userName);
         Task<IEnumerable<BillOfLadingDto>> GetItemsAsync(FilterParameters filter);
+        Task UpdateBillOfLadingContainerRecords(IEnumerable<BillOfLadingContainerRecordDto> records);
     }
-    public class BillofLadingProvider : IBillofLadingProvider
+    public class ImportManifestProvider : IImportManifestProvider
     {
 
 
@@ -17,7 +17,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
 
         private AppObjectResponse appObjResponse = new();
 
-        public BillofLadingProvider(IDbContextFactory<ApplicationDbContext> dbContext)
+        public ImportManifestProvider(IDbContextFactory<ApplicationDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
@@ -110,7 +110,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
 
 
                 var BillofLadings = await db.Set<BillofLadingEntity>().Include(s => s.ContainerRecords)
-                    .Where(s => !billofLadingsNum.Any() || billofLadingsNum.Any(c => c == s.Num))
+                    .Where(s => filter.BolNo == "*" ? true : !billofLadingsNum.Any() || billofLadingsNum.Any(c => c == s.Num))
                     .Where(s => !containersNum.Any() || s.ContainerRecords.Any(cntr => containersNum.Any(c => c == cntr.ContainerNum)))
 
 
@@ -135,6 +135,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                         POD = billofLading.POD,
                         ContainerRecords = billofLading.ContainerRecords.Select(rec => new BillOfLadingContainerRecordDto()
                         {
+                            Id = rec.Id,
                             ContainerNum = rec.ContainerNum,
                             ContainerType = rec.ContainerType,
                             TareWeight = rec.TareWeight,
@@ -154,10 +155,39 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                             SealShr = rec.SealShr,
                             SealOth = rec.SealOth,
                             TempSet = rec.TempSet,
+                            Version = rec.Version,
                         }).ToList(),
 
                     }).ToArrayAsync();
                 return BillofLadings;
+            }
+        }
+
+        public async Task UpdateBillOfLadingContainerRecords(IEnumerable<BillOfLadingContainerRecordDto> records)
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+                foreach (var record in records)
+                {
+
+                    var updateRecord = await db.Set<BillofLadingContainerRecord>().AsNoTracking()
+                                               .FirstOrDefaultAsync(s => s.Id == record.Id);
+
+                    if (updateRecord is null) continue;
+                    if (updateRecord.Version != record.Version) continue;
+
+
+                    updateRecord.GoodsDescription = record.GoodsDescription;
+                    updateRecord.GoodsDescriptionRu = record.GoodsDescriptionRu;
+                    updateRecord.UpdatedAt = DateTimeOffset.Now;
+
+                    db.Entry(updateRecord).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+                }
+
+
             }
         }
     }

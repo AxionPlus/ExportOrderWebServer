@@ -48,5 +48,12 @@
         <MudNavLink Href="/releaseImport" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">release Import</MudNavLink>
         <MudNavLink Href="/releaseRecords" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">release Records</MudNavLink>
     </AuthorizeView>
+    <AuthorizeView Roles="Admin">
+        <MudNavLink Href="/ImportManifest" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Import Manifest</MudNavLink>
+        <MudNavLink Href="/Importvesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
+    </AuthorizeView>
+    
+    
+    
 
 </MudNavMenu>

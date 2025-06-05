@@ -1,0 +1,49 @@
+﻿@using ExportOrderEntites.BillofLading.Dto
+@using ExportOrderWebServer.Areas.Import.ImportManifest.Provider
+@inject IImportManifestProvider ImportManifestProvider
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudContainer>
+
+    <H5>@CargoDesctiption</H5>
+
+    <TextField Label="En Name" @bind-Value="@CargoDesctiptionEn" Required />
+    <TextField Label="Ru Name" @bind-Value="@GoodsDescriptionRu" Required />
+    <TextField Label="HS CODE" @bind-Value="@CommodityCode" Required />
+
+    <MudButton OnClick="GetData_Click">Save</MudButton>
+</MudContainer>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public string CargoDesctiption { get; set; }
+
+    [Parameter] public IEnumerable<BillOfLadingContainerRecordDto> Records { get; set; } = new List<BillOfLadingContainerRecordDto>();
+
+    string CargoDesctiptionEn;
+    string GoodsDescriptionRu;
+    string CommodityCode;
+
+    private async Task GetData_Click(MouseEventArgs obj)
+    {
+        foreach (var record in Records)
+        {
+            if (!string.IsNullOrWhiteSpace(CargoDesctiptionEn))
+                record.GoodsDescription = CargoDesctiptionEn;
+
+            if (!string.IsNullOrWhiteSpace(GoodsDescriptionRu))
+                record.GoodsDescriptionRu = GoodsDescriptionRu;
+
+            if (!string.IsNullOrWhiteSpace(CommodityCode))
+                record.CommodityCode = CommodityCode;
+
+        }
+
+        await ImportManifestProvider.UpdateBillOfLadingContainerRecords(Records);
+
+        MudDialog?.Close(DialogResult.Ok(true));
+    }
+
+}

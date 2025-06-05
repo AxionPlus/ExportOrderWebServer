@@ -1,0 +1,107 @@
+﻿@inject ICountryProvider CountryProvider
+
+@if (NoHeader)
+{
+    <MudAutocomplete @ref="Name" Class="Autocomplete" T="string" Value="@Value"
+                     ValueChanged="@(async(e) => {
+                        if (UpperCase)
+                            await ValueChanged.InvokeAsync(e.ToUpper());
+                        else
+                            await ValueChanged.InvokeAsync(e);
+                     })"
+                     CloseIcon="" OpenIcon=""
+                     SearchFunc="LocationSearch"
+                     Variant="Variant.Outlined"
+                     CoerceValue="@CoerceValue"
+                     OnClearButtonClick="async(_)=>{await ValueChanged.InvokeAsync(null);}"
+                     CoerceText="@CoerceText"
+                     Required RequiredError=""
+                     Clearable />
+}
+else
+{
+    <div class="FieldContainer" style="@Style">
+        <div class="fieldName">@Label</div>
+        <MudAutocomplete @ref="Name" Class="@TextClass" T="string" Value="@Value"
+                         ValueChanged="@(async(e) => {
+                            if (UpperCase)
+                                await ValueChanged.InvokeAsync(e.ToUpper());
+                            else
+                                await ValueChanged.InvokeAsync(e);
+                         })"
+                         CloseIcon="" OpenIcon=""
+                         SearchFunc="LocationSearch"
+                         Variant="Variant.Outlined"
+                         CoerceValue="@CoerceValue"
+                         OnClearButtonClick="async(_)=>{await ValueChanged.InvokeAsync(null);}"
+                         CoerceText="@CoerceText"
+                         Required RequiredError=""
+                         Clearable />
+    </div>
+}
+@code {
+    MudAutocomplete<string> Name;
+
+    public async void Clear()
+    {
+        await Name.ClearAsync();
+    }
+    [Parameter]
+    public bool CoerceText { get; set; } = false;
+    [Parameter]
+    public bool UpperCase { get; set; } = false;
+    [Parameter]
+    public bool NoHeader { get; set; } = false;
+    [Parameter]
+    public bool IsContractor { get; set; } = false;
+    [Parameter]
+    public bool IsAgent { get; set; } = false;
+    [Parameter]
+    public bool IsCarrier { get; set; } = false;
+    [Parameter]
+    public bool CoerceValue { get; set; } = false;
+    [Parameter]
+    public bool Required { get; set; } = false;
+    [Parameter]
+    public string Label { get; set; }
+    [Parameter]
+    public string Style { get; set; } = "max-width:100px;";
+    [Parameter]
+    public bool IsRuName { get; set; } = false;
+    [Parameter]
+    public string? Value { get; set; }
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter]
+    public int TakeRecords { get; set; } = 10;
+    [Parameter]
+    public bool Dense { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+    
+    private string TextClass
+    {
+        get
+        {
+            var dense =  Dense ? " Dense" : "" ;
+
+            if (UpperCase)
+                return $"Autocomplete{dense} text-upper {Class}";
+            else
+                return $"Autocomplete{dense} {Class}";
+        }
+    }
+    private async Task<IEnumerable<string>> LocationSearch(string value, CancellationToken token)
+    {
+        var locations = IsRuName?  await CountryProvider.GetNames(): await CountryProvider.GetNamesEn();
+
+        if (string.IsNullOrEmpty(value))
+            return locations.Take(TakeRecords);
+
+        if (locations.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return locations.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Take(TakeRecords);
+    }
+}

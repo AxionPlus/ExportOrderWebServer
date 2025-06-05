@@ -1,4 +1,6 @@
-﻿namespace ExportOrderEntites.BillofLading
+﻿using ExportOrderEntites.ImportVesselCall;
+
+namespace ExportOrderEntites.BillofLading
 {
     public class BillofLadingEntity : EntityBase
 
@@ -27,6 +29,18 @@
         public string? NotifyEmail { get; set; }
         public string? AdditionalInfo { get; set; }
 
+        public string? ShipperNameRu { get; set; }
+        public string? ShipperAddressRu { get; set; }
+        public string? ShipperCountryRu { get; set; }
+
+
+        public string? ConsigneeNameRu { get; set; }
+        public string? ConsigneeAddressRu { get; set; }
+        public string? ConsigneeCountryRu { get; set; }
+        public CustomsDeliveryMode CustomsDeliveryMode { get; set; }
+
+
+
         /// <summary>
         /// 
         /// Origin of Goods
@@ -37,7 +51,7 @@
         public string? TS_PORT { get; set; }
         public string? POD { get; set; }
         public string? F_POD { get; set; }
-
+        public ImportVesselCallDetail? VesselCallDetail { get; set; }
         public ICollection<BillofLadingContainerRecord>? ContainerRecords { get; set; }
     }
 
@@ -74,6 +88,12 @@
         public string? CommodityGroup { get; set; }
         public string? CommodityCode { get; set; }
         public string? GoodsDescription { get; set; }
+        public string? GoodsDescriptionRu { get; set; }
     }
 
+
+    public enum CustomsDeliveryMode
+    {
+        GTD, VTT
+    }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using ExportOrderWebServer.Areas.Import.BillofLadings.Dto;
+using ExportOrderEntites.BillofLading.Dto;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Service;

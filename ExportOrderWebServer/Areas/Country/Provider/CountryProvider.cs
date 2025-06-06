@@ -1,12 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace ExportOrderWebServer.Areas.Country.Provider;
+﻿namespace ExportOrderWebServer.Areas.Country.Provider;
 public interface ICountryProvider : IEntityProvider<CountryCatalog>
 {
-    public  Task<IEnumerable<string>> GetNames();
-
-
-    public  Task<IEnumerable<string>> GetNamesEn();
 
 }
 

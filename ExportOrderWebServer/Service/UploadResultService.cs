@@ -49,13 +49,6 @@ public class UploadResultService : IUploadResultService
 
         if (uploadedCntrNums is not null && uploadedCntrNums != Array.Empty<string>())
         {
-            //using IValidationService validationService = new ValidationService(_exportOrderProvider);
-
-            //var cntrNumErros = await validationService.ValidateCntrNums(uploadedCntrNums!, eoId, voyageId, null);
-
-            //foreach (string err in cntrNumErros)
-            //    errList.Add(err.Insert(0, "---:"));
-
             using (IValidationService validationService = new ValidationService(_exportOrderProvider))
             {
                 var cntrNumErros = await validationService.ValidateCntrNums(uploadedCntrNums!, eoId, voyageId, null);

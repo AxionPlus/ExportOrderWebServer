@@ -1,4 +1,6 @@
-﻿namespace ExportOrderWebServer.Areas.Vessel.Provider;
+﻿using static MudBlazor.CategoryTypes;
+
+namespace ExportOrderWebServer.Areas.Vessel.Provider;
 
 public class VesselProvider : IVesselProvider
 {
@@ -32,7 +34,7 @@ public class VesselProvider : IVesselProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Vessels.ToListAsync();
+            appObjResponse.Object = await db.Vessels.ToArrayAsync();
             return appObjResponse;
         }
     }
@@ -75,9 +77,16 @@ public class VesselProvider : IVesselProvider
 
                 var modifyItem = await db.Vessels.Include(ve => ve.Flag).AsNoTracking().FirstOrDefaultAsync(s => s.Id == item.Id);
 
-                if (modifyItem!.Name != item.Name)
+                if (modifyItem is null)
                 {
-                    bool isItemExist = db.Terminals.Any(s => s.Name!.ToUpper() == item.Name!.ToUpper());
+                    appObjResponse.ErrorAdd($"Vessel NOT found.");
+                    return appObjResponse;
+                }
+
+                if (modifyItem.Name != item.Name)
+                {
+                    bool isItemExist = db.Terminals.Where(s => !string.IsNullOrWhiteSpace(s.Name))
+                                                   .Any(s => s.Name!.ToUpper() == (!string.IsNullOrWhiteSpace(item.Name) ? item.Name.ToUpper() : string.Empty));
 
                     if (isItemExist)
                     {
@@ -86,26 +95,23 @@ public class VesselProvider : IVesselProvider
                     }
                 }
 
-                modifyItem!.CreateUser = User;
-                modifyItem!.Name = item.Name;
-                modifyItem!.IMO = item.IMO;
-                modifyItem!.Flag = item.Flag;
-                modifyItem!.TerminalCode = item.TerminalCode;
-                modifyItem!.CaptainFamily = item.CaptainFamily;
-                modifyItem!.CaptainName = item.CaptainName;
+                modifyItem.CreateUser = User;
+                modifyItem.Name = item.Name;
+                modifyItem.IMO = item.IMO;
+                modifyItem.Flag = item.Flag;
+                modifyItem.TerminalCode = item.TerminalCode;
+                modifyItem.CaptainFamily = item.CaptainFamily;
+                modifyItem.CaptainName = item.CaptainName;
 
-                if (modifyItem!.Flag != null)
+                if (modifyItem.Flag != null)
                     db.Entry(modifyItem.Flag).State = EntityState.Unchanged;
                 else
                     db.Entry(modifyItem).Reference("Flag").IsModified = true;                  
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
-
                 db.Entry(modifyItem).State = EntityState.Modified;
-
                 //var bug = db.ChangeTracker.DebugView.LongView;
-
                 await db.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -154,9 +160,48 @@ public class VesselProvider : IVesselProvider
         }
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            try
+            {
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
+
+                var modifyItem = await db.Vessels.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+
+                if (modifyItem is not null)
+                {
+                    //modifyItem.CreateUser = User;
+                    //db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
+                    //modifyItem.Status = EntityStatus.Cancelled;
+
+                    //db.Entry(modifyItem).State = EntityState.Modified;
+
+                    db.Entry(modifyItem).State = EntityState.Deleted;
+                    //var bug = db.ChangeTracker.DebugView.LongView;
+                    await db.SaveChangesAsync();
+                }
+                else
+                    appObjResponse.ErrorAdd($"Item NOT found.");
+
+                return appObjResponse;
+            }
+            catch (Exception ex)
+            {
+                appObjResponse.ErrorAdd(ex.Message);
+                return appObjResponse;
+            }
+        }
     }
 
     public Task<IEnumerable<string>> GetNames()
@@ -169,7 +214,10 @@ public class VesselProvider : IVesselProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Vessels.OrderBy(s => s.Name).Select(s => s.Name!).ToListAsync();
+            return await db.Vessels.Where(s => !string.IsNullOrWhiteSpace(s.Name))
+                                   .Where(s => s.Status != EntityStatus.Cancelled)
+                                   .Select(s => s.Name!).OrderBy(s => s)
+                                   .ToArrayAsync();
         }
     }
         
@@ -178,7 +226,10 @@ public class VesselProvider : IVesselProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Vessels.Select(s => s.IMO!).ToListAsync();
+            return await db.Vessels.Where(s => !string.IsNullOrWhiteSpace(s.IMO))
+                                   .Where(s => s.Status != EntityStatus.Cancelled)
+                                   .Select(s => s.IMO!).OrderBy(s => s)
+                                   .ToArrayAsync();
         }
     }
 }

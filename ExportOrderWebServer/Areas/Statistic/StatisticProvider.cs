@@ -1,6 +1,11 @@
 ﻿namespace ExportOrderWebServer.Areas.Statistic;
 
-public class StatisticProvider
+public interface IStatisticProvider
+{
+    Task<AppObjectResponse> GetItemsAsync(object parameters);
+}
+
+public class StatisticProvider : IStatisticProvider
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContext;
     private AppObjectResponse appObjResponse = new();

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace ExportOrderWebServer.Controllers;
 
@@ -77,8 +78,32 @@ public class UploadFileController : ControllerBase
                 if (commodityResponse is not null && commodityResponse.Object is not null)
                     dbCommodities = (List<CommodityCatalog>)commodityResponse.Object;
 
+                /// Получаем текущие региональные настройки системы
+                CultureInfo currentCulture = CultureInfo.CurrentCulture;
+                /// Получаем символ разделителя дробной части
+                string decimalSeparator = currentCulture.NumberFormat.NumberDecimalSeparator;
+
                 foreach (ReadXmlDocumentRecordDTO record in readResult.OrderBy(s => s.Seq))
                 {
+                    /// Replace read DecimalSeparator with CurrentCulture-DecimalSeparator
+                    if (!string.IsNullOrEmpty(record.GrossWt))
+                    {
+                        if (record.GrossWt.Contains('.'))
+                            record.GrossWt = record.GrossWt.Replace(".", decimalSeparator);
+
+                        if (record.GrossWt.Contains(','))
+                            record.GrossWt = record.GrossWt.Replace(",", decimalSeparator);
+                    }
+
+                    if (!string.IsNullOrEmpty(record.NetWt))
+                    {
+                        if (record.NetWt.Contains('.'))
+                            record.NetWt = record.NetWt.Replace(".", decimalSeparator);
+
+                        if (record.NetWt.Contains(','))
+                            record.NetWt = record.NetWt.Replace(",", decimalSeparator);
+                    }
+
                     DocumentRecord newDocumentRecord = new()
                     {
                         Seq = record.Seq,

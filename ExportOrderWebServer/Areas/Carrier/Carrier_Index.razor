@@ -26,7 +26,7 @@
         </MudToolBar>
     </div>
 
-    <CarrierComponent @ref="component" />
+    <CarrierComponent @ref="component" ApplicationUser="@ApplicationUser" />
 
 </MudContainer>
 
@@ -37,15 +37,13 @@
 
     private async Task AddItem_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
-        dialog = await DialogService.ShowAsync<Carrier_ItemDialog>("New Carrier", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Carrier_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null) // && !result.Canceled
+        if (result is not null && result.Data != null && (bool)result.Data == true)
             await component!.GetItems();
     }
 }

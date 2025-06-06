@@ -4,105 +4,95 @@
 @inject ICountryProvider _countryProvider
 
 <div class="Container-item">
-        <div class="container-content">
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 350px" SearchFunc="@SearchNames"
-                                Value="Filter.Name"
-                                ValueChanged="(e)=> { Filter.Name = e; }"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                CloseIcon="" OpenIcon=""
-                                ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 350px" SearchFunc="@SearchNamesEn"
-                                Value="Filter.NameEn"
-                                ValueChanged="(e)=> { Filter.NameEn = e; }"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                CloseIcon="" OpenIcon=""
-                                ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Country" Style="width: 200px" SearchFunc="@SearchCountries"
-                                Value="Filter.Country"
-                                ValueChanged="(e)=> { Filter.Country = e; }"
-                                Variant="Variant.Outlined" Margin="Margin.Dense"
-                                CloseIcon="" OpenIcon=""
-                                ResetValueOnEmptyText="true" Clearable />
-            <MudSpacer />
-            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                    Variant="Variant.Filled" Color="Color.Secondary"
-                    OnClick="@(async () => { await GetItems(); })">
-                Search
-            </MudButton>
-        </div>
+    <div class="container-content">
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 350px" SearchFunc="@SearchNames"
+                            Value="Filter.Name"
+                            ValueChanged="(e)=> { Filter.Name = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="NameEng" Style="width: 350px" SearchFunc="@SearchNamesEn"
+                            Value="Filter.NameEn"
+                            ValueChanged="(e)=> { Filter.NameEn = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Country" Style="width: 250px" SearchFunc="@SearchCountries"
+                            Value="Filter.Country"
+                            ValueChanged="(e)=> { Filter.Country = e; }"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon=""
+                            ResetValueOnEmptyText="true" Clearable />
+        <MudSpacer />
+        <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="@GetItems"
+                   Variant="Variant.Filled" Color="Color.Secondary">
+            Search
+        </MudButton>
     </div>
+</div>
 
-@if (Items!.Count() > 0)
-{
-   <div class="Container-table">
-        <div class="tableMenu">
-            <MudSpacer />
-            @* <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span> *@
-        </div>
+<div class="Container-table">
+    <div class="tableMenu">
+        <MudSpacer />
         <TablePager T="CustomerCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
-
-        <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-
-           <HeaderContent>
-               @if (!IsSelectable)
-               {
-                   <MudTh Style="width:30px"></MudTh>
-                   <MudTh Style="width:30px"></MudTh>
-               }
-               else
-               {
-                   <MudTh Style="width:30px">
-                       <MudTooltip Text="add new">
-                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" OnClick="AddItem_Click" />
-                       </MudTooltip>
-                   </MudTh>
-               }
-               <MudTh Style="width:515px">
-                   <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
-               </MudTh>
-               <MudTh Style="width:515px">
-                   <MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel>
-               </MudTh>
-               <MudTh>
-                   <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
-               </MudTh>
-           </HeaderContent>
-           <RowTemplate>
-               @if (!IsSelectable)
-               {
-                   <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })" /></MudTd>
-                   <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.NameEn!, context.Id); })" /></MudTd>
-               }
-               else
-               {
-                   <MudTd>
-                        <MudTooltip Text="select">
-                            <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@(async()=>{ await SelectItem_Click(context); })" />
-                        </MudTooltip>
-                   </MudTd>
-               }
-               <MudTd Style="text-align: start">@context.Name</MudTd>
-               <MudTd Style="text-align: start">@context.NameEn</MudTd>
-               <MudTd>@context.Country!.RUS</MudTd>
-           </RowTemplate>
-           <PagerContent></PagerContent>
-        </MudTable>
-   </div>
-}
+    </div>
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="10">
+        <HeaderContent>               
+            <MudTh Style="width:30px">
+                @if (IsSelectable)
+                {
+                    <MudTooltip Text="add new" Duration="1500" Delay="1000" Placement="Placement.End">
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Size="Size.Small" OnClick="@(async () => await ShowItem_Click(null))" />
+                    </MudTooltip>
+                }
+            </MudTh>
+            <MudTh Style="width:515px"><MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel></MudTh>
+            <MudTh Style="width:515px"><MudTableSortLabel SortBy="new Func<CustomerCatalog, object>(x=>x.NameEn!)">Name En</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                 <MudTooltip Text="@(IsSelectable ? "select" : "show")" Duration="1500" Delay="1000" Placement="Placement.End">
+                     @if (IsSelectable)
+                     {
+                         <MudIconButton Icon="@Icons.Material.Filled.Upload" OnClick="@(() => SelectItem_Click(context))" />
+                     }
+                     else
+                     {
+                         <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(() => ShowItem_Click(context.Id))" />
+                     }
+                 </MudTooltip>
+            </MudTd>               
+            <MudTd Style="text-align: start">@context.Name</MudTd>
+            <MudTd Style="text-align: start">@context.NameEn</MudTd>
+            <MudTd>@context.Country?.RUS</MudTd>
+            <MudTd>
+                @if (!IsSelectable)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary"
+                                   OnClick="@(async () => { await RemoveItem_Click(context.NameEn, context.Id); })" />
+                }                
+            </MudTd>
+        </RowTemplate>
+        <PagerContent></PagerContent>
+    </MudTable>
+</div>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter]
+    public string? ApplicationUser { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
     [Parameter]
     public bool IsSelectable { get; set; } = false;
 
     private MudTable<CustomerCatalog> mudTable =  new();
 
-    private IEnumerable<CustomerCatalog>? Items { get; set; } = new List<CustomerCatalog>();
+    private IEnumerable<CustomerCatalog> Items { get; set; } = new List<CustomerCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
     bool IsLoadingData = false;
@@ -112,64 +102,57 @@
         IsLoadingData = true;
 
         var response = await _customerProvider.GetItemsAsync(Filter);
-        
+
         if (!response.HasErrors && response.Object is not null)
             Items = (IEnumerable<CustomerCatalog>)response.Object;
-        
+
         IsLoadingData = false;
 
         await InvokeAsync(StateHasChanged);        
     }
 
-    private async Task ShowItem_Click(long Id)
+    private async Task ShowItem_Click(long? Id)
     {
-        DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Customer_ItemDialog>("Customer", parameters, options);
+        var parameters = new DialogParameters();
+
+        if (Id != null)
+            parameters.Add("Id", Id);
+
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Customer_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result != null && result.Data != null && (bool)result.Data == true)
             await GetItems();
     }
 
-    private async Task AddItem_Click()
+    private async Task RemoveItem_Click(string? name, long id)
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Customer_ItemDialog>("New Customer", parameters, options);
-
-        var result = await dialog.Result;
-
-        if (result is not null && !result.Canceled)
-            await GetItems();
-    }
-
-    private async Task RemoveItem_Click(string name, long id)
-    {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Country:<br/>{name}<br/>",
-                          yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                        (MarkupString)$"<b>Do you want to remove record?</b> <br/>Customer: {name}<br/>",
+                                        yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _customerProvider.RemoveItemAsync(id);
+                IsLoadingData = true;
+                var response = await _customerProvider.RemoveItemAsync(id, ApplicationUser);
+                IsLoadingData = false;
 
-                if (!response.HasErrors)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                if (response.HasErrors)
+                    Snackbar.Add($"Unable to delete", Severity.Warning); 
                 else
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
+                {
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                    await GetItems();
+                }
             }
-
-        await GetItems();
     }
 
-    private async Task SelectItem_Click(CustomerCatalog item)
+    private void SelectItem_Click(CustomerCatalog item)
     {
-        await Task.Delay(50);
-        MudDialog!.Close(item);
+        MudDialog.Close(item);
     }
 
 
@@ -208,19 +191,16 @@
     }
 
     private async Task<IEnumerable<string>> SearchCountries(string value, CancellationToken token)
-    {
-        var result = await _countryProvider.GetNames();
-
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
+    {      
+        IEnumerable<string> result = await _countryProvider.GetNames();
 
         if (string.IsNullOrWhiteSpace(value))
-            return result;
-        else
-        {
-            result = result.Distinct().Order().ToList();
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-        }
+            if (result.Any())
+                return result;
+            else
+                return Enumerable.Empty<string>();
+
+        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     #endregion

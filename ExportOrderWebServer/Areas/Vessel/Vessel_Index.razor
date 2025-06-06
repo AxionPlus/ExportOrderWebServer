@@ -28,22 +28,23 @@
     </MudToolBar>
     </div>
 
-    <VesselComponent @ref="component" />
+    <VesselComponent @ref="component" ApplicationUser="@ApplicationUser" />
 
 </MudContainer>
 
 @code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     public VesselComponent? component;
 
     private async Task AddItem_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("New Vessel", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Vessel_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result is not null && result.Data != null && (bool)result.Data == true)
             await component!.GetItems();
     }
 }

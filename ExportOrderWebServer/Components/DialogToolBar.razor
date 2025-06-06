@@ -1,0 +1,29 @@
+﻿<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new">
+        <div class="ToolBar-iconbutton">
+            <MudTooltip Text="EXIT">
+                <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" OnClick="@CloseDialog"
+                               Icon="@Icons.Material.Outlined.ExitToApp" />
+            </MudTooltip>
+        </div>
+        <MudSpacer />
+        <h5>@ToolBarTitle</h5>
+        <MudSpacer />
+        <div class="ToolBar-iconbutton">
+            <MudTooltip Text="Save">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="@Color.Primary" Disabled="@SaveButtonDisabled" OnClick="@SaveItem" />
+            </MudTooltip>
+        </div>
+    </MudToolBar>
+</div>
+
+@code {
+    [Parameter]
+    public string ToolBarTitle { get; set; } = string.Empty;
+    [Parameter]
+    public bool SaveButtonDisabled { get; set; }
+    [Parameter]
+    public EventCallback CloseDialog { get; set; }
+    [Parameter]
+    public EventCallback SaveItem { get; set; }
+}

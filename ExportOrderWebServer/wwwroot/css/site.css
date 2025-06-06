@@ -8,7 +8,6 @@ body {
     --tableThead: lightskyblue;
 }
 
-
 .Page-container {
     display: flex;
     position: relative;
@@ -264,6 +263,19 @@ body {
         width: 30px;
     }
 
+    .Table.ItemTable * .mud-table-cell {
+        border-bottom: none;
+        padding: 4px;
+    }
+
+    .Table.P4 * .mud-table-cell {
+        padding: 4px;
+    }
+
+    .Table.P2 * .mud-table-cell {
+        padding: 2px;
+    }
+
     .Table * thead {
         background-color: var(--tableThead);
     }
@@ -296,9 +308,14 @@ body {
         font-weight: 500;
     }*/
 
+    .Table * .mud-table-cell {
+        padding: 8px;
+        text-align: center;
+    }
 
     .Table * .mud-table-cell *.mud-input-control {
         margin-top: unset;
+        margin-bottom: unset;
     }
 
     .Table * .mud-table-cell * .mud-input.mud-input-outlined.mud-input-adorned-end {
@@ -328,22 +345,10 @@ body {
         margin: 0px;
     }
 
-    .Table.P4 * .mud-table-cell {
-        padding: 4px;
-    }
 
-    .Table.P2 * .mud-table-cell {
-        padding: 2px;
-    }
-
-    .Table * .mud-table-cell {
-        padding: 8px;
-        text-align: center;
-    }
-
-        .Table * .mud-table-cell .mud-input-control * .mud-icon-button {
+/*        .Table * .mud-table-cell .mud-input-control * .mud-icon-button {
             padding: 0px;
-        }
+        }*/
 
         .Table * .mud-table-cell .mud-input-control * .mud-icon-size-small {
             font-size: 1.1rem;
@@ -364,8 +369,12 @@ body {
             margin-right: 2px;
         }
 
-        .Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
+        /*.Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
             margin-inline-end: -8px;
+        }*/
+
+        .Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
+            margin-inline-end: 2px;
         }
 
 .Autocomplete {

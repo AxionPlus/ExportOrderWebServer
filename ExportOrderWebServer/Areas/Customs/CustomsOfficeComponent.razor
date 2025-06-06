@@ -1,10 +1,11 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject ICatalogProvider _catalogProvider
 @inject ICustomsProvider _customsOfficeProvider
 
 <div class="Container-item">
     <div class="container-content">
-        <MudAutocomplete Class="Autocomplete" T="string" Label="Code" Style="width: 200px" @bind-Value="@Filter.Num" SearchFunc="@SearchCodes"
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Code" Style="width: 170px" @bind-Value="@Filter.Num" SearchFunc="@SearchCodes"
                          Variant="Variant.Outlined" Margin="Margin.Dense"
                          CloseIcon="" OpenIcon="" ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
@@ -12,74 +13,59 @@
                          Variant="Variant.Outlined" Margin="Margin.Dense"
                          CloseIcon="" OpenIcon="" ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
-        <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                Variant="Variant.Filled" Color="Color.Secondary"
-                OnClick="@(async () => { await GetItems(); })">
+        <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="@GetItems"
+                   Variant="Variant.Filled" Color="Color.Secondary">
             Search
         </MudButton>
     </div>
 </div>
     
 <div class="Container-table">
-    @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />
-            <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-            <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-        </div>
-    }
-
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CustomsCatalog" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-
+    <div class="tableMenu">
+        <MudSpacer />
+        <TablePager T="CustomsCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>
+    <MudTable Class="Table" @ref="mudTable" Items="@Items" T="CustomsCatalog" Loading="IsLoadingData" Virtualize="true" RowsPerPage="10">
         <HeaderContent>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:200px">
+            <MudTh Style="width:30px"></MudTh>            
+            <MudTh Style="width:170px">
                 <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.Code!)">Код поста</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:300px">
+            <MudTh Style="width:250px">
                 <MudTableSortLabel SortBy="new Func<CustomsCatalog, object>(x=>x.OfficeShort!)">Таможенный пост</MudTableSortLabel>
             </MudTh>
-            <MudTh></MudTh>
+            <MudTh Style="width:30px"></MudTh>
         </HeaderContent>
-
         <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Office!, context.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>            
             <MudTd>@context.Code</MudTd>
             <MudTd>@context.OfficeShort</MudTd>
-            <MudTd></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async () => { await RemoveItem_Click(context.OfficeShort, context.Id); })"></MudIconButton></MudTd>
         </RowTemplate>
-
         <PagerContent></PagerContent>
-
     </MudTable>
 </div>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [Parameter]
+    public string? ApplicationUser { get; set; }
     private MudTable<CustomsCatalog>? mudTable;
 
-    private IEnumerable<CustomsCatalog>? Items { get; set; } = new List<CustomsCatalog>();
+    private IEnumerable<CustomsCatalog> Items { get; set; } = new List<CustomsCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
-    [Parameter]
     public bool IsLoadingData { get; set; } = false;
 
-
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     public async Task GetItems()
     {
         IsLoadingData = true;
 
         var response = await _customsOfficeProvider.GetItemsAsync(Filter);
-        if (!response.HasErrors)
-            Items = ((IEnumerable<CustomsCatalog>)response.Object!).ToArray();
-
-        await Task.Delay(500);
+        if (!response.HasErrors && response.Object is not null)
+            Items = (IEnumerable<CustomsCatalog>)response.Object;
 
         IsLoadingData = false;
 
@@ -89,41 +75,43 @@
     private async Task ShowItem_Click(long Id)
     {
         DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<CustomsOffice_ItemDialog>("Customs Office", parameters, options);
+        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<CustomsOffice_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result is not null && result.Data != null && (bool)result.Data == true)
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(string name, long id)
+    private async Task RemoveItem_Click(string? name, long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Customs Office:<br/>{name}<br/>",
-                          yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                    (MarkupString)$"<b>Do you want to remove record?</b> <br/>Customs Office: {name}<br/>",
+                                    yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _customsOfficeProvider.RemoveItemAsync(id);
+                IsLoadingData = true;
+                var response = await _customsOfficeProvider.RemoveItemAsync(id, ApplicationUser);
+                IsLoadingData = false;
 
-                if (!response.HasErrors)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
-                else
+                if (response.HasErrors)
                     Snackbar.Add($"Unable to delete", Severity.Warning);
+                else
+                {
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                    await GetItems();
+                }
             }
-
-        await GetItems();
     }
 
     #region SEARCH FUNCTIONS
 
     private async Task<IEnumerable<string>> SearchCodes(string value, CancellationToken token)
     {
-        var result = await _customsOfficeProvider.GetNamesEn();
+        var result = await _catalogProvider.GetCustomsOfficesCodes();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -136,7 +124,7 @@
 
     private async Task<IEnumerable<string>> SearchNames(string value, CancellationToken token)
     {
-        var result = await _customsOfficeProvider.GetNames();
+        var result = await _catalogProvider.GetCustomsOfficesNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();

@@ -3,78 +3,65 @@
 @inject ILocationProvider _locationProvider
 @inject ICountryProvider _countryProvider
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    <div class="Container-item">
-        <div class="container-content">
-            <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchNames"
-                             Value="Filter.Name"
-                             ValueChanged="(e)=> { Filter.Name = e; }"
-                             Variant="Variant.Outlined" Margin="Margin.Dense"
-                             CloseIcon="" OpenIcon=""
-                             ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="UN Locode" Style="width: 120px" SearchFunc="@SearchUNLocode"
-                              Value="Filter.UNLocode"
-                              ValueChanged="(e)=> { Filter.UNLocode = e; }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              CloseIcon="" OpenIcon=""
-                              ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudAutocomplete Class="Autocomplete" T="string" Label="Country" Style="width: 250px" SearchFunc="@SearchCountries"
-                              Value="Filter.Country"
-                              ValueChanged="(e)=> { Filter.Country = e; }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              CloseIcon="" OpenIcon=""
-                              ResetValueOnEmptyText="true" Clearable />
-             <MudSpacer />
-             <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData"
-                        Variant="Variant.Filled" Color="Color.Secondary"
-                        OnClick="@(async () => { await GetItems(); })">Search</MudButton>
-        </div>
+<div class="Container-item">
+    <div class="container-content">
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 300px" SearchFunc="@SearchNames"
+                         Value="Filter.Name"
+                         ValueChanged="(e)=> { Filter.Name = e; }"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon=""
+                         ResetValueOnEmptyText="true" Clearable />
+         <MudSpacer />
+         <MudAutocomplete Class="Autocomplete" T="string" Label="UN Locode" Style="width: 120px" SearchFunc="@SearchUNLocode"
+                          Value="Filter.UNLocode"
+                          ValueChanged="(e)=> { Filter.UNLocode = e; }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          CloseIcon="" OpenIcon=""
+                          ResetValueOnEmptyText="true" Clearable />
+         <MudSpacer />
+         <MudAutocomplete Class="Autocomplete" T="string" Label="Country" Style="width: 250px" SearchFunc="@SearchCountries"
+                          Value="Filter.Country"
+                          ValueChanged="(e)=> { Filter.Country = e; }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          CloseIcon="" OpenIcon=""
+                          ResetValueOnEmptyText="true" Clearable />
+         <MudSpacer />
+        <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="@GetItems"
+                   Variant="Variant.Filled" Color="Color.Secondary">Search</MudButton>
     </div>
- 
-    @if (Items.Count() > 0)
-    {
-        <div class="Container-table">
-            <div class="tableMenu">
-                <MudSpacer />
-                <TablePager T="LocationCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
-            </div>            
-            <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+</div> 
 
-                <HeaderContent>
-                    <MudTh Style="width:30px"></MudTh>
-                    <MudTh Style="width:30px"></MudTh>
-                    <MudTh Style="width:120px">
-                        <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.UnLocode!)">UN Locode</MudTableSortLabel>
-                    </MudTh>
-                    <MudTh Style="width:400px">
-                        <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel>
-                    </MudTh>
-                    <MudTh Style="width:300px">
-                        <MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel>
-                    </MudTh>
-                    <MudTh></MudTh>
-                </HeaderContent>
-
-                <RowTemplate>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })"></MudIconButton></MudTd>
-                    <MudTd>@context.UnLocode</MudTd>
-                    <MudTd>@context.Name</MudTd>            
-                    <MudTd>@context.Country!.RUS</MudTd>
-                </RowTemplate>
-
-                <PagerContent></PagerContent>
-
-            </MudTable>
-        </div>
-    }
-</MudContainer>
+<div class="Container-table">
+    <div class="tableMenu">
+        <MudSpacer />
+        <TablePager T="LocationCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>            
+    <MudTable Class="Table P4" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+        <HeaderContent>
+            <MudTh Style="width:30px"></MudTh>                
+            <MudTh Style="width:120px"><MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.UnLocode!)">UN Locode</MudTableSortLabel></MudTh>
+            <MudTh Style="width:400px"><MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name!)">Name Ru</MudTableSortLabel></MudTh>
+            <MudTh Style="width:300px"><MudTableSortLabel SortBy="new Func<CountryCatalog, object>(x=>x.RUS)">Country</MudTableSortLabel></MudTh>
+            <MudTh Style="width:30px"></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>                
+            <MudTd>@context.UnLocode</MudTd>
+            <MudTd>@context.Name</MudTd>            
+            <MudTd>@context.Country!.RUS</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async () => { await RemoveItem_Click(context.Name, context.Id); })" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent></PagerContent>
+    </MudTable>
+</div>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [Parameter]
+    public string? ApplicationUser { get; set; }
     private MudTable<LocationCatalog> mudTable = new();
 
     private IEnumerable<LocationCatalog> Items { get; set; } = new List<LocationCatalog>();
@@ -97,35 +84,37 @@
 
     private async Task ShowItem_Click(long Id)
     {
-        DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Location_ItemDialog>("Location", parameters, options);
+        var parameters = new DialogParameters { ["Id"] = Id };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Location_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result != null && result.Data != null && (bool)result.Data == true)
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(string name, long id)
+    private async Task RemoveItem_Click(string? name, long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Location:<br/>{name}<br/>",
-                          yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                        (MarkupString)$"<b>Do you want to remove record?</b><br/>Location: {name}<br/>",
+                                        yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _locationProvider.RemoveItemAsync(id);
+                IsLoadingData = true;
+                var response = await _locationProvider.RemoveItemAsync(id, ApplicationUser);
+                IsLoadingData = false;
 
-                if (!response.HasErrors)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                if (response.HasErrors)
+                    Snackbar.Add($"Unable to delete", Severity.Warning); 
                 else
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
+                {
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                    await GetItems();
+                }
             }
-
-        await GetItems();
     }
 
     #region SEARCH FUNCTIONS
@@ -158,17 +147,16 @@
 
     private async Task<IEnumerable<string>> SearchCountries(string value, CancellationToken token)
     {
+        IEnumerable<string> result = await _countryProvider.GetNames();
+
         if (string.IsNullOrWhiteSpace(value))
-            return Enumerable.Empty<string>();
+            if (result.Any())
+                return result;
+            else
+                return Enumerable.Empty<string>();
 
-        var result = await _countryProvider.GetNames();
-
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     #endregion
-
 }

@@ -2,43 +2,33 @@
 @inject IDialogService DialogService
 @inject IVesselProvider _vesselProvider
 
-
 <div class="Container-item">
     <div class="container-content">
-        <MudAutocomplete Class="Autocomplete" T="string" Label="IMO no" Style="width: 140px" SearchFunc="@SearchIMO"
-                        Value="Filter.IMO" Dense="true"
-                        ValueChanged="(e)=> { Filter.IMO = e; }"
-                        Variant="Variant.Outlined" Margin="Margin.Dense"
-                        CloseIcon="" OpenIcon=""
-                        ResetValueOnEmptyText="true" Clearable />
-            
-        <div style="width: 50px"></div>
-        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px; text-align:center" SearchFunc="@SearchVessel"
-                        Value="Filter.Name"
-                        ValueChanged="(e)=> { Filter.Name = e; } "
+        <MudAutocomplete Class="Autocomplete" T="string" Label="IMO no" Style="width: 140px" @bind-Value="Filter.IMO" SearchFunc="@SearchVesselIMO"                        
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         CloseIcon="" OpenIcon=""
+                         ResetValueOnEmptyText="true" Clearable />            
+        <MudSpacer />
+        <MudAutocomplete Class="Autocomplete" T="string" Label="Name" Style="width: 400px; text-align:center" @bind-Value="Filter.Name" SearchFunc="@SearchVessel"
                         Variant="Variant.Outlined" Margin="Margin.Dense"
                         CloseIcon="" OpenIcon=""
                         ResetValueOnEmptyText="true" Clearable />
         <MudSpacer />
-        <MudButton Class="Button" Style="max-width: 80px; align-items:end" Disabled="@IsLoadingData"
-                Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary"
-                OnClick="@(async () => { await GetItems(); })">
+        <MudButton Class="Button" Style="max-width: 80px; align-items:end" Disabled="@IsLoadingData" OnClick="@GetItems"
+                   Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary" >
             Search
         </MudButton>
-        </div>
-    </div> 
+    </div>
+</div> 
 
 <div class="Container-table">
     <div class="tableMenu">
         <MudSpacer />
         <TablePager T="VesselEntity" Table="mudTable" ItemsCount="@Items?.Count()" />
-    </div>    
-
-    <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-
+    </div>
+    <MudTable Class="Table P4" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
         <HeaderContent>
-            <MudTh Style="width:30px"></MudTh>
-            <MudTh Style="width:30px"></MudTh>
+            <MudTh Style="width:35px"></MudTh>
             <MudTh Style="width:360px">
                 <MudTableSortLabel SortBy="new Func<VesselEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
             </MudTh>            
@@ -47,28 +37,26 @@
             <MudTh Style="width:100px">Terrminal id</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
-
         <RowTemplate>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })"></MudIconButton></MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>            
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.IMO</MudTd>
-            <MudTd>@context.Flag!.RUS</MudTd>
-            <MudTd>@context.TerminalCode</MudTd>
-            <MudTd></MudTd>
+            <MudTd>@context.Flag?.RUS</MudTd>
+            <MudTd>@context.TerminalCode</MudTd>            
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async () => { await RemoveItem_Click(context.Id, context.Name); })" /></MudTd>
         </RowTemplate>
-
         <PagerContent></PagerContent>
-
     </MudTable>
 </div>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [Parameter]
+    public string? ApplicationUser { get; set; }
     private MudTable<VesselEntity> mudTable = new();
 
-    private IEnumerable<VesselEntity>? Items { get; set; } = new List<VesselEntity>();
+    private IEnumerable<VesselEntity> Items { get; set; } = new List<VesselEntity>();
     private FilterParameters Filter { get; set; } = new();
 
     private bool IsLoadingData = false;
@@ -81,8 +69,6 @@
         if (!response.HasErrors && response.Object is not null)
             Items = (IEnumerable<VesselEntity>)response.Object;
 
-        await Task.Delay(500);
-
         IsLoadingData = false;
 
         await InvokeAsync(StateHasChanged);        
@@ -90,35 +76,37 @@
 
     private async Task ShowItem_Click(long Id)
     {
-        DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Vessel_ItemDialog>("Vessel", parameters, options);
+        var parameters = new DialogParameters { ["Id"] = Id };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Vessel_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result != null && result.Data != null && (bool)result.Data == true)
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(string name, long id)
+    private async Task RemoveItem_Click(long id, string? name)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel:<br/>{name}<br/>",
-                          yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                    (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel: {name}<br/>",
+                                    yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _vesselProvider.RemoveItemAsync(id);
+                IsLoadingData = true;
+                var response = await _vesselProvider.RemoveItemAsync(id, ApplicationUser);
+                IsLoadingData = false;
 
-                if (!response.HasErrors)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
-                else
+                if (response.HasErrors)
                     Snackbar.Add($"Unable to delete", Severity.Warning);
+                else
+                {
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                    await GetItems();
+                }
             }
-
-        await GetItems();
     }
 
     #region SEARCH FUNCTIONS
@@ -136,7 +124,7 @@
             return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private async Task<IEnumerable<string>> SearchIMO(string value, CancellationToken token)
+    private async Task<IEnumerable<string>> SearchVesselIMO(string value, CancellationToken token)
     {
         var result = await _vesselProvider.GetIMOnos();
 

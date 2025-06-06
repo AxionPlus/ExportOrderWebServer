@@ -103,13 +103,10 @@
 </div>
 
 <div class="Container-table">
-    @if (mudTable != null)
-    {
-        <div class="tableMenu">
-            <MudSpacer />            
-            <TablePager T="ExportOrderComponentDTO" Table="mudTable" ItemsCount="@Items.Count()" />
-        </div>
-    }
+    <div class="tableMenu">
+        <MudSpacer />            
+        <TablePager T="ExportOrderComponentDTO" Table="mudTable" ItemsCount="@Items.Count()" />
+    </div>    
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedItems"
     Virtualize="true" RowsPerPage="15" MultiSelection="true" SelectOnRowClick="false">
         <HeaderContent>
@@ -212,9 +209,9 @@
             <MudTd>@context.Status.ToString()</MudTd>
             <MudTd></MudTd>
             <MudTd>
-                <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || IsBtnClicked || !IsRoleForEdit)"
+                <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || !IsRoleForEdit)"
                                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
-                               OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num!); })" />
+                               OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num); })" />
             </MudTd>            
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -224,18 +221,18 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [Parameter]
+    public string? ApplicationUser { get; set; }
     private MudTable<ExportOrderComponentDTO> mudTable = new();
-
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     public IEnumerable<ExportOrderComponentDTO> Items { get; set; } = new List<ExportOrderComponentDTO>();
     private HashSet<ExportOrderComponentDTO> SelectedItems = new HashSet<ExportOrderComponentDTO>();
-    private string Voyage = string.Empty;
+    //private string Voyage = string.Empty;
     private IEnumerable<string>? CntrList { get; set; }
     private FilterParameters Filter { get; set; } = new();
 
     private bool IsLoadingData { get; set; } = false;
-    private bool IsBtnClicked { get; set; } = false;
     private bool IsRoleForEdit = false;
 
     protected override async Task OnInitializedAsync()
@@ -272,41 +269,29 @@
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(long id, string num)
+    private async Task RemoveItem_Click(long id, string? num)
     {
         if (Items is null || !Items.Any()) return;
-
-        IsBtnClicked = true;
-
-        await Task.Delay(1000);
-
+     
         bool? result = await DialogService.ShowMessageBox("Delete",
-                                                            (MarkupString)$"Do you want to Delete record?<br/><b>{num}</b>",
-                                                            yesText: "DELETE!", cancelText: "NO");
-
-        IsLoadingData = true;
+                                    (MarkupString)$"Do you want to Delete record?<br/><b>{num}</b>",
+                                    yesText: "DELETE!", cancelText: "NO");
 
         if (result.HasValue)
             if (result.Value)
             {
-                var response = await _exportOrderProvider.RemoveItemAsync(id);
-                if (!response.HasErrors)
-                {
-                    if (Items.Any(eoc => eoc.Id == id))
-                    {
-                        Items.ToList().Remove(Items.FirstOrDefault(eoc => eoc.Id == id)!);
-                        Snackbar.Add($"Deleted successfully", Severity.Success);
-                    }                    
-                }
+                IsLoadingData = true;
+                var response = await _exportOrderProvider.RemoveItemAsync(id, ApplicationUser);
+                IsLoadingData = false;
+
+                if (response.HasErrors)
+                    Snackbar.Add($"Unable to delete", Severity.Warning);
                 else
-                    Snackbar.Add($"Record wasn't deleted.<br/>{response.Errors.First()}", Severity.Warning);
-
-                await GetItems();
+                {
+                    Snackbar.Add($"Deleted successfully", Severity.Success);
+                    await GetItems();       
+                }
             }
-
-        IsLoadingData = false;
-
-        IsBtnClicked = false;
     }
 
     public async Task SetNewVesselCall()
@@ -325,8 +310,8 @@
             return;
         }
 
-        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, BackdropClick = false };
+        var parameters = new DialogParameters { ["IsSelectable"] = true };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
         var dialogResult = await dialog.Result;
 

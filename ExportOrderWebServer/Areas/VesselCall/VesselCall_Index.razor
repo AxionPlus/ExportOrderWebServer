@@ -3,18 +3,17 @@
 
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject AuthenticationStateProvider authenticationStateProvider
 
 <PageTitle>Vessel Call</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large">
-
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">
             <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
             <MudSpacer />
             <div class="ToolBar-Title"><span>vessel calls</span></div>
             <MudSpacer />
-
             <div class="ToolBar-iconbutton" style="margin-right: 20px">
                 <MudTooltip Text="new vessel call">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
@@ -30,21 +29,33 @@
     </div>
 
     <VesselCallComponent @ref="component" />
-
 </MudContainer>
 
 @code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     private VesselCallComponent component = new();
+    //private bool IsRoleForEdit { get; set; } = false;
+
+    // protected override async Task OnAfterRenderAsync(bool first)
+    // {
+    //     if (first)
+    //     {
+    //         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+
+    //         if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
+    //             IsRoleForEdit = true;
+    //     }
+    // }
 
     private async Task AddItem_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>("Vessel Call", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result != null && result.Data != null && (bool)result.Data == true)
             await component.GetItems();
     }
 }

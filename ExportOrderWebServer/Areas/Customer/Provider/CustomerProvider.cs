@@ -160,7 +160,7 @@ public class CustomerProvider : ICustomerProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -170,27 +170,24 @@ public class CustomerProvider : ICustomerProvider
             {
                 var db = await _db;
 
-                // check an Existing item
-                var existedItem = await db.Customers.Where(s => s.Id == id).FirstOrDefaultAsync();
+                /// Get Existing item
+                var existedItem = await db.Customers.FirstOrDefaultAsync(s => s.Id == id);
 
-                if (existedItem is null)
+                if (existedItem != null)
                 {
-                    appObjResponse.ErrorAdd("Record wasn't deleted");
-                    return appObjResponse;
+                    db.Entry(existedItem).State = EntityState.Deleted;
+                    //var bug = db.ChangeTracker.DebugView.LongView;
+                    await db.SaveChangesAsync();
                 }
-
-                db.Entry(existedItem).State = EntityState.Deleted;
-
-                var bug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
+                else
+                    appObjResponse.ErrorAdd("Record not deleted");
 
                 return appObjResponse;
             }
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            appObjResponse.ErrorAdd(msg);
+            appObjResponse.ErrorAdd(ex.Message);
             return appObjResponse;
         }
     }

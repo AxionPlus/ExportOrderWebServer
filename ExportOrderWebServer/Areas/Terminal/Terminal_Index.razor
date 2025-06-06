@@ -12,7 +12,6 @@
             <MudSpacer />
             <div class="ToolBar-Title"><span>terminals</span></div>
             <MudSpacer />
-
             <div class="ToolBar-iconbutton" style="margin-right: 20px">
                 <MudTooltip Text="add new Terminal">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
@@ -31,17 +30,18 @@
 <TerminalComponent @ref="component" />
 
 @code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     public TerminalComponent? component;
 
     private async Task AddItem_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result is not null && result.Data != null && (bool)result.Data == true)
             await component!.GetItems();
     }
 }

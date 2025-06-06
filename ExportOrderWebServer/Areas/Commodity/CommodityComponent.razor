@@ -65,79 +65,65 @@
             <TablePager T="CommodityCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
         </div>
     }
-
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="18" >
-
-        <HeaderContent>
-            @if (!IsSelectable)
-            {
-                <MudTh Style="width:30px"></MudTh>
-            }                    
-            else
-            {
-                <MudTh Style="width:30px">
-                    <MudTooltip Text="add new">
-                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" OnClick="@(async()=>await ShowItem_Click(null))" />
+        <HeaderContent>            
+            <MudTh Style="width:30px">
+                @if (IsSelectable)
+                {
+                    <MudTooltip Text="add new" Duration="1500" Delay="1000" Placement="Placement.End">
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" OnClick="@(async () => await ShowItem_Click(null))" />
                     </MudTooltip>
-                </MudTh>
-            }
-            <MudTh Style="width: 130px">
-                <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.HSCode!)">HS code</MudTableSortLabel>
-            </MudTh>
-            <MudTh Style="width:430px">
-                <MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
-            </MudTh>
+                }                    
+            </MudTh>            
+            <MudTh Style="width: 130px"><MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.HSCode!)">HS code</MudTableSortLabel></MudTh>
+            <MudTh Style="width:430px"><MudTableSortLabel SortBy="new Func<CommodityCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel></MudTh>
             <MudTh Style="width:430px">Name En</MudTh>
             <MudTh Style="width:65px">Is IMO</MudTh>
-            <MudTh Style="width:65px">UNNO</MudTh>
-            @if (!IsSelectable)
-            {
-                <MudTh Style="width:30px"></MudTh>
-            }
+            <MudTh Style="width:65px">UNNO</MudTh>            
+            <MudTh Style="width:30px"></MudTh>
         </HeaderContent>
-
-        <RowTemplate>
-            @if (!IsSelectable)
-            {
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>await ShowItem_Click(context.Id))"/></MudTd>                
-            }
-            else
-            {                
-                <MudTd>
-                    <MudTooltip Text="select">
-                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Secondary" OnClick="@(()=>SelectItem_Click(context))" />
-                    </MudTooltip>
-                </MudTd>                
-            }
+        <RowTemplate>        
+            <MudTd>
+                <MudTooltip Text="@(IsSelectable ? "select" : "show")" Duration="1500" Delay="1000" Placement="Placement.End">
+                    @if (IsSelectable)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Secondary" OnClick="@(() => SelectItem_Click(context))" />
+                    }
+                    else
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async () => await ShowItem_Click(context.Id))" />
+                    }                    
+                </MudTooltip>
+             </MudTd>            
             <MudTd>@context.HSCode</MudTd>
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.NameEn</MudTd>            
             <MudTd>@context.IMO</MudTd>
             <MudTd>@context.UNNO</MudTd>
-            @if (!IsSelectable)
-            {
-                <MudTd>
+            <MudTd>
+                @if (!IsSelectable)
+                {
                     <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary"
-                    OnClick="@(async()=>{ await RemoveItem_Click(context.HSCode, context.Id); })" />
-                </MudTd>
-            }
+                                   OnClick="@(async()=>{ await RemoveItem_Click(context.HSCode, context.Id); })" />
+                }                
+            </MudTd>
         </RowTemplate>
-
         <PagerContent></PagerContent>
-
     </MudTable>
 </div>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [Parameter]
+    public string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
     private MudTable<CommodityCatalog> mudTable = new();
 
     [Parameter]
     public bool IsSelectable { get; set; } = false;
 
-    private IEnumerable<CommodityCatalog>? Items { get; set; } = new List<CommodityCatalog>();
+    private IEnumerable<CommodityCatalog> Items { get; set; } = new List<CommodityCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
     private bool IsLoadingData = false;
@@ -156,13 +142,13 @@
 
         var response = await _CommodityProvider.GetItemsAsync(Filter);
 
-        if (!response.HasErrors)
+        if (response.HasErrors)
+            Snackbar.Add(response.Errors.First(), Severity.Warning);
+        else
         {
             if (response.Object is not null)
                 Items = (IEnumerable<CommodityCatalog>)response.Object;
-        }        
-        else
-            Snackbar.Add(response.Errors.First(), Severity.Warning);
+        }   
 
         IsLoadingData = false;
 
@@ -171,53 +157,39 @@
 
     private async Task ShowItem_Click(long? Id)
     {
-        string dialogTitle = string.Concat(Id == null ? string.Empty : "New", "Commodity");
-
         var parameters = new DialogParameters();
+        if (Id != null)
+            parameters.Add("Id", Id);
 
-        if (Id != null)       
-            parameters = new DialogParameters { ["Id"] = Id };
-        else
-            parameters = new DialogParameters { ["IsNewItem"] = true };
-
-        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Commodity_ItemDialog>(dialogTitle, parameters, options);
+        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Commodity_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result != null && result.Data != null && (bool)result.Data == true)
             await GetItems();
     }
 
-    // private async Task AddItem_Click()
-    // {
-    //     var parameters = new DialogParameters { ["IsNewItem"] = true };
-    //     var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
-    //     var dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("New Commodity", parameters, options);
-
-    //     var result = await dialog.Result;
-
-    //     if (result is not null)
-    //         await GetItems();
-    // }
-
-    private async Task RemoveItem_Click(string name, long id)
+    private async Task RemoveItem_Click(string? name, long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE  Record",
-                                                             (MarkupString)$"<b>Do you want to remove commodity?</b> <br/>HS code: {name}<br/>",
-                                                             yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                    (MarkupString)$"<b>Do you want to remove commodity?</b><br/>HS code: {name}<br/>",
+                                    yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _CommodityProvider.RemoveItemAsync(id);
+                IsLoadingData = true;
+                var response = await _CommodityProvider.RemoveItemAsync(id, ApplicationUser);
+                IsLoadingData = false;
 
-                if (!response.HasErrors)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                if (response.HasErrors)
+                    Snackbar.Add($"Unable to delete", Severity.Warning); 
                 else
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
-
-                await GetItems();
+                {
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                    await GetItems();
+                }
             }
     }
 

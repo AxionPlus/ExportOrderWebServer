@@ -23,9 +23,8 @@ public class CarrierProvider : ICarrierProvider
             appObjResponse.Object = await db.Carriers.AsNoTracking().Include(s => s.CarrierDetails)
                                                                     .Include(s => s.Location)
                                                                     .FirstOrDefaultAsync(s => s.Id == id);
+            return appObjResponse;
         }
-
-        return appObjResponse;
     }
 
     public async Task<AppObjectResponse> GetItemsAsync()
@@ -35,7 +34,7 @@ public class CarrierProvider : ICarrierProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Carriers.Include(c => c.CarrierDetails).ToListAsync();
+            appObjResponse.Object = await db.Carriers.Include(c => c.CarrierDetails).ToArrayAsync(); //ToListAsync
             return appObjResponse;
         }
     }
@@ -48,12 +47,11 @@ public class CarrierProvider : ICarrierProvider
         {
             var db = await _db;
 
-            var Carriers = await db.Carriers
-                                            .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.Name == filter.Name : true)
+            var Carriers = await db.Carriers.Where(s => !string.IsNullOrEmpty(filter.Name) ? s.Name == filter.Name : true)
                                             .Where(s => !string.IsNullOrEmpty(filter.NameEn) ? s.NameEn == filter.NameEn : true)
-                                            .ToListAsync();
+                                            .ToArrayAsync();
             
-            appObjResponse.Object = Carriers.ToArray();
+            appObjResponse.Object = Carriers;
 
             return appObjResponse;
         }
@@ -94,7 +92,7 @@ public class CarrierProvider : ICarrierProvider
                 db.Entry(modifyItem.Location).State = EntityState.Unchanged;
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
 
-                // compaire new item with existed
+                /// compaire new item with existed
                 foreach (var modifyDetail in modifyItem.CarrierDetails!)
                     if (!item.CarrierDetails!.Any(s => s.Id == modifyDetail.Id))
                         db.Entry(modifyDetail).State = EntityState.Deleted;
@@ -109,7 +107,7 @@ public class CarrierProvider : ICarrierProvider
                         db.Entry(modifyDetail).State = EntityState.Modified;
                     }
 
-                // compaire existed item with new
+                /// compaire existed item with new
                 foreach (var itemDetail in item.CarrierDetails!)
                     if (!modifyItem.CarrierDetails.Any(s => s.Id == itemDetail.Id))
                     {   
@@ -167,9 +165,12 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+        appObjResponse.ErrorAdd("Not removed.");
+        await Task.Delay(5);
+        return appObjResponse;
     }
 
     public async Task<IEnumerable<string>> GetNames()
@@ -177,7 +178,7 @@ public class CarrierProvider : ICarrierProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Carriers.OrderBy(s => s.Name).Select(s => s.Name!).ToListAsync();
+            return await db.Carriers.Where(s => !string.IsNullOrWhiteSpace(s.Name)).OrderBy(s => s.Name).Select(s => s.Name!).ToArrayAsync();
         }
     }
 
@@ -186,8 +187,7 @@ public class CarrierProvider : ICarrierProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            var carrier = await db.Carriers.Where(s => !string.IsNullOrEmpty(s.NameEn)).Select(s => s.NameEn!).OrderBy(s => s).ToArrayAsync();
-            return carrier;
+            return await db.Carriers.Where(s => !string.IsNullOrEmpty(s.NameEn)).Select(s => s.NameEn!).OrderBy(s => s).ToArrayAsync();
         }
     }
 
@@ -217,15 +217,6 @@ public class CarrierProvider : ICarrierProvider
         }
     }
 
-    public async Task<IEnumerable<string>> GetTerminalNames()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.Terminals.Select(s => s.Name!).ToListAsync();
-        }
-    }
-
     public async Task<AppObjectResponse> GetTerminalNameAsync(long vesselCallid, string name)
     {
         appObjResponse = new();
@@ -234,26 +225,27 @@ public class CarrierProvider : ICarrierProvider
         {
             var db = await _db;
 
-            var Carrier = await db.ExportOrders.Include(eo => eo.Carrier).ThenInclude(c => c!.CarrierDetails)
-                                               .Include(eo => eo.VesselCallDetail!.VesselCall)
-                                               .Where(eo => eo.VesselCallDetail!.VesselCall.Id == vesselCallid)
-                                               .Select(eo => eo.Carrier).Where(c => c!.CarrierDetails.Any(c => c.TerminalName != name) == true)
-                                               .ToListAsync();
+            var dbCarriers = await db.ExportOrders.Include(eo => eo.Carrier).ThenInclude(c => c!.CarrierDetails)
+                                                  .Include(eo => eo.VesselCallDetail!.VesselCall)
+                                                  .Where(eo => eo.VesselCallDetail!.VesselCall.Id == vesselCallid)
+                                                  .Select(eo => eo.Carrier).Where(c => c!.CarrierDetails.Any(c => c.TerminalName != name) == true)
+                                                  .ToArrayAsync();
 
-            bool IsExistedTerminal = await db.ExportOrders.Include(eo => eo.Carrier).ThenInclude(c => c!.CarrierDetails)
-                                                .Include(eo => eo.VesselCallDetail!.VesselCall)
-                                                .Where(eo => eo.VesselCallDetail!.VesselCall.Id == vesselCallid)
-                                                .Select(eo => eo.Carrier).Select(c => c!.CarrierDetails.Any(cd => cd.TerminalName == name))
-                                                .FirstOrDefaultAsync();
+            bool IsTerminalExist = await db.ExportOrders.Include(eo => eo.Carrier).ThenInclude(c => c!.CarrierDetails)
+                                                        .Include(eo => eo.VesselCallDetail!.VesselCall)
+                                                        .Where(eo => eo.VesselCallDetail!.VesselCall.Id == vesselCallid)
+                                                        .Select(eo => eo.Carrier).Select(c => c!.CarrierDetails.Any(cd => cd.TerminalName == name))
+                                                        .FirstOrDefaultAsync();
 
-            if (!IsExistedTerminal)
+            if (!IsTerminalExist)
             {
                 string carriers = string.Empty;
 
-                if (Carrier.Count() > 0)
-                    carriers = string.Join("; ", Carrier.Select(c => c!.NameEn));
+                if (dbCarriers.Length > 0)
+                    carriers = string.Join("; ", dbCarriers.Select(c => c!.NameEn));
 
-                appObjResponse.ErrorAdd($"At list one of the Carrier has no Agreement with a Terminal nominated for present Voyage<br>Add Terminal to the following Carriers:<br>{carriers}");
+                appObjResponse.ErrorAdd(
+                    $"At list one of the Carrier has no nominated Terminal for present Voyage<br>Add Terminal to the following Carriers:<br>{carriers}");
             }
         }
 

@@ -1,0 +1,300 @@
+﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IVesselCallProvider _vesselCallProvider
+@inject IVesselProvider _vesselProvider
+@inject ITerminalProvider _terminalProvider
+@inject ILocationProvider _locationProvider
+
+<style>
+
+    .container-content * .mud-input > input.mud-input-root-outlined.mud-input-root-margin-dense {
+        padding: 6px;
+        padding-inline-start: 8px;
+    }
+
+    .Table.dialogTable * .mud-table-cell {
+        padding: 5px;
+        border-bottom: none;
+    }
+
+</style>
+
+<MudForm @ref="@Form" >
+    <DialogToolBar ToolBarTitle="Vessel Call" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
+                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+    <div class="Container-item" style="flex-direction:column">
+        <div class="container-content" style="justify-content:flex-start">                
+            <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item.Vessel"
+                             ToStringFunc="@(e => e != null ? e.Name : "")"
+                             SearchFunc="SearchVessel"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             Required RequiredError="" Clearable
+                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                             ResetValueOnEmptyText="true"
+                             MaxItems="20" />
+            <MudTextField Class="TextField" T="string" Style="width: 200px; margin-right:20px" Label="Voyage" Text="@Item.VoyageNo"
+                          TextChanged="async (e)=> { Item.VoyageNo = e.ToUpper(); }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true"
+                          Required RequiredError="" Clearable />
+            <div style="width:130px; height:33px; margin-right: 4px">
+                <MudDatePicker Class="DatePicker" Label="ETA" @bind-Date="Item.ETA"
+                               DateFormat="dd.MM.yy"
+                               ShowWeekNumbers="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               IconSize=Size.Small
+                               AutoClose=true
+                               Required RequiredError="" Clearable />
+            </div>
+            <MudSpacer />
+            <MudSelect Class="Autocomplete" Style="width:125px" T="EntityStatus" Label="Status" @bind-Value="Item.Status"
+                       ToStringFunc="@(str => str.ToString())"
+                       Variant="Variant.Outlined" Margin="Margin.Dense">
+                @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                {
+                    <MudSelectItem Value="@status" />
+                }
+            </MudSelect>                 
+        </div>
+
+        <div class="container-content" style="justify-content:flex-start">
+            <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px; margin-right:20px" Label="Load Terminal" @bind-Value="Item.Terminal"
+                             ToStringFunc="@(e => e != null ? e.Name : "")"
+                             SearchFunc="SearchTerminal"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             Required RequiredError="" Clearable
+                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                             ResetValueOnEmptyText="true"
+                             MaxItems="20"/>
+            <MudTextField Class="TextField" T="string" Style="width: 200px; margin-right:20px" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal"
+                          TextChanged="async (e)=> { Item.VoyageNoTerminal = e.ToUpper(); }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true"
+                          Required RequiredError="" Clearable />
+            <div style="width:130px">
+                <MudDatePicker Class="DatePicker" Label="ETS" @bind-Date="Item.ETS"
+                               DateFormat="dd.MM.yy"
+                               ShowWeekNumbers="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               IconSize=Size.Small
+                               AutoClose=true
+                               Required RequiredError="" Clearable />
+            </div>                 
+        </div>
+
+        <div class="container-content" style="justify-content:flex-start">
+            <div class="Container-table">
+                <MudTable Class="Table dialogTable" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
+                    <HeaderContent>
+                        <MudTh Style="width:35px">
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetailItem" />
+                        </MudTh>
+                        <MudTh Style="width: 260px">
+                            PORT of discharge
+                            <MudTooltip Text="Add new Port">
+                                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Disabled="IsLoadingData"
+                                               OnClick="@AddLocation" />
+                            </MudTooltip>
+                        </MudTh>
+                        <MudTh Style="width: 385px">Agent</MudTh>
+                        <MudTh Style="width: 260px">FINAL Destination</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(() => RemoveDetail_Click(context))" />
+                        </MudTd>
+                        <MudTd DataLabel="Port">
+                            <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 250px; text-align:start" @bind-Value="context.POD"
+                                             ToStringFunc="@(e => e != null ? e.Name : "")"
+                                             SearchFunc="SearchLocation"
+                                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                                             Required RequiredError="" Clearable
+                                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                             ResetValueOnEmptyText="true"
+                                             MaxItems="20"/>
+                        </MudTd>
+                        <MudTd DataLabel="Agent">
+                            <MudTextField Class="TextField" T="string" Style="width: 375px;" Text="@context.AgentPOD"
+                                          TextChanged="async (e)=> context.AgentPOD = e?.ToUpper()"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                                          Immediate="true"
+                                          Required RequiredError="" Clearable />
+                        </MudTd>
+                        <MudTd DataLabel="Final">
+                            <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 250px" @bind-Value="context.FinalDestination"
+                                             ToStringFunc="@(e => e != null ? e.Name : "")"
+                                             SearchFunc="SearchLocation"
+                                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                                             Clearable
+                                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                             ResetValueOnEmptyText="true"
+                                             MaxItems="20"                                             
+                                             Disabled="true" />
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+        </div>            
+    </div>
+</MudForm>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
+
+@code {
+    private string? ApplicationUser { get; set; }
+    private MudForm? Form { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
+    private bool IsDialogResultOk { get; set; } = false;    
+    private MudTable<VesselCallDetail>? mudTable;
+
+    [Parameter]
+    public long Id { get; set; }
+    [Parameter]
+    public string? Voyage { get; set; }
+
+    private VesselCallEntity Item { get; set; } = new();    //{ Details = new List<VesselCallDetail>() { new() } }
+
+    private bool IsLoadingData = false;
+    private bool IsRoleForEdit = false;
+    private EntityStatus ItemStatus { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool first)    //OnInitializedAsync()
+    {
+        if (first)
+        {
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
+                IsRoleForEdit = true;
+
+            ApplicationUser = authState.User.Identity?.Name;
+            await GetItem();
+        }
+    }
+
+    private async Task GetItem()
+    {
+        if (Id == 0) return;
+
+        var response = await _vesselCallProvider.GetItemAsync(Id);
+        if (!response.HasErrors && response.Object is not null)
+            Item = (VesselCallEntity)response.Object;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task SaveItem_Click()
+    {
+        if (Item is null || Form is null) return;
+
+        await Form.Validate();
+
+        if (!Form.IsValid)
+        {
+            Snackbar.Add("Заполните поля отмеченные красным.", Severity.Warning);
+            return;
+        }
+
+        if (Item.Status == EntityStatus.Completed)  //&& !IsRoleForEdit
+            Snackbar.Add($"Voyage is Completed.<br>You can't change this Voyage.", Severity.Warning);
+
+        if (!Item.Details.Any())
+        {
+            Snackbar.Add("Необходимо выбрать по крайней мере один порт.<br>Добавьте порт.", Severity.Warning);
+            return;
+        }                
+
+        IsLoadingData = true;
+
+        AppObjectResponse appObjectResponse = new();
+
+        if (Id == 0)
+            appObjectResponse = await _vesselCallProvider.NewItemAsync(Item, ApplicationUser);
+        else
+            appObjectResponse = await _vesselCallProvider.ModifyItemAsync(Item, ApplicationUser);
+
+        if (appObjectResponse.HasErrors)
+            Snackbar.Add($"{string.Join("<br>", appObjectResponse.Errors)}", Severity.Warning); 
+        else
+        {
+            Id = Item.Id;
+            IsDialogResultOk = true;
+            Snackbar.Add("Saved Successfully", Severity.Success);
+        }
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddLocation()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Location_ItemDialog>(null, parameters, options);
+    }
+
+    private void AddDetailItem()
+    {
+        Item.Details.Add(new());
+    }
+
+    private void RemoveDetail_Click(VesselCallDetail itemDetails)
+    {
+        if (itemDetails.ExportOrders.Count() > 0)
+        {
+            string portName = itemDetails.POD?.Name ?? string.Empty;
+
+            Snackbar.Add($"В этом рейсе есть поручения.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки:<br>{portName}", Severity.Warning);
+            return;            
+        }
+
+        Item.Details.Remove(itemDetails);
+    }
+
+    #region SEARCH FUNCTIONS
+
+    private async Task<IEnumerable<VesselEntity>> SearchVessel(string value, CancellationToken token)
+    {
+        IEnumerable<VesselEntity> Vessels = new List<VesselEntity>();
+
+        var response = await _vesselProvider.GetItemsAsync();
+        if (!response.HasErrors && response.Object != null)
+            Vessels = (IEnumerable<VesselEntity>)response.Object;
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Vessels.OrderBy(s => s.Name).ToList();
+
+        return Vessels.Where(x => !string.IsNullOrEmpty(x.Name) && x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<TerminalCatalog>> SearchTerminal(string value, CancellationToken token)
+    {
+        IEnumerable<TerminalCatalog> Terminals = new List<TerminalCatalog>();
+
+        var response = await _terminalProvider.GetItemsAsync();
+        if (!response.HasErrors && response.Object != null)
+            Terminals = (IEnumerable<TerminalCatalog>)response.Object;
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Terminals.OrderBy(s => s.Name).ToList();
+
+        return Terminals.Where(x => !string.IsNullOrEmpty(x.Name) && x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<LocationCatalog>> SearchLocation(string value, CancellationToken token)
+    {
+        IEnumerable<LocationCatalog> Locations = new List<LocationCatalog>();
+
+        var response = await _locationProvider.GetItemsAsync();
+        if (!response.HasErrors && response.Object != null)
+            Locations = (IEnumerable<LocationCatalog>)response.Object;
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Locations.OrderBy(s => s.Name).ToArray();    //ToList
+
+        return Locations.Where(x => !string.IsNullOrEmpty(x.Name) && x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    #endregion
+}

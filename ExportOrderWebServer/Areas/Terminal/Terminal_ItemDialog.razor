@@ -1,108 +1,101 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject ICatalogProvider _catalogProvider
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
 
 <style>
-
-    .SelectField * .mud-input-slot.mud-input-root-outlined.mud-input-root-adorned-end {
-        text-align:left;
+    .Autocomplete * div.mud-input-slot.mud-input-root-outlined {
+        text-align: left;
     }
 
-    .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 4px;
-        padding-right: 4px;
+    .Autocomplete * div.mud-input-slot.mud-input-root-outlined.mud-input-root-margin-dense {
+        padding-top: 8px;
+    }
+
+    .Autocomplete * div.mud-input-slot.mud-input-root-outlined.mud-input-root-adorned-end {
+        padding-inline-start: 8px;
     }
 
 </style>
 
-@if (Item is not null)
-{
-    <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="ToolBar-container">
-            <MudToolBar Class="ToolBar ToolBar-new">
-                <MudSpacer />
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text"Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
-                    </MudTooltip>
-                </div>
-            </MudToolBar>
+<MudForm @ref="@Form" Style="max-width:fit-content">    
+    <DialogToolBar ToolBarTitle="Terminal" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
+                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+    <div class="Container-item">
+        <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 150px; margin-right:10px" Label="Short Name" Value="@Item.Name"
+                          ValueChanged="async (e)=> { Item.Name = e.ToUpper(); }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true"
+                          Required RequiredError="" Clearable />
         </div>
-
-        <div class="Container-item">
-            <div class="container-content">
-                <MudTextField T="string" Style="width: 150px; margin-right:10px" Label="Short Name" Text="@Item.Name"
-                              TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"
-                              Required RequiredError="" Clearable />
-            </div>
-             <div class="container-content" style="justify-content: flex-start">
-                <MudAutocomplete T="LocationCatalog" Style="width: 300px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
-                                 ToStringFunc="@(e => e != null ? e.Name : "")"
-                                 SearchFunc="@SearchLocation"
-                                 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 Required RequiredError="" Clearable
-                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                 ResetValueOnEmptyText="true"
-                                 Placeholder="Location"
-                                 MaxItems="20"
-                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                 AdornmentColor="Color.Primary"
-                                 Adornment="Adornment.End"
-                                 OnAdornmentClick="@( async ()=> { if (!IsLoadingData) await AddLocation_Click(); })" />
-            </div>
-            <div class="container-content">
-                <MudSelect Class="SelectField" T="CustomsCatalog" Label="Таможенный пост" @bind-Value="@Item.Customs"
-                           Style="width:550px; text-align:left" Placeholder="Таможенный пост"
-                           ToStringFunc="@(str => str is not null ? str.OfficeShort : string.Empty)"
-                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                           CloseIcon="" OpenIcon="" Clearable >
-                    @if (CustomOffices is not null)
-                        @foreach (var office in CustomOffices)
-                        {
-                            <MudSelectItem Value="@office">@($"({office.Code}) {office.OfficeShort}")</MudSelectItem>
-                        }
-                </MudSelect>
-            </div>            
+        <div class="container-content" style="justify-content: flex-start">
+            <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 300px; margin-right:10px" Label="Location" @bind-Value="Item.Location"
+                             ToStringFunc="@(e => e != null ? e.Name : "")"
+                             SearchFunc="@SearchLocation"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             Required RequiredError="" Clearable
+                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                             ResetValueOnEmptyText="true"
+                             MaxItems="20" />
+            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="@AddLocation_Click" />
         </div>
-    </MudForm>
-}
+        <div class="container-content">
+            <MudSelect Class="Autocomplete" T="CustomsCatalog" Style="width:300px" Label="Таможенный пост" @bind-Value="@Item.Customs"
+                       ToStringFunc="@(str => str is not null ? str.OfficeShort : string.Empty)"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       CloseIcon="" OpenIcon="" Clearable >
+                @if (CustomOffices is not null)
+                    @foreach (var office in CustomOffices)
+                    {
+                        <MudSelectItem Value="@office">@($"{office.Code} {office.OfficeShort}")</MudSelectItem>
+                    }
+            </MudSelect>
+        </div>            
+    </div>
+</MudForm>
 
 @code {
     private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = new();
+    private bool IsDialogResultOk { get; set; } = false;
+
     [Parameter]
     public long Id { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
 
-    private TerminalCatalog? Item { get; set; }
+    private TerminalCatalog Item { get; set; } = new();
     private bool IsLoadingData { get; set; } = false;
 
     private IEnumerable<CustomsCatalog> CustomOffices { get; set; } = new List<CustomsCatalog>();    
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool first)    //OnInitializedAsync
     {
-        CustomOffices = await _terminalProvider.GetCustomsOfficesAsync();
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        ApplicationUser = authState.User.Identity?.Name;
-        await GetItem();
+        if (first)
+        {
+            CustomOffices = await _catalogProvider.GetCustomsOfficesAsync();
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ApplicationUser = authState.User.Identity?.Name;
+
+            await GetItem();
+        }
     }
 
     private async Task GetItem()
     {
-        if (IsNewItem)
-            Item = new();
-        else
-        {
-            var response = await _terminalProvider.GetItemAsync(Id);
-            if (!response.HasErrors && response.Object is not null)
-                Item = (TerminalCatalog)response.Object;
-        }
+        if (Id == 0) return;
+
+        IsLoadingData = true;
+
+        var response = await _terminalProvider.GetItemAsync(Id);
+        if (!response.HasErrors && response.Object is not null)
+            Item = (TerminalCatalog)response.Object;
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveItem_Click()
@@ -111,49 +104,50 @@
 
         await Form.Validate();
 
-        if (Form.IsValid)
+        if (!Form.IsValid) return;
+        
+        IsLoadingData = true;
+
+        AppObjectResponse appObjectResponse = new();
+
+        if (Id == 0)
+            appObjectResponse = await _terminalProvider.NewItemAsync(Item, ApplicationUser);
+        else
+            appObjectResponse = await _terminalProvider.ModifyItemAsync(Item, ApplicationUser);
+
+        if (appObjectResponse.HasErrors)
+            Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Warning);
+        else
         {
-            IsLoadingData = true;
-
-            AppObjectResponse appObjectResponse = new();
-
-            if (IsNewItem)
-                appObjectResponse = await _terminalProvider.NewItemAsync(Item, ApplicationUser);
-            else
-                appObjectResponse = await _terminalProvider.ModifyItemAsync(Item, ApplicationUser);
-
-            if (!appObjectResponse.HasErrors)
-                Snackbar.Add("Save Successed", Severity.Success);
-            else
-                Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
-
-            IsNewItem = false;
             Id = Item.Id;
-
-            IsLoadingData = false;
-
-            MudDialog.Close(DialogResult.Ok(true));
+            IsDialogResultOk = true;
+            Snackbar.Add("Saved Successfully", Severity.Success);
         }
+        
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);        
     }
 
     private async Task AddLocation_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Locaion", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Location_ItemDialog>(null, parameters, options);
     }
 
     private async Task<IEnumerable<LocationCatalog>> SearchLocation(string value, CancellationToken token)
     {
-        var Locations = new List<LocationCatalog>();
+        IEnumerable<LocationCatalog> Locations = new List<LocationCatalog>();
 
         var response = await _locationProvider.GetItemsAsync();
-        if (!response.HasErrors)
-            Locations = ((IEnumerable<LocationCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+
+        if (!response.HasErrors && response.Object != null)
+            Locations = (IEnumerable<LocationCatalog>)response.Object;
 
         if (string.IsNullOrWhiteSpace(value))
-            return Locations;
+            return Locations.OrderBy(s => s.Name).ToArray();
 
-        return Locations.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return Locations.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 }

@@ -1,0 +1,70 @@
+﻿@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject ISupplementaryUnitProvider _SupplementaryUnitProvider
+
+<MudForm @ref="@Form" Style="max-width:fit-content">
+    <DialogToolBar ToolBarTitle="Доп. единицы" SaveButtonDisabled="@IsLoadingData" SaveItem="@SaveItem_Click"
+                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+    <div class="Container-item">
+        <div class="container-content">
+            <MudTextField Class="TextField" T="ushort?" Label="Код" Style="width:60px; margin-inline:10px" @ref="NewItemCode" @bind-Value="@Item.Code"
+                          Variant="Variant.Outlined" Clearable Required RequiredError="" />
+            <MudTextField Class="TextField" T="string" Label="Кратко" Style="width:160px; margin-inline:10px"
+                          Text="@Item.ShortName" TextChanged="(e) => Item.ShortName = e.ToUpper().Trim()"
+                          Variant="Variant.Outlined" Clearable Required RequiredError="" />
+            <MudTextField Class="TextField" T="string" Label="Наименование" Style="width:340px; margin-inline:10px"
+                          Text="@Item.FullName" TextChanged="(e) => Item.FullName = e.ToUpper().Trim()"
+                          Variant="Variant.Outlined" Clearable Required RequiredError="" />
+        </div>
+    </div>
+</MudForm>
+
+<OverlayLoadingData Visible="@IsLoadingData" />
+
+@code {
+    [Parameter]
+    public string? ApplicationUser { get; set; }
+    private MudForm Form { get; set; } = new();
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = new();
+    private bool IsDialogResultOk { get; set; } = false;
+    
+    private MudTextField<ushort?> NewItemCode { get; set; } = new();
+    private SupplementaryUnitCatalog Item { get; set; } = new();
+    private bool IsLoadingData = false;
+
+    private async Task SaveItem_Click()
+    {
+        if (Item is null) return;
+
+        await Form.Validate();
+
+        if (!Form.IsValid)
+        {
+            Snackbar.Add("Fill up all required fields - marked in red.", Severity.Warning);
+            return;
+        }
+
+        if (Item.Code == null || Item.Code == 0)
+        {
+            Snackbar.Add("Code can't be 0. Change the code.", Severity.Warning);
+            await NewItemCode.FocusAsync();
+            return;
+        }
+
+        IsLoadingData = true;
+
+        var response = await _SupplementaryUnitProvider.NewItemAsync(Item, ApplicationUser);
+
+        if (response.HasErrors)
+            Snackbar.Add($"{response.Errors.First()}", Severity.Warning);
+        else
+        {
+            IsDialogResultOk = true;
+            Snackbar.Add("New Item saved successfully.", Severity.Success);
+        }
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+}

@@ -45,7 +45,8 @@
     [Parameter] public bool IsSelectable { get; set; } = false;
 
     private async Task OpenNewItem_Click()
-    {        
+    {
+        //await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}document", "_blank"));
         await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}document", "_blank");
     }
 }

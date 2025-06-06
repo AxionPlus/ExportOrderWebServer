@@ -3,17 +3,8 @@
 
 @inject ISnackbar Snackbar
 @inject IJSRuntime jsRuntime
+@inject IDialogService DialogService
 @inject ISupplementaryUnitProvider _SupplementaryUnitProvider
-
-<style>
-    .wrapper-input.NoHeader.FullName * .mud-input > input.mud-input-root-outlined {
-        text-align:start;
-    }
-
-    .Table.Read * .mud-table-body > .mud-table-row  > .mud-table-cell {
-        padding: 2px;
-    }
-</style>
 
 <MudContainer MaxWidth="MaxWidth.Medium">
     <div class="ToolBar-container">
@@ -22,10 +13,9 @@
             <MudSpacer />
             <div class="ToolBar-Title"><span>Дополнительные ед. измерения</span></div>
             <MudSpacer />
-            <div class="ToolBar-iconbutton" style="margin-right:20px">
-                <MudTooltip Delay="500" Duration="1000" Text="Save">
-                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="@(async()=>await SaveItem(NewItem))"
-                                   Disabled="@(!IsNewItemActivated)" />
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="Add New Item" Duration="1500" Delay="1000" Placement="Placement.End">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
                 </MudTooltip>
             </div>
             <div class="ToolBar-iconbutton">
@@ -36,64 +26,42 @@
             </div>
         </MudToolBar>
     </div>
-
     <div class="Container-table">
-        <div class="tableMenu">
-            @if (IsNewItemActivated && NewItem is not null)
-            {
-                <MudForm @ref="@Form" Style="display:flex; flex-direction:row; -webkit-fill-available">
-                    <MudNumericField @ref="NewItemCode" Class="wrapper-input NoHeader" T="ushort" Style="width:60px; margin-inline-start:36px" @bind-Value="@NewItem.Code"                    
-                                     Variant="Variant.Outlined" HideSpinButtons AutoFocus Required />
-                    <MudTextField Class="wrapper-input NoHeader" T="string" Style="width:160px; margin-inline:10px"                                  
-                                  Text="@NewItem.ShortName" TextChanged="(e) => { NewItem.ShortName = !string.IsNullOrWhiteSpace(e) ? e.ToUpper().Trim() : string.Empty; }"
-                                  Variant="Variant.Outlined" Clearable Required RequiredError="" />
-                    <MudTextField Class="wrapper-input NoHeader FullName" T="string" Style="width:340px"                                  
-                                  Text="@NewItem.FullName" TextChanged="(e) => { NewItem.FullName = !string.IsNullOrWhiteSpace(e) ? e.ToUpper().Trim() : string.Empty; }"
-                                  Variant="Variant.Outlined" Clearable Required RequiredError="" />
-                </MudForm>
-            }
+        <div class="tableMenu">            
             <MudSpacer />
             <TablePager T="SupplementaryUnitCatalog" Table="mudTable" ItemsCount="@Items.Count()" />
         </div>
-
-        <MudTable Class="Table Read" @ref="mudTable" Items="@Items" Virtualize Hover RowsPerPage="30">
+        <MudTable Class="Table P4" @ref="mudTable" Items="@Items" Virtualize Hover RowsPerPage="20">
             <HeaderContent>
-                <MudTh Style="width:36px">
-                    <MudTooltip Text="Add New Item" Delay="500" Duration="1500">
-                        <MudIconButton Icon="@Icons.Material.Outlined.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="AddItem_Click"></MudIconButton>
-                    </MudTooltip>
-                </MudTh>
-                <MudTh Style="width:60px">
-                    <MudTableSortLabel SortBy="new Func<SupplementaryUnitCatalog, object>(x=>x.Code)">Code</MudTableSortLabel>
+                <MudTh Style="width:80px">
+                    <MudTableSortLabel SortBy="new Func<SupplementaryUnitCatalog, object>(x=>x.Code!)">Code</MudTableSortLabel>
                 </MudTh>
                 <MudTh Style="width:180px">
                     <MudTableSortLabel SortBy="new Func<SupplementaryUnitCatalog, object>(x=>x.ShortName)">Short Name</MudTableSortLabel>
                 </MudTh>
                 <MudTh Style="text-align:start">Full Name</MudTh>
+                <MudTh Style="width:40px"></MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd></MudTd>
                 <MudTd>@context.Code</MudTd>
                 <MudTd>@context.ShortName</MudTd>
-                <MudTd Style="text-align:start">@context.FullName</MudTd>                 
+                <MudTd Style="text-align:start">@context.FullName</MudTd>  
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async () => { await RemoveItem_Click(context.ShortName, context.Id); })" />
+                </MudTd>
             </RowTemplate>
             <PagerContent></PagerContent>
         </MudTable>
-    </div>    
-
+    </div>
 </MudContainer>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    //[CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    private MudForm Form { get; set; } = new();
-    private MudTable<SupplementaryUnitCatalog> mudTable = new();
-    private MudNumericField<ushort> NewItemCode { get; set; } = new();
+    [CascadingParameter] public string? ApplicationUser { get; set; }    
+    private MudTable<SupplementaryUnitCatalog> mudTable = new();   
 
     private IEnumerable<SupplementaryUnitCatalog> Items { get; set; } = new List<SupplementaryUnitCatalog>();
-    private SupplementaryUnitCatalog? NewItem { get; set; }
-
     private bool IsNewItemActivated = false;
     private bool IsLoadingData = false;
 
@@ -118,50 +86,38 @@
             Items = items;
 
         IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void AddItem_Click()
+    private async void AddItem_Click()
     {
-        NewItem = new();
-        IsNewItemActivated = true;
-        StateHasChanged();
+        var parameters = new DialogParameters { ["ApplicationUser"] = ApplicationUser };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<SupplementaryUnit_Dialog>(null, parameters, options);
+
+        var result = await dialog.Result;
+
+        if (result != null && result.Data != null && (bool)result.Data == true)        
+            await GetItems();
     }
 
-    private async Task SaveItem(SupplementaryUnitCatalog? newItem)
+    private async Task RemoveItem_Click(string? name, long id)
     {
-        if (newItem is null) return;
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                        (MarkupString)$"<b>Do you want to remove record?</b> <br/>Доп.ед: {name}<br/>",
+                                        yesText: "YES", cancelText: "NO");
 
-        await Form.Validate();
+        if (msgResult.HasValue)
+            if (msgResult.Value)
+            {
+                var response = await _SupplementaryUnitProvider.RemoveItemAsync(id);
 
-        if (!Form.IsValid)
-        {
-            Snackbar.Add("Fill up all required fields - marked in red.", Severity.Warning);
-            return;
-        }
-
-        if (newItem.Code == 0)
-        {
-            Snackbar.Add("Code can't be 0. Change the code.", Severity.Warning);
-            await NewItemCode.FocusAsync();
-            return;
-        }
-
-        IsLoadingData = true;
-
-        var response = await _SupplementaryUnitProvider.NewItemAsync(newItem);
-
-        if (response is not null && response.HasErrors)
-        {
-            Snackbar.Add($"{response.Errors.First()}", Severity.Warning);
-            IsLoadingData = false;
-            return;
-        }        
-        
-        Snackbar.Add("New Item saved successfully.", Severity.Success);        
-        IsLoadingData = false;
-
-        NewItem = new();
-        IsNewItemActivated = false;
+                if (!response.HasErrors)
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                else
+                    Snackbar.Add($"Unable to delete", Severity.Warning);
+            }
 
         await GetItems();
     }

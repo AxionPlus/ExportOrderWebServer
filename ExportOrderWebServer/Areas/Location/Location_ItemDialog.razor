@@ -4,93 +4,83 @@
 @inject ICountryProvider _countryProvider
 @inject ILocationProvider _loactionProvider
 
-@if (Item is not null)
-{
-    <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="ToolBar-container">
-            <MudToolBar Class="ToolBar ToolBar-new">                
-                <MudSpacer />
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
-                    </MudTooltip>
-                </div>
-            </MudToolBar>
+<MudForm @ref="@Form" Style="max-width:fit-content">
+    <DialogToolBar ToolBarTitle="Location" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
+                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+    <div class="Container-item">
+        <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 135px" Label="UN Locode" Text="@Item.UnLocode"
+                          TextChanged="@(async (e)=> { Item.UnLocode = e.ToUpper(); })"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true" MaxLength="5"
+                          Required RequiredError="" Clearable />
         </div>
-
-        <div class="Container-item">
-            <div class="container-head"></div>
-            <div class="container-content">
-                <MudTextField T="string" Style="width: 400px" Label="Name Ru" Text="@Item.Name"
-                              TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"
-                              Required RequiredError="" Clearable />
-             </div>
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.NameEn"
-                               TextChanged="async (e)=> { Item.NameEn = e.ToUpper(); }"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true"
-                               Required RequiredError="" Clearable />
-             </div>             
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 135px" Label="UN Locode" Text="@Item.UnLocode"
-                               TextChanged="@(async (e)=> { Item.UnLocode = e.ToUpper(); })"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true"
-                              Required RequiredError="" Clearable />
-                <MudSpacer />
-                 <MudAutocomplete T="CountryCatalog" Style="width: 250px" Label="Country" @bind-Value="Item.Country"
-                                  ToStringFunc="@(e => e != null ? e.RUS : "")"
-                                  SearchFunc="@SearchCountry"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 Required RequiredError="" Clearable
-                                  CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                  ResetValueOnEmptyText="true"
-                                  Placeholder="Country"
-                                  MaxItems="20"                                  
-                                  AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                  AdornmentColor="Color.Primary"
-                                  Adornment="Adornment.End"
-                                  OnAdornmentClick="@( async ()=> { if (!IsLoadingData) await AddCountry_Click(); })" />
-             </div>
+        <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 400px" Label="Name Ru" Text="@Item.Name"
+                          TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true"
+                          Required RequiredError="" Clearable />
          </div>
-     </MudForm>
+        <div class="container-content">
+           <MudTextField Class="TextField" T="string" Style="width: 400px" Label="Name En" Text="@Item.NameEn"
+                         TextChanged="async (e)=> { Item.NameEn = e.ToUpper(); }"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         Immediate="true"
+                         Required RequiredError="" Clearable />
+        </div>
+        <div class="container-content" style="justify-content: flex-start">
+            <MudAutocomplete Class="Autocomplete" T="CountryCatalog" Style="width: 250px; margin-right:20px" Label="Country" @bind-Value="Item.Country"
+                             ToStringFunc="@(e => e != null ? e.RUS : "")"
+                             SearchFunc="@SearchCountry"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             Required RequiredError="" Clearable
+                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                             ResetValueOnEmptyText="true"
+                             Placeholder="Country"
+                             MaxItems="20"/>
+            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" Color="Color.Primary" Disabled="@IsLoadingData" OnClick="@AddCountry_Click" />
+         </div>
+     </div>
+ </MudForm>
 
-    <OverlayLoadingData Visible="@IsLoadingData" />
-}
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = new();
+    private bool IsDialogResultOk { get; set; } = false;
+
     [Parameter]
     public long Id { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
 
-    private LocationCatalog? Item { get; set; }
+    private LocationCatalog Item { get; set; } = new();
     private bool IsLoadingData { get; set; } = false;
 
-
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool first)    //OnInitializedAsync()
     {
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        ApplicationUser = authState.User.Identity?.Name;
-        await GetItem();
+        if (first)
+        {
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ApplicationUser = authState.User.Identity?.Name;
+            await GetItem();
+        }
     }
 
     private async Task GetItem()
     {
-        if (IsNewItem)
-            Item = new();
-        else
-        {
-            var response = await _loactionProvider.GetItemAsync(Id);
+        if (Id == 0) return;
+        
+        IsLoadingData = true;
+
+        var response = await _loactionProvider.GetItemAsync(Id);
             if (!response.HasErrors && response.Object is not null)
                 Item = (LocationCatalog)response.Object;
-        }
+        
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveItem_Click()
@@ -99,49 +89,50 @@
 
         await Form.Validate();
 
-        if (Form.IsValid)
+        if (!Form.IsValid) return;
+
+        IsLoadingData = true;
+
+        AppObjectResponse appObjectResponse = new();
+
+        if (Id == 0)
+            appObjectResponse = await _loactionProvider.NewItemAsync(Item, ApplicationUser);
+        else
+            appObjectResponse = await _loactionProvider.ModifyItemAsync(Item, ApplicationUser);
+
+        if (appObjectResponse.HasErrors)
+            Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Warning);
+        else
         {
-            IsLoadingData = true;
-
-            AppObjectResponse appObjectResponse = new();
-
-            if (IsNewItem)
-                appObjectResponse = await _loactionProvider.NewItemAsync(Item, ApplicationUser);
-            else
-                appObjectResponse = await _loactionProvider.ModifyItemAsync(Item, ApplicationUser);
-
-            if (!appObjectResponse.HasErrors)
-                Snackbar.Add("Save Successed", Severity.Success);
-            else
-                Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
-
-            IsNewItem = false;
             Id = Item.Id;
-
-            IsLoadingData = false;
-
-            MudDialog.Close(DialogResult.Ok(true));
+            IsDialogResultOk = true;
+            Snackbar.Add("Saved Successfully", Severity.Success);
         }
+        
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task AddCountry_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Country_ItemDialog>("New Country", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Country_ItemDialog>(null, parameters, options);
     }
 
     private async Task<IEnumerable<CountryCatalog>> SearchCountry(string value, CancellationToken token)
     {
-        var Countries = new List<CountryCatalog>();
+        IEnumerable<CountryCatalog> Countries = new List<CountryCatalog>();
 
         var response = await _countryProvider.GetItemsAsync();
-        if (!response.HasErrors)
-            Countries = ((IEnumerable<CountryCatalog>)response.Object!).OrderBy(s => s.RUS).ToList();
+
+        if (!response.HasErrors && response.Object != null)
+            Countries = (IEnumerable<CountryCatalog>)response.Object;
 
         if (string.IsNullOrWhiteSpace(value))
-            return Countries;
+            return Countries.OrderBy(s => s.RUS).ToList();
 
-        return Countries.Where(x => x.RUS.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return Countries.Where(x => x.RUS.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 }

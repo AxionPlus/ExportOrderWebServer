@@ -33,7 +33,13 @@ public class LocationProvider : ILocationProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Locations.ToListAsync();
+            var Items = await db.Locations.ToArrayAsync();
+
+            if (Items is not null && Items.Any())
+                appObjResponse.Object = Items;
+            else
+                appObjResponse.ErrorAdd("Items not found.");
+            
             return appObjResponse;
         }
     }
@@ -152,7 +158,7 @@ public class LocationProvider : ILocationProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -162,38 +168,31 @@ public class LocationProvider : ILocationProvider
             {
                 var db = await _db;
 
-                // check an Existing item
-                var existedItem = await db.Locations.Where(s => s.Id == id).FirstOrDefaultAsync();
+                /// Get Existing item
+                var existedItem = await db.Locations.FirstOrDefaultAsync(s => s.Id == id);
 
-                if (existedItem is null)
+                if (existedItem != null)
                 {
-                    appObjResponse.ErrorAdd("Record wasn't deleted");
-                    return appObjResponse;
+                    db.Entry(existedItem).State = EntityState.Deleted;
+                    //var bug = db.ChangeTracker.DebugView.LongView;
+                    await db.SaveChangesAsync();
                 }
-
-                db.Entry(existedItem).State = EntityState.Deleted;
-
-                var bug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
+                else
+                    appObjResponse.ErrorAdd("Record not deleted");
 
                 return appObjResponse;
             }
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            appObjResponse.ErrorAdd(msg);
+            appObjResponse.ErrorAdd(ex.Message);
             return appObjResponse;
         }
     }
 
-    public async Task<IEnumerable<string>> GetNames()
+    public Task<IEnumerable<string>> GetNames()
     {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.Locations.OrderBy(s => s.Name).Select(s => s.Name!).ToListAsync();
-        }
+        throw new NotImplementedException();
     }
 
     public async Task<IEnumerable<string>> GetNamesEn()
@@ -210,7 +209,12 @@ public class LocationProvider : ILocationProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            return await db.Locations.Select(s => s.UnLocode!).ToListAsync();
+            var Items = await db.Locations.Where(s => !string.IsNullOrWhiteSpace(s.UnLocode)).Select(s => s.UnLocode!).ToArrayAsync();
+
+            if (Items is not null && Items.Any())
+                return Items.Order().ToArray();
+            else
+                return Enumerable.Empty<string>();
         }
     }
 }

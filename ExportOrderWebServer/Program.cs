@@ -1,4 +1,5 @@
 using ExportOrderWebServer;
+using ExportOrderWebServer.Areas.Catalog;
 using ExportOrderWebServer.Areas.Import;
 using ExportOrderWebServer.Areas.Import.BillofLadings.Provider;
 using ExportOrderWebServer.Areas.Import.ImportManifest.Provider;
@@ -68,6 +69,7 @@ services.AddHttpClient();
 services.AddMudServices();
 services.AddControllers();
 
+/// PROVIDERS
 services.AddTransient<IUserProvider, UserProvider>();
 services.AddTransient<ICarrierProvider, CarrierProvider>();
 services.AddTransient<ICommodityProvider, CommodityProvider>();
@@ -86,21 +88,23 @@ services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 services.AddTransient<ISupplementaryUnitProvider, SupplementaryUnitProvider>();
 services.AddTransient<IBillofLadingProvider, BillofLadingProvider>();
 services.AddTransient<IReleaseImportProvider, ReleaseImportProvider>();
+services.AddTransient<ICatalogProvider, CatalogProvider>();
+services.AddTransient<IStatisticProvider, StatisticProvider>();
 services.AddTransient<IReleaseService, ReleaseService>();
 services.AddTransient<IImportManifestProvider, ImportManifestProvider>();
 
+/// SERVICES
 services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
-services.AddTransient<StatisticProvider>();
-
 services.AddTransient<IUploadResultService, UploadResultService>();
 services.AddTransient<IValidationService, ValidationService>();
 
+/// FILE SERVICES
 services.AddTransient<IExcelFileCreateService, ExcelFileCreateService>(); 
 services.AddTransient<IExcelFileUploadService, ExcelFileUploadService>();
 services.AddTransient<IXmlFileCreateService, XmlFileCreateService>();
 services.AddTransient<IXmlFileReadService, XmlFileReadService>();
 services.AddTransient<IPdfFileCreateService, PdfFileCreateService>();
-
+services.AddTransient<IReleaseService, ReleaseService>();
 
 #if DEBUG
 

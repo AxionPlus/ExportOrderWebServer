@@ -1,5 +1,6 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject ICatalogProvider _CatalogProvider
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
 
@@ -14,83 +15,68 @@
                              ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
             <MudAutocomplete Class="Autocomplete" T="string" Label="Location" Style="width: 250px" SearchFunc="@SearchLocations"
-                              Value="Filter.Location"
-                              ValueChanged="(e)=> { Filter.Location = e; }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              CloseIcon="" OpenIcon=""
-                              ResetValueOnEmptyText="true" Clearable />
+                             Value="Filter.Location"
+                             ValueChanged="(e)=> { Filter.Location = e; }"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
             <MudSpacer />
-            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
-                        Variant="Variant.Filled" Color="Color.Secondary">
+            <MudButton Class="Button" Style="max-width: 100px" Disabled="@IsLoadingData" OnClick="@GetItems"
+                       Variant="Variant.Filled" Color="Color.Secondary">
                 Search
             </MudButton>
          </div>
-    </div> 
-
-    @if (Items!.Count() > 0)
-    {
-        <div class="Container-table">
-            @if (mudTable != null)
-            {
-                <div class="tableMenu">
-                    <MudSpacer />
-                    <MudPagination SelectedChanged="PageChanged" Count="@((mudTable.GetFilteredItemsCount() + mudTable.RowsPerPage - 1) / mudTable.RowsPerPage)" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-                    <span class="mud-typography-body1" style="margin: auto; padding-left: 10px;">(@Items!.Count())</span>
-                </div>
-            }
-
-            <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
-
-                <HeaderContent>
-                    <MudTh Style="width:30px"></MudTh>
-                    <MudTh Style="width:30px"></MudTh>
-                    <MudTh Style="width:200px">
-                        <MudTableSortLabel SortBy="new Func<TerminalCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
-                    </MudTh>
-                    <MudTh Style="width:250px">
-                        <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name!)">Location</MudTableSortLabel>
-                    </MudTh>
-                    <MudTh Style="width:400px">Таможенный пост</MudTh>
-                </HeaderContent>
-
-                <RowTemplate>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>
-                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })"></MudIconButton></MudTd>
-                    <MudTd>@context.Name</MudTd>
-                    <MudTd>@context.Location!.Name</MudTd>
-                    <MudTd>@(context.Customs is not null ? $"({context.Customs!.Code}) {context.Customs!.OfficeShort}" : "--")</MudTd>
-                </RowTemplate>
-
-                <PagerContent></PagerContent>
-
-            </MudTable>
+    </div>
+    
+    <div class="Container-table">            
+        <div class="tableMenu">
+            <MudSpacer />
+            <TablePager T="TerminalCatalog" Table="mudTable" ItemsCount="@Items?.Count()" />
         </div>
-    }    
+        <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="20">
+            <HeaderContent>
+                <MudTh Style="width:30px"></MudTh>                
+                <MudTh Style="width:200px">
+                    <MudTableSortLabel SortBy="new Func<TerminalCatalog, object>(x=>x.Name!)">Name</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:250px">
+                    <MudTableSortLabel SortBy="new Func<LocationCatalog, object>(x=>x.Name!)">Location</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:400px">Таможенный пост</MudTh>
+                <MudTh Style="width:30px"></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>                
+                <MudTd>@context.Name</MudTd>
+                <MudTd>@context.Location?.Name</MudTd>
+                <MudTd>@(context.Customs is not null ? $"({context.Customs?.Code}) {context.Customs?.OfficeShort}" : "--")</MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async () => await RemoveItem_Click(context.Name, context.Id))"/></MudTd>
+            </RowTemplate>
+            <PagerContent></PagerContent>
+        </MudTable>
+    </div>    
 
 </MudContainer>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
+    [Parameter]
+    public string? ApplicationUser { get; set; }
     private MudTable<TerminalCatalog>? mudTable;
 
-    private IEnumerable<TerminalCatalog>? Items { get; set; } = new List<TerminalCatalog>();
+    private IEnumerable<TerminalCatalog> Items { get; set; } = new List<TerminalCatalog>();
     private FilterParameters Filter { get; set; } = new();
 
     bool IsLoadingData = false;
-
-
-    private void PageChanged(int i) => mudTable?.NavigateTo(i - 1);
 
     public async Task GetItems()
     {
         IsLoadingData = true;
 
         var response = await _terminalProvider.GetItemsAsync(Filter);
-        if (!response.HasErrors)
-            Items = ((IEnumerable<TerminalCatalog>)response.Object!).ToArray();
-
-        await Task.Delay(500);
+        if (!response.HasErrors && response.Object != null)
+            Items = ((IEnumerable<TerminalCatalog>)response.Object);
 
         IsLoadingData = false;
 
@@ -99,42 +85,44 @@
 
     private async Task ShowItem_Click(long Id)
     {
-        DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("Terminal", parameters, options);
+        var parameters = new DialogParameters { ["Id"] = Id };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result is not null && result.Data != null && (bool)result.Data == true)
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(string name, long id)
+    private async Task RemoveItem_Click(string? name, long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
-                          "REMOVE  Record",
-                          (MarkupString)$"<b>Do you want to remove record?</b> <br/>Terminal:<br/>{name}<br/>",
-                          yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                    (MarkupString)$"<b>Do you want to remove record?</b> <br/>Terminal: {name}<br/>",
+                                    yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _terminalProvider.RemoveItemAsync(id);
+                IsLoadingData = true;
+                var response = await _terminalProvider.RemoveItemAsync(id, ApplicationUser);
+                IsLoadingData = false;
 
-                if (!response.HasErrors)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                if (response.HasErrors)
+                    Snackbar.Add($"Unable to delete", Severity.Warning); 
                 else
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
+                {
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                    await GetItems();
+                }
             }
-
-        await GetItems();
     }
 
     #region SEARCH FUNCTIONS
 
     private async Task<IEnumerable<string>> SearchNames(string value, CancellationToken token)
     {
-        var result = await _terminalProvider.GetNames();
+        var result = await _CatalogProvider.GetTerminalNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -147,7 +135,7 @@
 
     private async Task<IEnumerable<string>> SearchLocations(string value, CancellationToken token)
     {        
-        var result = await _locationProvider.GetNames();
+        var result = await _CatalogProvider.GetLocationNames();
      
         if (result.Count() == 0)
             return Enumerable.Empty<string>();

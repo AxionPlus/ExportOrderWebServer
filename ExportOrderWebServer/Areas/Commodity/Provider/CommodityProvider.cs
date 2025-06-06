@@ -21,9 +21,8 @@ public class CommodityProvider : ICommodityProvider
             var db = await _db;
 
             appObjResponse.Object = await db.Commodities.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            return appObjResponse;
         }
-
-        return appObjResponse;
     }
 
     public async Task<AppObjectResponse> GetItemsAsync()
@@ -51,12 +50,12 @@ public class CommodityProvider : ICommodityProvider
                                                   .Where(s => string.IsNullOrEmpty(filter.Name) ? true : s.Name == filter.Name)
                                                   .Where(s => string.IsNullOrEmpty(filter.NameEn) ? true : s.NameEn == filter.NameEn)
                                                   .Where(s => !filter.IsIMO.HasValue ? true : s.IsIMO == filter.IsIMO)
-                                                  .ToListAsync();
+                                                  .ToArrayAsync();
 
-            if (commodities is null)
+            if (commodities is null || !commodities.Any())
                 appObjResponse.ErrorAdd("Commodities not found.");
-
-            appObjResponse.Object = commodities;
+            else
+                appObjResponse.Object = commodities;
 
             return appObjResponse;
         }
@@ -171,7 +170,7 @@ public class CommodityProvider : ICommodityProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -181,19 +180,17 @@ public class CommodityProvider : ICommodityProvider
             {
                 var db = await _db;
 
-                /// check an Existing item
-                var existedItem = await db.Commodities.Where(s => s.Id == id).FirstOrDefaultAsync();
+                /// Get Existing item
+                var existedItem = await db.Commodities.FirstOrDefaultAsync(s => s.Id == id);
 
-                if (existedItem is null)
+                if (existedItem != null)
                 {
-                    appObjResponse.ErrorAdd("Record wasn't deleted");
-                    return appObjResponse;
+                    db.Entry(existedItem).State = EntityState.Deleted;
+                    //var bug = db.ChangeTracker.DebugView.LongView;
+                    await db.SaveChangesAsync();
                 }
-
-                db.Entry(existedItem).State = EntityState.Deleted;
-
-                var bug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
+                else
+                    appObjResponse.ErrorAdd("Record not deleted");
 
                 return appObjResponse;
             }

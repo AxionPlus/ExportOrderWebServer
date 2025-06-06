@@ -1,7 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace ExportOrderEntites.Catalog
+﻿namespace ExportOrderEntites.Catalog
 {
     public class TerminalCatalog : CatalogEntity
     {

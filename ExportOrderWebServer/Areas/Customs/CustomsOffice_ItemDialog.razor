@@ -2,87 +2,79 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICustomsProvider _customsProvider
 
-@if (Item is not null)
-{
-    <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="ToolBar-container">
-            <MudToolBar Class="ToolBar ToolBar-new">                
-                <MudSpacer />
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
-                    </MudTooltip>
-                </div>                
-            </MudToolBar>
-        </div>
+<MudForm @ref="@Form" Style="max-width:fit-content">
+    <DialogToolBar ToolBarTitle="Customs Office" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
+                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>        
+    <div class="Container-item">
+        <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 150px" Label="Код" @bind-Value="@Item.Code"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true" Required RequiredError="" Clearable />
+         </div>
+         <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 250px" Label="пост (кратко)" Text="@Item.OfficeShort"
+                          TextChanged="@(async (e)=> { Item.OfficeShort = e.ToUpper(); })"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true" Required RequiredError="" Clearable />
+         </div>
+         <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 500px" Label="Таможенный пост" Text="@Item.Office"
+                          TextChanged="@(async (e)=> { Item.Office = e.ToUpper(); })"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true" Required RequiredError="" Clearable />
+         </div>
+         <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 500px" Label="Таможенный орган" Text="@Item.Dapartment"
+                          TextChanged="@(async (e)=> { Item.Dapartment = e.ToUpper(); })"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true" Required RequiredError="" Clearable />
+         </div>
+         <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 500px;" @bind-Value="@Item!.Email"
+                          Label="e-mail для отправки xml файла" Placeholder="mail@mail.ru"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true" Required RequiredError="" Clearable />
+         </div>
+    </div>
+</MudForm>
 
-        <div class="Container-item">
-            <div class="container-head"></div>
-            <div class="container-content">
-                 <MudTextField T="string" Style="width: 150px" Label="Код" @bind-Value="@Item.Code"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Required RequiredError="" Clearable />
-             </div>
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 250px" Label="пост (кратко)" Text="@Item.OfficeShort"
-                               TextChanged="@(async (e)=> { Item.OfficeShort = e.ToUpper(); })"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable />
-             </div>
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 500px" Label="Таможенный пост" Text="@Item.Office"
-                               TextChanged="@(async (e)=> { Item.Office = e.ToUpper(); })"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable />
-             </div>
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 500px" Label="Таможенный орган" Text="@Item.Dapartment"
-                               TextChanged="@(async (e)=> { Item.Dapartment = e.ToUpper(); })"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable />
-             </div>
-             <div class="container-content">
-                 <MudTextField T="string" Style="width: 500px;" @bind-Value="@Item!.Email"
-                               Label="e-mail для отправки xml файла" Placeholder="mail@mail.ru"
-                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                               Immediate="true" Required RequiredError="" Clearable />
-             </div>
-        </div>
-    </MudForm>
-
-    <OverlayLoadingData Visible="@IsLoadingData" />
-}
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = new();
+    private bool IsDialogResultOk { get; set; } = false;
 
     [Parameter]
-    public long Id { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
+    public long Id { get; set; }    
 
-    private CustomsCatalog? Item { get; set; }
+    private CustomsCatalog Item { get; set; } = new();
     private bool IsLoadingData { get; set; } = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool first)    //OnInitializedAsync
     {
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        ApplicationUser = authState.User.Identity?.Name;
-        await GetItem();
+        if (first)
+        {
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ApplicationUser = authState.User.Identity?.Name;
+            await GetItem();
+        }
     }
 
     private async Task GetItem()
     {
-        if (IsNewItem)
-            Item = new();
-        else
-        {
-            var response = await _customsProvider.GetItemAsync(Id);
-            if (!response.HasErrors && response.Object is not null)
-                Item = (CustomsCatalog)response.Object!;
-        }
+        if (Id == 0) return;
+
+        IsLoadingData = true;
+
+        var response = await _customsProvider.GetItemAsync(Id);
+        if (!response.HasErrors && response.Object is not null)
+            Item = (CustomsCatalog)response.Object;
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);        
     }
 
     public async Task SaveItem_Click()
@@ -97,22 +89,22 @@
 
             AppObjectResponse appObjectResponse = new();
 
-            if (IsNewItem)
+            if (Id == 0)
                 appObjectResponse = await _customsProvider.NewItemAsync(Item, ApplicationUser);
             else
                 appObjectResponse = await _customsProvider.ModifyItemAsync(Item, ApplicationUser);
 
-            if (!appObjectResponse.HasErrors)
-                Snackbar.Add("Save Successed", Severity.Success);
+            if (appObjectResponse.HasErrors)
+                Snackbar.Add($"No Success!. {appObjectResponse.Errors.Last()}", Severity.Warning);
             else
-                Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
-
-            IsNewItem = false;
-            Id = Item.Id;
+            {
+                Id = Item.Id;
+                IsDialogResultOk = true;
+                Snackbar.Add("Saved Successfully", Severity.Success);
+            }                
 
             IsLoadingData = false;
-
-            MudDialog.Close(DialogResult.Ok(true));
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

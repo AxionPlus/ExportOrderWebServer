@@ -33,7 +33,7 @@ public class TerminalProvider : ITerminalProvider
         {
             var db = await _db;
 
-            appObjResponse.Object = await db.Terminals.ToListAsync();
+            appObjResponse.Object = await db.Terminals.ToArrayAsync();
             return appObjResponse;
         }
     }
@@ -47,11 +47,13 @@ public class TerminalProvider : ITerminalProvider
             var db = await _db;
 
             var Terminals = await db.Terminals.Include(t => t.Location).Include(t => t.Customs)
+                                              .Where(s => !string.IsNullOrWhiteSpace(s.Name))
                                               .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.Name == filter.Name : true)
-                                              .Where(s => !string.IsNullOrEmpty(filter.Location) ? s.Location!.Name == filter.Location : true)
-                                              .ToListAsync();
+                                              .Where(s => !string.IsNullOrEmpty(filter.Location) ? s.Location != null && s.Location.Name == filter.Location : true)
+                                              .OrderBy(s => s.Name)
+                                              .ToArrayAsync();
             
-            appObjResponse.Object = Terminals.ToArray();
+            appObjResponse.Object = Terminals;
 
             return appObjResponse;
         }
@@ -154,34 +156,45 @@ public class TerminalProvider : ITerminalProvider
         }
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
-        throw new NotImplementedException();
+        appObjResponse = new();
+
+        try
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+                /// Get Existing item
+                var dbItem = await db.Set<TerminalCatalog>().FirstOrDefaultAsync(s => s.Id == id);
+
+                if (dbItem != null)
+                {
+                    db.Entry(dbItem).State = EntityState.Deleted;
+                    //var bug = db.ChangeTracker.DebugView.LongView;
+                    await db.SaveChangesAsync();
+                }
+                else
+                    appObjResponse.ErrorAdd("Record not deleted");
+
+                return appObjResponse;
+            }
+        }
+        catch (Exception ex)
+        {
+            appObjResponse.ErrorAdd(ex.Message);
+            return appObjResponse;
+        }
     }
 
-    public async Task<IEnumerable<string>> GetNames()
+    public Task<IEnumerable<string>> GetNames()
     {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.Terminals.Select(s => s.Name!).ToListAsync();
-        }
+        throw new NotImplementedException();
     }
 
     public Task<IEnumerable<string>> GetNamesEn()
     {
         throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<CustomsCatalog>> GetCustomsOfficesAsync()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-
-            var Item = await db.CustomsOffices.AsNoTracking().ToListAsync();
-
-            return Item!;
-        }
     }
 }

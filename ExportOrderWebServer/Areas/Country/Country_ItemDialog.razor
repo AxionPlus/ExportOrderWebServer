@@ -1,76 +1,66 @@
 ﻿@inject ISnackbar Snackbar
-
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICountryProvider _countryProvider
 
-@if (Item is not null)
-{
-    <MudForm @ref="@Form" Style="max-width:fit-content">
-        <div class="ToolBar-container">
-            <MudToolBar Class="ToolBar ToolBar-new">                
-                <MudSpacer />
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
-                    </MudTooltip>
-                </div>
-            </MudToolBar>
+<MudForm @ref="@Form" Style="max-width:fit-content">    
+    <DialogToolBar ToolBarTitle="Country" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
+                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+    <div class="Container-item">
+        <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 400px" Label="Name Ru" Text="@Item.RUS"
+                          TextChanged="async (e)=> { Item.RUS = e.ToUpper(); }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true"
+                          Required RequiredError="" Clearable />
+
         </div>
-        <div class="Container-item">
-            <div class="container-head"></div>
-            <div class="container-content">
-                <MudTextField T="string" Style="width: 400px" Label="Name Ru" Text="@Item.RUS"
-                              TextChanged="async (e)=> { Item.RUS = e.ToUpper(); }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"
-                              Required RequiredError="" Clearable />
-
-            </div>
-            <div class="container-content">
-                <MudTextField T="string" Style="width: 400px" Label="Name En" Text="@Item.ENG"
-                              TextChanged="@(async (e)=> { Item.ENG = e.ToUpper(); })"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"
-                              Required RequiredError="" Clearable />
-
-            </div>
+        <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 400px" Label="Name En" Text="@Item.ENG"
+                          TextChanged="@(async (e)=> { Item.ENG = e.ToUpper(); })"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true"
+                          Required RequiredError="" Clearable />
         </div>
-    </MudForm>
+    </div>
+</MudForm>
 
-    <OverlayLoadingData Visible="@IsLoadingData" />
-}
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
-    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = new();
+    private bool IsDialogResultOk { get; set; } = false;
 
     [Parameter]
     public long Id { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
 
-    private CountryCatalog? Item { get; set; }
+    private CountryCatalog Item { get; set; } = new();
     private bool IsLoadingData { get; set; } = false;
 
-
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool first)  //OnInitializedAsync()
     {
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();        
-        ApplicationUser = authState.User.Identity?.Name;
-        await GetItem();
+        if (first)
+        {
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ApplicationUser = authState.User.Identity?.Name;
+            await GetItem();
+        }
     }
 
     private async Task GetItem()
     {
-        if (IsNewItem)
-            Item = new();
-        else
-        {
-            var response = await _countryProvider.GetItemAsync(Id);
-            if (!response.HasErrors && response.Object is not null)
-                Item = (CountryCatalog)response.Object;
-        }
+        if (Id == 0) return;
+
+        IsLoadingData = true;
+
+        var response = await _countryProvider.GetItemAsync(Id);
+        if (!response.HasErrors && response.Object is not null)
+            Item = (CountryCatalog)response.Object;
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     public async Task SaveItem_Click()
@@ -79,28 +69,28 @@
 
         await Form.Validate();
 
-        if (Form.IsValid)
+        if (!Form.IsValid) return;
+
+        IsLoadingData = true;
+
+        AppObjectResponse appObjectResponse = new();
+
+        if (Id == 0)
+            appObjectResponse = await _countryProvider.NewItemAsync(Item, ApplicationUser);
+        else
+            appObjectResponse = await _countryProvider.ModifyItemAsync(Item, ApplicationUser);
+
+        if (appObjectResponse.HasErrors)
+            Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Warning);
+        else
         {
-            IsLoadingData = true;
-
-            AppObjectResponse appObjectResponse = new();
-
-            if (IsNewItem)
-                appObjectResponse = await _countryProvider.NewItemAsync(Item, ApplicationUser);
-            else
-                appObjectResponse = await _countryProvider.ModifyItemAsync(Item, ApplicationUser);
-
-            if (!appObjectResponse.HasErrors)
-                Snackbar.Add("Save Successed", Severity.Success);
-            else
-                Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
-
-            IsNewItem = false;
             Id = Item.Id;
+            IsDialogResultOk = true;
+            Snackbar.Add("Saved Successfully", Severity.Success);
+        }
+        
+        IsLoadingData = false;
 
-            IsLoadingData = false;
-
-            await GetItem();
-        }        
+        await InvokeAsync(StateHasChanged);
     }
 }

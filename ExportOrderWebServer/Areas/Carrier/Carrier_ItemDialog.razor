@@ -1,136 +1,108 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject ICatalogProvider _CatalogProvider
 @inject ICarrierProvider _carrierProvider
 @inject ILocationProvider _locationProvider
 
 <style>
-    .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 4px;
-        padding-right: 4px;
-    }
-
-    .Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
-        margin-inline-end:unset;
-    }
-
-    .Table * .mud-table-cell .mud-input-control * .mud-icon-button {
-        padding: unset;
+    .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
+        margin-top: 4px;
     }
 </style>
 
-@if (Item is not null)
-{
-    <MudForm @ref="@Form" Style="max-width:fit-content">
-
-        <div class="ToolBar-container">
-            <MudToolBar Class="ToolBar ToolBar-new">
-                <MudSpacer />
-                <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                    <MudTooltip Text="Save">
-                        <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Color="@Color.Primary" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
-                    </MudTooltip>
-                </div>
-            </MudToolBar>
+<MudForm @ref="@Form" Style="max-width:fit-content">
+    <DialogToolBar ToolBarTitle="Carrier" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
+                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+    <div class="Container-item">
+        <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 450px" Label="Name Ru" Text="@Item.Name"
+                          TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true"
+                          Required RequiredError="" Clearable />
         </div>
-
-        <div class="Container-item">
-            <div class="container-content">
-                <MudTextField T="string" Style="width: 410px" Label="Name Ru" Text="@Item.Name"
-                              TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"
-                              Required RequiredError="" Clearable />
-            </div>
-            <div class="container-content">
-                <MudTextField T="string" Style="width: 410px" Label="Name En" Text="@Item.NameEn"
-                              TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true"
-                              Required RequiredError="" Clearable />
-            </div>
-            <div class="container-content" style="justify-content: flex-start">
-                <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 270px; margin-right:20px" Label="Location" @bind-Value="Item.Location"
-                                 ToStringFunc="@(e => e != null ? e.Name : "")"
-                                 SearchFunc="@SearchLocation"
-                                 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 Required RequiredError="" Clearable
-                                 CloseIcon="" OpenIcon="" IconSize="Size.Small"
-                                 ResetValueOnEmptyText="true"
-                                 Placeholder="Location"
-                                 MaxItems="20"                                  
-                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                 AdornmentColor="Color.Primary"
-                                 Adornment="Adornment.End"
-                                 OnAdornmentClick="AddLocation_Click" />
-                <MudSelect Class="wrapper-input" T="BLTemplate" Style="width:120px" Label="BL Template" @bind-Value="@Item.BlTemplate"
-                           ToStringFunc="@(s => s.ToString())"
-                           Variant="Variant.Outlined" Margin="Margin.Dense">
-                    @foreach (BLTemplate template in Enum.GetValues(typeof(BLTemplate)))
-                    {
-                        <MudSelectItem Value="@template" />
-                    }
-                </MudSelect>
-            </div>
-            <div class="container-content">
-                <div class="Container-table">
-                    <MudTable Class="Table" @ref="mudTable" Items="@Item.CarrierDetails" Virtualize="true" RowsPerPage="5">
-
-                        <HeaderContent>
-                            <MudTh Style="width:38px">
-                                <div class="controlIconButtons">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetails_Click" Size="Size.Small" />
-                                </div>
-                            </MudTh>
-                            <MudTh Style="width:162px">Terminal</MudTh>
-                            <MudTh Style="width:202px">Contract</MudTh>
-                            <MudTh Style="width:125px">Dated</MudTh>
-                            <MudTh Style="width:162px">Agent</MudTh>
-                        </HeaderContent>
-
-                        <RowTemplate>
-                            <MudTd>
-                                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(context); })" />
-                            </MudTd>
-                            <MudTd>
-                                <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="context.TerminalName"
-                                                 SearchFunc="@SearchTerminalName"
-                                                 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                 CloseIcon="" OpenIcon=""
-                                                 ResetValueOnEmptyText="true"
-                                                 AdornmentIcon="@Icons.Material.Filled.AddCircle"
-                                                 AdornmentColor="Color.Primary"
-                                                 Adornment="Adornment.End"
-                                                 OnAdornmentClick="AddTerminal_Click"
-                                                 Required RequiredError="" Clearable />
-                            </MudTd>
-                            <MudTd>
-                                <MudTextField Class="TextField" T="string" Style="width: 190px" @bind-Value="context.Contract"
-                                              Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" Clearable />
-                            </MudTd>
-                            <MudTd>
-                                <MudDatePicker @bind-Date="@context.DateContract"
-                                               DateFormat="dd.MM.yy"
-                                               Variant="Variant.Outlined" Margin="Margin.Dense"
-                                               ShowToolbar="false"
-                                               ShowWeekNumbers="true"
-                                               IconSize=Size.Small
-                                               AutoClose=true
-                                               Required RequiredError="" Clearable />
-                            </MudTd>
-                            <MudTd>
-                                <MudTextField Class="TextField" Style="width: 150px" @bind-Value="context.AgentPOL"
-                                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                                              Required RequiredError="" Clearable />
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </div>
+        <div class="container-content">
+            <MudTextField Class="TextField" T="string" Style="width: 450px" Label="Name En" Text="@Item.NameEn"
+                          TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Immediate="true"
+                          Required RequiredError="" Clearable />
+        </div>
+        <div class="container-content" style="justify-content: flex-start">
+            <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 270px" Label="Location" @bind-Value="Item.Location"
+                             ToStringFunc="@(e => e != null ? e.Name : "")"
+                             SearchFunc="@SearchLocation"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             Required RequiredError="" Clearable
+                             CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                             ResetValueOnEmptyText="true"
+                             Placeholder="Location"
+                             MaxItems="20"/>
+            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Style="padding: 8px" Size="Size.Small" Color="Color.Primary" OnClick="@AddLocation_Click" />
+            <MudSelect Class="Autocomplete" T="BLTemplate" Style="width:130px; margin-left:14px" Label="BL Template" @bind-Value="@Item.BlTemplate"
+                        ToStringFunc="@(s => s.ToString())"
+                        Variant="Variant.Outlined" Margin="Margin.Dense">
+                @foreach (BLTemplate item in Enum.GetValues(typeof(BLTemplate)))
+                {
+                    <MudSelectItem Value="@item" />
+                }
+            </MudSelect>
+        </div>
+        <div class="container-content">
+            <div class="Container-table">
+                <MudTable Class="Table ItemTable" @ref="mudTable" Items="@Item.CarrierDetails" Virtualize="true" RowsPerPage="5">
+                    <HeaderContent>
+                        <MudTh Style="width:38px">
+                            <div class="controlIconButtons">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetails_Click" Size="Size.Small" />
+                            </div>
+                        </MudTh>
+                        <MudTh Style="width:162px">
+                            Terminal
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="@AddTerminal_Click" />
+                        </MudTh>
+                        <MudTh Style="width:202px">Contract</MudTh>
+                        <MudTh Style="width:125px">Dated</MudTh>
+                        <MudTh Style="width:162px">Agent</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(context); })" />
+                        </MudTd>
+                        <MudTd>
+                            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="context.TerminalName"
+                                             SearchFunc="@SearchTerminalName"
+                                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                                             CloseIcon="" OpenIcon=""
+                                             ResetValueOnEmptyText="true"                                                 
+                                             Required RequiredError="" Clearable />
+                        </MudTd>
+                        <MudTd>
+                            <MudTextField Class="TextField" T="string" Style="width: 190px" @bind-Value="context.Contract"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" Clearable />
+                        </MudTd>
+                        <MudTd>
+                            <MudDatePicker Class="DatePicker" @bind-Date="@context.DateContract"
+                                           DateFormat="dd.MM.yy"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense"
+                                           ShowToolbar="false"
+                                           ShowWeekNumbers="true"
+                                           IconSize=Size.Small
+                                           AutoClose=true
+                                           Required RequiredError="" Clearable />
+                        </MudTd>
+                        <MudTd>
+                            <MudTextField Class="TextField" Style="width: 150px" @bind-Value="context.AgentPOL"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                                          Required RequiredError="" Clearable />
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
             </div>
         </div>
-
-    </MudForm>
-}
+    </div>
+</MudForm>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
 
@@ -140,32 +112,38 @@
     private MudTable<CarrierTerminalDetails>? mudTable;
 
     [CascadingParameter]
-    private MudDialogInstance? MudDialog { get; set; }
+    private MudDialogInstance MudDialog { get; set; } = new();
+    private bool IsDialogResultOk { get; set; } = false;
+
     [Parameter]
     public long Id { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
 
-    private CarrierCatalog? Item { get; set; }
+    private CarrierCatalog Item { get; set; } = new();
     private bool IsLoadingData = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool first)  //OnInitializedAsync
     {
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();        
-        ApplicationUser = authState.User.Identity?.Name;
-        await GetItem();
+        if (first)
+        {
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ApplicationUser = authState.User.Identity?.Name;
+            await GetItem();
+        }
     }
 
     private async Task GetItem()
     {
-        if (IsNewItem)
-            Item = new();
-        else
-        {
-            var response = await _carrierProvider.GetItemAsync(Id);
-            if (!response.HasErrors && response.Object is not null)
-                Item = (CarrierCatalog)response.Object!;
-        }
+        if (Id == 0) return;
+
+        IsLoadingData = true;
+
+        var response = await _carrierProvider.GetItemAsync(Id);
+        if (!response.HasErrors && response.Object is not null)
+            Item = (CarrierCatalog)response.Object;
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveItem_Click()
@@ -174,47 +152,48 @@
 
         await Form.Validate();
 
-        if (Form.IsValid)
+        if (!Form.IsValid)
         {
-            IsLoadingData = true;
-
-            AppObjectResponse appObjectResponse = new();
-
-            if (IsNewItem)
-                appObjectResponse = await _carrierProvider.NewItemAsync(Item, ApplicationUser);
-            else
-                appObjectResponse = await _carrierProvider.ModifyItemAsync(Item, ApplicationUser);
-
-
-            if (!appObjectResponse.HasErrors)
-                Snackbar.Add("Save Successed", Severity.Success);
-            else
-                Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
-
-            IsNewItem = false;
-            Id = Item.Id;
-
-            IsLoadingData = false;
-            //StateHasChanged();
-            await GetItem();
-            
-        }
-        else
             Snackbar.Add("Заполните поля отмеченные красным.", Severity.Warning);
+            return;
+        }
+        
+        IsLoadingData = true;
+
+        AppObjectResponse appObjectResponse = new();
+
+        if (Id == 0)
+            appObjectResponse = await _carrierProvider.NewItemAsync(Item, ApplicationUser);
+        else
+            appObjectResponse = await _carrierProvider.ModifyItemAsync(Item, ApplicationUser);
+
+
+        if (appObjectResponse.HasErrors)
+            Snackbar.Add(appObjectResponse.Errors.Last(), Severity.Error);
+        else
+        {
+            Id = Item.Id;
+            IsDialogResultOk = true;
+            Snackbar.Add("Saved Successfully", Severity.Success);
+        }
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task AddLocation_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Locaion", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Location_ItemDialog>(null, parameters, options);
     }
 
     private async Task AddTerminal_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>("New Terminal", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Terminal_ItemDialog>(null, parameters, options);
     }
 
     private void AddDetails_Click()
@@ -225,17 +204,17 @@
         StateHasChanged();
     }
 
-    private async Task RemoveDetails_Click(CarrierTerminalDetails item)
+    private async Task RemoveDetails_Click(CarrierTerminalDetails details)
     {
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE  Record",
-                                                                (MarkupString)$"<b>Удалить запись?</b> <br/>{item.TerminalName}<br/>",
-                                                                yesText: "YES", cancelText: "NO");
+        if (details is null) return;
 
-        if (item is null) return;
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                                (MarkupString)$"<b>Удалить запись?</b> <br/>{details.TerminalName}<br/>",
+                                                yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
-                Item?.CarrierDetails.Remove(item);
+                Item?.CarrierDetails.Remove(details);
 
         await InvokeAsync(StateHasChanged);
     }
@@ -243,7 +222,7 @@
     #region SEARCH FUNCTIONS
     private async Task<IEnumerable<string>> SearchTerminalName(string value, CancellationToken token)
     {
-        var result = await _carrierProvider.GetTerminalNames();
+        IEnumerable<string> result = await _CatalogProvider.GetTerminalNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -256,16 +235,17 @@
     
     private async Task<IEnumerable<LocationCatalog>> SearchLocation(string value, CancellationToken token)
     {
-        var Locations = new List<LocationCatalog>();
+        IEnumerable<LocationCatalog> Locations = new List<LocationCatalog>();
 
         var response = await _locationProvider.GetItemsAsync();
-        if (!response.HasErrors)
-            Locations = ((IEnumerable<LocationCatalog>)response.Object!).OrderBy(s => s.Name).ToList();
+        
+        if (!response.HasErrors && response.Object != null)
+            Locations = (IEnumerable<LocationCatalog>)response.Object;
 
         if (string.IsNullOrWhiteSpace(value))
-            return Locations;
+            return Locations.OrderBy(s => s.Name).ToArray();
 
-        return Locations.Where(x => x.Name!.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return Locations.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
     #endregion
 }

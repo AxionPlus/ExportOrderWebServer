@@ -329,7 +329,7 @@ public class DocumentProvider : IDocumentProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -339,21 +339,20 @@ public class DocumentProvider : IDocumentProvider
             {
                 var db = await _db;
 
-                var dbItem = await db.Documents.Where(s => s.Id == id).FirstOrDefaultAsync();
+                /// Get Existing item
+                var dbItem = await db.Documents.Include(s => s.Records).FirstOrDefaultAsync(s => s.Id == id);
 
-                if (dbItem is null)
+                if (dbItem != null)
                 {
-                    appObjResponse.ErrorAdd("Record wasn't deleted");
-                    return appObjResponse;
+                    foreach (var Record in dbItem.Records)
+                        db.Entry(Record).State = EntityState.Deleted;
+
+                    db.Entry(dbItem).State = EntityState.Deleted;
+                    //var bug = db.ChangeTracker.DebugView.LongView;
+                    await db.SaveChangesAsync();
                 }
-
-                foreach (var Record in dbItem.Records)
-                    db.Entry(Record).State = EntityState.Deleted;
-
-                db.Entry(dbItem).State = EntityState.Deleted;
-
-                var bug = db.ChangeTracker.DebugView.LongView;
-                await db.SaveChangesAsync();
+                else
+                    appObjResponse.ErrorAdd("Record not deleted");
 
                 return appObjResponse;
             }

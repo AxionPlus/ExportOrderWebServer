@@ -20,7 +20,7 @@ public class VesselCallProvider : IVesselCallProvider
             {
                 var db = await _db;
 
-                var voyage = await db.VesselCalls.AsNoTracking().AsSplitQuery()
+                var voyage = await db.VesselCalls.AsNoTracking()//.AsSplitQuery()
                                                  .Include(vc => vc.Vessel)
                                                  .Include(vc => vc.Terminal)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
@@ -30,8 +30,10 @@ public class VesselCallProvider : IVesselCallProvider
 
                 if (voyage is null)
                     appObjResponse.ErrorAdd($"There is no voyage you choose.");
+                else
+                    appObjResponse.Object = voyage;
 
-                appObjResponse.Object = voyage;
+                return appObjResponse;
             }
             catch (Exception ex)
             {
@@ -39,8 +41,6 @@ public class VesselCallProvider : IVesselCallProvider
                 return appObjResponse;
             }
         }
-
-        return appObjResponse;
     }
 
     public async Task<AppObjectResponse> GetItemsAsync()
@@ -375,40 +375,60 @@ public class VesselCallProvider : IVesselCallProvider
         }
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
-        throw new NotImplementedException();
-        //appObjResponse = new();
+        /// REMOVES VESSEL_CALL_DETAIL. IF NO DETAILS REMAINS, REMOVES ENTIRE VESSELCALL TOO.
+        appObjResponse = new();
 
-        //try
-        //{
-        //    using (var _db = _dbContext.CreateDbContextAsync())
-        //    {
-        //        var db = await _db;
+        try
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
 
-        //        // check an Existing item
-        //        var existedItem = await db.VesselCalls.Where(s => s.Id == id).FirstOrDefaultAsync();
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
 
-        //        if (existedItem is null)
-        //        {
-        //            appObjResponse.ErrorAdd("Record wasn't deleted");
-        //            return appObjResponse;
-        //        }
+                /// check an Existing - Vessel Call Detail
+                var dbVesselCallDetail = db.Set<VesselCallDetail>().Include(s => s.ExportOrders).FirstOrDefault(s => s.Id == id);
 
-        //        db.Entry(existedItem).State = EntityState.Deleted;
+                if (dbVesselCallDetail is null)
+                    appObjResponse.ErrorAdd("There is no Record to delete.");
+                else
+                {
+                    /// Find an Export Orders in Existing Item                    
+                    if (dbVesselCallDetail.ExportOrders.Any())
+                        appObjResponse.ErrorAdd($"Vessel Call has an Export Orders issued.<br/>Delete all of it's Export Orders first.");
+                    else
+                    {
+                        db.Entry(dbVesselCallDetail).State = EntityState.Deleted;
 
-        //        var bug = db.ChangeTracker.DebugView.LongView;
-        //        await db.SaveChangesAsync();
+                        /// Check an Empty Voyage - w/o existing Vessel Call Details
+                        bool isOneDetailInVoyage = db.Set<VesselCallDetail>().Count(vcd => vcd.VesselCall.Id == dbVesselCallDetail.VesselCall.Id) == 1;
+                        if (isOneDetailInVoyage)
+                        {
+                            var dbVoyage = db.VesselCalls.FirstOrDefault(s => s.Id == dbVesselCallDetail.VesselCall.Id);
+                            if (dbVoyage != null)
+                                db.Entry(dbVoyage).State = EntityState.Deleted;
+                        }
 
-        //        return appObjResponse;
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    string msg = ex.Message;
-        //    appObjResponse.ErrorAdd(msg);
-        //    return appObjResponse;
-        //}
+                        var bug = db.ChangeTracker.DebugView.LongView;
+                        await db.SaveChangesAsync();
+                    }
+                }
+
+                return appObjResponse;
+            }
+        }
+        catch (Exception ex)
+        {
+            appObjResponse.ErrorAdd(ex.Message);
+            return appObjResponse;
+        }
     }
 
     public async Task<AppObjectResponse> GetVesselCallDetailAsync(long vcdId)
@@ -438,54 +458,6 @@ public class VesselCallProvider : IVesselCallProvider
                 appObjResponse.ErrorAdd(ex.Message);
                 return appObjResponse;
             }
-        }
-    }
-
-    public async Task<AppObjectResponse> RemoveVesselCallDetailAsync(long id)
-    {
-        appObjResponse = new();
-
-        try
-        {
-            using (var _db = _dbContext.CreateDbContextAsync())
-            {
-                var db = await _db;
-
-                /// check an Existing - Vessel Call Detail
-                var dbVesselCallDetail = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).Include(vcd => vcd.ExportOrders).FirstOrDefault();
-
-                if (dbVesselCallDetail is null)
-                    appObjResponse.ErrorAdd("There is no Record to delete.");
-                else
-                {
-                    /// Find an Export Orders in Existing Item                    
-                    if (dbVesselCallDetail.ExportOrders.Any()) //db.ExportOrders.Any(eo => eo.VesselCallDetail != null && eo.VesselCallDetail.Id == id)
-                        appObjResponse.ErrorAdd($"Vessel Call has an Export Orders issued.<br/>Delete all of it's Export Orders first.");
-                    else
-                    {
-                        db.Entry(dbVesselCallDetail).State = EntityState.Deleted;
-
-                        /// Check an Empty Voyage - w/o existing Vessel Call Details
-                        bool isOneDetailInVoyage = db.Set<VesselCallDetail>().Count(vcd => vcd.VesselCall.Id == dbVesselCallDetail.VesselCall.Id) == 1;
-                        if (isOneDetailInVoyage)
-                        {
-                            var dbVoyage = db.VesselCalls.FirstOrDefault(s => s.Id == dbVesselCallDetail.VesselCall.Id);
-                            if (dbVoyage != null)
-                                db.Entry(dbVoyage).State = EntityState.Deleted;
-                        }
-
-                        var bug = db.ChangeTracker.DebugView.LongView;
-                        await db.SaveChangesAsync();
-                    }
-                }
-
-                return appObjResponse;
-            }
-        }
-        catch (Exception ex)
-        {
-            appObjResponse.ErrorAdd(ex.Message);
-            return appObjResponse;
         }
     }
 

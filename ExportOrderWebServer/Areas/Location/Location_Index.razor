@@ -25,24 +25,24 @@
             </div>
         </MudToolBar>
     </div>
+
+    <LocationComponent @ref="component" ApplicationUser="@ApplicationUser" />
+
 </MudContainer>
 
-<LocationComponent @ref="component" />
-
 @code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     public LocationComponent? component;
 
     private async Task AddItem_Click()
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, BackdropClick = false };
-        dialog = await DialogService.ShowAsync<Location_ItemDialog>("New Location", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Location_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result != null && result.Data != null && (bool)result.Data == true)
             await component!.GetItems();
     }
 }

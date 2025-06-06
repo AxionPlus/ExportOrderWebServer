@@ -3,115 +3,95 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ICommodityProvider _CommodityProvider
 
-@if (Item is not null)
-{
-    <MudContainer MaxWidth="MaxWidth.Large">
-        <MudForm @ref="@Form">
-
-            <div class="ToolBar-container">
-                <MudToolBar Class="ToolBar ToolBar-new">                    
-                    <MudSpacer />
-                    <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                        <MudTooltip Text="Save">
-                            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.Save" Disabled="IsLoadingData" OnClick="SaveItem_Click" />
-                        </MudTooltip>
-                    </div>
-                </MudToolBar>
-            </div>
-
-            <div class="Container-item">
-                <div class="container-content">
-                    <MudTextField @ref="@Hscode" T="string" Style="width:200px" Label="HS code" @bind-Value="@Item.HSCode"
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudForm @ref="@Form">
+        <DialogToolBar ToolBarTitle="Товар" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
+                       CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>        
+        <div class="Container-item">
+            <div class="container-content">
+                <MudTextField Class="TextField" T="string" Style="width:200px" Label="HS code" @ref="@Hscode" @bind-Value="@Item.HSCode"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true"                                  
+                              Mask="@(new PatternMask("0000000000"))"                                                                    
+                              Required RequiredError="" Clearable />
+                <MudSpacer />               
+                @if (Item.IsIMO)
+                {
+                    <MudTextField Class="TextField" T="string" Style="width:100px" Label="IMO" @bind-Value="@Item.IMO"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  AutoFocus="true" Immediate="true"
-                                  Validation="HSCodeValidation"
-                                  Mask="@(new PatternMask("0000000000"))"                                                                    
+                                  MaxLength="3"
                                   Required RequiredError="" Clearable />
-                    <MudSpacer />
-                    <div class="wrapper-checkBox" style="width:170px; margin-inline-start:10px; justify-content:start">
-                        <MudCheckBox T="bool" Label="Is IMO" LabelPosition="LabelPosition.Start" Value="@Item.IsIMO" ValueChanged="@((e)=>{Item.IsIMO=e; IsIMOChanged();})" />
-                    </div>                     
-                    @if (Item.IsIMO)
-                    {
-                        <MudTextField T="string" Style="width:100px; margin-inline:10px" Label="IMO" @bind-Value="@Item.IMO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      MaxLength="3"
-                                      Required RequiredError="" Clearable />
-                        <MudTextField T="string" Style="width:100px" Label="UNNO" @ref="@Unno" @bind-Value="@Item.UNNO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                                      Mask="@(new PatternMask("0000"))"
-                                      Required RequiredError="" Clearable />
-                    }
-                    else
-                    {
-                        <div style="width:220px"></div>
-                    }
-                </div>
-                <div class="container-content">                    
-                    <MudTextField T="string" Style="width: 450px" Label="Name" Text="@Item.Name"
-                                  TextChanged="(e)=>NameChanged(e, false)"
+                    <MudTextField Class="TextField" T="string" Style="width:100px; margin-inline:10px" Label="UNNO" @ref="@Unno" @bind-Value="@Item.UNNO"
                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Immediate="true" Lines="6"
-                                  Required RequiredError="" Clearable />                    
-                    <div style="width:10px"></div>                    
-                    <MudTextField T="string" Style="width: 450px" Label="Name En" Text="@Item.NameEn"
-                                  TextChanged="(e)=>NameChanged(e, true)"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Immediate="true" Lines="6"
+                                  Mask="@(new PatternMask("0000"))"
                                   Required RequiredError="" Clearable />
-                </div>
+                }
+                <MudCheckBox Class="CheckBox" T="bool" Label="Is IMO" LabelPosition="LabelPosition.Start"
+                             Value="@Item.IsIMO" ValueChanged="@((e) => { Item.IsIMO = e; IsIMOChanged(); })" />
             </div>
-        </MudForm>
-    </MudContainer>
+            <div class="container-content">                    
+                <MudTextField Class="TextField" T="string" Style="width: 450px" Label="Name" Text="@Item.Name"
+                              TextChanged="(e) => Item.Name = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper()"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Lines="6"
+                              Required RequiredError="" Clearable />                    
+                <div style="width:10px"></div>
+                <MudTextField Class="TextField" T="string" Style="width: 450px" Label="Name En" Text="@Item.NameEn"
+                              TextChanged="(e) => Item.NameEn = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper()"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Lines="6"
+                              Required RequiredError="" Clearable />
+            </div>
+        </div>
+    </MudForm>
+</MudContainer>
 
-    <OverlayLoadingData Visible="@IsLoadingData" />
-}
+<OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
     private string? ApplicationUser { get; set; }
+    private MudForm Form { get; set; } = new();
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
-    private MudForm Form { get; set; } = new();  
+    private bool IsDialogResultOk { get; set; } = false;
+    
     [Parameter]
     public long Id { get; set; }
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
+    private CommodityCatalog Item { get; set; } = new();  //new() { Name = string.Empty, NameEn = string.Empty, HSCode = string.Empty };
 
-    private CommodityCatalog? Item { get; set; }
-    private bool IsAuth = false;
     private bool IsLoadingData = false;
 
+    private TextFieldReplaceService ExtraSymbolReplacer { get; set; } = new();
     private MudTextField<string> Hscode = new();
     private MudTextField<string?> Unno = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool first)  //OnInitializedAsync
     {
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager") || authState.User.IsInRole("Manager"))
+        if (first)
         {
-            IsAuth = true;
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            ApplicationUser = authState.User.Identity?.Name;
+
+            await GetItem();
         }
-
-        ApplicationUser = authState.User.Identity?.Name;
-
-        await GetItem();
     }
 
     private async Task GetItem()
     {
-        if (IsNewItem)
-            Item = new() { Name = string.Empty, NameEn = string.Empty, HSCode = string.Empty };
-        else
-        {
-            var response = await _CommodityProvider.GetItemAsync(Id);
-            if (!response.HasErrors && response.Object is not null)
-                Item = (CommodityCatalog)response.Object;
-        }
+        if (Id == 0) return;
+
+        IsLoadingData = true;
+
+        var response = await _CommodityProvider.GetItemAsync(Id);
+        if (!response.HasErrors && response.Object is not null)
+            Item = (CommodityCatalog)response.Object;
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveItem_Click()
     {
-        if (Item is null) return;
-
         await Form.Validate();
 
         if (!Form.IsValid) return;
@@ -134,31 +114,24 @@
 
         AppObjectResponse appObjectResponse = new();
 
-        if (IsNewItem)
+        if (Id == 0)
             appObjectResponse = await _CommodityProvider.NewItemAsync(Item, ApplicationUser);
         else
             appObjectResponse = await _CommodityProvider.ModifyItemAsync(Item, ApplicationUser);
 
-        if (!appObjectResponse.HasErrors)
-            Snackbar.Add("Save Successed", Severity.Success);
+        if (appObjectResponse.HasErrors)
+            Snackbar.Add(string.Join(", ", appObjectResponse.Errors), Severity.Warning); 
         else
-            Snackbar.Add(string.Join(", ", appObjectResponse.Errors), Severity.Error);
+        {
+            Id = Item.Id;
+            IsDialogResultOk = true;
+            Snackbar.Add("Saved Successfully", Severity.Success);
+        }
 
-        IsNewItem = false;
         IsLoadingData = false;
-
-        MudDialog.Close(DialogResult.Ok(true));
+        
+        await InvokeAsync(StateHasChanged);
     }
-
-    private Func<string, string?> HSCodeValidation = (str) =>
-    {
-        if (string.IsNullOrWhiteSpace(str))
-            return string.Empty;
-        if (str.Length < 10)
-            return "pls insert 10 digits";
-
-        return null;
-    };
 
     private async void IsIMOChanged()
     {
@@ -171,7 +144,7 @@
 
                 if (result.HasValue)
                     if (result.Value)
-                    {                        
+                    {
                         Item.IMO = null;
                         Item.UNNO = null;
                     }
@@ -179,31 +152,21 @@
                     {
                         Item.IsIMO = true;
                         StateHasChanged();
-                    }                
-            };
+                    }
+            }
+        ;
     }
 
-    private void NameChanged(string? text, bool isEn)
-    {
-        if (Item is null) return;
+    // private Func<string, string?> HSCodeValidation = (str) =>
+    // {
+    //     if (string.IsNullOrWhiteSpace(str))
+    //         return string.Empty;
+    //     if (str.Length < 10)
+    //         return "pls insert 10 digits";
 
-        if (isEn)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                Item.NameEn = string.Empty;
-            else
-                Item.NameEn = text.Replace("\n", " ").Replace("  ", " ").Trim().ToUpper();
-        }
-        else
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                Item.Name = string.Empty;
-            else
-                Item.Name = text.Replace("\n", " ").Replace("  ", " ").Trim().ToUpper();
-        }
+    //     return null;
+    // };
 
-        StateHasChanged();
-    }
     // private PatternMask Mask_HSCode = new PatternMask("##########")
     // {
     //     MaskChars = new[] { new MaskChar('#', @"[0-9]") }

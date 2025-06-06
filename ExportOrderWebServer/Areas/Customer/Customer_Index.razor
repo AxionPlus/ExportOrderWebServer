@@ -31,19 +31,19 @@
 
 </MudContainer>
 
-
 @code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     public CustomerComponent? component;
 
     private async Task AddItem_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync <Customer_ItemDialog>("New Customer", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync <Customer_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result != null && result.Data != null && (bool)result.Data == true)
             await component!.GetItems();
     }
 }

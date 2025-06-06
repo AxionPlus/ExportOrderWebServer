@@ -493,7 +493,7 @@ public class ExportOrderProvider : IExportOrderProvider
         return appObjResponse;
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -503,39 +503,52 @@ public class ExportOrderProvider : IExportOrderProvider
             {
                 var db = await _db;
 
-                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == ApplicationParameter.AdminUser);
+                var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
+                if (User is null)
+                {
+                    appObjResponse.ErrorAdd($"User NOT found.");
+                    return appObjResponse;
+                }
 
-                // delete Export Order
-                var deleteItem = await db.ExportOrders
-                                                      .Include(eo => eo.VesselCallDetail)
-                                                      .Include(eo => eo.Records).ThenInclude(d => d.Contents)
-                                                      .FirstOrDefaultAsync(s => s.Id == id);
+                /// Get Existing item
+                var dbItem = await db.ExportOrders.Include(eo => eo.Records).ThenInclude(d => d.Contents)
+                                                  .Include(eo => eo.Documents)
+                                                  .FirstOrDefaultAsync(s => s.Id == id);
 
-                if (deleteItem!.Records.Count() > 0)
-                    foreach (var record in deleteItem.Records)
+                if (dbItem is null)
+                {
+                    appObjResponse.ErrorAdd($"Item NOT found.");
+                    return appObjResponse;
+                }
+
+                /// RECORDS
+                if (dbItem.Records.Any())
+                    foreach (var record in dbItem.Records)
                     {
-                        if (record.Contents.Count > 0)
+                        if (record.Contents.Any())
                             foreach (var content in record.Contents)
                                 db.Entry(content).State = EntityState.Deleted;
 
                         db.Entry(record).State = EntityState.Deleted;
                     }
 
-                db.Entry(deleteItem).State = EntityState.Deleted;
+                ///// DOCUMENTS
+                //foreach (var document in dbItem.Documents)
+                //    db.Entry(document).State = EntityState.Deleted;
 
-                var Bug = db.ChangeTracker.DebugView.LongView;
-
+                /// DELETE
+                db.Entry(dbItem).State = EntityState.Deleted;
+                //var bug = db.ChangeTracker.DebugView.LongView;
                 await db.SaveChangesAsync();
+
+                return appObjResponse;
             }
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
-            Console.WriteLine(msg);
+            Console.WriteLine(ex.Message);
             return appObjResponse;
         }
-
-        return appObjResponse;
     }
 
     public async Task<AppObjectResponse> GetVersionAsync(int version)

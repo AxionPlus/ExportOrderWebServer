@@ -1,8 +1,7 @@
 ﻿@inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject ICatalogProvider _CatalogProvider
 @inject ICarrierProvider _carrierProvider
-
-<style></style>
 
 <div class="Container-item">
     <div class="container-content">
@@ -47,7 +46,7 @@
                 <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.Id); })"></MudIconButton></MudTd>            
                 <MudTd>@context.Name</MudTd>
                 <MudTd>@context.NameEn</MudTd>
-                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name!, context.Id); })" /></MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveItem_Click(context.Name, context.Id); })" /></MudTd>
                 <MudTd></MudTd>
             </RowTemplate>
             <PagerContent></PagerContent>
@@ -58,12 +57,13 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    
+    [Parameter]
+    public string? ApplicationUser { get; set; }
     private MudTable<CarrierCatalog>? mudTable;
 
-    private IEnumerable<CarrierCatalog>? Items { get; set; } = new List<CarrierCatalog>();
+    private IEnumerable<CarrierCatalog> Items { get; set; } = new List<CarrierCatalog>();
     private FilterParameters Filter { get; set; } = new();
-    bool IsLoadingData = false;
+    private bool IsLoadingData = false;
 
 
     public async Task GetItems()
@@ -71,10 +71,8 @@
         IsLoadingData = true;
 
         var response = await _carrierProvider.GetItemsAsync(Filter);
-        if (!response.HasErrors)
-            Items = ((IEnumerable<CarrierCatalog>)response.Object!).ToArray();
-
-        await Task.Delay(500);
+        if (!response.HasErrors && response.Object != null)
+            Items = (IEnumerable<CarrierCatalog>)response.Object;
 
         IsLoadingData = false;
 
@@ -83,36 +81,37 @@
 
     private async Task ShowItem_Click(long Id)
     {
-        IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
-
-        DialogParameters parameters = new DialogParameters { ["Id"] = Id };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false};
-        dialog = await DialogService.ShowAsync<Carrier_ItemDialog>("Carrier", parameters, options);
+        var parameters = new DialogParameters { ["Id"] = Id };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false};
+        var dialog = await DialogService.ShowAsync<Carrier_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result != null && result.Data != null && (bool)result.Data == true)
             await GetItems();
     }
 
-    private async Task RemoveItem_Click(string name, long id)
+    private async Task RemoveItem_Click(string? name, long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE  Record",
-                                                                (MarkupString)$"<b>Удалить запись?</b> <br/>Carrier: {name}",
-                                                                yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+                                    (MarkupString)$"<b>Удалить запись?</b><br/>Carrier: {name}",
+                                    yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                var response = await _carrierProvider.RemoveItemAsync(id);
+                IsLoadingData = true;
+                var response = await _carrierProvider.RemoveItemAsync(id, ApplicationUser);
+                IsLoadingData = false;
 
-                if (!response.HasErrors)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                if (response.HasErrors)
+                    Snackbar.Add($"Unable to delete", Severity.Warning); 
                 else
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
-            }
-
-        await GetItems();
+                {
+                    Snackbar.Add($"Deleted Successfully", Severity.Success);
+                    await GetItems();
+                }   
+            }        
     }
 
     #region SEARCH FUNCTIONS

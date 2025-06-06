@@ -27,22 +27,23 @@
         </MudToolBar>
     </div>
 
-    <CommodityComponent @ref="component" />
+    <CommodityComponent @ref="component" ApplicationUser="@ApplicationUser" />
 
 </MudContainer>
 
 @code {
+    [CascadingParameter] public string? ApplicationUser { get; set; }
     public CommodityComponent? component;
 
     private async Task AddItem_Click()
     {
-        DialogParameters parameters = new DialogParameters { ["IsNewItem"] = true };
-        DialogOptions options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
-        var dialog = await DialogService.ShowAsync<Commodity_ItemDialog>("New Commodity", parameters, options);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Commodity_ItemDialog>(null, parameters, options);
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result is not null && result.Data != null && (bool)result.Data == true)
             await component!.GetItems();
     }
 }

@@ -38,33 +38,26 @@ public class CustomsProvider : ICustomsProvider
         {
             var db = await _db;
 
-            var customsOffices = await db.CustomsOffices
+            var customsOffices = await db.CustomsOffices.Where(s => !string.IsNullOrWhiteSpace(s.Code) && !string.IsNullOrWhiteSpace(s.OfficeShort))
                                                         .Where(s => !string.IsNullOrEmpty(filter.Name) ? s.OfficeShort == filter.Name : true)
                                                         .Where(s => !string.IsNullOrEmpty(filter.Num)? s.Code == filter.Num : true)
-                                                        .ToListAsync();
+                                                        .OrderBy(s =>s.Code)
+                                                        .ToArrayAsync();
             
-            appObjResponse.Object = customsOffices.ToArray();
+            appObjResponse.Object = customsOffices;
 
             return appObjResponse;
         }
     }
 
-    public async Task<IEnumerable<string>> GetNames()
+    public Task<IEnumerable<string>> GetNames()
     {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.CustomsOffices.Select(s => s.OfficeShort!).ToListAsync();
-        }
+        throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<string>> GetNamesEn()
+    public Task<IEnumerable<string>> GetNamesEn()
     {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.CustomsOffices.Select(s => s.Code!).ToListAsync();
-        }
+        throw new NotSupportedException();
     }
 
     public async Task<AppObjectResponse> ModifyItemAsync(CustomsCatalog item, string? UserName = "")
@@ -156,7 +149,7 @@ public class CustomsProvider : ICustomsProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveItemAsync(long id)
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -166,13 +159,13 @@ public class CustomsProvider : ICustomsProvider
             {
                 var db = await _db;
 
-                bool isItemExist = db.CustomsOffices.Any(s => s.Id == id);
+                /// Get Existing item
+                var dbItem = await db.CustomsOffices.FirstOrDefaultAsync(s => s.Id == id);
 
-                if (isItemExist)
+                if (dbItem != null)
                 {
-                    db.Entry(isItemExist).State = EntityState.Deleted;
-
-                    var bug = db.ChangeTracker.DebugView.LongView;
+                    db.Entry(dbItem).State = EntityState.Deleted;
+                    //var bug = db.ChangeTracker.DebugView.LongView;
                     await db.SaveChangesAsync();
                 }
                 else
@@ -183,7 +176,7 @@ public class CustomsProvider : ICustomsProvider
         }
         catch (Exception ex)
         {
-            string msg = ex.Message;
+            appObjResponse.ErrorAdd(ex.Message);
             return appObjResponse;
         }
     }

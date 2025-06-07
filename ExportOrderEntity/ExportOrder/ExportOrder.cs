@@ -14,6 +14,8 @@ public class ExportOrderEntity : Entity
     public List<ExportOrderRecord> Records { get; set; } = new List<ExportOrderRecord>();
     
     public string? CommodityShort { get; set; }
+    [NotMapped]
+    public string? CommodityShortEn { get; set; }
     [JsonIgnore]
     public VesselCallDetail? VesselCallDetail { get; set; }
 

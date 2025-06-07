@@ -1,5 +1,4 @@
-﻿@using ExportOrderWebServer.Areas.Import.VesselCall.Provider
-@inject AuthenticationStateProvider authenticationStateProvider
+﻿@inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IJSRuntime jsRuntime
@@ -83,35 +82,37 @@
 
 </style>
 
-<div class="Container-item">
-    <div class="container-content ExpOrder" style="padding-bottom:2px">
-        <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px; color:var(--mud-palette-primary)" T="string" Label="Number"
-                      Value="@Value.Num"
-                      ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
-                      Variant="Variant.Outlined" Margin="Margin.Dense"
-                      Required RequiredError="" Clearable />
-        <div style="width:120px">
-            <MudDatePicker Class="DatePicker" Label="Date" @bind-Date="Value.Dated"
-                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                           DateFormat="dd.MM.yy"
-                           Editable="true"
-                           IconSize=Size.Small
-                           Required RequiredError="" Clearable />
-        </div>            
-        <MudSpacer />
-        <MudTextField Class="TextField" T="string" Style="width: 450px"
-                      Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
-                      Text="@(Value.VesselCallDetail != null ?
-                                string.Concat(Value.VesselCallDetail.VesselCall.Vessel.Name, " / ",
-                                                Value.VesselCallDetail.VesselCall.VoyageNo, " / ",
-                                                Value.VesselCallDetail.POD == null ? string.Empty : Value.VesselCallDetail.POD.NameEn) :
-                                string.Empty)"
+@if (Value != null)
+{
+    <div class="Container-item">
+        <div class="container-content ExpOrder" style="padding-bottom:2px">
+            <MudTextField Class="TextField" Style="width: 200px; margin-right: 10px; color:var(--mud-palette-primary)" T="string" Label="Number"
+                          Value="@Value.Num"
+                          ValueChanged="async (e) => { Value.Num = e.ToUpper().Trim(); }"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Required RequiredError="" Clearable />
+            <div style="width:120px">
+                <MudDatePicker Class="DatePicker" Label="Date" @bind-Date="Value.Dated"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               DateFormat="dd.MM.yy"
+                               Editable="true"
+                               IconSize=Size.Small
+                               Required RequiredError="" Clearable />
+            </div>
+            <MudSpacer />
+            <MudTextField Class="TextField" T="string" Style="width: 450px"
+                          Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
+                          Text="@(Value.VesselCallDetail != null ?
+                                                          string.Concat(Value.VesselCallDetail.VesselCall.Vessel.Name, " / ",
+                                                                          Value.VesselCallDetail.VesselCall.VoyageNo, " / ",
+                                                                          Value.VesselCallDetail.POD == null ? string.Empty : Value.VesselCallDetail.POD.NameEn) :
+                                                          string.Empty)"
                       Variant="Variant.Outlined" Margin="Margin.Dense"
                       Required RequiredError="" Clearable
                       Adornment="Adornment.Start" IconSize="Size.Small"
                       AdornmentColor="Color.Primary"
                       AdornmentIcon="@Icons.Material.Filled.Waves"
-                      OnAdornmentClick="@(async () => { await GetVesselCallDetail_Click(); })" />
+                      OnAdornmentClick="@GetVesselCallDetail_Click" />
         <MudSpacer />
         <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Style="padding: 8px" Size="Size.Small" Color="Color.Primary" OnClick="@AddCarrier_Click" />
         <MudAutocomplete Class="Autocomplete" T="CarrierCatalog" Style="width: 330px" Label="Carrier" @bind-Value="Value.Carrier"
@@ -122,26 +123,25 @@
                          CloseIcon="" OpenIcon="" IconSize="Size.Small"
                          ResetValueOnEmptyText="true"
                          Placeholder="Carrier"
-                         MaxItems="20"/>            
+                         MaxItems="20" />
     </div>
     <div class="container-content ExpOrder">
         <MudSelect Class="Autocomplete" T="PersonEntity" Style="width:200px" Label="Person" @bind-Value="@Value.Person"
-                   ToStringFunc="@(s => s == null ? string.Empty :
-                                                       string.Concat($"{s.FamilyName} ",
-                                                                        $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. ",
-                                                                        $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}."))"
+                   ToStringFunc="@(s => s == null ? string.Empty : string.Concat($"{s.FamilyName} ",
+                                                                                                    $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. ",
+                                                                                                    $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}."))"
                    Variant="Variant.Outlined" Margin="Margin.Dense"
                    Required RequiredError="">
             @if (Persons.Count() > 0)
-                @foreach (var person in Persons)
-                {
-                    <MudSelectItem Value="@person">
-                        @($"{person.FamilyName} {person.Name!.Substring(0, 1)}. {person.SurName!.Substring(0, 1)}.")
-                    </MudSelectItem>
-                }
-        </MudSelect>            
-        <MudSpacer />
-        <MudSelect Class="Autocomplete" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
+                    @foreach (var person in Persons)
+                    {
+                        <MudSelectItem Value="@person">
+                            @($"{person.FamilyName} {person.Name!.Substring(0, 1)}. {person.SurName!.Substring(0, 1)}.")
+                        </MudSelectItem>
+                    }
+            </MudSelect>
+            <MudSpacer />
+            <MudSelect Class="Autocomplete" T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Value.Status"
                        ToStringFunc="@(str => str.ToString())"
                        Variant="Variant.Outlined" Margin="Margin.Dense">
                 @switch (Value.Status)
@@ -172,22 +172,21 @@
                         break;
                 }
             </MudSelect>
+        </div>
     </div>
-</div>
-
-<div class="Container-item">
-        <div class="container-content ExpOrder">
+    <div class="Container-item">
+        <div class="container-content ExpOrder" style="padding-bottom:unset">
             <div class="documents">
                 <div class="controlIconButtons" style="display:flex">
                     <MudTooltip Text="Add Document (добавить Декларацию)" Duration="1500" Delay="500">
                         <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="AddDocuments_Click"></MudIconButton>
                     </MudTooltip>
                     <MudSpacer />
-                    <h6 class="container-content-head">Documents:</h6>                    
-                    <MudSpacer />                    
+                    <h6 class="container-content-head">Documents:</h6>
+                    <MudSpacer />
                     <MudTooltip Text="Remove selected Documents (удалить выбранные Декларации)" Duration="1500" Delay="500">
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="RemoveDocument"></MudIconButton>
-                    </MudTooltip>                    
+                    </MudTooltip>
                 </div>
 
                 <MudPaper Width="450px" Elevation="0" Style="height:220px; overflow:auto">
@@ -200,20 +199,20 @@
                                 {
                                     <MudTreeViewItem Style="width:100%" Value="@context.Value">
                                         <BodyContent Context="item">
-                                            <div class="d-flex" style="flex-direction:row; justify-content: space-between; width:100%">
+                                            <div class="d-flex" style="flex-direction:row; justify-content:space-between; width:100%">
                                                 <MudText>@(context.Value.DocumentName)</MudText>
                                                 <MudSpacer />
                                                 <MudTooltip Text="Кол-во выбранных товаров в этой ДТ" Delay="1000">
                                                     <MudText Typo="@Typo.caption">@(context.Value.DocumentRecords.Count().ToString())</MudText>
-                                                </MudTooltip>                                                
+                                                </MudTooltip>
                                                 <MudSpacer />
                                                 <MudTooltip Text="Список поручений по этой ДТ" Delay="1000">
                                                     <MudIconButton Icon="@Icons.Custom.FileFormats.FileDocument" Size="Size.Small"
-                                                                    OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
+                                                                   OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
                                                     </MudIconButton>
                                                 </MudTooltip>
-                                            </div>                                            
-                                        </BodyContent>                                        
+                                            </div>
+                                        </BodyContent>
                                         <ChildContent>
                                             <MudTable Class="Table" T="ExportOrderDocumentRecordDTO" Items="@(context.Value.DocumentRecords)" Context="DocRecord">
                                                 <RowTemplate>
@@ -222,9 +221,9 @@
                                                     <MudTd Style="text-align:left; color:gray">@DocRecord.CommodityName</MudTd>
                                                 </RowTemplate>
                                             </MudTable>
-                                        </ChildContent>                                        
+                                        </ChildContent>
                                     </MudTreeViewItem>
-                                }                                
+                                }
                             </ItemTemplate>
                         </MudTreeView>
                         <PopoverExpOrderList DocumentName="@DocumentName" IsPopoverOpen="@IsPopoverOpen" ExportOrderNums="@ExportOrderNums"
@@ -232,19 +231,11 @@
                                              CloseButton_Click="@(()=> IsPopoverOpen = false)" />
                     }
                 </MudPaper>
-                <div style="display:flex; margin-top:3px">
-                    <span style="margin-top:12px; margin-right:6px"><b>Товар кратко:</b></span>
-                    <MudTextField Class="TextField" T="string" Style="width: 350px" @bind-Value="@Value.CommodityShort"
-                                  Text="@Value.CommodityShort"
-                                  TextChanged="(e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Immediate="true" Clearable />
-                </div>                
             </div>
-            <div class="documents-info" style="margin-left: 15px; max-width:fit-content">
+            <div class="documents-info" style="margin-left:15px; max-width:fit-content">
                 @if (Value.Documents != null && Value.Documents.Count() > 0)
-                {   
-                    <h6 class="infoSC">Shipper(s):</h6>                        
+                {
+                    <h6 class="infoSC">Shipper(s):</h6>
                     @foreach (var shipper in Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key))
                     {
                         <div style="padding-left:10px">@shipper@(Value.Shippers.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
@@ -254,13 +245,30 @@
                     @foreach (var consignee in Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
                     {
                         <div style="padding-left:10px">@consignee@(Value.Consignees.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
-                    }                    
+                    }
                 }
             </div>
         </div>
+        <div class="container-content ExpOrder" style="padding-top:unset">
+            <div style="display:flex; margin-top:3px">
+                <span style="margin-top:12px; margin-right:6px"><b>Товар кратко:</b></span>
+                <MudTextField Class="TextField" T="string" Style="width:350px" @bind-Value="@Value.CommodityShort"
+                              Text="@Value.CommodityShort"
+                              TextChanged="(e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Clearable />
+            </div>
+            <div style="display:flex; margin-top:3px; margin-left:15px">
+                <span style="margin-top:12px; margin-right:6px"><b>Товар кратко (анг. для к/с):</b></span>
+                <MudTextField Class="TextField" T="string" Style="width:350px" @bind-Value="@Value.CommodityShortEn"
+                              Text="@Value.CommodityShortEn"
+                              TextChanged="(e) => { Value.CommodityShortEn = e.ToUpper().Trim(); }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Clearable />
+            </div>
+        </div>
     </div>
-
-<div class="Container-table" style="min-height:360px; max-height:460px; overflow:auto">
+    <div class="Container-table" style="min-height:360px; max-height:460px; overflow:auto">
         <div class="tableMenu">
             <MudButton Class="Button" Style="margin-inline:80px; margin-bottom:2px" OnClick="UploadFile_Click"
                        Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
@@ -274,28 +282,27 @@
             <MudSpacer />
             <TablePager T="ExportOrderRecord" Table="mudTable" ItemsCount="@Value.Records.Count()" />
         </div>
-
         <MudTable Class="Table ItemTable" @ref="mudTable" Items="@Value.Records" Context="expOrderRecord" RowsPerPage="10"
-                  Virtualize="true" HorizontalScrollbar="true" >
+                  Virtualize="true" HorizontalScrollbar="true">
             <HeaderContent>
-                <MudTh Style="width:40px;">
+                <MudTh Style="width:40px">
                     <div class="controlIconButtons">
                         <MudTooltip Text="add new Container record" Duration="1500" Delay="500" Placement="Placement.End">
                             <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Disabled="@(Value.VesselCallDetail is null)" OnClick="AddExportOrderRecord_Click"
                                            Color="Color.Primary" Size="Size.Small" />
                         </MudTooltip>
                     </div>
-                </MudTh>                
+                </MudTh>
                 <MudTh Style="width:125px">Container</MudTh>
-                <MudTh Style="width: 65px">Type</MudTh>
-                <MudTh Style="width: 80px">TareWt</MudTh>
+                <MudTh Style="width:65px">Type</MudTh>
+                <MudTh Style="width:80px">TareWt</MudTh>
                 <MudTh Style="width:320px">Seals</MudTh>
-                <MudTh Style="width: 35px">Seq</MudTh>
-                <MudTh Style="width: 90px">QTY</MudTh>
+                <MudTh Style="width:35px">Seq</MudTh>
+                <MudTh Style="width:90px">QTY</MudTh>
                 <MudTh Style="width:140px">Pkg Name</MudTh>
                 <MudTh Style="width:120px">NET</MudTh>
                 <MudTh Style="width:120px">GROSS</MudTh>
-                <MudTh Style="width: 35px"></MudTh>
+                <MudTh Style="width:35px"></MudTh>
                 <MudTh></MudTh>
                 <MudTh Style="width:40px">
                     <MudTooltip Text="delete All records" Duration="1500" Delay="500" Placement="Placement.End">
@@ -306,9 +313,9 @@
             <RowTemplate>
                 <MudTd>
                     <MudTooltip Text="Edit Container Content" Delay="1000" Duration="1500" Placement="Placement.End">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(()=>ShowRecordContent_Click(expOrderRecord))" />
-                    </MudTooltip>                    
-                </MudTd>                
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => ShowRecordContent_Click(expOrderRecord))" />
+                    </MudTooltip>
+                </MudTd>
                 <MudTd>
                     <MudTextField Class="TextField" T="string" @ref="ContainerField" Value="@expOrderRecord.CntrNum"
                                   ValueChanged="async (e) => { expOrderRecord.CntrNum = e.ToUpper(); await CheckTextFieldCntrNum(e.ToUpper()); }"
@@ -320,10 +327,10 @@
                                Variant="Variant.Outlined" Margin="Margin.Dense"
                                AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
                                CloseIcon="" OpenIcon="">
-                        @if (CntrTypes.Count() > 0)
+                        @if (CntrTypes is not null && CntrTypes.Any())
                             @foreach (var type in CntrTypes)
                             {
-                                <MudSelectItem Value="@type">@type.Normolize!.ToString()</MudSelectItem>
+                                <MudSelectItem Value="@type">@type?.Normolize!.ToString()</MudSelectItem>
                             }
                     </MudSelect>
                 </MudTd>
@@ -332,13 +339,13 @@
                                      Variant="Variant.Outlined" Margin="Margin.Dense"
                                      Required RequiredError="" HideSpinButtons="true" />
                 </MudTd>
-                <MudTd>                   
-                    <MudTextField Class="TextField" Style="width: 312px" T="string" @bind-Value="expOrderRecord.Seal"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                <MudTd>
+                    <MudTextField Class="TextField" T="string" Style="width:312px" @bind-Value="expOrderRecord.Seal"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>
-                    <MudTextField Class="QuantityField" Style="width: 80px" T="string"
+                    <MudTextField Class="QuantityField" T="string" Style="width:80px"
                                   Text="@(expOrderRecord.Contents.Sum(s => s.PackageQty).ToString())"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
                 </MudTd>
@@ -371,8 +378,8 @@
                             <MudTable Class="sub-Table" @ref="mudCntrContentTable" Context="CntrContent" Items="@expOrderRecord.Contents">
                                 <RowTemplate>
                                     <MudTd Style="width:300px; padding-right:12px; text-align:end">@CntrContent.DocumentRecord.Document.Name</MudTd>
-                                    <MudTd Style="width: 33px">@CntrContent.DocumentRecord.Seq</MudTd>
-                                    <MudTd Style="width: 88px">@CntrContent.PackageQty</MudTd>
+                                    <MudTd Style="width:33px">@CntrContent.DocumentRecord.Seq</MudTd>
+                                    <MudTd Style="width:88px">@CntrContent.PackageQty</MudTd>
                                     <MudTd Style="width:120px; text-align:center">@CntrContent.PackageName</MudTd>
                                     <MudTd Style="width:120px">@CntrContent.NetWt</MudTd>
                                     <MudTd Style="width:120px">@CntrContent.GrossWt</MudTd>
@@ -400,12 +407,12 @@
                         <h6 class="Summary">@Value.Records.SelectMany(s => s.Contents).Sum(c => c.PackageQty)</h6>
                     </MudTd>
                     <MudTd></MudTd>
-                    <MudTd Style="text-align:end; padding-right: 8px">
+                    <MudTd Style="text-align:end; padding-right:8px">
                         <h6 class="Summary">
                             @(Value.Records.SelectMany(s => s.Contents).Sum(c => c.NetWt.HasValue ? c.NetWt.Value : 0).ToString("### ###.###"))
                         </h6>
                     </MudTd>
-                    <MudTd Style="text-align:end; padding-right: 8px">
+                    <MudTd Style="text-align:end; padding-right:8px">
                         <h6 class="Summary">
                             @(Value.Records.SelectMany(s => s.Contents).Sum(c => c.GrossWt.HasValue ? c.GrossWt.Value : 0).ToString("### ###.###"))
                         </h6>
@@ -416,17 +423,7 @@
             <PagerContent></PagerContent>
         </MudTable>
     </div>
-<<<<<<< HEAD
-=======
 }
-else
-{
-    <MudSkeleton></MudSkeleton>
-    <MudSkeleton></MudSkeleton>
-    <MudSkeleton></MudSkeleton>
-    <MudSkeleton></MudSkeleton>
-}
->>>>>>> Fix 07_06
 
 <OverlayLoadingData Visible="IsLoadingData" Text="Uploading..." />
 
@@ -436,7 +433,7 @@ else
     private MudTextField<string> ContainerField { get; set; } = new();
 
     [Parameter]
-    public ExportOrderEntity Value { get; set; } = new();
+    public ExportOrderEntity? Value { get; set; }// = new();
     [Parameter]
     public EventCallback<ExportOrderEntity> ValueChanged { get; set; }
     [Parameter]
@@ -464,14 +461,14 @@ else
         {
             CntrTypes = await _cntrTypeProvider.GetCntrTypes();
             Persons = await _exportOrderProvider.GetPersonsAsync();
-            StateHasChanged();
+            // FillUpTreeItems();
+            // StateHasChanged();
         }
+        //FillUpTreeItems();
+        //StateHasChanged();
     }
 
-    protected override void OnInitialized()
-    {
-        FillUpTreeItems();
-    }
+    protected override void OnInitialized() => FillUpTreeItems();//StateHasChanged();
 
     #region DOCUMENTS
 
@@ -555,6 +552,8 @@ else
         {
             Value.Records.Add(new ExportOrderRecord());
             Snackbar.Add("Новая запись добавлена в конец таблицы.", Severity.Info);
+            
+            await InvokeAsync(StateHasChanged);
             await FocusLastRow();
         }
     }
@@ -598,7 +597,7 @@ else
 
         if (result.HasValue)
             if (result.Value)
-                Value!.Records.Remove(record);
+                Value?.Records.Remove(record);
 
         FillUpTreeItems();
     }
@@ -653,8 +652,6 @@ else
                 //IsLoadingData = false;
 
                 Snackbar.Add($"Uploaded", Severity.Success);
-
-                //StateHasChanged();  //await ValueChanged.InvokeAsync(Value);
             }
             else
                 Snackbar.Add($"NOT uploaded", Severity.Warning);
@@ -702,36 +699,35 @@ else
 
     private void FillUpTreeItems()
     {
-        if (Value is not null)
+        if (Value is null) return;
+        
+        ClearTreeItems();
+
+        var documentRecords = Value.Records.SelectMany(r => r.Contents).Select(c => c.DocumentRecord)
+                                                                       .Where(dr => dr.Document != null && !string.IsNullOrEmpty(dr.Document.Name))
+                                                                       .GroupBy(dr => new { dr.Seq, dr.Document.Name })
+                                                                       .ToList();
+
+        foreach (var record in documentRecords)
         {
-            ClearTreeItems();
-
-            var documentRecords = Value.Records.SelectMany(r => r.Contents).Select(c => c.DocumentRecord)
-                                                                           .Where(dr => dr.Document != null && !string.IsNullOrEmpty(dr.Document.Name))
-                                                                           .GroupBy(dr => new { dr.Seq, dr.Document.Name })
-                                                                           .ToList();
-
-            foreach (var record in documentRecords)
+            DocumentRecordsDTO.Add(new ExportOrderDocumentRecordDTO()
             {
-                DocumentRecordsDTO.Add(new ExportOrderDocumentRecordDTO()
-                {
-                    DocumentId = record.FirstOrDefault()!.Document.Id,
-                    Seq = record.Key.Seq,
-                    DocumentName = record.Key.Name,
-                    CommodityHSCode = record.FirstOrDefault()!.CommodityHSCode,
-                    CommodityName = record.FirstOrDefault()!.CommodityName
-                });              
-            }
+                DocumentId = record.FirstOrDefault()!.Document.Id,
+                Seq = record.Key.Seq,
+                DocumentName = record.Key.Name,
+                CommodityHSCode = record.FirstOrDefault()!.CommodityHSCode,
+                CommodityName = record.FirstOrDefault()!.CommodityName
+            });              
+        }
 
-            DocumentsDTO = DocumentRecordsDTO.GroupBy(dr => dr.DocumentName).Select(g => new ExportOrderDocumentDTO()
-            {
-                Id = g.FirstOrDefault()!.DocumentId,
-                DocumentName = g.Key,
-                DocumentRecords = g.OrderBy(r=>r.Seq).ToList()
-            }).ToList();            
+        DocumentsDTO = DocumentRecordsDTO.GroupBy(dr => dr.DocumentName).Select(g => new ExportOrderDocumentDTO()
+        {
+            Id = g.FirstOrDefault()!.DocumentId,
+            DocumentName = g.Key,
+            DocumentRecords = g.OrderBy(r=>r.Seq).ToList()
+        }).ToList();            
 
-            TreeItems = DocumentsDTO.Select(s => new TreeItemData<ExportOrderDocumentDTO>() { Value = s }).ToList();
-        }        
+        TreeItems = DocumentsDTO.Select(s => new TreeItemData<ExportOrderDocumentDTO>() { Value = s }).ToList();                
     }
 
     private void ClearTreeItems()

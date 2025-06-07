@@ -31,7 +31,7 @@
 
     private async Task AddItem_Click()
     {
-        var parameters = new DialogParameters { ["IsNewItem"] = true };
+        var parameters = new DialogParameters();
         var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
         var dialog = await DialogService.ShowAsync<ExportOrder_Item>(null, parameters, options);
 

@@ -4,8 +4,7 @@ namespace ExportOrderWebServer.Areas.Import.VesselCall.Provider;
 public interface IImportVesselCallProvider : IEntityProvider<ImportVesselCallEntity>
 {
     Task<AppObjectResponse> GetVesselCallDetailAsync(long vesselCallid);
-    Task<IEnumerable<string>> GetVoyages(string? vessel);
-    Task<AppObjectResponse> RemoveVesselCallDetailAsync(long id);
+    Task<IEnumerable<string>> GetVoyages(string? vessel);    
 }
 public class ImportVesselCallProvider : IImportVesselCallProvider
 {
@@ -382,42 +381,6 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
         }
     }
 
-    public Task<AppObjectResponse> RemoveItemAsync(long id)
-    {
-        throw new NotImplementedException();
-        //appObjResponse = new();
-
-        //try
-        //{
-        //    using (var _db = _dbContext.CreateDbContextAsync())
-        //    {
-        //        var db = await _db;
-
-        //        // check an Existing item
-        //        var existedItem = await db.VesselCalls.Where(s => s.Id == id).FirstOrDefaultAsync();
-
-        //        if (existedItem is null)
-        //        {
-        //            appObjResponse.ErrorAdd("Record wasn't deleted");
-        //            return appObjResponse;
-        //        }
-
-        //        db.Entry(existedItem).State = EntityState.Deleted;
-
-        //        var bug = db.ChangeTracker.DebugView.LongView;
-        //        await db.SaveChangesAsync();
-
-        //        return appObjResponse;
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    string msg = ex.Message;
-        //    appObjResponse.ErrorAdd(msg);
-        //    return appObjResponse;
-        //}
-    }
-
     public async Task<AppObjectResponse> GetVesselCallDetailAsync(long vcdId)
     {
         appObjResponse = new();
@@ -448,7 +411,37 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
         }
     }
 
-    public async Task<AppObjectResponse> RemoveVesselCallDetailAsync(long id)
+    public async Task<IEnumerable<string>> GetNames()
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+            return await db.Vessels.Select(s => s.Name!).ToListAsync();
+        }
+    }
+
+    public Task<IEnumerable<string>> GetNamesEn()
+    {
+        throw new NotImplementedException();
+    }
+    
+    public async Task<IEnumerable<string>> GetVoyages(string? vessel)
+    {
+        using var _db = _dbContext.CreateDbContextAsync();
+
+        var db = await _db;
+
+        var result = Enumerable.Empty<string>();
+
+        if (!string.IsNullOrEmpty(vessel))
+            result = await db.VesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync();
+        else
+            result = await db.VesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo!).ToArrayAsync();
+
+        return result;
+    }
+
+    public async Task<AppObjectResponse> RemoveItemAsync(long id, string? UserName = "")
     {
         appObjResponse = new();
 
@@ -494,36 +487,6 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
             appObjResponse.ErrorAdd(ex.Message);
             return appObjResponse;
         }
-    }
-
-    public async Task<IEnumerable<string>> GetNames()
-    {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.Vessels.Select(s => s.Name!).ToListAsync();
-        }
-    }
-
-    public Task<IEnumerable<string>> GetNamesEn()
-    {
-        throw new NotImplementedException();
-    }
-    
-    public async Task<IEnumerable<string>> GetVoyages(string? vessel)
-    {
-        using var _db = _dbContext.CreateDbContextAsync();
-
-        var db = await _db;
-
-        var result = Enumerable.Empty<string>();
-
-        if (!string.IsNullOrEmpty(vessel))
-            result = await db.ImportVesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync();
-        else
-            result = await db.ImportVesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo!).ToArrayAsync();
-
-        return result;
     }
 
     private readonly Func<IEnumerable<ImportVesselCallEntity>, IEnumerable<VesselCallDetailDTO>> vcRecords = (Records) =>

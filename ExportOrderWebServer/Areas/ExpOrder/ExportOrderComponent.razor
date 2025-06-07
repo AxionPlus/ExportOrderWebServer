@@ -221,7 +221,7 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    [Parameter]
+    //[Parameter]
     public string? ApplicationUser { get; set; }
     private MudTable<ExportOrderComponentDTO> mudTable = new();
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
@@ -237,10 +237,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var user = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 
-        if (user.User.IsInRole("Admin") || user.User.IsInRole("Top Manager"))
+        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
             IsRoleForEdit = true;
+
+        ApplicationUser = authState.User.Identity?.Name;
     }
 
     public async Task GetItems()
@@ -265,7 +267,7 @@
 
         var result = await dialog.Result;
 
-        if (result is not null && !result.Canceled)
+        if (result is not null && result.Data != null && (bool)result.Data == true)
             await GetItems();
     }
 

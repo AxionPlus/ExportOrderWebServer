@@ -1,10 +1,9 @@
-﻿@using ExportOrderWebServer.Areas.Import.VesselCall.Provider
-@inject AuthenticationStateProvider authenticationStateProvider
+﻿@inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject HttpClient Http
 @inject IJSRuntime jsRuntime
-@inject IVesselCallProvider _vesselCallProvider
+@inject IImportVesselCallProvider _vesselCallProvider
 @inject IVesselProvider _vesselProvider
 @inject ITerminalProvider _terminalProvider
 @inject ILocationProvider _locationProvider
@@ -15,10 +14,10 @@
         margin: unset;
     }
 
-    .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
-        margin-top: unset;
-        margin-bottom: unset;
-    }
+        .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
+            margin-top: unset;
+            margin-bottom: unset;
+        }
 
     .mud-icon-button-edge-margin-end {
         margin-right: 2px;
@@ -31,113 +30,111 @@
         padding-inline-start: unset;
     }
 
-    .Container-table .tableMenu .mud-table-cell{
-        padding:unset;
+    .Container-table .tableMenu .mud-table-cell {
+        padding: unset;
     }
  </style>
 
 <div class="Container-item">
-    <div class="container-content">
-        <div class="container-column" style="width:270px;">
-            <div class="container-content">
-                <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
-                                 Style="width: 250px"
-                                 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 CloseIcon="" OpenIcon="" MaxItems="20"
-                                 ResetValueOnEmptyText="true" Clearable />
-            </div>
-            <div class="container-content">
-                <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
-                           Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
-                    Search
-                </MudButton>
-                <MudSpacer />
-                <MudSelect Class="Autocomplete" Style="width:142px" T="EntityStatus?" Label="Status" @bind-Value="@Filter.Status"
-                           ToStringFunc="@(s => s == null ? null : s.ToString())"
-                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
-                           Disabled="IsSelectable">
-                    @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
-                    {
-                        <MudSelectItem Value="@status" />
-                    }
-                </MudSelect>
-            </div>
+    <div class="container-column" style="width:270px;">
+        <div class="container-content">
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
+                            Style="width: 250px"
+                            Variant="Variant.Outlined" Margin="Margin.Dense"
+                            CloseIcon="" OpenIcon="" MaxItems="20"
+                            ResetValueOnEmptyText="true" Clearable />
         </div>
-        <div class="container-column" style="width:470px; margin-left:30px">
-            <div class="container-content">
-                <MudAutocomplete Class="Autocomplete" T="string" Label="Voyage" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
-                                 Style="width: 170px"
-                                 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 CloseIcon="" OpenIcon=""
-                                 ResetValueOnEmptyText="true" Clearable />
-                <div style="width:120px">
-                    <MudDatePicker Class="DatePicker" Label="From" @bind-Date="Filter.DateFrom"
-                                   DateFormat="dd.MM.yy"
-                                   ShowWeekNumbers="true"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   IconSize=Size.Small
-                                   AutoClose=true
-                                   Clearable />
-                </div>
-                <div style="width:120px">
-                    <MudDatePicker Class="DatePicker" Label="To" @bind-Date="Filter.DateTo"
-                                   DateFormat="dd.MM.yy"
-                                   ShowWeekNumbers="true"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   IconSize=Size.Small
-                                   AutoClose=true
-                                   Clearable />
-                </div>
-            </div>
-            <div class="container-content">
-                <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
-                                 Style="width: 170px"
-                                 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 CloseIcon="" OpenIcon="" MaxItems="20"
-                                 ResetValueOnEmptyText="true" Clearable />
-                <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
-                                 Style="width: 260px"
-                                 Variant="Variant.Outlined" Margin="Margin.Dense"
-                                 CloseIcon="" OpenIcon="" MaxItems="20"
-                                 ResetValueOnEmptyText="true" Clearable />
-            </div>
+        <div class="container-content">
+            <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
+                       Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+                Search
+            </MudButton>
+            <MudSpacer />
+            <MudSelect Class="Autocomplete" Style="width:142px" T="EntityStatus?" Label="Status" @bind-Value="@Filter.Status"
+                       ToStringFunc="@(s => s == null ? null : s.ToString())"
+                       Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
+                       Disabled="IsSelectable">
+                @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
+                {
+                    <MudSelectItem Value="@status" />
+                }
+            </MudSelect>            
         </div>
-
-        <MudSpacer />
-
-        @if (!IsSelectable)
-        {
-            <div class="container-column" style="width:160px">
-                <MudButton Class="Button" OnClick="@(async () => { await ManifestReport_Click(false); })"
-                           Style="width:142px; margin-bottom:10px;"
-                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Preview">
-                    CGO Manifest
-                </MudButton>
-                <MudButton Class="Button" OnClick="@(async () => { await ManifestReport_Click(true); })"
-                           Style="width:142px; margin-bottom:10px"
-                           Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Preview">
-                    IMO Manifest
-                </MudButton>
-                <MudButton Class="Button" OnClick="@(async () => { await ViewReportCustoms_Click(); })"
-                           Style="width:142px; margin-bottom:10px"
-                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Preview">
-                    Explanation
-                </MudButton>
-            </div>
-            <div class="container-column" style="width:105px; margin-inline:20px">
-                <MudButton Class="Button" OnClick="@(async () => { await SaveFileFillBill_Click(); })"
-                           Style="margin-bottom:10px"
-                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Download">
-                    Fill Bill
-                </MudButton>
-            </div>
-        }
     </div>
-</div>    
+    <div class="container-column" style="width:470px; margin-left:30px">
+        <div class="container-content">
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Voyage" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+                             Style="width: 170px"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon=""
+                             ResetValueOnEmptyText="true" Clearable />
+            <div style="width:130px; height:35px">
+                <MudDatePicker Class="DatePicker" Label="From" @bind-Date="Filter.DateFrom"
+                               DateFormat="dd.MM.yy"
+                               ShowWeekNumbers="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               IconSize=Size.Small
+                               AutoClose=true
+                               Clearable />
+            </div>
+            <div style="width:130px; height:35px">
+                <MudDatePicker Class="DatePicker" Label="To" @bind-Date="Filter.DateTo"
+                               DateFormat="dd.MM.yy"
+                               ShowWeekNumbers="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               IconSize=Size.Small
+                               AutoClose=true
+                               Clearable />
+            </div>            
+        </div>
+        <div class="container-content">
+            <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
+                             Style="width: 170px"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon="" MaxItems="20"
+                             ResetValueOnEmptyText="true" Clearable />
+            <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
+                             Style="width: 270px"
+                             Variant="Variant.Outlined" Margin="Margin.Dense"
+                             CloseIcon="" OpenIcon="" MaxItems="20"
+                             ResetValueOnEmptyText="true" Clearable />
+        </div>
+    </div>
+    
+    <MudSpacer/>
+
+    @if (!IsSelectable)
+    {
+        <div class="container-column" style="width:160px">
+            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestReport_Click(false); })"
+                        Style="width:142px; margin-bottom:10px;"
+                        Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                        StartIcon="@Icons.Material.Filled.Preview">
+                CGO Manifest
+            </MudButton>
+            <MudButton Class="Button" OnClick="@(async()=>{ await ManifestReport_Click(true); })"
+                        Style="width:142px; margin-bottom:10px"
+                        Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small"
+                        StartIcon="@Icons.Material.Filled.Preview">
+                IMO Manifest
+            </MudButton>            
+            <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportCustoms_Click(); })"
+                        Style="width:142px; margin-bottom:10px"
+                        Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                        StartIcon="@Icons.Material.Filled.Preview">
+                Explanation
+            </MudButton>
+        </div>
+        <div class="container-column" style="width:105px; margin-inline:20px">
+            <MudButton Class="Button" OnClick="@(async()=>{ await SaveFileFillBill_Click(); })"
+                       Style="margin-bottom:10px"
+                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Download">
+                Fill Bill
+            </MudButton>
+        </div>
+    }    
+</div>
 
 <div class="Container-table">
     <div class="tableMenu">
@@ -145,41 +142,41 @@
         <TablePager T="VesselCallDetailDTO" Table="mudTable" ItemsCount="@Items?.Count()" />
     </div>
         
-    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30" >
+    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">
         <HeaderContent>
-            <MudTh Style="width: 42px"></MudTh>            
+            <MudTh Style="width: 42px"></MudTh>
             <MudTh Style="width: 42px"></MudTh>
             <MudTh Style="width:270px">
-                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x=>x.VesselName!)">Vessel</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x => x.VesselName!)">Vessel</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:150px">
-                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x=>x.VoyageNo!)">Voyage</MudTableSortLabel>
+                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x => x.VoyageNo!)">Voyage</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:220px">POD</MudTh>
             <MudTh Style="width: 90px">Terminal</MudTh>
             <MudTh Style="width: 120px">ETA</MudTh>
             <MudTh Style="width: 120px">ETS</MudTh>
-            <MudTh Style="width: 80px"><MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x=>x.Status!)">Status</MudTableSortLabel></MudTh>
+            <MudTh Style="width: 80px"><MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x => x.Status!)">Status</MudTableSortLabel></MudTh>
             <MudTh Style="width: 42px"></MudTh>
         </HeaderContent>
         <RowTemplate>
             @if (!IsSelectable)
             {
-                <MudTd>                    
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async()=>{ await ShowItem_Click(context.VesselCallId); })" />
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async () => { await ShowItem_Click(context.VesselCallId); })" />
                 </MudTd>
                 <MudTd>
                     <MudTooltip Text="Add new ExportOrder">
                         <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Disabled="context.Status == EntityStatus.Completed"
                                        OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })" />
-                    </MudTooltip>                    
+                    </MudTooltip>
                 </MudTd>
             }
             else
             {
                 <MudTd>
                     <MudTooltip Text="Upload">
-                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Secondary" OnClick="@(()=>SelectItem_Click(context.Id, context.Status))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Secondary" OnClick="@(() => SelectItem_Click(context.Id, context.Status))" />
                     </MudTooltip>
                 </MudTd>
                 <MudTd></MudTd>
@@ -188,8 +185,8 @@
             <MudTd>@context.VoyageNo</MudTd>
             <MudTd>@context.POD</MudTd>
             <MudTd>@context.Terminal</MudTd>
-            <MudTd>@(context.ETA.HasValue ? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
-            <MudTd>@(context.ETS.HasValue ? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>            
+            <MudTd>@(context.ETA.HasValue? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
+            <MudTd>@(context.ETS.HasValue? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>
             <MudTd>@context.Status.ToString()</MudTd>
             <MudTd>
                 @if (!IsSelectable)
@@ -197,7 +194,7 @@
                     <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Disabled="@(IsLoadingData || !IsRoleForEdit)"
                                    OnClick="@(async()=>{ await RemoveVesselCallDetail_Click(context.Id, context.POD); })" />
                 }
-            </MudTd>            
+            </MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>
@@ -210,15 +207,16 @@
     private MudTable<VesselCallDetailDTO> mudTable = new();
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter]
-    public bool IsSelectable { get; set; } = false;
+    public bool IsSelectable { get; set; } = false;    
 
-    private IEnumerable<VesselCallDetailDTO> Items { get; set; } = new List<VesselCallDetailDTO>();
+    private IEnumerable<VesselCallDetailDTO>? Items { get; set; } = new List<VesselCallDetailDTO>();
     private FilterParameters Filter { get; set; } = new();
 
     private bool IsLoadingData = false;
-    public bool IsRoleForEdit { get; set; } = false;
+    private bool IsRoleForEdit = false;
 
-    protected override async Task OnInitializedAsync()  //void OnInitialized()
+
+    protected override async void OnInitialized()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 
@@ -256,24 +254,25 @@
     private async Task AddExportOrder_Click(long vcdId)
     {
         //var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));
-        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}exportorder?vcdId={vcdId}", "_blank");
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank");
     }
 
     private async Task RemoveVesselCallDetail_Click(long id, string? pod)
     {
         bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
-                                        (MarkupString)$"Do you want Delete record?<br/>Discharge port: <b>{pod}</b>",
-                                        yesText: "DELETE!", cancelText: "NO");        
-        
+                                    (MarkupString)$"Do you want Delete record?<br/>For discharge port:<b>{pod}</b>",
+                                    yesText: "DELETE!", cancelText: "NO");        
+
+
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
                 IsLoadingData = true;
-                var response = await _vesselCallProvider.RemoveItemAsync(id, ApplicationUser);  // substitution of RemoveVesselCallDetailAsync
+                var response = await _vesselCallProvider.RemoveItemAsync(id, ApplicationUser);
                 IsLoadingData = false;
 
                 if (response.HasErrors)
-                    Snackbar.Add($"Unable to delete", Severity.Warning);
+                    Snackbar.Add($"Unable to delete", Severity.Warning); 
                 else
                 {
                     Snackbar.Add($"Deleted Successfully", Severity.Success);

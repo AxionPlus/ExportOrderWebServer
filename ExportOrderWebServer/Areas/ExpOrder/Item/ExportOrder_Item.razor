@@ -7,7 +7,8 @@
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IExportOrderProvider _exportOrderProvider
-@inject IImportVesselCallProvider _vesselCallProvider
+@inject IVesselCallProvider _vesselCallProvider
+@inject IImportVesselCallProvider _importVesselCallProvider
 @inject IValidationService ValidationService
 
 <MudContainer MaxWidth="MaxWidth.Large">
@@ -44,10 +45,7 @@
     </div>
 
     <MudForm @ref="@Form" >
-        @if (Item != null)
-        {
-            <ExportOrder_ItemComponent @bind-Value="Item" IsRoleForEdit="IsRoleForEdit" />
-        }
+        <ExportOrder_ItemComponent @bind-Value="Item" IsRoleForEdit="IsRoleForEdit" />
     </MudForm>    
 </MudContainer>
 
@@ -55,8 +53,9 @@
 
 @code {
     private MudForm? Form;
+    public string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-    [CascadingParameter] public string? ApplicationUser { get; set; }
+    private bool IsDialogResultOk { get; set; } = false;    
 
     [SupplyParameterFromQuery]
     [Parameter]
@@ -66,11 +65,7 @@
     [Parameter]
     public long vcdId { get; set; }
 
-    [SupplyParameterFromQuery]
-    [Parameter]
-    public bool IsNewItem { get; set; } = false;
-
-    private ExportOrderEntity? Item { get; set; }
+    private ExportOrderEntity Item { get; set; } = new();
 
     private bool IsLoadingData { get; set; } = false;    
     private bool IsRoleForEdit = false;
@@ -92,16 +87,14 @@
     {
         AppObjectResponse response = new();
 
-        if (IsNewItem)
+        if (Id == 0)
         {
-            if (vcdId == 0)
-                Item = new();
-            else
+            /// create a new Item with a certain VesselCallDetail
+            if (vcdId != 0)
             {
-                /// create a new Item with a certain VesselCallDetail
                 response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
                 if (!response.HasErrors && response.Object is not null)
-                    Item = new() { VesselCallDetail = (VesselCallDetail)response.Object };
+                    Item.VesselCallDetail = (VesselCallDetail)response.Object;  //Item = new() { VesselCallDetail = (VesselCallDetail)response.Object };
             }   
         }
         else
@@ -109,7 +102,9 @@
             response = await _exportOrderProvider.GetItemAsync(Id);
             if (!response.HasErrors && response.Object is not null)
                 Item = (ExportOrderEntity)response.Object;
-        }        
+        }
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveItem()
@@ -118,91 +113,66 @@
 
         await Form.Validate();
 
-        if (Form.IsValid)
-        {
-            /// Check Container Numbers
-            if (Item.Records is not null && Item.Records.Any())
-            {
-                bool? proceedWithErrors = await ProceedWithCntrNumsErrors();
-                if (!proceedWithErrors.HasValue) return;
-            }
-
-            IsLoadingData = true;
-
-            /// Save
-            if (IsNewItem)
-            {
-                var response = await _exportOrderProvider.NewItemAsync(Item, ApplicationUser);
-                if (!response.HasErrors)
-                    Snackbar.Add("Saved Successfully", Severity.Success);
-                else
-                {
-                    Snackbar.Add($"{response.Errors.FirstOrDefault()}", Severity.Error);
-                    IsLoadingData = false;
-                    return;
-                }
-            }
-            else
-            {
-                var response = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser);
-                if (!response.HasErrors)
-                    Snackbar.Add("Saved Successfully", Severity.Success);
-                else
-                {
-                    Snackbar.Add($"No Success<br>{response.Errors.FirstOrDefault()}", Severity.Error);
-                    IsLoadingData = false;
-                    return;
-                }
-            }            
-        }
-        else
+        if (!Form.IsValid)
         {
             Snackbar.Add("Fill up all reqired fields", Severity.Error);
-            IsLoadingData = false;
             return;
         }
 
-        IsNewItem = false;
-        Id = Item.Id;
+        /// Check Container Numbers
+        if (Item.Records is not null && Item.Records.Any())
+        {
+            bool? proceedWithErrors = await ProceedWithCntrNumsErrors();
+            if (!proceedWithErrors.HasValue) return;
+        }
 
-        await GetItem();
+        /// Save
+        IsLoadingData = true;
 
-        IsLoadingData = false;               
+        AppObjectResponse appObjectResponse = new();
+
+        if (Id == 0)
+            appObjectResponse = await _exportOrderProvider.NewItemAsync(Item, ApplicationUser);
+        else
+            appObjectResponse = await _exportOrderProvider.ModifyItemAsync(Item, ApplicationUser);
+
+        if (appObjectResponse.HasErrors)
+            Snackbar.Add($"{appObjectResponse.Errors.FirstOrDefault()}", Severity.Error);
+        else
+        {
+            Id = Item.Id;
+            IsDialogResultOk = true;
+            Snackbar.Add("Saved Successfully", Severity.Success);
+        }
+
+        IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }    
 
     private async Task CopyItem()
     {
-        if (Item is not null)
+        Item.Id = 0;
+
+        foreach (var record in Item.Records)
         {
-            Item.Id = 0;
+            record.Id = 0;
 
-            foreach (var record in Item.Records)
-            {
-                record.Id = 0;
-
-                foreach (var content in record.Contents)
-                    content.Id = 0;
-            }
-
-            Item.Num = Item.Status == EntityStatus.Customs || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
-
-            Item.Status = EntityStatus.New;
-
-            IsNewItem = true;
-
-            await InvokeAsync(StateHasChanged);
+            foreach (var content in record.Contents)
+                content.Id = 0;
         }
+
+        Item.Num = Item.Status == EntityStatus.Customs || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
+
+        Item.Status = EntityStatus.New;
+
+        await InvokeAsync(StateHasChanged);        
     }
 
     private void CloseDialogOrPage()
     {
         if (MudDialog != null)
-        {
-            if (IsNewItem)
-                MudDialog.Cancel();
-            else
-                MudDialog.Close();
-        }        
+            MudDialog.Close(DialogResult.Ok(IsDialogResultOk));
         else
             jsRuntime.InvokeVoidAsync("window.close");
     }

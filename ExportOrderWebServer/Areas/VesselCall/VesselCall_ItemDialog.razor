@@ -24,7 +24,7 @@
     <DialogToolBar ToolBarTitle="Vessel Call" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
                    CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
     <div class="Container-item" style="flex-direction:column">
-        <div class="container-content" style="justify-content:flex-start">                
+        <div class="container-content">
             <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item.Vessel"
                              ToStringFunc="@(e => e != null ? e.Name : "")"
                              SearchFunc="SearchVessel"
@@ -38,7 +38,7 @@
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true"
                           Required RequiredError="" Clearable />
-            <div style="width:130px; height:33px; margin-right: 4px">
+            <div style="width:120px; height:33px; margin-right: 4px">
                 <MudDatePicker Class="DatePicker" Label="ETA" @bind-Date="Item.ETA"
                                DateFormat="dd.MM.yy"
                                ShowWeekNumbers="true"
@@ -58,7 +58,7 @@
             </MudSelect>                 
         </div>
 
-        <div class="container-content" style="justify-content:flex-start">
+        <div class="container-content">
             <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px; margin-right:20px" Label="Load Terminal" @bind-Value="Item.Terminal"
                              ToStringFunc="@(e => e != null ? e.Name : "")"
                              SearchFunc="SearchTerminal"
@@ -72,7 +72,7 @@
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true"
                           Required RequiredError="" Clearable />
-            <div style="width:130px">
+            <div style="width:120px">
                 <MudDatePicker Class="DatePicker" Label="ETS" @bind-Date="Item.ETS"
                                DateFormat="dd.MM.yy"
                                ShowWeekNumbers="true"
@@ -80,10 +80,11 @@
                                IconSize=Size.Small
                                AutoClose=true
                                Required RequiredError="" Clearable />
-            </div>                 
+            </div>
+            <MudSpacer/>
         </div>
 
-        <div class="container-content" style="justify-content:flex-start">
+        <div class="container-content">
             <div class="Container-table">
                 <MudTable Class="Table dialogTable" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
                     <HeaderContent>

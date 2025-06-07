@@ -27,12 +27,12 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
             {
                 var db = await _db;
 
-                var voyage = await db.VesselCalls.AsNoTracking().AsSplitQuery()
+                var voyage = await db.ImportVesselCalls.AsNoTracking().AsSplitQuery()
                                                  .Include(vc => vc.Vessel)
                                                  .Include(vc => vc.Terminal)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.FinalDestination)
-                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.ExportOrders).ThenInclude(eo => eo.Records)
+                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.BillofLadings).ThenInclude(eo => eo.ContainerRecords)
                                                  .FirstOrDefaultAsync(s => s.Id == id);
 
                 if (voyage is null)
@@ -296,7 +296,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                     return appObjResponse;
                 }
 
-                bool isItemExist = db.VesselCalls.Any(s => s.Vessel.Name == item.Vessel.Name && s.VoyageNo == item.VoyageNo);
+                bool isItemExist = db.ImportVesselCalls.Any(s => s.Vessel.Name == item.Vessel.Name && s.VoyageNo == item.VoyageNo);
 
                 if (isItemExist)
                 {
@@ -428,7 +428,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
             {
                 var db = await _db;
 
-                appObjResponse.Object = await db.Set<VesselCallDetail>().AsNoTracking().AsSplitQuery()
+                appObjResponse.Object = await db.Set<ImportVesselCallDetail>().AsNoTracking().AsSplitQuery()
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Terminal)
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
                                                     .Include(vcd => vcd.POD)
@@ -459,24 +459,24 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                 var db = await _db;
 
                 /// check an Existing - Vessel Call Detail
-                var dbVesselCallDetail = db.Set<VesselCallDetail>().Where(vcd => vcd.Id == id).Include(vcd => vcd.ExportOrders).FirstOrDefault();
+                var dbVesselCallDetail = db.Set<ImportVesselCallDetail>().Where(vcd => vcd.Id == id).Include(vcd => vcd.BillofLadings).FirstOrDefault();
 
                 if (dbVesselCallDetail is null)
                     appObjResponse.ErrorAdd("There is no Record to delete.");
                 else
                 {
                     /// Find an Export Orders in Existing Item                    
-                    if (dbVesselCallDetail.ExportOrders.Any()) //db.ExportOrders.Any(eo => eo.VesselCallDetail != null && eo.VesselCallDetail.Id == id)
+                    if (dbVesselCallDetail.BillofLadings.Any()) //db.ExportOrders.Any(eo => eo.VesselCallDetail != null && eo.VesselCallDetail.Id == id)
                         appObjResponse.ErrorAdd($"Vessel Call has an Export Orders issued.<br/>Delete all of it's Export Orders first.");
                     else
                     {
                         db.Entry(dbVesselCallDetail).State = EntityState.Deleted;
 
                         /// Check an Empty Voyage - w/o existing Vessel Call Details
-                        bool isOneDetailInVoyage = db.Set<VesselCallDetail>().Count(vcd => vcd.VesselCall.Id == dbVesselCallDetail.VesselCall.Id) == 1;
+                        bool isOneDetailInVoyage = db.Set<ImportVesselCallDetail>().Count(vcd => vcd.VesselCall.Id == dbVesselCallDetail.VesselCall.Id) == 1;
                         if (isOneDetailInVoyage)
                         {
-                            var dbVoyage = db.VesselCalls.FirstOrDefault(s => s.Id == dbVesselCallDetail.VesselCall.Id);
+                            var dbVoyage = db.ImportVesselCalls.FirstOrDefault(s => s.Id == dbVesselCallDetail.VesselCall.Id);
                             if (dbVoyage != null)
                                 db.Entry(dbVoyage).State = EntityState.Deleted;
                         }
@@ -519,9 +519,9 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
         var result = Enumerable.Empty<string>();
 
         if (!string.IsNullOrEmpty(vessel))
-            result = await db.VesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync();
+            result = await db.ImportVesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync();
         else
-            result = await db.VesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo!).ToArrayAsync();
+            result = await db.ImportVesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo!).ToArrayAsync();
 
         return result;
     }

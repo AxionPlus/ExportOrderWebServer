@@ -1,4 +1,5 @@
 ﻿@page "/uploadmanifest"
+@using ExportOrderWebServer.Areas.Import.VesselCall
 
 @attribute [Authorize(Roles = "Admin, ImpDept")]
 
@@ -6,6 +7,7 @@
 @inject IHttpClientFactory httpClient
 @inject NavigationManager Navigation
 @inject IJSRuntime jsRuntime
+@inject IDialogService DialogService
 
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
@@ -21,6 +23,17 @@
     </MudToolBar>
 </div>
 
+<div class="Container-item">
+    <div class="container-content">
+        <MudButton Color="@Color.Success" OnClick="SetVesselCall_Click">  <h5>Set Vessel Call for uploading bill of ladings</h5></MudButton>
+        @if (VesselCallDetail is not null)
+        {
+            <h5>@VesselCallDetail.VesselName @VesselCallDetail.VoyageNo (@VesselCallDetail.POD)</h5>
+        }
+    </div>
+</div>
+
+
 <MudStack Style="width: 100%">
     <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
                    @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
@@ -34,9 +47,9 @@
             </MudPaper>
         </ActivatorContent>
     </MudFileUpload>
-    <MudToolBar  Class="gap-4">
-        <MudButton OnClick="CheckAndUploadFiles" Disabled="@(!fileNames.Any())" Color="Color.Primary" Variant="Variant.Filled">
-            @(UploadedData ? "Upload File(s)" : "Check File(s)")
+    <MudToolBar Class="gap-4">
+        <MudButton OnClick="CheckAndUploadFiles" Disabled="@(!fileNames.Any() || VesselCallDetail is null)" Color="Color.Primary" Variant="Variant.Filled">
+            @(!UploadedData ? "Upload File(s)" : "Check File(s)")
         </MudButton>
         <MudButton OnClick="Clear" Disabled="@(!fileNames.Any())" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
         <div style="width: 50px"></div>
@@ -47,72 +60,13 @@
 </MudStack>
 
 
-@* @if (UploadedDataBls is not null)
-{ *@
-
-@*     <h5>Bills Of Ladding: @UploadedDataBls!.BillCount</h5>
-    <h5>Containers: @UploadedDataBls.CntrCount</h5>
-
-    @if (UploadedDataBls.Errors.Count() > 0)
-    {
-        <h5>Errors:</h5>
-        <div>
-            <MudCheckBox T="bool" Value="@SelectAllItems" ValueChanged="@(()=>
-                {
-                                 SelectAllItems = !SelectAllItems;
-                    if(SelectAllItems)
-                     {
-                     foreach (var err in UploadedDataBls.Errors.Where(s => s.ErrorType == ErrorObjectType.Warning))
-                                UpdateBillOfLadingList.Add(err.Object.ToString());
-                     }
-                     else{
-                     UpdateBillOfLadingList.Clear();
-                     }
-
-
-
-
-                })">Select ALL</MudCheckBox>
-        </div>
-        foreach (var err in UploadedDataBls.Errors.Where(s => s.ErrorType == ErrorObjectType.Warning))
-        {
-            <div>
-
-                <h6> - @err.Content</h6>
-                <MudCheckBox T="bool" Value="@(UpdateBillOfLadingList.Contains(err.Object.ToString()))" ValueChanged="()=>
-                {
-
-                     var bl = err.Object.ToString();
-                        if (UpdateBillOfLadingList.Contains(bl))
-                            UpdateBillOfLadingList.Remove(bl);
-                        else
-                            UpdateBillOfLadingList.Add(bl);
-
-                }">Update</MudCheckBox>
-            </div>
-
-        }
-        foreach (var err in UploadedDataBls.Errors.Where(s => s.ErrorType == ErrorObjectType.Сritical))
-        {
-            <h6> - @err.Content</h6>
-        }
-
-        if (UploadedDataBls.HasErrorsCntrList)
-        {
-            foreach (var errCntrList in UploadedDataBls.ErrorsCntrList)
-            {
-                <h6>@errCntrList</h6>
-            }
-        }
-    }
-} *@
-
-<OverlayLoadingData Visible="IsLoadingData" Text="@(UploadedData ? "Uploading...":"Checking...")" />
+<OverlayLoadingData Visible="IsLoadingData" Text="@(UploadedData ? "Uploading..." : "Checking...")" />
 
 @code {
     [CascadingParameter] public string? ApplicationUser { get; set; }
     private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
     private string DragClass = DefaultDragClass;
+    private VesselCallDetailDTO? VesselCallDetail;
     private List<string> fileNames = new List<string>();
     IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
     private List<string> UpdateBillOfLadingList = new List<string>();
@@ -177,6 +131,8 @@
                 fileName: file.Name);
         }
         content.Add(new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(ApplicationUser), System.Text.Encoding.UTF8, "application/json"));
+        content.Add(new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(VesselCallDetail!.Id), System.Text.Encoding.UTF8, "application/json"));
+
         // var client = httpClient.CreateClient();
         // client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
 
@@ -184,20 +140,20 @@
         {
             client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
 
- 
-            var response = await client.PostAsync($"http://localhost:7070/file/BillofLading/UploadImportManifest", content);
-                if (response.IsSuccessStatusCode)
-                {
-                    // UploadedDataBls = await response.Content.ReadFromJsonAsync<UploadedDataBl>();
 
-                    // if (UploadedDataBls is not null)
-                    //     if (!UploadedDataBls.HasErrors)
-                    //         UploadedData = true;
-                    //     else
-                    //         HasErrors = true;
-                }
+            var response = await client.PostAsync($"http://localhost:7070/file/BillofLading/UploadImportManifest", content);
+            if (response.IsSuccessStatusCode)
+            {
+                // UploadedDataBls = await response.Content.ReadFromJsonAsync<UploadedDataBl>();
+
+                // if (UploadedDataBls is not null)
+                //     if (!UploadedDataBls.HasErrors)
+                //         UploadedData = true;
+                //     else
+                //         HasErrors = true;
             }
-        
+        }
+
 
         IsLoadingData = false;
         //client.Dispose();
@@ -207,4 +163,25 @@
     {
         // await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.LocalHostGETUrl}file/DownloadFile/DownloadTemplateManifest", "_blank");
     }
+
+    private async Task SetVesselCall_Click(MouseEventArgs obj)
+    {
+
+        var paramerts = new DialogParameters();
+
+        var dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Large, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
+        var dialog = DialogService.Show<ImportVesselCall_Index>("Set Vessel Call", paramerts, dialogOptions);
+
+        var result = await dialog.Result;
+
+        if (result is not null)
+        {
+            if (result.Data is not null)
+            {
+                VesselCallDetail = (VesselCallDetailDTO)result.Data;
+            }
+
+        }
+    }
+
 }

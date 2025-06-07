@@ -52,7 +52,9 @@ namespace ExportOrderEntites.BillofLading
         public string? POD { get; set; }
         public string? F_POD { get; set; }
         public ImportVesselCallDetail? VesselCallDetail { get; set; }
-        public ICollection<BillofLadingContainerRecord>? ContainerRecords { get; set; }
+
+        public ICollection<BillofLadingContainerRecord> ContainerRecords { get; set; } =
+            new List<BillofLadingContainerRecord>();
     }
 
 
@@ -84,7 +86,8 @@ namespace ExportOrderEntites.BillofLading
 
         public bool IsAlcohol { get; set; }
         public bool IsMilitaryCargo { get; set; }
-
+        public string? ImoClass { get; set; }
+        public string? Unno { get; set; }
         public string? CommodityGroup { get; set; }
         public string? CommodityCode { get; set; }
         public string? GoodsDescription { get; set; }

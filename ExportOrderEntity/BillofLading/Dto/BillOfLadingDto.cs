@@ -68,6 +68,8 @@ namespace ExportOrderEntites.BillofLading.Dto
         public  bool IsImo { get; set; }
         public  bool IsAlcohol { get; set; }
         public  bool IsMilitaryCargo { get; set; }
+        public string? ImoClass { get; set; }
+        public string? Unno { get; set; }
         public  int? TempSet { get; set; }
         public  int PackageQty { get; set; }
         public  string? CommodityCode { get; set; }

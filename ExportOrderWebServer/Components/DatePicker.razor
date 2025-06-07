@@ -10,6 +10,7 @@
                    Mask="@(new DateMask("dd.MM.yy"))"
                    DateFormat="dd.MM.yy"
                    ShowWeekNumbers="true"
+                   MinDate="MinDate"
                    ShowToolbar="false"
                    Variant="Variant.Outlined"
                    Disabled="@Disabled"
@@ -35,6 +36,8 @@
 
     [Parameter]
     public DateTime? Date { get; set; }
+    [Parameter]
+    public DateTime? MinDate { get; set; }
 
     [Parameter]
     public EventCallback<DateTime?> DateChanged { get; set; }

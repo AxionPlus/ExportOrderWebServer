@@ -232,6 +232,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 modifyItem.Person = item.Person;
                 modifyItem.VesselCallDetail = item.VesselCallDetail;
                 modifyItem.CommodityShort = item.CommodityShort;
+                modifyItem.CommodityShortEn = item.CommodityShortEn;
                 modifyItem.Status = item.Status;
 
                 db.Entry(modifyItem.CreateUser).State = EntityState.Unchanged;
@@ -870,7 +871,7 @@ public class ExportOrderProvider : IExportOrderProvider
                                     .Include(x => x.Records).ThenInclude(r => r.Contents).ThenInclude(co => co.DocumentRecord).ThenInclude(dr => dr.Document)
                                     .Include(x => x.Records).ThenInclude(r => r.Contents).ThenInclude(co => co.SupplementaryUnit)
                                     .Where(x => ids.Any(i => i == x.Id))
-                                    .ToListAsync();    //ToArrayAsync
+                                    .ToListAsync();
 
                 if (dbItems is null || !dbItems.Any())
                     return null;
@@ -879,7 +880,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 {
                     Id = s.Id,
                     Num = s.Num,
-                    BLNum = s.Num.Contains('_') ? s.Num[..s.Num.IndexOf('_')] : s.Num,  //IndexOf("_")
+                    BLNum = s.Num.Contains('_') ? s.Num[..s.Num.IndexOf('_')] : s.Num,
                     BLDate = s.VesselCallDetail == null ? null :
                                 !s.VesselCallDetail.VesselCall.ETS.HasValue ? null :
                                     s.VesselCallDetail.VesselCall.ETS.Value.ToString("dd.MM.yyyy"),
@@ -898,7 +899,8 @@ public class ExportOrderProvider : IExportOrderProvider
                     Voyage = s.VesselCallDetail == null ? string.Empty : s.VesselCallDetail.VesselCall.VoyageNo,
                     Shippers = string.Join("; ", s.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Shipper!.NameEn)).Distinct().ToArray()),
                     Consignees = string.Join("; ", s.Records.SelectMany(eor => eor.Contents.Select(rc => rc.DocumentRecord.Document.Consignee!.NameEn)).Distinct().ToArray()),
-                    Commodities = string.Join("; ",
+                    Commodities = !string.IsNullOrWhiteSpace(s.CommodityShortEn) ? s.CommodityShortEn :
+                                    string.Join("; ",
                         s.Records.SelectMany(eor => eor.Contents.Select(rc => string.Concat(rc.DocumentRecord.CommodityEngName,
                                                                                             !rc.DocumentRecord.IsIMO ? "" :
                                                                                                 string.Concat(" IMO:", rc.DocumentRecord.IMO,
@@ -1157,13 +1159,15 @@ public class ExportOrderProvider : IExportOrderProvider
                         Shippers = string.Concat("S: ", string.Join("; ", _shippers.Order().Distinct())),
                         Consignees = string.Concat("C: ", string.Join("; ", _consignees.Order().Distinct())),
                         Commodities = string.Join("; ", _commodities.Order().Distinct()),
-                        CommoditiesEn = string.Join("; ", _commoditiesEn.Order().Distinct()),
+                        CommoditiesEn = _isImo ? string.Join("; ", _commoditiesEn.Order().Distinct()) :
+                                            string.IsNullOrWhiteSpace(Item.CommodityShortEn) ? string.Join("; ", _commoditiesEn.Order().Distinct()) :
+                                                Item.CommodityShortEn,
 
                         /// Cntr Records
                         Seq = ++indexRec,
 
                         Cntr = record.CntrNum,
-                        CntrType = record.CntrType!.Normolize!,
+                        CntrType = record.CntrType?.Normolize,
                         Seal = record.Seal ?? "N/A",
                         CntrTareWt = record.CntrTareWt,
 

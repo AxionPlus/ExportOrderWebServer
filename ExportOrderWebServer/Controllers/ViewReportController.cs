@@ -103,7 +103,7 @@ public class ViewReportController : ControllerBase
     {
         var ids = new List<long>() { Id };
 
-        var items = await _exportOrderProvider.GetItemsBillDTOAsync(ids);    //var Item = await _exportOrderProvider.GetBLDTOAsync(Id);
+        var items = await _exportOrderProvider.GetItemsBillDTOAsync(ids);
 
         if (items is null) return BadRequest("Records not found.");
 

@@ -218,7 +218,7 @@
     private bool IsLoadingData = false;
     public bool IsRoleForEdit { get; set; } = false;
 
-    protected override async Task OnInitializedAsync()  //void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 

@@ -17,10 +17,6 @@ namespace ExportOrderWebServer.Service
             _ExportOrderProvider = exportOrderProvider;
         }
 
-        //public ValidationService()
-        //{
-        //}
-
         /// <summary>
         /// Проверка номера контейнера в коллекции:
         /// 1. editedCntrNums   - Подгружаемой из файла Uploaded Excel Result;
@@ -74,9 +70,7 @@ namespace ExportOrderWebServer.Service
                     bool editedFound = false;
                     bool dbFound = false;
 
-                    editedFound = editedCntrNums.GroupBy(n => n)
-                                                .Where(g => g.Key == num && g.Count() > 1)
-                                                .Any();
+                    editedFound = editedCntrNums.GroupBy(n => n).Where(g => g.Key == num && g.Count() > 1).Any();
 
                     if (editedFound)
                         errMessages.Add($"{errPrefix} Контейнер повторяется в этом Поручении.");
@@ -97,8 +91,7 @@ namespace ExportOrderWebServer.Service
             {
                 Console.WriteLine(ex.Message);
                 return Enumerable.Empty<string>();
-            }
-            
+            }            
         }
 
         public int ControlDigit(string cntrNum)

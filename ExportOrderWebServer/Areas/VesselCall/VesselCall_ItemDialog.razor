@@ -154,13 +154,13 @@
     [Parameter]
     public string? Voyage { get; set; }
 
-    private VesselCallEntity Item { get; set; } = new();    //{ Details = new List<VesselCallDetail>() { new() } }
+    private VesselCallEntity Item { get; set; } = new();
 
     private bool IsLoadingData = false;
     private bool IsRoleForEdit = false;
     private EntityStatus ItemStatus { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool first)    //OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool first)
     {
         if (first)
         {

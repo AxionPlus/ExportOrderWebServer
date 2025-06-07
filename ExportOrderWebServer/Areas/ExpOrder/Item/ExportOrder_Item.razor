@@ -70,7 +70,6 @@
     private bool IsLoadingData { get; set; } = false;    
     private bool IsRoleForEdit = false;
 
-
     protected override async Task OnInitializedAsync()
     {        
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
@@ -94,7 +93,7 @@
             {
                 response = await _vesselCallProvider.GetVesselCallDetailAsync(vcdId);
                 if (!response.HasErrors && response.Object is not null)
-                    Item.VesselCallDetail = (VesselCallDetail)response.Object;  //Item = new() { VesselCallDetail = (VesselCallDetail)response.Object };
+                    Item.VesselCallDetail = (VesselCallDetail)response.Object;
             }   
         }
         else

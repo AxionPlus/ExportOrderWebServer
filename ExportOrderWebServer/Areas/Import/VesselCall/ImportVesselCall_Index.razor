@@ -288,16 +288,16 @@
 
         IsLoadingData = true;
 
-        if (msgResult.HasValue)
-            if (msgResult.Value)
-            {
-                var response = await _vesselCallProvider.RemoveVesselCallDetailAsync(id);
+        // if (msgResult.HasValue)
+        //     if (msgResult.Value)
+        //     {
+        //         var response = await _vesselCallProvider.RemoveVesselCallDetailAsync(id);
 
-                if (!response.HasErrors)
-                    Snackbar.Add($"Deleted Successfully", Severity.Success);
-                else
-                    Snackbar.Add($"Unable to delete:<br>{response.Errors.FirstOrDefault()}", Severity.Warning);
-            }
+        //         if (!response.HasErrors)
+        //             Snackbar.Add($"Deleted Successfully", Severity.Success);
+        //         else
+        //             Snackbar.Add($"Unable to delete:<br>{response.Errors.FirstOrDefault()}", Severity.Warning);
+        //     }
 
         IsLoadingData = false;
 

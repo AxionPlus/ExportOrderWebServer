@@ -29,16 +29,16 @@
                             <MudTh Style="width:240px">Document</MudTh>
                             <MudTh Style="width:130px">HS Code</MudTh>
                             <MudTh Style="width:200px">Commodity Name</MudTh>
-                            <MudTh Style="width: 70px">PkgQty</MudTh>
+                            <MudTh Style="width:70px">PkgQty</MudTh>
                             <MudTh Style="width:120px">PkgName</MudTh>
-                            <MudTh Style="width: 95px">Net</MudTh>
-                            <MudTh Style="width: 95px">Gross</MudTh>
-                            <MudTh Style="width: 95px">Volume</MudTh>
+                            <MudTh Style="width:95px">Net</MudTh>
+                            <MudTh Style="width:95px">Gross</MudTh>
+                            <MudTh Style="width:95px">Volume</MudTh>
                             <MudTh Style="width:163px" colspan="2">
                                 Доп. еденицы
                                 <div style="display:flex; flex-direction:row;">
-                                    <MudTh Style="width: 95px; ">значение</MudTh>
-                                    <MudTh Style="width: 60px; ">код</MudTh>
+                                    <MudTh Style="width:95px">значение</MudTh>
+                                    <MudTh Style="width:60px">код</MudTh>
                                 </div>
                             </MudTh>
                             <MudTh></MudTh>
@@ -49,7 +49,7 @@
                                                OnClick="@(async () => { RemoveContainerContent_Click(context); })" />
                             </MudTd>
                             <MudTd>
-                                <MudSelect Class="wrapper-input" T="string" Style="width:232px" Value="@context.DocumentName"
+                                <MudSelect Class="Autocomplete" T="string" Style="width:232px" Value="@context.DocumentName"
                                            ValueChanged="@(t => { context.DocumentName = t; context.DocumentRecord = new DocumentRecord(); })"
                                            Variant="Variant.Outlined" OpenIcon="" Required RequiredError="" Clearable>
                                     @if (DocumentNames != null)
@@ -60,7 +60,7 @@
                                 </MudSelect>
                             </MudTd>
                             <MudTd>
-                                <MudSelect Class="wrapper-input" Style="width:122px" T="DocumentRecord" @bind-Value="@context.DocumentRecord"
+                                <MudSelect Class="Autocomplete" Style="width:122px" T="DocumentRecord" @bind-Value="@context.DocumentRecord"
                                            ToStringFunc="@(dr => dr != null ? dr.CommodityHSCode : "")"
                                            Variant="Variant.Outlined" Margin="Margin.Dense"
                                            OpenIcon="" Required RequiredError="" Clearable>
@@ -76,7 +76,7 @@
                             </MudTd>
                             <MudTd>@(context.DocumentRecord is not null ? context.DocumentRecord.CommodityName : "")</MudTd>
                             <MudTd>
-                                <MudTextField Class="TextField Numeric" T="uint?" @bind-Value="@context.PackageQty" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                <MudTextField Class="TextField Quantity" T="uint?" @bind-Value="@context.PackageQty" Variant="Variant.Outlined" Margin="Margin.Dense" />
                             </MudTd>
                             <MudTd>
                                 <MudTextField Class="TextField" T="string" @bind-Value="@context.PackageName" Variant="Variant.Outlined" Margin="Margin.Dense" />
@@ -94,7 +94,7 @@
                                 <MudTextField Class="TextField Numeric" T="double?" @bind-Value="@context.SupplementaryUnitQuantity" Variant="Variant.Outlined" Margin="Margin.Dense" />
                             </MudTd>
                             <MudTd Style="width: 60px">
-                                <MudAutocomplete Class="wrapper-input NoHeader" T="SupplementaryUnitCatalog" @bind-Value="context.SupplementaryUnit"
+                                <MudAutocomplete Class="Autocomplete" T="SupplementaryUnitCatalog" @bind-Value="context.SupplementaryUnit"
                                                  ToStringFunc="@(e => e != null ? e.Code.ToString() : "")"
                                                  SearchFunc="@SearchUnit"
                                                  Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -104,24 +104,18 @@
                             <MudTd></MudTd>
                         </RowTemplate>
                         <FooterContent>
-                            @if (Item.Contents.Count(co => co.DocumentRecord != null) > 0)
+                            @if (Item.Contents.Any(co => co.DocumentRecord != null))
                             {
                                 <MudTd colspan="2" Style="text-align:center">
                                     <h6 class="Summary">
                                         Total documents:@(" ")
-                                        @if (Item.Contents.Any(co => co.DocumentRecord != null))
-                                            @Item.Contents.Where(co => co.DocumentRecord != null).GroupBy(co => co.DocumentName)!.Count()
-                                
-
-                                        </h6>
+                                        @Item.Contents.Where(co => co.DocumentRecord != null).GroupBy(co => co.DocumentName).Count()
+                                    </h6>
                                 </MudTd>
                                 <MudTd Style="text-align:center">
                                     <h6 class="Summary">
-                                        goods:
-                                        @if (Item.Contents.Any(co => co.DocumentRecord != null))
-                                        {
-                                            @Item.Contents.Where(co => co.DocumentRecord != null).GroupBy(co => co.DocumentRecord.CommodityEngName)!.Count()
-                                        }
+                                        goods:                                        
+                                        @Item.Contents.Where(co => co.DocumentRecord != null).GroupBy(co => co.DocumentRecord.CommodityEngName).Count()                                        
                                     </h6>
                                 </MudTd>
                                 <MudTd colspan="8"></MudTd>

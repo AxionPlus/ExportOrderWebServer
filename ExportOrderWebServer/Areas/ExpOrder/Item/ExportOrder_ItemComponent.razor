@@ -65,14 +65,6 @@
         text-align: center;
     }
 
-    .TextField_Sum * .mud-input > input.mud-input-root-outlined {
-        text-align: end;
-    }
-
-    .QuantityField * .mud-input > input.mud-input-root-outlined {
-        text-align: center;
-    }
-
     .Summary {
         margin-top: 3px;
         margin-bottom: 3px;
@@ -332,7 +324,7 @@
                               Required RequiredError="" />
             </MudTd>
             <MudTd>
-                <MudSelect Class="SelectField" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
+                <MudSelect Class="Autocomplete" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
                            Variant="Variant.Outlined" Margin="Margin.Dense"
                            AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
                            CloseIcon="" OpenIcon="">
@@ -344,7 +336,7 @@
                 </MudSelect>
             </MudTd>
             <MudTd>
-                <MudNumericField Class="QuantityField" T="double" @bind-Value="expOrderRecord.CntrTareWt"
+                <MudNumericField Class="TextField Quantity" T="double" @bind-Value="expOrderRecord.CntrTareWt"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
                                  Required RequiredError="" HideSpinButtons="true" />
             </MudTd>
@@ -354,20 +346,17 @@
             </MudTd>
             <MudTd></MudTd>
             <MudTd>
-                <MudTextField Class="QuantityField" Style="width:80px" T="string"
-                              Text="@(expOrderRecord.Contents.Sum(s => s.PackageQty).ToString())"
-                              Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                <MudTextField Class="TextField Quantity" Style="width:80px" T="uint?" Value="@((uint?)expOrderRecord.Contents.Sum(s => s.PackageQty))" ReadOnly                              
+                              Variant="Variant.Outlined" Margin="Margin.Dense" />
             </MudTd>
             <MudTd></MudTd>
             <MudTd>
-                <MudTextField Class="TextField_Sum" T="string"
-                              Text="@(expOrderRecord.Contents.Sum(s => s.NetWt.HasValue ? s.NetWt.Value : 0).ToString("## ##0.###"))"
-                              Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                <MudTextField Class="TextField Numeric" T="double?" Value="@(expOrderRecord.Contents.Sum(s => s.NetWt))" ReadOnly
+                              Variant="Variant.Outlined" Margin="Margin.Dense" />
             </MudTd>
             <MudTd>
-                <MudTextField Class="TextField_Sum" T="string"
-                              Text="@(expOrderRecord.Contents.Sum(s => s.GrossWt.HasValue ? s.GrossWt.Value : 0).ToString("## ##0.###"))"
-                              Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
+                <MudTextField Class="TextField Numeric" T="double?" Value="@(expOrderRecord.Contents.Sum(s => s.GrossWt))" ReadOnly
+                              Variant="Variant.Outlined" Margin="Margin.Dense" />
             </MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecord.IsShowCntrContent ? "transform: rotate(180deg);" : "")"
@@ -699,7 +688,7 @@
 
     private void FillUpTreeItems()
     {
-        if (Value.Id != 0)
+        if (Value.Records.Any())
         {
             ClearTreeItems();
 

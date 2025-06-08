@@ -5,32 +5,27 @@
 @inject ICarrierProvider _carrierProvider
 @inject ILocationProvider _locationProvider
 
-<style>
-    .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
-        margin-top: 4px;
-    }
-</style>
 
 <MudForm @ref="@Form" Style="max-width:fit-content">
     <DialogToolBar ToolBarTitle="Carrier" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
                    CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
     <div class="Container-item">
         <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 450px" Label="Name Ru" Text="@Item.Name"
+            <MudTextField Class="TextField" T="string" Style="width:450px" Label="Name Ru" Text="@Item.Name"
                           TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true"
                           Required RequiredError="" Clearable />
         </div>
         <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 450px" Label="Name En" Text="@Item.NameEn"
+            <MudTextField Class="TextField" T="string" Style="width:450px" Label="Name En" Text="@Item.NameEn"
                           TextChanged="@(async (e)=> { Item.NameEn = e.ToUpper(); })"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true"
                           Required RequiredError="" Clearable />
         </div>
         <div class="container-content" style="justify-content: flex-start">
-            <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 270px" Label="Location" @bind-Value="Item.Location"
+            <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width:270px" Label="Location" @bind-Value="Item.Location"
                              ToStringFunc="@(e => e != null ? e.Name : "")"
                              SearchFunc="@SearchLocation"
                              Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -39,7 +34,7 @@
                              ResetValueOnEmptyText="true"
                              Placeholder="Location"
                              MaxItems="20"/>
-            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Style="padding: 8px" Size="Size.Small" Color="Color.Primary" OnClick="@AddLocation_Click" />
+            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Style="padding:8px" Size="Size.Small" Color="Color.Primary" OnClick="@AddLocation_Click" />
             <MudSelect Class="Autocomplete" T="BLTemplate" Style="width:130px; margin-left:14px" Label="BL Template" @bind-Value="@Item.BlTemplate"
                         ToStringFunc="@(s => s.ToString())"
                         Variant="Variant.Outlined" Margin="Margin.Dense">
@@ -71,7 +66,7 @@
                             <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async()=>{ await RemoveDetails_Click(context); })" />
                         </MudTd>
                         <MudTd>
-                            <MudAutocomplete Class="Autocomplete" T="string" Style="width: 150px" @bind-Value="context.TerminalName"
+                            <MudAutocomplete Class="Autocomplete" T="string" Style="width:150px" @bind-Value="context.TerminalName"
                                              SearchFunc="@SearchTerminalName"
                                              Variant="Variant.Outlined" Margin="Margin.Dense"
                                              CloseIcon="" OpenIcon=""
@@ -79,21 +74,23 @@
                                              Required RequiredError="" Clearable />
                         </MudTd>
                         <MudTd>
-                            <MudTextField Class="TextField" T="string" Style="width: 190px" @bind-Value="context.Contract"
+                            <MudTextField Class="TextField" T="string" Style="width:190px" @bind-Value="context.Contract"
                                           Variant="Variant.Outlined" Margin="Margin.Dense" Required RequiredError="" Clearable />
                         </MudTd>
                         <MudTd>
-                            <MudDatePicker Class="DatePicker" @bind-Date="@context.DateContract"
-                                           DateFormat="dd.MM.yy"
-                                           Variant="Variant.Outlined" Margin="Margin.Dense"
-                                           ShowToolbar="false"
-                                           ShowWeekNumbers="true"
-                                           IconSize=Size.Small
-                                           AutoClose=true
-                                           Required RequiredError="" Clearable />
+                            <div style="width:120px">
+                                <MudDatePicker Class="DatePicker" @bind-Date="@context.DateContract"
+                                               DateFormat="dd.MM.yy"
+                                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                                               ShowToolbar="false"
+                                               ShowWeekNumbers="true"
+                                               IconSize=Size.Small
+                                               AutoClose=true
+                                               Required RequiredError="" Clearable />
+                            </div>                            
                         </MudTd>
                         <MudTd>
-                            <MudTextField Class="TextField" Style="width: 150px" @bind-Value="context.AgentPOL"
+                            <MudTextField Class="TextField" Style="width:150px" @bind-Value="context.AgentPOL"
                                           Variant="Variant.Outlined" Margin="Margin.Dense"
                                           Required RequiredError="" Clearable />
                         </MudTd>

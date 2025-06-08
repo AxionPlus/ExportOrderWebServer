@@ -376,7 +376,7 @@ public class ExportOrderProvider : IExportOrderProvider
                 db.Entry(item.CreateUser).State = EntityState.Unchanged;                
                 db.Entry(item.Carrier!).State = EntityState.Unchanged;
                 db.Entry(item.Person!).State = EntityState.Unchanged;
-                db.Entry(item.VesselCallDetail!).State = EntityState.Modified;
+                db.Entry(item.VesselCallDetail!).State = EntityState.Unchanged;
 
                 db.Entry(item).State = EntityState.Added;
 

@@ -253,7 +253,7 @@
             <span style="margin-top:12px; margin-right:6px"><b>Товар кратко:</b></span>
             <MudTextField Class="TextField" T="string" Style="width:350px" @bind-Value="@Value.CommodityShort"
                           Text="@Value.CommodityShort"
-                          TextChanged="(e) => { Value.CommodityShort = e.ToUpper().Trim(); }"
+                          TextChanged="(e) => { if (!string.IsNullOrWhiteSpace(e)) Value.CommodityShort = e.ToUpper().Trim(); else Value.CommodityShort = null; }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true" Clearable />
         </div>
@@ -261,7 +261,7 @@
             <span style="margin-top:12px; margin-right:6px"><b>Товар кратко (на анг. для к/с):</b></span>
             <MudTextField Class="TextField" T="string" Style="width:350px" @bind-Value="@Value.CommodityShortEn"
                           Text="@Value.CommodityShortEn"
-                          TextChanged="(e) => { Value.CommodityShortEn = e.ToUpper().Trim(); }"
+                          TextChanged="(e) => { if (!string.IsNullOrWhiteSpace(e)) Value.CommodityShortEn = e.ToUpper().Trim(); else Value.CommodityShortEn = null; }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true" Clearable />
         </div>

@@ -3,6 +3,7 @@ namespace ExportOrderEntites.BillofLading.Dto
 {
     public class BillOfLadingDto
     {
+        public int No { get; set; }
         public bool IsSelect { get; set; }
         public string? Num { get; set; }
         public string? ServiceCode { get; set; }

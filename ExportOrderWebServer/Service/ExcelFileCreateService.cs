@@ -401,37 +401,41 @@ public class ExcelFileCreateService : IExcelFileCreateService
             GoodsDescription = rec.GoodsDescription,
             GoodsDescriptionRu = rec.GoodsDescriptionRu,
 
-        });
+        }).ToList();
+        var i = 1;
+        records.ForEach(record => record.No = i++);
 
         var result = Parallel.For(0, rows, (row, state) =>
-        {
-            dataBulk[row, 2] = records.ElementAt(row).ContainerNum;
-            dataBulk[row, 3] = records.ElementAt(row).ContainerType;
-            dataBulk[row, 4] = records.ElementAt(row).ContainerType;
-            dataBulk[row, 5] = records.ElementAt(row).SealNo + records.ElementAt(row).SealShr + records.ElementAt(row).SealOth;
-            dataBulk[row, 6] = records.ElementAt(row).PackageQty;
-            dataBulk[row, 7] = records.ElementAt(row).GoodsDescriptionRu;
-            dataBulk[row, 8] = records.ElementAt(row).GoodsDescription;
-            dataBulk[row, 9] = records.ElementAt(row).CommodityCode;
-            dataBulk[row, 10] = records.ElementAt(row).CargoWeight;
-            dataBulk[row, 11] = records.ElementAt(row).TareWeight;
-            dataBulk[row, 12] = records.ElementAt(row).Num;
-            dataBulk[row, 13] = records.ElementAt(row).IssueDate;
-            dataBulk[row, 14] = records.ElementAt(row).ShipperName;
-            dataBulk[row, 15] = records.ElementAt(row).ShipperNameRu;
-            dataBulk[row, 16] = records.ElementAt(row).ShipperCountryRu;
-            dataBulk[row, 17] = records.ElementAt(row).ShipperAddress;
-            dataBulk[row, 18] = records.ElementAt(row).ConsigneeName;
-            dataBulk[row, 19] = records.ElementAt(row).ConsigneeNameRu;
-            dataBulk[row, 20] = records.ElementAt(row).ConsigneeCountryRu;
-            dataBulk[row, 21] = records.ElementAt(row).ConsigneeAddressRu;
-            dataBulk[row, 22] = records.ElementAt(row).POR;
-            dataBulk[row, 23] = records.ElementAt(row).POL;
-            dataBulk[row, 24] = records.ElementAt(row).CustomsDeliveryMode;
-            dataBulk[row, 25] = records.ElementAt(row).ImoClass + records.ElementAt(row).Unno;
-            dataBulk[row, 26] = records.ElementAt(row).TempSet;
-       
-        });
+       {
+           dataBulk[row, 0] = records.ElementAt(row).No;
+           dataBulk[row, 2 - 1] = records.ElementAt(row).ContainerNum;
+           dataBulk[row, 2 - 1] = records.ElementAt(row).ContainerNum;
+           dataBulk[row, 3 - 1] = records.ElementAt(row).ContainerType;
+           dataBulk[row, 4 - 1] = records.ElementAt(row).ContainerType;
+           dataBulk[row, 5 - 1] = records.ElementAt(row).SealNo + records.ElementAt(row).SealShr + records.ElementAt(row).SealOth;
+           dataBulk[row, 6 - 1] = records.ElementAt(row).PackageQty;
+           dataBulk[row, 7 - 1] = records.ElementAt(row).GoodsDescriptionRu;
+           dataBulk[row, 8 - 1] = records.ElementAt(row).GoodsDescription;
+           dataBulk[row, 9 - 1] = records.ElementAt(row).CommodityCode;
+           dataBulk[row, 10 - 1] = records.ElementAt(row).CargoWeight;
+           dataBulk[row, 11 - 1] = records.ElementAt(row).TareWeight;
+           dataBulk[row, 12 - 1] = records.ElementAt(row).Num;
+           dataBulk[row, 13 - 1] = records.ElementAt(row).IssueDate.HasValue ? records.ElementAt(row).IssueDate.Value.Date : null;
+           dataBulk[row, 14 - 1] = records.ElementAt(row).ShipperName;
+           dataBulk[row, 15 - 1] = records.ElementAt(row).ShipperNameRu;
+           dataBulk[row, 16 - 1] = records.ElementAt(row).ShipperCountryRu;
+           dataBulk[row, 17 - 1] = records.ElementAt(row).ShipperAddress;
+           dataBulk[row, 18 - 1] = records.ElementAt(row).ConsigneeName;
+           dataBulk[row, 19 - 1] = records.ElementAt(row).ConsigneeNameRu;
+           dataBulk[row, 20 - 1] = records.ElementAt(row).ConsigneeCountryRu;
+           dataBulk[row, 21 - 1] = records.ElementAt(row).ConsigneeAddressRu;
+           dataBulk[row, 22 - 1] = records.ElementAt(row).POR;
+           dataBulk[row, 23 - 1] = records.ElementAt(row).POL;
+           dataBulk[row, 24 - 1] = records.ElementAt(row).CustomsDeliveryMode;
+           dataBulk[row, 25 - 1] = records.ElementAt(row).ImoClass + records.ElementAt(row).Unno;
+           dataBulk[row, 26 - 1] = records.ElementAt(row).TempSet;
+
+       });
 
         Range.Value = dataBulk;
 

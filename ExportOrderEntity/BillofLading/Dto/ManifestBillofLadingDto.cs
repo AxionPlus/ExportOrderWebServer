@@ -3,6 +3,7 @@ namespace ExportOrderEntites.BillofLading.Dto
 {
     public class ManifestBillOfLadingDto
     {
+        public int No { get; set; }
         public string? Num { get; set; }
 
         public bool IsRef { get; set; }

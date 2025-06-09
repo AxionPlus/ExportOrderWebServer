@@ -60,8 +60,8 @@ services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJ
 {
     // options
 });
-//builder.Services.AddAuthentication("tris.Identity").AddCookie();
-//services.AddHostedService<TimedHostedService>();
+
+services.AddHostedService<TimedHostedService>();
 services.AddRazorPages();
 services.AddServerSideBlazor();
 services.AddDatabaseDeveloperPageExceptionFilter();

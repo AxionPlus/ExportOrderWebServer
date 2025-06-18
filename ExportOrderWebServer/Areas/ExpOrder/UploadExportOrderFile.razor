@@ -86,10 +86,9 @@
     private bool IsChecked { get; set; } = false;
 
 
-    private void OnInputFileChanged(InputFileChangeEventArgs e) //async Task
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
     {
         ClearDragClass();
-        //await Task.Delay(10);
         BrowserFile = (IBrowserFile)e.File;
         FileName = e.File.Name;
     }

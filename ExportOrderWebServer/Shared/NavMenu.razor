@@ -1,27 +1,16 @@
-﻿<MudNavMenu>
-    @* <AuthorizeView Roles="Admin, Top Manager">
-        <MudNavGroup Title="My Company" Icon="@Icons.Material.Filled.PeopleAlt" Expanded="false">
+﻿<MudNavMenu>  
+    <MudNavGroup Title="My Company" Icon="@Icons.Material.Filled.PeopleAlt" Expanded="false">
+        <AuthorizeView Roles="Admin, Top Manager">
             <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Attribution">Users</MudNavLink>
             <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Roles</MudNavLink>
             <MudDivider Class="my-2" />
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin, Top Manager, Manager">            
             <MudNavLink Href="/mycompany" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleOutline">Company</MudNavLink>
-            <MudNavLink Href="/statistic" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AccountBalanceWallet">Statistic</MudNavLink>            
-            <MudDivider Class="my-2" />        
-        </MudNavGroup>
-    </AuthorizeView> *@    
-        <MudNavGroup Title="My Company" Icon="@Icons.Material.Filled.PeopleAlt" Expanded="false">
-            <AuthorizeView Roles="Admin, Top Manager">
-                <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Attribution">Users</MudNavLink>
-                <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Roles</MudNavLink>
-                <MudDivider Class="my-2" />
-            </AuthorizeView>
-            <AuthorizeView Roles="Admin, Top Manager, Manager">            
-                <MudNavLink Href="/mycompany" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleOutline">Company</MudNavLink>
-                <MudNavLink Href="/statistic" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AccountBalanceWallet">Statistic</MudNavLink>
-                <MudDivider Class="my-2" />
-            </AuthorizeView>
-        </MudNavGroup>    
-
+            <MudNavLink Href="/statistic" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AccountBalanceWallet">Statistic</MudNavLink>
+            <MudDivider Class="my-2" />
+        </AuthorizeView>
+    </MudNavGroup>
     <AuthorizeView Roles="Admin, Top Manager, Manager">
         <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
         <MudNavLink Href="/ExportOrders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink>

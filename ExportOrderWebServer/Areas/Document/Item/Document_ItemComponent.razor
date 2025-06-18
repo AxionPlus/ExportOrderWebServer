@@ -4,20 +4,8 @@
 @inject IJSRuntime jsRuntime
 
 <style>
-    .Table * .mud-table-cell {
-        padding: 2px;
-    }
-
     .mud-input > textarea.mud-input-root-outlined.mud-input-root-margin-dense {
         margin: 5px 5px;
-    }
-
-    .mud-input > input.mud-input-root.mud-input-root-margin-dense {
-        padding: 8px;
-    }
-
-    .wrapper-input * .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end {
-        padding-inline-start: 4px;
     }
 
     .mud-input-control.mud-input-control-margin-dense {
@@ -27,10 +15,6 @@
     .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
         margin-top: unset;
         margin-bottom: unset;
-    }
-
-    .mud-input-control.TextField > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
-        line-height: 14px;
     }
 
     .Document_row {
@@ -58,25 +42,9 @@
         margin-inline-start: 4px;
     }
 
-    .IMOWeight {
-        display: flex;
-        width:90px;
-    }
-
-    .IMOWeight> .numField_Label {
-        width:30px; margin:4px; text-align:end;
-    }
-
-    .IMOWeight * .mud-input.mud-input-outlined {
-        width: 50px;
-    }
-
-    .mud-input-control.wrapper-input.NoHeader {
-        margin-top: 1px;
-    }
-
-    .wrapper-input.NoHeader * .mud-input > input.mud-input-root-outlined {
+    .TextField.IMO * .mud-input > input.mud-input-root-outlined {
         padding: 3px;
+        text-align: center;
     }
 
 </style>
@@ -150,9 +118,9 @@
     </div>    
 
     <div class="Container-table">
-        <MudTable @ref="mudTable" Class="Table" Items="@Value.Records" HorizontalScrollbar="true" FixedHeader Height="520px">
+        <MudTable @ref="mudTable" Class="Table P2" Items="@Value.Records" HorizontalScrollbar="true" FixedHeader Height="520px">
             <HeaderContent>
-                <MudTh Style="width:40px;">
+                <MudTh Style="width:36px;">
                     <div class="controlIconButtons">
                         <MudTooltip Text="Добавить один товар" Delay="1000" Duration="1500" Placement="Placement.End">
                             <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="AddRecord_Click" Size="Size.Small" Color="Color.Primary"/>
@@ -161,12 +129,14 @@
                 </MudTh>
                 <MudTh Style="width:40px">Seq</MudTh>
                 <MudTh Style="width:100px">HS code</MudTh>
-                <MudTh Style="width:360px">Товар (рус.)</MudTh>
-                <MudTh Style="width:360px">Товар (En.)</MudTh>
-                <MudTh Style="width:88px">Netto</MudTh>
-                <MudTh Style="width:88px">Gross</MudTh>
-                <MudTh Style="width:40px">IMO</MudTh>
-                <MudTh Style="width:106px">номер</MudTh>
+                <MudTh Style="width:364px">Товар (рус.)</MudTh>
+                <MudTh Style="width:364px">Товар (En.)</MudTh>
+                <MudTh Style="width:8px"></MudTh>
+                <MudTh Style="width:90px">Netto</MudTh>
+                <MudTh Style="width:90px">Gross</MudTh>
+                <MudTh></MudTh>
+                <MudTh Style="width:50px">IMO</MudTh>
+                <MudTh Style="width:50px">UNNO</MudTh>
             </HeaderContent>
             <RowTemplate>                
                 <MudTd>
@@ -176,17 +146,18 @@
                 <MudTd>@context.Seq.ToString("000")</MudTd>
                 <MudTd><b>@context.CommodityHSCode</b></MudTd>
                 <MudTd>                    
-                    <MudTextField Class="TextField" T="string" Style="width:356px" @bind-Value="@context.CommodityName"
+                    <MudTextField Class="TextField" T="string" Style="width:360px" @bind-Value="@context.CommodityName"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 ReadOnly />                    
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField" T="string" Style="width:356px" Text="@context.CommodityEngName"
+                    <MudTextField Class="TextField" T="string" Style="width:360px" Text="@context.CommodityEngName"
                                   TextChanged="@((e) => context.CommodityEngName = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper())"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 Required RequiredError=""
                                   Adornment="Adornment.End" IconSize="Size.Small"
                                   AdornmentIcon="@Icons.Material.Filled.CopyAll"
                                   OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" />
                 </MudTd>
+                <MudTd></MudTd>
                 <MudTd>
                     <MudTextField Class="TextField Weight" T="double" Format="## ##0.###" @bind-Value="@context.NetWt"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly />
@@ -204,16 +175,10 @@
                     }
                 </MudTd>
                 <MudTd>
-                    <div class="IMOWeight">
-                        <div class="numField_Label">IMO</div>
-                        <MudTextField Class="TextField IMO" T="string" @bind-Value="@context.IMO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </div>
-                    <div class="IMOWeight">
-                        <div class="numField_Label">UN</div>
-                        <MudTextField Class="TextField IMO" T="string" @bind-Value="@context.UNNO"
-                                      Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" />
-                    </div>
+                    <MudTextField Class="TextField IMO" T="string" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="@context.IMO" />
+                </MudTd>
+                <MudTd>
+                    <MudTextField Class="TextField IMO" T="string" Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" @bind-Value="@context.UNNO" />
                 </MudTd>
             </RowTemplate>
         </MudTable>

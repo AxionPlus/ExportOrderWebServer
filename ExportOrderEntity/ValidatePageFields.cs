@@ -35,8 +35,6 @@ public class ValidatePageFields
         bool response = false;
         string pattern = string.Empty;
 
-        //string pattern = @"^\d{8}/[0-3]{1}\d{1}(0|1){1}\d{3}/\d{7}$";
-
         if (docType == DocumentType.ПД)
             pattern = @"\d{8}/[0-3]{1}\d{1}(0|1){1}\d{3}/([0-9]|[A-Z]){7}";
         else

@@ -205,12 +205,7 @@ body {
 
     .TextField .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
         line-height: 16px;
-    }
-        
-/*    .TextField.IMO * .mud-input > input.mud-input-root-outlined {
-        padding: 3px;
-        text-align: center;
-    }*/
+    }       
 
     .TextField.Numeric * .mud-input > input.mud-input-root-outlined {
         text-align: end;
@@ -299,18 +294,6 @@ body {
         text-align: center;
         line-height: 1.1rem;
     }
-
-/*    .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
-        padding: 4px 0px 1px 6px;
-        font-size: 0.92rem;
-        font-weight: 500;
-    }
-
-    .Table * .mud-table-cell * .mud-input > input.mud-input-root-outlined, .Table * .mud-table-cell * div.mud-input-slot.mud-input-root-outlined {
-        padding: 4px 0px 1px 6px;
-        font-size: 0.92rem;
-        font-weight: 500;
-    }*/
 
     .Table * .mud-table-cell {
         padding: 8px;

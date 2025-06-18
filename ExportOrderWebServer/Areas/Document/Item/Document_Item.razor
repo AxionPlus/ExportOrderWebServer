@@ -1,4 +1,5 @@
 ﻿@page "/document"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
@@ -11,12 +12,12 @@
 
     <div class="ToolBar-container">
         <MudToolBar Class="ToolBar ToolBar-new">                     
-@*             <div class="ToolBar-iconbutton">
+            <div class="ToolBar-iconbutton">
                 <MudTooltip Text="EXIT">
                     <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" OnClick="CloseWindow_Click"
-                                   Icon="@Icons.Material.Outlined.ExitToApp" />
+                                   Icon="@Icons.Material.Outlined.ExitToApp" Disabled />
                 </MudTooltip>
-            </div>   *@          
+            </div>            
             <div class="ToolBar-iconbutton" style="margin-left:20px">
                 <MudTooltip Class="ExitIconButton" Text="Copy Declaration" Delay="500" Duration="1000">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem" />
@@ -26,7 +27,7 @@
             <div class="ToolBar-Title"><span>@($"Document")</span></div>
             <MudSpacer />
             <div class="ToolBar-iconbutton" style="margin-right: 20px">
-                <MudTooltip Text="Upload New Documents" Delay="1000" Duration="1500">
+                <MudTooltip Text="Upload New Document" Delay="1000" Duration="1500">
                     <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.FileUpload" OnClick="UploadNewItemFromXml_Click" />
                 </MudTooltip>
             </div>
@@ -67,10 +68,7 @@
     protected override async Task OnAfterRenderAsync(bool first)
     {
         if (first)
-        {
             await GetItem();
-            StateHasChanged();
-        }        
     }
 
     private async Task GetItem()

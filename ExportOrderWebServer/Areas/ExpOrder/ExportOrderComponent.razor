@@ -221,14 +221,13 @@
 <OverlayLoadingData Visible="@IsLoadingData" />
 
 @code {
-    //[Parameter]
     public string? ApplicationUser { get; set; }
     private MudTable<ExportOrderComponentDTO> mudTable = new();
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     public IEnumerable<ExportOrderComponentDTO> Items { get; set; } = new List<ExportOrderComponentDTO>();
     private HashSet<ExportOrderComponentDTO> SelectedItems = new HashSet<ExportOrderComponentDTO>();
-    //private string Voyage = string.Empty;
+    
     private IEnumerable<string>? CntrList { get; set; }
     private FilterParameters Filter { get; set; } = new();
 

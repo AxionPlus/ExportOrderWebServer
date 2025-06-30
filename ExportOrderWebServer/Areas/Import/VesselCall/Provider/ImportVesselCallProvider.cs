@@ -4,7 +4,7 @@ namespace ExportOrderWebServer.Areas.Import.VesselCall.Provider;
 public interface IImportVesselCallProvider : IEntityProvider<ImportVesselCallEntity>
 {
     Task<AppObjectResponse> GetVesselCallDetailAsync(long vesselCallid);
-    Task<IEnumerable<string>> GetVoyages(string? vessel);    
+    Task<IEnumerable<string>> GetVoyages(string? vessel);
 }
 public class ImportVesselCallProvider : IImportVesselCallProvider
 {
@@ -13,7 +13,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
 
     public ImportVesselCallProvider(IDbContextFactory<ApplicationDbContext> dbContext)
     {
-        _dbContext = dbContext;        
+        _dbContext = dbContext;
     }
 
     public async Task<AppObjectResponse> GetItemAsync(long id)
@@ -65,10 +65,10 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
     {
         appObjResponse = new();
 
-        using (var _db = _dbContext.CreateDbContextAsync()) 
+        using (var _db = _dbContext.CreateDbContextAsync())
         {
             var db = await _db;
-            
+
             var vesselCalls = await db.ImportVesselCalls.AsNoTracking().AsSplitQuery()
                                                   .Include(vc => vc.Vessel)
                                                   .Include(vc => vc.Terminal)
@@ -84,9 +84,9 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
 
             var vesselCallDetailsDTO = vcRecords(vesselCalls);
 
-            vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);                
+            vesselCallDetailsDTO = vesselCallDetailsDTO.OrderByDescending(s => s.CreateTime);
 
-            appObjResponse.Object = vesselCallDetailsDTO;            
+            appObjResponse.Object = vesselCallDetailsDTO;
 
             return appObjResponse;
         }
@@ -125,12 +125,13 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                 string itemVoyage = $"{item.Vessel?.Name}&{item.VoyageNo}";
 
                 if (modifyVoyage != itemVoyage)
-                {                    
-                    bool isItemExist = db.ImportVesselCalls.Where(s => item.Vessel != null &&
-                                                                !string.IsNullOrWhiteSpace(s.Vessel.Name) && !string.IsNullOrWhiteSpace(item.Vessel.Name) &&
-                                                                s.Vessel.Name.ToUpper() == item.Vessel.Name.ToUpper())
-                                                     .Where(s => s.VoyageNo.ToUpper() == item.VoyageNo.ToUpper())
-                                                     .Any();
+                {
+                    bool isItemExist = await db.ImportVesselCalls.Include(s => s.Vessel)
+                        .Where(s => item.Vessel != null && s.Vessel.Name == item.Vessel.Name)
+                        .Where(s => s.VoyageNo.ToUpper() == item.VoyageNo.ToUpper())
+                        .AnyAsync();
+
+
 
                     if (isItemExist)
                     {
@@ -165,7 +166,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                         {
                             db.Entry(modifyDetail).State = EntityState.Deleted;
                             modifyItem.Details.Remove(modifyDetail);
-                        }                            
+                        }
                         else
                         {
                             appObjResponse.ErrorAdd($"Удалить рейс нельзя. В этом рейсе есть поручения.");
@@ -188,7 +189,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                 foreach (var itemDetail in item.Details!)
                     if (!modifyItem.Details.Any(s => s.Id == itemDetail.Id))
                     {
-                        itemDetail.CreateUser = User;                        
+                        itemDetail.CreateUser = User;
                         db.Entry(itemDetail.CreateUser).State = EntityState.Unchanged;
 
                         if (itemDetail.POD is not null)
@@ -202,7 +203,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
 
                 db.Entry(modifyItem).State = EntityState.Modified;
 
-                //var bug = db.ChangeTracker.DebugView.LongView;
+                var bug = db.ChangeTracker.DebugView.LongView;
 
                 await db.SaveChangesAsync();
 
@@ -210,14 +211,14 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                 db.ChangeTracker.Clear();
 
                 var eoList = new List<ExportOrderEntity>();
-                
+
                 foreach (var detail in item.Details)
                 {
                     var expOrders = await db.ExportOrders.Include(eo => eo.VesselCallDetail)
                                                          .Where(eo => eo.VesselCallDetail!.Id == detail.Id)
                                                          .AsNoTracking().ToListAsync();
 
-                    if  (expOrders.Count > 0)
+                    if (expOrders.Count > 0)
                         eoList.AddRange(expOrders);
                 }
 
@@ -275,7 +276,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
             }
 
             return appObjResponse;
-        }        
+        }
     }
 
     public async Task<AppObjectResponse> NewItemAsync(ImportVesselCallEntity item, string? UserName = "")
@@ -285,7 +286,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
         using (var _db = _dbContext.CreateDbContextAsync())
         {
             try
-            {            
+            {
                 var db = await _db;
 
                 var User = await db.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(s => s.UserName == UserName);
@@ -316,7 +317,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                     if (detail.FinalDestination is not null)
                         db.Entry(detail.FinalDestination).State = EntityState.Unchanged;
 
-                    db.Entry(detail).State = EntityState.Added;                     
+                    db.Entry(detail).State = EntityState.Added;
                 }
 
                 db.Entry(item.CreateUser).State = EntityState.Unchanged;
@@ -397,7 +398,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                                                     .Include(vcd => vcd.POD)
                                                     //.Include(vcd => vcd.FinalDestination)
                                                     .FirstOrDefaultAsync(vcd => vcd.Id == vcdId);
-                
+
                 if (appObjResponse.Object is null)
                     appObjResponse.ErrorAdd("There is no voyage");
 
@@ -424,7 +425,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
     {
         throw new NotImplementedException();
     }
-    
+
     public async Task<IEnumerable<string>> GetVoyages(string? vessel)
     {
         using var _db = _dbContext.CreateDbContextAsync();
@@ -494,8 +495,8 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
         var RecordsDTO = new List<VesselCallDetailDTO>();
 
         foreach (var record in Records)
-        {            
-            foreach (var detail in record.Details)                
+        {
+            foreach (var detail in record.Details)
             {
                 var recordDTO = new VesselCallDetailDTO()
                 {
@@ -514,9 +515,10 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                 };
 
                 RecordsDTO.Add(recordDTO);
-            };
-        }        
-        
+            }
+            ;
+        }
+
         return RecordsDTO;
     };
 }

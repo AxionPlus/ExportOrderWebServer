@@ -104,7 +104,10 @@
             <MudTd> @(Record.ReleaseTo.HasValue? Record.ReleaseTo.Value.ToString("dd.MM.yy")   : "--.--.--")</MudTd>
             <MudTd>
                 @if (Record.ReleaseTo.HasValue)
-                    @switch (Record.ReleaseStatus)
+                {
+                    @(string.IsNullOrWhiteSpace(Record.ReleaseUID) ? "-- -- --" : Record.ReleaseUID)
+                }
+                @*                     @switch (Record.ReleaseStatus)
                     {
 
                         case ReleaseStatus.ConfirmedTerminal:
@@ -113,7 +116,7 @@
                         default:
                             <MudProgressCircular Color="Color.Primary" Style="height:17px;width:17px;" Indeterminate="true" />
                             break;
-                    }
+                    } *@
             </MudTd>
             <MudTd> @(Record.ReleaseTo.HasValue? Record.ReleaseMode.ToString() : "-- -- --")</MudTd>
             <AuthorizeView Roles="Admin">

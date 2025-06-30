@@ -3,8 +3,8 @@
 namespace ExportOrderWebServer.Areas.Import;
 public class TimedHostedService : IHostedService, IDisposable
 {
-    private TimeSpan loopTime = TimeSpan.FromSeconds(45);
-    private TimeSpan loopTime_2 = TimeSpan.FromSeconds(60);
+    private TimeSpan loopTime = TimeSpan.FromSeconds(20);
+    private TimeSpan loopTime_2 = TimeSpan.FromSeconds(20);
     private TimeSpan loopTime_3 = TimeSpan.FromSeconds(250);
     private TimeSpan loopTime_4 = TimeSpan.FromSeconds(300);
     private int executionCount = 0;

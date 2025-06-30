@@ -24,7 +24,7 @@ services.AddDbContext<ApplicationDbContext>(options =>
 ServiceLifetime.Transient);
 
 services.AddDbContextFactory<ApplicationDbContext>(options =>
-{ 
+{
     options.UseNpgsql(connectionString);
 },
 ServiceLifetime.Transient);
@@ -53,6 +53,7 @@ services.ConfigureApplicationCookie(options =>
 });
 
 services.AddEndpointsApiExplorer();
+services.AddHttpContextAccessor();
 
 services.AddScoped<TokenProvider>();
 services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
@@ -60,8 +61,9 @@ services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJ
 {
     // options
 });
-
+#if !DEBUG
 services.AddHostedService<TimedHostedService>();
+#endif
 services.AddRazorPages();
 services.AddServerSideBlazor();
 services.AddDatabaseDeveloperPageExceptionFilter();
@@ -99,7 +101,7 @@ services.AddTransient<IUploadResultService, UploadResultService>();
 services.AddTransient<IValidationService, ValidationService>();
 
 /// FILE SERVICES
-services.AddTransient<IExcelFileCreateService, ExcelFileCreateService>(); 
+services.AddTransient<IExcelFileCreateService, ExcelFileCreateService>();
 services.AddTransient<IExcelFileUploadService, ExcelFileUploadService>();
 services.AddTransient<IXmlFileCreateService, XmlFileCreateService>();
 services.AddTransient<IXmlFileReadService, XmlFileReadService>();

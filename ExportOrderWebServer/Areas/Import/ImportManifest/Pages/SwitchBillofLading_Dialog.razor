@@ -1,0 +1,86 @@
+﻿@using ExportOrderEntites.BillofLading.Dto
+@using ExportOrderWebServer.Areas.Import.ImportManifest.Provider
+@inject IDialogService DialogService
+@inject IImportManifestProvider ImportManifestProvider
+@inject ISnackbar Snackbar
+
+<MudForm @ref="_mudForm">
+    <div style="display:flex;justify-content: center;">
+        <div>
+            <TextField Style="min-width:440px;" Label="BillofLading Num" Value="@BillofLading.Num" Lines="1" Disabled></TextField>
+            <TextField Style="min-width:440px; margin-top:10px" Label="Shipper Name" Value="@BillofLading.ShipperName" Lines="3" Disabled></TextField>
+            <TextField Style="min-width:440px;" Label="Shipper Address" Value="@BillofLading.ShipperAddress" Lines="3" Disabled></TextField>
+            <TextField Style="min-width:440px;" Label="Consignee Name" Value="@BillofLading.ConsigneeName" Lines="3" Disabled></TextField>
+            <TextField Style="min-width:440px;" Label="Consignee Address" Value="@BillofLading.ConsigneeAddress" Lines="3" Disabled></TextField>
+        </div>
+        <div style="margin-inline: 5px; width: 35px;    display: flex;    flex-direction: column;    align-items: center;">
+            <MudIcon Style="margin-top:30px" Icon="@Icons.Material.Filled.ArrowForward" />
+            <MudIcon Style="margin-top:60px" Icon="@Icons.Material.Filled.ArrowForward" />
+            <MudIcon Style="margin-top:70px" Icon="@Icons.Material.Filled.ArrowForward" />
+            <MudIcon Style="margin-top:70px" Icon="@Icons.Material.Filled.ArrowForward" />
+            <MudIcon Style="margin-top:70px" Icon="@Icons.Material.Filled.ArrowForward" />
+        </div>
+        <div style="margin-left:5px">
+            <TextField Style="min-width:440px;" Label="New BillofLading Num" @bind-Value="BillofLadingNum" Lines="1" UpperCase Required Clearable></TextField>
+            <TextField Style="min-width:440px;margin-top:10px" Label="New Shipper Name" @bind-Value="ShipperName" Lines="3" UpperCase Required Clearable></TextField>
+            <TextField Style="min-width:440px;" Label="New Shipper Address" @bind-Value="ShipperAddress" Lines="3" UpperCase Required Clearable></TextField>
+            <TextField Style="min-width:440px;" Label="New Consignee Name" @bind-Value="ConsigneeName" Lines="3" UpperCase Required Clearable></TextField>
+            <TextField Style="min-width:440px;" Label="New Consignee Address" @bind-Value="ConsigneeAddress" Lines="3" UpperCase Required Clearable></TextField>
+        </div>
+
+    </div>
+</MudForm>
+<div style="display:flex;justify-content: space-around; padding:15px">
+    <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="MakeSwitch_Click">Make Switch</MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="() => MudDialog?.Cancel()">Cancel</MudButton>
+</div>
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public BillOfLadingDto? BillofLading { get; set; }
+    [Parameter] public string? ApplicationUser { get; set; }
+    MudForm? _mudForm;
+    private string? BillofLadingNum { get; set; }
+    private string? ShipperName { get; set; }
+    private string? ShipperAddress { get; set; }
+    private string? ConsigneeName { get; set; }
+    private string? ConsigneeAddress { get; set; }
+
+    private async void MakeSwitch_Click()
+    {
+        _mudForm?.Validate();
+        if (!_mudForm!.IsValid)
+            return;
+
+        bool? msgResult = await DialogService.ShowMessageBox(
+            "Switch",
+            $"Do you want to make Switch {BillofLading.Num} => {BillofLadingNum} ?",
+            yesText: "Yes", 
+            cancelText: "No");
+
+        if (!msgResult.HasValue || !msgResult.Value) 
+            return;
+
+        BillofLading.Num = BillofLadingNum;
+        BillofLading.ShipperName = ShipperName;
+        BillofLading.ShipperAddress = ShipperAddress;
+        BillofLading.ConsigneeName = ConsigneeName;
+        BillofLading.ConsigneeAddress = ConsigneeAddress;
+        BillofLading.HasSwitched = true;
+
+        try
+        {
+            await ImportManifestProvider.UpdateBillofLadingAsync(billofLading: BillofLading);
+
+            MudDialog?.Close(BillofLadingNum);
+        }
+        catch (InvalidOperationException ex) // Ловим конкретное исключение
+        {
+            Snackbar.Add(ex.Message, Severity.Error); // Показываем ошибку
+        }
+        catch (Exception ex) // Ловим все остальные исключения
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+    }
+
+}

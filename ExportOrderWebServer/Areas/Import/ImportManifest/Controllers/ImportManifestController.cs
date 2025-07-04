@@ -37,7 +37,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Controllers
             var vesselCall = JsonConvert.DeserializeObject<VesselCallDetailDTO>(obj.ToString());
 
 
-            if (vesselCall is null )
+            if (vesselCall is null)
                 return BadRequest("List of selected records is empty.");
 
             var BillOfLadings = await _importManifestProvider.GetBillOfLadingsAsync(vesselCall);
@@ -51,6 +51,84 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Controllers
                 return BadRequest("Файл не записан.");
             else
                 return File(buffer, "application/zip");
+        }
+
+
+        [HttpGet, Route("DownLoadTemplateFillBill/{id}")]
+        public async Task<IActionResult> DownLoadTemplateFillBill(string id)
+        {
+
+            var vesselCall = await _importManifestProvider.GetVesselCallData(id);
+
+
+            if (vesselCall is null)
+                return BadRequest("List of selected records is empty.");
+
+            var buffer = await _excelService.CreateExcelTemplateFillBill(vesselCall);
+
+            if (buffer == Array.Empty<byte>())
+                return BadRequest("Файл не записан.");
+            else
+                return File(buffer, "application/xlsx",
+                    $"FillBIll_{vesselCall.VesselName}_{vesselCall.VesselVoyage}.xlsx");
+        }
+
+        [HttpGet, Route("DownLoadTemplateArrivalNotice/{id}")]
+        public async Task<IActionResult> DownLoadTemplateArrivalNotice(string id)
+        {
+
+            var vesselCall = await _importManifestProvider.GetVesselCallData(id);
+
+
+            if (vesselCall is null)
+                return BadRequest("List of selected records is empty.");
+
+            var buffer = await _excelService.CreateExcelTemplateArrivalNotice(vesselCall);
+
+            if (buffer == Array.Empty<byte>())
+                return BadRequest("Файл не записан.");
+            else
+                return File(buffer, "application/xlsx",
+                    $"ArrivalNotice_{vesselCall.VesselName}_{vesselCall.VesselVoyage}.xlsx");
+        }
+
+        [HttpGet, Route("DownLoadTemplateCargoManifest/{id}")]
+        public async Task<IActionResult> DownLoadTemplateCargoManifest(string id)
+        {
+
+            var vesselCall = await _importManifestProvider.GetVesselCallData(id);
+
+
+            if (vesselCall is null)
+                return BadRequest("List of selected records is empty.");
+
+            var buffer = await _excelService.CreateExcelTemplateArrivalNotice(vesselCall);
+
+            if (buffer == Array.Empty<byte>())
+                return BadRequest("Файл не записан.");
+            else
+                return File(buffer, "application/xlsx",
+                    $"ArrivalNotice_{vesselCall.VesselName}_{vesselCall.VesselVoyage}.xlsx");
+        }
+
+        [HttpGet, Route("DownLoadTemplateImoManifest/{id}")]
+        public async Task<IActionResult> DownLoadTemplateImoManifest(string id)
+        {
+
+            var vesselCall = await _importManifestProvider.GetVesselCallData(id);
+
+
+            if (vesselCall is null)
+                return BadRequest("List of selected records is empty.");
+
+            var buffer = await _excelService.CreateExcelTemplateArrivalNotice(vesselCall);
+
+            if (buffer == Array.Empty<byte>())
+                return BadRequest("Файл не записан.");
+            else
+                return File(buffer, "application/xlsx",
+                    $"ArrivalNotice_{vesselCall.VesselName}_{vesselCall.VesselVoyage}.xlsx");
+
         }
     }
 }

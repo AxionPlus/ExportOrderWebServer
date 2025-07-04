@@ -15,4 +15,11 @@ public class VesselCallDetailDTO
     public string? AgentPOD { get; set; }               // Агент в порту выгрузки
     public EntityStatus? Status { get; set; }
     public DateTime? CreateTime { get; set; }
+
+    public Dictionary<string, int> ContainerRecords { get; set; } = new Dictionary<string, int>();
+    public int BillofLadingCount { get; set; }                    // Порт выгрузки
+    public string? POL { get; set; }                    // Порт выгрузки
+    public string? AgentPOL { get; set; }               // Агент в порту выгрузки
+
+
 }

@@ -6,6 +6,7 @@ namespace ExportOrderEntites.BillofLading.Dto
         public int No { get; set; }
         public bool IsSelect { get; set; }
         public string? Num { get; set; }
+        public bool HasSwitched { get; set; }
         public string? ServiceCode { get; set; }
 
         /// <summary>
@@ -49,6 +50,7 @@ namespace ExportOrderEntites.BillofLading.Dto
 
         public IEnumerable<BillOfLadingContainerRecordDto> ContainerRecords { get; set; }
         public uint Version { get; set; }
+        public EntityStatus Status { get; set; }
     }
 
 
@@ -63,6 +65,7 @@ namespace ExportOrderEntites.BillofLading.Dto
         public required string SealNo { get; set; }
         public  string? SealShr { get; set; }
         public  string? SealOth { get; set; }
+        public  bool IsEmpty { get; set; }
         public  bool IsRef { get; set; }
         public  bool IsSoc { get; set; }
         public  bool IsOog { get; set; }

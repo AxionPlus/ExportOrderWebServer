@@ -13,6 +13,8 @@ namespace ExportOrderEntites.BillofLading.Dto
         public bool IsAlcohol { get; set; }
         public bool IsMilitaryCargo { get; set; }
         public bool HasTranslate { get; set; }
+        public bool HasShipper { get; set; }
+        public bool HasConsignee { get; set; }
 
         public string? ServiceCode { get; set; }
         public DateTime? IssueDate { get; set; }

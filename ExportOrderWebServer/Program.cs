@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+// Регистрируем провайдер кодировок (добавьте в самое начало)
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 IServiceCollection services = builder.Services;
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");

@@ -139,7 +139,7 @@
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(() => RemoveDetail_Click(context))" />
                             </MudTd>
                             <MudTd DataLabel="Port">
-                                <MudAutocomplete Class="VesseCall_Port" T="LocationCatalog" Style="width: 250px; text-align:start" @bind-Value="context.POD"
+                                <MudAutocomplete Class="VesseCall_Port" T="LocationCatalog" Style="width: 250px; text-align:start" @bind-Value="context.POL"
                                                  ToStringFunc="@(e => e != null ? e.Name : "")"
                                                  SearchFunc="SearchPOD"
                                                  Variant="Variant.Outlined" Margin="Margin.Dense"
@@ -149,8 +149,8 @@
                                                  MinCharacters="1" />
                             </MudTd>
                             <MudTd DataLabel="Agent">
-                                <MudTextField T="string" Style="width: 375px;" Text="@context.AgentPOD"
-                                              TextChanged="async (e)=> { context.AgentPOD = e.ToUpper(); }"
+                                <MudTextField T="string" Style="width: 375px;" Text="@context.AgentPOL"
+                                              TextChanged="async (e)=> { context.AgentPOL = e.ToUpper(); }"
                                               Variant="Variant.Outlined" Margin="Margin.Dense"
                                               Immediate="true"
                                               Required RequiredError="" Clearable />
@@ -270,7 +270,7 @@
     {
         if (itemDetails.BillofLadings.Count() > 0)
         {
-            string portName = itemDetails.POD is null ? string.Empty : (string.IsNullOrWhiteSpace(itemDetails.POD.Name) ? string.Empty : itemDetails.POD.Name);
+            string portName = itemDetails.POL is null ? string.Empty : (string.IsNullOrWhiteSpace(itemDetails.POL.Name) ? string.Empty : itemDetails.POL.Name);
 
             Snackbar.Add($"В этом рейсе есть Коносаменты.<br>Чтобы удалить рейс, сначала удалите поручения для этого порта выгрузки:<br>{portName}", Severity.Warning);
             return;            

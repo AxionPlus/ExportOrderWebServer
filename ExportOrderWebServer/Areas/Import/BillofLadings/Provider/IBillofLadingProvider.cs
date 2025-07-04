@@ -1,13 +1,17 @@
 ﻿using ExportOrderEntites.BillofLading;
 using ExportOrderEntites.BillofLading.Dto;
+using ExportOrderEntites.ImportVesselCall;
 using Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
 {
     public interface IBillofLadingProvider
     {
-        Task AddRecords(IEnumerable<BillOfLadingDto> records, string userName);
+        Task AddRecords(IEnumerable<BillOfLadingDto> records, string vesselCallDetailId, string userName);
+        Task UpdateRecordsFromXls(IEnumerable<BillOfLadingDto> records, string userName);
         Task<IEnumerable<BillOfLadingDto>> GetItemsAsync(FilterParameters filter);
+
+
     }
     public class BillofLadingProvider : IBillofLadingProvider
     {
@@ -22,7 +26,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
             _dbContext = dbContext;
         }
 
-        public async Task AddRecords(IEnumerable<BillOfLadingDto> records, string userName)
+        public async Task AddRecords(IEnumerable<BillOfLadingDto> records, string vesselCallDetailId, string userName)
         {
 
             using (var _db = _dbContext.CreateDbContextAsync())
@@ -30,11 +34,30 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                 var db = await _db;
 
                 var bolList = records.Select(s => s.Num);
-                var existRecords = await db.Set<BillofLadingEntity>()
+                var existRecords = await db.Set<BillofLadingEntity>().Include(s => s.ContainerRecords)
                                                     .Where(s => bolList.Any(b => b == s.Num))
                                                     .Select(s => s.Num)
                                                     .ToArrayAsync();
+                //var existBlRecords = await db.Set<BillofLadingEntity>().Include(s => s.ContainerRecords)
+                //    .Where(s => bolList.Any(b => b == s.Num))
 
+                //.ToArrayAsync();
+
+                //foreach (var existRecord in existBlRecords)
+                //{
+
+                //    foreach (var ContainerRecord in existRecord.ContainerRecords)
+                //    {
+                //        db.Entry(ContainerRecord).State = EntityState.Deleted;
+                //    }
+                //    db.Entry(existRecord).State = EntityState.Deleted;
+                //    await db.SaveChangesAsync();
+                //}
+
+
+
+                var vesselCallDetail = await db.Set<ImportVesselCallDetail>().AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.Id.ToString() == vesselCallDetailId);
 
                 foreach (var billofLading in records)
                     if (!existRecords.Any(s => s == billofLading.Num))
@@ -80,11 +103,12 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                                 SealShr = rec.SealShr,
                                 SealOth = rec.SealOth,
                                 TempSet = rec.TempSet,
-                                CreatedAt = new DateTimeOffset().UtcDateTime,
+                                CreatedAt = DateTimeOffset.UtcNow,
                                 LockToken = DateTime.Now.Ticks,
                             }).ToList(),
-                            CreatedAt = new DateTimeOffset().UtcDateTime,
+                            CreatedAt = DateTimeOffset.UtcNow,
                             LockToken = DateTime.Now.Ticks,
+                            VesselCallDetail = vesselCallDetail,
                         };
 
                         db.Entry(BillofLading).State = EntityState.Added;
@@ -158,6 +182,49 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
 
                     }).ToArrayAsync();
                 return BillofLadings;
+            }
+        }
+
+        public async Task UpdateRecordsFromXls(IEnumerable<BillOfLadingDto> billOfladings, string userName)
+        {
+
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+
+                foreach (var billOfladingDto in billOfladings)
+                {
+                    var billOflading = await db.Set<BillofLadingEntity>().Include(s => s.ContainerRecords)
+                        .AsNoTracking().FirstOrDefaultAsync(s => s.Num == billOfladingDto.Num);
+                    if (billOflading == null)
+                        continue;
+
+
+                    billOflading.ShipperNameRu = billOfladingDto.ShipperNameRu?.ToUpper();
+                    billOflading.ShipperCountryRu = billOfladingDto.POL?.ToUpper();
+                    billOflading.ShipperAddressRu = billOfladingDto.ShipperAddressRu?.ToUpper();
+                    billOflading.ConsigneeNameRu = billOfladingDto.ConsigneeNameRu?.ToUpper();
+                    billOflading.ConsigneeAddressRu = billOfladingDto.ConsigneeAddressRu?.ToUpper();
+                    billOflading.ConsigneeCountryRu = "РОССИЯ";
+
+                    foreach (var containerRecord in billOflading.ContainerRecords)
+                    {
+                        containerRecord.CommodityCode = billOfladingDto.ContainerRecords
+                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.CommodityCode?.ToUpper();
+
+                        containerRecord.GoodsDescriptionRu = billOfladingDto.ContainerRecords
+                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescriptionRu?.ToUpper(); 
+                        containerRecord.GoodsDescription = billOfladingDto.ContainerRecords
+                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescription?.ToUpper();
+
+                        db.Entry(containerRecord).State = EntityState.Modified;
+                    }
+
+                    db.Entry(billOflading).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+
+                }
             }
         }
     }

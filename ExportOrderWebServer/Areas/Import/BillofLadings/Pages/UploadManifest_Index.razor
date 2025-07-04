@@ -51,6 +51,12 @@
         <MudButton OnClick="CheckAndUploadFiles" Disabled="@(!fileNames.Any() || VesselCallDetail is null)" Color="Color.Primary" Variant="Variant.Filled">
             @(!UploadedData ? "Upload File(s)" : "Check File(s)")
         </MudButton>
+        <AuthorizeView Roles="Admin">
+            <MudButton OnClick="XlsUploadFiles" Disabled="@(!fileNames.Any())" Color="Color.Secondary" Variant="Variant.Filled">
+            1c File with Translate
+            </MudButton>
+        </AuthorizeView>
+
         <MudButton OnClick="Clear" Disabled="@(!fileNames.Any())" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
         <div style="width: 50px"></div>
         <MudButton OnClick="DownloadTemplate" Disabled="@IsLoadingData" Color="Color.Dark" Variant="Variant.Filled" StartIcon="@Icons.Material.Outlined.Download">
@@ -130,8 +136,8 @@
                 name: "\"file\"",
                 fileName: file.Name);
         }
-        content.Add(new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(ApplicationUser), System.Text.Encoding.UTF8, "application/json"));
-        content.Add(new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(VesselCallDetail!.Id), System.Text.Encoding.UTF8, "application/json"));
+        content.Add(new StringContent(ApplicationUser), "userName");
+        content.Add(new StringContent(VesselCallDetail!.Id.ToString()), "vesselCallDetailId");
 
         // var client = httpClient.CreateClient();
         // client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
@@ -158,6 +164,50 @@
         IsLoadingData = false;
         //client.Dispose();
     }
+
+    private async Task XlsUploadFiles()
+    {
+        IsLoadingData = true;
+        long maxFileSize = 1024 * 500;
+        using var content = new MultipartFormDataContent();
+
+        foreach (var file in BrowserFiles)
+        {
+            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+
+            fileContent.Headers.ContentType =
+                new MediaTypeHeaderValue(file.ContentType);
+
+            content.Add(
+                content: fileContent,
+                name: "\"file\"",
+                fileName: file.Name);
+        }
+        content.Add(new StringContent(ApplicationUser), "userName");
+
+        using (var client = httpClient.CreateClient())
+        {
+            client.Timeout = new TimeSpan(0, 0, 0, 0, -1);
+
+
+            var response = await client.PostAsync($"http://localhost:7070/file/BillofLading/UploadXlsFile", content);
+            if (response.IsSuccessStatusCode)
+            {
+                // UploadedDataBls = await response.Content.ReadFromJsonAsync<UploadedDataBl>();
+
+                // if (UploadedDataBls is not null)
+                //     if (!UploadedDataBls.HasErrors)
+                //         UploadedData = true;
+                //     else
+                //         HasErrors = true;
+            }
+        }
+
+
+        IsLoadingData = false;
+        //client.Dispose();
+    }
+
 
     private async Task DownloadTemplate()
     {

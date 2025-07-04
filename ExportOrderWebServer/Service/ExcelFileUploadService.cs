@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
+﻿using ExportOrderEntites.BillofLading.Dto;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using ExportOrderEntites.BillofLading.Dto;
+using static MudBlazor.Colors;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Service;
@@ -9,6 +10,7 @@ public interface IExcelFileUploadService : IDisposable
 {
     public Task<List<ReadExcelExportOrderRecordDTO>?> ReadExcelFileExportOrder(string filePath);
     public IEnumerable<BillOfLadingDto> ReadExcelFileImportManifest(string filePath);
+    public IEnumerable<BillOfLadingDto> ReadExcelFile(string filePath);
 }
 
 public class ExcelFileUploadService : IExcelFileUploadService
@@ -268,6 +270,104 @@ public class ExcelFileUploadService : IExcelFileUploadService
 
                         return newContyaonerRecord;
 
+                    }).ToArray();
+
+                if (DateTime.TryParse(record.First()[billOfLadingDate], out DateTime issueDate))
+                    newBilofLading.IssueDate = issueDate;
+                if (DateTime.TryParse(record.First()[billOfLadingSobDate], out DateTime sobDate))
+                    newBilofLading.SobDate = sobDate;
+                uploadList.Add(newBilofLading);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return Enumerable.Empty<BillOfLadingDto>();
+        }
+
+
+        return uploadList;
+    }
+
+    public IEnumerable<BillOfLadingDto> ReadExcelFile(string filePath)
+    {
+        FilePath = filePath;
+
+        if (!File.Exists(FilePath)) return Enumerable.Empty<BillOfLadingDto>();
+
+        Workbook = Workbooks?.Open(FilePath, 0, true);
+        WorkSheets = Workbook?.Worksheets;
+        WorkSheet = WorkSheets?.Item[1];
+
+        var uploadList = new List<BillOfLadingDto>();
+
+        try
+        {
+            uint columns = 150;
+            uint row = 2;
+
+            do
+            {
+                row++;
+            } while (!string.IsNullOrWhiteSpace(WorkSheet!.Cells[row, 1].Text));
+
+            var startCell = WorkSheet.Cells[2, 1];
+            var endCell = WorkSheet.Cells[row - 1, columns];
+            Range = WorkSheet.Range[startCell, endCell];
+
+            string[][] sheetArray = GetStringArray(Range.Cells.Value);
+            var recordsArray = sheetArray.ToList();
+
+            #region columnName
+
+            int billOfLading = 3-1;
+            int billOfLadingDate = 29;
+            int billOfLadingSobDate = 30;
+     
+
+            int shipper = 6-1;
+            int consignee = 9- 1;
+            int POL = 13 - 1;
+            int containerNum = 18 - 1;
+            int goodsDescriptionRu = 19 - 1;
+            int goodsDescriptionEn = 20 - 1;
+            int commodityCode = 21 - 1;
+
+
+
+            #endregion
+
+            foreach (var record in recordsArray.GroupBy(s => s[billOfLading]))
+            {
+                var newBilofLading = new BillOfLadingDto()
+                {
+                    Num = record.Key,
+                    ShipperNameRu = record.First()[shipper].Split("\n")[0].Trim(),
+                    ShipperAddressRu = record.First()[shipper].Split("\n")[1].Trim(),
+                    ConsigneeNameRu = record.First()[consignee].Split("\n")[0].Trim(),
+                    ConsigneeAddressRu = record.First()[consignee].Split("\n")[1].Trim(),
+                    POL = record.First()[POL],
+                };
+                newBilofLading.ContainerRecords =
+                    record.Select(container =>
+                    {
+                        var newContyaonerRecord = new BillOfLadingContainerRecordDto()
+                        {
+                            ContainerNum = container[containerNum],
+                            GoodsDescriptionRu = container[goodsDescriptionRu],
+                            GoodsDescription = container[goodsDescriptionEn],
+                            CommodityCode = container[commodityCode],
+
+                            ContainerType = "",
+                            SealNo = "",
+                            SealShr = "",
+                            SealOth = "",
+                            PackageQty =  0,
+                            TempSet = 0,
+                            TareWeight = 0,
+                            CargoWeight =  0,
+                        };
+                        return newContyaonerRecord;
                     }).ToArray();
 
                 if (DateTime.TryParse(record.First()[billOfLadingDate], out DateTime issueDate))

@@ -1,9 +1,11 @@
-﻿using ExportOrderEntites.ImportVesselCall;
+﻿using ExportOrderEntites.BillofLading;
+using ExportOrderEntites.ImportVesselCall;
 
 namespace ExportOrderWebServer.Areas.Import.VesselCall.Provider;
 public interface IImportVesselCallProvider : IEntityProvider<ImportVesselCallEntity>
 {
     Task<AppObjectResponse> GetVesselCallDetailAsync(long vesselCallid);
+    Task<VesselCallDetailDTO> GetVesselCallFullDetailAsync(long vesselCallid);
     Task<IEnumerable<string>> GetVoyages(string? vessel);
 }
 public class ImportVesselCallProvider : IImportVesselCallProvider
@@ -29,7 +31,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                 var voyage = await db.ImportVesselCalls.AsNoTracking().AsSplitQuery()
                                                  .Include(vc => vc.Vessel)
                                                  .Include(vc => vc.Terminal)
-                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.POD)
+                                                 .Include(vc => vc.Details).ThenInclude(vcd => vcd.POL)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.FinalDestination)
                                                  .Include(vc => vc.Details).ThenInclude(vcd => vcd.BillofLadings).ThenInclude(eo => eo.ContainerRecords)
                                                  .FirstOrDefaultAsync(s => s.Id == id);
@@ -72,14 +74,14 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
             var vesselCalls = await db.ImportVesselCalls.AsNoTracking().AsSplitQuery()
                                                   .Include(vc => vc.Vessel)
                                                   .Include(vc => vc.Terminal)
-                                                  .Include(vc => vc.Details).ThenInclude(d => d.POD)
+                                                  .Include(vc => vc.Details).ThenInclude(d => d.POL)
                                                   .Where(s => filter.DateFrom.HasValue ? s.ETA!.Value >= filter.DateFrom : true)
                                                   .Where(s => filter.DateTo.HasValue ? s.ETS!.Value <= filter.DateTo.Value : true)
                                                   .Where(s => filter.Status != null ? s.Status == filter.Status : s.Status == EntityStatus.New)
                                                   .Where(s => string.IsNullOrEmpty(filter.Vessel) ? true : s.Vessel.Name == filter.Vessel)
                                                   .Where(s => string.IsNullOrEmpty(filter.Voyage) ? true : s.VoyageNo == filter.Voyage)
                                                   .Where(s => string.IsNullOrEmpty(filter.Terminal) ? true : s.Terminal.Name == filter.Terminal)
-                                                  .Where(s => string.IsNullOrEmpty(filter.POD) ? true : s.Details.Any(vcd => vcd.POD == null ? true : vcd.POD.NameEn == filter.POD))
+                                                  .Where(s => string.IsNullOrEmpty(filter.POD) ? true : s.Details.Any(vcd => vcd.POL == null ? true : vcd.POL.NameEn == filter.POD))
                                                   .ToListAsync();
 
             var vesselCallDetailsDTO = vcRecords(vesselCalls);
@@ -176,11 +178,11 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                     else
                     {
                         modifyDetail.CreateUser = User;
-                        modifyDetail.AgentPOD = item.Details.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOD;
+                        modifyDetail.AgentPOL = item.Details.FirstOrDefault(s => s.Id == modifyDetail.Id)!.AgentPOL;
 
-                        modifyDetail.POD = item.Details.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POD;
-                        if (modifyDetail.POD is not null)
-                            db.Entry(modifyDetail.POD).State = EntityState.Unchanged;
+                        modifyDetail.POL = item.Details.FirstOrDefault(s => s.Id == modifyDetail.Id)!.POL;
+                        if (modifyDetail.POL is not null)
+                            db.Entry(modifyDetail.POL).State = EntityState.Unchanged;
 
                         db.Entry(modifyDetail).State = EntityState.Modified;
                     }
@@ -192,8 +194,8 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                         itemDetail.CreateUser = User;
                         db.Entry(itemDetail.CreateUser).State = EntityState.Unchanged;
 
-                        if (itemDetail.POD is not null)
-                            db.Entry(itemDetail.POD).State = EntityState.Unchanged;
+                        if (itemDetail.POL is not null)
+                            db.Entry(itemDetail.POL).State = EntityState.Unchanged;
                         if (itemDetail.FinalDestination is not null)
                             db.Entry(itemDetail.FinalDestination).State = EntityState.Unchanged;
 
@@ -311,8 +313,8 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                     detail.CreateUser = User;
                     db.Entry(detail.CreateUser).State = EntityState.Unchanged;
 
-                    if (detail.POD is not null)
-                        db.Entry(detail.POD).State = EntityState.Unchanged;
+                    if (detail.POL is not null)
+                        db.Entry(detail.POL).State = EntityState.Unchanged;
 
                     if (detail.FinalDestination is not null)
                         db.Entry(detail.FinalDestination).State = EntityState.Unchanged;
@@ -395,7 +397,7 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                 appObjResponse.Object = await db.Set<ImportVesselCallDetail>().AsNoTracking().AsSplitQuery()
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Terminal)
                                                     .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
-                                                    .Include(vcd => vcd.POD)
+                                                    .Include(vcd => vcd.POL)
                                                     //.Include(vcd => vcd.FinalDestination)
                                                     .FirstOrDefaultAsync(vcd => vcd.Id == vcdId);
 
@@ -490,6 +492,39 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
         }
     }
 
+    public async Task<VesselCallDetailDTO> GetVesselCallFullDetailAsync(long vesselCallid)
+    {
+        using (var _db = _dbContext.CreateDbContextAsync())
+        {
+            var db = await _db;
+
+            var vsl = await db.Set<ImportVesselCallDetail>().AsNoTracking().AsSplitQuery()
+                   .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Terminal)
+                   .Include(vcd => vcd.VesselCall).ThenInclude(vc => vc.Vessel)
+                   .Include(vcd => vcd.POL)
+                   .Include(s => s.BillofLadings).ThenInclude(s => s.ContainerRecords)
+                   .FirstOrDefaultAsync(vcd => vcd.Id == vesselCallid);
+
+             var vesselCallDto =  new VesselCallDetailDTO()
+                   {
+                       Id = vsl.Id,
+                       VesselName = vsl.VesselCall.Vessel.Name,
+                       VoyageNo = vsl.VesselCall.VoyageNo,
+                       POL = vsl.POL.NameEn,
+                       ETA = vsl.VesselCall.ETA,
+                       ETS = vsl.VesselCall.ETS,
+                       BillofLadingCount = vsl.BillofLadings.Count(),
+                       ContainerRecords= containerCountFunc(vsl.BillofLadings),
+
+                   };
+               
+
+
+            return vesselCallDto;
+
+        }
+    }
+
     private readonly Func<IEnumerable<ImportVesselCallEntity>, IEnumerable<VesselCallDetailDTO>> vcRecords = (Records) =>
     {
         var RecordsDTO = new List<VesselCallDetailDTO>();
@@ -508,8 +543,8 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
                     Terminal = record.Terminal.Name,
                     ETA = record.ETA,
                     ETS = record.ETS,
-                    POD = detail.POD?.NameEn,
-                    AgentPOD = detail.AgentPOD,
+                    POD = detail.POL?.NameEn,
+                    AgentPOD = detail.AgentPOL,
                     Status = record.Status,
                     CreateTime = detail.CreateTime,
                 };
@@ -520,5 +555,16 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
         }
 
         return RecordsDTO;
+    };
+
+
+    private Func<IEnumerable<BillofLadingEntity>, Dictionary<string, int>> containerCountFunc = (billofLading) =>
+    {
+        var containerRecords = billofLading.SelectMany(s => s.ContainerRecords)
+            .GroupBy(s => s.ContainerType)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        return containerRecords;
+
     };
 }

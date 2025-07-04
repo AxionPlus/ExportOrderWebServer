@@ -16,6 +16,17 @@
 @inject ILocationProvider _locationProvider
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory httpClient
+<style>
+
+    .mud-list-item-icon {
+        min-width: 28px;
+    }
+
+        .mud-list-item-icon .mud-icon-root {
+            width: 0.8em;
+            height: 0.8em;
+        }
+</style>
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
         <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
@@ -34,11 +45,19 @@
 <MudForm @ref="searchForm">
     <div class="Container-item">
         <div class="container-content">
-            <MudButton Color="@Color.Success" OnClick="SetVesselCall_Click">  <h5>Set Vessel Call for uploading bill of ladings</h5></MudButton>
-            @if (VesselCallDetail is not null)
-            {
-                <h5>@VesselCallDetail.VesselName @VesselCallDetail.VoyageNo (@VesselCallDetail.POD)</h5>
-            }
+            <MudButton Color="@Color.Success" OnClick="SetVesselCall_Click">
+                @if (VesselCallDetail is not null)
+                {
+                    <h6>
+                        @VesselCallDetail.VesselName @VesselCallDetail.VoyageNo (@VesselCallDetail.POL) / BL:@VesselCallDetail.BillofLadingCount / @string.Join('/', VesselCallDetail.ContainerRecords.Select(s => $"{s.Value} x {s.Key}")) / TOTAL @VesselCallDetail.ContainerRecords.Sum(s => s.Value)
+                    </h6>
+                }
+                else
+                {
+                    <h6>Set Vessel Call for uploading bill of ladings</h6>
+
+                }
+            </MudButton>
             <BillOfLadingSearchField @bind-BlNo="Filter.BolNo" @bind-BlsNo="Filter.BolsNo" Style="width:215px;margin-left:10px" />
             <BillOfLadingSearchField Label="Container" @bind-BlNo="Filter.CntrNum" @bind-BlsNo="Filter.CntrsNum" Style="width:185px;margin-left:10px" />
             @*             <CustomerSearchField @ref="Customer" @bind-Value="Filter.BookingParty" Label="Customer" Style="width:250px; margin-inline:10px" ConfirmEntity />*@
@@ -48,20 +67,24 @@
                        OnClick="SearchItems_Click">Search</MudButton>
             @if (VesselCallDetail is not null)
             {
-                <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                           OnClick="DownLoadTemplate1C">DownLoad Template1C</MudButton>
+                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                           OnClick="DownLoadTemplateArrivalNotice">Arrival</MudButton>
+                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                           OnClick="DownLoadTemplateFillBill">FillBill</MudButton>
+                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                           OnClick="DownLoadTemplate1C">1C</MudButton>
+                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                           OnClick="DownLoadXmlFile">XML</MudButton>
             }
 
         </div>
     </div>
 </MudForm>
 
-<div class="Container-item">
-
+@if (VesselCallDetail is null)
+{
     <div class="container-content">
-
-        @if (VesselCallDetail is null)
-        {
+        <div class="container-content">
             <MudGrid Justify="Justify.FlexStart">
                 <MudItem xs="2">
                     <MudSkeleton Height="50px" />
@@ -84,222 +107,262 @@
 
                 </MudItem>
             </MudGrid>
-        }
-        else
-        {
+        </div>
+    </div>
+}
+else
+{
+    <div style="display:flex">
+        <div style="padding: 15px 15px 5px 5px;">
+            <div style="max-height: 800px;overflow: auto; background-color: var(--grey-08);">
+                <MudList @ref="_mudList" T="string?" SelectedValue="SelectedValue" SelectedValueChanged="async (val) => { SelectedValue = val; await SelectedValueChanged(val); }" SelectionMode="@SelectionMode.SingleSelection" Color="@Color.Info">
+                    <MudListSubheader>
+                        <MudTooltip Text="Отобразить все записи" Arrow="true" Placement="Placement.Right">
+                            <MudIconButton OnClick="AllRecords" Icon="@Icons.Material.Outlined.Info" Color="@Color.Info" Size="Size.Small" />
+                        </MudTooltip>
+                        <MudTooltip Text="Нет перевода" Arrow="true" Placement="Placement.Right">
+                            <MudIconButton OnClick="NoTranslate" Icon="@Icons.Material.Outlined.Info" Color="@Color.Warning" Size="Size.Small" />
+                        </MudTooltip>
+                    </MudListSubheader>
+                    @foreach (var billofLading in ManifestBillofLadings)
+                    {
+                        <MudListItem Value="billofLading.Num" Icon="@BlIcon(billofLading)" IconColor="@BlColor(billofLading)">
+                            <div style="color:@BlListItemColor(billofLading)"> @billofLading.Num </div>
+                        </MudListItem>
+                    }
 
+                </MudList>
+            </div>
+        </div>
+        <div style="width:100%;">
 
-            <MudGrid Justify="Justify.FlexStart">
-                <MudItem xs="2">
+            @if (BillofLading is not null)
+            {
+                <div class="Container-item">
+                    <div class="container-content">
+                        <div style="display:flex;">
+                            <MudButton OnClick="@(() => { _billDataExpanded = !_billDataExpanded; })">@(_billDataExpanded ? "Collapse" : "Expand")</MudButton>
 
-                    <MudContainer style="max-height: 800px;overflow: auto;">
+                            <MudTooltip Text="Обновить данные">
+                                <MudIconButton 
+                                           Color="Color.Info"
+                                           Icon="@Icons.Material.Filled.Refresh"
+                                           OnClick="RefreshBillofLadingData"/>
+                            </MudTooltip>
+                        </div>
+                        <div style="display:flex;    align-items: center; ">
+                            <MudTooltip Text="сделать Switch">
+                                <MudIconButton 
+                                    Color="Color.Info"
+                                    Icon="@Icons.Material.TwoTone.PublishedWithChanges"
+                                    OnClick="MakeSwitchBillofLadingData"/>
+                            </MudTooltip>
+                            <MudText Style="font-size:1rem; font-weight:550;    margin-top: 6px"> @BillofLading.Num / dated</MudText>
+                            <DatePicker Style="width:120px; margin-left: 5px" @bind-Date="@BillofLading.IssueDate" Required/>
+                            <div style="padding-top: 5px;    margin-left: 5px;">
+                                <MudSelect Class="TextField CustomDelivery" T="CustomsDeliveryMode?" Style="width:80px; " @bind-Value="BillofLading.CustomsDeliveryMode"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense" IconSize="Size.Small"
+                                           ToStringFunc="@((e) => e is null ? string.Empty : e switch { CustomsDeliveryMode.GTD => "ГТД", CustomsDeliveryMode.VTT => "ВТТ", _ => null })">
+                                    @foreach (CustomsDeliveryMode? type in Enum.GetValues(typeof(CustomsDeliveryMode)))
+                                    {
+                                        <MudSelectItem Value="@type"/>
+                                    }
+                                </MudSelect>
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex;">
+                            
+                            <AuthorizeView Roles="Admin">
+                                <MudTooltip Text="Снять блокировку">
+                                    <MudIconButton
+                                        Color="Color.Warning"
+                                        Icon="@Icons.Material.Filled.DisabledVisible"
+                                        OnClick="UnlockBillofLadingData"/>
+                                </MudTooltip>
 
-                        <MudList T="string?" SelectedValue="SelectedValue" SelectedValueChanged="async (val) => { SelectedValue = val; await SelectedValueChanged(val); }" SelectionMode="@SelectionMode.SingleSelection" Color="@Color.Info">
-                            <MudListSubheader>
-
-                            </MudListSubheader>
-
-                            @foreach (var billofLading in ManifestBillofLadings)
+                            </AuthorizeView>
+                            @if (BillofLading.Status != EntityStatus.Completed)
                             {
-                                <MudListItem Text="@billofLading.Num" />
+                                <MudTooltip Text="Утвердить коносамент">
+                                    <MudIconButton
+                                        Color="Color.Secondary"
+                                        Icon="@Icons.Material.Filled.CheckCircleOutline"
+                                        OnClick="ConfirmBillofLadingData"/>
+                                </MudTooltip>
                             }
 
-                        </MudList>
-                    </MudContainer>
-                </MudItem>
-                <MudItem xs="10">
-
-                    @if (BillofLading is not null)
-                    {
-                        <div class="ToolBar-container" style="display: flex;justify-content: space-between;">
-                            <MudIconButton Size="Size.Small" Color="Color.Info" Icon="@Icons.Material.Outlined.Refresh" OnClick="RefreshBillofLadingData">Refresh</MudIconButton>
-                            <MudChip T="string" Color="@Color.Info">
-                                @(SelectedValue ?? "Select Bl")
-                            </MudChip>
-                            <MudIconButton Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Outlined.Save" OnClick="SaveBillofLadingData">Save</MudIconButton>
-
-
+                            <MudTooltip Text="Сохранить">
+                                <MudIconButton
+                                    Color="Color.Success"
+                                    Icon="@Icons.Material.Filled.Save"
+                                    OnClick="SaveBillofLadingData"/>
+                            </MudTooltip>
                         </div>
-                        <div style="display:flex;justify-content: space-evenly; margin-top:10px">
-                            <div style="display:flex; flex-direction: column;">
-                                <div style="display:flex">
-                                    <div>
-                                        <MudMenu ActivationEvent="@MouseEvent.RightClick">
-                                            <ActivatorContent>
-                                                <TextField Style="min-width:350px;" Label="Shipper" Value="@BillofLading.ShipperName" Lines="2" Disabled></TextField>
-                                            </ActivatorContent>
-                                            <ChildContent>
-                                                <MudMenuItem OnClick="TransliterationShipper_Click">Transliteration</MudMenuItem>
-                                            </ChildContent>
-                                        </MudMenu>
-                                        <TextField Style="min-width:350px;" Label="Отправитель" @bind-Value="BillofLading.ShipperNameRu" Lines="2" UpperCase Required Clearable></TextField>
+                    </div>
+                    <MudCollapse Expanded="_billDataExpanded">
+                        <div class="container-content">
+                            <div style="display:flex;justify-content: space-evenly;">
+                                <div style="display:flex; flex-direction: column;">
+                                    <div style="display:flex">
+                                        <div>
+                                            <MudMenu ActivationEvent="@MouseEvent.RightClick">
+                                                <ActivatorContent>
+                                                    <TextField Style="min-width:350px;" Label="Shipper" Value="@BillofLading.ShipperName" Lines="2" Disabled></TextField>
+                                                </ActivatorContent>
+                                                <ChildContent>
+                                                    <MudMenuItem OnClick="TransliterationShipper_Click">Transliteration</MudMenuItem>
+                                                </ChildContent>
+                                            </MudMenu>
+                                            <TextField Style="min-width:350px;" Label="Отправитель" @bind-Value="BillofLading.ShipperNameRu" Lines="2" UpperCase Required Clearable></TextField>
+                                        </div>
+                                        <div style="margin-left:5px">
+                                            <TextField Style="min-width:450px;" Label="Address" Value="@BillofLading.ShipperAddress" Lines="2" Disabled></TextField>
+                                            <TextField Style="min-width:450px;" Label="Адрес" @bind-Value="BillofLading.ShipperAddressRu" Lines="2" UpperCase Required Clearable></TextField>
+                                        </div>
+                                        <div style="margin-left:5px">
+                                            <MudText Style="min-width:150px; text-align:end; padding-inline:8px; font-size:0.75rem; font-weight:550">СТРАНА</MudText>
+                                            <Country_AutoCompliteField Style="min-width:150px;" @bind-Value="BillofLading.ShipperCountryRu" IsRuName="true" UpperCase Required />
+                                        </div>
                                     </div>
-                                    <div style="margin-left:5px">
-                                        <TextField Style="min-width:450px;" Label="Address" Value="@BillofLading.ShipperAddress" Lines="2" Disabled></TextField>
-                                        <TextField Style="min-width:450px;" Label="Адрес" @bind-Value="BillofLading.ShipperAddressRu" Lines="2" UpperCase Required Clearable></TextField>
-                                    </div>
-                                    <div style="margin-left:5px">
-                                        <MudText Style="min-width:150px; text-align:end; padding-inline:8px; font-size:0.75rem; font-weight:550">СТРАНА</MudText>
-                                        <Country_AutoCompliteField Style="min-width:150px;" @bind-Value="BillofLading.ShipperCountryRu" IsRuName="true" UpperCase Required />
-                                    </div>
-                                </div>
 
 
-                                <div style="display:flex">
-                                    <div>
-                                        <TextField Style="min-width:350px;" Label="Consignee" Value="@BillofLading.ConsigneeName" Lines="3" Disabled></TextField>
-                                        <TextField Style="min-width:350px;" Label="Получатель" @bind-Value="BillofLading.ConsigneeNameRu" Lines="3" UpperCase Required Clearable></TextField>
-                                    </div>
-                                    <div style="margin-left:5px">
-                                        <TextField Style="min-width:450px;" Label="Address" Value="@BillofLading.ConsigneeAddress" Lines="2" Disabled></TextField>
-                                        <TextField Style="min-width:450px;" Label="Адрес" @bind-Value="BillofLading.ConsigneeAddressRu" Lines="2" UpperCase Required Clearable></TextField>
-                                    </div>
-                                    <div style="margin-left:5px">
-                                        <MudText Style="min-width:150px; text-align:end; padding-inline:8px; font-size:0.75rem; font-weight:550">СТРАНА</MudText>
-                                        <TextField Style="min-width:150px;" @bind-Value="BillofLading.ConsigneeCountryRu" UpperCase Required Clearable></TextField>
+                                    <div style="display:flex">
+                                        <div>
+                                            <TextField Style="min-width:350px;" Label="Consignee" Value="@BillofLading.ConsigneeName" Lines="3" Disabled></TextField>
+                                            <TextField Style="min-width:350px;" Label="Получатель" @bind-Value="BillofLading.ConsigneeNameRu" Lines="3" UpperCase Required Clearable></TextField>
+                                        </div>
+                                        <div style="margin-left:5px">
+                                            <TextField Style="min-width:450px;" Label="Address" Value="@BillofLading.ConsigneeAddress" Lines="3" Disabled></TextField>
+                                            <TextField Style="min-width:450px;" Label="Адрес" @bind-Value="BillofLading.ConsigneeAddressRu" Lines="3" UpperCase Required Clearable></TextField>
+                                        </div>
+                                        <div style="margin-left:5px">
+                                            <MudText Style="min-width:150px; text-align:end; padding-inline:8px; font-size:0.75rem; font-weight:550">СТРАНА</MudText>
+                                            <TextField Style="min-width:150px;" @bind-Value="BillofLading.ConsigneeCountryRu" UpperCase Required Clearable></TextField>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div>
-                                <div class="container-row-BLdata" style="margin-top:6px">
-                           
+                                <div>
                                 </div>
-                                <div class="container-row-BLdata" style="margin-top:6px">
-                                    <MudTooltip Text="Customs delivery mode" Delay="1000" Duration="1500">
-                                        <MudText Style="text-align:end; width:144px; margin-inline:10px; font-size:0.75rem; font-weight:550">Delivery mode</MudText>
-                                    </MudTooltip>
-                                    <MudSelect Class="TextField CustomDelivery" T="CustomsDeliveryMode?" Style="width:80px" @bind-Value="BillofLading.CustomsDeliveryMode"
-                                               Variant="Variant.Outlined" Margin="Margin.Dense" IconSize="Size.Small"
-                                               ToStringFunc="@((e) => e is null ? string.Empty : e switch { CustomsDeliveryMode.GTD => "ГТД", CustomsDeliveryMode.VTT => "ВТТ", _ => null })">
-                                        @foreach (CustomsDeliveryMode? type in Enum.GetValues(typeof(CustomsDeliveryMode)))
-                                        {
-                                            <MudSelectItem Value="@type" />
-                                        }
-                                    </MudSelect>
-                                    <MudSpacer />
-                                    <MudText Style="width:60px ; font-size:0.75rem; font-weight:550">BL Dated</MudText>
-                                    <DatePicker Style="width:130px" @bind-Date="@BillofLading.IssueDate" Required />
-                                </div>
+
                             </div>
 
                         </div>
-                        <div class="Container-table">
-                            <div class="tableMenu" style="align-items: center; max-height:500px">
-                                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.AddRoad" OnClick="SetCargoDescription_Click"></MudIconButton>
-                            </div>
-                            <MudTable @ref="mudTable" T="BillOfLadingContainerRecordDto" Class="Table P2" Items="@BillofLading.ContainerRecords" Context="record" RowsPerPage="10" HorizontalScrollbar="true"
-                                      EditTrigger="@TableEditTrigger.EditButton"
-                                      EditButtonPosition="@TableEditButtonPosition.Start"
-                                      RowEditCommit="ItemHasBeenCommitted"
-                                      ApplyButtonPosition="@TableApplyButtonPosition.End">
+                    </MudCollapse>
+                </div>
+                <div class="Container-table">
+                    <div class="tableMenu" style="align-items: center; max-height:500px">
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.AddRoad" OnClick="SetCargoDescription_Click"></MudIconButton>
+                    </div>
+                    <MudTable @ref="mudTable" T="BillOfLadingContainerRecordDto" Class="Table P2" Items="@BillofLading.ContainerRecords" Context="record" RowsPerPage="10" HorizontalScrollbar="true">
+                        <ColGroup>
+                            <col style="width:30px;" />
+                            <col style="width:120px;" />
+                            <col style="width:50px;" />
+                            <col style="width:50px;" />
+                            <col style="width:50px;" />
+                            <col style="width:80px;" />
+                            <col style="width:80px;" />
+                            <col style="width:80px;" />
+
+                            <col />
+                            <col />
+                            <col style="width:30px;" />
+                            <col style="width:30px;" />
+                            <col style="width:30px;" />
+                            <col style="width:30px;" />
+
+                            <col style="width:30px;" />
+
+                        </ColGroup>
+                        <HeaderContent>
+
+                            <MudTh></MudTh>
+                            <MudTh>Container</MudTh>
+                            <MudTh>Type</MudTh>
+                            <MudTh>TARE</MudTh>
+                            <MudTh>QTY</MudTh>
+                            <MudTh>PACK</MudTh>
+                            <MudTh>WHT</MudTh>
+                            <MudTh>Seals</MudTh>
+                            <MudTh>COMMODITY</MudTh>
+                            <MudTh>COMMODITY RU</MudTh>
+                            <MudTh>HS CODE</MudTh>
+                            <MudTh>IMO</MudTh>
+                            <MudTh>OOG</MudTh>
+                            <MudTh>REF</MudTh>
+                            <MudTh>SOC</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+
+                            <MudTd><MudIconButton Color="Color.Default" Icon="@Icons.Material.Outlined.Edit" /></MudTd>
+                            <MudTd>@record.ContainerNum</MudTd>
+                            <MudTd>@record.ContainerType</MudTd>
+                            <MudTd>@record.TareWeight</MudTd>
+                            <MudTd>@record.PackageQty</MudTd>
+                            <MudTd>@record.PackageQty</MudTd>
+                            <MudTd>@record.CargoWeight</MudTd>
+                            <MudTd>@record.SealNo</MudTd>
+                            <MudTd>@record.GoodsDescription</MudTd>
+                            <MudTd>@record.GoodsDescriptionRu</MudTd>
+                            <MudTd>@record.CommodityCode</MudTd>
+
+                            <MudTd> <CheckBox @bind-Value="record.IsImo" ReadOnly /> </MudTd>
+                            <MudTd> <CheckBox @bind-Value="record.IsOog" ReadOnly /> </MudTd>
+                            <MudTd> <CheckBox @bind-Value="record.IsRef" ReadOnly /> </MudTd>
+                            <MudTd> <CheckBox @bind-Value="record.IsSoc" ReadOnly /> </MudTd>
 
 
-                                <ColGroup>
+                        </RowTemplate>
+                        @*                         <RowEditingTemplate>
+                            <MudTd>
+                                @record.ContainerNum
+                            </MudTd>
+                            <MudTd>
+                                @record.ContainerType
+                            </MudTd>
+                            <MudTd>
+                                @record.TareWeight
+                            </MudTd>
+                            <MudTd>
+                                @record.PackageQty
+                            </MudTd>
+                            <MudTd>
+                                @record.PackageQty
+                            </MudTd>
+                            <MudTd>
+                                @record.CargoWeight
+                            </MudTd>
+                            <MudTd>@record.SealNo</MudTd>
+                            <MudTd>
+                                @record.GoodsDescription
+                            </MudTd>
 
-                                    <col style="width:30px;" />
-                                    <col style="width:120px;" />
-                                    <col style="width:50px;" />
-                                    <col style="width:50px;" />
-                                    <col style="width:50px;" />
-                                    <col style="width:80px;" />
-                                    <col style="width:80px;" />
-                                    <col style="width:80px;" />
-
-                                    <col />
-                                    <col />
-                                    <col style="width:30px;" />
-                                    <col style="width:30px;" />
-                                    <col style="width:30px;" />
-                                    <col style="width:30px;" />
-
-                                    <col style="width:30px;" />
-
-                                </ColGroup>
-                                <HeaderContent>
-
-                                    <MudTh>Container</MudTh>
-                                    <MudTh>Type</MudTh>
-                                    <MudTh>TARE</MudTh>
-                                    <MudTh>QTY</MudTh>
-                                    <MudTh>PACK</MudTh>
-                                    <MudTh>WHT</MudTh>
-                                    <MudTh>Seals</MudTh>
-                                    <MudTh>COMMODITY</MudTh>
-                                    <MudTh>COMMODITY RU</MudTh>
-                                    <MudTh>HS CODE</MudTh>
-                                    <MudTh>IMO</MudTh>
-                                    <MudTh>OOG</MudTh>
-                                    <MudTh>REF</MudTh>
-                                    <MudTh>SOC</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-
-                                    <MudTd>@record.ContainerNum</MudTd>
-                                    <MudTd>@record.ContainerType</MudTd>
-                                    <MudTd>@record.TareWeight</MudTd>
-                                    <MudTd>@record.PackageQty</MudTd>
-                                    <MudTd>@record.PackageQty</MudTd>
-                                    <MudTd>@record.CargoWeight</MudTd>
-                                    <MudTd>@record.SealNo</MudTd>
-                                    <MudTd>@record.GoodsDescription</MudTd>
-                                    <MudTd>@record.GoodsDescriptionRu</MudTd>
-                                    <MudTd>@record.CommodityCode</MudTd>
-
-                                    <MudTd> <CheckBox @bind-Value="record.IsImo" ReadOnly /> </MudTd>
-                                    <MudTd> <CheckBox @bind-Value="record.IsOog" ReadOnly /> </MudTd>
-                                    <MudTd> <CheckBox @bind-Value="record.IsRef" ReadOnly /> </MudTd>
-                                    <MudTd> <CheckBox @bind-Value="record.IsSoc" ReadOnly /> </MudTd>
+                            <MudTd> <TextField @bind-Value="record.GoodsDescriptionRu" Required /></MudTd>
+                            <MudTd> <TextField @bind-Value="record.CommodityCode" /></MudTd>
+                            <MudTd> <CheckBox @bind-Value="record.IsImo" ReadOnly /> </MudTd>
+                            <MudTd> <CheckBox @bind-Value="record.IsOog" ReadOnly /> </MudTd>
+                            <MudTd> <CheckBox @bind-Value="record.IsRef" ReadOnly /> </MudTd>
+                            <MudTd> <CheckBox @bind-Value="record.IsSoc" ReadOnly /> </MudTd>
 
 
-                                </RowTemplate>
-                                <RowEditingTemplate>
-                                    <MudTd>
-                                        @record.ContainerNum
-                                    </MudTd>
-                                    <MudTd>
-                                        @record.ContainerType
-                                    </MudTd>
-                                    <MudTd>
-                                        @record.TareWeight
-                                    </MudTd>
-                                    <MudTd>
-                                        @record.PackageQty
-                                    </MudTd>
-                                    <MudTd>
-                                        @record.PackageQty
-                                    </MudTd>
-                                    <MudTd>
-                                        @record.CargoWeight
-                                    </MudTd>
-                                    <MudTd>@record.SealNo</MudTd>
-                                    <MudTd>
-                                        @record.GoodsDescription
-                                    </MudTd>
+                        </RowEditingTemplate> *@
+                    </MudTable>
+                </div>
 
-                                    <MudTd> <TextField @bind-Value="record.GoodsDescriptionRu" Required /></MudTd>
-                                    <MudTd> <TextField @bind-Value="record.CommodityCode" /></MudTd>
-                                    <MudTd> <CheckBox @bind-Value="record.IsImo" ReadOnly /> </MudTd>
-                                    <MudTd> <CheckBox @bind-Value="record.IsOog" ReadOnly /> </MudTd>
-                                    <MudTd> <CheckBox @bind-Value="record.IsRef" ReadOnly /> </MudTd>
-                                    <MudTd> <CheckBox @bind-Value="record.IsSoc" ReadOnly /> </MudTd>
+            }
 
-
-                                </RowEditingTemplate>
-                            </MudTable>
-                        </div>
-
-                    }
-                </MudItem>
-            </MudGrid>
-        }
+        </div>
     </div>
-</div>
+}
 
 
+<OverlayLoadingData Visible="IsLoadingData" />
 @code {
     [CascadingParameter] public string? ApplicationUser { get; set; }
     private MudTable<BillOfLadingContainerRecordDto>? mudTable;
     private MudForm searchForm;
+    private MudList<string> _mudList;
     private FilterParameters Filter { get; set; } = new() { BolNo = "*" };
     bool IsLoadingData;
     private IEnumerable<BillOfLadingDto> BillofLadings { get; set; } = new List<BillOfLadingDto>();
@@ -308,6 +371,7 @@
     private string? SelectedValue;
     private BillOfLadingDto? BillofLading;
     private VesselCallDetailDTO? VesselCallDetail;
+    private bool _billDataExpanded;
 
 
     private async void ItemHasBeenCommitted(object element)
@@ -334,10 +398,24 @@
     }
     private async Task SaveBillofLadingData()
     {
-        IsLoadingData = true;
-        await ImportManifestProvider.UpdateBillofLadingAsync(BillofLading!);
-        BillofLading = await ImportManifestProvider.GetBillofLadingAsync(BillofLading!.Num);
-        IsLoadingData = false;
+        try
+        {
+            IsLoadingData = true;
+            StateHasChanged(); // Принудительное обновление UI
+
+            await ImportManifestProvider.UpdateBillofLadingAsync(BillofLading!);
+            BillofLading = await ImportManifestProvider.GetBillofLadingAsync(BillofLading!.Num);
+
+            Snackbar.Add("Коносамент успешно сохранен", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка сохранения: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            IsLoadingData = false;
+        }
     }
 
     private async Task SelectedValueChanged(string? billofLadingNum)
@@ -365,8 +443,6 @@
         IsLoadingData = true;
 
         BillofLadings = await ImportManifestProvider.GetItemsAsync(Filter);
-
-
 
         IsLoadingData = false;
     }
@@ -494,19 +570,20 @@
             if (result.Data is not null)
             {
                 VesselCallDetail = (VesselCallDetailDTO)result.Data;
-
+                VesselCallDetail = await _vesselCallProvider.GetVesselCallFullDetailAsync(VesselCallDetail.Id);
                 ManifestBillofLadings = await ImportManifestProvider.GetBillofLadingsNumAsync(VesselCallDetail);
-            }
 
+                await SelectedValueChanged(ManifestBillofLadings.FirstOrDefault()?.Num);
+            }
         }
 
         IsLoadingData = false;
 
     }
 
+    #region DownLoad
 
     private async Task DownLoadTemplate1C()
-
     {
 
         using (var Http = httpClient.CreateClient())
@@ -518,10 +595,7 @@
             var response = await Http.PostAsync($"{ApplicationParameter.ImportManifestController}DownLoadTemplate1C", content);
             if (response.IsSuccessStatusCode)
             {
-
                 var bytes = await response.Content.ReadAsByteArrayAsync();
-
-
                 try
                 {
                     if (bytes == Array.Empty<byte>())
@@ -536,16 +610,145 @@
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    IsLoadingData = false;
-                    return;
+                    Snackbar.Add("File Stream error.", Severity.Error);
                 }
             }
 
         }
-        
+
+    }
+    private async void DownLoadXmlFile()
+    {
+        string path = $"{ApplicationParameter.MainPageUrl}file/BillofLading/ManifestXmlNle/{VesselCallDetail.Id}";
+        await JSRuntime.InvokeVoidAsync("open", path);
+
+    }
+    private async void DownLoadTemplateFillBill()
+    {
+        string path = $"{ApplicationParameter.MainPageUrl}file/ImportManifest/DownLoadTemplateFillBill/{VesselCallDetail.Id}";
+        await JSRuntime.InvokeVoidAsync("open", path);
+    }
+    private async void DownLoadTemplateArrivalNotice()
+    {
+        string path = $"{ApplicationParameter.MainPageUrl}file/ImportManifest/DownLoadTemplateArrivalNotice/{VesselCallDetail.Id}";
+        await JSRuntime.InvokeVoidAsync("open", path);
+    }
+
+    #endregion
+
+    public Color BlColor(ManifestBillOfLadingDto bl)
+    {
+
+        if (bl.IsImo)
+            return Color.Error;
+
+        if (!bl.HasShipper || !bl.HasConsignee || !bl.HasTranslate)
+            return Color.Warning;
+
+        return Color.Info;
+    }
+
+    public string BlIcon(ManifestBillOfLadingDto bl)
+    {
+
+        if (bl.IsImo)
+            return Icons.Material.Outlined.Dangerous;
+
+        if (!bl.HasShipper || !bl.HasConsignee || !bl.HasTranslate)
+            return Icons.Material.Outlined.Info;
+
+        return null;
+    }
+    public string BlListItemColor(ManifestBillOfLadingDto bl)
+    {
+
+        if (!bl.HasShipper || !bl.HasConsignee || !bl.HasTranslate)
+            return "var(--mud-palette-warning);";
+
+        return "var(--mud-palette-info)";
     }
 
 
+    private async void NoTranslate(MouseEventArgs obj)
+    {
+        IsLoadingData = true;
+        ManifestBillofLadings = await ImportManifestProvider.GetBillofLadingsNumAsync(VesselCallDetail);
+        ManifestBillofLadings = ManifestBillofLadings.Where(bl => !bl.HasShipper || !bl.HasConsignee || !bl.HasTranslate).ToList();
 
+        await SelectedValueChanged(ManifestBillofLadings.FirstOrDefault()?.Num);
+
+        IsLoadingData = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void AllRecords(MouseEventArgs obj)
+    {
+        IsLoadingData = true;
+        ManifestBillofLadings = await ImportManifestProvider.GetBillofLadingsNumAsync(VesselCallDetail);
+
+        await SelectedValueChanged(ManifestBillofLadings.FirstOrDefault()?.Num);
+
+        IsLoadingData = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ConfirmBillofLadingData(MouseEventArgs obj)
+    {
+        if (BillofLading is null) return;
+        if (BillofLading.ConsigneeName.Replace(" ","").Contains("TEKPOSEIDON", StringComparison.CurrentCultureIgnoreCase))//TEK POSEIDON LTD
+        {
+            Snackbar.Add("Проверить наличие Switch", Severity.Warning);
+
+        }
+
+        if (string.IsNullOrWhiteSpace(BillofLading.ShipperNameRu) ||
+            string.IsNullOrWhiteSpace(BillofLading.ShipperAddressRu) ||
+            string.IsNullOrWhiteSpace(BillofLading.ShipperCountryRu) ||
+            string.IsNullOrWhiteSpace(BillofLading.ConsigneeNameRu) ||
+            string.IsNullOrWhiteSpace(BillofLading.ConsigneeAddressRu) ||
+            string.IsNullOrWhiteSpace(BillofLading.ConsigneeCountryRu))
+        {
+            Snackbar.Add("Отправитель / Получатель не указаны", Severity.Warning);
+        }
+
+        if (BillofLading.ContainerRecords.Any(rec => string.IsNullOrWhiteSpace(rec.GoodsDescription) || string.IsNullOrWhiteSpace(rec.GoodsDescriptionRu)))
+        {
+            Snackbar.Add("Наименование товара не заполнено", Severity.Warning);
+        }
+
+    }
+
+    private async void MakeSwitchBillofLadingData()
+    {
+        var paramerts = new DialogParameters();
+        paramerts.Add("BillofLading", BillofLading);
+        paramerts.Add("ApplicationUser", ApplicationUser);
+        var dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Medium, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
+        var dialog = DialogService.Show<SwitchBillofLading_Dialog>($"Switch {BillofLading.Num}", paramerts, dialogOptions);
+
+        var result = await dialog.Result;
+
+        if (result is not null)
+        {
+            IsLoadingData = true;
+            var billofLadingNum = (string)result.Data;
+
+            ManifestBillofLadings = await ImportManifestProvider.GetBillofLadingsNumAsync(VesselCallDetail);
+
+            await SelectedValueChanged(billofLadingNum);
+
+            IsLoadingData = false;
+            await InvokeAsync(StateHasChanged);
+
+
+            await Task.Delay(1000);
+            Snackbar.Add("Bill of Lading updated successfully!", Severity.Success); // Успешное обновление
+        }
+    }
+
+    private void UnlockBillofLadingData(MouseEventArgs obj)
+    {
+        throw new NotImplementedException();
+    }
 
 }

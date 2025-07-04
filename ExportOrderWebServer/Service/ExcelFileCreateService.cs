@@ -1,7 +1,10 @@
-﻿using Microsoft.JSInterop;
+﻿using ExportOrderEntites.BillofLading.Dto;
+using ExportOrderEntites.ImportVesselCall.Dto;
+using Microsoft.JSInterop;
+using Microsoft.Office.Interop.Excel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using ExportOrderEntites.BillofLading.Dto;
+using ExportOrderEntites.BillofLading;
 using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -13,6 +16,8 @@ public interface IExcelFileCreateService : IDisposable
     Task<byte[]> CreateExcelFile_Rolis(ExportOrderDTO item);
     Task<byte[]> CreateExcelTemplate1C(VesselCallDetailDTO VesselCall, IEnumerable<BillOfLadingDto> billOfLadings);
     Task<byte[]> CreateExcelReport(object[,] Array, string reportName);
+    Task<byte[]> CreateExcelTemplateFillBill(ImportVesselCallDto VesselCall);
+    Task<byte[]> CreateExcelTemplateArrivalNotice(ImportVesselCallDto VesselCall);
 }
 
 public class ExcelFileCreateService : IExcelFileCreateService
@@ -346,20 +351,6 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         if (WorkSheet is null) return Array.Empty<byte>();
 
-
-        /// TABLE                
-        int columns = 28;
-        int rows = billOfLadings.Count();
-
-        int startRow = 2;
-
-        var startCell = WorkSheet.Cells[startRow, 1];
-        var endCell = WorkSheet.Cells[rows + startRow - 1, columns];
-        Range = WorkSheet.Range[startCell, endCell];
-
-        if (rows > 1) Range.FillDown();
-
-        var dataBulk = new object[rows, columns];
         var records = billOfLadings.SelectMany(s => s.ContainerRecords, (bl, rec) => new ManifestBillOfLadingDto()
         {
             Num = bl.Num,
@@ -404,38 +395,59 @@ public class ExcelFileCreateService : IExcelFileCreateService
         }).ToList();
         var i = 1;
         records.ForEach(record => record.No = i++);
+        /// TABLE                
+        int columns = 28;
+        int rows = records.Count();
+
+        int startRow = 2;
+
+        var startCell = WorkSheet.Cells[startRow, 1];
+        var endCell = WorkSheet.Cells[rows + startRow - 1, columns];
+        Range = WorkSheet.Range[startCell, endCell];
+
+        if (rows > 1) Range.FillDown();
+
+        var dataBulk = new object[rows, columns];
 
         var result = Parallel.For(0, rows, (row, state) =>
-       {
-           dataBulk[row, 0] = records.ElementAt(row).No;
-           dataBulk[row, 2 - 1] = records.ElementAt(row).ContainerNum;
-           dataBulk[row, 2 - 1] = records.ElementAt(row).ContainerNum;
-           dataBulk[row, 3 - 1] = records.ElementAt(row).ContainerType;
-           dataBulk[row, 4 - 1] = records.ElementAt(row).ContainerType;
-           dataBulk[row, 5 - 1] = records.ElementAt(row).SealNo + records.ElementAt(row).SealShr + records.ElementAt(row).SealOth;
-           dataBulk[row, 6 - 1] = records.ElementAt(row).PackageQty;
-           dataBulk[row, 7 - 1] = records.ElementAt(row).GoodsDescriptionRu;
-           dataBulk[row, 8 - 1] = records.ElementAt(row).GoodsDescription;
-           dataBulk[row, 9 - 1] = records.ElementAt(row).CommodityCode;
-           dataBulk[row, 10 - 1] = records.ElementAt(row).CargoWeight;
-           dataBulk[row, 11 - 1] = records.ElementAt(row).TareWeight;
-           dataBulk[row, 12 - 1] = records.ElementAt(row).Num;
-           dataBulk[row, 13 - 1] = records.ElementAt(row).IssueDate.HasValue ? records.ElementAt(row).IssueDate.Value.Date : null;
-           dataBulk[row, 14 - 1] = records.ElementAt(row).ShipperName;
-           dataBulk[row, 15 - 1] = records.ElementAt(row).ShipperNameRu;
-           dataBulk[row, 16 - 1] = records.ElementAt(row).ShipperCountryRu;
-           dataBulk[row, 17 - 1] = records.ElementAt(row).ShipperAddress;
-           dataBulk[row, 18 - 1] = records.ElementAt(row).ConsigneeName;
-           dataBulk[row, 19 - 1] = records.ElementAt(row).ConsigneeNameRu;
-           dataBulk[row, 20 - 1] = records.ElementAt(row).ConsigneeCountryRu;
-           dataBulk[row, 21 - 1] = records.ElementAt(row).ConsigneeAddressRu;
-           dataBulk[row, 22 - 1] = records.ElementAt(row).POR;
-           dataBulk[row, 23 - 1] = records.ElementAt(row).POL;
-           dataBulk[row, 24 - 1] = records.ElementAt(row).CustomsDeliveryMode;
-           dataBulk[row, 25 - 1] = records.ElementAt(row).ImoClass + records.ElementAt(row).Unno;
-           dataBulk[row, 26 - 1] = records.ElementAt(row).TempSet;
+        {
+            var seal = new List<string>();
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealNo))
+                seal.Add(records.ElementAt(row).SealNo);
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealShr))
+                seal.Add(records.ElementAt(row).SealShr);
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealOth))
+                seal.Add(records.ElementAt(row).SealOth);
 
-       });
+            dataBulk[row, 0] = records.ElementAt(row).No;
+            dataBulk[row, 2 - 1] = records.ElementAt(row).ContainerNum;
+            dataBulk[row, 2 - 1] = records.ElementAt(row).ContainerNum;
+            dataBulk[row, 3 - 1] = records.ElementAt(row).ContainerType;
+            dataBulk[row, 4 - 1] = records.ElementAt(row).ContainerType;
+            dataBulk[row, 5 - 1] = string.Join("; ", seal);
+            dataBulk[row, 6 - 1] = records.ElementAt(row).PackageQty;
+            dataBulk[row, 7 - 1] = records.ElementAt(row).GoodsDescriptionRu;
+            dataBulk[row, 8 - 1] = records.ElementAt(row).GoodsDescription;
+            dataBulk[row, 9 - 1] = records.ElementAt(row).CommodityCode;
+            dataBulk[row, 10 - 1] = records.ElementAt(row).CargoWeight;
+            dataBulk[row, 11 - 1] = records.ElementAt(row).TareWeight;
+            dataBulk[row, 12 - 1] = records.ElementAt(row).Num;
+            dataBulk[row, 13 - 1] = records.ElementAt(row).IssueDate.HasValue ? records.ElementAt(row).IssueDate.Value.Date : null;
+            dataBulk[row, 14 - 1] = records.ElementAt(row).ShipperName;
+            dataBulk[row, 15 - 1] = records.ElementAt(row).ShipperNameRu;
+            dataBulk[row, 16 - 1] = records.ElementAt(row).ShipperCountryRu;
+            dataBulk[row, 17 - 1] = records.ElementAt(row).ShipperAddress;
+            dataBulk[row, 18 - 1] = records.ElementAt(row).ConsigneeName;
+            dataBulk[row, 19 - 1] = records.ElementAt(row).ConsigneeNameRu;
+            dataBulk[row, 20 - 1] = records.ElementAt(row).ConsigneeCountryRu;
+            dataBulk[row, 21 - 1] = records.ElementAt(row).ConsigneeAddressRu;
+            dataBulk[row, 22 - 1] = records.ElementAt(row).POR;
+            dataBulk[row, 23 - 1] = records.ElementAt(row).POL;
+            dataBulk[row, 24 - 1] = records.ElementAt(row).CustomsDeliveryMode;
+            dataBulk[row, 25 - 1] = records.ElementAt(row).ImoClass + records.ElementAt(row).Unno;
+            dataBulk[row, 26 - 1] = records.ElementAt(row).TempSet;
+
+        });
 
         Range.Value = dataBulk;
 
@@ -448,4 +460,268 @@ public class ExcelFileCreateService : IExcelFileCreateService
         return fileBytes;
 
     }
+
+    public async Task<byte[]> CreateExcelTemplateFillBill(ImportVesselCallDto VesselCall)
+    {
+        TemplateFilePath = Path.Combine(DirResources, "FillBillTemplateSoling.xlsx");
+
+        if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
+
+        CreateTempFile(TemporaryFilePath);
+
+        if (WorkSheet is null) return Array.Empty<byte>();
+
+        WorkSheet.Cells[2, 1] = VesselCall.VesselName.ToUpper();  //Vessel Name 
+        WorkSheet.Cells[2, 5] = VesselCall.VesselVoyage.ToUpper();  //Vessel Voyage 
+        WorkSheet.Cells[2, 2] = VesselCall.VesselFlag.ToUpper();  //Vessel Flag 
+        WorkSheet.Cells[2, 4] = VesselCall.DeparturePortName.ToUpper();  //POL 
+
+        WorkSheet.Cells[1, 10] = "";  //Captain Surname
+        WorkSheet.Cells[2, 10] = "";  //Captain Name
+
+        WorkSheet.Cells[2, 15] = VesselCall.CustomsPostCode.ToUpper();  //Customs Post Code Name
+
+
+        var records = VesselCall.BillofLadings.SelectMany(s => s.ContainerRecords, (bl, rec) => new ManifestBillOfLadingDto()
+        {
+            Num = bl.Num,
+            IssueDate = bl.IssueDate,
+            ServiceCode = bl.ServiceCode,
+            ShipperName = bl.ShipperName,
+            ShipperAddress = bl.ShipperAddress,
+            ConsigneeName = bl.ConsigneeName,
+            ConsigneeAddress = bl.ConsigneeAddress,
+            ConsigneeTaxNo = bl.ConsigneeTaxNo,
+            NotifyName = bl.NotifyName,
+            NotifyAddress = bl.NotifyAddress,
+            NotifyEmail = bl.NotifyEmail,
+            AdditionalInfo = bl.AdditionalInfo,
+            ShipperNameRu = bl.ShipperNameRu,
+            ShipperAddressRu = bl.ShipperAddressRu,
+            ShipperCountryRu = bl.ShipperCountryRu,
+            ConsigneeNameRu = bl.ConsigneeNameRu,
+            ConsigneeAddressRu = bl.ConsigneeAddressRu,
+            ConsigneeCountryRu = bl.ConsigneeCountryRu,
+            CustomsDeliveryMode = bl.CustomsDeliveryMode,
+            POR = bl.POR,
+            POL = bl.POL,
+            TS_PORT = bl.TS_PORT,
+            POD = bl.POD,
+            F_POD = bl.F_POD,
+            ContainerNum = rec.ContainerNum,
+            ContainerType = rec.ContainerType,
+            TareWeight = rec.TareWeight,
+            CargoWeight = rec.CargoWeight,
+            SealNo = rec.SealNo,
+            SealShr = rec.SealShr,
+            SealOth = rec.SealOth,
+            ImoClass = rec.ImoClass,
+            Unno = rec.Unno,
+            TempSet = rec.TempSet,
+            PackageQty = rec.PackageQty,
+            CommodityCode = rec.CommodityCode,
+            GoodsDescription = rec.GoodsDescription,
+            GoodsDescriptionRu = rec.GoodsDescriptionRu,
+
+        }).ToList();
+        var i = 1;
+        records.ForEach(record => record.No = i++);
+        //TABLE                
+        int columns = 30;
+        int rows = records.Count();
+
+        int startRow = 5;
+
+        var startCell = WorkSheet.Cells[startRow, 1];
+        var endCell = WorkSheet.Cells[rows + startRow - 1, columns];
+        Range = WorkSheet.Range[startCell, endCell];
+
+        if (rows > 1) Range.FillDown();
+
+        var dataBulk = new object[rows, columns];
+
+        var result = Parallel.For(0, rows, (row, state) =>
+        {
+            var seal = new List<string>();
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealNo))
+                seal.Add(records.ElementAt(row).SealNo);
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealShr))
+                seal.Add(records.ElementAt(row).SealShr);
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealOth))
+                seal.Add(records.ElementAt(row).SealOth);
+            var _size = records.ElementAt(row).ContainerType?.Substring(0, 2).ToUpper();
+            var _type = records.ElementAt(row).ContainerType?.Substring(2, 2).ToUpper();
+
+            dataBulk[row, 1 - 1] = records.ElementAt(row).ContainerNum?.ToUpper();
+            dataBulk[row, 2 - 1] = _type;
+            dataBulk[row, 3 - 1] = _size;
+            dataBulk[row, 4 - 1] = records.ElementAt(row).TareWeight;
+            dataBulk[row, 5 - 1] = string.Join("; ", seal)?.ToUpper();
+            dataBulk[row, 6 - 1] = records.ElementAt(row).CargoWeight;
+            dataBulk[row, 7 - 1] = records.ElementAt(row).PackageQty;
+            dataBulk[row, 8 - 1] = records.ElementAt(row).GoodsDescription?.ToUpper();
+            dataBulk[row, 9 - 1] = records.ElementAt(row).GoodsDescriptionRu?.ToUpper();
+            dataBulk[row, 10 - 1] = records.ElementAt(row).Num?.ToUpper();
+            dataBulk[row, 11 - 1] = records.ElementAt(row).IssueDate.HasValue ? records.ElementAt(row).IssueDate.Value.Date : null;
+            dataBulk[row, 12 - 1] = VesselCall.DeparturePortName.ToUpper();
+            dataBulk[row, 13 - 1] = VesselCall.DeparturePortCountryCode?.ToUpper();
+
+            dataBulk[row, 14 - 1] = records.ElementAt(row).ShipperName.ToUpper();
+            dataBulk[row, 15 - 1] = records.ElementAt(row).ShipperCountryRu?.ToUpper();
+            dataBulk[row, 16 - 1] = records.ElementAt(row).POL.ToUpper();
+            dataBulk[row, 17 - 1] = records.ElementAt(row).ShipperAddress?.ToUpper();
+
+            dataBulk[row, 18 - 1] = records.ElementAt(row).ConsigneeNameRu?.ToUpper();
+            dataBulk[row, 19 - 1] = records.ElementAt(row).ConsigneeCountryRu?.ToUpper();
+            dataBulk[row, 20 - 1] = "";
+            dataBulk[row, 21 - 1] = records.ElementAt(row).ConsigneeAddressRu?.ToUpper();
+            dataBulk[row, 22 - 1] = records.ElementAt(row).CustomsDeliveryMode switch
+            {
+                CustomsDeliveryMode.GTD => "ГТД",
+                CustomsDeliveryMode.VTT => "ВТТ",
+
+            };
+            dataBulk[row, 23 - 1] = records.ElementAt(row).CommodityCode?.ToUpper();
+
+
+            dataBulk[row, 29 - 1] = records.ElementAt(row).ImoClass?.ToUpper();
+            dataBulk[row, 30 - 1] = records.ElementAt(row).Unno?.ToUpper();
+
+
+        });
+
+        Range.Value = dataBulk;
+
+        SaveTempFile();
+
+        byte[] fileBytes = File.ReadAllBytes(TemporaryFilePath);
+
+
+        return fileBytes;
+
+    }
+
+    public async Task<byte[]> CreateExcelTemplateArrivalNotice(ImportVesselCallDto VesselCall)
+    {
+        TemplateFilePath = Path.Combine(DirResources, "ArrivalNoticeTemplate.xlsx");
+
+        if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
+
+        CreateTempFile(TemporaryFilePath);
+
+        if (WorkSheet is null) return Array.Empty<byte>();
+
+        WorkSheet.Cells[3, 3] = VesselCall.VesselName.ToUpper();  //Vessel Name 
+        WorkSheet.Cells[3, 7] = VesselCall.VesselVoyage.ToUpper();  //Vessel Voyage 
+        WorkSheet.Cells[4, 3] = VesselCall.VesselFlag.ToUpper();  //Vessel Flag 
+        WorkSheet.Cells[7, 3] = VesselCall.DeparturePortName.ToUpper();  //POL 
+        WorkSheet.Cells[6, 3] = VesselCall.ETA;  //ETA 
+
+        var records = VesselCall.BillofLadings.SelectMany(s => s.ContainerRecords, (bl, rec) => new ManifestBillOfLadingDto()
+        {
+            Num = bl.Num,
+            IssueDate = bl.IssueDate,
+            ServiceCode = bl.ServiceCode,
+            ShipperName = bl.ShipperName,
+            ShipperAddress = bl.ShipperAddress,
+            ConsigneeName = bl.ConsigneeName,
+            ConsigneeAddress = bl.ConsigneeAddress,
+            ConsigneeTaxNo = bl.ConsigneeTaxNo,
+            NotifyName = bl.NotifyName,
+            NotifyAddress = bl.NotifyAddress,
+            NotifyEmail = bl.NotifyEmail,
+            AdditionalInfo = bl.AdditionalInfo,
+            ShipperNameRu = bl.ShipperNameRu,
+            ShipperAddressRu = bl.ShipperAddressRu,
+            ShipperCountryRu = bl.ShipperCountryRu,
+            ConsigneeNameRu = bl.ConsigneeNameRu,
+            ConsigneeAddressRu = bl.ConsigneeAddressRu,
+            ConsigneeCountryRu = bl.ConsigneeCountryRu,
+            CustomsDeliveryMode = bl.CustomsDeliveryMode,
+            POR = bl.POR,
+            POL = bl.POL,
+            TS_PORT = bl.TS_PORT,
+            POD = bl.POD,
+            F_POD = bl.F_POD,
+            ContainerNum = rec.ContainerNum,
+            ContainerType = rec.ContainerType,
+            TareWeight = rec.TareWeight,
+            CargoWeight = rec.CargoWeight,
+            SealNo = rec.SealNo,
+            SealShr = rec.SealShr,
+            SealOth = rec.SealOth,
+            ImoClass = rec.ImoClass,
+            Unno = rec.Unno,
+            TempSet = rec.TempSet,
+            PackageQty = rec.PackageQty,
+            CommodityCode = rec.CommodityCode,
+            GoodsDescription = rec.GoodsDescription,
+            GoodsDescriptionRu = rec.GoodsDescriptionRu,
+
+        }).ToList();
+        var i = 1;
+        records.ForEach(record => record.No = i++);
+        //TABLE                
+        int columns = 14;
+        int rows = records.Count();
+
+        int startRow = 10;
+
+        var startCell = WorkSheet.Cells[startRow, 1];
+        var endCell = WorkSheet.Cells[rows + startRow - 1, columns];
+        Range = WorkSheet.Range[startCell, endCell];
+
+        if (rows > 1) Range.FillDown();
+
+        var dataBulk = new object[rows, columns];
+
+        var result = Parallel.For(0, rows, (row, state) =>
+        {
+            var seal = new List<string>();
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealNo))
+                seal.Add(records.ElementAt(row).SealNo);
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealShr))
+                seal.Add(records.ElementAt(row).SealShr);
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealOth))
+                seal.Add(records.ElementAt(row).SealOth);
+
+            var _shipper = $"{records.ElementAt(row).ShipperCountryRu}, {records.ElementAt(row).ShipperName}, {records.ElementAt(row).ShipperAddress}";
+            var _consignee = $"{records.ElementAt(row).ConsigneeCountryRu}, {records.ElementAt(row).ConsigneeNameRu}, {records.ElementAt(row).ConsigneeAddressRu}";
+
+            var _size= records.ElementAt(row).ContainerType.Substring(0,2)?.ToUpper();
+            var _type= records.ElementAt(row).ContainerType.Substring(2, 2)?.ToUpper();
+
+            dataBulk[row, 1 - 1] = records.ElementAt(row).No;
+            dataBulk[row, 2 - 1] = records.ElementAt(row).ContainerNum?.ToUpper();
+            dataBulk[row, 3 - 1] = _size;
+            dataBulk[row, 4 - 1] = _type;
+            dataBulk[row, 5 - 1] = string.Join("; ", seal)?.ToUpper();
+            dataBulk[row, 6 - 1] = records.ElementAt(row).PackageQty;
+            dataBulk[row, 7 - 1] = records.ElementAt(row).GoodsDescriptionRu?.ToUpper();
+            dataBulk[row, 8 - 1] = records.ElementAt(row).CargoWeight;
+            dataBulk[row, 9 - 1] = records.ElementAt(row).TareWeight;
+            dataBulk[row, 10 - 1] = records.ElementAt(row).Num?.ToUpper();
+            dataBulk[row, 11 - 1] = records.ElementAt(row).IssueDate.HasValue ? records.ElementAt(row).IssueDate.Value.Date : null;
+            dataBulk[row, 12 - 1] = _shipper.ToUpper();
+            dataBulk[row, 13 - 1] = _consignee.ToUpper();
+            dataBulk[row, 14 - 1] = records.ElementAt(row).CustomsDeliveryMode switch
+            {
+                CustomsDeliveryMode.GTD => "ГТД",
+                CustomsDeliveryMode.VTT => "ВТТ",
+
+            };
+
+        });
+
+        Range.Value = dataBulk;
+
+        SaveTempFile();
+
+        byte[] fileBytes = File.ReadAllBytes(TemporaryFilePath);
+
+
+        return fileBytes;
+
+    }
+
 }

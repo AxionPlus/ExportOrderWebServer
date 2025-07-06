@@ -9,6 +9,8 @@ namespace ExportOrderEntites.BillofLading
         public string? Num { get; set; }
         public string? ServiceCode { get; set; }
 
+        public EntityStatus Status { get; set; } = EntityStatus.New;
+
         /// <summary>
         /// BL date
         /// </summary>

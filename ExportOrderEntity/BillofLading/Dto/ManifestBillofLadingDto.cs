@@ -5,7 +5,9 @@ namespace ExportOrderEntites.BillofLading.Dto
     {
         public int No { get; set; }
         public string? Num { get; set; }
+        public EntityStatus Status { get; set; }
 
+        public bool IsEmpty { get; set; }
         public bool IsRef { get; set; }
         public bool IsSoc { get; set; }
         public bool IsOog { get; set; }

@@ -17,6 +17,8 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
         Task UpdateBillOfLadingContainerRecords(IEnumerable<BillOfLadingContainerRecordDto> records);
         Task<BillOfLadingContainerRecordDto> UpdateBillOfLadingContainerRecordAsync(BillOfLadingContainerRecordDto element);
         Task UpdateBillofLadingAsync(BillOfLadingDto billofLading);
+        Task SetStatusBillofLadingAsync(string billofLadingNum, EntityStatus status);
+
 
         Task<ImportVesselCallDto> GetVesselCallData(string vesselCallId);
     }
@@ -170,6 +172,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                             Version = rec.Version,
                         }).OrderBy(s => s.ContainerNum).ToList(),
                         CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
+                        Status = billofLading.Status,
                     }).FirstOrDefaultAsync(s => s.Num == billofLadingNum);
                 return BillofLading;
             }
@@ -236,6 +239,8 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                             Version = rec.Version,
                         }).OrderBy(s => s.ContainerNum).ToList(),
                         CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
+                        Status = billofLading.Status,
+
                     }).OrderBy(s => s.Num).ToArrayAsync();
 
                 return BillofLadings;
@@ -263,7 +268,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         HasTranslate = bl.ContainerRecords.Any(s => !string.IsNullOrWhiteSpace(s.GoodsDescriptionRu)),
                         HasShipper = (!string.IsNullOrWhiteSpace(bl.ShipperCountryRu) || !string.IsNullOrWhiteSpace(bl.ShipperAddressRu) || !string.IsNullOrWhiteSpace(bl.ShipperNameRu)),
                         HasConsignee = (!string.IsNullOrWhiteSpace(bl.ConsigneeNameRu) || !string.IsNullOrWhiteSpace(bl.ConsigneeCountryRu) || !string.IsNullOrWhiteSpace(bl.ConsigneeAddressRu)),
-
+                        Status = bl.Status,
                     }).OrderBy(s => s.Num).ToArrayAsync();
 
                 return BillofLadings;
@@ -328,13 +333,15 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                             TempSet = rec.TempSet,
                             Version = rec.Version,
                         }).ToList(),
+                        Status = billofLading.Status,
+                        CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
                         Version = billofLading.Version
                     }).ToArrayAsync();
                 return BillofLadings;
             }
         }
 
-        public async Task<ImportVesselCallDto> GetVesselCallData(string vesselCallId)
+        public async Task<ImportVesselCallDto> GetVesselCallData(string vesselCallId)   
         {
             using (var _db = _dbContext.CreateDbContextAsync())
             {
@@ -408,11 +415,34 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                                 Version = rec.Version,
                             }).OrderBy(s => s.ContainerNum).ToList(),
                             CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
+                            Status = billofLading.Status,
+
                         }).ToList(),
                     })
                     .FirstOrDefaultAsync();
 
                 return VesselCall!;
+
+            }
+        }
+
+        public async Task SetStatusBillofLadingAsync(string billofLadingNum, EntityStatus status)
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+
+
+                var UpdateBillofLading = await db.Set<BillofLadingEntity>().AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.Num == billofLadingNum);
+                if (UpdateBillofLading is null)
+                    throw new InvalidOperationException($"Bill of Lading with number {billofLadingNum} is not existed");
+
+                UpdateBillofLading.Status = status;
+                UpdateBillofLading.UpdatedAt = DateTimeOffset.UtcNow;
+                db.Entry(UpdateBillofLading).State = EntityState.Modified;
+                await db.SaveChangesAsync();
 
             }
         }
@@ -438,10 +468,10 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         throw new InvalidOperationException($"Bill of Lading with number {billofLading.Num} already exists");
 
                     UpdateBillofLading.Num = billofLading.Num?.ToUpper();
-                   // UpdateBillofLading.HasSwitched =true;
+                    // UpdateBillofLading.HasSwitched =true;
                 }
 
-                
+
 
                 UpdateBillofLading.ShipperNameRu = billofLading.ShipperNameRu?.ToUpper();
                 UpdateBillofLading.ShipperAddressRu = billofLading.ShipperAddressRu?.ToUpper();
@@ -452,6 +482,8 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                 UpdateBillofLading.CustomsDeliveryMode = billofLading.CustomsDeliveryMode.HasValue ? billofLading.CustomsDeliveryMode.Value : CustomsDeliveryMode.GTD;
                 //UpdateBillofLading.SobDate = billofLading.SobDate;
                 //UpdateBillofLading.IssueDate = billofLading.IssueDate;
+
+                UpdateBillofLading.UpdatedAt = DateTimeOffset.UtcNow;
 
                 db.Entry(UpdateBillofLading).State = EntityState.Modified;
                 await db.SaveChangesAsync();

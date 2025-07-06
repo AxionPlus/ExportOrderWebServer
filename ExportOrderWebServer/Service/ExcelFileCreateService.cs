@@ -1,11 +1,13 @@
-﻿using ExportOrderEntites.BillofLading.Dto;
+﻿using ExportOrderEntites.BillofLading;
+using ExportOrderEntites.BillofLading.Dto;
 using ExportOrderEntites.ImportVesselCall.Dto;
 using Microsoft.JSInterop;
 using Microsoft.Office.Interop.Excel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using ExportOrderEntites.BillofLading;
 using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
+using static MudBlazor.CategoryTypes;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Service;
@@ -18,6 +20,7 @@ public interface IExcelFileCreateService : IDisposable
     Task<byte[]> CreateExcelReport(object[,] Array, string reportName);
     Task<byte[]> CreateExcelTemplateFillBill(ImportVesselCallDto VesselCall);
     Task<byte[]> CreateExcelTemplateArrivalNotice(ImportVesselCallDto VesselCall);
+    Task<byte[]> CreateExcelTemplateCargoManifest(ImportVesselCallDto VesselCall);
 }
 
 public class ExcelFileCreateService : IExcelFileCreateService
@@ -688,8 +691,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
             var _shipper = $"{records.ElementAt(row).ShipperCountryRu}, {records.ElementAt(row).ShipperName}, {records.ElementAt(row).ShipperAddress}";
             var _consignee = $"{records.ElementAt(row).ConsigneeCountryRu}, {records.ElementAt(row).ConsigneeNameRu}, {records.ElementAt(row).ConsigneeAddressRu}";
 
-            var _size= records.ElementAt(row).ContainerType.Substring(0,2)?.ToUpper();
-            var _type= records.ElementAt(row).ContainerType.Substring(2, 2)?.ToUpper();
+            var _size = records.ElementAt(row).ContainerType.Substring(0, 2)?.ToUpper();
+            var _type = records.ElementAt(row).ContainerType.Substring(2, 2)?.ToUpper();
 
             dataBulk[row, 1 - 1] = records.ElementAt(row).No;
             dataBulk[row, 2 - 1] = records.ElementAt(row).ContainerNum?.ToUpper();
@@ -724,4 +727,306 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
     }
 
+    public async Task<byte[]> CreateExcelTemplateCargoManifest(ImportVesselCallDto VesselCall)
+    {
+        TemplateFilePath = Path.Combine(DirResources, "CargoManifest.xlsx");
+
+        if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
+
+        CreateTempFile(TemporaryFilePath);
+
+        if (WorkSheet is null) return Array.Empty<byte>();
+
+        WorkSheet.Cells[1, 3] = VesselCall.VesselName.ToUpper();  //Vessel Name 
+        WorkSheet.Cells[2, 3] = VesselCall.VesselVoyage.ToUpper();  //Vessel Voyage 
+        WorkSheet.Cells[1, 5] = VesselCall.VesselFlag.ToUpper();  //Vessel Flag 
+        WorkSheet.Cells[1, 10] = VesselCall.DeparturePortName.ToUpper();  //POL 
+        WorkSheet.Cells[1, 12] = VesselCall.ETA;  //ETA 
+
+        var records = VesselCall.BillofLadings.SelectMany(s => s.ContainerRecords, (bl, rec) => new ManifestBillOfLadingDto()
+        {
+            Num = bl.Num,
+            IssueDate = bl.IssueDate,
+            ServiceCode = bl.ServiceCode,
+            ShipperName = bl.ShipperName,
+            ShipperAddress = bl.ShipperAddress,
+            ConsigneeName = bl.ConsigneeName,
+            ConsigneeAddress = bl.ConsigneeAddress,
+            ConsigneeTaxNo = bl.ConsigneeTaxNo,
+            NotifyName = bl.NotifyName,
+            NotifyAddress = bl.NotifyAddress,
+            NotifyEmail = bl.NotifyEmail,
+            AdditionalInfo = bl.AdditionalInfo,
+            ShipperNameRu = bl.ShipperNameRu,
+            ShipperAddressRu = bl.ShipperAddressRu,
+            ShipperCountryRu = bl.ShipperCountryRu,
+            ConsigneeNameRu = bl.ConsigneeNameRu,
+            ConsigneeAddressRu = bl.ConsigneeAddressRu,
+            ConsigneeCountryRu = bl.ConsigneeCountryRu,
+            CustomsDeliveryMode = bl.CustomsDeliveryMode,
+            POR = bl.POR,
+            POL = bl.POL,
+            TS_PORT = bl.TS_PORT,
+            POD = bl.POD,
+            F_POD = bl.F_POD,
+            ContainerNum = rec.ContainerNum,
+            ContainerType = rec.ContainerType,
+            TareWeight = rec.TareWeight,
+            CargoWeight = rec.CargoWeight,
+            SealNo = rec.SealNo,
+            SealShr = rec.SealShr,
+            SealOth = rec.SealOth,
+            ImoClass = rec.ImoClass,
+            Unno = rec.Unno,
+            TempSet = rec.TempSet,
+            PackageQty = rec.PackageQty,
+            CommodityCode = rec.CommodityCode,
+            GoodsDescription = rec.GoodsDescription,
+            GoodsDescriptionRu = rec.GoodsDescriptionRu,
+
+        }).ToList();
+        var i = 1;
+        records.ForEach(record => record.No = i++);
+        //TABLE                
+        int columns = 14;
+        int rows = records.Count();
+
+        int startRow = 4;
+
+        var startCell = WorkSheet.Cells[startRow, 1];
+        var endCell = WorkSheet.Cells[rows + startRow - 1, columns];
+        Range = WorkSheet.Range[startCell, endCell];
+
+        if (rows > 1) Range.FillDown();
+
+        var dataBulk = new object[rows, columns];
+
+        var result = Parallel.For(0, rows, (row, state) =>
+        {
+            var seal = new List<string>();
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealNo))
+                seal.Add(records.ElementAt(row).SealNo);
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealShr))
+                seal.Add(records.ElementAt(row).SealShr);
+            if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealOth))
+                seal.Add(records.ElementAt(row).SealOth);
+
+
+            var _size = records.ElementAt(row).ContainerType.Substring(0, 2)?.ToUpper();
+            var _type = records.ElementAt(row).ContainerType.Substring(2, 2)?.ToUpper();
+            var _imo = string.IsNullOrWhiteSpace(records.ElementAt(row).ImoClass) ? null : $"{records.ElementAt(row).ImoClass}-{records.ElementAt(row).Unno}";
+            dataBulk[row, 1 - 1] = records.ElementAt(row).No;
+            dataBulk[row, 2 - 1] = records.ElementAt(row).Num?.ToUpper();
+            dataBulk[row, 3 - 1] = records.ElementAt(row).ShipperName.ToUpper();
+            dataBulk[row, 4 - 1] = records.ElementAt(row).ConsigneeName.ToUpper();
+            dataBulk[row, 5 - 1] = records.ElementAt(row).ContainerNum?.ToUpper();
+            dataBulk[row, 6 - 1] = records.ElementAt(row).TareWeight;
+            dataBulk[row, 7 - 1] = _size;
+            dataBulk[row, 8 - 1] = _type;
+            dataBulk[row, 9 - 1] = string.Join("; ", seal)?.ToUpper();
+            dataBulk[row, 10 - 1] = records.ElementAt(row).GoodsDescription?.ToUpper();
+            dataBulk[row, 11 - 1] = records.ElementAt(row).PackageQty;
+            dataBulk[row, 12 - 1] = records.ElementAt(row).CargoWeight;
+            dataBulk[row, 13 - 1] = _imo?.ToUpper();
+
+        });
+
+        Range.Value = dataBulk;
+
+
+        #region Footer
+
+        var footer = rows + startRow + 5;
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer-2, 1], WorkSheet.Cells[footer-2, 2]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Font.Bold = true;
+        Range.Font.Size = 12;
+        Range.Value = "LAST PAGE";
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer - 2, 12], WorkSheet.Cells[footer - 2, 13]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Font.Bold = true; 
+        Range.Font.Size = 12; 
+        Range.Value = "LAST PAGE";
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer - 2, 1], WorkSheet.Cells[footer - 2, 13]];
+        // Настройка нижней границы
+        Range.Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous; // Сплошная линия
+        Range.Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlMedium;     // жирная линия
+
+
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer, 5], WorkSheet.Cells[footer, 5]];
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Value = "Quantity";
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer, 6], WorkSheet.Cells[footer, 8]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        //Range.Cells.Borders.Value = true;
+        //Range.Cells.Borders.Weight = 2;
+        Range.Value = "Tare weight, kgs";
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer, 9], WorkSheet.Cells[footer, 10]];
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+        WorkSheet.Cells[footer, 9] = "Cargo weight, kgs";
+        WorkSheet.Cells[footer, 10] = "Container tare + cargo weight, kgs";
+
+        WorkSheet.Cells[footer + 1, 4] = "Full Container Loaded 20'";
+        WorkSheet.Cells[footer + 2, 4] = "Full Container Loaded 40'";
+        WorkSheet.Cells[footer + 3, 4] = "Empty Container 20'";
+        WorkSheet.Cells[footer + 4, 4] = "Empty Container 40'";
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 4], WorkSheet.Cells[footer + 6, 4]];
+        Range.Font.Size = 12; // Например, 12pt
+        Range.Font.Bold = true;  // Жирный шрифт
+        Range.Value = "Total";
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer, 6], WorkSheet.Cells[footer, 8]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        //Range.Cells.Borders.Value = true;
+        //Range.Cells.Borders.Weight = 2;
+        Range.Value = "Container tare weight, kgs";
+
+
+        var _records = records.DistinctBy(s => s.ContainerNum);
+
+        var full_20_qty = _records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => !s.IsEmpty).Count();
+        var full_40_qty = _records.Where(s => s.ContainerType.Substring(0, 2) == "40").Where(s => !s.IsEmpty).Count();
+        var mty_20_qty = _records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => s.IsEmpty).Count();
+        var mty_40_qty = _records.Where(s => s.ContainerType.Substring(0, 2) == "40").Where(s => s.IsEmpty).Count();
+
+        var full_20_tare = records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => !s.IsEmpty).Sum(s => s.TareWeight);
+        var full_40_tare = records.Where(s => s.ContainerType.Substring(0, 2) == "40").Where(s => !s.IsEmpty).Sum(s => s.TareWeight);
+        var mty_20_tare = records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => s.IsEmpty).Sum(s => s.TareWeight);
+        var mty_40_tare = records.Where(s => s.ContainerType.Substring(0, 2) == "40").Where(s => s.IsEmpty).Sum(s => s.TareWeight);
+
+        var full_20_wt = records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => !s.IsEmpty).Sum(s => s.CargoWeight);
+        var full_40_wt = records.Where(s => s.ContainerType.Substring(0, 2) == "40").Where(s => !s.IsEmpty).Sum(s => s.CargoWeight);
+        // var mty_20_wt = records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => s.IsEmpty).Sum(s => s.CargoWeight);
+        //var mty_40_wt = records.Where(s => s.ContainerType.Substring(0, 2) == "40").Where(s => s.IsEmpty).Sum(s => s.CargoWeight);
+
+        #region Container tare weight, kgs
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 1, 6], WorkSheet.Cells[footer + 1, 8]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        //Range.Cells.Borders.Value = true;
+        //Range.Cells.Borders.Weight = 2;
+        Range.Cells.NumberFormat = "# ### ###";
+        Range.Value = full_20_tare;
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 2, 6], WorkSheet.Cells[footer + 2, 8]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        //Range.Cells.Borders.Value = true;
+        //Range.Cells.Borders.Weight = 2;
+        Range.Cells.NumberFormat = "# ### ###";
+        Range.Value = full_40_tare;
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 3, 6], WorkSheet.Cells[footer + 3, 8]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        //Range.Cells.Borders.Value = true;
+        //Range.Cells.Borders.Weight = 2;
+        Range.Cells.NumberFormat = "# ### ###";
+        Range.Value = mty_20_tare;
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 4, 6], WorkSheet.Cells[footer + 4, 8]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        //Range.Cells.Borders.Value = true;
+        //Range.Cells.Borders.Weight = 2;
+        Range.Cells.NumberFormat = "# ### ###";
+        Range.Value = mty_40_tare;
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 6], WorkSheet.Cells[footer + 6, 8]];
+        Range.Cells.Merge();
+        Range.WrapText = false;
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Font.Size = 12; // Например, 12pt
+        Range.Font.Bold = true;  // Жирный шрифт
+        //Range.Cells.Borders.Value = true;
+        //Range.Cells.Borders.Weight = 2;
+        Range.Cells.NumberFormat = "# ### ###";
+        Range.Value = full_20_tare + full_40_tare + mty_20_tare + mty_40_tare;
+        #endregion
+
+        #region Quantity
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 1, 5], WorkSheet.Cells[footer + 4, 5]];
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Cells.NumberFormat = "# ### ###";
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 5], WorkSheet.Cells[footer + 6, 5]];
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Cells.NumberFormat = "# ### ###";
+
+        WorkSheet.Cells[footer + 1, 5] = full_20_qty;
+        WorkSheet.Cells[footer + 2, 5] = full_40_qty;
+        WorkSheet.Cells[footer + 3, 5] = mty_20_qty;
+        WorkSheet.Cells[footer + 4, 5] = mty_40_qty;
+
+        WorkSheet.Cells[footer + 6, 5] = _records.Count();
+
+
+        #endregion
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 1, 9], WorkSheet.Cells[footer + 4, 10]];
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Cells.NumberFormat = "# ### ### ##0.000";
+
+        Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 9], WorkSheet.Cells[footer + 6, 10]];
+        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Font.Size = 12; // Например, 12pt
+        Range.Font.Bold = true;  // Жирный шрифт
+        Range.Cells.NumberFormat = "# ### ### ##0.000";
+
+        WorkSheet.Cells[footer + 1, 9] = full_20_wt;
+        WorkSheet.Cells[footer + 2, 9] = full_40_wt;
+
+        WorkSheet.Cells[footer + 6, 9] = full_20_wt + full_40_wt;
+
+
+        WorkSheet.Cells[footer + 1, 10] = full_20_wt + full_20_tare;
+        WorkSheet.Cells[footer + 2, 10] = full_40_wt + full_40_tare;
+        WorkSheet.Cells[footer + 3, 10] = mty_20_tare;
+        WorkSheet.Cells[footer + 4, 10] = mty_40_tare;
+
+        WorkSheet.Cells[footer + 6, 10] = full_20_wt + full_20_tare + full_40_wt + full_40_tare + mty_20_tare + mty_40_tare;
+
+        #endregion
+
+
+
+        SaveTempFile();
+
+        byte[] fileBytes = File.ReadAllBytes(TemporaryFilePath);
+
+
+        return fileBytes;
+
+    }
 }

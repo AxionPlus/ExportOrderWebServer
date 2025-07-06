@@ -102,13 +102,13 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Controllers
             if (vesselCall is null)
                 return BadRequest("List of selected records is empty.");
 
-            var buffer = await _excelService.CreateExcelTemplateArrivalNotice(vesselCall);
+            var buffer = await _excelService.CreateExcelTemplateCargoManifest(vesselCall);
 
             if (buffer == Array.Empty<byte>())
                 return BadRequest("Файл не записан.");
             else
                 return File(buffer, "application/xlsx",
-                    $"ArrivalNotice_{vesselCall.VesselName}_{vesselCall.VesselVoyage}.xlsx");
+                    $"CargoManifest_{vesselCall.VesselName}_{vesselCall.VesselVoyage}.xlsx");
         }
 
         [HttpGet, Route("DownLoadTemplateImoManifest/{id}")]

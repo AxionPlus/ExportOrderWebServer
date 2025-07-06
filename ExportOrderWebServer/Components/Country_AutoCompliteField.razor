@@ -30,6 +30,7 @@ else
                                 await ValueChanged.InvokeAsync(e);
                          })"
                          CloseIcon="" OpenIcon=""
+                         Disabled="Disabled"
                          SearchFunc="LocationSearch"
                          Variant="Variant.Outlined"
                          CoerceValue="@CoerceValue"
@@ -48,6 +49,8 @@ else
     }
     [Parameter]
     public bool CoerceText { get; set; } = false;
+    [Parameter]
+    public bool Disabled { get; set; } = false;
     [Parameter]
     public bool UpperCase { get; set; } = false;
     [Parameter]

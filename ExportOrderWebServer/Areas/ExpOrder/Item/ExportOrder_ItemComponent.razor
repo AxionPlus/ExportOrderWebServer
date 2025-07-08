@@ -107,6 +107,7 @@
                                                       string.Empty)"
                       Variant="Variant.Outlined" Margin="Margin.Dense"
                       Required RequiredError="" Clearable
+                      OnClearButtonClick="@(()=> { Value.VesselCallDetail = null; Value.Carrier = null; })"
                       Adornment="Adornment.Start" IconSize="Size.Small"
                       AdornmentColor="Color.Primary"
                       AdornmentIcon="@Icons.Material.Filled.Waves"

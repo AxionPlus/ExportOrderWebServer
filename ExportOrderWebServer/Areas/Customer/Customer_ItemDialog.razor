@@ -126,7 +126,7 @@
             Countries = (IEnumerable<CountryCatalog>)response.Object;
 
         if (string.IsNullOrWhiteSpace(value))
-            return Countries.OrderBy(s => s.RUS).ToList();
+            return Countries.OrderBy(s => s.RUS).ToArray(); //ToList
 
         return Countries.Where(x => x.RUS.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }

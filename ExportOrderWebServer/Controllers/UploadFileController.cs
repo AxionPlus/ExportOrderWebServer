@@ -40,10 +40,6 @@ public class UploadFileController : ControllerBase
         {
             var uploadResult = await _excelUploadService.ReadExcelFileExportOrder(filePath);
 
-            // ... CheckService
-            // ... write AppObjectResponse.Object1 
-            // ... write AppObjectResponse.Object2
-
             return uploadResult;
         }
     }

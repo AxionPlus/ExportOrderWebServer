@@ -437,9 +437,9 @@ public class ImportVesselCallProvider : IImportVesselCallProvider
         var result = Enumerable.Empty<string>();
 
         if (!string.IsNullOrEmpty(vessel))
-            result = await db.VesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync();
+            result = await db.ImportVesselCalls.Where(s => s.Vessel.Name == vessel).OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync();
         else
-            result = await db.VesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo!).ToArrayAsync();
+            result = await db.ImportVesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo!).ToArrayAsync();
 
         return result;
     }

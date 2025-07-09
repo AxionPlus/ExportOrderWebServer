@@ -1,7 +1,7 @@
 ﻿@page "/uploadmanifest"
 @using ExportOrderWebServer.Areas.Import.VesselCall
 
-@attribute [Authorize(Roles = "Admin, ImpDept")]
+@attribute [Authorize(Roles = "Admin, ImpDept,ImpDept_Manager,ImpDept_TopManager,ImpDept_CEO")]
 
 @inject ISnackbar Snackbar
 @inject IHttpClientFactory httpClient

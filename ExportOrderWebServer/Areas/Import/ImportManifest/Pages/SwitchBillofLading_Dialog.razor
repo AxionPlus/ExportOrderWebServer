@@ -60,16 +60,15 @@
         if (!msgResult.HasValue || !msgResult.Value) 
             return;
 
-        BillofLading.Num = BillofLadingNum;
         BillofLading.ShipperName = ShipperName;
         BillofLading.ShipperAddress = ShipperAddress;
         BillofLading.ConsigneeName = ConsigneeName;
         BillofLading.ConsigneeAddress = ConsigneeAddress;
-        BillofLading.HasSwitched = true;
+        BillofLading.IsSwitched = true;
 
         try
         {
-            await ImportManifestProvider.UpdateBillofLadingAsync(billofLading: BillofLading);
+            await ImportManifestProvider.SwitchBillofLadingAsync(billofLading: BillofLading , BillofLadingNum);
 
             MudDialog?.Close(BillofLadingNum);
         }

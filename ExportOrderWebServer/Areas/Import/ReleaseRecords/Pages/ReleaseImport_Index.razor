@@ -4,7 +4,7 @@
 @using ExportOrderWebServer.Areas.Import.ReleaseRecords.Dto
 @using ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
 @using Newtonsoft.Json
-@attribute [Authorize(Roles = "Admin, ImpDept")]
+@attribute [Authorize(Roles = "Admin, ImpDept,ImpDept_Manager,ImpDept_TopManager,ImpDept_CEO")]
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar

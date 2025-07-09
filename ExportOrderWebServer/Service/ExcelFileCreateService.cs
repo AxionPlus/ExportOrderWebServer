@@ -838,7 +838,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         var footer = rows + startRow + 5;
 
-        Range = WorkSheet.Range[WorkSheet.Cells[footer-2, 1], WorkSheet.Cells[footer-2, 2]];
+        Range = WorkSheet.Range[WorkSheet.Cells[footer - 2, 1], WorkSheet.Cells[footer - 2, 2]];
         Range.Cells.Merge();
         Range.WrapText = false;
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
@@ -852,8 +852,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range.WrapText = false;
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Bold = true; 
-        Range.Font.Size = 12; 
+        Range.Font.Bold = true;
+        Range.Font.Size = 12;
         Range.Value = "LAST PAGE";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer - 2, 1], WorkSheet.Cells[footer - 2, 13]];
@@ -891,16 +891,6 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range.Font.Bold = true;  // Жирный шрифт
         Range.Value = "Total";
 
-        Range = WorkSheet.Range[WorkSheet.Cells[footer, 6], WorkSheet.Cells[footer, 8]];
-        Range.Cells.Merge();
-        Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        //Range.Cells.Borders.Value = true;
-        //Range.Cells.Borders.Weight = 2;
-        Range.Value = "Container tare weight, kgs";
-
-
         var _records = records.DistinctBy(s => s.ContainerNum);
 
         var full_20_qty = _records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => !s.IsEmpty).Count();
@@ -924,40 +914,58 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range.WrapText = false;
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
-        //Range.Cells.Borders.Value = true;
-        //Range.Cells.Borders.Weight = 2;
-        Range.Cells.NumberFormat = "# ### ###";
-        Range.Value = full_20_tare;
+        Range.Font.Size = 12; // Например, 12pt
+        Range.Font.Bold = true;  // Жирный шрифт
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
+
+        if (full_20_tare != 0)
+            Range.Value = full_20_tare;
+        else
+            Range.Value = "-";
+
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 2, 6], WorkSheet.Cells[footer + 2, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Font.Size = 12; // Например, 12pt
         //Range.Cells.Borders.Value = true;
         //Range.Cells.Borders.Weight = 2;
-        Range.Cells.NumberFormat = "# ### ###";
-        Range.Value = full_40_tare;
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
+        if (full_40_tare != 0)
+            Range.Value = full_40_tare;
+        else
+            Range.Value = "-";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 3, 6], WorkSheet.Cells[footer + 3, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Font.Size = 12; // Например, 12pt
         //Range.Cells.Borders.Value = true;
         //Range.Cells.Borders.Weight = 2;
-        Range.Cells.NumberFormat = "# ### ###";
-        Range.Value = mty_20_tare;
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
+        if (mty_20_tare != 0)
+            Range.Value = mty_20_tare;
+        else
+            Range.Value = "-";
+
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 4, 6], WorkSheet.Cells[footer + 4, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.Font.Size = 12; // Например, 12pt
         //Range.Cells.Borders.Value = true;
         //Range.Cells.Borders.Weight = 2;
-        Range.Cells.NumberFormat = "# ### ###";
-        Range.Value = mty_40_tare;
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
+        if (mty_40_tare != 0)
+            Range.Value = mty_40_tare;
+        else
+            Range.Value = "-";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 6], WorkSheet.Cells[footer + 6, 8]];
         Range.Cells.Merge();
@@ -968,54 +976,83 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range.Font.Bold = true;  // Жирный шрифт
         //Range.Cells.Borders.Value = true;
         //Range.Cells.Borders.Weight = 2;
-        Range.Cells.NumberFormat = "# ### ###";
-        Range.Value = full_20_tare + full_40_tare + mty_20_tare + mty_40_tare;
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
+        if ((full_20_tare + full_40_tare + mty_20_tare + mty_40_tare) != 0)
+            Range.Value = full_20_tare + full_40_tare + mty_20_tare + mty_40_tare;
+        else
+            Range.Value = "-";
+
         #endregion
 
         #region Quantity
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 1, 5], WorkSheet.Cells[footer + 4, 5]];
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Cells.NumberFormat = "# ### ###";
+        Range.Font.Size = 12; // Например, 12pt
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 5], WorkSheet.Cells[footer + 6, 5]];
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Cells.NumberFormat = "# ### ###";
+        Range.Font.Size = 12; // Например, 12pt
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
 
-        WorkSheet.Cells[footer + 1, 5] = full_20_qty;
-        WorkSheet.Cells[footer + 2, 5] = full_40_qty;
-        WorkSheet.Cells[footer + 3, 5] = mty_20_qty;
-        WorkSheet.Cells[footer + 4, 5] = mty_40_qty;
+        if (full_20_qty != 0)
+            WorkSheet.Cells[footer + 1, 5] = full_20_qty;
+        else
+            WorkSheet.Cells[footer + 1, 5] = "-";
+
+        if (full_40_qty != 0)
+            WorkSheet.Cells[footer + 2, 5] = full_40_qty;
+        else
+            WorkSheet.Cells[footer + 2, 5] = "-";
+
+        if (mty_20_qty != 0)
+            WorkSheet.Cells[footer + 3, 5] = mty_20_qty;
+        else
+            WorkSheet.Cells[footer + 3, 5] = "-";
+
+        if (mty_40_qty != 0)
+            WorkSheet.Cells[footer + 4, 5] = mty_40_qty;
+        else
+            WorkSheet.Cells[footer + 4, 5] = "-";
+
+
 
         WorkSheet.Cells[footer + 6, 5] = _records.Count();
 
 
         #endregion
+
+
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 1, 9], WorkSheet.Cells[footer + 4, 10]];
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Cells.NumberFormat = "# ### ### ##0.000";
+        Range.Font.Size = 12; // Например, 12pt
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###.000"; //"# ### ### ##0.000";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 9], WorkSheet.Cells[footer + 6, 10]];
         Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
         Range.Font.Name = "Courier New"; // Установка шрифта
         Range.Font.Size = 12; // Например, 12pt
         Range.Font.Bold = true;  // Жирный шрифт
-        Range.Cells.NumberFormat = "# ### ### ##0.000";
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###.000";//"# ### ### ##0.000";
 
-        WorkSheet.Cells[footer + 1, 9] = full_20_wt;
-        WorkSheet.Cells[footer + 2, 9] = full_40_wt;
+        WorkSheet.Cells[footer + 1, 9] = full_20_wt != 0 ? full_20_wt : "-";
+        WorkSheet.Cells[footer + 2, 9] = full_40_wt != 0 ? full_40_wt : "-";
+        WorkSheet.Cells[footer + 3, 9] = "-";
+        WorkSheet.Cells[footer + 4, 9] = "-";
 
-        WorkSheet.Cells[footer + 6, 9] = full_20_wt + full_40_wt;
+
+        WorkSheet.Cells[footer + 6, 9] = (full_20_wt + full_40_wt) != 0 ? (full_20_wt + full_40_wt) : "-";
 
 
-        WorkSheet.Cells[footer + 1, 10] = full_20_wt + full_20_tare;
-        WorkSheet.Cells[footer + 2, 10] = full_40_wt + full_40_tare;
-        WorkSheet.Cells[footer + 3, 10] = mty_20_tare;
-        WorkSheet.Cells[footer + 4, 10] = mty_40_tare;
+        WorkSheet.Cells[footer + 1, 10] = full_20_wt + full_20_tare != 0 ? full_20_wt + full_20_tare : "-";
+        WorkSheet.Cells[footer + 2, 10] = full_40_wt + full_40_tare != 0 ? full_40_wt + full_40_tare : "-";
+        WorkSheet.Cells[footer + 3, 10] = mty_20_tare != 0 ? mty_20_tare : "-";
+        WorkSheet.Cells[footer + 4, 10] = mty_40_tare != 0 ? mty_40_tare : "-";
 
-        WorkSheet.Cells[footer + 6, 10] = full_20_wt + full_20_tare + full_40_wt + full_40_tare + mty_20_tare + mty_40_tare;
+        WorkSheet.Cells[footer + 6, 10] = full_20_wt + full_20_tare + full_40_wt + full_40_tare + mty_20_tare + mty_40_tare != 0 ? full_20_wt + full_20_tare + full_40_wt + full_40_tare + mty_20_tare + mty_40_tare : "-";
 
         #endregion
 
@@ -1029,4 +1066,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
         return fileBytes;
 
     }
+
+
+
+
 }

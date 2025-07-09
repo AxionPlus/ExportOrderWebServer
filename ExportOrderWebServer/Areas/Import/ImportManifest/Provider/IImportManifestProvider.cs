@@ -17,6 +17,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
         Task UpdateBillOfLadingContainerRecords(IEnumerable<BillOfLadingContainerRecordDto> records);
         Task<BillOfLadingContainerRecordDto> UpdateBillOfLadingContainerRecordAsync(BillOfLadingContainerRecordDto element);
         Task UpdateBillofLadingAsync(BillOfLadingDto billofLading);
+        Task SwitchBillofLadingAsync(BillOfLadingDto billofLading, string newNumBillofLading);
         Task SetStatusBillofLadingAsync(string billofLadingNum, EntityStatus status);
 
 
@@ -265,7 +266,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         IsSoc = bl.ContainerRecords.Any(s => s.IsSoc),
                         IsAlcohol = bl.ContainerRecords.Any(s => s.IsAlcohol),
                         IsMilitaryCargo = bl.ContainerRecords.Any(s => s.IsMilitaryCargo),
-                        HasTranslate = bl.ContainerRecords.Any(s => !string.IsNullOrWhiteSpace(s.GoodsDescriptionRu)),
+                        HasTranslate = !bl.ContainerRecords.Any(s => string.IsNullOrWhiteSpace(s.GoodsDescriptionRu)),
                         HasShipper = (!string.IsNullOrWhiteSpace(bl.ShipperCountryRu) || !string.IsNullOrWhiteSpace(bl.ShipperAddressRu) || !string.IsNullOrWhiteSpace(bl.ShipperNameRu)),
                         HasConsignee = (!string.IsNullOrWhiteSpace(bl.ConsigneeNameRu) || !string.IsNullOrWhiteSpace(bl.ConsigneeCountryRu) || !string.IsNullOrWhiteSpace(bl.ConsigneeAddressRu)),
                         Status = bl.Status,
@@ -335,13 +336,13 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         }).ToList(),
                         Status = billofLading.Status,
                         CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
-                        Version = billofLading.Version
+                        Version = billofLading.Version,
                     }).ToArrayAsync();
                 return BillofLadings;
             }
         }
 
-        public async Task<ImportVesselCallDto> GetVesselCallData(string vesselCallId)   
+        public async Task<ImportVesselCallDto> GetVesselCallData(string vesselCallId)
         {
             using (var _db = _dbContext.CreateDbContextAsync())
             {
@@ -447,6 +448,43 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
             }
         }
 
+
+        public async Task SwitchBillofLadingAsync(BillOfLadingDto billofLading, string newNumBillofLading)
+        {
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+                var UpdateBillofLading = await db.Set<BillofLadingEntity>().AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.Num == billofLading.Num);
+                if (UpdateBillofLading is null)
+                    throw new InvalidOperationException(
+                        $"Bill of Lading with number {billofLading.Num} is not existed");
+                if (UpdateBillofLading.Version != billofLading.Version)
+                    throw new InvalidOperationException(
+                        $"Bill of Lading with number {billofLading.Num} has been updated by another user");
+
+                var IsExistBillofLading = await db.Set<BillofLadingEntity>().AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.Num == newNumBillofLading);
+                if (IsExistBillofLading != null)
+                    throw new InvalidOperationException(
+                        $"Bill of Lading with number {billofLading.Num} already exists");
+
+                UpdateBillofLading.Num = newNumBillofLading.ToUpper();
+                UpdateBillofLading.ShipperName = billofLading.ShipperName?.ToUpper();
+                UpdateBillofLading.ShipperAddress = billofLading.ShipperAddress?.ToUpper();
+                UpdateBillofLading.ConsigneeName = billofLading.ConsigneeName?.ToUpper();
+                UpdateBillofLading.ConsigneeAddress = billofLading.ConsigneeAddress?.ToUpper();
+
+                UpdateBillofLading.IsSwitched = true;
+
+                UpdateBillofLading.UpdatedAt = DateTimeOffset.UtcNow;
+
+                db.Entry(UpdateBillofLading).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+            }
+        }
+
         public async Task UpdateBillofLadingAsync(BillOfLadingDto billofLading)
         {
             using (var _db = _dbContext.CreateDbContextAsync())
@@ -459,19 +497,6 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                     throw new InvalidOperationException($"Bill of Lading with number {billofLading.Num} is not existed");
                 if (UpdateBillofLading.Version != billofLading.Version)
                     throw new InvalidOperationException($"Bill of Lading with number {billofLading.Num} has been updated by another user"); ;
-
-                if (billofLading.HasSwitched)
-                {
-                    var IsExistBillofLading = await db.Set<BillofLadingEntity>().AsNoTracking()
-                        .FirstOrDefaultAsync(s => s.Num == billofLading.Num);
-                    if (IsExistBillofLading != null)
-                        throw new InvalidOperationException($"Bill of Lading with number {billofLading.Num} already exists");
-
-                    UpdateBillofLading.Num = billofLading.Num?.ToUpper();
-                    // UpdateBillofLading.HasSwitched =true;
-                }
-
-
 
                 UpdateBillofLading.ShipperNameRu = billofLading.ShipperNameRu?.ToUpper();
                 UpdateBillofLading.ShipperAddressRu = billofLading.ShipperAddressRu?.ToUpper();

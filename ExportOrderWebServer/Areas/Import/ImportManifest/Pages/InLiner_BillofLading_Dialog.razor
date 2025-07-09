@@ -22,14 +22,14 @@
 
             <div style=" display:flex;">
                 <TextField  Label="Seal No" @bind-Value="@Record.SealNo" Required />
-                <TextField Style="margin-left:5px" Label="Seal Oth" @bind-Value="@Record.SealOth" Required />
-                <TextField Style="margin-left:5px" Label="Seal Shr" @bind-Value="@Record.SealShr" Required />
+                <TextField Style="margin-left:5px" Label="Seal Oth" @bind-Value="@Record.SealOth"  />
+                <TextField Style="margin-left:5px" Label="Seal Shr" @bind-Value="@Record.SealShr"  />
             </div>
 
 
-            <TextField Label="Container" @bind-Value="@Record.GoodsDescription" Lines="3" Required />
-            <TextField Label="Container" @bind-Value="@Record.GoodsDescriptionRu" Lines="3" Required />
-            <TextField Label="Container" @bind-Value="@Record.CommodityCode" Required />
+            <TextField Label="Description" @bind-Value="@Record.GoodsDescription" Lines="3" Required />
+            <TextField Label="Description Ru" @bind-Value="@Record.GoodsDescriptionRu" Lines="3" Required />
+            <TextField Label="HS Code" @bind-Value="@Record.CommodityCode" Required />
 
             <div style=" display:flex;">
                 <CheckBox Label="Imo" @bind-Value="@Record.IsImo" />
@@ -39,12 +39,15 @@
                 <CheckBox Label="Empty" @bind-Value="@Record.IsEmpty" />
             </div>
             <div style=" display:flex;">
-                <TextField Label="Imo Class" @bind-Value="@Record.ImoClass" Required Disabled="@(!Record.IsImo)" />
-                <TextField Style="margin-left:5px" Label="Unno" @bind-Value="@Record.Unno" Disabled="@(!Record.IsImo)" Required />
+                @if (Record.IsImo)
+                {
+                    <TextField Label="Imo Class" @bind-Value="@Record.ImoClass" Required />
+                    <TextField Style="margin-left:5px" Label="Unno" @bind-Value="@Record.Unno" Required/>
+                }
             </div>
         </MudForm>
         <div style="display:flex;justify-content: space-around; padding:15px">
-            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="MakeSwitch_Click">Make Switch</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="MakeSwitch_Click">Save</MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="() => MudDialog?.Cancel()">Cancel</MudButton>
         </div>
     }
@@ -71,8 +74,8 @@
             return;
 
         bool? msgResult = await DialogService.ShowMessageBox(
-            "Switch",
-            $"Do you want to make  ?",
+            "Save",
+            $"Do you want to Save amendments?",
             yesText: "Yes",
             cancelText: "No");
 
@@ -81,8 +84,8 @@
 
 
         try
-        {
-            //  await ImportManifestProvider.UpdateBillofLadingAsync(billofLading: BillofLading);
+        { 
+            await ImportManifestProvider.UpdateBillOfLadingContainerRecordAsync(Record);
 
             MudDialog?.Close();
         }

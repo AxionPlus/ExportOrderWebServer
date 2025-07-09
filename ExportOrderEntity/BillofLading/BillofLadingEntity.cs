@@ -8,6 +8,7 @@ namespace ExportOrderEntites.BillofLading
         public required string UserName { get; set; }
         public string? Num { get; set; }
         public string? ServiceCode { get; set; }
+        public bool IsSwitched { get; set; }
 
         public EntityStatus Status { get; set; } = EntityStatus.New;
 

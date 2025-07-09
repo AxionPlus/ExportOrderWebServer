@@ -6,7 +6,7 @@ namespace ExportOrderEntites.BillofLading.Dto
         public int No { get; set; }
         public bool IsSelect { get; set; }
         public string? Num { get; set; }
-        public bool HasSwitched { get; set; }
+        public bool IsSwitched { get; set; }
         public string? ServiceCode { get; set; }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿@page "/billofladings"
-@attribute [Authorize(Roles = "Admin, ImpDept")]
+@attribute [Authorize(Roles = "Admin, ImpDept,ImpDept_Manager,ImpDept_TopManager,ImpDept_CEO")]
+
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar

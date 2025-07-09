@@ -140,7 +140,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
 
                     .Select(billofLading => new BillOfLadingDto()
                     {
-
+                        
                         Num = billofLading.Num,
                         ServiceCode = billofLading.ServiceCode,
                         IssueDate = billofLading.IssueDate,
@@ -179,7 +179,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                             SealOth = rec.SealOth,
                             TempSet = rec.TempSet,
                         }).ToList(),
-
+                        Status = billofLading.Status,
                     }).ToArrayAsync();
                 return BillofLadings;
             }

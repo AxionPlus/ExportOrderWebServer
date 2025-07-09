@@ -5,7 +5,7 @@
 @using ExportOrderWebServer.Areas.Import.ImportManifest.Provider
 @using ExportOrderWebServer.Areas.Import.VesselCall
 @using ExportOrderWebServer.Areas.Import.VesselCall.Provider
-@attribute [Authorize(Roles = "Admin, ImpDept")]
+@attribute [Authorize(Roles = "Admin, ImpDept,ImpDept_Manager,ImpDept_TopManager,ImpDept_CEO")]
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -26,6 +26,10 @@
             width: 0.8em;
             height: 0.8em;
         }
+
+    .mud-tooltip-root .mud-icon-button-size-small {
+        padding: 1px;
+    }
 </style>
 <div class="ToolBar-container">
     <MudToolBar Class="ToolBar ToolBar-new">
@@ -66,20 +70,39 @@
             <MudButton Class="wrapper-button" Variant="Variant.Filled" Color="Color.Secondary" Disabled="@IsLoadingData"
                        OnClick="SearchItems_Click">Search</MudButton>
             @if (VesselCallDetail is not null)
-            {
-                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                           OnClick="DownLoadTemplateArrivalNotice">Arrival</MudButton>
-                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                           OnClick="DownLoadTemplateFillBill">FillBill</MudButton>
-                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                           OnClick="DownLoadTemplate1C">1C</MudButton>
-                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                           OnClick="DownLoadXmlFile">XML</MudButton>
-                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                           OnClick="DownLoadCargoManifestFile">CM</MudButton>
-                <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                           OnClick="DownLoadCargoManifestFile">IMO CM</MudButton>
-            }
+                if (ManifestBillofLadings.Any())
+                    if (!ManifestBillofLadings.Any(s => s.Status == EntityStatus.New))
+                    {
+                        <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                   OnClick="DownLoadTemplateArrivalNotice">Arrival</MudButton>
+                        <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                   OnClick="DownLoadTemplateFillBill">FillBill</MudButton>
+                        <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                   OnClick="DownLoadTemplate1C">1C</MudButton>
+                        <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                   OnClick="DownLoadXmlFile">XML</MudButton>
+                        <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                   OnClick="DownLoadCargoManifestFile">CM</MudButton>
+                        <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                   OnClick="DownLoadCargoManifestFile">IMO CM</MudButton>
+                    }
+                    else
+                    {
+                        <AuthorizeView Roles="Admin">
+                            <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                       OnClick="RefreshVesselCall_Click">Arrival</MudButton>
+                            <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                       OnClick="DownLoadTemplateFillBill">FillBill</MudButton>
+                            <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                       OnClick="DownLoadTemplate1C">1C</MudButton>
+                            <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                       OnClick="DownLoadXmlFile">XML</MudButton>
+                            <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                       OnClick="DownLoadCargoManifestFile">CM</MudButton>
+                            <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                                       OnClick="DownLoadCargoManifestFile">IMO CM</MudButton>
+                        </AuthorizeView>
+                    }
 
         </div>
     </div>
@@ -121,6 +144,9 @@ else
             <div style="max-height: 800px;min-width:190px;overflow: auto; background-color: var(--grey-08);">
                 <MudList @ref="_mudList" T="string?" SelectedValue="SelectedValue" SelectedValueChanged="async (val) => { SelectedValue = val; await SelectedValueChanged(val); }" SelectionMode="@SelectionMode.SingleSelection" Color="@Color.Info">
                     <MudListSubheader Style="padding:5px 0px 10px 2px">
+                        <MudTooltip Text="Обновить список" Arrow="true" Placement="Placement.Right" Delay="1500">
+                            <MudIconButton OnClick="RefreshVesselCall_Click" Icon="@Icons.Material.Outlined.Refresh" Color="@Color.Secondary" Size="Size.Small" />
+                        </MudTooltip>
                         <MudTooltip Text="Отобразить все записи" Arrow="true" Placement="Placement.Right" Delay="1500">
                             <MudIconButton OnClick="AllRecords" Icon="@Icons.Material.Outlined.Info" Color="@Color.Default" Size="Size.Small" />
                         </MudTooltip>
@@ -194,8 +220,6 @@ else
                         </div>
 
                         <div style="display:flex;">
-
-
                             @if (BillofLading.Status != EntityStatus.Completed)
                             {
                                 <MudTooltip Text="Утвердить коносамент" Delay="1500">
@@ -211,13 +235,12 @@ else
                             }
                             else
                             {
-                                <AuthorizeView Roles="Admin">
+                                <AuthorizeView Roles="Admin,ImpDept_Manager,ImpDept_TopManager,ImpDept_CEO">
                                     <MudTooltip Text="Снять блокировку" Delay="1500">
                                         <MudIconButton Color="Color.Warning"
                                                        Icon="@Icons.Material.Filled.DisabledVisible"
                                                        OnClick="UnlockBillofLadingData" />
                                     </MudTooltip>
-
                                 </AuthorizeView>
                             }
 
@@ -428,6 +451,8 @@ else
         BillofLading = await ImportManifestProvider.GetBillofLadingAsync(BillofLading.Num);
 
         IsLoadingData = false;
+
+        StateHasChanged(); // Принудительное обновление UI
     }
     private async Task SaveBillofLadingData()
     {
@@ -609,6 +634,15 @@ else
 
         IsLoadingData = false;
 
+    }
+
+    private async Task RefreshVesselCall_Click(MouseEventArgs obj)
+    {
+        IsLoadingData = true;
+        ManifestBillofLadings = await ImportManifestProvider.GetBillofLadingsNumAsync(VesselCallDetail);
+
+        IsLoadingData = false;
+        StateHasChanged();
     }
 
     #region DownLoad
@@ -905,11 +939,6 @@ else
         var dialog = DialogService.Show<InLiner_BillofLading_Dialog>("Update record", paramerts, dialogOptions);
 
         var result = await dialog.Result;
-
-        if (result is not null)
-        {
-
-        }
 
         await RefreshBillofLadingData();
 

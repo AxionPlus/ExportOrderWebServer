@@ -11,7 +11,7 @@ public static class StringExtensions
 
         return value;
     }
-    
+
     public static string ReplaceSymbols(this string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
@@ -27,7 +27,7 @@ public static class StringExtensions
         return value;
     }
 
-    public static string DeleteExtraSymbols(this string? value)
+    public static string DeleteExtraSymbols(this string? value, bool upper = false)
     {
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
 
@@ -37,6 +37,18 @@ public static class StringExtensions
         value = value.Replace(";", "");
         value = value.Replace(",", "");
         value = value.Trim();
+        value = upper ? value.ToUpper() : value;
+
+        return value;
+    }
+    public static string? RemoveExtraSymbols(this string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+
+        value = value.Replace("\n", " ");
+        value = value.Replace("&", "AND");
+        value = value.Replace("  ", " ");
+        value = value.Trim().ToUpper();
 
         return value;
     }

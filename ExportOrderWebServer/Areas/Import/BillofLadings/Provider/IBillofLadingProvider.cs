@@ -1,6 +1,7 @@
 ﻿using ExportOrderEntites.BillofLading;
 using ExportOrderEntites.BillofLading.Dto;
 using ExportOrderEntites.ImportVesselCall;
+using ExportOrderWebServer.Service;
 using Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
@@ -69,13 +70,13 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                             ServiceCode = billofLading.ServiceCode,
                             IssueDate = billofLading.IssueDate,
                             SobDate = billofLading.SobDate,
-                            ShipperName = billofLading.ShipperName,
-                            ShipperAddress = billofLading.ShipperAddress,
-                            ConsigneeName = billofLading.ConsigneeName,
-                            ConsigneeAddress = billofLading.ConsigneeAddress,
+                            ShipperName = billofLading.ShipperName.RemoveExtraSymbols(),
+                            ShipperAddress = billofLading.ShipperAddress.RemoveExtraSymbols(),
+                            ConsigneeName = billofLading.ConsigneeName.RemoveExtraSymbols(),
+                            ConsigneeAddress = billofLading.ConsigneeAddress.RemoveExtraSymbols(),
                             ConsigneeTaxNo = billofLading.ConsigneeTaxNo,
-                            NotifyName = billofLading.NotifyName,
-                            NotifyAddress = billofLading.NotifyAddress,
+                            NotifyName = billofLading.NotifyName.RemoveExtraSymbols(),
+                            NotifyAddress = billofLading.NotifyAddress.RemoveExtraSymbols(),
                             NotifyEmail = billofLading.NotifyEmail,
                             AdditionalInfo = billofLading.AdditionalInfo,
                             POR = billofLading.POR,
@@ -89,8 +90,9 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                                 TareWeight = rec.TareWeight,
                                 CargoWeight = rec.CargoWeight,
                                 PackageQty = rec.PackageQty,
+                                PackageType = rec.PackageType,
                                 CommodityCode = rec.CommodityCode,
-                                GoodsDescription = rec.GoodsDescription,
+                                GoodsDescription = rec.GoodsDescription.RemoveExtraSymbols(),
 
                                 IsAlcohol = rec.IsAlcohol,
                                 IsMilitaryCargo = rec.IsMilitaryCargo,
@@ -201,22 +203,22 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                         continue;
 
 
-                    billOflading.ShipperNameRu = billOfladingDto.ShipperNameRu?.ToUpper();
-                    billOflading.ShipperCountryRu = billOfladingDto.POL?.ToUpper();
-                    billOflading.ShipperAddressRu = billOfladingDto.ShipperAddressRu?.ToUpper();
-                    billOflading.ConsigneeNameRu = billOfladingDto.ConsigneeNameRu?.ToUpper();
-                    billOflading.ConsigneeAddressRu = billOfladingDto.ConsigneeAddressRu?.ToUpper();
+                    billOflading.ShipperNameRu = billOfladingDto.ShipperNameRu.RemoveExtraSymbols();
+                    billOflading.ShipperCountryRu = billOfladingDto.POL?.RemoveExtraSymbols();
+                    billOflading.ShipperAddressRu = billOfladingDto.ShipperAddressRu?.RemoveExtraSymbols();
+                    billOflading.ConsigneeNameRu = billOfladingDto.ConsigneeNameRu?.RemoveExtraSymbols();
+                    billOflading.ConsigneeAddressRu = billOfladingDto.ConsigneeAddressRu?.RemoveExtraSymbols();
                     billOflading.ConsigneeCountryRu = "РОССИЯ";
 
                     foreach (var containerRecord in billOflading.ContainerRecords)
                     {
                         containerRecord.CommodityCode = billOfladingDto.ContainerRecords
-                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.CommodityCode?.ToUpper();
+                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.CommodityCode?.RemoveExtraSymbols();
 
                         containerRecord.GoodsDescriptionRu = billOfladingDto.ContainerRecords
-                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescriptionRu?.ToUpper(); 
+                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescriptionRu?.RemoveExtraSymbols(); 
                         containerRecord.GoodsDescription = billOfladingDto.ContainerRecords
-                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescription?.ToUpper();
+                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescription?.RemoveExtraSymbols();
 
                         db.Entry(containerRecord).State = EntityState.Modified;
                     }

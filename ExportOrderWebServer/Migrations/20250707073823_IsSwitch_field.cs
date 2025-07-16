@@ -12,13 +12,6 @@ namespace ExportOrderWebServer.Migrations
         {
 
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsSwitched",
-                table: "BillofLadings",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
 
         }
 
@@ -27,9 +20,6 @@ namespace ExportOrderWebServer.Migrations
         {
     
 
-            migrationBuilder.DropColumn(
-                name: "IsSwitched",
-                table: "BillofLadings");
 
         }
     }

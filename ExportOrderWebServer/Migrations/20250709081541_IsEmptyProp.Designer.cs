@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ExportOrderDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250709081541_IsEmptyProp")]
+    partial class IsEmptyProp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,9 +246,6 @@ namespace ExportOrderWebServer.Migrations
 
                     b.Property<int>("PackageQty")
                         .HasColumnType("integer");
-
-                    b.Property<string>("PackageType")
-                        .HasColumnType("text");
 
                     b.Property<string>("SealNo")
                         .HasColumnType("text");

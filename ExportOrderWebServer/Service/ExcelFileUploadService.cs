@@ -214,6 +214,7 @@ public class ExcelFileUploadService : IExcelFileUploadService
             int sealOth = 41;
             int tempSet = 46;
             int packageQty = 58;
+            int packageType = 61;
             int commodityCode = 63;
             int goodsDescription = 76;
             int isAlcohol = 59;
@@ -254,6 +255,7 @@ public class ExcelFileUploadService : IExcelFileUploadService
                             SealShr = container[sealShr],
                             SealOth = container[sealOth],
                             PackageQty = (int.TryParse(container[packageQty], out int _packageQtyt)) ? _packageQtyt : 0,
+                            PackageType = container[packageType],
                             TempSet = (int.TryParse(container[tempSet], out int _tempSet)) ? _tempSet : null,
                             TareWeight = (int.TryParse(container[tareWeight], out int _tareWeight)) ? _tareWeight : 0,
                             CargoWeight = (double.TryParse(container[grossWeight], out double _grossWeight)) ? _grossWeight : 0,

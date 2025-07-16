@@ -84,9 +84,11 @@ namespace ExportOrderEntites.BillofLading
         public int TareWeight { get; set; }
         public double CargoWeight { get; set; }
         public int PackageQty { get; set; }
+        public string? PackageType { get; set; }
 
         public int? TempSet { get; set; }
 
+        public bool IsEmpty { get; set; }
         public bool IsAlcohol { get; set; }
         public bool IsMilitaryCargo { get; set; }
         public string? ImoClass { get; set; }

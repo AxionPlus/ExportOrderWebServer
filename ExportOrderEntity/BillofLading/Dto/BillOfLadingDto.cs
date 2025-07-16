@@ -57,27 +57,43 @@ namespace ExportOrderEntites.BillofLading.Dto
 
     public class BillOfLadingContainerRecordDto
     {
-        public Guid  Id { get; set; }
+        public Guid Id { get; set; }
         public required string ContainerNum { get; set; }
         public required string ContainerType { get; set; }
         public required int TareWeight { get; set; }
         public required double CargoWeight { get; set; }
         public required string SealNo { get; set; }
-        public  string? SealShr { get; set; }
-        public  string? SealOth { get; set; }
-        public  bool IsEmpty { get; set; }
-        public  bool IsRef { get; set; }
-        public  bool IsSoc { get; set; }
-        public  bool IsOog { get; set; }
-        public  bool IsImo { get; set; }
-        public  bool IsAlcohol { get; set; }
-        public  bool IsMilitaryCargo { get; set; }
+        public string? SealShr { get; set; }
+        public string? SealOth { get; set; }
+        public IEnumerable<string> Seals
+        {
+            get
+            {
+                var _seal = new List<string>();
+                if (!string.IsNullOrWhiteSpace(SealNo))
+                    _seal.Add(SealNo);
+                if (!string.IsNullOrWhiteSpace(SealShr))
+                    _seal.Add(SealShr);
+                if (!string.IsNullOrWhiteSpace(SealOth))
+                    _seal.Add(SealOth);
+                return _seal;
+            }
+        }
+
+        public bool IsEmpty { get; set; }
+        public bool IsRef { get; set; }
+        public bool IsSoc { get; set; }
+        public bool IsOog { get; set; }
+        public bool IsImo { get; set; }
+        public bool IsAlcohol { get; set; }
+        public bool IsMilitaryCargo { get; set; }
         public string? ImoClass { get; set; }
         public string? Unno { get; set; }
-        public  int? TempSet { get; set; }
-        public  int PackageQty { get; set; }
-        public  string? CommodityCode { get; set; }
-        public  string? GoodsDescription { get; set; }
+        public int? TempSet { get; set; }
+        public int PackageQty { get; set; }
+        public string? PackageType { get; set; }
+        public string? CommodityCode { get; set; }
+        public string? GoodsDescription { get; set; }
         public string? GoodsDescriptionRu { get; set; }
         public uint Version { get; set; }
     }

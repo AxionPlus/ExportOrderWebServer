@@ -71,10 +71,13 @@
                        OnClick="SearchItems_Click">Search</MudButton>
             @if (VesselCallDetail is not null)
                 if (ManifestBillofLadings.Any())
-                    if (!ManifestBillofLadings.Any(s => s.Status == EntityStatus.New))
+                {
+                    <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
+                               OnClick="DownLoadTemplateArrivalNotice">Arrival</MudButton>
+                
+            if (!ManifestBillofLadings.Any(s => s.Status == EntityStatus.New))
                     {
-                        <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                                   OnClick="DownLoadTemplateArrivalNotice">Arrival</MudButton>
+                       
                         <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
                                    OnClick="DownLoadTemplateFillBill">FillBill</MudButton>
                         <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
@@ -90,8 +93,6 @@
                     {
                         <AuthorizeView Roles="Admin">
                             <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
-                                       OnClick="RefreshVesselCall_Click">Arrival</MudButton>
-                            <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
                                        OnClick="DownLoadTemplateFillBill">FillBill</MudButton>
                             <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
                                        OnClick="DownLoadTemplate1C">1C</MudButton>
@@ -103,6 +104,7 @@
                                        OnClick="DownLoadCargoManifestFile">IMO CM</MudButton>
                         </AuthorizeView>
                     }
+                }
 
         </div>
     </div>
@@ -353,9 +355,9 @@ else
                             <MudTd>@record.ContainerType</MudTd>
                             <MudTd>@record.TareWeight</MudTd>
                             <MudTd>@record.PackageQty</MudTd>
-                            <MudTd>@record.PackageQty</MudTd>
+                            <MudTd>@record.PackageType</MudTd>
                             <MudTd>@record.CargoWeight</MudTd>
-                            <MudTd>@record.SealNo</MudTd>
+                            <MudTd>@(string.Join(", ", record.Seals)) </MudTd>
                             <MudTd>@record.GoodsDescription</MudTd>
                             <MudTd>@record.GoodsDescriptionRu</MudTd>
                             <MudTd>@record.CommodityCode</MudTd>

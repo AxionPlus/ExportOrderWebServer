@@ -80,6 +80,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                                 TareWeight = rec.TareWeight,
                                 CargoWeight = rec.CargoWeight,
                                 PackageQty = rec.PackageQty,
+                                PackageType = rec.PackageType,
                                 CommodityCode = rec.CommodityCode,
                                 GoodsDescription = rec.GoodsDescription,
 
@@ -155,6 +156,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                             TareWeight = rec.TareWeight,
                             CargoWeight = rec.CargoWeight,
                             PackageQty = rec.PackageQty,
+                            PackageType = rec.PackageType,
                             CommodityCode = rec.CommodityCode,
                             GoodsDescription = rec.GoodsDescription,
                             GoodsDescriptionRu = rec.GoodsDescriptionRu,
@@ -222,6 +224,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                             TareWeight = rec.TareWeight,
                             CargoWeight = rec.CargoWeight,
                             PackageQty = rec.PackageQty,
+                            PackageType = rec.PackageType,
                             CommodityCode = rec.CommodityCode,
                             GoodsDescription = rec.GoodsDescription,
                             GoodsDescriptionRu = rec.GoodsDescriptionRu,
@@ -229,6 +232,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                             IsAlcohol = rec.IsAlcohol,
                             IsMilitaryCargo = rec.IsMilitaryCargo,
 
+                            IsEmpty = rec.IsEmpty,
                             IsSoc = rec.IsSoc,
                             IsRef = rec.IsRef,
                             IsOog = rec.IsOog,
@@ -398,6 +402,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                                 TareWeight = rec.TareWeight,
                                 CargoWeight = rec.CargoWeight,
                                 PackageQty = rec.PackageQty,
+                                PackageType = rec.PackageType,
                                 CommodityCode = rec.CommodityCode,
                                 GoodsDescription = rec.GoodsDescription,
                                 GoodsDescriptionRu = rec.GoodsDescriptionRu,
@@ -498,12 +503,12 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                 if (UpdateBillofLading.Version != billofLading.Version)
                     throw new InvalidOperationException($"Bill of Lading with number {billofLading.Num} has been updated by another user"); ;
 
-                UpdateBillofLading.ShipperNameRu = billofLading.ShipperNameRu?.ToUpper();
-                UpdateBillofLading.ShipperAddressRu = billofLading.ShipperAddressRu?.ToUpper();
-                UpdateBillofLading.ShipperCountryRu = billofLading.ShipperCountryRu?.ToUpper();
-                UpdateBillofLading.ConsigneeNameRu = billofLading.ConsigneeNameRu?.ToUpper();
-                UpdateBillofLading.ConsigneeAddressRu = billofLading.ConsigneeAddressRu?.ToUpper();
-                UpdateBillofLading.ConsigneeCountryRu = billofLading.ConsigneeCountryRu?.ToUpper();
+                UpdateBillofLading.ShipperNameRu = billofLading.ShipperNameRu.RemoveExtraSymbols();
+                UpdateBillofLading.ShipperAddressRu = billofLading.ShipperAddressRu.RemoveExtraSymbols();
+                UpdateBillofLading.ShipperCountryRu = billofLading.ShipperCountryRu.RemoveExtraSymbols();
+                UpdateBillofLading.ConsigneeNameRu = billofLading.ConsigneeNameRu.RemoveExtraSymbols();
+                UpdateBillofLading.ConsigneeAddressRu = billofLading.ConsigneeAddressRu.RemoveExtraSymbols();
+                UpdateBillofLading.ConsigneeCountryRu = billofLading.ConsigneeCountryRu.RemoveExtraSymbols();
                 UpdateBillofLading.CustomsDeliveryMode = billofLading.CustomsDeliveryMode.HasValue ? billofLading.CustomsDeliveryMode.Value : CustomsDeliveryMode.GTD;
                 //UpdateBillofLading.SobDate = billofLading.SobDate;
                 //UpdateBillofLading.IssueDate = billofLading.IssueDate;
@@ -536,8 +541,9 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                             TareWeight = rec.TareWeight,
                             CargoWeight = rec.CargoWeight,
                             PackageQty = rec.PackageQty,
-                            CommodityCode = rec.CommodityCode,
-                            GoodsDescription = rec.GoodsDescription,
+                            PackageType = rec.PackageType.RemoveExtraSymbols(),
+                            CommodityCode = rec.CommodityCode.RemoveExtraSymbols(),
+                            GoodsDescription = rec.GoodsDescription.RemoveExtraSymbols(),
 
                             IsAlcohol = rec.IsAlcohol,
                             IsMilitaryCargo = rec.IsMilitaryCargo,
@@ -555,9 +561,24 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         .FirstOrDefaultAsync(s => s.Id == element.Id);
                 ;
                 record.UpdatedAt = DateTimeOffset.Now;
-                record.CommodityCode = element.CommodityCode;
-                record.GoodsDescription = element.GoodsDescription;
-                record.GoodsDescriptionRu = element.GoodsDescriptionRu;
+                record.CommodityCode = element.CommodityCode.RemoveExtraSymbols();
+                record.GoodsDescription = element.GoodsDescription.RemoveExtraSymbols();
+                record.GoodsDescriptionRu = element.GoodsDescriptionRu.RemoveExtraSymbols();
+                record.SealNo = element.SealNo;
+                record.SealShr = element.SealShr;
+                record.SealOth = element.SealOth;
+                record.IsImo = element.IsImo;
+                record.IsAlcohol = element.IsAlcohol;
+                record.IsMilitaryCargo = element.IsMilitaryCargo;
+                record.IsOog = element.IsOog;
+                record.IsRef = element.IsRef;
+                record.IsSoc = element.IsSoc;
+                record.IsEmpty = element.IsEmpty;
+
+                record.ImoClass = element.ImoClass;
+                record.Unno = element.Unno;
+
+
                 db.Entry(record).State = EntityState.Modified;
                 await db.SaveChangesAsync();
                 var updateRecord = await db.Set<BillofLadingContainerRecord>().AsNoTracking()
@@ -583,8 +604,8 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                     if (updateRecord.Version != record.Version) continue;
 
 
-                    updateRecord.GoodsDescription = record.GoodsDescription;
-                    updateRecord.GoodsDescriptionRu = record.GoodsDescriptionRu;
+                    updateRecord.GoodsDescription = record.GoodsDescription.RemoveExtraSymbols();
+                    updateRecord.GoodsDescriptionRu = record.GoodsDescriptionRu.RemoveExtraSymbols();
                     updateRecord.UpdatedAt = DateTimeOffset.Now;
 
                     db.Entry(updateRecord).State = EntityState.Modified;
@@ -594,5 +615,9 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
 
             }
         }
+
+
+
+
     }
 }

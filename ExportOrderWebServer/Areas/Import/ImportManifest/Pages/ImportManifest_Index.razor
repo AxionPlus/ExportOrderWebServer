@@ -41,7 +41,7 @@
             <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
         </div>
         <div class="ToolBar-iconbutton">
-            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Filled.MultipleStop" OnClick="ShiftBls" />
         </div>
     </MudToolBar>
 </div>
@@ -937,7 +937,7 @@ else
 
         var paramerts = new DialogParameters();
         paramerts.Add("Record", record);
-        var dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
+        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
         var dialog = DialogService.Show<InLiner_BillofLading_Dialog>("Update record", paramerts, dialogOptions);
 
         var result = await dialog.Result;
@@ -955,5 +955,16 @@ else
     }
 
 
+    private async void ShiftBls()
+    {
+        var paramerts = new DialogParameters();
+        paramerts.Add("VesselCallDetail1_Id", VesselCallDetail?.Id);
+        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
+        var dialog = DialogService.Show<ShiftBillofladingToVessel_Dialog>("Shift Bill of Ladings", paramerts, dialogOptions);
+
+        var result = await dialog.Result;
+
+    
+    }
 
 }

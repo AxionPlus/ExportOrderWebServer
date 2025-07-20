@@ -22,6 +22,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
 
 
         Task<ImportVesselCallDto> GetVesselCallData(string vesselCallId);
+        Task ShiftBillofLadings(VesselCallDetailDTO vesselCallDetail, IEnumerable< string> list);
     }
     public class ImportManifestProvider : IImportManifestProvider
     {
@@ -453,6 +454,35 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
             }
         }
 
+        public async Task ShiftBillofLadings(VesselCallDetailDTO vesselCallDetail, IEnumerable<string> list)
+        {
+
+
+            using (var _db = _dbContext.CreateDbContextAsync())
+            {
+                var db = await _db;
+
+                var VesselCallDetail = await db.Set<ImportVesselCallDetail>().FirstOrDefaultAsync(s => s.Id == vesselCallDetail.Id);
+                if (VesselCallDetail is null)
+                    throw new InvalidOperationException($"Vessel Call was not found");
+
+                var UpdateBillofLadings = await db.Set<BillofLadingEntity>().AsNoTracking()
+                    .Where(s=> list.Any(bl=>bl == s.Num))
+                    .ToArrayAsync();
+                if (!UpdateBillofLadings.Any())
+                    throw new InvalidOperationException($"Bill of Ladings was not found");
+
+                foreach (var UpdateBillofLading in UpdateBillofLadings)
+                {
+                    UpdateBillofLading.VesselCallDetail = VesselCallDetail;
+                    UpdateBillofLading.UpdatedAt = DateTimeOffset.UtcNow;
+                    db.Entry(UpdateBillofLading).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+
+                }
+
+            }
+        }
 
         public async Task SwitchBillofLadingAsync(BillOfLadingDto billofLading, string newNumBillofLading)
         {
@@ -564,6 +594,9 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                 record.CommodityCode = element.CommodityCode.RemoveExtraSymbols();
                 record.GoodsDescription = element.GoodsDescription.RemoveExtraSymbols();
                 record.GoodsDescriptionRu = element.GoodsDescriptionRu.RemoveExtraSymbols();
+
+                record.PackageQty = element.PackageQty;
+                record.CargoWeight = element.CargoWeight;
                 record.SealNo = element.SealNo;
                 record.SealShr = element.SealShr;
                 record.SealOth = element.SealOth;

@@ -10,20 +10,31 @@
     {
         <MudForm @ref="_mudForm">
             <div style=" display:flex;">
-                <TextField  Label="Container" @bind-Value="@Record.ContainerNum" ReadOnly Required />
+                <TextField Label="Container" @bind-Value="@Record.ContainerNum" ReadOnly Required />
                 <TextField Style="margin-left:5px" Label="Type" @bind-Value="@Record.ContainerType" ReadOnly Required />
                 <NumericField Style="margin-left:5px" T="int" Label="Tare Weight" @bind-Value="@Record.TareWeight" ReadOnly Required />
             </div>
             <div style=" display:flex;">
+                <AuthorizeView>
+                    @if (context.User.IsInRole("ImpDept_TopManager") || context.User.IsInRole("Admin"))
+                    {
+                        <NumericField T="int" Label="Package Qty" @bind-Value="@Record.PackageQty" Required />
+                        <NumericField Style="margin-left:5px" T="double" Label="Cargo Weight" @bind-Value="@Record.CargoWeight" Required />
+                    }
+                    else
+                    {
+                        <NumericField T="int" Label="Package Qty" @bind-Value="@Record.PackageQty" ReadOnly Required />
+                        <NumericField Style="margin-left:5px" T="double" Label="Cargo Weight" @bind-Value="@Record.CargoWeight" ReadOnly Required />
 
-                <NumericField  T="int" Label="Package Qty" @bind-Value="@Record.PackageQty" ReadOnly Required />
-                <NumericField Style="margin-left:5px" T="double" Label="Cargo Weight" @bind-Value="@Record.CargoWeight" ReadOnly Required />
+                    }
+
+                </AuthorizeView>
             </div>
 
             <div style=" display:flex;">
-                <TextField  Label="Seal No" @bind-Value="@Record.SealNo" Required />
-                <TextField Style="margin-left:5px" Label="Seal Oth" @bind-Value="@Record.SealOth"  />
-                <TextField Style="margin-left:5px" Label="Seal Shr" @bind-Value="@Record.SealShr"  />
+                <TextField Label="Seal No" @bind-Value="@Record.SealNo" Required />
+                <TextField Style="margin-left:5px" Label="Seal Oth" @bind-Value="@Record.SealOth" />
+                <TextField Style="margin-left:5px" Label="Seal Shr" @bind-Value="@Record.SealShr" />
             </div>
 
 
@@ -42,7 +53,7 @@
                 @if (Record.IsImo)
                 {
                     <TextField Label="Imo Class" @bind-Value="@Record.ImoClass" Required />
-                    <TextField Style="margin-left:5px" Label="Unno" @bind-Value="@Record.Unno" Required/>
+                    <TextField Style="margin-left:5px" Label="Unno" @bind-Value="@Record.Unno" Required />
                 }
             </div>
         </MudForm>
@@ -65,7 +76,7 @@
     [Parameter] public BillOfLadingContainerRecordDto Record { get; set; }
     MudForm? _mudForm;
 
-     BillOfLadingContainerRecordDto CopyRecord { get; set; }
+    BillOfLadingContainerRecordDto CopyRecord { get; set; }
 
     private async void MakeSwitch_Click()
     {
@@ -84,7 +95,7 @@
 
 
         try
-        { 
+        {
             await ImportManifestProvider.UpdateBillOfLadingContainerRecordAsync(Record);
 
             MudDialog?.Close();

@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using ExportOrderWebServer;
 using ExportOrderWebServer.Areas.Catalog;
 using ExportOrderWebServer.Areas.Import;
@@ -53,7 +54,7 @@ services.ConfigureApplicationCookie(options =>
     options.Cookie.Name = "AspNetCore.Identity.Application.ExportOrderWebServer";
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
 });
-
+services.AddBlazoredLocalStorage();
 services.AddEndpointsApiExplorer();
 services.AddHttpContextAccessor();
 

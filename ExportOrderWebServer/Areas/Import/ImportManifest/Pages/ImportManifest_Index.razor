@@ -1,4 +1,5 @@
 ﻿@page "/ImportManifest"
+@using Blazored.LocalStorage
 @using ExportOrderEntites.BillofLading
 @using ExportOrderEntites.BillofLading.Dto
 @using ExportOrderWebServer.Areas.Import.BillofLadings.Pages
@@ -9,6 +10,7 @@
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject ILocalStorageService localStorage
 @inject NavigationManager Navigation
 @inject IImportManifestProvider ImportManifestProvider
 @inject IVesselProvider _vesselProvider
@@ -74,10 +76,10 @@
                 {
                     <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
                                OnClick="DownLoadTemplateArrivalNotice">Arrival</MudButton>
-                
-            if (!ManifestBillofLadings.Any(s => s.Status == EntityStatus.New))
+
+                    if (!ManifestBillofLadings.Any(s => s.Status == EntityStatus.New))
                     {
-                       
+
                         <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
                                    OnClick="DownLoadTemplateFillBill">FillBill</MudButton>
                         <MudButton Style="margin-left:5px" Class="wrapper-button" Variant="Variant.Filled" Color="Color.Success" Disabled="@IsLoadingData"
@@ -425,8 +427,61 @@ else
 
     private string? SelectedValue;
     private BillOfLadingDto? BillofLading;
-    private VesselCallDetailDTO? VesselCallDetail;
+    private VesselCallDetailDTO? _vesselCallDetail;
     private bool _billDataExpanded;
+
+
+    public VesselCallDetailDTO? VesselCallDetail
+    {
+        get => _vesselCallDetail;
+        set
+        {
+            _vesselCallDetail = value;
+            // Можно также сохранять при каждом изменении
+            SaveState().ConfigureAwait(false);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadState();
+        if (!ManifestBillofLadings.Any())
+            if (VesselCallDetail != null)
+            {
+                ManifestBillofLadings = await ImportManifestProvider.GetBillofLadingsNumAsync(VesselCallDetail);
+            }
+    }
+
+    private async Task SaveState()
+    {
+        try
+        {
+            await localStorage.SetItemAsync("VesselCallDetail", VesselCallDetail);
+            Console.WriteLine("Состояние сохранено");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка сохранения: {ex.Message}");
+        }
+    }
+
+    private async Task LoadState()
+    {
+        try
+        {
+            var savedValue = await localStorage.GetItemAsync<VesselCallDetailDTO>("VesselCallDetail");
+            if (savedValue != null)
+            {
+                VesselCallDetail = savedValue;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка сохранения: {ex.Message}");
+        }
+    }
+
+
 
 
     private async void ItemHasBeenCommitted(object element)
@@ -964,7 +1019,7 @@ else
 
         var result = await dialog.Result;
 
-    
+
     }
 
 }

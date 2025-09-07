@@ -25,7 +25,7 @@ public class UploadFileController : ControllerBase
 
 
     [HttpPost, Route("UploadFromFileExcel")]    // file/UploadFileController/UploadFromFileExcel
-    public async Task<List<ReadExcelExportOrderRecordDTO>?> UploadFromExcel([FromForm] IFormFile file) //AppObjectResponse?
+    public async Task<List<ReadExcelExportOrderRecordDTO>?> UploadFromExcel([FromForm] IFormFile file)
     {
         if (file == null) return null;
 
@@ -126,4 +126,42 @@ public class UploadFileController : ControllerBase
 
         return _AppObjectResponse;
     }
+
+    [HttpPost, Route("UploadFilePdf")]    // file/UploadFile/UploadFromFilePdf
+    public async Task<string?> UploadFilePdf([FromForm] IFormFile file)   //pdfFiles
+    {
+        try
+        {
+            //if (pdfFiles == null || !pdfFiles.Any()) return null; //BadRequest("List of selected files is empty.");
+            if (file == null) return null; //BadRequest("List of selected files is empty.");
+
+            //string filePath = Path.Combine(DirTemporary, Path.GetRandomFileName());
+            string savePath = Path.Combine(DirTemporary, file.FileName);
+
+            //if (!Directory.Exists(filePath))
+            //    Directory.CreateDirectory(filePath);
+
+            //foreach (var file in pdfFiles)
+            if (file != null)
+            {
+                //string savePath = Path.Combine(dirPath, file.FileName, Path.GetExtension(file.FileName));
+                //string savePath = Path.Combine(filePath, file.FileName);
+
+                using (var stream = new FileStream(savePath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+            }
+
+            await Task.Delay(5);
+
+            return savePath;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
 }

@@ -87,7 +87,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Controllers
 
 
             using IXmlFileCreateService _xmlFileService = new XmlFileCreateService();
-            var buffer = await _xmlFileService.CreateManifestNle(item);
+            var buffer = await _xmlFileService.CreateXMLfileManifestNle(item);
 
             if (buffer == Array.Empty<byte>())
                 return BadRequest("Файл не записан.");

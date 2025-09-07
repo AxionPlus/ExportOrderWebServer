@@ -1,0 +1,126 @@
+﻿@page "/uploadPdfExportOrders"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
+
+@inject ISnackbar Snackbar
+@inject IJSRuntime jsRuntime
+@inject IHttpClientFactory httpClient
+
+<AuthorizeView>
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+</AuthorizeView>
+
+<div class="Container-item">
+    <div class="container-content">
+        <MudFileUpload T="IReadOnlyList<IBrowserFile>" Accept=".pdf" InputStyle="opacity:0" OnFilesChanged="OnInputFileChanged"
+                       @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">Upload PDF FILE</MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
+        <MudToolBar Class="gap-4">
+            @foreach (var file in BrowserFiles)
+            {
+                <MudChip T="string" Color="Color.Dark" Text="@file.Name" />
+            }
+            <MudButton OnClick="ConvertPdfToExcel_Click" Disabled="@(!BrowserFiles.Any())" Color="Color.Success" Variant="Variant.Filled">Convert</MudButton>
+            <MudButton OnClick="ClearDragClass" Disabled="@(!BrowserFiles.Any())" Color="Color.Info" Variant="Variant.Filled">Clear</MudButton>
+        </MudToolBar>
+        <MudSpacer />
+    </div>
+</div>
+
+<OverlayLoadingData Visible="IsLoadingData" Text="Uploading..." />
+
+@code {
+    IList<IBrowserFile> BrowserFiles = new List<IBrowserFile>();
+    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
+    private string DragClass = DefaultDragClass;
+    private bool IsLoadingData { get; set; } = false;
+        
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        ClearDragClass();
+        BrowserFiles = (IList<IBrowserFile>)e.GetMultipleFiles();
+    }
+
+    private void SetDragClass()
+    {
+        DragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        DragClass = DefaultDragClass;
+        BrowserFiles = new List<IBrowserFile>();
+    }
+
+    private async Task ConvertPdfToExcel_Click()
+    {
+        if (!BrowserFiles.Any()) return;
+
+        long maxFileSize = 1024 * 2000;  //500
+
+        /// Check File size
+        if (BrowserFiles.Any(f => f.Size > maxFileSize))
+        {
+            Snackbar.Add($"File size should be less then 2 Mb.", Severity.Warning);
+            ClearDragClass();
+            return;
+        }
+
+        IsLoadingData = true;
+
+        /// Upload and Save Pdf files
+        using var content = new MultipartFormDataContent();
+
+        foreach (var file in BrowserFiles)
+        {   
+            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));    //file.Size
+
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+            content.Add(
+                content: fileContent,
+                name: "\"file\"",
+                fileName: file.Name);
+        }
+
+        /// Read and Convert Pdf files to Xml files
+        /// Then read Xml files and write date to Result: Excel file.
+        using (var client = httpClient.CreateClient())
+        {
+            //client.Timeout = new TimeSpan(0, 10, 0);
+            client.Timeout = TimeSpan.FromMinutes(10);
+
+            var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFilePdf", content);
+            //var response = await client.PostAsync($"http://localhost:7070/file/UploadFile/UploadFilePdf", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var filePath = await response.Content.ReadAsStringAsync();   //dirPath
+
+                if (string.IsNullOrEmpty(filePath))
+                    Snackbar.Add($"Data not uploaded", Severity.Error);
+                else                    
+                    await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}UploadPdfAndSaveToExcel?filePath={filePath}");
+            }
+            else
+                Snackbar.Add($"File not uploaded", Severity.Error);
+        }
+
+        ClearDragClass();
+
+        IsLoadingData = false;
+    }
+}

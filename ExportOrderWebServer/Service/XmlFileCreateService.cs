@@ -1,14 +1,12 @@
 ﻿using System.Globalization;
 using System.Xml;
-using ExportOrderEntites.BillofLading.Dto;
-using ExportOrderEntites.ImportVesselCall.Dto;
 
 namespace ExportOrderWebServer.Service;
 
 public interface IXmlFileCreateService : IDisposable
 {
-    Task<byte[]> CreateXMLfile(ExportOrderDTO item);
-    Task<byte[]> CreateManifestNle(ImportVesselCallDto importVesselCall);
+    Task<byte[]> CreateXMLfileExportOrder(ExportOrderDTO item);
+    Task<byte[]> CreateXMLfileManifestNle(ImportVesselCallDto importVesselCall);
 }
 
 public class XmlFileCreateService : IXmlFileCreateService
@@ -22,7 +20,7 @@ public class XmlFileCreateService : IXmlFileCreateService
             Directory.CreateDirectory(DirTemporary);
     }
 
-    public async Task<byte[]> CreateXMLfile(ExportOrderDTO item)
+    public async Task<byte[]> CreateXMLfileExportOrder(ExportOrderDTO item)
     {
         var Commodities = item.ExportOrderRecordsDTO.GroupBy(r => new { r.DocumentName, r.SeqContent })
                                                     .Select(g => new
@@ -139,25 +137,7 @@ public class XmlFileCreateService : IXmlFileCreateService
         }
     }
 
-    private readonly Func<string?, string> reverseDateStringXml = (inDate) =>
-    {
-        if (string.IsNullOrWhiteSpace(inDate)) return string.Empty;
-
-        string date = inDate[..10];  // inDate.Substring(0, 10);
-        string time = inDate[11..];  // inDate.Substring(11)
-
-        return string.Concat(date.Split('.')[2], "-",
-                                date.Split('.')[1], "-",
-                                date.Split('.')[0], "T", time);
-    };
-
-    public void Dispose()
-    {
-        if (File.Exists(TemporaryFilePath))
-            File.Delete(TemporaryFilePath);
-    }
-
-    public async Task<byte[]> CreateManifestNle(ImportVesselCallDto importVesselCall)
+    public async Task<byte[]> CreateXMLfileManifestNle(ImportVesselCallDto importVesselCall)
     {
         try
         {
@@ -281,13 +261,13 @@ public class XmlFileCreateService : IXmlFileCreateService
                     //xml.WriteElementString("OceanLineID", OceanLineID); // < OceanLineID > 551618559 </ OceanLineID > ---Договор с НУТЭП
                     // xml.WriteElementString("OriginID", $"{importVesselCall.POL.NameEn}"); //<OriginID>Gdansk</OriginID>
                     xml.WriteElementString("OriginID", "0"); //<OriginID>Gdansk</OriginID>
-                    
+
                     xml.WriteStartElement("DepartureGoodsPort");
                     xml.WriteElementString("Name", $"{importVesselCall.DeparturePortName}");
                     xml.WriteElementString("Code", $"{importVesselCall.DeparturePortCode}");
                     xml.WriteElementString("CountryCode", $"{importVesselCall.DeparturePortCountryCode}");
-                    xml.WriteEndElement();                                 
-                    
+                    xml.WriteEndElement();
+
                     xml.WriteStartElement("DebarkationPort"); // Container
                     xml.WriteElementString("Name", "NOVOROSSIYSK");
                     xml.WriteElementString("Code", "RUNVS");
@@ -405,6 +385,23 @@ public class XmlFileCreateService : IXmlFileCreateService
         }
     }
 
+    private readonly Func<string?, string> reverseDateStringXml = (inDate) =>
+    {
+        if (string.IsNullOrWhiteSpace(inDate)) return string.Empty;
+
+        string date = inDate[..10];  // inDate.Substring(0, 10);
+        string time = inDate[11..];  // inDate.Substring(11)
+
+        return string.Concat(date.Split('.')[2], "-",
+                                date.Split('.')[1], "-",
+                                date.Split('.')[0], "T", time);
+    };
+
     private static string DocDate(DateTime dateTime) => $"{dateTime.Year}-{dateTime:MM}-{dateTime:dd}T00:00:00";//2019 - 11 - 30T00: 00:00
 
+    public void Dispose()
+    {
+        if (File.Exists(TemporaryFilePath))
+            File.Delete(TemporaryFilePath);
+    }
 }

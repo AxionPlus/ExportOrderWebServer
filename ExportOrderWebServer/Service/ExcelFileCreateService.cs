@@ -1,13 +1,7 @@
-﻿using ExportOrderEntites.BillofLading;
-using ExportOrderEntites.BillofLading.Dto;
-using ExportOrderEntites.ImportVesselCall.Dto;
-using Microsoft.JSInterop;
-using Microsoft.Office.Interop.Excel;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
-using static MudBlazor.CategoryTypes;
+using System.Text.RegularExpressions;
+using UglyToad.PdfPig;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Service;
@@ -21,6 +15,7 @@ public interface IExcelFileCreateService : IDisposable
     Task<byte[]> CreateExcelTemplateFillBill(ImportVesselCallDto VesselCall);
     Task<byte[]> CreateExcelTemplateArrivalNotice(ImportVesselCallDto VesselCall);
     Task<byte[]> CreateExcelTemplateCargoManifest(ImportVesselCallDto VesselCall);
+    Task<byte[]> CreateExcelFromPdf(string pdfPath);
 }
 
 public class ExcelFileCreateService : IExcelFileCreateService
@@ -32,7 +27,6 @@ public class ExcelFileCreateService : IExcelFileCreateService
     private Excel.Sheets? WorkSheets;
     private Excel.Worksheet? WorkSheet;
     private Excel.Range? Range;
-    private readonly IJSRuntime JSRuntime;
 
     private readonly static string DirResources = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
     private readonly static string DirTemporary = Path.Combine(DirResources, "TempFiles");
@@ -194,7 +188,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
             /// TABLE                
             int columns = 18;
-            int rows = item.ExportOrderRecordsDTO.Count();
+            int rows = item.ExportOrderRecordsDTO.Count;
 
             int startRow = 9;
 
@@ -252,66 +246,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
             return Array.Empty<byte>();
         }
     }
-
-
-    #region SUPPORT METHODS
-
-    private void CreateTempFile(string destinationPath)
-    {
-        //if (File.Exists(TemplateFilePath))
-        File.Copy(TemplateFilePath, destinationPath);
-
-        if (File.Exists(destinationPath))
-            Workbook = Workbooks.Open(destinationPath);
-        else
-            return;
-
-        if (Workbook is null)
-            return;
-        else
-        {
-            WorkSheets = Workbook.Worksheets;
-            WorkSheet = WorkSheets[1];
-        }
-    }
-
-    private void SaveTempFile()
-    {
-        Workbook?.Save();
-        Workbook?.Close();
-        ExcelApp.Quit();
-    }
-
-    private static int SetDelay(int records)
-    {
-        return records switch
-        {
-            < 1000 => 2000,
-            < 2000 => 4000,
-            < 3000 => 6000,
-            < 4000 => 8000,
-            _ => 10000,
-        };
-    }
-
-    public void Dispose()
-    {
-        Process[] process = Process.GetProcessesByName("Excel");
-        foreach (Process p in process)
-            if (!string.IsNullOrEmpty(p.ProcessName))
-                if (ExcelAppPid > 0)
-                    if (p.Id == ExcelAppPid)
-                        p.Kill();
-
-        //foreach (var file in Directory.GetFiles(DirTemporary))
-        //        File.Delete(file);
-        if (File.Exists(TemporaryFilePath))
-            File.Delete(TemporaryFilePath);
-    }
-
-    #endregion
-
-
+    
     public async Task<byte[]> CreateExcelReport(object[,] Array, string reportName)
     {
         TemplateFilePath = Path.Combine(DirResources, "EmptyWorkSheet.xlsx");
@@ -319,7 +254,6 @@ public class ExcelFileCreateService : IExcelFileCreateService
         if (!File.Exists(TemplateFilePath)) return new byte[] { };
 
         CreateTempFile(TemporaryFilePath);
-
 
         long rows = Array.GetLength(0);
         int columns = Array.GetLength(1);
@@ -394,8 +328,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
             CommodityCode = rec.CommodityCode,
             GoodsDescription = rec.GoodsDescription,
             GoodsDescriptionRu = rec.GoodsDescriptionRu,
-
         }).ToList();
+
         var i = 1;
         records.ForEach(record => record.No = i++);
         /// TABLE                
@@ -449,7 +383,6 @@ public class ExcelFileCreateService : IExcelFileCreateService
             dataBulk[row, 24 - 1] = records.ElementAt(row).CustomsDeliveryMode;
             dataBulk[row, 25 - 1] = records.ElementAt(row).ImoClass + records.ElementAt(row).Unno;
             dataBulk[row, 26 - 1] = records.ElementAt(row).TempSet;
-
         });
 
         Range.Value = dataBulk;
@@ -461,7 +394,6 @@ public class ExcelFileCreateService : IExcelFileCreateService
         await Task.Run(async () => { await Task.Delay(SetDelay(rows)); });
 
         return fileBytes;
-
     }
 
     public async Task<byte[]> CreateExcelTemplateFillBill(ImportVesselCallDto VesselCall)
@@ -474,16 +406,15 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         if (WorkSheet is null) return Array.Empty<byte>();
 
-        WorkSheet.Cells[2, 1] = VesselCall.VesselName.ToUpper();  //Vessel Name 
-        WorkSheet.Cells[2, 5] = VesselCall.VesselVoyage.ToUpper();  //Vessel Voyage 
-        WorkSheet.Cells[2, 2] = VesselCall.VesselFlag.ToUpper();  //Vessel Flag 
-        WorkSheet.Cells[2, 4] = VesselCall.DeparturePortName.ToUpper();  //POL 
+        WorkSheet.Cells[2, 1] = VesselCall.VesselName.ToUpper();
+        WorkSheet.Cells[2, 5] = VesselCall.VesselVoyage.ToUpper();
+        WorkSheet.Cells[2, 2] = VesselCall.VesselFlag.ToUpper();
+        WorkSheet.Cells[2, 4] = VesselCall.DeparturePortName.ToUpper();
 
         WorkSheet.Cells[1, 10] = "";  //Captain Surname
         WorkSheet.Cells[2, 10] = "";  //Captain Name
 
-        WorkSheet.Cells[2, 15] = VesselCall.CustomsPostCode.ToUpper();  //Customs Post Code Name
-
+        WorkSheet.Cells[2, 15] = VesselCall.CustomsPostCode.ToUpper();
 
         var records = VesselCall.BillofLadings.SelectMany(s => s.ContainerRecords, (bl, rec) => new ManifestBillOfLadingDto()
         {
@@ -525,13 +456,13 @@ public class ExcelFileCreateService : IExcelFileCreateService
             CommodityCode = rec.CommodityCode,
             GoodsDescription = rec.GoodsDescription,
             GoodsDescriptionRu = rec.GoodsDescriptionRu,
-
         }).ToList();
+
         var i = 1;
         records.ForEach(record => record.No = i++);
         //TABLE                
         int columns = 30;
-        int rows = records.Count();
+        int rows = records.Count;
 
         int startRow = 5;
 
@@ -582,15 +513,11 @@ public class ExcelFileCreateService : IExcelFileCreateService
             {
                 CustomsDeliveryMode.GTD => "ГТД",
                 CustomsDeliveryMode.VTT => "ВТТ",
-
+                _ => "ГТД"
             };
             dataBulk[row, 23 - 1] = records.ElementAt(row).CommodityCode?.ToUpper();
-
-
             dataBulk[row, 29 - 1] = records.ElementAt(row).ImoClass?.ToUpper();
             dataBulk[row, 30 - 1] = records.ElementAt(row).Unno?.ToUpper();
-
-
         });
 
         Range.Value = dataBulk;
@@ -599,9 +526,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         byte[] fileBytes = File.ReadAllBytes(TemporaryFilePath);
 
-
         return fileBytes;
-
     }
 
     public async Task<byte[]> CreateExcelTemplateArrivalNotice(ImportVesselCallDto VesselCall)
@@ -614,11 +539,11 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         if (WorkSheet is null) return Array.Empty<byte>();
 
-        WorkSheet.Cells[3, 3] = VesselCall.VesselName.ToUpper();  //Vessel Name 
-        WorkSheet.Cells[3, 7] = VesselCall.VesselVoyage.ToUpper();  //Vessel Voyage 
-        WorkSheet.Cells[4, 3] = VesselCall.VesselFlag.ToUpper();  //Vessel Flag 
-        WorkSheet.Cells[7, 3] = VesselCall.DeparturePortName.ToUpper();  //POL 
-        WorkSheet.Cells[6, 3] = VesselCall.ETA;  //ETA 
+        WorkSheet.Cells[3, 3] = VesselCall.VesselName.ToUpper();
+        WorkSheet.Cells[3, 7] = VesselCall.VesselVoyage.ToUpper();
+        WorkSheet.Cells[4, 3] = VesselCall.VesselFlag.ToUpper();
+        WorkSheet.Cells[7, 3] = VesselCall.DeparturePortName.ToUpper();
+        WorkSheet.Cells[6, 3] = VesselCall.ETA;
 
         var records = VesselCall.BillofLadings.SelectMany(s => s.ContainerRecords, (bl, rec) => new ManifestBillOfLadingDto()
         {
@@ -660,13 +585,13 @@ public class ExcelFileCreateService : IExcelFileCreateService
             CommodityCode = rec.CommodityCode,
             GoodsDescription = rec.GoodsDescription,
             GoodsDescriptionRu = rec.GoodsDescriptionRu,
-
         }).ToList();
+
         var i = 1;
         records.ForEach(record => record.No = i++);
         //TABLE                
         int columns = 14;
-        int rows = records.Count();
+        int rows = records.Count;
 
         int startRow = 10;
 
@@ -711,9 +636,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
             {
                 CustomsDeliveryMode.GTD => "ГТД",
                 CustomsDeliveryMode.VTT => "ВТТ",
-
+                _ => "ГТД"
             };
-
         });
 
         Range.Value = dataBulk;
@@ -722,9 +646,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         byte[] fileBytes = File.ReadAllBytes(TemporaryFilePath);
 
-
         return fileBytes;
-
     }
 
     public async Task<byte[]> CreateExcelTemplateCargoManifest(ImportVesselCallDto VesselCall)
@@ -737,11 +659,11 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         if (WorkSheet is null) return Array.Empty<byte>();
 
-        WorkSheet.Cells[1, 3] = VesselCall.VesselName.ToUpper();  //Vessel Name 
-        WorkSheet.Cells[2, 3] = VesselCall.VesselVoyage.ToUpper();  //Vessel Voyage 
-        WorkSheet.Cells[1, 5] = VesselCall.VesselFlag.ToUpper();  //Vessel Flag 
-        WorkSheet.Cells[1, 10] = VesselCall.DeparturePortName.ToUpper();  //POL 
-        WorkSheet.Cells[1, 12] = VesselCall.ETA;  //ETA 
+        WorkSheet.Cells[1, 3] = VesselCall.VesselName.ToUpper();
+        WorkSheet.Cells[2, 3] = VesselCall.VesselVoyage.ToUpper();
+        WorkSheet.Cells[1, 5] = VesselCall.VesselFlag.ToUpper();
+        WorkSheet.Cells[1, 10] = VesselCall.DeparturePortName.ToUpper();
+        WorkSheet.Cells[1, 12] = VesselCall.ETA;
 
         var records = VesselCall.BillofLadings.SelectMany(s => s.ContainerRecords, (bl, rec) => new ManifestBillOfLadingDto()
         {
@@ -783,13 +705,13 @@ public class ExcelFileCreateService : IExcelFileCreateService
             CommodityCode = rec.CommodityCode,
             GoodsDescription = rec.GoodsDescription,
             GoodsDescriptionRu = rec.GoodsDescriptionRu,
-
         }).ToList();
+
         var i = 1;
         records.ForEach(record => record.No = i++);
         //TABLE                
         int columns = 14;
-        int rows = records.Count();
+        int rows = records.Count;
 
         int startRow = 4;
 
@@ -810,7 +732,6 @@ public class ExcelFileCreateService : IExcelFileCreateService
                 seal.Add(records.ElementAt(row).SealShr);
             if (!string.IsNullOrWhiteSpace(records.ElementAt(row).SealOth))
                 seal.Add(records.ElementAt(row).SealOth);
-
 
             var _size = records.ElementAt(row).ContainerType.Substring(0, 2)?.ToUpper();
             var _type = records.ElementAt(row).ContainerType.Substring(2, 2)?.ToUpper();
@@ -833,7 +754,6 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         Range.Value = dataBulk;
 
-
         #region Footer
 
         var footer = rows + startRow + 5;
@@ -841,8 +761,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range = WorkSheet.Range[WorkSheet.Cells[footer - 2, 1], WorkSheet.Cells[footer - 2, 2]];
         Range.Cells.Merge();
         Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
         Range.Font.Bold = true;
         Range.Font.Size = 12;
         Range.Value = "LAST PAGE";
@@ -850,8 +770,8 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range = WorkSheet.Range[WorkSheet.Cells[footer - 2, 12], WorkSheet.Cells[footer - 2, 13]];
         Range.Cells.Merge();
         Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
         Range.Font.Bold = true;
         Range.Font.Size = 12;
         Range.Value = "LAST PAGE";
@@ -861,22 +781,20 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range.Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous; // Сплошная линия
         Range.Borders[Excel.XlBordersIndex.xlEdgeBottom].Weight = Excel.XlBorderWeight.xlMedium;     // жирная линия
 
-
-
         Range = WorkSheet.Range[WorkSheet.Cells[footer, 5], WorkSheet.Cells[footer, 5]];
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
         Range.Value = "Quantity";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer, 6], WorkSheet.Cells[footer, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
         //Range.Cells.Borders.Value = true;
         //Range.Cells.Borders.Weight = 2;
         Range.Value = "Tare weight, kgs";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer, 9], WorkSheet.Cells[footer, 10]];
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
 
         WorkSheet.Cells[footer, 9] = "Cargo weight, kgs";
         WorkSheet.Cells[footer, 10] = "Container tare + cargo weight, kgs";
@@ -905,17 +823,15 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         var full_20_wt = records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => !s.IsEmpty).Sum(s => s.CargoWeight);
         var full_40_wt = records.Where(s => s.ContainerType.Substring(0, 2) == "40").Where(s => !s.IsEmpty).Sum(s => s.CargoWeight);
-        // var mty_20_wt = records.Where(s => s.ContainerType.Substring(0, 2) == "20").Where(s => s.IsEmpty).Sum(s => s.CargoWeight);
-        //var mty_40_wt = records.Where(s => s.ContainerType.Substring(0, 2) == "40").Where(s => s.IsEmpty).Sum(s => s.CargoWeight);
 
         #region Container tare weight, kgs
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 1, 6], WorkSheet.Cells[footer + 1, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
-        Range.Font.Bold = true;  // Жирный шрифт
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
+        Range.Font.Bold = true;
         Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
 
         if (full_20_tare != 0)
@@ -923,15 +839,12 @@ public class ExcelFileCreateService : IExcelFileCreateService
         else
             Range.Value = "-";
 
-
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 2, 6], WorkSheet.Cells[footer + 2, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
-        //Range.Cells.Borders.Value = true;
-        //Range.Cells.Borders.Weight = 2;
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
         Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
         if (full_40_tare != 0)
             Range.Value = full_40_tare;
@@ -941,26 +854,21 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 3, 6], WorkSheet.Cells[footer + 3, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
-        //Range.Cells.Borders.Value = true;
-        //Range.Cells.Borders.Weight = 2;
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
         Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
         if (mty_20_tare != 0)
             Range.Value = mty_20_tare;
         else
             Range.Value = "-";
 
-
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 4, 6], WorkSheet.Cells[footer + 4, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
-        //Range.Cells.Borders.Value = true;
-        //Range.Cells.Borders.Weight = 2;
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
         Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
         if (mty_40_tare != 0)
             Range.Value = mty_40_tare;
@@ -970,12 +878,10 @@ public class ExcelFileCreateService : IExcelFileCreateService
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 6], WorkSheet.Cells[footer + 6, 8]];
         Range.Cells.Merge();
         Range.WrapText = false;
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
-        Range.Font.Bold = true;  // Жирный шрифт
-        //Range.Cells.Borders.Value = true;
-        //Range.Cells.Borders.Weight = 2;
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
+        Range.Font.Bold = true;
         Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
         if ((full_20_tare + full_40_tare + mty_20_tare + mty_40_tare) != 0)
             Range.Value = full_20_tare + full_40_tare + mty_20_tare + mty_40_tare;
@@ -986,15 +892,15 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         #region Quantity
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 1, 5], WorkSheet.Cells[footer + 4, 5]];
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
         Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 5], WorkSheet.Cells[footer + 6, 5]];
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
         Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###";
 
         if (full_20_qty != 0)
@@ -1017,35 +923,28 @@ public class ExcelFileCreateService : IExcelFileCreateService
         else
             WorkSheet.Cells[footer + 4, 5] = "-";
 
-
-
         WorkSheet.Cells[footer + 6, 5] = _records.Count();
-
-
         #endregion
 
-
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 1, 9], WorkSheet.Cells[footer + 4, 10]];
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
         Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###.000"; //"# ### ### ##0.000";
 
         Range = WorkSheet.Range[WorkSheet.Cells[footer + 6, 9], WorkSheet.Cells[footer + 6, 10]];
-        Range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-        Range.Font.Name = "Courier New"; // Установка шрифта
-        Range.Font.Size = 12; // Например, 12pt
-        Range.Font.Bold = true;  // Жирный шрифт
-        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###.000";//"# ### ### ##0.000";
+        Range.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+        Range.Font.Name = "Courier New";
+        Range.Font.Size = 12;
+        Range.Font.Bold = true;
+        Range.Cells.NumberFormat = $"#{(char)160}###{(char)160}###.000";
 
         WorkSheet.Cells[footer + 1, 9] = full_20_wt != 0 ? full_20_wt : "-";
         WorkSheet.Cells[footer + 2, 9] = full_40_wt != 0 ? full_40_wt : "-";
         WorkSheet.Cells[footer + 3, 9] = "-";
         WorkSheet.Cells[footer + 4, 9] = "-";
 
-
         WorkSheet.Cells[footer + 6, 9] = (full_20_wt + full_40_wt) != 0 ? (full_20_wt + full_40_wt) : "-";
-
 
         WorkSheet.Cells[footer + 1, 10] = full_20_wt + full_20_tare != 0 ? full_20_wt + full_20_tare : "-";
         WorkSheet.Cells[footer + 2, 10] = full_40_wt + full_40_tare != 0 ? full_40_wt + full_40_tare : "-";
@@ -1056,18 +955,583 @@ public class ExcelFileCreateService : IExcelFileCreateService
 
         #endregion
 
-
-
         SaveTempFile();
 
         byte[] fileBytes = File.ReadAllBytes(TemporaryFilePath);
 
-
         return fileBytes;
-
     }
 
+    public async Task<byte[]> CreateExcelFromPdf(string pdfPath)
+    {
+        /// Read Pdf
+        var extractedData = ExtractTextFromPdf(pdfPath);
+
+        if (extractedData is null || !extractedData.Any() ||
+            extractedData.First() != "SHIPPER / ON BEHALF OF SHIPPER")
+            return Array.Empty<byte>();
+
+        int seq = 0;
+        
+        try
+        {            
+            List<List<string>> data = new();
+            List<string> dataLine = new();
+
+            foreach (string line in extractedData)
+            {
+                if (line == "SHIPPER / ON BEHALF OF SHIPPER")
+                {
+                    if (dataLine.Any())
+                        data.Add(dataLine);
+
+                    dataLine = new();
+                }
+
+                dataLine.Add(line);
+            }
+
+            if (dataLine.Any())
+                data.Add(dataLine);
+
+            List<ReadPdfExportOrderDTO> exportOrders = new();
+            
+            foreach (var order in data)
+            {                
+                ReadPdfExportOrderDTO exportOrderDTO = new();
+
+                string[] lines = order.ToArray();
+
+                /// SHIPPER
+                int indexConsignee = Array.IndexOf(lines, "CONSIGNEE / ON BEHALF OF CONSIGNEE");
+                if (indexConsignee < 0)
+                    indexConsignee = Array.IndexOf(lines, "CONSIGNEE / ON BEHALF OF");
+
+                StringBuilder shipper = new();
+
+                for (int i = 1; i < indexConsignee; i++)
+                {
+                    if (//lines[i] == "SHIPPER / ON BEHALF OF SHIPPER" ||
+                        lines[i] == "Отправитель / Представитель отправителя" ||
+                        lines[i].StartsWith("Отправитель / Представитель") ||
+                        lines[i].StartsWith("отправителя") ||
+                        lines[i] == "ПОРУЧЕНИЕ №" ||
+                        lines[i] == "____________" ||
+                        lines[i] == "НА ОТГРУЗКУ ЭКСПОРТНЫХ ТОВАРОВ" ||
+                        lines[i].StartsWith("Экспортное разрешение №"))
+                        continue;
+
+                    string lineShipper = lines[i];
+
+                    int indexTrashShipper = lineShipper.IndexOf("Экспортное разрешение №");                    
+                    if (indexTrashShipper >= 0)
+                        lineShipper = lineShipper.Substring(0, indexTrashShipper).Trim();
+
+                    shipper.AppendLine(lineShipper.Trim());
+                }
+                
+                exportOrderDTO.Shipper = shipper.ToString().Replace("\r\n", " ").Trim();
+
+                /// CONSIGNEE                
+                int indexNotify = Array.FindIndex(lines, s => s.StartsWith("NOTIFY PARTY"));
+                StringBuilder consignee = new();
+
+                for (int i = indexConsignee + 1; i < indexNotify; i++)
+                {
+                    if (lines[i] == "Получатель / Представитель получателя" ||
+                        lines[i].StartsWith("Получатель / Представитель") ||
+                        lines[i].StartsWith ("получателя") ||
+                        lines[i].StartsWith("Экспортное разрешение №") ||
+                        lines[i] == "НА ОТГРУЗКУ ЭКСПОРТНЫХ ТОВАРОВ" ||
+                        lines[i] == "CONSIGNEE")
+                        continue;
+
+                    string lineConsignee = lines[i];
+
+                    //if (Regex.IsMatch(lineConsignee, "[0-9]{2}.[0-9]{2}.[0-9]{4}"))
+                    //    continue;
+
+                    if (Regex.IsMatch(lineConsignee, @"^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$"))    // для даты
+                        continue;
+
+                    consignee.AppendLine(lineConsignee);
+                }
+                
+                exportOrderDTO.Consignee = consignee.ToString().Replace("\r\n", " ").Trim();
+
+                /// PORT OF DISCHARGE
+                exportOrderDTO.POD = lines[Array.IndexOf(lines, "Порт выгрузки Пункт назначения груза") + 1];
+
+                /// SHIPPING LINE
+                string trashInLine = "Manager/менеджер (конт. телефон):";
+                int indexShippingLine = Array.FindIndex(lines, s => s.StartsWith(trashInLine));
+                string lineShippingLine = lines[indexShippingLine];
+                string textShippingLine = lineShippingLine.Substring(trashInLine.Length);
+
+                int indexEnd = textShippingLine.IndexOf(", оформил");
+                if (indexEnd < 0)
+                    indexEnd = textShippingLine.IndexOf(", телефон:");
+
+                if (indexEnd < 0)
+                    exportOrderDTO.ShippingLine = textShippingLine;
+                else
+                    exportOrderDTO.ShippingLine = textShippingLine.Substring(0, indexEnd);
+
+                /// COMMODITY & Cntrs               
+                int indexCommodity = Array.IndexOf(lines, "Товары") + 4;
+
+                List<string> commodities = new();
+                List<string> cntrNums = new();
+                
+                StringBuilder subCommodity = new();
+                string trashInCommodity = "(код:";
+
+                for (int i = indexCommodity; i < lines.Length; i++)
+                {
+                    string lineCommodity = lines[i];
+
+                    /// Trash
+                    if (lineCommodity.Contains(trashInCommodity, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        StringBuilder lineCleared = new();
+                        string[] lineCommodityArray = lineCommodity.Split(trashInCommodity);
+                        lineCleared.Append(lineCommodityArray[0]);
+
+                        int endIndex = lineCommodityArray[1].IndexOf(')');
+
+                        if (endIndex < lineCommodityArray[1].Length - 1)
+                            lineCleared.Append(lineCommodityArray[1].Substring(endIndex + 1));
+
+                        /// Cleared line
+                        lineCommodity = lineCleared.ToString();
+                    }
+
+                    string[] lineArray = lineCommodity.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    if (lineArray.Length >= 10)
+                    {
+                        if (subCommodity.Length > 0)
+                        {
+                            commodities.Add(subCommodity.ToString().TrimEnd());
+                            subCommodity = new();
+                        }
+
+                        /// Commodity                        
+                        for (int j = 0; j < lineArray.Length - 9; j++)
+                        {
+                            subCommodity.Append(lineArray[j + 3] + " ");
+                        }
+
+                        /// Cntr
+                        string possibleCntrNum = lineArray[^2];                     /// второй с конца элемент массива
+                        if (Regex.IsMatch(possibleCntrNum, "[a-zA-Z]{4}[0-9]{7}"))  /// номер контейнера
+                            cntrNums.Add(possibleCntrNum);
+                    }
+                    else
+                    {
+                        foreach (var word in lineArray)
+                        {
+                            if (Regex.IsMatch(word, "[a-zA-Z]{4}[0-9]{7}"))
+                                cntrNums.Add(word);
+                            else
+                                subCommodity.Append(word + ' ');
+                        }
+                    }
+                }
+
+                if (subCommodity.Length > 0)
+                    commodities.Add(subCommodity.ToString().TrimEnd());
 
 
+                exportOrderDTO.Commodity = string.Join(", ", commodities.Distinct());
 
+                exportOrderDTO.CntrsCount = cntrNums.Distinct().Count();
+
+                exportOrderDTO.Id = ++seq;
+                exportOrders.Add(exportOrderDTO);
+            }
+
+            ///-----------------------------------------------------------
+
+            /// Create Excel
+            TemplateFilePath = Path.Combine(DirResources, "ExportOrder List.xlsx");
+            if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
+
+            CreateTempFile(TemporaryFilePath);
+
+            if (WorkSheet is null) return Array.Empty<byte>();
+
+            /// TABLE                
+            int columns = 6;
+            int rows = exportOrders.Count;
+
+            int startRow = 2;
+
+            var startCell = WorkSheet.Cells[startRow, 1];
+            var endCell = WorkSheet.Cells[rows + startRow - 1, columns];
+            Range = WorkSheet.Range[startCell, endCell];
+
+            if (rows > 1) Range.FillDown();
+
+            var dataBulk = new object[rows, columns];
+
+            var result = Parallel.For(0, rows, (row, state) =>
+            {
+                dataBulk[row, 0] = exportOrders.ElementAt(row).Shipper!;
+                dataBulk[row, 1] = exportOrders.ElementAt(row).Consignee!;
+                dataBulk[row, 2] = exportOrders.ElementAt(row).CntrsCount;
+                dataBulk[row, 3] = exportOrders.ElementAt(row).ShippingLine!;
+                dataBulk[row, 4] = exportOrders.ElementAt(row).POD!;
+                dataBulk[row, 5] = exportOrders.ElementAt(row).Commodity!;
+            });
+
+            Range.Value = dataBulk;
+
+            SaveTempFile();
+
+            byte[] fileBytes = File.ReadAllBytes(TemporaryFilePath);
+
+            await Task.Run(async () => { await Task.Delay(SetDelay(exportOrders.Count)); });
+
+            return fileBytes;
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Record {seq + 1}: {ex.Message}");
+            return Array.Empty<byte>();
+        }
+    }
+
+    #region SUPPORT METHODS
+
+    private void CreateTempFile(string destinationPath)
+    {
+        File.Copy(TemplateFilePath, destinationPath);
+
+        if (File.Exists(destinationPath))
+            Workbook = Workbooks.Open(destinationPath);
+        else
+            return;
+
+        if (Workbook is null)
+            return;
+        else
+        {
+            WorkSheets = Workbook.Worksheets;
+            WorkSheet = WorkSheets[1];
+        }
+    }
+
+    private void SaveTempFile()
+    {
+        Workbook?.Save();
+        Workbook?.Close();
+        ExcelApp.Quit();
+    }
+
+    private static int SetDelay(int records)
+    {
+        return records switch
+        {
+            < 1000 => 2000,
+            < 2000 => 4000,
+            < 3000 => 6000,
+            < 4000 => 8000,
+            _ => 10000,
+        };
+    }
+       
+    private List<string> ExtractTextFromPdf(string _pdfPath)
+    {
+        var result = new List<string>();
+
+        try
+        {
+            using (var document = PdfDocument.Open(_pdfPath))
+            {
+                foreach (var page in document.GetPages())
+                {
+                    /// Получаем все слова на странице с их координатами
+                    var words = page.GetWords();
+
+                    /// Группируем слова по строкам (на основе Y-координат)
+                    var lines = words.GroupBy(w => Math.Round(w.BoundingBox.Bottom, 1))
+                                     .OrderByDescending(g => g.Key);
+
+                    foreach (var line in lines)
+                    {
+                        /// Сортируем слова по X-координате и объединяем в строку
+                        var row = line.OrderBy(w => w.BoundingBox.Left)
+                                     .Select(w => w.Text)
+                                     .ToList();
+
+                        //var rowText = string.Join(" | ", row);
+                        var rowText = string.Join(" ", row);
+
+                        result.Add(rowText);
+                    }
+                }
+            }
+
+            if (File.Exists(_pdfPath))
+                File.Delete(_pdfPath);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            if (File.Exists(_pdfPath))
+                File.Delete(_pdfPath);
+            return result;
+        }
+    }
+
+    //private List<List<string>> ____ExtractTextFromPdf(string _pdfPath)
+    //{
+    //    var result = new List<List<string>>();
+
+    //    try
+    //    {
+    //        using (var document = PdfDocument.Open(_pdfPath))
+    //        {
+    //            // Создаем экстрактор слов
+    //            IWordExtractor wordExtractor = new NearestNeighbourWordExtractor();
+
+    //            foreach (var page in document.GetPages())
+    //            {
+    //                // Извлекаем слова с их координатами
+    //                //var words = wordExtractor.GetWords(page.Letters).ToList();
+    //                var words = page.GetWords().ToList();
+
+    //                // Группируем слова по строкам (основано на Y-координате)
+    //                var lines = GroupWordsIntoLines(words);
+
+    //                // Обрабатываем каждую строку
+    //                foreach (var line in lines.OrderByDescending(l => l.Key))
+    //                {
+    //                    // Сортируем слова в строке по X-координате (слева направо)
+    //                    var sortedWords = line.Value.OrderBy(w => w.BoundingBox.Left)
+    //                                                .Select(w => w.Text)
+    //                                                .ToList();
+
+    //                    // Формируем текст строки
+    //                    //var lineText = string.Join(" ", sortedWords.Select(w => w.Text));
+    //                    result.Add(sortedWords);
+    //                }
+    //            }
+    //        }
+    //        if (File.Exists(_pdfPath))
+    //            File.Delete(_pdfPath);
+
+    //        return result;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex.Message);
+    //        if (File.Exists(_pdfPath))
+    //            File.Delete(_pdfPath);
+    //        return result;
+    //    }
+    //}
+
+    //private static Dictionary<double, List<Word>> GroupWordsIntoLines(List<Word> words)
+    //{
+    //    var lines = new Dictionary<double, List<Word>>();
+    //    const double tolerance = 2.0; // Допуск для группировки по Y-координате
+
+    //    foreach (var word in words)
+    //    {
+    //        var baseLine = Math.Round(word.BoundingBox.Bottom, 1);
+    //        var existingLine = lines.Keys.FirstOrDefault(y => Math.Abs(y - baseLine) <= tolerance);
+
+    //        if (existingLine != 0)
+    //        {
+    //            lines[existingLine].Add(word);
+    //        }
+    //        else
+    //        {
+    //            lines[baseLine] = new List<Word> { word };
+    //        }
+    //    }
+
+    //    return lines;
+    //}
+
+    //private List<List<string>> ___ExtractTextFromPdf(string _pdfPath)
+    //{
+    //    var result = new List<List<string>>();
+
+    //    try
+    //    {
+    //        using (var document = PdfDocument.Open(_pdfPath))
+    //        {
+    //            foreach (var page in document.GetPages())
+    //            {
+    //                /// Получаем все слова на странице с их координатами
+    //                var words = page.GetWords();
+
+    //                /// Группируем слова по строкам (на основе Y-координат)
+    //                var lines = words.GroupBy(w => Math.Round(w.BoundingBox.Bottom, 1))
+    //                                 .OrderByDescending(g => g.Key);
+
+    //                var currentTable = new List<string>();
+
+    //                foreach (var line in lines)
+    //                {
+    //                    /// Сортируем слова по X-координате и объединяем в строку
+    //                    var row = line.OrderBy(w => w.BoundingBox.Left)
+    //                                 .Select(w => w.Text)
+    //                                 .ToList();
+
+    //                    //var rowText = string.Join(" | ", row);
+    //                    var rowText = string.Join(" ", row);
+
+    //                    currentTable.Add(rowText);
+    //                    result.Add(new List<string>(currentTable));
+    //                    currentTable.Clear();
+    //                }
+
+    //                //if (currentTable.Count > 0)
+    //                //{
+    //                //    result.Add(currentTable);
+    //                //}
+    //            }
+    //        }
+
+    //        if (File.Exists(_pdfPath))
+    //            File.Delete(_pdfPath);
+
+    //        return result;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex.Message);
+    //        if (File.Exists(_pdfPath))
+    //            File.Delete(_pdfPath);
+    //        return result;
+    //    }
+    //}
+
+    //private List<List<string>> __ExtractTextFromPdf(string _pdfPath)
+    //{
+    //    var result = new List<List<string>>();
+
+    //    try
+    //    {
+    //        using (var document = PdfDocument.Open(_pdfPath))
+    //        {
+    //            foreach (var page in document.GetPages())
+    //            {
+    //                /// Получаем все слова на странице с их координатами
+    //                var words = page.GetWords();
+
+    //                /// Группируем слова по строкам (на основе Y-координат)
+    //                var lines = words.GroupBy(w => Math.Round(w.BoundingBox.Bottom, 1))
+    //                                 .OrderByDescending(g => g.Key);
+
+    //                var currentTable = new List<string>();
+
+    //                foreach (var line in lines)
+    //                {
+    //                    /// Сортируем слова по X-координате и объединяем в строку
+    //                    var row = line.OrderBy(w => w.BoundingBox.Left)
+    //                                 .Select(w => w.Text)
+    //                                 .ToList();
+
+    //                    var rowText = string.Join(" | ", row);
+
+    //                    if (!string.IsNullOrWhiteSpace(rowText))
+    //                    {
+    //                        currentTable.Add(rowText);
+    //                    }
+    //                    else if (currentTable.Count > 0)
+    //                    {
+    //                        result.Add(new List<string>(currentTable));
+    //                        currentTable.Clear();
+    //                    }
+    //                }
+
+    //                if (currentTable.Count > 0)
+    //                {
+    //                    result.Add(currentTable);
+    //                }
+    //            }
+    //        }
+
+    //        if (File.Exists(_pdfPath))
+    //            File.Delete(_pdfPath);
+
+    //        return result;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex.Message);            
+    //        if (File.Exists(_pdfPath))
+    //            File.Delete(_pdfPath);
+    //        return result;
+    //    }
+    //}
+
+    //private List<List<string>> _ExtractTextFromPdf(string _pdfPath)
+    //{
+    //    var result = new List<List<string>>();
+
+    //    try
+    //    {
+    //        using (var document = PdfDocument.Open(_pdfPath))
+    //        {
+    //            foreach (var page in document.GetPages())
+    //            {
+    //                /// Получаем все слова на странице с их координатами
+    //                var words = page.GetWords();
+
+    //                /// Группируем слова по строкам (на основе Y-координат)
+    //                var lines = words.GroupBy(w => Math.Round(w.BoundingBox.Bottom, 1))
+    //                                 .OrderByDescending(g => g.Key);
+
+    //                var currentTable = new List<string>();
+
+    //                foreach (var line in lines)
+    //                {
+    //                    /// Сортируем слова по X-координате и объединяем в строку
+    //                    var row = line.OrderBy(w => w.BoundingBox.Left)
+    //                                 .Select(w => w.Text)
+    //                                 .ToList();
+
+    //                    result.Add(row);                        
+    //                }
+    //            }
+    //        }
+
+    //        if (File.Exists(_pdfPath))
+    //            File.Delete(_pdfPath);
+
+    //        return result;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex.Message);
+    //        if (File.Exists(_pdfPath))
+    //            File.Delete(_pdfPath);
+    //        return result;
+    //    }
+    //}
+    #endregion
+
+    public void Dispose()
+    {
+        Process[] process = Process.GetProcessesByName("Excel");
+        foreach (Process p in process)
+            if (!string.IsNullOrEmpty(p.ProcessName))
+                if (ExcelAppPid > 0)
+                    if (p.Id == ExcelAppPid)
+                        p.Kill();
+
+        //foreach (var file in Directory.GetFiles(DirTemporary))
+        //        File.Delete(file);
+        if (File.Exists(TemporaryFilePath))
+            File.Delete(TemporaryFilePath);
+    }
 }

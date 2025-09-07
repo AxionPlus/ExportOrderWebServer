@@ -104,11 +104,9 @@
         _AppObjectResponse = new();
     }
 
-    private void SetDragClass() =>     
-        DragClass = $"{DefaultDragClass} mud-border-primary";
+    private void SetDragClass() => DragClass = $"{DefaultDragClass} mud-border-primary";
 
-    private void ClearDragClass() =>
-        DragClass = DefaultDragClass;
+    private void ClearDragClass() => DragClass = DefaultDragClass;
 
     private async Task CheckAndUploadFile()
     {
@@ -150,7 +148,7 @@
         using (var client = httpClient.CreateClient())
         {
             client.Timeout = new TimeSpan(0, 10, 0);        // TimeSpan.FromMinutes(10);
-
+            
             var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFromFileExcel", content);
 
             if (response.IsSuccessStatusCode)

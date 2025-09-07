@@ -4,6 +4,9 @@ global using Microsoft.EntityFrameworkCore;
 global using ExportOrderDbContext;
 
 global using ExportOrderEntites;
+global using ExportOrderEntites.BillofLading;
+global using ExportOrderEntites.BillofLading.Dto;
+global using ExportOrderEntites.ImportVesselCall.Dto;
 global using ExportOrderEntites.DTO;
 global using ExportOrderEntites.Document;
 global using ExportOrderEntites.Catalog;

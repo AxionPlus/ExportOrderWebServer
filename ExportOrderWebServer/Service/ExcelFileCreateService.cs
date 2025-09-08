@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using UglyToad.PdfPig;
+using UglyToad.PdfPig.Content;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExportOrderWebServer.Service;
@@ -965,195 +966,21 @@ public class ExcelFileCreateService : IExcelFileCreateService
     public async Task<byte[]> CreateExcelFromPdf(string pdfPath)
     {
         /// Read Pdf
-        var extractedData = ExtractTextFromPdf(pdfPath);
+        var _extractedData = ExtractTextFromPdf(pdfPath);
 
-        if (extractedData is null || !extractedData.Any() ||
-            extractedData.First() != "SHIPPER / ON BEHALF OF SHIPPER")
+        if (_extractedData is null || !_extractedData.Any() || !_extractedData.First().StartsWith("SHIPPER / ON BEHALF OF"))
             return Array.Empty<byte>();
 
-        int seq = 0;
-        
+        /// Get DTO
+        List<ReadPdfExportOrderDTO> exportOrders = GetExportOrderDTO(_extractedData);
+
+        if (exportOrders is null || !exportOrders.Any())
+            return Array.Empty<byte>();
+
+        /// CREATE EXCEL FILE
         try
-        {            
-            List<List<string>> data = new();
-            List<string> dataLine = new();
-
-            foreach (string line in extractedData)
-            {
-                if (line == "SHIPPER / ON BEHALF OF SHIPPER")
-                {
-                    if (dataLine.Any())
-                        data.Add(dataLine);
-
-                    dataLine = new();
-                }
-
-                dataLine.Add(line);
-            }
-
-            if (dataLine.Any())
-                data.Add(dataLine);
-
-            List<ReadPdfExportOrderDTO> exportOrders = new();
-            
-            foreach (var order in data)
-            {                
-                ReadPdfExportOrderDTO exportOrderDTO = new();
-
-                string[] lines = order.ToArray();
-
-                /// SHIPPER
-                int indexConsignee = Array.IndexOf(lines, "CONSIGNEE / ON BEHALF OF CONSIGNEE");
-                if (indexConsignee < 0)
-                    indexConsignee = Array.IndexOf(lines, "CONSIGNEE / ON BEHALF OF");
-
-                StringBuilder shipper = new();
-
-                for (int i = 1; i < indexConsignee; i++)
-                {
-                    if (//lines[i] == "SHIPPER / ON BEHALF OF SHIPPER" ||
-                        lines[i] == "Отправитель / Представитель отправителя" ||
-                        lines[i].StartsWith("Отправитель / Представитель") ||
-                        lines[i].StartsWith("отправителя") ||
-                        lines[i] == "ПОРУЧЕНИЕ №" ||
-                        lines[i] == "____________" ||
-                        lines[i] == "НА ОТГРУЗКУ ЭКСПОРТНЫХ ТОВАРОВ" ||
-                        lines[i].StartsWith("Экспортное разрешение №"))
-                        continue;
-
-                    string lineShipper = lines[i];
-
-                    int indexTrashShipper = lineShipper.IndexOf("Экспортное разрешение №");                    
-                    if (indexTrashShipper >= 0)
-                        lineShipper = lineShipper.Substring(0, indexTrashShipper).Trim();
-
-                    shipper.AppendLine(lineShipper.Trim());
-                }
-                
-                exportOrderDTO.Shipper = shipper.ToString().Replace("\r\n", " ").Trim();
-
-                /// CONSIGNEE                
-                int indexNotify = Array.FindIndex(lines, s => s.StartsWith("NOTIFY PARTY"));
-                StringBuilder consignee = new();
-
-                for (int i = indexConsignee + 1; i < indexNotify; i++)
-                {
-                    if (lines[i] == "Получатель / Представитель получателя" ||
-                        lines[i].StartsWith("Получатель / Представитель") ||
-                        lines[i].StartsWith ("получателя") ||
-                        lines[i].StartsWith("Экспортное разрешение №") ||
-                        lines[i] == "НА ОТГРУЗКУ ЭКСПОРТНЫХ ТОВАРОВ" ||
-                        lines[i] == "CONSIGNEE")
-                        continue;
-
-                    string lineConsignee = lines[i];
-
-                    //if (Regex.IsMatch(lineConsignee, "[0-9]{2}.[0-9]{2}.[0-9]{4}"))
-                    //    continue;
-
-                    if (Regex.IsMatch(lineConsignee, @"^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$"))    // для даты
-                        continue;
-
-                    consignee.AppendLine(lineConsignee);
-                }
-                
-                exportOrderDTO.Consignee = consignee.ToString().Replace("\r\n", " ").Trim();
-
-                /// PORT OF DISCHARGE
-                exportOrderDTO.POD = lines[Array.IndexOf(lines, "Порт выгрузки Пункт назначения груза") + 1];
-
-                /// SHIPPING LINE
-                string trashInLine = "Manager/менеджер (конт. телефон):";
-                int indexShippingLine = Array.FindIndex(lines, s => s.StartsWith(trashInLine));
-                string lineShippingLine = lines[indexShippingLine];
-                string textShippingLine = lineShippingLine.Substring(trashInLine.Length);
-
-                int indexEnd = textShippingLine.IndexOf(", оформил");
-                if (indexEnd < 0)
-                    indexEnd = textShippingLine.IndexOf(", телефон:");
-
-                if (indexEnd < 0)
-                    exportOrderDTO.ShippingLine = textShippingLine;
-                else
-                    exportOrderDTO.ShippingLine = textShippingLine.Substring(0, indexEnd);
-
-                /// COMMODITY & Cntrs               
-                int indexCommodity = Array.IndexOf(lines, "Товары") + 4;
-
-                List<string> commodities = new();
-                List<string> cntrNums = new();
-                
-                StringBuilder subCommodity = new();
-                string trashInCommodity = "(код:";
-
-                for (int i = indexCommodity; i < lines.Length; i++)
-                {
-                    string lineCommodity = lines[i];
-
-                    /// Trash
-                    if (lineCommodity.Contains(trashInCommodity, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        StringBuilder lineCleared = new();
-                        string[] lineCommodityArray = lineCommodity.Split(trashInCommodity);
-                        lineCleared.Append(lineCommodityArray[0]);
-
-                        int endIndex = lineCommodityArray[1].IndexOf(')');
-
-                        if (endIndex < lineCommodityArray[1].Length - 1)
-                            lineCleared.Append(lineCommodityArray[1].Substring(endIndex + 1));
-
-                        /// Cleared line
-                        lineCommodity = lineCleared.ToString();
-                    }
-
-                    string[] lineArray = lineCommodity.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                    if (lineArray.Length >= 10)
-                    {
-                        if (subCommodity.Length > 0)
-                        {
-                            commodities.Add(subCommodity.ToString().TrimEnd());
-                            subCommodity = new();
-                        }
-
-                        /// Commodity                        
-                        for (int j = 0; j < lineArray.Length - 9; j++)
-                        {
-                            subCommodity.Append(lineArray[j + 3] + " ");
-                        }
-
-                        /// Cntr
-                        string possibleCntrNum = lineArray[^2];                     /// второй с конца элемент массива
-                        if (Regex.IsMatch(possibleCntrNum, "[a-zA-Z]{4}[0-9]{7}"))  /// номер контейнера
-                            cntrNums.Add(possibleCntrNum);
-                    }
-                    else
-                    {
-                        foreach (var word in lineArray)
-                        {
-                            if (Regex.IsMatch(word, "[a-zA-Z]{4}[0-9]{7}"))
-                                cntrNums.Add(word);
-                            else
-                                subCommodity.Append(word + ' ');
-                        }
-                    }
-                }
-
-                if (subCommodity.Length > 0)
-                    commodities.Add(subCommodity.ToString().TrimEnd());
-
-
-                exportOrderDTO.Commodity = string.Join(", ", commodities.Distinct());
-
-                exportOrderDTO.CntrsCount = cntrNums.Distinct().Count();
-
-                exportOrderDTO.Id = ++seq;
-                exportOrders.Add(exportOrderDTO);
-            }
-
-            ///-----------------------------------------------------------
-
-            /// Create Excel
+        {   
+            /// CREATE EXCEL FILE
             TemplateFilePath = Path.Combine(DirResources, "ExportOrder List.xlsx");
             if (!File.Exists(TemplateFilePath)) return Array.Empty<byte>();
 
@@ -1194,11 +1021,10 @@ public class ExcelFileCreateService : IExcelFileCreateService
             await Task.Run(async () => { await Task.Delay(SetDelay(exportOrders.Count)); });
 
             return fileBytes;
-
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Record {seq + 1}: {ex.Message}");
+            Console.WriteLine(ex.Message);
             return Array.Empty<byte>();
         }
     }
@@ -1288,236 +1114,264 @@ public class ExcelFileCreateService : IExcelFileCreateService
         }
     }
 
-    //private List<List<string>> ____ExtractTextFromPdf(string _pdfPath)
-    //{
-    //    var result = new List<List<string>>();
+    private List<ReadPdfExportOrderDTO> GetExportOrderDTO (List<string> extractedData)
+    {
+        int seq = 0;
+        string trashInCommodity = "(код:";
 
-    //    try
-    //    {
-    //        using (var document = PdfDocument.Open(_pdfPath))
-    //        {
-    //            // Создаем экстрактор слов
-    //            IWordExtractor wordExtractor = new NearestNeighbourWordExtractor();
+        List<ReadPdfExportOrderDTO> exportOrders = new();
 
-    //            foreach (var page in document.GetPages())
-    //            {
-    //                // Извлекаем слова с их координатами
-    //                //var words = wordExtractor.GetWords(page.Letters).ToList();
-    //                var words = page.GetWords().ToList();
+        try
+        {
+            List<List<string>> data = new();
+            List<string> dataLine = new();
 
-    //                // Группируем слова по строкам (основано на Y-координате)
-    //                var lines = GroupWordsIntoLines(words);
+            foreach (string line in extractedData)
+            {
+                if (line.StartsWith("SHIPPER / ON BEHALF OF"))   //line == "SHIPPER / ON BEHALF OF SHIPPER"
+                {
+                    if (dataLine.Any())
+                        data.Add(dataLine);
 
-    //                // Обрабатываем каждую строку
-    //                foreach (var line in lines.OrderByDescending(l => l.Key))
-    //                {
-    //                    // Сортируем слова в строке по X-координате (слева направо)
-    //                    var sortedWords = line.Value.OrderBy(w => w.BoundingBox.Left)
-    //                                                .Select(w => w.Text)
-    //                                                .ToList();
+                    dataLine = new();
+                }
 
-    //                    // Формируем текст строки
-    //                    //var lineText = string.Join(" ", sortedWords.Select(w => w.Text));
-    //                    result.Add(sortedWords);
-    //                }
-    //            }
-    //        }
-    //        if (File.Exists(_pdfPath))
-    //            File.Delete(_pdfPath);
+                dataLine.Add(line);
+            }
 
-    //        return result;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex.Message);
-    //        if (File.Exists(_pdfPath))
-    //            File.Delete(_pdfPath);
-    //        return result;
-    //    }
-    //}
+            if (dataLine.Any())
+                data.Add(dataLine);            
 
-    //private static Dictionary<double, List<Word>> GroupWordsIntoLines(List<Word> words)
-    //{
-    //    var lines = new Dictionary<double, List<Word>>();
-    //    const double tolerance = 2.0; // Допуск для группировки по Y-координате
+            foreach (var order in data)
+            {
+                ReadPdfExportOrderDTO exportOrderDTO = new() { Id = ++seq };
 
-    //    foreach (var word in words)
-    //    {
-    //        var baseLine = Math.Round(word.BoundingBox.Bottom, 1);
-    //        var existingLine = lines.Keys.FirstOrDefault(y => Math.Abs(y - baseLine) <= tolerance);
+                string[] lines = order.ToArray();
 
-    //        if (existingLine != 0)
-    //        {
-    //            lines[existingLine].Add(word);
-    //        }
-    //        else
-    //        {
-    //            lines[baseLine] = new List<Word> { word };
-    //        }
-    //    }
+                /// SHIPPER
+                int indexConsignee = Array.FindIndex(lines, s => s.StartsWith("CONSIGNEE / ON BEHALF OF"));
 
-    //    return lines;
-    //}
+                StringBuilder shipper = new();
 
-    //private List<List<string>> ___ExtractTextFromPdf(string _pdfPath)
-    //{
-    //    var result = new List<List<string>>();
+                for (int i = 1; i < indexConsignee; i++)
+                {
+                    if (//lines[i] == "SHIPPER / ON BEHALF OF SHIPPER" ||
+                        lines[i] == "SHIPPER" ||
+                        lines[i] == "ПОРУЧЕНИЕ №" ||
+                        lines[i] == "____________" ||
+                        lines[i] == "НА ОТГРУЗКУ ЭКСПОРТНЫХ ТОВАРОВ" ||
+                        lines[i].StartsWith("Отправитель / Представитель") ||
+                        lines[i].StartsWith("отправителя") ||
+                        lines[i].StartsWith("Экспортное разрешение №"))
+                        continue;
 
-    //    try
-    //    {
-    //        using (var document = PdfDocument.Open(_pdfPath))
-    //        {
-    //            foreach (var page in document.GetPages())
-    //            {
-    //                /// Получаем все слова на странице с их координатами
-    //                var words = page.GetWords();
+                    string lineShipper = lines[i];
 
-    //                /// Группируем слова по строкам (на основе Y-координат)
-    //                var lines = words.GroupBy(w => Math.Round(w.BoundingBox.Bottom, 1))
-    //                                 .OrderByDescending(g => g.Key);
+                    int indexTrashShipper = lineShipper.IndexOf("Экспортное разрешение №");
+                    if (indexTrashShipper >= 0)
+                        lineShipper = lineShipper.Substring(0, indexTrashShipper).Trim();
 
-    //                var currentTable = new List<string>();
+                    shipper.AppendLine(lineShipper.Trim());
+                }
 
-    //                foreach (var line in lines)
-    //                {
-    //                    /// Сортируем слова по X-координате и объединяем в строку
-    //                    var row = line.OrderBy(w => w.BoundingBox.Left)
-    //                                 .Select(w => w.Text)
-    //                                 .ToList();
+                exportOrderDTO.Shipper = shipper.ToString().Replace("\r\n", " ").Trim();
 
-    //                    //var rowText = string.Join(" | ", row);
-    //                    var rowText = string.Join(" ", row);
+                /// CONSIGNEE                
+                int indexNotify = Array.FindIndex(lines, s => s.StartsWith("NOTIFY PARTY"));
+                StringBuilder consignee = new();
 
-    //                    currentTable.Add(rowText);
-    //                    result.Add(new List<string>(currentTable));
-    //                    currentTable.Clear();
-    //                }
+                for (int i = indexConsignee + 1; i < indexNotify; i++)
+                {
+                    if (//lines[i] == "Получатель / Представитель получателя" ||
+                        lines[i].StartsWith("Получатель / Представитель") ||
+                        lines[i].StartsWith("получателя") ||
+                        lines[i].StartsWith("Экспортное разрешение №") ||
+                        lines[i] == "НА ОТГРУЗКУ ЭКСПОРТНЫХ ТОВАРОВ" ||
+                        lines[i] == "CONSIGNEE")
+                        continue;
 
-    //                //if (currentTable.Count > 0)
-    //                //{
-    //                //    result.Add(currentTable);
-    //                //}
-    //            }
-    //        }
+                    string lineConsignee = lines[i];
 
-    //        if (File.Exists(_pdfPath))
-    //            File.Delete(_pdfPath);
+                    /// Дата (пример: 01.09.2025)
+                    if (Regex.IsMatch(lineConsignee, @"^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$"))
+                        continue;
 
-    //        return result;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex.Message);
-    //        if (File.Exists(_pdfPath))
-    //            File.Delete(_pdfPath);
-    //        return result;
-    //    }
-    //}
+                    consignee.AppendLine(lineConsignee);
+                }
 
-    //private List<List<string>> __ExtractTextFromPdf(string _pdfPath)
-    //{
-    //    var result = new List<List<string>>();
+                exportOrderDTO.Consignee = consignee.ToString().Replace("\r\n", " ").Trim();
 
-    //    try
-    //    {
-    //        using (var document = PdfDocument.Open(_pdfPath))
-    //        {
-    //            foreach (var page in document.GetPages())
-    //            {
-    //                /// Получаем все слова на странице с их координатами
-    //                var words = page.GetWords();
+                /// PORT OF DISCHARGE
+                int indexPOD = Array.FindIndex(lines, s => s.StartsWith("Порт выгрузки"));
+                if (indexPOD > 0)
+                    exportOrderDTO.POD = lines[indexPOD + 1];
 
-    //                /// Группируем слова по строкам (на основе Y-координат)
-    //                var lines = words.GroupBy(w => Math.Round(w.BoundingBox.Bottom, 1))
-    //                                 .OrderByDescending(g => g.Key);
+                /// SHIPPING LINE                
+                string[] shippingLines = new string[]
+                {
+                    "МЕДИТЕРРАНЕАН ШИППИНГ КОМПАНИ РУСЬ",
+                    "ЮНАЙТЕД ШИППИНГ ЭЙДЖЕНСИ",
+                    "АРКАС РАША",
+                    "ЮНЭТИ",
+                    "СМАРТ",
+                    "СИЛМАР ЭЙДЖЕНСИ",
+                    "ООО \"НС ЭЙДЖЕНСИ\"",
+                    "ООО \"СИЛМАР ШИППИНГ\"",
+                    "М-ЛАЙН АЛЬТШУЛЛЕР",
+                    "МА ФРЕГАТ (ООО)",
+                    "ООО \"МАРМЕД-КА\"",
+                    "ООО СК \"АГРОЭКСПОРТ\"",
+                    "ООО \"Модультранс\""
+                };
 
-    //                var currentTable = new List<string>();
+                string[] foundLines = new string[] { "Manager/менеджер (конт. телефон):", "Manager/менеджер (конт." };
+                string lineShippingLine = "";
 
-    //                foreach (var line in lines)
-    //                {
-    //                    /// Сортируем слова по X-координате и объединяем в строку
-    //                    var row = line.OrderBy(w => w.BoundingBox.Left)
-    //                                 .Select(w => w.Text)
-    //                                 .ToList();
+                int indexShippingLine = Array.FindIndex(lines, s => s.StartsWith(foundLines[0]));
+                if (indexShippingLine > 0)
+                    lineShippingLine = lines[indexShippingLine].Substring(foundLines[0].Length).Trim();
+                else
+                {
+                    indexShippingLine = Array.FindIndex(lines, s => s.StartsWith(foundLines[1]));
+                    if (indexShippingLine > 0)
+                        lineShippingLine = lines[indexShippingLine].Substring(foundLines[1].Length).Trim();
+                }
 
-    //                    var rowText = string.Join(" | ", row);
+                if (!string.IsNullOrEmpty(lineShippingLine))
+                {
+                    int indexEnd = lineShippingLine.IndexOf(", оформил");
+                    if (indexEnd >= 0)
+                        lineShippingLine = lineShippingLine.Substring(0, indexEnd).Trim();
+                    else
+                    {
+                        if (shippingLines.Any(s => lineShippingLine.ToUpper().Contains(s.ToUpper())))
+                            lineShippingLine = shippingLines.FirstOrDefault(s => lineShippingLine.ToUpper().Contains(s.ToUpper())) ?? string.Empty;
+                    }
 
-    //                    if (!string.IsNullOrWhiteSpace(rowText))
-    //                    {
-    //                        currentTable.Add(rowText);
-    //                    }
-    //                    else if (currentTable.Count > 0)
-    //                    {
-    //                        result.Add(new List<string>(currentTable));
-    //                        currentTable.Clear();
-    //                    }
-    //                }
+                    exportOrderDTO.ShippingLine = lineShippingLine;
+                }
 
-    //                if (currentTable.Count > 0)
-    //                {
-    //                    result.Add(currentTable);
-    //                }
-    //            }
-    //        }
+                /// COMMODITY & Cntrs               
+                int indexCommodity = Array.IndexOf(lines, "Товары") + 4;
 
-    //        if (File.Exists(_pdfPath))
-    //            File.Delete(_pdfPath);
+                List<string> commodities = new();
+                List<string> cntrNums = new();
+                bool isRestOfTrash = false;
+                Regex regexAnyLetter = new Regex(@"\p{L}");     /// Регулярное выражение: любая буква (Unicode, включая кириллицу)
 
-    //        return result;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex.Message);            
-    //        if (File.Exists(_pdfPath))
-    //            File.Delete(_pdfPath);
-    //        return result;
-    //    }
-    //}
+                StringBuilder commodity = new();
 
-    //private List<List<string>> _ExtractTextFromPdf(string _pdfPath)
-    //{
-    //    var result = new List<List<string>>();
+                for (int i = indexCommodity; i < lines.Length; i++)
+                {
+                    string lineCommodity = lines[i];
 
-    //    try
-    //    {
-    //        using (var document = PdfDocument.Open(_pdfPath))
-    //        {
-    //            foreach (var page in document.GetPages())
-    //            {
-    //                /// Получаем все слова на странице с их координатами
-    //                var words = page.GetWords();
+                    /// Exclude of exxtra line with "T" 
+                    if (lineCommodity == "Т") continue;
 
-    //                /// Группируем слова по строкам (на основе Y-координат)
-    //                var lines = words.GroupBy(w => Math.Round(w.BoundingBox.Bottom, 1))
-    //                                 .OrderByDescending(g => g.Key);
+                    /// Delete a Rest of Trash in current line (taken from previouse line)
+                    if (isRestOfTrash)
+                    {
+                        var restOfTrash = lineCommodity.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                                       .Select((word) => new { word })
+                                                       .FirstOrDefault(x => Regex.IsMatch(x.word, @"\d{3}\)"));
 
-    //                var currentTable = new List<string>();
+                        if (restOfTrash != null)
+                            lineCommodity.Replace(restOfTrash.word, "");
 
-    //                foreach (var line in lines)
-    //                {
-    //                    /// Сортируем слова по X-координате и объединяем в строку
-    //                    var row = line.OrderBy(w => w.BoundingBox.Left)
-    //                                 .Select(w => w.Text)
-    //                                 .ToList();
+                        isRestOfTrash = false;
+                    }
 
-    //                    result.Add(row);                        
-    //                }
-    //            }
-    //        }
+                    if (lineCommodity.Contains(trashInCommodity, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        StringBuilder clearedLine = new();
 
-    //        if (File.Exists(_pdfPath))
-    //            File.Delete(_pdfPath);
+                        string[] lineCommodityArray = lineCommodity.Split(trashInCommodity);
+                        clearedLine.Append(lineCommodityArray[0]);
 
-    //        return result;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex.Message);
-    //        if (File.Exists(_pdfPath))
-    //            File.Delete(_pdfPath);
-    //        return result;
-    //    }
-    //}
+                        var restOfTrashInCurrentLine = lineCommodityArray[1].TrimStart().Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                                                          .Select((word) => new { word })
+                                                                          .FirstOrDefault(x => Regex.IsMatch(x.word, @"\d{3}\)"));
+
+                        if (restOfTrashInCurrentLine != null)
+                            clearedLine.Append(lineCommodityArray[1].Replace(restOfTrashInCurrentLine.word, "").Trim());
+                        else
+                        {
+                            clearedLine.Append(lineCommodityArray[1].TrimStart());
+                            isRestOfTrash = true;
+                        }
+
+                        /// Cleared line
+                        lineCommodity = clearedLine.ToString();
+                        if (lineCommodity.Length == 0) continue;
+                    }
+
+                    string[] lineArray = lineCommodity.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    /// First Line in Commodity - the line, that contains Declaration Num
+                    if (Regex.IsMatch(lineArray[lineArray.Length - 1], @"\d{8}/\d{6}/\d{7}") ||
+                        Regex.IsMatch(lineArray[lineArray.Length - 1], @"\d{5}/\d{6}/\d{7}") ||
+                        (lineArray.Length >= 8 && Regex.IsMatch(lineArray[lineArray.Length - 1], @"[a-zA-Z]{4}[0-9]{7}")))
+                    {
+                        /// Previouse Commodity
+                        if (commodity.Length > 0)
+                        {
+                            commodities.Add(commodity.ToString().TrimEnd());
+                            commodity = new();
+                        }
+
+                        /// Current Commodity                        
+                        /// Поиск с получением индекса
+                        var lastWordInCommodity = lineArray.SkipLast(2).Select((word, index) => new { word, index })
+                                                           .LastOrDefault(x => regexAnyLetter.IsMatch(x.word));
+
+                        if (lastWordInCommodity != null)
+                        {
+                            /// Commodity                        
+                            for (int j = 3; j <= lastWordInCommodity.index; j++)
+                            {
+                                commodity.Append(lineArray[j] + " ");
+                            }
+                        }
+
+                        /// Cntr                        
+                        var cntrInLine = lineArray.Select((word) => new { word })
+                                                  .FirstOrDefault(x => Regex.IsMatch(x.word, @"[a-zA-Z]{4}[0-9]{7}"));
+
+                        if (cntrInLine != null) cntrNums.Add(cntrInLine.word);
+                    }
+                    else
+                    {
+                        foreach (var word in lineArray)
+                        {
+                            if (Regex.IsMatch(word, "[a-zA-Z]{4}[0-9]{7}"))
+                                cntrNums.Add(word);
+                            else if (regexAnyLetter.IsMatch(word))
+                                commodity.Append(word + ' ');
+                        }
+                    }
+                }
+
+                /// Last Commodity
+                if (commodity.Length > 0)
+                    commodities.Add(commodity.ToString().TrimEnd());
+
+                exportOrderDTO.Commodity = string.Join(", ", commodities.Distinct());
+
+                exportOrderDTO.CntrsCount = cntrNums.Distinct().Count();
+
+                exportOrders.Add(exportOrderDTO);
+            }           
+
+            return exportOrders;
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Record {seq}: {ex.Message}");
+            return exportOrders;
+        }
+    }
+        
     #endregion
 
     public void Dispose()

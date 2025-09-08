@@ -101,11 +101,9 @@ public class DownloadFileController : ControllerBase
     }
 
     [HttpGet, Route("UploadPdfAndSaveToExcel")]   //Upload Pdf then Convert To Excel File
-    public async Task<IActionResult> SaveExcelCustomsReport(string filePath)     //dirPath
+    public async Task<IActionResult> SaveExcelCustomsReport(string filePath)
     {
         if (string.IsNullOrEmpty(filePath)) return BadRequest("File not found.");
-
-        //if (!Directory.Exists(filePath)) return BadRequest("Directory dosn't exists.");
 
         using (IExcelFileCreateService _excelCreateService = new ExcelFileCreateService())
         {

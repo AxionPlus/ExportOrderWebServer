@@ -1,5 +1,5 @@
 ﻿@page "/uploadPdfExportOrders"
-@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
+@attribute [Authorize(Roles = "Admin, Top Manager")]
 
 @inject ISnackbar Snackbar
 @inject IJSRuntime jsRuntime
@@ -33,8 +33,8 @@
             {
                 <MudChip T="string" Color="Color.Dark" Text="@file.Name" />
             }
-            <MudButton OnClick="ConvertPdfToExcel_Click" Disabled="@(!BrowserFiles.Any())" Color="Color.Success" Variant="Variant.Filled">Convert</MudButton>
-            <MudButton OnClick="ClearDragClass" Disabled="@(!BrowserFiles.Any())" Color="Color.Info" Variant="Variant.Filled">Clear</MudButton>
+            <MudButton OnClick="ConvertPdfToExcel_Click" Disabled="@(!BrowserFiles.Any())" Color="Color.Success" Variant="Variant.Filled">Convert to Excel</MudButton>
+            <MudButton OnClick="ClearDragClass" Disabled="@(!BrowserFiles.Any())" Color="Color.Dark" Variant="Variant.Filled">Clear</MudButton>
         </MudToolBar>
         <MudSpacer />
     </div>
@@ -69,15 +69,15 @@
     {
         if (!BrowserFiles.Any()) return;
 
-        long maxFileSize = 1024 * 2000;  //500
+        // long maxFileSize = 1024 * 2000;  //500
 
-        /// Check File size
-        if (BrowserFiles.Any(f => f.Size > maxFileSize))
-        {
-            Snackbar.Add($"File size should be less then 2 Mb.", Severity.Warning);
-            ClearDragClass();
-            return;
-        }
+        // /// Check File size
+        // if (BrowserFiles.Any(f => f.Size > maxFileSize))
+        // {
+        //     Snackbar.Add($"File size should be less then 2 Mb.", Severity.Warning);
+        //     ClearDragClass();
+        //     return;
+        // }
 
         IsLoadingData = true;
 
@@ -86,7 +86,7 @@
 
         foreach (var file in BrowserFiles)
         {   
-            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));    //file.Size
+            var fileContent = new StreamContent(file.OpenReadStream(file.Size));    //maxFileSize
 
             fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
@@ -99,9 +99,8 @@
         /// Read and Convert Pdf files to Xml files
         /// Then read Xml files and write date to Result: Excel file.
         using (var client = httpClient.CreateClient())
-        {
-            //client.Timeout = new TimeSpan(0, 10, 0);
-            client.Timeout = TimeSpan.FromMinutes(10);
+        {            
+            client.Timeout = TimeSpan.FromMinutes(10);  //client.Timeout = new TimeSpan(0, 10, 0);
 
             var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFilePdf", content);
             //var response = await client.PostAsync($"http://localhost:7070/file/UploadFile/UploadFilePdf", content);

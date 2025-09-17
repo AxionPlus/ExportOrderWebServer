@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Xml.Linq;
-using UglyToad.PdfPig;
-using UglyToad.PdfPig.Graphics;
 
 namespace ExportOrderWebServer.Controllers;
 
@@ -14,7 +10,6 @@ public class DownloadFileController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IExportOrderProvider _exportOrderProvider;
-    private readonly static string DirTemporary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles");
 
     public DownloadFileController(IWebHostEnvironment webHostEnvironment, IExportOrderProvider exportOrderProvider)
     {
@@ -100,19 +95,35 @@ public class DownloadFileController : ControllerBase
             return File(fileBytes, "application/xlsx", $"{fileName}.xlsx");
     }
 
-    [HttpGet, Route("UploadPdfAndSaveToExcel")]   //Upload Pdf then Convert To Excel File
-    public async Task<IActionResult> SaveExcelCustomsReport(string filePath)
+    [HttpGet, Route("ReadFileAndDownloadExcelOrder")]   // file/DownloadFileController/ReadFileAndDownloadExcelOrder
+    public async Task<IActionResult> SaveExcelExportOrderList(string filePath)  //Upload Pdf or Word file then Convert To Excel file
     {
         if (string.IsNullOrEmpty(filePath)) return BadRequest("File not found.");
 
+        IEnumerable<ReadPdfExportOrderDTO>? readResult = new List<ReadPdfExportOrderDTO>();
+
+        if (filePath.EndsWith(".pdf"))
+        {
+            using IPdfFileReadService pdfService = new PdfFileReadService();
+            readResult = await pdfService.ReadPdfExportOrder(filePath);
+        }
+        else
+        {
+            using IWordFileReadService wordService = new WordFileReadService();
+            readResult = await wordService.ReadWordExportOrder(filePath);
+        }
+
+        if (readResult is null || !readResult.Any())
+            return BadRequest("File not read.");
+
         using (IExcelFileCreateService _excelCreateService = new ExcelFileCreateService())
         {
-            var buffer = await _excelCreateService.CreateExcelFromPdf(filePath);
+            var buffer = await _excelCreateService.CreateExcelExportOrderList(readResult);
 
             if (buffer == Array.Empty<byte>())
                 return BadRequest("Файл не записан.");
             else
-                return File(buffer, "application/xlsx", "CustomsReport.xlsx");
+                return File(buffer, "application/xlsx", "Export Order List.xlsx");
         }
     }
     //-----------------------------------------------------------------------    
@@ -170,22 +181,4 @@ public class DownloadFileController : ControllerBase
         else
             return File(buffer, "application/zip");
     }
-
-    //[HttpPost, Route("SaveExcelCustomsReport")]   //ConvertPdfToExcelReport
-    //public async Task<IActionResult> SaveExcelCustomsReport([FromBody] string dirPath)
-    //{
-    //    if (string.IsNullOrEmpty(dirPath)) return BadRequest("Files list is empty.");
-        
-    //    if (!Directory.Exists(dirPath)) return BadRequest("Directory dosn't exists.");
-
-    //    using (IExcelFileCreateService _excelCreateService = new ExcelFileCreateService())
-    //    {
-    //        var buffer = await _excelCreateService.CreateExcelCustomsReport(dirPath);
-
-    //        if (buffer == Array.Empty<byte>())
-    //            return BadRequest("Файл не записан.");
-    //        else
-    //            return File(buffer, "application/xlsx", "CustomsReport.xlsx");
-    //    }        
-    //}
 }

@@ -127,30 +127,21 @@ public class UploadFileController : ControllerBase
         return _AppObjectResponse;
     }
 
-    [HttpPost, Route("UploadFilePdf")]    // file/UploadFile/UploadFromFilePdf
-    public async Task<string?> UploadFilePdf([FromForm] IFormFile file)   //pdfFiles
+    [HttpPost, Route("UploadFilePdfOrWord")]    // file/UploadFile/UploadFilePdfOrWord
+    public async Task<string?> UploadFilePdfOrWord([FromForm] IFormFile file)   //pdfFiles
     {
         try
         {
             //if (pdfFiles == null || !pdfFiles.Any()) return null; //BadRequest("List of selected files is empty.");
             if (file == null) return null; //BadRequest("List of selected files is empty.");
 
-            //string filePath = Path.Combine(DirTemporary, Path.GetRandomFileName());
             string savePath = Path.Combine(DirTemporary, file.FileName);
-
-            //if (!Directory.Exists(filePath))
-            //    Directory.CreateDirectory(filePath);
-
+                        
             //foreach (var file in pdfFiles)
             if (file != null)
             {
-                //string savePath = Path.Combine(dirPath, file.FileName, Path.GetExtension(file.FileName));
-                //string savePath = Path.Combine(filePath, file.FileName);
-
-                using (var stream = new FileStream(savePath, FileMode.Create))
-                {
-                    file.CopyTo(stream);
-                }
+                using var stream = new FileStream(savePath, FileMode.Create);
+                file.CopyTo(stream);
             }
 
             await Task.Delay(5);
@@ -163,5 +154,4 @@ public class UploadFileController : ControllerBase
             return null;
         }
     }
-
 }

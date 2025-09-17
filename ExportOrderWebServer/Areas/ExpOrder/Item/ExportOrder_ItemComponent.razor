@@ -352,11 +352,11 @@
             </MudTd>
             <MudTd></MudTd>
             <MudTd>
-                <MudTextField Class="TextField Numeric" T="double?" Value="@(expOrderRecord.Contents.Sum(s => s.NetWt))" ReadOnly
+                <MudTextField Class="TextField Numeric" T="double?" Value="@(expOrderRecord.Contents.Sum(s => s.NetWt))" Format="## ##0.###" ReadOnly
                               Variant="Variant.Outlined" Margin="Margin.Dense" />
             </MudTd>
             <MudTd>
-                <MudTextField Class="TextField Numeric" T="double?" Value="@(expOrderRecord.Contents.Sum(s => s.GrossWt))" ReadOnly
+                <MudTextField Class="TextField Numeric" T="double?" Value="@(expOrderRecord.Contents.Sum(s => s.GrossWt))" Format="## ##0.###" ReadOnly
                               Variant="Variant.Outlined" Margin="Margin.Dense" />
             </MudTd>
             <MudTd>

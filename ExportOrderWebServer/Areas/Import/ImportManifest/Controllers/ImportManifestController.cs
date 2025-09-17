@@ -45,7 +45,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Controllers
             if (BillOfLadings is null || !BillOfLadings.Any())
                 return BadRequest("Records not found");
 
-            var buffer = await _excelService.CreateExcelTemplate1C(vesselCall, BillOfLadings);
+            var buffer = await _excelService.CreateExcelImport1C(vesselCall, BillOfLadings);
 
             if (buffer == Array.Empty<byte>())
                 return BadRequest("Файл не записан.");
@@ -64,7 +64,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Controllers
             if (vesselCall is null)
                 return BadRequest("List of selected records is empty.");
 
-            var buffer = await _excelService.CreateExcelTemplateFillBill(vesselCall);
+            var buffer = await _excelService.CreateExcelImportFillBill(vesselCall);
 
             if (buffer == Array.Empty<byte>())
                 return BadRequest("Файл не записан.");
@@ -83,7 +83,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Controllers
             if (vesselCall is null)
                 return BadRequest("List of selected records is empty.");
 
-            var buffer = await _excelService.CreateExcelTemplateArrivalNotice(vesselCall);
+            var buffer = await _excelService.CreateExcelImportArrivalNotice(vesselCall);
 
             if (buffer == Array.Empty<byte>())
                 return BadRequest("Файл не записан.");
@@ -102,7 +102,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Controllers
             if (vesselCall is null)
                 return BadRequest("List of selected records is empty.");
 
-            var buffer = await _excelService.CreateExcelTemplateCargoManifest(vesselCall);
+            var buffer = await _excelService.CreateExcelImportCargoManifest(vesselCall);
 
             if (buffer == Array.Empty<byte>())
                 return BadRequest("Файл не записан.");
@@ -121,7 +121,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Controllers
             if (vesselCall is null)
                 return BadRequest("List of selected records is empty.");
 
-            var buffer = await _excelService.CreateExcelTemplateArrivalNotice(vesselCall);
+            var buffer = await _excelService.CreateExcelImportArrivalNotice(vesselCall);
 
             if (buffer == Array.Empty<byte>())
                 return BadRequest("Файл не записан.");

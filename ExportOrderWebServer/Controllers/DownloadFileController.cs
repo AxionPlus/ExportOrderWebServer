@@ -104,13 +104,17 @@ public class DownloadFileController : ControllerBase
 
         if (filePath.EndsWith(".pdf"))
         {
-            using IPdfFileReadService pdfService = new PdfFileReadService();
-            readResult = await pdfService.ReadPdfExportOrder(filePath);
+            using (IPdfFileReadService pdfService = new PdfFileReadService())
+            {
+                readResult = await pdfService.ReadPdfExportOrder(filePath);
+            }            
         }
         else
         {
-            using IWordFileReadService wordService = new WordFileReadService();
-            readResult = await wordService.ReadWordExportOrder(filePath);
+            using (IWordFileReadService wordService = new WordFileReadService())
+            {
+                readResult = await wordService.ReadWordExportOrder(filePath);
+            }            
         }
 
         if (readResult is null || !readResult.Any())

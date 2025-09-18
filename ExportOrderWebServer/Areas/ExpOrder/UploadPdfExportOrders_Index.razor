@@ -54,6 +54,7 @@
     private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
     private string DragClass = DefaultDragClass;
     private bool IsLoadingData { get; set; } = false;
+    private string FilePath { get; set; } = string.Empty;
 
     private void OnInputFileChanged(InputFileChangeEventArgs e)
     {
@@ -94,8 +95,6 @@
 
         foreach (var file in BrowserFiles)
         {
-            //postURL = string.Concat("UploadFile", file.Name.EndsWith(".pdf") ? "Pdf" : "Word");
-
             var fileContent = new StreamContent(file.OpenReadStream(file.Size));    //maxFileSize
 
             fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
@@ -105,28 +104,46 @@
                 name: "\"file\"",
                 fileName: file.Name);
         }
+                
+        // using (var client = httpClient.CreateClient())
+        // {            
+        //     client.Timeout = TimeSpan.FromMinutes(10);  //client.Timeout = new TimeSpan(0, 10, 0);
 
-        /// Read and Convert Pdf files to Xml files
-        /// Then read Xml files and write date to Result: Excel file.
+        //     var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFilePdfOrWord", content);
+        //     //var response = await client.PostAsync($"http://localhost:7070/file/UploadFile/UploadFilePdfOrWord", content);
+
+        //     if (response.IsSuccessStatusCode)
+        //     {
+        //         var filePath = await response.Content.ReadAsStringAsync();   //dirPath
+
+        //         if (string.IsNullOrEmpty(filePath))
+        //             Snackbar.Add($"Data not uploaded", Severity.Error);
+        //         else                    
+        //             await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}ReadFileAndDownloadExcelOrder?filePath={filePath}");
+        //     }
+        //     else
+        //         Snackbar.Add($"File not uploaded", Severity.Error);
+        // }
+
+        /// Upload File to Server
         using (var client = httpClient.CreateClient())
-        {            
+        {
             client.Timeout = TimeSpan.FromMinutes(10);  //client.Timeout = new TimeSpan(0, 10, 0);
 
             var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFilePdfOrWord", content);
             //var response = await client.PostAsync($"http://localhost:7070/file/UploadFile/UploadFilePdfOrWord", content);
 
             if (response.IsSuccessStatusCode)
-            {
-                var filePath = await response.Content.ReadAsStringAsync();   //dirPath
-
-                if (string.IsNullOrEmpty(filePath))
-                    Snackbar.Add($"Data not uploaded", Severity.Error);
-                else                    
-                    await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}ReadFileAndDownloadExcelOrder?filePath={filePath}");
-            }
+                FilePath = await response.Content.ReadAsStringAsync();
             else
                 Snackbar.Add($"File not uploaded", Severity.Error);
         }
+
+        /// Read and Convert Pdf / Word file to Excel file
+        if (string.IsNullOrEmpty(FilePath))
+            Snackbar.Add($"File not uploaded", Severity.Error);
+        else                    
+            await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}ReadFileAndDownloadExcelOrder?filePath={FilePath}");
 
         ClearDragClass();
 

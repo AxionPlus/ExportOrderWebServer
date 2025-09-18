@@ -100,21 +100,19 @@ public class DownloadFileController : ControllerBase
     {
         if (string.IsNullOrEmpty(filePath)) return BadRequest("File not found.");
 
+        Console.WriteLine($"File uploaded To: {filePath}");
+
         IEnumerable<ReadPdfExportOrderDTO>? readResult = new List<ReadPdfExportOrderDTO>();
 
         if (filePath.EndsWith(".pdf"))
         {
-            using (IPdfFileReadService pdfService = new PdfFileReadService())
-            {
-                readResult = await pdfService.ReadPdfExportOrder(filePath);
-            }            
+            using IPdfFileReadService pdfService = new PdfFileReadService();
+            readResult = await pdfService.ReadPdfExportOrder(filePath);
         }
         else
         {
-            using (IWordFileReadService wordService = new WordFileReadService())
-            {
-                readResult = await wordService.ReadWordExportOrder(filePath);
-            }            
+            using IWordFileReadService wordService = new WordFileReadService();
+            readResult = await wordService.ReadWordExportOrder(filePath);
         }
 
         if (readResult is null || !readResult.Any())

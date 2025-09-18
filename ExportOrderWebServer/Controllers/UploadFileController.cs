@@ -128,16 +128,14 @@ public class UploadFileController : ControllerBase
     }
 
     [HttpPost, Route("UploadFilePdfOrWord")]    // file/UploadFile/UploadFilePdfOrWord
-    public async Task<string?> UploadFilePdfOrWord([FromForm] IFormFile file)   //pdfFiles
+    public async Task<string?> UploadFilePdfOrWord([FromForm] IFormFile file)
     {
         try
         {
-            //if (pdfFiles == null || !pdfFiles.Any()) return null; //BadRequest("List of selected files is empty.");
-            if (file == null) return null; //BadRequest("List of selected files is empty.");
+            if (file == null) return null;
 
             string savePath = Path.Combine(DirTemporary, file.FileName);
                         
-            //foreach (var file in pdfFiles)
             if (file != null)
             {
                 using var stream = new FileStream(savePath, FileMode.Create);

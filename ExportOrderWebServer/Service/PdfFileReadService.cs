@@ -11,8 +11,9 @@ public interface IPdfFileReadService : IDisposable
 
 public class PdfFileReadService : IPdfFileReadService
 {
-    private readonly static string DirTemporary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles");
-    private string TemporaryFilePath { get; set; } = Path.Combine(DirTemporary, $"{Path.GetRandomFileName()}.docx");
+    //private readonly static string DirTemporary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles");
+    //private string TemporaryFilePath { get; set; } = Path.Combine(DirTemporary, $"{Path.GetRandomFileName()}.docx");
+    private string TemporaryFilePath { get; set; } = string.Empty;
     private ShippingLines ShippingLines { get; set; } = new ShippingLines();
 
     public PdfFileReadService() { }
@@ -22,10 +23,12 @@ public class PdfFileReadService : IPdfFileReadService
         if (!File.Exists(filePath))
             throw new FileNotFoundException("Word файл не найден");
 
-        CreateTemporaryFile(filePath);
+        TemporaryFilePath = filePath;
 
-        if (!File.Exists(TemporaryFilePath))
-            throw new FileNotFoundException("Word файл не скопирован");
+        //CreateTemporaryFile(filePath);
+
+        //if (!File.Exists(TemporaryFilePath))
+        //    throw new FileNotFoundException("Word файл не скопирован");
 
         /// Read Pdf
         var _extractedData = ExtractTextFromPdf();
@@ -34,7 +37,8 @@ public class PdfFileReadService : IPdfFileReadService
             return null;
 
         /// Get DTO
-        await Task.Delay(5);return GetExportOrderDTO(_extractedData);
+        await Task.Delay(5);
+        return GetExportOrderDTO(_extractedData);
     }
 
     private List<string>? ExtractTextFromPdf()
@@ -381,11 +385,11 @@ public class PdfFileReadService : IPdfFileReadService
         }
     }
 
-    private void CreateTemporaryFile(string templateFilePath)
-    {
-        if (File.Exists(templateFilePath))
-            File.Copy(templateFilePath, TemporaryFilePath);
-    }
+    //private void CreateTemporaryFile(string templateFilePath)
+    //{
+    //    if (File.Exists(templateFilePath))
+    //        File.Copy(templateFilePath, TemporaryFilePath);
+    //}
 
     public void Dispose()
     {

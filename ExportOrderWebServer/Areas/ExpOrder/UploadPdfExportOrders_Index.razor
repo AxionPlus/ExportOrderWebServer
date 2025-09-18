@@ -40,7 +40,7 @@
             {
                 <MudChip T="string" Color="Color.Dark" Text="@file.Name" />
             }
-            <MudButton OnClick="ConvertPdfToExcel_Click" Disabled="@(!BrowserFiles.Any())" Color="Color.Success" Variant="Variant.Filled">Convert to Excel</MudButton>
+            <MudButton OnClick="UploadFilePdfOrWord_Click" Disabled="@(!BrowserFiles.Any())" Color="Color.Success" Variant="Variant.Filled">Convert to Excel</MudButton>
             <MudButton OnClick="ClearDragClass" Disabled="@(!BrowserFiles.Any())" Color="Color.Dark" Variant="Variant.Filled">Clear</MudButton>
         </MudToolBar>
         <MudSpacer />
@@ -72,7 +72,7 @@
         BrowserFiles = new List<IBrowserFile>();
     }
 
-    private async Task ConvertPdfToExcel_Click()
+    private async Task UploadFilePdfOrWord_Click()
     {
         if (!BrowserFiles.Any()) return;
 
@@ -111,9 +111,9 @@
         using (var client = httpClient.CreateClient())
         {            
             client.Timeout = TimeSpan.FromMinutes(10);  //client.Timeout = new TimeSpan(0, 10, 0);
-            
+
             var response = await client.PostAsync($"{ApplicationParameter.PostUploadFileUrl}UploadFilePdfOrWord", content);
-            //var response = await client.PostAsync($"http://localhost:7070/file/UploadFile/UploadFilePdf", content);
+            //var response = await client.PostAsync($"http://localhost:7070/file/UploadFile/UploadFilePdfOrWord", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -131,5 +131,7 @@
         ClearDragClass();
 
         IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 }

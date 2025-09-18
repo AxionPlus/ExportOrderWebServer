@@ -13,8 +13,6 @@ public interface IWordFileReadService : IDisposable
 
 public class WordFileReadService : IWordFileReadService
 {
-    //private readonly static string DirTemporary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles");
-    //private string TemporaryFilePath { get; set; } = Path.Combine(DirTemporary, $"{Path.GetRandomFileName()}.docx");
     private string TemporaryFilePath { get; set; } = string.Empty;
     private ShippingLines ShippingLines { get; set; } = new ShippingLines();
     public WordFileReadService() { }
@@ -24,11 +22,7 @@ public class WordFileReadService : IWordFileReadService
         if (!File.Exists(filePath))
             throw new FileNotFoundException("Word файл не найден");
 
-        //CreateTemporaryFile(filePath);
         TemporaryFilePath = filePath;
-
-        //if (!File.Exists(TemporaryFilePath))
-        //    throw new FileNotFoundException("Word файл не скопирован");
 
         using (WordprocessingDocument doc = WordprocessingDocument.Open(TemporaryFilePath, false))
         {

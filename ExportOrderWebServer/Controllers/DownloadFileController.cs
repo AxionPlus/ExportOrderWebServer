@@ -96,11 +96,9 @@ public class DownloadFileController : ControllerBase
     }
 
     [HttpGet, Route("ReadFileAndDownloadExcelOrder")]   // file/DownloadFileController/ReadFileAndDownloadExcelOrder
-    public async Task<IActionResult> SaveExcelExportOrderList(string filePath)  //Upload Pdf or Word file then Convert To Excel file
+    public async Task<IActionResult> SaveExcelExportOrderList(string filePath)  /// Convert To Excel file
     {
         if (string.IsNullOrEmpty(filePath)) return BadRequest("File not found.");
-
-        Console.WriteLine($"File uploaded To: {filePath}");
 
         IEnumerable<ReadPdfExportOrderDTO>? readResult = new List<ReadPdfExportOrderDTO>();
 

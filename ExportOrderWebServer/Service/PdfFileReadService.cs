@@ -11,8 +11,6 @@ public interface IPdfFileReadService : IDisposable
 
 public class PdfFileReadService : IPdfFileReadService
 {
-    //private readonly static string DirTemporary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "TempFiles");
-    //private string TemporaryFilePath { get; set; } = Path.Combine(DirTemporary, $"{Path.GetRandomFileName()}.docx");
     private string TemporaryFilePath { get; set; } = string.Empty;
     private ShippingLines ShippingLines { get; set; } = new ShippingLines();
 
@@ -24,11 +22,6 @@ public class PdfFileReadService : IPdfFileReadService
             throw new FileNotFoundException("Word файл не найден");
 
         TemporaryFilePath = filePath;
-
-        //CreateTemporaryFile(filePath);
-
-        //if (!File.Exists(TemporaryFilePath))
-        //    throw new FileNotFoundException("Word файл не скопирован");
 
         /// Read Pdf
         var _extractedData = ExtractTextFromPdf();
@@ -47,7 +40,7 @@ public class PdfFileReadService : IPdfFileReadService
 
         try
         {
-            using (var document = PdfDocument.Open(TemporaryFilePath))  //_pdfPath
+            using (var document = PdfDocument.Open(TemporaryFilePath))
             {
                 foreach (var page in document.GetPages())
                 {
@@ -384,12 +377,6 @@ public class PdfFileReadService : IPdfFileReadService
             return null;
         }
     }
-
-    //private void CreateTemporaryFile(string templateFilePath)
-    //{
-    //    if (File.Exists(templateFilePath))
-    //        File.Copy(templateFilePath, TemporaryFilePath);
-    //}
 
     public void Dispose()
     {

@@ -30,99 +30,80 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
         public async Task AddRecords(IEnumerable<BillOfLadingDto> records, string vesselCallDetailId, string userName)
         {
 
-            using (var _db = _dbContext.CreateDbContextAsync())
-            {
-                var db = await _db;
+            await using var db = await _dbContext.CreateDbContextAsync();
 
-                var bolList = records.Select(s => s.Num);
-                var existRecords = await db.Set<BillofLadingEntity>().Include(s => s.ContainerRecords)
-                                                    .Where(s => bolList.Any(b => b == s.Num))
-                                                    .Select(s => s.Num)
-                                                    .ToArrayAsync();
-                //var existBlRecords = await db.Set<BillofLadingEntity>().Include(s => s.ContainerRecords)
-                //    .Where(s => bolList.Any(b => b == s.Num))
+            var bolList = records.Select(s => s.Num);
+            var existRecords = await db.Set<BillofLadingEntity>().Include(s => s.ContainerRecords)
+                                                .Where(s => bolList.Any(b => b == s.Num))
+                                                .Select(s => s.Num)
+                                                .ToArrayAsync();
 
-                //.ToArrayAsync();
+            var vesselCallDetail = await db.Set<ImportVesselCallDetail>().AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id.ToString() == vesselCallDetailId);
 
-                //foreach (var existRecord in existBlRecords)
-                //{
-
-                //    foreach (var ContainerRecord in existRecord.ContainerRecords)
-                //    {
-                //        db.Entry(ContainerRecord).State = EntityState.Deleted;
-                //    }
-                //    db.Entry(existRecord).State = EntityState.Deleted;
-                //    await db.SaveChangesAsync();
-                //}
-
-
-
-                var vesselCallDetail = await db.Set<ImportVesselCallDetail>().AsNoTracking()
-                    .FirstOrDefaultAsync(s => s.Id.ToString() == vesselCallDetailId);
-
-                foreach (var billofLading in records)
-                    if (!existRecords.Any(s => s == billofLading.Num))
+            foreach (var billofLading in records)
+                if (!existRecords.Any(s => s == billofLading.Num))
+                {
+                    var BillofLading = new BillofLadingEntity()
                     {
-                        var BillofLading = new BillofLadingEntity()
+                        UserName = userName,
+                        Num = billofLading.Num,
+                        ServiceCode = billofLading.ServiceCode,
+                        IssueDate = billofLading.IssueDate,
+                        SobDate = billofLading.SobDate,
+                        ShipperName = billofLading.ShipperName.RemoveExtraSymbols(),
+                        ShipperAddress = billofLading.ShipperAddress.RemoveExtraSymbols(),
+                        ConsigneeName = billofLading.ConsigneeName.RemoveExtraSymbols(),
+                        ConsigneeAddress = billofLading.ConsigneeAddress.RemoveExtraSymbols(),
+                        ConsigneeTaxNo = billofLading.ConsigneeTaxNo,
+                        NotifyName = billofLading.NotifyName.RemoveExtraSymbols(),
+                        NotifyAddress = billofLading.NotifyAddress.RemoveExtraSymbols(),
+                        NotifyEmail = billofLading.NotifyEmail,
+                        AdditionalInfo = billofLading.AdditionalInfo,
+                        POR = billofLading.POR,
+                        POL = billofLading.POL,
+                        POD = billofLading.POD,
+                        ContainerRecords = billofLading.ContainerRecords.Select(rec => new BillofLadingContainerRecord()
                         {
                             UserName = userName,
-                            Num = billofLading.Num,
-                            ServiceCode = billofLading.ServiceCode,
-                            IssueDate = billofLading.IssueDate,
-                            SobDate = billofLading.SobDate,
-                            ShipperName = billofLading.ShipperName.RemoveExtraSymbols(),
-                            ShipperAddress = billofLading.ShipperAddress.RemoveExtraSymbols(),
-                            ConsigneeName = billofLading.ConsigneeName.RemoveExtraSymbols(),
-                            ConsigneeAddress = billofLading.ConsigneeAddress.RemoveExtraSymbols(),
-                            ConsigneeTaxNo = billofLading.ConsigneeTaxNo,
-                            NotifyName = billofLading.NotifyName.RemoveExtraSymbols(),
-                            NotifyAddress = billofLading.NotifyAddress.RemoveExtraSymbols(),
-                            NotifyEmail = billofLading.NotifyEmail,
-                            AdditionalInfo = billofLading.AdditionalInfo,
-                            POR = billofLading.POR,
-                            POL = billofLading.POL,
-                            POD = billofLading.POD,
-                            ContainerRecords = billofLading.ContainerRecords.Select(rec => new BillofLadingContainerRecord()
-                            {
-                                UserName = userName,
-                                ContainerNum = rec.ContainerNum,
-                                ContainerType = rec.ContainerType,
-                                TareWeight = rec.TareWeight,
-                                CargoWeight = rec.CargoWeight,
-                                PackageQty = rec.PackageQty,
-                                PackageType = rec.PackageType,
-                                CommodityCode = rec.CommodityCode,
-                                GoodsDescription = rec.GoodsDescription.RemoveExtraSymbols(),
+                            ContainerNum = rec.ContainerNum,
+                            ContainerType = rec.ContainerType.Contains("FF") ? rec.ContainerType.Replace("FF", "FR") : rec.ContainerType,
+                            TareWeight = rec.TareWeight,
+                            CargoWeight = rec.CargoWeight,
+                            PackageQty = rec.PackageQty,
+                            PackageType = rec.PackageType,
+                            CommodityCode = rec.CommodityCode,
+                            GoodsDescription = rec.GoodsDescription.RemoveExtraSymbols(),
 
-                                IsAlcohol = rec.IsAlcohol,
-                                IsMilitaryCargo = rec.IsMilitaryCargo,
+                            IsAlcohol = rec.IsAlcohol,
+                            IsMilitaryCargo = rec.IsMilitaryCargo,
 
-                                IsSoc = rec.IsSoc,
-                                IsRef = rec.IsRef,
-                                IsOog = rec.IsOog,
-                                IsImo = rec.IsImo,
-                                SealNo = rec.SealNo,
-                                SealShr = rec.SealShr,
-                                SealOth = rec.SealOth,
-                                TempSet = rec.TempSet,
-                                CreatedAt = DateTimeOffset.UtcNow,
-                                LockToken = DateTime.Now.Ticks,
-                            }).ToList(),
+                            IsSoc = rec.IsSoc,
+                            IsRef = rec.IsRef,
+                            IsOog = rec.IsOog,
+                            IsImo = rec.IsImo,
+                            SealNo = rec.SealNo,
+                            SealShr = rec.SealShr,
+                            SealOth = rec.SealOth,
+                            TempSet = rec.TempSet,
                             CreatedAt = DateTimeOffset.UtcNow,
                             LockToken = DateTime.Now.Ticks,
-                            VesselCallDetail = vesselCallDetail,
-                        };
+                        }).ToList(),
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        LockToken = DateTime.Now.Ticks,
+                        VesselCallDetail = vesselCallDetail,
+                    };
 
-                        db.Entry(BillofLading).State = EntityState.Added;
+                    db.Entry(BillofLading).State = EntityState.Added;
 
-                        foreach (var containerRecord in BillofLading.ContainerRecords)
-                            db.Entry(containerRecord).State = EntityState.Added;
+                    foreach (var containerRecord in BillofLading.ContainerRecords)
+                        db.Entry(containerRecord).State = EntityState.Added;
 
-                        var bug = db.ChangeTracker.DebugView.LongView;
-                        await db.SaveChangesAsync();
-                        db.ChangeTracker.Clear();
-                    }
-            }
+                    var bug = db.ChangeTracker.DebugView.LongView;
+                    await db.SaveChangesAsync();
+                    db.ChangeTracker.Clear();
+                }
+
         }
 
         public async Task<IEnumerable<BillOfLadingDto>> GetItemsAsync(FilterParameters filter)
@@ -142,7 +123,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
 
                     .Select(billofLading => new BillOfLadingDto()
                     {
-                        
+
                         Num = billofLading.Num,
                         ServiceCode = billofLading.ServiceCode,
                         IssueDate = billofLading.IssueDate,
@@ -216,7 +197,7 @@ namespace ExportOrderWebServer.Areas.Import.BillofLadings.Provider
                             .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.CommodityCode?.RemoveExtraSymbols();
 
                         containerRecord.GoodsDescriptionRu = billOfladingDto.ContainerRecords
-                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescriptionRu?.RemoveExtraSymbols(); 
+                            .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescriptionRu?.RemoveExtraSymbols();
                         containerRecord.GoodsDescription = billOfladingDto.ContainerRecords
                             .FirstOrDefault(s => s.ContainerNum == containerRecord.ContainerNum)?.GoodsDescription?.RemoveExtraSymbols();
 

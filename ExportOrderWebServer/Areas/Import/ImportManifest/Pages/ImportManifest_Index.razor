@@ -209,11 +209,11 @@ else
                             }
 
                             <MudText Style="font-size:1rem; font-weight:550;    margin-top: 6px"> @BillofLading.Num / dated</MudText>
-                            <DatePicker Style="width:120px; margin-left: 5px" @bind-Date="@BillofLading.IssueDate" Required Disabled="@(BillofLading.Status == EntityStatus.Completed)" />
+                            <DatePicker Style="width:120px; margin-left: 5px" @bind-Date="@BillofLading.IssueDate" Required ReadOnly="@(BillofLading.Status == EntityStatus.Completed)" />
                             <div style="padding-top: 5px;    margin-left: 5px;">
                                 <MudSelect Class="TextField CustomDelivery" T="CustomsDeliveryMode?" Style="width:80px; " @bind-Value="BillofLading.CustomsDeliveryMode"
                                            Variant="Variant.Outlined" Margin="Margin.Dense" IconSize="Size.Small"
-                                           Disabled="@(BillofLading.Status == EntityStatus.Completed)"
+                                           ReadOnly="@(BillofLading.Status == EntityStatus.Completed)"
                                            ToStringFunc="@((e) => e is null ? string.Empty : e switch { CustomsDeliveryMode.GTD => "ГТД", CustomsDeliveryMode.VTT => "ВТТ", _ => null })">
                                     @foreach (CustomsDeliveryMode? type in Enum.GetValues(typeof(CustomsDeliveryMode)))
                                     {
@@ -258,43 +258,45 @@ else
                                         <div>
                                             <MudMenu ActivationEvent="@MouseEvent.RightClick">
                                                 <ActivatorContent>
-                                                    <TextField Style="min-width:350px;" Label="Shipper" Value="@BillofLading.ShipperName" Lines="2" Disabled></TextField>
+                                                    <TextField Style="min-width:350px;" Label="Shipper" Value="@BillofLading.ShipperName" Lines="2" ReadOnly></TextField>
                                                 </ActivatorContent>
                                                 <ChildContent>
                                                     <MudMenuItem OnClick="TransliterationShipper_Click">Transliteration</MudMenuItem>
                                                 </ChildContent>
                                             </MudMenu>
-                                            <TextField Style="min-width:350px;" Label="Отправитель" @bind-Value="BillofLading.ShipperNameRu" Lines="2" UpperCase Required Clearable Disabled="@(BillofLading.Status == EntityStatus.Completed)" />
+                                            <TextField Style="min-width:350px;" Label="Отправитель" @bind-Value="BillofLading.ShipperNameRu" Lines="2" UpperCase Required Clearable ReadOnly="@(BillofLading.Status == EntityStatus.Completed)" />
                                         </div>
                                         <div style="margin-left:5px">
-                                            <TextField Style="min-width:450px;" Label="Address" Value="@BillofLading.ShipperAddress" Lines="2" Disabled></TextField>
-                                            <TextField Style="min-width:450px;" Label="Адрес" @bind-Value="BillofLading.ShipperAddressRu" Lines="2" UpperCase Required Clearable Disabled="@(BillofLading.Status == EntityStatus.Completed)" />
+                                            <TextField Style="min-width:450px;" Label="Address" Value="@BillofLading.ShipperAddress" Lines="2" ReadOnly></TextField>
+                                            <TextField Style="min-width:450px;" Label="Адрес" @bind-Value="BillofLading.ShipperAddressRu" Lines="2" UpperCase Required Clearable ReadOnly="@(BillofLading.Status == EntityStatus.Completed)" />
                                         </div>
                                         <div style="margin-left:5px">
                                             <MudText Style="min-width:150px; text-align:end; padding-inline:8px; font-size:0.75rem; font-weight:550">СТРАНА</MudText>
-                                            <Country_AutoCompliteField Style="min-width:150px;" @bind-Value="BillofLading.ShipperCountryRu" IsRuName="true" UpperCase Required Disabled="@(BillofLading.Status == EntityStatus.Completed)" />
+                                            <Country_AutoCompliteField Style="min-width:150px;" @bind-Value="BillofLading.ShipperCountryRu" IsRuName="true" UpperCase Required ReadOnly="@(BillofLading.Status == EntityStatus.Completed)" />
+                                            <TextField Style="width:100px;margin-top:18px" Label="POL" Value="@BillofLading.POL" UpperCase ReadOnly="@(BillofLading.Status == EntityStatus.Completed)" />
                                         </div>
                                     </div>
 
 
                                     <div style="display:flex">
                                         <div>
-                                            <TextField Style="min-width:350px;" Label="Consignee" Value="@BillofLading.ConsigneeName" Lines="3" Disabled></TextField>
-                                            <TextField Style="min-width:350px;" Label="Получатель" @bind-Value="BillofLading.ConsigneeNameRu" Lines="3" UpperCase Required Clearable Disabled="@(BillofLading.Status == EntityStatus.Completed)" />
+                                            <TextField Style="min-width:350px;" Label="Consignee" Value="@BillofLading.ConsigneeName" Lines="3" ReadOnly></TextField>
+                                            <TextField Style="min-width:350px;" Label="Получатель" @bind-Value="BillofLading.ConsigneeNameRu" Lines="3" UpperCase Required Clearable ReadOnly="@(BillofLading.Status == EntityStatus.Completed)" />
                                         </div>
                                         <div style="margin-left:5px">
-                                            <TextField Style="min-width:450px;" Label="Address" Value="@BillofLading.ConsigneeAddress" Lines="3" Disabled></TextField>
-                                            <TextField Style="min-width:450px;" Label="Адрес" @bind-Value="BillofLading.ConsigneeAddressRu" Lines="3" UpperCase Required Clearable Disabled="@(BillofLading.Status == EntityStatus.Completed)" />
+                                            <TextField Style="min-width:450px;" Label="Address" Value="@BillofLading.ConsigneeAddress" Lines="3" ReadOnly></TextField>
+                                            <TextField Style="min-width:450px;" Label="Адрес" @bind-Value="BillofLading.ConsigneeAddressRu" Lines="3" UpperCase Required Clearable ReadOnly="@(BillofLading.Status == EntityStatus.Completed)" />
                                         </div>
                                         <div style="margin-left:5px">
                                             <MudText Style="min-width:150px; text-align:end; padding-inline:8px; font-size:0.75rem; font-weight:550">СТРАНА</MudText>
-                                            <TextField Style="min-width:150px;" @bind-Value="BillofLading.ConsigneeCountryRu" UpperCase Required Clearable Disabled="@(BillofLading.Status == EntityStatus.Completed)"></TextField>
+                                            <TextField Style="min-width:150px;" @bind-Value="BillofLading.ConsigneeCountryRu" UpperCase Required Clearable ReadOnly="@(BillofLading.Status == EntityStatus.Completed)"></TextField>
+                                            <TextField Style="width:100px;margin-top:36px" Label="POD" @bind-Value="BillofLading.POD" UpperCase ReadOnly="@(BillofLading.Status == EntityStatus.Completed)" />
+
                                         </div>
                                     </div>
                                 </div>
-                                <div>
+                                <div style="margin-left:5px">
                                 </div>
-
                             </div>
 
                         </div>
@@ -364,9 +366,36 @@ else
                             <MudTd>@record.GoodsDescriptionRu</MudTd>
                             <MudTd>@record.CommodityCode</MudTd>
 
-                            <MudTd> <CheckBox @bind-Value="record.IsImo" ReadOnly /> </MudTd>
+                            <MudTd>
+                                @if (record.IsImo)
+                                {
+                                    <MudTooltip Text="@($"{record.ImoClass} / {record.Unno}")" Duration="1500" Delay="1500">
+                                        <CheckBox @bind-Value="record.IsImo" ReadOnly />
+                                    </MudTooltip>
+                                }
+                                else
+                                {
+
+                                    <CheckBox @bind-Value="record.IsImo" ReadOnly />
+
+                                }
+
+                            </MudTd>
                             <MudTd> <CheckBox @bind-Value="record.IsOog" ReadOnly /> </MudTd>
-                            <MudTd> <CheckBox @bind-Value="record.IsRef" ReadOnly /> </MudTd>
+                            <MudTd>
+                                @if (record.IsRef)
+                                {
+                                    <MudTooltip Text="@(record.TempSet.HasValue? record.TempSet.Value.ToString():"NAN")" Duration="1500" Delay="1500">
+                                        <CheckBox @bind-Value="record.IsRef" ReadOnly />
+                                    </MudTooltip>
+                                }
+                                else
+                                {
+
+                                    <CheckBox @bind-Value="record.IsRef" ReadOnly />
+
+                                }
+                            </MudTd>
                             <MudTd> <CheckBox @bind-Value="record.IsSoc" ReadOnly /> </MudTd>
                             <MudTd> <CheckBox @bind-Value="record.IsEmpty" ReadOnly /> </MudTd>
 
@@ -409,6 +438,16 @@ else
                 </div>
             }
 
+            else
+            {
+                <MudSkeleton Height="50px" />
+                <MudSkeleton Height="50px" />
+                <MudSkeleton Height="200px" />
+                <MudSkeleton Height="200px" />
+                <MudSkeleton Height="400px" />
+            }
+
+
         </div>
     </div>
 }
@@ -437,6 +476,7 @@ else
         set
         {
             _vesselCallDetail = value;
+
             // Можно также сохранять при каждом изменении
             SaveState().ConfigureAwait(false);
         }
@@ -516,7 +556,7 @@ else
         try
         {
             IsLoadingData = true;
-            StateHasChanged(); // Принудительное обновление UI
+            await InvokeAsync(StateHasChanged); // Принудительное обновление UI
 
             await ImportManifestProvider.UpdateBillofLadingAsync(BillofLading!);
             BillofLading = await ImportManifestProvider.GetBillofLadingAsync(BillofLading!.Num);
@@ -530,6 +570,7 @@ else
         finally
         {
             IsLoadingData = false;
+            await InvokeAsync(StateHasChanged); // Принудительное обновление UI
         }
     }
 
@@ -537,8 +578,12 @@ else
     {
         if (string.IsNullOrWhiteSpace(billofLadingNum))
             return;
-
+        BillofLading = null;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(700);
         BillofLading = await ImportManifestProvider.GetBillofLadingAsync(billofLadingNum);
+
+        await InvokeAsync(StateHasChanged); // Принудительное обновление UI
     }
 
     private async Task SearchItems_Click()
@@ -560,6 +605,8 @@ else
         BillofLadings = await ImportManifestProvider.GetItemsAsync(Filter);
 
         IsLoadingData = false;
+
+        await InvokeAsync(StateHasChanged); // Принудительное обновление UI
     }
 
     private void TransliterationShipper_Click()

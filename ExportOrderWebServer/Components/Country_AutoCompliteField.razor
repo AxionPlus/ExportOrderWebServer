@@ -37,6 +37,7 @@ else
                          OnClearButtonClick="async(_)=>{await ValueChanged.InvokeAsync(null);}"
                          CoerceText="@CoerceText"
                          Required RequiredError=""
+                         ReadOnly="ReadOnly"
                          Clearable />
     </div>
 }
@@ -47,6 +48,8 @@ else
     {
         await Name.ClearAsync();
     }
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
     [Parameter]
     public bool CoerceText { get; set; } = false;
     [Parameter]

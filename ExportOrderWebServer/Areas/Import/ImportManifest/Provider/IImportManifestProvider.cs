@@ -22,7 +22,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
 
 
         Task<ImportVesselCallDto> GetVesselCallData(string vesselCallId);
-        Task ShiftBillofLadings(VesselCallDetailDTO vesselCallDetail, IEnumerable< string> list);
+        Task ShiftBillofLadings(VesselCallDetailDTO vesselCallDetail, IEnumerable<string> list);
     }
     public class ImportManifestProvider : IImportManifestProvider
     {
@@ -177,7 +177,9 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         }).OrderBy(s => s.ContainerNum).ToList(),
                         CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
                         Status = billofLading.Status,
-                    }).FirstOrDefaultAsync(s => s.Num == billofLadingNum);
+                    })
+                    .Where(s => s.Status != EntityStatus.Cancelled)
+                    .FirstOrDefaultAsync(s => s.Num == billofLadingNum);
                 return BillofLading;
             }
         }
@@ -191,9 +193,8 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                 var BillofLadings = await db.Set<ImportVesselCallDetail>()
                     .Include(s => s.BillofLadings).ThenInclude(s => s.ContainerRecords)
                     .AsNoTracking().Where(s => s.Id == VesselCallDetail.Id)
-                    .SelectMany(vsl => vsl.BillofLadings, (XlPivotTableVersionList, billofLading) => new BillOfLadingDto()
+                    .SelectMany(vsl => vsl.BillofLadings, (XlPivotTableVersionList, billofLading) => new BillOfLadingDto
                     {
-
                         Num = billofLading.Num,
                         ServiceCode = billofLading.ServiceCode,
                         IssueDate = billofLading.IssueDate,
@@ -247,7 +248,9 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
                         Status = billofLading.Status,
 
-                    }).OrderBy(s => s.Num).ToArrayAsync();
+                    })
+                    .Where(s => s.Status != EntityStatus.Cancelled)
+                    .OrderBy(s => s.Num).ToArrayAsync();
 
                 return BillofLadings;
             }
@@ -275,7 +278,9 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         HasShipper = (!string.IsNullOrWhiteSpace(bl.ShipperCountryRu) || !string.IsNullOrWhiteSpace(bl.ShipperAddressRu) || !string.IsNullOrWhiteSpace(bl.ShipperNameRu)),
                         HasConsignee = (!string.IsNullOrWhiteSpace(bl.ConsigneeNameRu) || !string.IsNullOrWhiteSpace(bl.ConsigneeCountryRu) || !string.IsNullOrWhiteSpace(bl.ConsigneeAddressRu)),
                         Status = bl.Status,
-                    }).OrderBy(s => s.Num).ToArrayAsync();
+                    })
+                    .Where(s => s.Status != EntityStatus.Cancelled)
+                    .OrderBy(s => s.Num).ToArrayAsync();
 
                 return BillofLadings;
             }
@@ -342,95 +347,107 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                         Status = billofLading.Status,
                         CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
                         Version = billofLading.Version,
-                    }).ToArrayAsync();
+                    })
+                    .Where(s => s.Status != EntityStatus.Cancelled)
+                    .ToArrayAsync();
                 return BillofLadings;
             }
         }
 
         public async Task<ImportVesselCallDto> GetVesselCallData(string vesselCallId)
         {
-            using (var _db = _dbContext.CreateDbContextAsync())
-            {
-                var db = await _db;
+            await using var db = await _dbContext.CreateDbContextAsync();
 
+            var locations = await db.Set<LocationCatalog>().AsNoTracking().ToArrayAsync();
 
-                var VesselCall = await db.Set<ImportVesselCallDetail>().Include(s => s.VesselCall).ThenInclude(s => s.Vessel).ThenInclude(s => s.Flag)
-                    .Include(s => s.VesselCall).ThenInclude(s => s.Terminal).ThenInclude(s => s.Customs)
-                    .Include(s => s.POL).ThenInclude(s => s.Country)
-                    .Include(s => s.BillofLadings).ThenInclude(s => s.ContainerRecords)
-                    .Where(s => s.Id.ToString() == vesselCallId)
-                    .Select(vsl => new ImportVesselCallDto()
+            var VesselCall = await db.Set<ImportVesselCallDetail>().Include(s => s.VesselCall).ThenInclude(s => s.Vessel).ThenInclude(s => s.Flag)
+                .Include(s => s.VesselCall).ThenInclude(s => s.Terminal).ThenInclude(s => s.Customs)
+                .Include(s => s.POL).ThenInclude(s => s.Country)
+                .Include(s => s.BillofLadings).ThenInclude(s => s.ContainerRecords)
+                .Where(s => s.Id.ToString() == vesselCallId)
+                .Select(vsl => new ImportVesselCallDto()
+                {
+                    VesselFlag = vsl.VesselCall.Vessel.Flag.RUS,
+                    VesselName = vsl.VesselCall.Vessel.Name!,
+                    VesselVoyage = vsl.VesselCall.VoyageNo,
+                    ETA = vsl.VesselCall.ETA!.Value,
+                    DeparturePortName = vsl.POL.NameEn,
+                    DeparturePortCode = vsl.POL.UnLocode,
+                    DeparturePortCountryCode = vsl.POL.Country.Code,
+                    DeparturePortCountry = vsl.POL.Country.ENG,
+                    CustomsPostCode = vsl.VesselCall.Terminal.Customs.Code,
+                    BillofLadings = vsl.BillofLadings.Select(billofLading => new BillOfLadingDto
                     {
-                        VesselFlag = vsl.VesselCall.Vessel.Flag.RUS,
-                        VesselName = vsl.VesselCall.Vessel.Name!,
-                        VesselVoyage = vsl.VesselCall.VoyageNo,
-                        ETA = vsl.VesselCall.ETA!.Value,
-                        DeparturePortName = vsl.POL.NameEn,
-                        DeparturePortCode = vsl.POL.UnLocode,
-                        DeparturePortCountryCode = vsl.POL.Country.Code,
-                        CustomsPostCode = vsl.VesselCall.Terminal.Customs.Code,
-                        BillofLadings = vsl.BillofLadings.Select(billofLading => new BillOfLadingDto()
+
+                        Num = billofLading.Num,
+                        ServiceCode = billofLading.ServiceCode,
+                        IssueDate = billofLading.IssueDate,
+                        SobDate = billofLading.SobDate,
+                        ShipperName = billofLading.ShipperName,
+                        ShipperNameRu = billofLading.ShipperNameRu,
+                        ShipperAddress = billofLading.ShipperAddress,
+                        ShipperAddressRu = billofLading.ShipperAddressRu,
+                        ShipperCountryRu = billofLading.ShipperCountryRu,
+                        ConsigneeName = billofLading.ConsigneeName,
+                        ConsigneeNameRu = billofLading.ConsigneeNameRu,
+                        ConsigneeAddress = billofLading.ConsigneeAddress,
+                        ConsigneeAddressRu = billofLading.ConsigneeAddressRu,
+                        ConsigneeTaxNo = billofLading.ConsigneeTaxNo,
+                        ConsigneeCountryRu = billofLading.ConsigneeCountryRu,
+                        NotifyName = billofLading.NotifyName,
+                        NotifyAddress = billofLading.NotifyAddress,
+                        NotifyEmail = billofLading.NotifyEmail,
+                        AdditionalInfo = billofLading.AdditionalInfo,
+                        POR = billofLading.POR,
+                        POL = billofLading.POL,
+                        POD = billofLading.POD,
+                        Version = billofLading.Version,
+                        ContainerRecords = billofLading.ContainerRecords.Select(rec => new BillOfLadingContainerRecordDto()
                         {
+                            Id = rec.Id,
+                            ContainerNum = rec.ContainerNum,
+                            ContainerType = rec.ContainerType,
+                            TareWeight = rec.TareWeight,
+                            CargoWeight = rec.CargoWeight,
+                            PackageQty = rec.PackageQty,
+                            PackageType = rec.PackageType,
+                            CommodityCode = rec.CommodityCode,
+                            GoodsDescription = rec.GoodsDescription,
+                            GoodsDescriptionRu = rec.GoodsDescriptionRu,
 
-                            Num = billofLading.Num,
-                            ServiceCode = billofLading.ServiceCode,
-                            IssueDate = billofLading.IssueDate,
-                            SobDate = billofLading.SobDate,
-                            ShipperName = billofLading.ShipperName,
-                            ShipperNameRu = billofLading.ShipperNameRu,
-                            ShipperAddress = billofLading.ShipperAddress,
-                            ShipperAddressRu = billofLading.ShipperAddressRu,
-                            ShipperCountryRu = billofLading.ShipperCountryRu,
-                            ConsigneeName = billofLading.ConsigneeName,
-                            ConsigneeNameRu = billofLading.ConsigneeNameRu,
-                            ConsigneeAddress = billofLading.ConsigneeAddress,
-                            ConsigneeAddressRu = billofLading.ConsigneeAddressRu,
-                            ConsigneeTaxNo = billofLading.ConsigneeTaxNo,
-                            ConsigneeCountryRu = billofLading.ConsigneeCountryRu,
-                            NotifyName = billofLading.NotifyName,
-                            NotifyAddress = billofLading.NotifyAddress,
-                            NotifyEmail = billofLading.NotifyEmail,
-                            AdditionalInfo = billofLading.AdditionalInfo,
-                            POR = billofLading.POR,
-                            POL = billofLading.POL,
-                            POD = billofLading.POD,
-                            Version = billofLading.Version,
-                            ContainerRecords = billofLading.ContainerRecords.Select(rec => new BillOfLadingContainerRecordDto()
-                            {
-                                Id = rec.Id,
-                                ContainerNum = rec.ContainerNum,
-                                ContainerType = rec.ContainerType,
-                                TareWeight = rec.TareWeight,
-                                CargoWeight = rec.CargoWeight,
-                                PackageQty = rec.PackageQty,
-                                PackageType = rec.PackageType,
-                                CommodityCode = rec.CommodityCode,
-                                GoodsDescription = rec.GoodsDescription,
-                                GoodsDescriptionRu = rec.GoodsDescriptionRu,
+                            IsAlcohol = rec.IsAlcohol,
+                            IsMilitaryCargo = rec.IsMilitaryCargo,
 
-                                IsAlcohol = rec.IsAlcohol,
-                                IsMilitaryCargo = rec.IsMilitaryCargo,
+                            IsSoc = rec.IsSoc,
+                            IsRef = rec.IsRef,
+                            IsOog = rec.IsOog,
+                            IsImo = rec.IsImo,
+                            SealNo = rec.SealNo,
+                            SealShr = rec.SealShr,
+                            SealOth = rec.SealOth,
+                            TempSet = rec.TempSet,
+                            Version = rec.Version,
+                        }).OrderBy(s => s.ContainerNum).ToList(),
+                        CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
+                        Status = billofLading.Status,
 
-                                IsSoc = rec.IsSoc,
-                                IsRef = rec.IsRef,
-                                IsOog = rec.IsOog,
-                                IsImo = rec.IsImo,
-                                SealNo = rec.SealNo,
-                                SealShr = rec.SealShr,
-                                SealOth = rec.SealOth,
-                                TempSet = rec.TempSet,
-                                Version = rec.Version,
-                            }).OrderBy(s => s.ContainerNum).ToList(),
-                            CustomsDeliveryMode = billofLading.CustomsDeliveryMode,
-                            Status = billofLading.Status,
-
-                        }).ToList(),
                     })
-                    .FirstOrDefaultAsync();
+                    .Where(s => s.Status != EntityStatus.Cancelled).ToList(),
+                })
+                .FirstOrDefaultAsync();
 
-                return VesselCall!;
+            foreach (var billofLading in VesselCall.BillofLadings)
+            {
+                var location = locations.FirstOrDefault(s => s.UnLocode == billofLading.POL);
+
+                billofLading.POL = location != null ? location.Name : billofLading.POL;
 
             }
+
+
+            return VesselCall!;
+
+
         }
 
         public async Task SetStatusBillofLadingAsync(string billofLadingNum, EntityStatus status)
@@ -467,7 +484,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                     throw new InvalidOperationException($"Vessel Call was not found");
 
                 var UpdateBillofLadings = await db.Set<BillofLadingEntity>().AsNoTracking()
-                    .Where(s=> list.Any(bl=>bl == s.Num))
+                    .Where(s => list.Any(bl => bl == s.Num))
                     .ToArrayAsync();
                 if (!UpdateBillofLadings.Any())
                     throw new InvalidOperationException($"Bill of Ladings was not found");
@@ -540,8 +557,10 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
                 UpdateBillofLading.ConsigneeAddressRu = billofLading.ConsigneeAddressRu.RemoveExtraSymbols();
                 UpdateBillofLading.ConsigneeCountryRu = billofLading.ConsigneeCountryRu.RemoveExtraSymbols();
                 UpdateBillofLading.CustomsDeliveryMode = billofLading.CustomsDeliveryMode.HasValue ? billofLading.CustomsDeliveryMode.Value : CustomsDeliveryMode.GTD;
-                //UpdateBillofLading.SobDate = billofLading.SobDate;
-                //UpdateBillofLading.IssueDate = billofLading.IssueDate;
+                UpdateBillofLading.SobDate = billofLading.SobDate;
+                UpdateBillofLading.IssueDate = billofLading.IssueDate;
+                UpdateBillofLading.POL = billofLading.POL;
+                UpdateBillofLading.POD = billofLading.POD;
 
                 UpdateBillofLading.UpdatedAt = DateTimeOffset.UtcNow;
 
@@ -639,6 +658,7 @@ namespace ExportOrderWebServer.Areas.Import.ImportManifest.Provider
 
                     updateRecord.GoodsDescription = record.GoodsDescription.RemoveExtraSymbols();
                     updateRecord.GoodsDescriptionRu = record.GoodsDescriptionRu.RemoveExtraSymbols();
+                    updateRecord.CommodityCode = record.CommodityCode;
                     updateRecord.UpdatedAt = DateTimeOffset.Now;
 
                     db.Entry(updateRecord).State = EntityState.Modified;

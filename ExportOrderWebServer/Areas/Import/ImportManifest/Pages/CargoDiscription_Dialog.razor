@@ -6,10 +6,10 @@
 
 <MudContainer>
 
-    <H5>@CargoDesctiption</H5>
+    <h5>@CargoDesctiption</h5>
 
     <TextField Label="En Name" @bind-Value="@CargoDesctiptionEn" Required />
-    <TextField Label="Ru Name" @bind-Value="@GoodsDescriptionRu" Required />
+    <TextField Label="Ru Name" @bind-Value="@GoodsDescriptionRu" Required MaxLength="2000" />
     <TextField Label="HS CODE" @bind-Value="@CommodityCode" Required />
 
     <MudButton OnClick="GetData_Click">Save</MudButton>

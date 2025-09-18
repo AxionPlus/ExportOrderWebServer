@@ -55,6 +55,11 @@
                     <TextField Label="Imo Class" @bind-Value="@Record.ImoClass" Required />
                     <TextField Style="margin-left:5px" Label="Unno" @bind-Value="@Record.Unno" Required />
                 }
+                
+                @if (Record.IsRef)
+                {
+                    <NumericField T="int?" Label="Temp Set" @bind-Value="@Record.TempSet" ReadOnly Required />
+                }
             </div>
         </MudForm>
         <div style="display:flex;justify-content: space-around; padding:15px">

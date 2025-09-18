@@ -378,7 +378,12 @@ public class ExcelFileCreateService : IExcelFileCreateService
             dataBulk[row, 21 - 1] = records.ElementAt(row).ConsigneeAddressRu;
             dataBulk[row, 22 - 1] = records.ElementAt(row).POR;
             dataBulk[row, 23 - 1] = records.ElementAt(row).POL;
-            dataBulk[row, 24 - 1] = records.ElementAt(row).CustomsDeliveryMode;
+            dataBulk[row, 24 - 1] = records.ElementAt(row).CustomsDeliveryMode switch
+            {
+                CustomsDeliveryMode.GTD => "ГТД",
+                CustomsDeliveryMode.VTT => "ВТТ",
+
+            };
             dataBulk[row, 25 - 1] = records.ElementAt(row).ImoClass + records.ElementAt(row).Unno;
             dataBulk[row, 26 - 1] = records.ElementAt(row).TempSet;
         });
@@ -496,7 +501,7 @@ public class ExcelFileCreateService : IExcelFileCreateService
             dataBulk[row, 10 - 1] = records.ElementAt(row).Num?.ToUpper();
             dataBulk[row, 11 - 1] = records.ElementAt(row).IssueDate.HasValue ? records.ElementAt(row).IssueDate.Value.Date : null;
             dataBulk[row, 12 - 1] = VesselCall.DeparturePortName.ToUpper();
-            dataBulk[row, 13 - 1] = VesselCall.DeparturePortCountryCode?.ToUpper();
+            dataBulk[row, 13 - 1] = VesselCall.DeparturePortCountry?.ToUpper();
 
             dataBulk[row, 14 - 1] = records.ElementAt(row).ShipperName.ToUpper();
             dataBulk[row, 15 - 1] = records.ElementAt(row).ShipperCountryRu?.ToUpper();

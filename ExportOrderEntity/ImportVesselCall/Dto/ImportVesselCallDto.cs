@@ -11,15 +11,16 @@ namespace ExportOrderEntites.ImportVesselCall.Dto
 {
     public class ImportVesselCallDto
     {
-        public string VesselName { get; set; }        // поле связи
-        public string VesselVoyage { get; set; }        // поле связи
-        public string VesselFlag { get; set; }        // поле связи
-        public string CustomsPostCode { get; set; }        // поле связи
+        public string VesselName { get; set; }        
+        public string VesselVoyage { get; set; }      
+        public string VesselFlag { get; set; }        
+        public string CustomsPostCode { get; set; }   
        public DateTime ETA { get; set; }
 
-       public string DeparturePortName { get; set; }        // поле связи
-       public string DeparturePortCode { get; set; }        // поле связи
-       public string DeparturePortCountryCode { get; set; }        // поле связи
+       public string DeparturePortName { get; set; }       
+       public string DeparturePortCode { get; set; }       
+       public string DeparturePortCountryCode { get; set; }
+       public string DeparturePortCountry { get; set; }    
 
         public IEnumerable<BillOfLadingDto> BillofLadings { get; set; } = new List<BillOfLadingDto>();  //public IList<ExportOrderEntity>
     }

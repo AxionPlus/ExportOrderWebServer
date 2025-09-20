@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -14,7 +15,8 @@ public interface IWordFileReadService : IDisposable
 public class WordFileReadService : IWordFileReadService
 {
     private string TemporaryFilePath { get; set; } = string.Empty;
-    private ShippingLines ShippingLines { get; set; } = new ShippingLines();
+    private ShippingLines ShippingLines { get; set; } = new ShippingLines();    
+
     public WordFileReadService() { }
 
     public async Task<IEnumerable<ReadPdfExportOrderDTO>?> ReadWordExportOrder(string filePath)
@@ -77,8 +79,14 @@ public class WordFileReadService : IWordFileReadService
                                 .Replace("\a", "")
                                 .Trim());
 
-                            cntrNums.Add(cells[14].InnerText);
+                            /// Containers
+                            string textCntr = cells[14].InnerText;
 
+                            MatchCollection cntrs = Regex.Matches(textCntr, @"[a-zA-Z]{4}[0-9]{7}");    // номер кнтр
+                            foreach (Match match in cntrs)
+                                cntrNums.Add(match.Value);    
+
+                            /// Weight
                             double grossWeight = double.TryParse(cells[12].InnerText,
                                                                     CultureInfo.GetCultureInfo("ru-RU"),
                                                                     out double _gwt) ?

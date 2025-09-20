@@ -132,6 +132,9 @@ public class UploadFileController : ControllerBase
     {
         try
         {
+            if (!Directory.Exists(DirTemporary))
+                Directory.CreateDirectory(DirTemporary);
+
             if (file == null) return null;
 
             string savePath = Path.Combine(DirTemporary, file.FileName);

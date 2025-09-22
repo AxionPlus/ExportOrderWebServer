@@ -122,6 +122,8 @@ public class XmlFileReadService : IXmlFileReadService
                                                                         case "ESADout_CUGoods":
                                                                             ReadXmlDocumentRecordDTO dto = new() { DocumentName = readDocumentName };
 
+                                                                            StringBuilder goods = new();
+
                                                                             foreach (XmlNode goodsItemDetails in shipmentDetails.ChildNodes)
                                                                             {
                                                                                 switch (goodsItemDetails.Name)
@@ -131,12 +133,14 @@ public class XmlFileReadService : IXmlFileReadService
                                                                                     case "catESAD_cu:GoodsTNVEDCode":
                                                                                         dto.CommodityHSCode = goodsItemDetails.InnerText; break;
                                                                                     case "catESAD_cu:GoodsDescription":
-                                                                                        dto.CommodityName = goodsItemDetails.InnerText; break;
+                                                                                        goods.Append($"{goodsItemDetails.InnerText}" + ' '); break;   //dto.CommodityName = goodsItemDetails.InnerText; break;
                                                                                     case "catESAD_cu:GrossWeightQuantity":
                                                                                         dto.GrossWt = goodsItemDetails.InnerText; break;
                                                                                     case "catESAD_cu:NetWeightQuantity":
                                                                                         dto.NetWt = goodsItemDetails.InnerText; break;
                                                                                 }
+
+                                                                                dto.CommodityName = goods.ToString().Trim();
                                                                             }
                                                                             readDTOs.Add(dto);
                                                                             break;

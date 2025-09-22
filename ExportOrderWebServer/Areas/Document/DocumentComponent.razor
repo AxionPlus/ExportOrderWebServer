@@ -180,7 +180,8 @@
 
     private async Task OpenItem_Click(long id)
     {
-        await jsRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.MainPageUrl}document?Id={id}", "_blank");
+        //await jsRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.MainPageUrl}document?Id={id}", "_blank");
+        await jsRuntime.InvokeVoidAsync("window.open", $"{ApplicationParameter.MainPageUrl}document/{id}", "_blank");
     }
 
     private async void SelectItems_Click()

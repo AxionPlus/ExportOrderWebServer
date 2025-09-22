@@ -327,7 +327,7 @@ public class PdfFileReadService : IPdfFileReadService
                             /// Commodity                        
                             for (int j = 3; j <= lastWordInCommodity.index; j++)
                             {
-                                commodity.Append(lineArray[j] + " ");
+                                commodity.Append(lineArray[j] + ' ');
                             }
                         }
 

@@ -1,4 +1,5 @@
 ﻿@page "/document"
+@page "/document/{Id:long}"
 @attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
 @inject ISnackbar Snackbar
@@ -15,7 +16,7 @@
             <div class="ToolBar-iconbutton">
                 <MudTooltip Text="EXIT">
                     <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg)" OnClick="CloseWindow_Click"
-                                   Icon="@Icons.Material.Outlined.ExitToApp" Disabled />
+                                   Icon="@Icons.Material.Outlined.ExitToApp" />
                 </MudTooltip>
             </div>            
             <div class="ToolBar-iconbutton" style="margin-left:20px">
@@ -58,7 +59,7 @@
     [CascadingParameter] public string? ApplicationUser { get; set; }
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
-    [SupplyParameterFromQuery]
+    //[SupplyParameterFromQuery]
     [Parameter]
     public long Id { get; set; }
 
@@ -73,7 +74,7 @@
 
     private async Task GetItem()
     {
-        if (Id == 0) return;
+        if (Id <= 0) return;
         
         IsLoadingData = true;
 
@@ -210,8 +211,8 @@
         {
             try
             {
-                //await jsRuntime.InvokeVoidAsync("window.close");
-                await jsRuntime.InvokeVoidAsync("closeWindow");
+                await jsRuntime.InvokeVoidAsync("window.close");
+                //await jsRuntime.InvokeVoidAsync("closeWindow");
             }
             catch (Exception ex)
             {

@@ -59,7 +59,7 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
 
                 if (UpdateRecords.Any())
                 {
-                    var Records = CreateNewRecords.Select(rls => new ReleaseImportContainerRecordEntity()
+                    var Records = UpdateRecords.Select(rls => new ReleaseImportContainerRecordEntity()
                     {
                         BillOfLadingNum = rls.BillOfLadingNum,
                         ContainerType = rls.ContainerType,
@@ -211,7 +211,7 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
                         .DefaultIfEmpty(),
                    (rec, rls) => new ReleaseRecordDto()
                    {
-                       Id = rec.Id,
+                       Id = rls.Id,
                        BillofLadingNum = rec.BillofLadingNum,
                        ContainerNum = rec.ContainerNum,
                        ContainerType = rec.ContainerType,

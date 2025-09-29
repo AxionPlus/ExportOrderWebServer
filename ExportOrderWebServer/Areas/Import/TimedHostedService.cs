@@ -3,8 +3,8 @@
 namespace ExportOrderWebServer.Areas.Import;
 public class TimedHostedService : IHostedService, IDisposable
 {
-    private TimeSpan loopTime = TimeSpan.FromSeconds(20);
-    private TimeSpan loopTime_2 = TimeSpan.FromSeconds(20);
+    private TimeSpan loopTime = TimeSpan.FromSeconds(30);
+    private TimeSpan loopTime_2 = TimeSpan.FromSeconds(30);
     private TimeSpan loopTime_3 = TimeSpan.FromSeconds(250);
     private TimeSpan loopTime_4 = TimeSpan.FromSeconds(300);
     private int executionCount = 0;
@@ -40,18 +40,16 @@ public class TimedHostedService : IHostedService, IDisposable
             await Task.Delay(TimeSpan.FromSeconds(5));
         try
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                StaticParam.IMAP_BUSY = true;
-                // Use dbContext here
-                await _releaseImportService.CheckEmailBoxReleaseImportAsync(dbContext);
-                _logger.LogInformation($"complete execute CheckEmailBoxReleaseImportAsync {DateTime.Now}");
-                Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false).GetAwaiter().GetResult();
-                await _releaseImportService.CheckReleaseImportResponseAsync(dbContext);
-                _logger.LogInformation($"complete execute CheckReleaseImportResponseAsync {DateTime.Now}");
-                StaticParam.IMAP_BUSY = false;
-            }
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            StaticParam.IMAP_BUSY = true;
+            // Use dbContext here
+            await _releaseImportService.CheckEmailBoxReleaseImportAsync(dbContext);
+            _logger.LogInformation($"complete execute CheckEmailBoxReleaseImportAsync {DateTime.Now}");
+            Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false).GetAwaiter().GetResult();
+            await _releaseImportService.CheckReleaseImportResponseAsync(dbContext);
+            _logger.LogInformation($"complete execute CheckReleaseImportResponseAsync {DateTime.Now}");
+            StaticParam.IMAP_BUSY = false;
         }
         catch (Exception ex)
         {
@@ -65,16 +63,14 @@ public class TimedHostedService : IHostedService, IDisposable
             await Task.Delay(TimeSpan.FromSeconds(5));
         try
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                // Use dbContext here
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            // Use dbContext here
 
-                StaticParam.SMTP_BUSY = true;
-                await _releaseImportService.SendEmailReleaseImportXmlAsync(dbContext);
-                _logger.LogInformation($"complete execute SendEmailReleaseImportXmlAsync {DateTime.Now}");
-                StaticParam.SMTP_BUSY = false;
-            }
+            StaticParam.SMTP_BUSY = true;
+            await _releaseImportService.SendEmailReleaseImportXmlAsync(dbContext);
+            _logger.LogInformation($"complete execute SendEmailReleaseImportXmlAsync {DateTime.Now}");
+            StaticParam.SMTP_BUSY = false;
         }
         catch (Exception ex)
         {

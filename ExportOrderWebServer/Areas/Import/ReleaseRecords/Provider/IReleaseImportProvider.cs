@@ -72,6 +72,8 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider
                         ReleaseTo = continueList.First(s => s.Id == rls.Id).ReleaseTo!.Value,
                         ReleaseUID = rls.ReleaseUID,
                         Timestamp = DateTime.Now.Ticks,
+                        LineName = rls.LineName,
+                        TerminalName = rls.TerminalName,
                     });
                     foreach (var record in Records)
                     {

@@ -108,79 +108,76 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Services
                 return;
             try
             {
-                using (var client = new ImapClient())
+                using var client = new ImapClient();
+                client.Timeout = 10000000;
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                await client.ConnectAsync(AppSettings.Host, AppSettings.Port, SecureSocketOptions.SslOnConnect);
+                await client.AuthenticateAsync(AppSettings.EmailAddress, AppSettings.Password);
+
+
+                //параметры поиска      SearchQuery.DeliveredAfter(DateTime.Now.AddDays(-(AppSettings.FetchDays)))
+                SearchQuery searchQuery = SearchQuery.DeliveredAfter(DateTime.Now.AddDays(-10))
+                    .And(SearchQuery.FromContains("dnle@ct.nle.ru"))
+                    .And(SearchQuery.NotSeen);
+
+                // Получаем и открываем папку releaseNle
+                var releaseNleFolder = await client.Inbox.GetSubfolderAsync("releaseNle");
+                await releaseNleFolder.OpenAsync(FolderAccess.ReadWrite);
+
+                // Выполняем поиск в нужной папке
+                var uids = await releaseNleFolder.SearchAsync(searchQuery);
+                if (!uids.Any())
+                    return;
+
+                Console.WriteLine("uids " + uids.Count);
+
+                var items = MessageSummaryItems.BodyStructure | MessageSummaryItems.UniqueId;
+                var matched = new UniqueIdSet(); //targeted list - messages with attachment(s)
+                foreach (var msg in await releaseNleFolder.FetchAsync(uids, items))
                 {
+                    if (msg.BodyParts.Any(x => x.IsAttachment)) matched.Add(msg.UniqueId);
+                }
+                //time to retrieve attachemnts
+                if (matched is null) return;
+                Console.WriteLine("matched " + matched.Count);
 
-                    client.Timeout = 10000000;
-                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-                    await client.ConnectAsync(AppSettings.Host, AppSettings.Port, SecureSocketOptions.SslOnConnect);
-                    client.Authenticate(AppSettings.EmailAddress, AppSettings.Password);
+                MimeMessage message;
+                IMailFolder DestinationFolder = null;
 
 
-                    // The Inbox folder is always available on all IMAP servers...
-                    var inbox = client.Inbox;
-                    inbox.Open(FolderAccess.ReadWrite);
+                foreach (var item in matched)
+                {
+                    message = await releaseNleFolder.GetMessageAsync(item);
 
-                    Console.WriteLine("connected");
+                    var fileContent = CatchAttachment(message, new[] { "xml" });
 
-                    //параметры поиска      SearchQuery.DeliveredAfter(DateTime.Now.AddDays(-(AppSettings.FetchDays)))
-                    SearchQuery searchQuery = SearchQuery.DeliveredAfter(DateTime.Now.AddDays(-10))
-                                                          .And(SearchQuery.FromContains("dnle@ct.nle.ru"))
-                                                          .And(SearchQuery.NotSeen);
-
-                    //filter unseen messages recd from 
-                    var uids = client.Inbox.Search(searchQuery);
-                    Console.WriteLine("uids " + uids.Count);
-
-                    var items = MessageSummaryItems.BodyStructure | MessageSummaryItems.UniqueId;
-                    var matched = new UniqueIdSet(); //targeted list - messages with attachment(s)
-                    foreach (var msg in inbox.Fetch(uids, items))
+                    if (string.IsNullOrWhiteSpace(fileContent.Item1))
+                        continue;
+                    var emailLogRecord = new EmailLogRecord()
                     {
-                        if (msg.BodyParts.Any(x => x.IsAttachment)) matched.Add(msg.UniqueId);
-                    }
-                    //time to retrieve attachemnts
-                    if (matched is null) return;
-                    Console.WriteLine("matched " + matched.Count);
+                        EmailSubject = message.Subject.ToString(),
+                        From = message.From.ToString(),
+                        DateReciept = message.Date.DateTime,
+                        FileContent = fileContent.Item2,
+                        FileName = fileContent.Item1,
+                        Type = EmailLogRecordType.ResponseTerminal,
+                    };
 
-                    MimeMessage message;
-                    IMailFolder DestinationFolder = null;
+                    db.Entry(emailLogRecord).State = EntityState.Added;
+                    await db.SaveChangesAsync();
+                    db.ChangeTracker.Clear();
 
-
-                    foreach (var item in matched)
-                    {
-                        message = inbox.GetMessage(item);
-
-                        var fileContent = CatchAttachment(message, new[] { "xml" });
-
-                        if (string.IsNullOrWhiteSpace(fileContent.Item1))
-                            continue;
-                        var emailLogRecord = new EmailLogRecord()
-                        {
-                            EmailSubject = message.Subject.ToString(),
-                            From = message.From.ToString(),
-                            DateReciept = message.Date.DateTime,
-                            FileContent = fileContent.Item2,
-                            FileName = fileContent.Item1,
-                            Type = EmailLogRecordType.ResponseTerminal,
-                        };
-
-                        db.Entry(emailLogRecord).State = EntityState.Added;
-                        await db.SaveChangesAsync();
-                        db.ChangeTracker.Clear();
-
-                        inbox.AddFlags(item, MessageFlags.Seen, true);
+                    await releaseNleFolder.AddFlagsAsync(item, MessageFlags.Seen, true);
 
 
-                    }
-
-                } // using(var client)
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 appObjectResponse.ErrorAdd(ex.Message);
             }
-            return;
+
         }
 
         public async Task CheckReleaseImportResponseAsync(ApplicationDbContext db)

@@ -133,7 +133,7 @@ public class XmlFileReadService : IXmlFileReadService
                                                                                     case "catESAD_cu:GoodsTNVEDCode":
                                                                                         dto.CommodityHSCode = goodsItemDetails.InnerText; break;
                                                                                     case "catESAD_cu:GoodsDescription":
-                                                                                        goods.Append($"{goodsItemDetails.InnerText}" + ' '); break;   //dto.CommodityName = goodsItemDetails.InnerText; break;
+                                                                                        goods.Append($"{goodsItemDetails.InnerText}" + ' '); break;
                                                                                     case "catESAD_cu:GrossWeightQuantity":
                                                                                         dto.GrossWt = goodsItemDetails.InnerText; break;
                                                                                     case "catESAD_cu:NetWeightQuantity":

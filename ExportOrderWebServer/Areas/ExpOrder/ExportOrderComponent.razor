@@ -123,11 +123,14 @@
                 </MudTooltip>
             </MudTh>
             <MudTh Style="max-width:50px">XML</MudTh>
-            <MudTh Style="max-width:50px">Rolis</MudTh>
-            <MudTh Style="width:130px">                
+            <MudTh Style="max-width:52px">Rolis</MudTh>
+            <MudTh Style="width:126px">                
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
-                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
-                                   Size="Size.Small" OnClick="@(async () => await SaveFilesPdf_Click("Bill"))" />
+                    <MudButton Class="Button" Size="Size.Small" Color="Color.Primary" OnClick="@(async () => await SaveFilesPdf_Click("Bill"))"
+                               Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save"
+                               Disabled="@(IsLoadingData || SelectedItems.Count == 0)">
+                        Save B/L
+                    </MudButton>                    
                 </MudTooltip>
             </MudTh>
             <MudTh Style="width:160px">
@@ -136,24 +139,23 @@
             <MudTh Style="width:80px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=> x.Dated!)">Dated</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:230px">
+            <MudTh Style="width:220px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Vessel!)">Vessel</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:110px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.VoyageNo!)">Voyage</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:200px">POD</MudTh>
-            <MudTh Style="width:200px; text-align:start">
+            <MudTh Style="width:180px">POD</MudTh>
+            <MudTh Style="text-align:start">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Carrier!)">Carrier</MudTableSortLabel>                
             </MudTh>
-            <MudTh Style="width:110px">Terminal</MudTh>
-            <MudTh Style="width:50px">IMO</MudTh>
+            <MudTh Style="width:80px">Terminal</MudTh>
+            <MudTh Style="width:45px">IMO</MudTh>
             <MudTh Style="width:64px">Empty</MudTh>
             <MudTh Style="width:100px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="min-width:20px"></MudTh>
-            <MudTh Style="width:42px"></MudTh>            
+            <MudTh Style="max-width:45px">Del</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>
@@ -181,11 +183,14 @@
                 </MudTooltip>
             </MudTd>
             <MudTd>
-                <MudButton Class="Button" OnClick="@(async()=>{ await ViewReportBL_Click(context.Id); })"
-                Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                StartIcon="@Icons.Material.Filled.Preview">
-                    view BL
-                </MudButton>
+                <MudTooltip Delay="1500" Duration="1000" Text="View pdf BL">
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Preview"
+                                   Size="Size.Small" OnClick="@(async () => await ViewReportBL_Click(context.Id))" />
+                </MudTooltip>
+                <MudTooltip Delay="1500" Duration="1000" Text="View pdf XXL_BL">
+                    <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Expand"
+                                   Size="Size.Small" OnClick="@(async () => await ViewReportBL_Click(context.Id, true))" />
+                </MudTooltip>
             </MudTd>
             <MudTd>@context.Num</MudTd>
             <MudTd>@(context.Dated.HasValue ? context.Dated.Value.ToString("dd.MM.yy") : "")</MudTd>
@@ -206,12 +211,11 @@
                     <MudTooltip Text="Empty"><MudIcon Icon="@Icons.Material.Outlined.Battery1Bar"></MudIcon></MudTooltip>
                 }
             </MudTd>
-            <MudTd>@context.Status.ToString()</MudTd>
-            <MudTd></MudTd>
-            <MudTd>
+            <MudTd>@context.Status.ToString()</MudTd>            
+            <MudTd Style="align-content:flex-end">
                 <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || !IsRoleForEdit)"
                                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
-                               OnClick="@(async()=>{ await RemoveItem_Click(context.Id, context.Num); })" />
+                               OnClick="@(async()=>await RemoveItem_Click(context.Id, context.Num))" />
             </MudTd>            
         </RowTemplate>
         <PagerContent></PagerContent>
@@ -367,9 +371,9 @@
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 
-    private async Task ViewReportBL_Click(long id)
+    private async Task ViewReportBL_Click(long id, bool? isExtraHeight = null)
     {
-        string path = $"{ApplicationParameter.ViewReportUrl}ViewReportBL?Id={id}";
+        string path = $"{ApplicationParameter.ViewReportUrl}ViewReportBL?Id={id}&&IsExtraHeight={isExtraHeight}";
         await jsRuntime.InvokeVoidAsync("open", path);
     }
 

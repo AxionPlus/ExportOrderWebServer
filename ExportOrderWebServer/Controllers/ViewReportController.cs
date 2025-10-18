@@ -99,7 +99,7 @@ public class ViewReportController : ControllerBase
 
     [HttpGet]
     [Route("ViewReportBL")]
-    public async Task<IActionResult> ViewReportBL(long Id)
+    public async Task<IActionResult> ViewReportBL(long Id, bool? IsExtraHeight)
     {
         var ids = new List<long>() { Id };
 
@@ -111,7 +111,10 @@ public class ViewReportController : ControllerBase
 
         if (Item is null) return BadRequest("Records not found.");
 
-        string fileName = string.Concat("BL", Item.BLtemplate, ".rdlc");
+        //string fileName = string.Concat("BL", Item.BLtemplate, ".rdlc");
+        string fileName = string.Concat("BL", Item.BLtemplate,
+                                        IsExtraHeight.HasValue ? "_BigShipper" : string.Empty,
+                                        ".rdlc");
 
         try
         {

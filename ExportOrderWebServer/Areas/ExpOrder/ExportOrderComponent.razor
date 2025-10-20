@@ -108,22 +108,25 @@
         <TablePager T="ExportOrderComponentDTO" Table="mudTable" ItemsCount="@Items.Count()" />
     </div>    
     <MudTable Class="Table" @ref="mudTable" Items="@Items" Loading="IsLoadingData" @bind-SelectedItems="SelectedItems"
-    Virtualize="true" RowsPerPage="15" MultiSelection="true" SelectOnRowClick="false">
+              Virtualize="true" RowsPerPage="15" MultiSelection="true" SelectOnRowClick="false">
+        <ColGroup>
+            <col style="width: 30px;" /> <!-- Фиксированная ширина первого столбца -->
+        </ColGroup>
         <HeaderContent>
-            <MudTh Style="max-width:45px">
+            <MudTh Style="width:45px">
                 <MudTooltip Delay="500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.TransferWithinAStation" Disabled="@(!SelectedItems.Any())"
                                    Size="Size.Small" Color="Color.Secondary" OnClick="SetNewVesselCall" />
                 </MudTooltip>
             </MudTh>
-            <MudTh Style="max-width:45px">
+            <MudTh Style="width:45px">
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
                     <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Save" Disabled="@(IsLoadingData || SelectedItems.Count == 0)"
                                    Size="Size.Small" OnClick="@(async () => await SaveFilesPdf_Click("Order"))" />
                 </MudTooltip>
             </MudTh>
-            <MudTh Style="max-width:50px">XML</MudTh>
-            <MudTh Style="max-width:52px">Rolis</MudTh>
+            <MudTh Style="width:50px">XML</MudTh>
+            <MudTh Style="width:52px">Rolis</MudTh>
             <MudTh Style="width:126px">                
                 <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
                     <MudButton Class="Button" Size="Size.Small" Color="Color.Primary" OnClick="@(async () => await SaveFilesPdf_Click("Bill"))"
@@ -146,7 +149,7 @@
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.VoyageNo!)">Voyage</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:180px">POD</MudTh>
-            <MudTh Style="text-align:start">
+            <MudTh Style="min-width:130px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Carrier!)">Carrier</MudTableSortLabel>                
             </MudTh>
             <MudTh Style="width:80px">Terminal</MudTh>
@@ -155,7 +158,7 @@
             <MudTh Style="width:100px">
                 <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x=>x.Status!)">Status</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="max-width:45px">Del</MudTh>
+            <MudTh Style="width:45px">Del</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>
@@ -197,7 +200,7 @@
             <MudTd>@context.Vessel</MudTd>
             <MudTd>@context.VoyageNo</MudTd>
             <MudTd>@context.POD</MudTd>
-            <MudTd Style="text-align:start">@context.Carrier</MudTd>
+            <MudTd>@context.Carrier</MudTd>
             <MudTd>@(context.Terminal ?? "---")</MudTd>
             <MudTd>
                 @if (context.IsImo.Equals(true))
@@ -216,7 +219,7 @@
                 <MudIconButton Class="wrapper-iconbutton" Disabled="@(IsLoadingData || !IsRoleForEdit)"
                                Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
                                OnClick="@(async()=>await RemoveItem_Click(context.Id, context.Num))" />
-            </MudTd>            
+            </MudTd>
         </RowTemplate>
         <PagerContent></PagerContent>
     </MudTable>

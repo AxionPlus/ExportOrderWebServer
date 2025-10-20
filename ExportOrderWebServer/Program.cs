@@ -64,7 +64,7 @@ services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJ
 {
     // options
 });
-#if DEBUG
+#if !DEBUG
 services.AddHostedService<TimedHostedService>();
 #endif
 services.AddRazorPages();
@@ -111,9 +111,6 @@ services.AddTransient<IXmlFileReadService, XmlFileReadService>();
 services.AddTransient<IPdfFileCreateService, PdfFileCreateService>();
 services.AddTransient<IReleaseService, ReleaseService>();
 
-#if DEBUG
-
-#endif
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

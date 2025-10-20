@@ -209,7 +209,7 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Services
                         var sentItem = sentItems.FirstOrDefault();
                         if (sentItem is not null)
                         {
-                            if (sentItem.ReleaseMode == ReleaseMode.Create)
+                            if (sentItem.ReleaseMode == ReleaseMode.Create )
                             {
                                 if (!string.IsNullOrWhiteSpace(response.GeneratedDocumentID))
                                 {
@@ -221,6 +221,10 @@ namespace ExportOrderWebServer.Areas.Import.ReleaseRecords.Services
                                     //    db.Entry(sentItemCustomerRecord).State = EntityState.Modified;
                                     //}
                                 }
+                            }
+                            else if (sentItem.ReleaseMode == ReleaseMode.Update)
+                            {
+                                sentItem.ReleaseStatus = ReleaseStatus.ConfirmedTerminal;
                             }
                             else if (sentItem.ReleaseMode == ReleaseMode.Reject)
                             {

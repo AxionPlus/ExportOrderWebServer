@@ -1,0 +1,115 @@
+﻿@* PortEditForm.razor *@
+@using ExportOrderWebServer.Areas.ImportDocument.Port.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Port.Services
+@using FluentValidation
+
+@inject IPortService PortService
+@inject IValidator<PortDto> Validator
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Port</PageTitle>
+
+@if (PortDto.IsNew)
+{
+    <ToolBar Label="Port" OnSave="OnSave"></ToolBar>
+}
+else
+{
+    <ToolBar Label="Port" OnRefresh="OnRefresh" OnSave="OnSave"></ToolBar>
+}
+
+<Container Rows>
+    <MudForm @ref="mudForm" Validation="@Validator">
+        <TextField Label="Name (Russian)" @bind-Value="PortDto.NameRu" Required />
+        <TextField Label="Name (English)" @bind-Value="PortDto.NameEn" />
+        <TextField Label="Country (Russian)" @bind-Value="PortDto.CountryRu" Required />
+        <TextField Label="Country (English)" @bind-Value="PortDto.CountryEn" />
+        <TextField Label="ISO Code" @bind-Value="PortDto.IsoCode" Required />
+        <TextField Label="Auxiliary ISO Code" @bind-Value="PortDto.AuxIsoCode" />
+        <TextField Label="PikYug ISO Code" @bind-Value="PortDto.PikYugIsoCode" />
+        
+        <!-- Display calculated fields -->
+        <MudText Typo="Typo.subtitle2" Class="mt-3">Full Names:</MudText>
+        <MudText>Russian: @PortDto.FullRu</MudText>
+        <MudText>English: @PortDto.FullEn</MudText>
+    </MudForm>
+</Container>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    [Parameter]
+    public PortDto PortDto { get; set; } = new PortDto();
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+    bool IsLoading;
+    MudForm? mudForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PortDto == null)
+        {
+            PortDto = new PortDto();
+        }
+    }
+
+    private async Task OnSave()
+    {
+        await mudForm?.Validate();
+
+        if (!mudForm.IsValid)
+        {
+            return;
+        }
+
+        try
+        {
+            IsLoading = true;
+
+            if (PortDto.IsNew)
+            {
+                await PortService.CreateAsync(PortDto);
+                Snackbar.Add("Port created successfully", MudBlazor.Severity.Success);
+            }
+            else
+            {
+                await PortService.UpdateAsync(PortDto);
+                Snackbar.Add("Port updated successfully", MudBlazor.Severity.Success);
+            }
+
+            // Close dialog or navigate back
+             MudDialog?.Close();
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"Error: {e.Message}", MudBlazor.Severity.Error);
+            Console.WriteLine(e);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task OnRefresh()
+    {
+        IsLoading = true;
+        try
+        {
+            if (!PortDto.IsNew)
+            {
+                PortDto = await PortService.GetByIdAsync(PortDto.Id);
+            }
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"Error refreshing: {e.Message}", MudBlazor.Severity.Error);
+            Console.WriteLine(e);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

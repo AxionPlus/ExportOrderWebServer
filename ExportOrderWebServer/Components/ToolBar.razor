@@ -1,0 +1,138 @@
+﻿@inject IJSRuntime JSRuntime
+<style>
+    .filterToggle {
+        transition: all 0.5s ease;
+    }
+</style>
+<div class="ToolBar-container">
+    <MudToolBar Class="ToolBar ToolBar-new" Style="background: radial-gradient(circle at center, #c1dee8 0%, #f4fcff 100%);">
+        @if (MudDialog is not null)
+        {
+            <div class="ToolBar-iconbutton">
+                <MudTooltip Text="EXIT">
+                    <MudIconButton Class="ToolBar-IconButton" Style="transform: rotate(180deg);" OnClick="CloseDialogOrPage"
+                                   Icon="@Icons.Material.Outlined.ExitToApp" />
+                </MudTooltip>
+            </div>
+        }
+        else
+        {
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+        }
+        @if (FilterToggle.HasValue)
+        {
+            @if (!FilterToggle.Value)
+            {
+                <div class="ToolBar-iconbutton filterToggle">
+
+                    <MudTooltip Text="show filter">
+                        <MudIconButton Class="ToolBar-IconButton" OnClick="Toggle" Color="Color.Info"
+                                       Icon="@Icons.Material.Outlined.FilterAlt" />
+                    </MudTooltip>
+                </div>
+            }
+            else
+            {
+                <div class="ToolBar-iconbutton filterToggle">
+
+                    <MudTooltip Text="hidden filter">
+                        <MudIconButton Class="ToolBar-IconButton" OnClick="Toggle" Color="Color.Error"
+                                       Icon="@Icons.Material.Outlined.FilterAltOff" />
+                    </MudTooltip>
+                </div>
+            }
+
+
+        }
+
+        @if (OnRefresh.HasDelegate)
+        {
+            <ToolBarIconButton TooltipText="Refresh" Icon="@Icons.Material.Outlined.Refresh" Color="Color.Info" OnClick="OnRefresh" Style="margin-inline-end:20px" />
+        }
+        @if (OnCopy.HasDelegate)
+        {
+            <ToolBarIconButton TooltipText="Copy" Icon="@Icons.Material.Outlined.CopyAll" Color="Color.Warning" OnClick="OnCopy" Style="margin-inline-end:20px" />
+        }
+
+
+        @LeftContent
+        <MudSpacer />
+        <div class="ToolBar-Title"><span>@Label</span></div>
+        <MudSpacer />
+
+        @if (OnNew.HasDelegate)
+        {
+            <ToolBarIconButton TooltipText="New record" Color="Color.Primary" Icon="@Icons.Material.Outlined.AddBox" OnClick="OnNew" />
+        }
+        @if (OnSave.HasDelegate)
+        {
+            <AuthorizeView Policy="@OnSavePolicy">
+                <ToolBarIconButton TooltipText="Save record" Color="Color.Success" Icon="@Icons.Material.Outlined.Save" OnClick="OnSave" />
+            </AuthorizeView>
+        }
+        @if (OnDelete.HasDelegate)
+        {
+            <AuthorizeView Policy="@OnDeletePolicy">
+                <ToolBarIconButton TooltipText="Save record" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="OnDelete" />
+            </AuthorizeView>
+        }
+        @RightContent
+    </MudToolBar>
+</div>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+    [Parameter]
+    public RenderFragment RightContent { get; set; }
+    [Parameter]
+    public RenderFragment LeftContent { get; set; }
+    [Parameter]
+    public string? Style { get; set; }
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public bool? FilterToggle { get; set; }
+
+    [Parameter]
+    public EventCallback<bool?> FilterToggleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    [Parameter]
+    public EventCallback OnCopy { get; set; }
+
+    [Parameter]
+    public EventCallback OnNew { get; set; }
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+    [Parameter]
+    public string? OnSavePolicy { get; set; }
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+    [Parameter]
+    public string? OnDeletePolicy { get; set; }
+
+    async void Toggle()
+    {
+        FilterToggle = !FilterToggle;
+
+        await FilterToggleChanged.InvokeAsync(FilterToggle);
+        await Task.Delay(1050);
+        await JSRuntime.InvokeVoidAsync("calculateTableHeight");
+    }
+
+    private void CloseDialogOrPage()
+    {
+        if (MudDialog != null)
+            MudDialog!.Close();
+        else
+            JSRuntime.InvokeVoidAsync("closeWindow");
+    }
+}

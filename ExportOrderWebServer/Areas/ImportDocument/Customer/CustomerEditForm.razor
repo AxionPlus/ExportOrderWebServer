@@ -1,0 +1,274 @@
+﻿@* CustomerEditForm.razor *@
+@using ExportOrderEntites.ImportDocument
+@using ExportOrderWebServer.Areas.ImportDocument.Customer.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Customer.Services
+@using FluentValidation
+
+@inject ICustomerService CustomerService
+@inject IValidator<CustomerDto> Validator
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>@Title</PageTitle>
+
+@if (CustomerDto.IsNew)
+{
+    <ToolBar Label="@Title" OnSave="OnSave"></ToolBar>
+}
+else
+{
+    <ToolBar Label="@Title" OnRefresh="OnRefresh" OnSave="OnSave"></ToolBar>
+}
+
+<Container Rows>
+    <MudForm @ref="mudForm" Validation="@Validator" @bind-IsValid="@_isFormValid">
+        <MudGrid>
+            <!-- Left Column -->
+            <MudItem xs="12" md="6">
+                <MudCard Class="mb-4">
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">Basic Information</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <TextField Label="Customer Code *"  MaxLength="10"
+                                  @bind-Value="CustomerDto.Code" 
+                                  Required 
+                                  OnBlur="CheckCodeAvailability" />
+                        
+                        @if (_codeCheckInProgress)
+                        {
+                            <MudProgressLinear Color="Color.Info" Indeterminate="true" Class="mt-2" />
+                        }
+                        else if (!string.IsNullOrEmpty(_codeCheckMessage))
+                        {
+                            <MudText Typo="Typo.caption" Color="@(_isCodeAvailable ? Color.Success : Color.Error)" Class="mt-2">
+                                @_codeCheckMessage
+                            </MudText>
+                        }
+                        
+                        <TextField Label="Full Name *" 
+                                  @bind-Value="CustomerDto.FullName" 
+                                  Required 
+                                  Class="mt-3" />
+                        
+                        <TextField Label="Name *" 
+                                  @bind-Value="CustomerDto.Name" 
+                                  Required 
+                                  Class="mt-3" />
+                        <TextField Label="Address *" 
+                                   @bind-Value="CustomerDto.Address" 
+                                   Required 
+                                   Lines="3" 
+                        />
+                
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            
+            <!-- Right Column -->
+            <MudItem xs="12" md="6">
+                <MudCard Class="mb-4">
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">Basic Information RU</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <TextField Label="Name (Russian)" 
+                                   @bind-Value="CustomerDto.NameRu" 
+                                   Class="mt-3" />
+                        <TextField Label="Address (Russian)" 
+                                     @bind-Value="CustomerDto.AddressRu" 
+                                     Lines="3" 
+                                     Class="mt-3" />
+                        
+                        <Select T="BaseEntityStatus" 
+                                  Label="Status *" 
+                                  @bind-Value="CustomerDto.Status" 
+                                  Required>
+                            <MudSelectItem Value="@BaseEntityStatus.New">New</MudSelectItem>
+                            <MudSelectItem Value="@BaseEntityStatus.Checked">Checked</MudSelectItem>
+                            <MudSelectItem Value="@BaseEntityStatus.Completed">Completed</MudSelectItem>
+                            <MudSelectItem Value="@BaseEntityStatus.Canceled">Canceled</MudSelectItem>
+                        </Select>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            
+            <!-- Display Information -->
+            <MudItem xs="12">
+                <MudCard Class="mb-4">
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">Display Information</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudGrid>
+                            <MudItem xs="12" md="4">
+                                <MudText Typo="Typo.subtitle2">Display Name:</MudText>
+                                <MudText>@CustomerDto.DisplayName</MudText>
+                            </MudItem>
+                            <MudItem xs="12" md="4">
+                                <MudText Typo="Typo.subtitle2">Display Address:</MudText>
+                                <MudText>@CustomerDto.DisplayAddress</MudText>
+                            </MudItem>
+                            <MudItem xs="12" md="4">
+                                <MudText Typo="Typo.subtitle2">Full Display:</MudText>
+                                <MudText>@CustomerDto.FullDisplay</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+</Container>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    [Parameter]
+    public CustomerDto CustomerDto { get; set; } = new CustomerDto();
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+    bool IsLoading;
+    MudForm? mudForm;
+    private string Title => CustomerDto.IsNew ? "New Customer" : "Edit Customer";
+    private bool _isFormValid;
+    private bool _codeCheckInProgress;
+    private string? _codeCheckMessage;
+    private bool _isCodeAvailable = true;
+    private string? _originalCode;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    private async Task CheckCodeAvailability()
+    {
+        if (string.IsNullOrWhiteSpace(CustomerDto.Code))
+        {
+            _codeCheckMessage = null;
+            _isCodeAvailable = true;
+            return;
+        }
+
+        // Don't check if code hasn't changed for existing customer
+        if (!CustomerDto.IsNew && CustomerDto.Code == _originalCode)
+        {
+            _codeCheckMessage = null;
+            _isCodeAvailable = true;
+            return;
+        }
+
+        _codeCheckInProgress = true;
+        StateHasChanged();
+
+        try
+        {
+            var exists = await CustomerService.ExistsByCodeAsync(CustomerDto.Code);
+            
+            if (exists)
+            {
+                _codeCheckMessage = $"Customer with code '{CustomerDto.Code}' already exists";
+                _isCodeAvailable = false;
+            }
+            else
+            {
+                _codeCheckMessage = $"Code '{CustomerDto.Code}' is available";
+                _isCodeAvailable = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _codeCheckMessage = $"Error checking code availability: {ex.Message}";
+            _isCodeAvailable = false;
+        }
+        finally
+        {
+            _codeCheckInProgress = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnSave()
+    {
+        if (mudForm == null) return;
+        
+        await mudForm.Validate();
+
+        if (!_isFormValid || !_isCodeAvailable)
+        {
+            if (!_isCodeAvailable)
+            {
+                Snackbar.Add("Please choose a unique customer code", MudBlazor.Severity.Error);
+            }
+            return;
+        }
+
+        try
+        {
+            IsLoading = true;
+
+            if (CustomerDto.IsNew)
+            {
+                // Set default values for new customer
+                if (CustomerDto.Id == Guid.Empty)
+                    CustomerDto.Id = Guid.NewGuid();
+                
+                if (CustomerDto.CreatedAt == default)
+                    CustomerDto.CreatedAt = DateTimeOffset.UtcNow;
+                
+                if (CustomerDto.Status == default)
+                    CustomerDto.Status = BaseEntityStatus.New;
+                
+                if (CustomerDto.Version == 0)
+                    CustomerDto.Version = 1;
+
+                await CustomerService.CreateAsync(CustomerDto);
+                Snackbar.Add("Customer created successfully", MudBlazor.Severity.Success);
+            }
+            else
+            {
+                await CustomerService.UpdateAsync(CustomerDto);
+                Snackbar.Add("Customer updated successfully", MudBlazor.Severity.Success);
+            }
+
+            // Close dialog
+             MudDialog?.Close();
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving customer: {ex.Message}", MudBlazor.Severity.Error);
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task OnRefresh()
+    {
+        if (CustomerDto.IsNew) return;
+        
+        IsLoading = true;
+        try
+        {
+            CustomerDto = await CustomerService.GetByIdAsync(CustomerDto.Id);
+            _originalCode = CustomerDto.Code;
+            await CheckCodeAvailability();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error refreshing: {ex.Message}", MudBlazor.Severity.Error);
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

@@ -1,0 +1,62 @@
+﻿
+<style>
+
+    .container-content {
+        overflow: hidden;
+        transition: max-height 0.8s ease-in-out, opacity 1s ease;
+        max-height: 0;
+        opacity: 0;
+    }
+
+    .forItem {
+        background-color: var(--containerItemBackGround);
+    }
+
+    .container-content.visible {
+        max-height: 1000px; /* Достаточно большое значение */
+        opacity: 1;
+    }
+
+    .container-content.hidden {
+        max-height: 0;
+        opacity: 0;
+        padding: 0px !important;
+    }
+
+    .container-content.visible.rows {
+        flex-direction: column;
+        align-items: stretch;
+    }
+</style>
+
+<div class="Container-item @(ForItem ? "forItem" : "")" style="@Style">
+    <div class="container-head">
+        @Header
+    </div>
+    <div class="container-content @(ToggleContent.HasValue? ToggleContent.Value ? "visible" : "hidden": "visible") @(Rows ? "rows" : "")">
+        @ChildContent
+    </div>
+
+</div>
+@code {
+    [Parameter]
+    public bool ForItem { get; set; }
+
+    [Parameter]
+    public bool Rows { get; set; }
+    [Parameter]
+    public bool? ToggleContent { get; set; } = true;
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment Header { get; set; }
+
+
+
+
+}

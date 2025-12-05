@@ -1,13 +1,37 @@
 body {
-    height: 100vh;
+    background-image: url("media/background-image-XDXH6SJW.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh
 }
 
 :root {
     --mud-palette-primary: #3592b4 !important;
-    --containerBackGround: #f3f3f3 !important;
-    --tableThead: lightskyblue;
+    --containerBackGround: #f8fafbf2 !important;
+    --containerItemBackGround: #f4fcff !important;
+    --tableThead: #c7e2eb;
+    --mud-appbar-height: 5px !important;
 }
 
+
+.mud-drawer-fixed.mud-drawer-mini.mud-drawer-clipped-always, .mud-drawer-fixed.mud-drawer-persistent:not(.mud-drawer-clipped-never), .mud-drawer-fixed.mud-drawer-responsive.mud-drawer-clipped-always, .mud-drawer-fixed.mud-drawer-temporary.mud-drawer-clipped-always {
+    top: unset !important;
+    
+    height: 100% !important;
+    
+}
+.mud-drawer.mud-drawer-mini.mud-drawer-pos-left.mud-drawer--open {
+    width: var(--mud-drawer-width-mini-left) !important;
+}
+
+.mud-dialog {
+    border: 5px ridge #8bb9c8;
+    border-radius: 10px;
+}
+.dialog-blurry {
+    backdrop-filter: blur(10px);
+}
 .Page-container {
     display: flex;
     position: relative;
@@ -24,7 +48,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
-    box-shadow: var(--mud-elevation-1);
+    box-shadow: var(--mud-elevation-2);
     background-color: var(--containerBackGround);
 }
 
@@ -41,13 +65,12 @@ body {
         }
 
     .Container-item > .container-content {
-        padding: 10px;
+        padding: 10px 10px 15px 10px;
         width: 100%;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        background-color: var(--grey-08);
     }
 
     .Container-item * .container-content {
@@ -80,9 +103,6 @@ body {
     box-shadow: var(--mud-elevation-1);
 }
 
-.mud-input-control {
-    flex:unset;
-}
 
 .Tabs {
 }
@@ -96,6 +116,22 @@ body {
         min-height: 36px;
     }
 
+.PageSelector {
+    margin: auto;
+}
+
+    .PageSelector * .mud-input > input.mud-input-root-outlined, .PageSelector * div.mud-input-slot.mud-input-root-outlined {
+        padding: unset;
+        padding-left: 3px;
+        text-align: center;
+        font-size: 0.94em;
+    }
+
+    .PageSelector * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-right: 0px;
+    }
+
+
 /*TOOLBAR*/
 .ToolBar-container {
     color: var(--mud-palette-text-primary);
@@ -105,6 +141,7 @@ body {
     position: sticky;
     top: 0px;
     z-index: 999;
+    padding-top:3px;
 }
 
 .mud-toolbar.ToolBar {
@@ -170,24 +207,15 @@ body {
     }
 }
 
-/*TOOLTIP*/
-.mud-tooltip-root {
-    height: fit-content;
-}
 
-/*SELECT*/
 .Select {
 }
 
-.mud-select {
-    flex-grow:inherit;
-}
-
 .mud-select.Select .mud-input.mud-input-outlined.mud-input-adorned-end {
-    padding-inline-end: 2px;
+    padding-inline-end: 3px;
 }
 
-/*TEXT_FIELD*/
+
 .TextField {
 }
 
@@ -205,19 +233,6 @@ body {
 
     .TextField .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
         line-height: 16px;
-    }       
-
-    .TextField.Numeric * .mud-input > input.mud-input-root-outlined {
-        text-align: end;
-    }
-
-    .TextField.Quantity * .mud-input > input.mud-input-root-outlined {
-        text-align: center;
-    }
-
-    .TextField.Weight * .mud-input > input.mud-input-root-outlined {
-        padding: 3px;
-        text-align: end;
     }
 
     .TextField .mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined, .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol.mud-input-label-outlined {
@@ -238,6 +253,10 @@ body {
         background-color: var(--containerBackGround)
     }
 
+    .TextField > .mud-input-control > .mud-input-control-input-container > .mud-input-label-outlined.mud-input-label-inputcontrol {
+        line-height: 16px;
+    }
+
     .TextField > .mud-input-control-input-container > .mud-input-label-inputcontrol {
         font-weight: 500;
     }
@@ -252,9 +271,13 @@ body {
 
     .TextField * .mud-input > textarea.mud-input-root-outlined {
         margin: 5px 8px;
+        padding: 0px 5px 10px;
     }
 
-/*TABLE*/
+    .TextField.Select * .mud-input-adornment-end {
+        margin-left: 3px;
+    }
+
 .Table {
 }
 
@@ -262,26 +285,13 @@ body {
         width: 30px;
     }
 
-    .Table.ItemTable * .mud-table-cell {
-        border-bottom: none;
-        padding: 4px;
-    }
-
-    .Table.P4 * .mud-table-cell {
-        padding: 4px;
-    }
-
-    .Table.P2 * .mud-table-cell {
-        padding: 2px;
-    }
-
     .Table * thead {
         background-color: var(--tableThead);
     }
 
-.mud-table-sticky-header * .mud-table-root .mud-table-head * .mud-table-cell {
-    background-color: var(--tableThead);
-}
+    .Table * .mud-table-sticky-header * thead {
+        background-color: var(--tableThead);
+    }
 
     .Table * .mud-table-row .mud-table-cell .CheckBox {
         display: flex;
@@ -290,79 +300,111 @@ body {
 
     .Table .mud-table-root .mud-table-head .mud-table-cell {
         color: var(--mud-palette-text-primary);
-        font-weight: 500;
+        font-weight: 550;
         text-align: center;
-        line-height: 1.1rem;
+        line-height: 1rem;
+        text-transform: uppercase;
     }
 
-    .Table * .mud-table-cell {
-        padding: 8px;
-        text-align: center;
+
+
+    .Table.Head-sticky .mud-table-head {
+        position: sticky;
+        top: 0;
+        z-index: 100;
     }
 
-    .Table * .mud-table-cell *.mud-input-control {
-        margin-top: unset;
-        margin-bottom: unset;
+    .Table.Head-sticky .mud-table-container {
+        overflow-y: auto;
     }
 
-    .Table * .mud-table-cell * .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-right: unset;
-        padding-inline-end: unset;
-        padding-inline-start: unset;
+
+.mud-table-sticky-header * .mud-table-root .mud-table-head * .mud-table-cell {
+    background-color: var(--tableThead);
+}
+
+.Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined, .Table .mud-table-root * .mud-table-head .mud-table-cell div.mud-input-slot.mud-input-root-outlined {
+    padding: 4px 0px 1px 6px;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.Table * .mud-table-cell * .mud-input > input.mud-input-root-outlined, .Table * .mud-table-cell * div.mud-input-slot.mud-input-root-outlined {
+    padding: 4px 0px 1px 6px;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.Table * .mud-table-cell *.mud-input-control {
+    margin-top: unset;
+}
+
+.Table * .mud-table-cell * .mud-input.mud-input-outlined.mud-input-adorned-end {
+    padding-right: 0px;
+    padding-inline-end: 8px;
+    padding-inline-start: unset;
+}
+
+.Table * .mud-table-cell * .mud-select .mud-input.mud-input-outlined.mud-input-adorned-end {
+    padding-inline-end: 0px;
+}
+
+.Table * .mud-table-cell > .mud-picker * .mud-input-adornment-end {
+    margin-inline-start: 0px;
+}
+
+.Table * .mud-table-cell .mud-icon-button {
+    padding: 2px !important;
+}
+
+.Table * .mud-table-cell * .mud-icon-size-medium {
+    font-size: 1.3rem;
+}
+
+.Table * .mud-table-cell > .mud-table-sort-label .mud-icon-size-medium {
+    font-size: 1rem;
+    margin: 0px;
+}
+
+.Table.P4 * .mud-table-cell {
+    padding: 4px !important;
+}
+
+.Table.P2 * .mud-table-cell {
+    padding: 2px !important;
+}
+
+.Table * .mud-table-cell {
+    padding: 8px;
+    text-align: center;
+}
+
+    .Table * .mud-table-cell .mud-input-control * .mud-icon-button {
+        padding: 0px;
     }
 
-    .Table * .mud-table-cell * .mud-select .mud-input.mud-input-outlined.mud-input-adorned-end {
-        padding-inline-end: 0px;
+    .Table * .mud-table-cell .mud-input-control * .mud-icon-size-small {
+        font-size: 1.1rem;
+        margin-top: 2px;
     }
 
-    .Table * .mud-table-cell > .mud-picker * .mud-input-adornment-end {
-        margin-inline-start: 0px;
+    .Table * .mud-table-cell .mud-input-control * .mud-icon-button-edge-margin-end {
+        margin-right: 5px;
+        margin-inline-end: 5px;
     }
 
-    .Table * .mud-table-cell .mud-icon-button {
-        padding: 2px;
-    }
-
-    .Table * .mud-table-cell * .mud-icon-size-medium {
-        font-size: 1.3rem;
-    }
-
-    .Table * .mud-table-cell > .mud-table-sort-label .mud-icon-size-medium {
-        font-size: 1rem;
+    .Table * .mud-table-cell .mud-checkbox {
         margin: 0px;
     }
 
+    .Table * .mud-table-cell .mud-autocomplete .mud-input-control * .mud-icon-button {
+        margin-right: 2px;
+    }
 
-/*        .Table * .mud-table-cell .mud-input-control * .mud-icon-button {
-            padding: 0px;
-        }*/
-
-        .Table * .mud-table-cell .mud-input-control * .mud-icon-size-small {
-            font-size: 1.1rem;
-            margin-top: 2px;
-        }
-
-        .Table * .mud-table-cell .mud-input-control * .mud-icon-button-edge-margin-end {
-            margin-right: 5px;
-            margin-inline-end: 5px;
-        }
-
-        .Table * .mud-table-cell .mud-checkbox {
-            margin: 0px;
-        }
-
-
-        .Table * .mud-table-cell .mud-autocomplete .mud-input-control * .mud-icon-button {
-            margin-right: 2px;
-        }
-
-        /*.Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
-            margin-inline-end: -8px;
-        }*/
-
-        .Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
-            margin-inline-end: 2px;
-        }
+    .Table * .mud-table-cell .mud-picker * .mud-icon-button-edge-end {
+        margin-inline-end: -8px;
+    }
+.Table * tr:first-child td 
 
 .Autocomplete {
 }
@@ -405,6 +447,12 @@ body {
 
     .Autocomplete * input {
         text-transform: uppercase;
+    }
+
+    .Autocomplete *.mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-right: 8px;
+        padding-inline-end: 8px;
+        padding-inline-start: unset;
     }
 
 .CheckBox {
@@ -535,26 +583,46 @@ body {
     padding-bottom: 2px;
 }
 
+    .FieldContainer.header-inline {
+        display: flex;
+        padding-top: 6px;
+        padding-bottom: 2px;
+        align-items: center;
+    }
+
     .FieldContainer .mud-input-control {
         margin-top: 2px;
     }
 
-    .FieldContainer > .fieldName {
+    .FieldContainer * div.fieldName {
         padding-left: 10px;
         font-size: 12px;
         font-weight: 700;
         text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        text-wrap:nowrap;
     }
 
-        .FieldContainer > .fieldName.checkBox {
-            display: flex;
-            justify-content: center;
-            padding-left: unset
-        }
+    .FieldContainer.header-inline * div.fieldName {
+        padding-left: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-right: 5px;
+        text-wrap: nowrap;
+    }
 
-        .FieldContainer > .fieldName.mtySpace {
-            margin-top: 17px;
-        }
+    .FieldContainer * div.fieldName.checkBox {
+        display: flex;
+        justify-content: center;
+        padding-left: unset;
+        text-wrap: nowrap;
+    }
+
+    .FieldContainer * div.fieldName.mtySpace {
+        margin-top: 17px;
+    }
 
     .FieldContainer .context {
         display: flex;
@@ -564,6 +632,26 @@ body {
         display: none;
     }
 
+    .FieldContainer * div.fieldName * .mud-chip.mud-chip-size-small {
+        border-radius: 12px;
+        font-size: 12px;
+        height: 14px;
+        padding: 0px 3px;
+        margin: 0px !important;
+        margin-bottom: 3px !important;
+        margin-right: 3px !important;
+        text-wrap: nowrap;
+    }
+
+    .FieldContainer * div.fieldName .mud-tooltip-root.mud-tooltip-inline {
+        cursor: help;
+    }
+
+    .FieldContainer.inline-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 
 .mud-list-item-gutters {
     padding-left: 12px;

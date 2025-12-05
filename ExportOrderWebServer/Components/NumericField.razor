@@ -8,14 +8,14 @@
 
     .NumericField * .mud-input > input.mud-input-root-outlined {
         text-align: end;
-        padding: 6px 4px 4px 8px !important;
+        padding: 4px 4px 1px 6px !important;
     }
 
 </style>
 
-<div class="FieldContainer" style="@Style">
-    <div class="fieldName">@Label</div>
-    <MudNumericField T="T" Class="NumericField" Value="Value" ValueChanged="@(async(e)=>{await ValueChanged.InvokeAsync(e);})"
+@if (NoHeader)
+{
+    <MudNumericField T="T" Class="TextField" Value="Value" ValueChanged="@(async (e) => { await ValueChanged.InvokeAsync(e); })"
                      Variant="Variant.Outlined" Margin="Margin.Dense"
                      Clearable="@Clearable"
                      HideSpinButtons="@HideSpinButtons"
@@ -28,9 +28,31 @@
                      Disabled="@Disabled"
                      OnBlur="@OnBlur">
     </MudNumericField>
-</div>
+}
+else
+{
 
+
+    <InputWrap Style="@Style" Disabled="@Disabled" Label="@Label" TooltipText="@TooltipText">
+
+        <MudNumericField T="T" Class="TextField" Value="Value" ValueChanged="@(async (e) => { await ValueChanged.InvokeAsync(e); })"
+                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                         Clearable="@Clearable"
+                         HideSpinButtons="@HideSpinButtons"
+                         Format="@Format"
+                         Required="@Required" RequiredError=""
+                         Min="@Min"
+                         Max="@Max"
+                         MaxLength="@MaxLength"
+                         ReadOnly="@ReadOnly"
+                         Disabled="@Disabled"
+                         OnBlur="@OnBlur">
+        </MudNumericField>
+    </InputWrap>
+}
 @code {
+    [Parameter] public bool NoHeader { get; set; }
+
     public NumericField()
     {
         if (typeof(T) == typeof(sbyte) || typeof(T) == typeof(sbyte?))
@@ -195,6 +217,8 @@
     public bool ReadOnly { get; set; }
 
     [Parameter]
+    public bool HeaderInLine { get; set; }
+    [Parameter]
     public bool Clearable { get; set; }
     [Parameter]
     public bool Required { get; set; }
@@ -208,6 +232,8 @@
     public string Format { get; set; }
     [Parameter]
     public bool Disabled { get; set; }
+    [Parameter]
+    public string? TooltipText { get; set; }
 
     [Parameter]
     public T? Value { get; set; }

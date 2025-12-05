@@ -1,33 +1,84 @@
-﻿<div class="FieldContainer" style="@Style">
-    <div class="fieldName">@Label</div>
+﻿<style>
+    .mud-icon-button.TextFieldIconButton {
+        padding: 4px;
+    }
+
+    .text-upper input, .text-upper textarea {
+        text-transform: uppercase;
+    }
+
+    .Label-Disabled
+    {
+        color:darkred;
+    }
+</style>
+
+
+@if (NoHeader)
+{
     <MudDatePicker Class="DatePicker" Date="@Date"
                    DateChanged="@(
                                 async(e)=>{
-                                Date= e;
-                                await DateChanged.InvokeAsync(e);
-                                    })"
+                                    Date= e;
+                                    await DateChanged.InvokeAsync(e);
+
+                                    await OnBlur.InvokeAsync(); 
+                                })"
                    Editable="true"
                    Mask="@(new DateMask("dd.MM.yy"))"
-                   DateFormat="dd.MM.yy"
+                   DateFormat="@DateFormat"
                    ShowWeekNumbers="true"
-                   MinDate="MinDate"
                    ShowToolbar="false"
                    Variant="Variant.Outlined"
+                   MinDate="@MinDate"
+                   MaxDate="@MaxDate"
                    Disabled="@Disabled"
                    ReadOnly="@ReadOnly"
                    ErrorText=""
                    Required="@Required" RequiredError="" Clearable="@Clearable" />
-</div>
+}
+else
+{
+<InputWrap Style="@Style" Disabled="@Disabled" Label="@Label" TooltipText="@TooltipText">
+    <MudDatePicker Class="DatePicker" Date="@Date"
+                   DateChanged="@(
+                                async(e)=>{
+                                    Date= e;
+                                    await DateChanged.InvokeAsync(e);
 
+                                    await OnBlur.InvokeAsync(); 
+                                })"
+                   Editable="true"
+                   Mask="@(new DateMask("dd.MM.yy"))"
+                   DateFormat="@DateFormat"
+                   ShowWeekNumbers="true"
+                   ShowToolbar="false"
+                   Variant="Variant.Outlined"
+                   MinDate="@MinDate"
+                   MaxDate="@MaxDate"
+                   Disabled="@Disabled"
+                   ReadOnly="@ReadOnly"
+                   ErrorText=""
+                   Required="@Required" RequiredError="" Clearable="@Clearable" />
+</InputWrap>
+}
 @code {
+    [Parameter]
+    public string? TooltipText { get; set; }
+    [Parameter] public bool NoHeader { get; set; }
+
+    [Parameter] 
+    public string DateFormat { get; set; } = "dd.MM.yy";
+    [Parameter]
+    public EventCallback OnBlur { get; set; }
     [Parameter]
     public bool Clearable { get; set; }
     [Parameter]
     public bool Required { get; set; }
     [Parameter]
-    public bool Disabled { get; set; } = false;
+    public bool Disabled { get; set; } 
     [Parameter]
-    public bool ReadOnly { get; set; } = false;
+    public bool ReadOnly { get; set; } 
 
     [Parameter]
     public string? Style { get; set; }
@@ -36,9 +87,11 @@
 
     [Parameter]
     public DateTime? Date { get; set; }
+    
+    [Parameter]
+    public DateTime? MaxDate { get; set; }
     [Parameter]
     public DateTime? MinDate { get; set; }
-
     [Parameter]
     public EventCallback<DateTime?> DateChanged { get; set; }
 }

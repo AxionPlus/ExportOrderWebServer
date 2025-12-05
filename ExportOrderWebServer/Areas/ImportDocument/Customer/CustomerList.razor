@@ -1,0 +1,246 @@
+﻿@* CustomerList.razor *@
+@page "/import/customer"
+@using ExportOrderEntites.ImportDocument
+@using ExportOrderWebServer.Areas.ImportDocument.Customer.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Customer.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Provider
+
+@inject ICustomerService CustomerService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
+
+<PageTitle>Customers</PageTitle>
+
+<ToolBar Label="Customers" OnNew="NewCustomer"></ToolBar>
+
+<Container>
+    <!-- Search and filter controls -->
+    <MudGrid>
+        <MudItem xs="12" md="6">
+            <TextField @bind-Value="_searchTerm" 
+                         Label="Search Customers" 
+                         Placeholder="Search by name, code, address..." 
+                         Adornment="Adornment.Start"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Class="mb-3">
+            </TextField>
+        </MudItem>
+        <MudItem xs="12" md="6" Class="d-flex align-end">
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      OnClick="ReloadTableData"
+                      StartIcon="@Icons.Material.Filled.Search" 
+                      Class="ml-2 mb-3">
+                Search
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" 
+                      Color="Color.Secondary" 
+                      OnClick="ClearSearch"
+                      StartIcon="@Icons.Material.Filled.Clear" 
+                      Class="ml-2 mb-3">
+                Clear
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</Container>
+
+<TableWrap T="CustomerDto" Table="mudTable" PageSelector @bind-RowsPerPage="@RowsPerPage">
+    <TableMenu>
+        <Select T="string" @bind-Value="_sortBy" Label="Sort By">
+            <MudSelectItem Value=@("FullName")>Full Name</MudSelectItem>
+            <MudSelectItem Value=@("Code")>Code</MudSelectItem>
+            <MudSelectItem Value=@("Name")>Name</MudSelectItem>
+            <MudSelectItem Value=@("NameRu")>Name (RU)</MudSelectItem>
+            <MudSelectItem Value=@("DisplayName")>Display Name</MudSelectItem>
+        </Select>
+        <MudSwitch T="bool" @bind-Checked="_sortDesc" Label="Descending" Color="Color.Primary" Class="ml-3" />
+    </TableMenu>
+    <Content>
+        <MudTable @ref="mudTable" T="CustomerDto" Class="Table P4 MultiSelect"
+                  ServerData="ServerReload"
+                  RowsPerPage="@RowsPerPage"
+                  SelectOnRowClick="false"
+                  Hover="true" Virtualize="true">
+            <PagerContent />
+            <HeaderContent>
+                <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:150px">Code</MudTh>
+                <MudTh Style="width:200px">Full Name</MudTh>
+                <MudTh Style="width:200px">Name</MudTh>
+                <MudTh Style="width:200px">Name (RU)</MudTh>
+                <MudTh Style="width:250px">Address</MudTh>
+                <MudTh Style="width:250px">Address (RU)</MudTh>
+                <MudTh Style="width:100px">Status</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                  Size="Size.Small" 
+                                  OnClick="(_) => ShowItem_Click(context)" 
+                                  Color="Color.Warning" 
+                                  Disabled="@IsLoading" 
+                                  Title="Edit" />
+                </MudTd>
+
+                <MudTd>@context.Code</MudTd>
+                <MudTd>@context.FullName</MudTd>
+                <MudTd>@context.Name</MudTd>
+                <MudTd>@context.NameRu</MudTd>
+                <MudTd>@context.Address</MudTd>
+                <MudTd>@context.AddressRu</MudTd>
+                <MudTd>
+                    <MudChip T="string" @bind-Checked="@context.Status" 
+                            Color="@GetStatusColor(context.Status)" 
+                            Size="Size.Small">
+                        @context.Status.ToString()
+                    </MudChip>
+                </MudTd>
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <PagerContent />
+        </MudTable>
+    </Content>
+</TableWrap>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    MudTable<CustomerDto>? mudTable;
+    bool IsLoading;
+    private PaginatedResult<CustomerDto>? PagedResult;
+    private int RowsPerPage = 50;
+    private string? _searchTerm;
+    private string? _sortBy = "FullName";
+    private bool _sortDesc = false;
+
+    private async Task<TableData<CustomerDto>> ServerReload(TableState state, CancellationToken token)
+    {
+        try
+        {
+            IsLoading = true;
+
+            PagedResult = await CustomerService.GetPaginatedAsync(
+                state.Page + 1, 
+                state.PageSize, 
+                token,
+                _searchTerm,
+                _sortBy,
+                _sortDesc);
+
+            if (mudTable != null)
+            {
+                mudTable.TotalItems = PagedResult.TotalCount;
+                mudTable.Items = PagedResult.Items;
+            }
+
+            return new TableData<CustomerDto>()
+            {
+                TotalItems = PagedResult.TotalCount,
+                Items = PagedResult.Items,
+            };
+        }
+        catch (OperationCanceledException)
+        {
+            return new TableData<CustomerDto>()
+            {
+                TotalItems = 0,
+                Items = new List<CustomerDto>()
+            };
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading data: {ex.Message}", Severity.Error);
+            return new TableData<CustomerDto>()
+            {
+                TotalItems = 0,
+                Items = new List<CustomerDto>()
+            };
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private Color GetStatusColor(BaseEntityStatus status)
+    {
+        return status switch
+        {
+            BaseEntityStatus.New => Color.Info,
+            BaseEntityStatus.Checked => Color.Warning,
+            BaseEntityStatus.Completed => Color.Success,
+            BaseEntityStatus.Canceled => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private async Task ShowItem_Click(CustomerDto context)
+    {
+        var parameters = new DialogParameters
+        {
+            ["CustomerDto"] = context
+        };
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Large,
+            NoHeader = true,
+            CloseButton = false,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+            BackgroundClass = "dialog-blurry"
+        };
+        var dialog = await DialogService.ShowAsync<CustomerEditForm>("Edit Customer", parameters, options);
+        var result = await dialog.Result;
+        
+        if (!result.Canceled)
+        {
+            await ReloadTableData();
+        }
+    }
+
+    private async Task NewCustomer()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Large,
+            NoHeader = true,
+            CloseButton = false,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+            BackgroundClass = "dialog-blurry"
+        };
+        var dialog = await DialogService.ShowAsync<CustomerEditForm>("New Customer", parameters, options);
+        var result = await dialog.Result;
+        
+        if (!result.Canceled)
+        {
+            await ReloadTableData();
+        }
+    }
+
+    private async Task ReloadTableData()
+    {
+        if (mudTable != null)
+            await mudTable.ReloadServerData();
+    }
+
+    private async Task ClearSearch()
+    {
+        _searchTerm = null;
+        await ReloadTableData();
+    }
+
+    private async Task OnSortChanged()
+    {
+        await ReloadTableData();
+    }
+}

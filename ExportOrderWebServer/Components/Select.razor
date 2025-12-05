@@ -1,0 +1,150 @@
+﻿@typeparam T
+@using System.Linq.Expressions
+
+<style>
+    .mud-list-item-icon {
+        min-width: 32px;
+    }
+</style>
+
+@if (NoHeader)
+{
+    <MudSelect Class="TextField Select" T="T"
+               Value="Value"
+               ValueChanged="@(async (e) => { await ValueChanged.InvokeAsync(e); })"
+               SelectedValues="SelectedValues"
+               SelectedValuesChanged="@(async (e) => { SelectedValues = e; await SelectedValuesChanged.InvokeAsync(e);  })"
+               Variant="Variant.Outlined"
+               Required="@Required"
+               RequiredError=""
+               ReadOnly="@ReadOnly"
+               IconSize="Size.Small" 
+               SelectAll="@SelectAll"
+               ToStringFunc="@ToStringFunc"
+               MultiSelectionTextFunc="@InnerMultiSelectionTextFunc"
+               MultiSelection="@MultiSelection"
+               OnClearButtonClick="@(async ()=> { SelectedValues = new List<T>(); await SelectedValuesChanged.InvokeAsync(SelectedValues); })"
+               Clearable="@Clearable"
+               For = "@For">
+        @ChildContent
+    </MudSelect>    
+}
+else
+{
+
+
+<InputWrap Style="@Style" Disabled="@Disabled" Label="@Label" TooltipText="@TooltipText">
+    <MudSelect Class="TextField Select" T="T"
+               Value="Value"
+               ValueChanged="@(async (e) => { await ValueChanged.InvokeAsync(e); })"
+               SelectedValues="SelectedValues"
+               SelectedValuesChanged="@(async (e) => { SelectedValues = e; await SelectedValuesChanged.InvokeAsync(e);  })"
+               Variant="Variant.Outlined"
+               Required="@Required"
+                   RequiredError=""
+               ReadOnly="@ReadOnly"
+               IconSize="Size.Small" 
+               SelectAll="@SelectAll"
+               ToStringFunc="@ToStringFunc"
+               MultiSelectionTextFunc="@InnerMultiSelectionTextFunc"
+               MultiSelection="@MultiSelection"
+               OnClearButtonClick="@(async ()=> { SelectedValues = new List<T>(); await SelectedValuesChanged.InvokeAsync(SelectedValues); })"
+               Clearable="@Clearable"
+               For = "@For">
+        @ChildContent
+    </MudSelect>
+</InputWrap>
+}
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        InitializeMultiSelectionTextFunc();
+    }
+
+    [Parameter] public Expression<Func<T>>? For { get; set; }
+
+    [Parameter] public string? TooltipText { get; set; }
+    [Parameter]
+    public T Value { get; set; }
+    [Parameter]
+    public EventCallback<T> ValueChanged { get; set; }
+
+    [Parameter] public IEnumerable<T> SelectedValues { get; set; }
+    [Parameter]
+    public EventCallback<IEnumerable<T>> SelectedValuesChanged { get; set; }
+    [Parameter]
+    public bool MultiSelection { get; set; }
+
+    [Parameter]
+    public Func<T, string> ToStringFunc { get; set; }
+
+    [Parameter]
+    public Func<List<T>, string> MultiSelectionTextFunc { get; set; }
+
+
+    private Func<List<string>, string> InnerMultiSelectionTextFunc { get; set; }
+    [Parameter]
+    public bool SelectAll { get; set; }
+    [Parameter] public bool NoHeader { get; set; }
+    [Parameter]
+    public bool Required { get; set; }
+    [Parameter]
+    public bool ReadOnly { get; set; }
+    [Parameter]
+    public bool Clearable { get; set; }
+    [Parameter]
+    public bool Disabled { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public string? Style { get; set; }
+    [Parameter]
+    public string? Label { get; set; }
+
+
+    private string LabelClass
+    {
+        get
+        {
+
+
+            if (Disabled)
+                return $"fieldName Label-Disabled";
+            else
+                return $"fieldName";
+        }
+    }
+
+    private void InitializeMultiSelectionTextFunc()
+    {
+        InnerMultiSelectionTextFunc = (selectedStringValues) =>
+        {
+            if (MultiSelectionTextFunc != null && SelectedValues != null)
+            {
+                // Используем оригинальные SelectedValues вместо преобразования строк
+                return MultiSelectionTextFunc(SelectedValues.ToList());
+
+            }
+            else if (ToStringFunc != null && SelectedValues != null)
+            {
+                return FormatWithToStringFunc(SelectedValues.ToList());
+            }
+
+            return string.Empty;
+        };
+    }
+
+    private string FormatWithToStringFunc(List<T> selectedValues)
+    {
+        if (selectedValues == null || selectedValues.Count == 0)
+            return string.Empty;
+
+        if (selectedValues.Count == 1)
+            return ToStringFunc(selectedValues[0]);
+
+        return $"{selectedValues.Count} items selected";
+    }
+}

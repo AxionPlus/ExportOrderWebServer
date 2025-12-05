@@ -1136,6 +1136,677 @@ namespace ExportOrderWebServer.Migrations
                     b.ToTable("ExportOrderRecordHistory");
                 });
 
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.BillOfLadingBaseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BookingParty")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CargoDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Consignee")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConsigneeAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConsigneeAddressRu")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConsigneeCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConsigneeName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConsigneeNameRu")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomerCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FinalPod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HandledBySystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("LockToken")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Num")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PartBl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Pod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Pol")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Shipper")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShipperAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShipperCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShipperName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShipperNameRu")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("TsDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("TsPort")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("VesselCallId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VesselCallId");
+
+                    b.ToTable("Import_BillOfLadings", (string)null);
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.BillOfLadingContainerRecordBaseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BillOfLadingBaseEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BookingNo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("ContainerAsCargo")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ContainerNo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContainerTypeId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullOrEmpty")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("GrossWeight")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("GrossWeightUOM")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HandledBySystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("IMCOClass")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IMCONumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsSoc")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("IsoCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("LockToken")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("NoOfPackage")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("OutOfGauge")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PackageType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReeferHumidity")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReeferTemp")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReeferTempSign")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReeferTempUOM")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReeferVentilation")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SealNo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TareWt")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Volume")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillOfLadingBaseEntityId");
+
+                    b.ToTable("Import_BillOfLading_ContainerRecords", (string)null);
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.BookingBaseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HandledBySystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("LockToken")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Num")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Import_Bookings", (string)null);
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.CustomerBaseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AddressRu")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HandledBySystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("LockToken")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameRu")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Import_Customers", (string)null);
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.PortBaseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuxIsoCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CountryEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CountryRu")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HandledBySystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("IsoCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("LockToken")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameRu")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PikYugIsoCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Import_Ports", (string)null);
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.TerminalBaseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomsPost")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomsPostName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HandledBySystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("LockToken")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Import_Terminals", (string)null);
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.VesselBaseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FlagEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FlagRu")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HandledBySystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("LockToken")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RolisCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShortName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Import_Vessels", (string)null);
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.VesselCallBaseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ETA")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("ETS")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("FeederBlNo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HandledBySystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("LockToken")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("PortOfLoadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TerminalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TerminalVoyageNo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("VesselId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VoyageNo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PortOfLoadingId");
+
+                    b.HasIndex("TerminalId");
+
+                    b.HasIndex("VesselId");
+
+                    b.ToTable("Import_VesselCalls", (string)null);
+                });
+
             modelBuilder.Entity("ExportOrderEntites.ImportVesselCall.ImportVesselCallDetail", b =>
                 {
                     b.Property<long>("Id")
@@ -2027,6 +2698,51 @@ namespace ExportOrderWebServer.Migrations
                     b.Navigation("ExportOrder");
                 });
 
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.BillOfLadingBaseEntity", b =>
+                {
+                    b.HasOne("ExportOrderEntites.ImportDocument.VesselCallBaseEntity", "VesselCall")
+                        .WithMany("BillOfLadings")
+                        .HasForeignKey("VesselCallId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("VesselCall");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.BillOfLadingContainerRecordBaseEntity", b =>
+                {
+                    b.HasOne("ExportOrderEntites.ImportDocument.BillOfLadingBaseEntity", null)
+                        .WithMany("ContainerRecords")
+                        .HasForeignKey("BillOfLadingBaseEntityId");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.VesselCallBaseEntity", b =>
+                {
+                    b.HasOne("ExportOrderEntites.ImportDocument.PortBaseEntity", "PortOfLoading")
+                        .WithMany()
+                        .HasForeignKey("PortOfLoadingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExportOrderEntites.ImportDocument.TerminalBaseEntity", "Terminal")
+                        .WithMany()
+                        .HasForeignKey("TerminalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExportOrderEntites.ImportDocument.VesselBaseEntity", "Vessel")
+                        .WithMany()
+                        .HasForeignKey("VesselId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PortOfLoading");
+
+                    b.Navigation("Terminal");
+
+                    b.Navigation("Vessel");
+                });
+
             modelBuilder.Entity("ExportOrderEntites.ImportVesselCall.ImportVesselCallDetail", b =>
                 {
                     b.HasOne("ExportOrderEntites.ApplicationUser", "CreateUser")
@@ -2266,6 +2982,16 @@ namespace ExportOrderWebServer.Migrations
             modelBuilder.Entity("ExportOrderEntites.ExportOrder.ExportOrderRecord", b =>
                 {
                     b.Navigation("Contents");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.BillOfLadingBaseEntity", b =>
+                {
+                    b.Navigation("ContainerRecords");
+                });
+
+            modelBuilder.Entity("ExportOrderEntites.ImportDocument.VesselCallBaseEntity", b =>
+                {
+                    b.Navigation("BillOfLadings");
                 });
 
             modelBuilder.Entity("ExportOrderEntites.ImportVesselCall.ImportVesselCallDetail", b =>

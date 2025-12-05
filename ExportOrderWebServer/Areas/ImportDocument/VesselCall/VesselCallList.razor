@@ -1,0 +1,338 @@
+﻿@* VesselCallList.razor *@
+@page "/import/vessel-call"
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Provider
+@using ExportOrderEntites.ImportDocument
+@using ExportOrderWebServer.Areas.ImportDocument.Port.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Vessel.Services
+
+@inject IVesselCallService VesselCallService
+@inject IVesselService VesselService
+@inject IPortService PortService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Vessel Calls</PageTitle>
+
+<ToolBar Label="Vessel Calls" OnNew="NewVesselCall"></ToolBar>
+
+<Container>
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudTextField @bind-Value="_searchTerm" 
+                         Label="Search Vessel Calls" 
+                         Placeholder="Search by voyage, vessel, port..." 
+                         Adornment="Adornment.Start"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Immediate="true"
+                         Variant="Variant.Outlined"
+                         Class="mb-3">
+            </MudTextField>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudDatePicker @bind-Date="_dateFrom"
+                          Label="Date From"
+                          Variant="Variant.Outlined"
+                          Class="mb-3">
+            </MudDatePicker>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudDatePicker @bind-Date="_dateTo"
+                           Label="Date To"
+                           Variant="Variant.Outlined"
+                           Class="mb-3">
+            </MudDatePicker>
+            <Select T="string" @bind-Value="_sortBy" Label="Sort By" >
+                <MudSelectItem Value=@("ETA")>ETA Date</MudSelectItem>
+                <MudSelectItem Value=@("VoyageNo")>Voyage No</MudSelectItem>
+                <MudSelectItem Value=@("VesselName")>Vessel Name</MudSelectItem>
+                <MudSelectItem Value=@("PortOfLoading")>Port of Loading</MudSelectItem>
+                <MudSelectItem Value=@("TerminalName")>Terminal Name</MudSelectItem>
+            </Select>
+            <MudSwitch T="bool" @bind-Checked="_sortDesc" Label="Descending" Color="Color.Primary" Class="ml-3" />
+        </MudItem>
+        <MudItem xs="12" md="4" Class="d-flex align-end">
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      OnClick="ReloadTableData"
+                      StartIcon="@Icons.Material.Filled.Search" 
+                      Class="ml-2 mb-3">
+                Search
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" 
+                      Color="Color.Secondary" 
+                      OnClick="ClearSearch"
+                      StartIcon="@Icons.Material.Filled.Clear" 
+                      Class="ml-2 mb-3">
+                Clear
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</Container>
+
+<TableWrap T="VesselCallDto" Table="mudTable" PageSelector @bind-RowsPerPage="@RowsPerPage">
+    <TableMenu>
+
+    </TableMenu>
+    <Content>
+        <MudTable @ref="mudTable" T="VesselCallDto" Class="Table P4 MultiSelect"
+                  ServerData="ServerReload"
+                  RowsPerPage="@RowsPerPage"
+                  SelectOnRowClick="false"
+                  Hover="true" Virtualize="true">
+            <PagerContent />
+            <HeaderContent>
+                <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:150px">Voyage No</MudTh>
+                <MudTh Style="width:200px">Vessel</MudTh>
+                <MudTh Style="width:150px">Terminal Voyage No</MudTh>
+                <MudTh Style="width:200px">Terminal</MudTh>
+                <MudTh Style="width:150px">Port of Loading</MudTh>
+                <MudTh Style="width:120px">ETA</MudTh>
+                <MudTh Style="width:120px">ETS</MudTh>
+                <MudTh Style="width:120px">Feeder BL No</MudTh>
+                <MudTh Style="width:100px">Status</MudTh>
+                <MudTh Style="width:80px">BLs</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    @if (MudDialog == null)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                       Size="Size.Small" 
+                                       OnClick="(_) => ShowItem_Click(context)" 
+                                       Color="Color.Warning" 
+                                       Disabled="@IsLoading" 
+                                       Title="Edit" />
+                    }
+                    else
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" 
+                                       Size="Size.Small" 
+                                       OnClick="(_) => MudDialog.Close(context)"
+                                       Color="Color.Primary" 
+                                       Title="Select" />
+                    }
+                </MudTd>
+
+                <MudTd>@context.VoyageNo</MudTd>
+                <MudTd>@context.Vessel?.Name</MudTd>
+                <MudTd>@context.TerminalVoyageNo</MudTd>
+                <MudTd>@context.Terminal?.Name</MudTd>
+                <MudTd>@context.PortOfLoading?.NameRu</MudTd>
+                <MudTd>@context.ETA.Value.ToString("dd.MM.yyyy HH:mm")</MudTd>
+                <MudTd>@context.ETS.Value.ToString("dd.MM.yyyy HH:mm")</MudTd>
+                <MudTd>@context.FeederBlNo</MudTd>
+                <MudTd>
+                    <MudChip T="string" @bind-Checked="@context.Status" 
+                            Color="@GetStatusColor(context.Status)" 
+                            Size="Size.Small">
+                        @context.Status.ToString()
+                    </MudChip>
+                </MudTd>
+                <MudTd>
+                    @if (context.BillOfLadings?.Count > 0)
+                    {
+                        <MudBadge Color="Color.Info" 
+                                 Content="@context.BillOfLadings.Count"
+                                 Size="Size.Small"
+                                 Max="99">
+                        </MudBadge>
+                    }
+                </MudTd>
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <PagerContent />
+        </MudTable>
+    </Content>
+</TableWrap>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    MudTable<VesselCallDto>? mudTable;
+    bool IsLoading;
+    private PaginatedResult<VesselCallDto>? PagedResult;
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    private int RowsPerPage = 20;
+    private string? _searchTerm;
+    private DateTime? _dateFrom;
+    private DateTime? _dateTo;
+    private string? _sortBy = "ETA";
+    private bool _sortDesc = true; // По умолчанию сортировка по убыванию даты
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Устанавливаем дефолтные даты: последние 30 дней
+        _dateTo = DateTime.Today.AddDays(1);
+        _dateFrom = DateTime.Today.AddDays(-30);
+    }
+
+    private async Task<TableData<VesselCallDto>> ServerReload(TableState state, CancellationToken token)
+    {
+        try
+        {
+            IsLoading = true;
+
+            // Формируем расширенный поисковый запрос
+            string? combinedSearch = _searchTerm;
+            
+            // Если заданы даты, фильтруем по ним на стороне сервера
+            // В реальном проекте нужно добавить поддержку фильтрации по датам в сервисе
+
+            PagedResult = await VesselCallService.GetPaginatedAsync(
+                state.Page + 1, 
+                state.PageSize, 
+                token,
+                combinedSearch,
+                _sortBy,
+                _sortDesc);
+
+            // Фильтрация по датам на клиенте (временно)
+            if (PagedResult?.Items != null)
+            {
+                if (_dateFrom.HasValue)
+                {
+                    PagedResult.Items = PagedResult.Items
+                        .Where(vc => vc.ETA >= _dateFrom.Value)
+                        .ToList();
+                }
+                
+                if (_dateTo.HasValue)
+                {
+                    PagedResult.Items = PagedResult.Items
+                        .Where(vc => vc.ETA <= _dateTo.Value)
+                        .ToList();
+                }
+
+                // Пересчитываем общее количество после фильтрации
+                PagedResult.TotalCount = PagedResult.Items.Count();
+                PagedResult.TotalPages = (int)Math.Ceiling(PagedResult.TotalCount / (double)state.PageSize);
+            }
+
+            if (mudTable != null && PagedResult != null)
+            {
+                mudTable.TotalItems = PagedResult.TotalCount;
+                mudTable.Items = PagedResult.Items;
+            }
+
+            return new TableData<VesselCallDto>()
+            {
+                TotalItems = PagedResult?.TotalCount ?? 0,
+                Items = PagedResult?.Items ?? new List<VesselCallDto>(),
+            };
+        }
+        catch (OperationCanceledException)
+        {
+            return new TableData<VesselCallDto>()
+            {
+                TotalItems = 0,
+                Items = new List<VesselCallDto>()
+            };
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading data: {ex.Message}", Severity.Error);
+            return new TableData<VesselCallDto>()
+            {
+                TotalItems = 0,
+                Items = new List<VesselCallDto>()
+            };
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private Color GetStatusColor(BaseEntityStatus status)
+    {
+        return status switch
+        {
+            BaseEntityStatus.New => Color.Info,
+            BaseEntityStatus.Checked => Color.Warning,
+            BaseEntityStatus.Completed => Color.Success,
+            BaseEntityStatus.Canceled => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private async Task ShowItem_Click(VesselCallDto context)
+    {
+        var parameters = new DialogParameters
+        {
+            ["VesselCallDto"] = context
+        };
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            NoHeader = true,
+            CloseButton = false,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+            BackgroundClass = "dialog-blurry",
+            FullWidth = true
+        };
+        var dialog = await DialogService.ShowAsync<VesselCallEditForm>("Edit Vessel Call", parameters, options);
+        var result = await dialog.Result;
+        
+        if (!result.Canceled)
+        {
+            await ReloadTableData();
+        }
+    }
+
+    private async Task NewVesselCall()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            NoHeader = true,
+            CloseButton = false,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+            BackgroundClass = "dialog-blurry",
+            FullWidth = true
+        };
+        var dialog = await DialogService.ShowAsync<VesselCallEditForm>("New Vessel Call", parameters, options);
+        var result = await dialog.Result;
+        
+        if (!result.Canceled)
+        {
+            await ReloadTableData();
+        }
+    }
+
+    private async Task ReloadTableData()
+    {
+        if (mudTable != null)
+            await mudTable.ReloadServerData();
+    }
+
+    private async Task ClearSearch()
+    {
+        _searchTerm = null;
+        _dateTo = DateTime.Today.AddDays(1);
+        _dateFrom = DateTime.Today.AddDays(-30);
+        await ReloadTableData();
+    }
+
+    private async Task OnSortChanged()
+    {
+        await ReloadTableData();
+    }
+
+    private async Task OnDateChanged()
+    {
+        await ReloadTableData();
+    }
+}

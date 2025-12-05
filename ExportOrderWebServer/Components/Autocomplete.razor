@@ -1,0 +1,262 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Provider
+
+@inject ICatalogObjectProvider CatalogProvider
+
+@typeparam T where T : class
+
+@if (NoHeader)
+{
+    <MudAutocomplete @ref="AutocompleteRef" Class="Autocomplete" T="T" Value="@Value"
+                     ValueChanged="@(async(e) => {await ValueChanged.InvokeAsync(e);})"
+                     ToStringFunc="ToStringFunc"
+                     CloseIcon="" OpenIcon=""
+                     SearchFunc="Search"
+                     Variant="Variant.Outlined"
+                     CoerceValue="@CoerceValue"
+                     OnClearButtonClick="OnClearButtonClicked"
+                     CoerceText="@CoerceText"
+                     Required="@Required" RequiredError=""
+                     Disabled="@Disabled"
+                     ReadOnly="ReadOnly"
+                     Immediate="true"
+                     Clearable="@Clearable"
+                     Placeholder="@Placeholder"
+            
+                     OnBlur="OnBlur" />
+}
+else
+{
+    <InputWrap Style="@Style" Disabled="@Disabled" Label="@Label" TooltipText="@TooltipText" ProgressLinear="@ProgressLinear">
+        <MudAutocomplete @ref="AutocompleteRef" Class="Autocomplete" T="T" Value="@Value"
+                         Style="@(typeof(T) == typeof(string) ? "margin-top:2px;" : "")"
+                         ValueChanged="@(async(e) => {await ValueChanged.InvokeAsync(e);})"
+                         ToStringFunc="ToStringFunc"
+                         CloseIcon="" OpenIcon=""
+                         SearchFunc="Search"
+                         Variant="Variant.Outlined"
+                         CoerceValue="@CoerceValue"
+                         OnClearButtonClick="OnClearButtonClicked"
+                         CoerceText="@CoerceText"
+                         Required="@Required" RequiredError=""
+                         Disabled="@Disabled"
+                         ReadOnly="ReadOnly"
+                         Immediate="true"
+                         OnBlur="OnBlur"
+                         Placeholder="@Placeholder"
+                         Clearable="@Clearable"
+                          />
+       
+    </InputWrap>
+}
+
+@code {
+    MudAutocomplete<T> AutocompleteRef;
+    private CancellationTokenSource _searchCancellationTokenSource;
+    private IEnumerable<T> _cachedResults = Enumerable.Empty<T>();
+    private string _lastSearchValue = string.Empty;
+
+    [Parameter] public T? Value { get; set; }
+    [Parameter] public EventCallback<T?> ValueChanged { get; set; }
+
+
+    // Common parameters
+  // [Parameter] public DropdownWidth RelativeWidth { get; set; } = DropdownWidth.Ignore;
+    [Parameter] public string? Placeholder { get; set; }
+    [Parameter] public string? TooltipText { get; set; }
+    [Parameter] public bool Clearable { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public bool CoerceText { get; set; }
+    [Parameter] public bool NoHeader { get; set; }
+    [Parameter] public bool CoerceValue { get; set; }
+    [Parameter] public bool Required { get; set; }
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string? Style { get; set; } 
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool ConfirmEntity { get; set; }
+    [Parameter] public int MinSearchLength { get; set; } = 2;
+    [Parameter] public int DebounceMilliseconds { get; set; } = 300;
+    [Parameter] public int? TakeRecords { get; set; } 
+    [Parameter] public string? PermissionResource { get; set; } = string.Empty;
+    [Parameter] public bool ProgressLinear { get; set; }
+    // Entity type flags
+    [Parameter] public bool IsVessel { get; set; }
+    [Parameter] public bool IsTerminal { get; set; }
+    [Parameter] public bool IsPort{ get; set; }
+
+
+    // Function to convert T to string for display
+    [Parameter] public Func<T, string>? ToStringFunc { get; set; } 
+
+    // OnClear parameter
+    [Parameter] public EventCallback OnClear { get; set; }
+    [Parameter] public EventCallback OnBlur { get; set; }
+    protected override void OnInitialized()
+    {
+        _searchCancellationTokenSource = new CancellationTokenSource();
+
+        // Validate generic type parameter
+        if (typeof(T) != typeof(string) && typeof(T) != typeof(ObjectDto))
+        {
+            throw new InvalidOperationException($"Generic type T must be either string or ObjectDto, but was {typeof(T)}");
+        }
+
+        // Set default ToStringFunc based on type
+        if (ToStringFunc == null)
+        {
+            if (typeof(T) == typeof(string))
+            {
+                ToStringFunc = obj => obj?.ToString() ?? string.Empty;
+            }
+            else if (typeof(T) == typeof(ObjectDto))
+            {
+                ToStringFunc = obj => (obj as ObjectDto)?.Name ?? string.Empty;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        _searchCancellationTokenSource?.Cancel();
+        _searchCancellationTokenSource?.Dispose();
+    }
+
+    public async Task ClearAsync()
+    {
+        if (AutocompleteRef != null)
+        {
+            await AutocompleteRef.ClearAsync();
+        }
+    }
+
+    private async Task OnClearButtonClicked()
+    {
+        // Clear the value based on type
+        if (typeof(T) == typeof(string))
+        {
+            await ValueChanged.InvokeAsync((T)(object)string.Empty);
+        }
+        else
+        {
+            await ValueChanged.InvokeAsync(default(T));
+        }
+
+        // Invoke the OnClear callback if provided
+        if (OnClear.HasDelegate)
+        {
+            await OnClear.InvokeAsync();
+        }
+    }
+
+    private async Task<IEnumerable<T>> Search(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length < MinSearchLength)
+            return Enumerable.Empty<T>();
+
+        // Debounce
+        await Task.Delay(DebounceMilliseconds, token);
+        if (token.IsCancellationRequested)
+            return Enumerable.Empty<T>();
+
+        // Cache results for identical queries
+        if (_lastSearchValue == value && _cachedResults.Any())
+            return _cachedResults;
+
+        try
+        {
+            var result = await GetSearchResults(value, token);
+            _cachedResults = result;
+            _lastSearchValue = value;
+
+            if (TakeRecords.HasValue)
+                result = result.Take(TakeRecords.Value);
+
+            return result;
+        }
+        catch (OperationCanceledException)
+        {
+            return Enumerable.Empty<T>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Search error: {ex.Message}");
+            return Enumerable.Empty<T>();
+        }
+    }
+
+    private async Task<IEnumerable<T>> GetSearchResults(string value, CancellationToken token)
+    {
+        var entityType = GetEntityType();
+        var isCyrillic = ContainsCyrillic(value);
+
+        if (typeof(T) == typeof(ObjectDto))
+        {
+            IEnumerable<ObjectDto> results = entityType switch
+            {
+                EntityType.Terminal => await CatalogProvider.GetTerminal(cancellationToken: token),
+                EntityType.Port => await CatalogProvider.GetPort( cancellationToken: token),
+                EntityType.Vessel => await CatalogProvider.GetVessel( cancellationToken: token),
+
+                _ => Enumerable.Empty<ObjectDto>()
+            };
+
+            var filteredResults = FilterResultsByLanguage(results, value, isCyrillic, entityType);
+            return filteredResults.Cast<T>();
+        }
+        else if (typeof(T) == typeof(string))
+        {
+            IEnumerable<string> results = entityType switch
+            {
+                EntityType.Terminal => (await CatalogProvider.GetTerminal(cancellationToken: token))
+                    .Select(s => isCyrillic ? s.Name : s.NameEn ?? s.Name),
+                EntityType.Port => (await CatalogProvider.GetPort( cancellationToken: token))
+                    .Select(s => isCyrillic ? s.Name : s.NameEn ?? s.Name),
+                EntityType.Vessel => (await CatalogProvider.GetVessel( cancellationToken: token))
+                    .Select(s => isCyrillic ? s.Name : s.NameEn ?? s.Name),
+
+                _ => Enumerable.Empty<string>()
+            };
+
+            var filteredResults = results.Where(x => ContainsIgnoreCase(x, value));
+            return filteredResults.Cast<T>();
+        }
+
+        return Enumerable.Empty<T>();
+    }
+    private IEnumerable<ObjectDto> FilterResultsByLanguage(IEnumerable<ObjectDto> results, string value, bool isCyrillic, EntityType entityType)
+    {
+
+        // Для кириллицы ищем по Name, для латиницы - по NameEn (если есть) или Name
+        return results.Where(x =>
+            isCyrillic
+                ? ContainsIgnoreCase(x.Name, value)
+                : (ContainsIgnoreCase(x.NameEn, value) || ContainsIgnoreCase(x.Name, value))
+        );
+    }
+
+    private bool ContainsCyrillic(string text)
+    {
+        return text.Any(c => c >= 'а' && c <= 'я' || c >= 'А' && c <= 'Я');
+    }
+    private EntityType GetEntityType()
+    {
+        if (IsTerminal) return EntityType.Terminal;
+        if (IsVessel) return EntityType.Vessel;
+        if (IsPort) return EntityType.Port;
+
+        return EntityType.Terminal;
+    }
+
+    private bool ContainsIgnoreCase(string source, string value)
+    {
+        return source?.Contains(value, StringComparison.InvariantCultureIgnoreCase) ?? false;
+    }
+
+    private enum EntityType
+    {
+        Terminal,
+        Vessel,
+        Port,
+ 
+    }
+}

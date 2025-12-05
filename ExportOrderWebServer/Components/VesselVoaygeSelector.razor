@@ -1,0 +1,60 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.VesselCall
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@inject ICatalogProvider CatalogProvider
+@inject IDialogService DialogService
+
+<div style="display:flex">
+
+    <TextField Label="Vessel" Value="@VesselCall?.Vessel?.Name" style="width:220px;" ReadOnly UpperCase />
+
+    <TextField Label="Voyage" Style="width:150px; padding-left:10px;" UpperCase Value="@VesselCall?.VoyageNo" ReadOnly />
+
+
+        <div style="margin-top:25px;margin-left:4px;display: flex; align-items: center;">
+            <MudTooltip Text = "Select vessel call menu">
+                <MudIconButton Class="TextFieldIconButton" Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Small" Color="Color.Primary" OnClick="SelectVslCall_Click"/>
+            </MudTooltip>
+        </div>
+    
+</div>
+
+@code {
+
+    [Parameter]
+    public VesselCallDto? VesselCall { get; set; }
+    [Parameter]
+    public Guid VesselCallId { get; set; } = Guid.Empty;
+    [Parameter]
+    public EventCallback<VesselCallDto?> VesselCallChanged { get; set; }
+    [Parameter]
+    public EventCallback<Guid> VesselCallIdChanged { get; set; }
+
+
+    private async Task SelectVslCall_Click()
+    {
+
+        var parameters = new DialogParameters
+        {
+            // ["SearchFilter"] = SearchFilter
+        };
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            NoHeader = true,
+            CloseButton = false,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+            BackgroundClass = "dialog-blurry"
+        };
+        var dialog = await DialogService.ShowAsync<VesselCallList>("", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled && result.Data is not null)
+        {
+            var VesselCall = (VesselCallDto)result.Data;
+            VesselCallId = VesselCall.Id;
+            await VesselCallIdChanged.InvokeAsync(VesselCallId);
+            await VesselCallChanged.InvokeAsync(VesselCall);
+        }
+    }
+}

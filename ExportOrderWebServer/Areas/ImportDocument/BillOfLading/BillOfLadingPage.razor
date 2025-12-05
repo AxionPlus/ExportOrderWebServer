@@ -1,0 +1,490 @@
+﻿@page "/import/bill-of-lading"
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+@using MudBlazor
+@inject IBillOfLadingService BillOfLadingService
+@inject IVesselCallService VesselCallService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+
+<PageTitle>Bill of Lading Management</PageTitle>
+<ToolBar Label="Bill of Lading Management">
+
+
+    <RightContent>
+        <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenUploadDialog" Color="Color.Secondary" TooltipText="Upload XML Manifest" />
+
+    </RightContent>
+
+</ToolBar>
+
+<Container>
+
+    <VesselVoaygeSelector @bind-VesselCallId="SelectedVesselCallId" @bind-VesselCall="@SelectedVesselCall" />
+    <MudButton OnClick="OnVesselCallChanged"
+               Variant="Variant.Outlined"
+               Color="Color.Warning"
+               Size="Size.Small"
+               StartIcon="@Icons.Material.Filled.Refresh">
+        Refresh
+    </MudButton>
+</Container>
+
+<MudGrid>
+    <!-- Заголовок страницы -->
+    <!-- Верхняя часть: Выбор судозахода -->
+    <MudItem xs="12">
+        <MudPaper Class="pa-4 mb-4" Elevation="1">
+
+
+            <MudGrid>
+                <MudItem xs="12" sm="6" md="4">
+
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Основной контент (две колонки) -->
+    @if (SelectedVesselCallId != Guid.Empty)
+    {
+        <MudItem xs="12">
+            <MudGrid>
+                <!-- Левая колонка: Список коносаментов -->
+                <MudItem xs="12" md="6" Class="pr-md-3">
+                    <MudPaper Class="pa-4 h-100" Elevation="1">
+                        <div class="d-flex justify-space-between align-center mb-3">
+                            <MudText Typo="Typo.h6">Bills of Lading</MudText>
+
+
+
+                            <MudButton OnClick="OpenCreateDialog"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       StartIcon="@Icons.Material.Filled.Add">
+                                New BL
+                            </MudButton>
+                        </div>
+
+                        @if (BillsOfLading?.Any() == true)
+                        {
+                            <MudList @bind-SelectedValue="SelectedBillId" Dense="true">
+                                @foreach (var bl in BillsOfLading)
+                                {
+                                    <MudListItem Value="@bl.Id" OnClick="() => SelectBill(bl)">
+                                        <MudAvatar Size="Size.Small" Color="Color.Primary">
+                                            <MudIcon Icon="@Icons.Material.Filled.Description" />
+                                        </MudAvatar>
+                                        <MudListItemContent>
+                                            <MudListItemText>
+                                                <div class="d-flex justify-space-between">
+                                                    <span><strong>@bl.Num</strong></span>
+                                                    <MudChip T="string" Class="ml-2" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">
+                                                        @bl.Date?.ToString("dd.MM.yyyy")
+                                                    </MudChip>
+                                                </div>
+                                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                                    Shipper: @bl.ShipperName
+                                                </MudText>
+                                            </MudListItemText>
+                                            <MudListItemSecondaryContent>
+                                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                               Color="Color.Error"
+                                                               Size="Size.Small"
+                                                               OnClick="@(() => OpenDeleteDialog(bl.Id, bl.Num))" />
+                                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                               Color="Color.Primary"
+                                                               Size="Size.Small"
+                                                               OnClick="@(() => OpenEditDialog(bl))" />
+                                            </MudListItemSecondaryContent>
+                                        </MudListItemContent>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        }
+                        else
+                        {
+                            <MudAlert Severity="Severity.Info" Elevation="0">
+                                No bills of lading found for this vessel call.
+                            </MudAlert>
+                        }
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Правая колонка: Детали коносамента -->
+                <MudItem xs="12" md="6" Class="pl-md-3">
+                    <MudPaper Class="pa-4 h-100" Elevation="1">
+                        @if (SelectedBill != null)
+                        {
+                            <div class="d-flex justify-space-between align-center mb-4">
+                                <MudText Typo="Typo.h6">BL Details</MudText>
+                                <MudBadge Color="Color.Primary" BadgeContent="@SelectedBill.Status.ToString()" />
+                            </div>
+
+                            <!-- Основная информация -->
+                            <MudGrid>
+                                <MudItem xs="12">
+                                    <MudCard Elevation="0">
+                                        <MudCardContent>
+                                            <MudGrid>
+                                                <MudItem xs="6">
+                                                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">BL Number</MudText>
+                                                    <MudText Typo="Typo.h6">@SelectedBill.Num</MudText>
+                                                </MudItem>
+                                                <MudItem xs="6">
+                                                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Date</MudText>
+                                                    <MudText Typo="Typo.h6">@SelectedBill.Date?.ToString("dd.MM.yyyy")</MudText>
+                                                </MudItem>
+                                            </MudGrid>
+                                        </MudCardContent>
+                                    </MudCard>
+                                </MudItem>
+
+                                <!-- Табы для деталей -->
+                                <MudItem xs="12">
+                                    <MudTabs @bind-ActivePanelIndex="activeTabIndex">
+                                        <MudTabPanel Text="Shipper & Consignee">
+                                            <MudGrid>
+                                                <!-- Shipper -->
+                                                <MudItem xs="12" sm="6">
+                                                    <MudCard Elevation="0" Class="ma-2">
+                                                        <MudCardHeader>
+                                                            <MudAvatar Color="Color.Info">
+                                                                <MudIcon Icon="@Icons.Material.Filled.Person" />
+                                                            </MudAvatar>
+                                                            <MudCardHeaderContent>
+                                                                <MudText Typo="Typo.subtitle1">Shipper</MudText>
+                                                            </MudCardHeaderContent>
+                                                        </MudCardHeader>
+                                                        <MudCardContent>
+                                                            <MudText Typo="Typo.body2"><strong>Name:</strong> @SelectedBill.ShipperName</MudText>
+                                                            <MudText Typo="Typo.body2"><strong>Code:</strong> @SelectedBill.ShipperCode</MudText>
+                                                            <MudText Typo="Typo.body2"><strong>Address:</strong> @SelectedBill.ShipperAddress</MudText>
+                                                        </MudCardContent>
+                                                    </MudCard>
+                                                </MudItem>
+
+                                                <!-- Consignee -->
+                                                <MudItem xs="12" sm="6">
+                                                    <MudCard Elevation="0" Class="ma-2">
+                                                        <MudCardHeader>
+                                                            <MudAvatar Color="Color.Success">
+                                                                <MudIcon Icon="@Icons.Material.Filled.Business" />
+                                                            </MudAvatar>
+                                                            <MudCardHeaderContent>
+                                                                <MudText Typo="Typo.subtitle1">Consignee</MudText>
+                                                            </MudCardHeaderContent>
+                                                        </MudCardHeader>
+                                                        <MudCardContent>
+                                                            <MudText Typo="Typo.body2"><strong>Name:</strong> @SelectedBill.ConsigneeName</MudText>
+                                                            <MudText Typo="Typo.body2"><strong>Code:</strong> @SelectedBill.ConsigneeCode</MudText>
+                                                            <MudText Typo="Typo.body2"><strong>Address:</strong> @SelectedBill.ConsigneeAddress</MudText>
+                                                        </MudCardContent>
+                                                    </MudCard>
+                                                </MudItem>
+                                            </MudGrid>
+                                        </MudTabPanel>
+
+                                        <MudTabPanel Text="Cargo Details">
+                                            <MudCard Elevation="0" Class="ma-2">
+                                                <MudCardContent>
+                                                    <MudText Typo="Typo.subtitle1" Class="mb-3">Cargo Description</MudText>
+                                                    <MudTextField Label="Description"
+                                                                  @bind-Value="@SelectedBill.CargoDescription"
+                                                                  ReadOnly="true"
+                                                                  Lines="3" />
+
+                                                    <MudText Typo="Typo.subtitle1" Class="mt-4 mb-3">Ports</MudText>
+                                                    <MudGrid>
+                                                        <MudItem xs="6">
+                                                            <MudTextField Label="POL"
+                                                                          @bind-Value="@SelectedBill.Pol"
+                                                                          ReadOnly="true" />
+                                                        </MudItem>
+                                                        <MudItem xs="6">
+                                                            <MudTextField Label="POD"
+                                                                          @bind-Value="@SelectedBill.Pod"
+                                                                          ReadOnly="true" />
+                                                        </MudItem>
+                                                        <MudItem xs="12">
+                                                            <MudTextField Label="Final POD"
+                                                                          @bind-Value="@SelectedBill.FinalPod"
+                                                                          ReadOnly="true" />
+                                                        </MudItem>
+                                                    </MudGrid>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </MudTabPanel>
+
+                                        <MudTabPanel Text="Containers">
+                                            @if (SelectedBill.ContainerRecords?.Any() == true)
+                                            {
+                                                <MudTable Items="@SelectedBill.ContainerRecords" Dense="true" Hover="true">
+                                                    <HeaderContent>
+                                                        <MudTh>Container No</MudTh>
+                                                        <MudTh>Type</MudTh>
+                                                        <MudTh>Weight</MudTh>
+                                                        <MudTh>Packages</MudTh>
+                                                        <MudTh>Actions</MudTh>
+                                                    </HeaderContent>
+                                                    <RowTemplate>
+                                                        <MudTd DataLabel="Container No">
+                                                            <MudChip T="string" Size="Size.Small">@context.ContainerNo</MudChip>
+                                                        </MudTd>
+                                                        <MudTd DataLabel="Type">@context.IsoCode</MudTd>
+                                                        <MudTd DataLabel="Weight">@context.GrossWeight @context.GrossWeightUOM</MudTd>
+                                                        <MudTd DataLabel="Packages">@context.NoOfPackage</MudTd>
+                                                        <MudTd DataLabel="Actions">
+                                                            <MudIconButton Icon="@Icons.Material.Filled.Info"
+                                                                           Color="Color.Info"
+                                                                           Size="Size.Small"
+                                                                           OnClick="@(() => ShowContainerDetails(context))" />
+                                                        </MudTd>
+                                                    </RowTemplate>
+                                                </MudTable>
+                                            }
+                                            else
+                                            {
+                                                <MudAlert Severity="Severity.Info">
+                                                    No container records found.
+                                                </MudAlert>
+                                            }
+                                        </MudTabPanel>
+
+                                        <MudTabPanel Text="Additional Info">
+                                            <MudGrid>
+                                                <MudItem xs="12" sm="6">
+                                                    <MudTextField Label="Customer Code"
+                                                                  @bind-Value="@SelectedBill.CustomerCode"
+                                                                  ReadOnly="true" />
+                                                    <MudTextField Label="Booking Party"
+                                                                  @bind-Value="@SelectedBill.BookingParty"
+                                                                  ReadOnly="true" />
+                                                    <MudTextField Label="Origin"
+                                                                  @bind-Value="@SelectedBill.Origin"
+                                                                  ReadOnly="true" />
+                                                </MudItem>
+                                                <MudItem xs="12" sm="6">
+                                                    <MudTextField Label="Part BL"
+                                                                  @bind-Value="@SelectedBill.PartBl"
+                                                                  ReadOnly="true" />
+                                                    <MudDatePicker Label="TS Date"
+                                                                   @bind-Value="@SelectedBill.TsDate"
+                                                                   ReadOnly="true" />
+                                                    <MudTextField Label="TS Port"
+                                                                  @bind-Value="@SelectedBill.TsPort"
+                                                                  ReadOnly="true" />
+                                                </MudItem>
+                                            </MudGrid>
+                                        </MudTabPanel>
+                                    </MudTabs>
+                                </MudItem>
+                            </MudGrid>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column align-center justify-center h-100">
+                                <MudIcon Icon="@Icons.Material.Filled.Description" Size="Size.Large" Color="Color.Secondary" Class="mb-3" />
+                                <MudText Typo="Typo.h6" Color="Color.Secondary">Select a bill of lading</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center">
+                                    Click on a bill of lading from the list to view details
+                                </MudText>
+                            </div>
+                        }
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    private Guid SelectedVesselCallId = Guid.Empty;
+    private VesselCallDto? SelectedVesselCall;
+    private List<VesselCallDto> VesselCalls = new();
+
+    private Guid SelectedBillId = Guid.Empty;
+    private BillOfLadingDto? SelectedBill;
+    private List<BillOfLadingDto> BillsOfLading = new();
+
+    private int activeTabIndex = 0;
+    private bool isLoading = false;
+
+
+
+    private async Task OnVesselCallChanged()
+    {
+
+        if (SelectedVesselCallId != Guid.Empty)
+        {
+            try
+            {
+                // Получаем детали выбранного судозахода
+                SelectedVesselCall = await VesselCallService.GetByIdAsync(SelectedVesselCallId);
+
+                // Загружаем коносаменты для этого судозахода
+                var bills = await BillOfLadingService.GetByVesselCallIdAsync(SelectedVesselCallId);
+                BillsOfLading = bills.ToList();
+
+                // Сбрасываем выбранный коносамент
+                SelectedBill = null;
+                SelectedBillId = Guid.Empty;
+
+                Snackbar.Add($"Loaded {BillsOfLading.Count} bills of lading", Severity.Info);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error loading bills of lading: {ex.Message}", Severity.Error);
+            }
+        }
+        else
+        {
+            SelectedVesselCall = null;
+            BillsOfLading.Clear();
+            SelectedBill = null;
+            SelectedBillId = Guid.Empty;
+        }
+
+        StateHasChanged();
+    }
+
+    private void SelectBill(BillOfLadingDto bill)
+    {
+        SelectedBill = bill;
+        SelectedBillId = bill.Id;
+        activeTabIndex = 0; // Сбрасываем на первую вкладку
+        StateHasChanged();
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        if (SelectedVesselCallId == Guid.Empty)
+        {
+            Snackbar.Add("Please select a vessel call first", Severity.Warning);
+            return;
+        }
+
+        var parameters = new DialogParameters
+        {
+            ["VesselCallId"] = SelectedVesselCallId,
+            ["VesselCall"] = SelectedVesselCall
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+
+        var dialog = DialogService.Show<CreateBillOfLadingDialog>("Create New Bill of Lading", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await OnVesselCallChanged();
+        }
+    }
+
+    private async Task OpenEditDialog(BillOfLadingDto bill)
+    {
+        var parameters = new DialogParameters
+        {
+            ["BillOfLading"] = bill
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+
+        var dialog = DialogService.Show<EditBillOfLadingDialog>("Edit Bill of Lading", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            // Обновляем выбранный коносамент
+            SelectedBill = await BillOfLadingService.GetByIdAsync(bill.Id);
+            await OnVesselCallChanged();
+        }
+    }
+
+    private async Task OpenDeleteDialog(Guid billId, string billNumber)
+    {
+        var parameters = new DialogParameters
+        {
+            ["ContentText"] = $"Are you sure you want to delete bill of lading '{billNumber}'? This action cannot be undone.",
+            ["ButtonText"] = "Delete",
+            ["Color"] = Color.Error
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = DialogService.Show<ConfirmationDialog>("Delete Confirmation", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            try
+            {
+                var success = await BillOfLadingService.DeleteAsync(billId);
+                if (success)
+                {
+                    Snackbar.Add($"Bill of lading '{billNumber}' deleted successfully", Severity.Success);
+                    await OnVesselCallChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error deleting bill of lading: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private void ShowContainerDetails(BillOfLadingContainerRecordDto container)
+    {
+        var parameters = new DialogParameters
+        {
+            ["Container"] = container
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small
+        };
+
+        DialogService.Show<ContainerDetailsDialog>("Container Details", parameters, options);
+    }
+
+    private async Task OpenUploadDialog()
+    {
+
+        var parameters = new DialogParameters
+        {
+            ["VesselCall"] = SelectedVesselCall
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+
+        var dialog = DialogService.Show<UploadManifestDialog>("Upload XML Manifest", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await OnVesselCallChanged();
+        }
+    }
+}

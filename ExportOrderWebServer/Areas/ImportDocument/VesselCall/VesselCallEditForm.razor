@@ -1,0 +1,513 @@
+﻿@* VesselCallEditForm.razor *@
+@using ExportOrderEntites.ImportDocument
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Vessel.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Port.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Vessel.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Port.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Terminal.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Terminal.Services
+@using FluentValidation
+
+@inject IVesselCallService VesselCallService
+@inject IVesselService VesselService
+@inject ITerminalService TerminalService
+@inject IPortService PortService
+@inject IValidator<VesselCallDto> Validator
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>@Title</PageTitle>
+
+@if (VesselCallDto.IsNew)
+{
+    <ToolBar Label="@Title" OnSave="OnSave"></ToolBar>
+}
+else
+{
+    <ToolBar Label="@Title" OnRefresh="OnRefresh" OnSave="OnSave"></ToolBar>
+}
+
+<Container Rows>
+    <MudForm @ref="mudForm" Validation="@Validator" @bind-IsValid="@_isFormValid">
+        <MudGrid>
+            <!-- Left Column - Basic Information -->
+            <MudItem xs="12" md="6">
+                <MudCard Class="mb-4">
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">Vessel Information</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <!-- Vessel Selection -->
+                        <MudAutocomplete T="VesselDto"
+                                         Label="Vessel *"
+                                         Variant="Variant.Outlined"
+                                         @bind-Value="SelectedVessel"
+                                         ToStringFunc="v => v?.Name ?? string.Empty"
+                                         SearchFunc="SearchVessels"
+                                         CoerceText="true"
+                                         ResetValueOnEmptyText="true"
+                                         Immediate="true"
+                                         Required>
+                            <ItemTemplate>
+                                <MudText>@context.Name</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    @context.FlagRu (@context.ShortName)
+                                </MudText>
+                            </ItemTemplate>
+                        </MudAutocomplete>
+
+                        <!-- Voyage Numbers -->
+                        <MudGrid>
+                            <MudItem xs="12" md="6">
+                                <MudTextField Label="Voyage No *" Variant="Variant.Outlined"
+                                           @bind-Value="VesselCallDto.VoyageNo"
+                                           Required
+                                           OnBlur="CheckVoyageAvailability"
+                                           Class="mt-3" />
+                            </MudItem>
+                            <MudItem xs="12" md="6">
+                                <MudTextField Label="Terminal Voyage No" Variant="Variant.Outlined"
+                                           @bind-Value="VesselCallDto.TerminalVoyageNo"
+                                           Class="mt-3" />
+                            </MudItem>
+                        </MudGrid>
+
+                        @if (_voyageCheckInProgress)
+                        {
+                            <MudProgressLinear Color="Color.Info" Indeterminate="true" Class="mt-2" />
+                        }
+                        else if (!string.IsNullOrEmpty(_voyageCheckMessage))
+                        {
+                            <MudText Typo="Typo.caption" Color="@(_isVoyageAvailable? Color.Success: Color.Error)" Class="mt-2">
+                                @_voyageCheckMessage
+                            </MudText>
+                        }
+
+                        <!-- Terminal Selection -->
+                        <MudAutocomplete T="TerminalDto"
+                                         Label="Terminal *"
+                                         Variant="Variant.Outlined"
+                                         @bind-Value="SelectedTerminal"
+                                         ToStringFunc="v => v?.Name ?? string.Empty"
+                                         SearchFunc="SearchTerminals"
+                                         CoerceText="true"
+                                         ResetValueOnEmptyText="true"
+                                         Immediate="true"
+                                         Required>
+                            <ItemTemplate>
+                                <MudText>@context.Name</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    @context.Name (@context.CustomsPost)
+                                </MudText>
+                            </ItemTemplate>
+                        </MudAutocomplete>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <!-- Right Column - Schedule & Port Information -->
+            <MudItem xs="12" md="6">
+                <MudCard Class="mb-4">
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">Schedule & Port Information</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <!-- Date & Time -->
+                        <MudGrid>
+                            <MudItem xs="12" md="6">
+                                <MudDatePicker Label="ETA *" Variant="Variant.Outlined"
+                                            @bind-Date="VesselCallDto.ETA"
+                                            Required />
+                            </MudItem>
+                            <MudItem xs="12" md="6">
+                                <MudDatePicker Label="ETS *" Variant="Variant.Outlined"
+                                            @bind-Date="VesselCallDto.ETS"
+                                            Required />
+                            </MudItem>
+                        </MudGrid>
+
+                        <!-- Port of Loading Selection -->
+                        <MudAutocomplete T="PortDto"
+                                         Variant="Variant.Outlined"
+                                         Label="Port of Loading *"
+                                         @bind-Value="SelectedPort"
+                                         ToStringFunc="p => p?.FullRu ?? string.Empty"
+                                         SearchFunc="SearchPorts"
+                                         CoerceText="true"
+                                         ResetValueOnEmptyText="true"
+                                         Immediate="true"
+                                         Required
+                                         Class="mt-3">
+                            <ItemTemplate>
+                                <MudText>@context.NameRu</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    @context.CountryRu (@context.IsoCode)
+                                </MudText>
+                            </ItemTemplate>
+                        </MudAutocomplete>
+
+                        <!-- Feeder BL No -->
+                        <MudTextField Label="Feeder BL No" Variant="Variant.Outlined"
+                                   @bind-Value="VesselCallDto.FeederBlNo"
+                                   Class="mt-3" />
+
+                        <!-- Status -->
+                        <MudSelect T="BaseEntityStatus"
+                                   Label="Status *"
+                                   Variant="Variant.Outlined"
+                                   @bind-Value="VesselCallDto.Status"
+                                   Required
+                                   Class="mt-3">
+                            <MudSelectItem Value="@BaseEntityStatus.New">New</MudSelectItem>
+                            <MudSelectItem Value="@BaseEntityStatus.Checked">Checked</MudSelectItem>
+                            <MudSelectItem Value="@BaseEntityStatus.Completed">Completed</MudSelectItem>
+                            <MudSelectItem Value="@BaseEntityStatus.Canceled">Canceled</MudSelectItem>
+                        </MudSelect>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <!-- Bottom Section - Summary & Bill of Ladings -->
+            <MudItem xs="12">
+                <MudGrid>
+                    <!-- Summary Card -->
+                    <MudItem xs="12" md="6">
+                        <MudCard Class="mb-4">
+                            <MudCardHeader>
+                                <MudText Typo="Typo.h6">Vessel Call Summary</MudText>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudGrid>
+                                    <MudItem xs="12" md="6">
+                                        <MudText Typo="Typo.subtitle2">Vessel:</MudText>
+                                        <MudText>@VesselCallDto.Vessel?.Name</MudText>
+                                    </MudItem>
+                                    <MudItem xs="12" md="6">
+                                        <MudText Typo="Typo.subtitle2">Port of Loading:</MudText>
+                                        <MudText>@VesselCallDto.PortOfLoading?.FullRu</MudText>
+                                    </MudItem>
+                                    <MudItem xs="12" md="6">
+                                        <MudText Typo="Typo.subtitle2">ETA:</MudText>
+                                        <MudText>@VesselCallDto.ETA.Value.ToString("dd.MM.yyyy HH:mm")</MudText>
+                                    </MudItem>
+                                    <MudItem xs="12" md="6">
+                                        <MudText Typo="Typo.subtitle2">ETS:</MudText>
+                                        <MudText>@VesselCallDto.ETS.Value.ToString("dd.MM.yyyy HH:mm")</MudText>
+                                    </MudItem>
+                                    <MudItem xs="12">
+                                        <MudText Typo="Typo.subtitle2">Full Info:</MudText>
+                                        <MudText>@VesselCallDto.FullInfo</MudText>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+
+                    <!-- Bill of Ladings Card (если редактирование существующего) -->
+                    @if (!VesselCallDto.IsNew && VesselCallDto.BillOfLadings?.Count > 0)
+                    {
+                        <MudItem xs="12" md="6">
+                            <MudCard Class="mb-4">
+                                <MudCardHeader>
+                                    <MudText Typo="Typo.h6">Related Bill of Ladings</MudText>
+                                    <MudSpacer />
+                                    <MudBadge Color="Color.Info" Content="@VesselCallDto.BillOfLadings.Count" />
+                                </MudCardHeader>
+                                <MudCardContent>
+                                    <MudList T="string" Dense="true">
+                                        @foreach (var bl in VesselCallDto.BillOfLadings.Take(5))
+                                        {
+                                            <MudListItem Text="@bl.Num" />
+                                        }
+                                        @if (VesselCallDto.BillOfLadings.Count > 5)
+                                        {
+                                            <MudListItem>
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                    ... and @(VesselCallDto.BillOfLadings.Count - 5) more
+                                                </MudText>
+                                            </MudListItem>
+                                        }
+                                    </MudList>
+                                </MudCardContent>
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Text"
+                                               Color="Color.Primary"
+                                               Size="Size.Small"
+                                               EndIcon="@Icons.Material.Filled.ArrowForward">
+                                        View All BLs
+                                    </MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+</Container>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    [Parameter]
+    public VesselCallDto VesselCallDto { get; set; } = new VesselCallDto();
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+    bool IsLoading;
+    MudForm? mudForm;
+    private string Title => VesselCallDto.IsNew ? "New Vessel Call" : "Edit Vessel Call";
+    private bool _isFormValid;
+    private bool _voyageCheckInProgress;
+    private string? _voyageCheckMessage;
+    private bool _isVoyageAvailable = true;
+    private string? _originalVoyageNo;
+
+    // Для автодополнения
+    private VesselDto? SelectedVessel
+    {
+        get => VesselCallDto.Vessel;
+        set
+        {
+            VesselCallDto.Vessel = value;
+            VesselCallDto.VesselId = value?.Id ?? Guid.Empty;
+        }
+    }
+    private TerminalDto? SelectedTerminal
+    {
+        get => VesselCallDto.Terminal;
+        set
+        {
+            VesselCallDto.Terminal = value;
+            VesselCallDto.TerminalId = value?.Id ?? Guid.Empty;
+        }
+    }
+
+    private PortDto? SelectedPort
+    {
+        get => VesselCallDto.PortOfLoading;
+        set
+        {
+            VesselCallDto.PortOfLoading = value;
+            VesselCallDto.PortOfLoadingId = value?.Id ?? Guid.Empty;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (VesselCallDto == null)
+        {
+            VesselCallDto = new VesselCallDto();
+        }
+
+        _originalVoyageNo = VesselCallDto.VoyageNo;
+
+        if (!VesselCallDto.IsNew)
+        {
+            await CheckVoyageAvailability();
+        }
+
+        // Устанавливаем дефолтные даты для нового вызова
+        if (VesselCallDto.IsNew)
+        {
+            VesselCallDto.ETA = DateTime.Now.AddHours(1);
+            VesselCallDto.ETS = DateTime.Now.AddHours(2);
+        }
+    }
+
+    private async Task<IEnumerable<VesselDto>> SearchVessels(string searchText, CancellationToken token)
+    {
+        try
+        {
+            var result = await VesselService.GetPaginatedAsync(1, 20, token, searchText);
+            return result.Items;
+        }
+        catch
+        {
+            return new List<VesselDto>();
+        }
+    }
+
+    private async Task<IEnumerable<PortDto>> SearchPorts(string searchText, CancellationToken token)
+    {
+        try
+        {
+            var result = await PortService.GetPaginatedAsync(1, 20, token, searchText);
+            return result.Items;
+        }
+        catch
+        {
+            return new List<PortDto>();
+        }
+    }
+
+    private async Task CheckVoyageAvailability()
+    {
+        if (string.IsNullOrWhiteSpace(VesselCallDto.VoyageNo))
+        {
+            _voyageCheckMessage = null;
+            _isVoyageAvailable = true;
+            return;
+        }
+
+        // Don't check if voyage number hasn't changed for existing vessel call
+        if (!VesselCallDto.IsNew && VesselCallDto.VoyageNo == _originalVoyageNo)
+        {
+            _voyageCheckMessage = null;
+            _isVoyageAvailable = true;
+            return;
+        }
+
+        _voyageCheckInProgress = true;
+        StateHasChanged();
+
+        try
+        {
+            Guid? excludeId = VesselCallDto.IsNew ? null : VesselCallDto.Id;
+            var exists = await VesselCallService.CheckVoyageNumberExistsAsync(VesselCallDto.VoyageNo, excludeId);
+
+            if (exists)
+            {
+                _voyageCheckMessage = $"Vessel call with voyage number '{VesselCallDto.VoyageNo}' already exists";
+                _isVoyageAvailable = false;
+            }
+            else
+            {
+                _voyageCheckMessage = $"Voyage number '{VesselCallDto.VoyageNo}' is available";
+                _isVoyageAvailable = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _voyageCheckMessage = $"Error checking voyage availability: {ex.Message}";
+            _isVoyageAvailable = false;
+        }
+        finally
+        {
+            _voyageCheckInProgress = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnSave()
+    {
+        if (mudForm == null) return;
+
+        await mudForm.Validate();
+
+        if (!_isFormValid || !_isVoyageAvailable)
+        {
+            if (!_isVoyageAvailable)
+            {
+                Snackbar.Add("Please choose a unique voyage number", MudBlazor.Severity.Error);
+            }
+            return;
+        }
+
+        // Валидация связанных сущностей
+        if (VesselCallDto.VesselId == Guid.Empty)
+        {
+            Snackbar.Add("Please select a vessel", MudBlazor.Severity.Error);
+            return;
+        }
+
+        if (VesselCallDto.PortOfLoadingId == Guid.Empty)
+        {
+            Snackbar.Add("Please select a port of loading", MudBlazor.Severity.Error);
+            return;
+        }
+
+        // TODO: Валидация TerminalId, когда будет TerminalService
+        // if (VesselCallDto.TerminalId == Guid.Empty)
+        // {
+        //     Snackbar.Add("Please select a terminal", Severity.Error);
+        //     return;
+        // }
+
+        try
+        {
+            IsLoading = true;
+
+            if (VesselCallDto.IsNew)
+            {
+                // Set default values for new vessel call
+                if (VesselCallDto.Id == Guid.Empty)
+                    VesselCallDto.Id = Guid.NewGuid();
+
+                if (VesselCallDto.CreatedAt == default)
+                    VesselCallDto.CreatedAt = DateTimeOffset.UtcNow;
+
+                if (VesselCallDto.Status == default)
+                    VesselCallDto.Status = BaseEntityStatus.New;
+
+                if (VesselCallDto.Version == 0)
+                    VesselCallDto.Version = 1;
+
+                await VesselCallService.CreateAsync(VesselCallDto);
+                Snackbar.Add("Vessel call created successfully", MudBlazor.Severity.Success);
+            }
+            else
+            {
+                await VesselCallService.UpdateAsync(VesselCallDto);
+                Snackbar.Add("Vessel call updated successfully", MudBlazor.Severity.Success);
+            }
+
+            // Close dialog
+            MudDialog?.Close();
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+        }
+        catch (ArgumentException ex)
+        {
+            Snackbar.Add($"Validation error: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving vessel call: {ex.Message}", MudBlazor.Severity.Error);
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task OnRefresh()
+    {
+        if (VesselCallDto.IsNew) return;
+
+        IsLoading = true;
+        try
+        {
+            VesselCallDto = await VesselCallService.GetByIdAsync(VesselCallDto.Id);
+            _originalVoyageNo = VesselCallDto.VoyageNo;
+            await CheckVoyageAvailability();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error refreshing: {ex.Message}", MudBlazor.Severity.Error);
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task<IEnumerable<TerminalDto>> SearchTerminals(string searchText, CancellationToken token)
+    {
+        try
+        {
+            var result = await TerminalService.GetPaginatedAsync(1, 20, token, searchText);
+            return result.Items;
+        }
+        catch
+        {
+            return new List<TerminalDto>();
+        }
+    }
+
+}

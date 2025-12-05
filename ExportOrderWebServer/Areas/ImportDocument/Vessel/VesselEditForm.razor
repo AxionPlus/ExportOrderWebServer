@@ -1,0 +1,88 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.Vessel.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Vessel.Services
+
+@inject IVesselService VesselService
+
+<PageTitle>Vessel</PageTitle>
+
+@if (VesselDto.IsNew)
+{
+    <ToolBar Label="Vessel" OnSave="OnSave"></ToolBar>
+
+}
+else
+{
+    <ToolBar Label="Vessel" OnRefresh="OnRefresh" OnSave="OnSave"></ToolBar>
+
+}
+
+<Container Rows>
+    <MudForm @ref="mudForm">
+        <TextField Label="Name" @bind-Value="VesselDto.Name" Required />
+        <TextField Label="FlagRu" @bind-Value="VesselDto.FlagRu" Required />
+        <TextField Label="FlagEn" @bind-Value="VesselDto.FlagEn" Required />
+        <TextField Label="ShortName" @bind-Value="VesselDto.ShortName" />
+        <TextField Label="RolisCode" @bind-Value="VesselDto.RolisCode" />
+    </MudForm>
+
+</Container>
+
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    [Parameter]
+    public VesselDto VesselDto { get; set; } = new VesselDto();
+    bool IsLoading;
+    MudForm? mudForm;
+    private async Task OnSave()
+    {
+        await mudForm?.Validate();
+
+        if (!mudForm.IsValid)
+        {
+            return;
+        }
+
+        try
+        {
+            IsLoading = true;
+
+            if (VesselDto.IsNew)
+            {
+                await VesselService.CreateAsync(VesselDto);
+            }
+            else
+            {
+                await VesselService.UpdateAsync(VesselDto);
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        finally
+        {
+            await OnRefresh();
+        }
+    }
+
+    private async Task OnRefresh()
+    {
+        IsLoading = true;
+        try
+        {
+            VesselDto = await VesselService.GetByIdAsync(VesselDto.Id);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+}

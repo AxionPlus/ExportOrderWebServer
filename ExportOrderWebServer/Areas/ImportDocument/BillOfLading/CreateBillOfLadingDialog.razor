@@ -1,0 +1,182 @@
+﻿@using ExportOrderEntites.ImportDocument
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Validator
+@using FluentValidation
+@inject IBillOfLadingService BillOfLadingService
+@inject ISnackbar Snackbar
+@inject IValidator<BillOfLadingDto> Validator
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" @bind-IsValid="isValid" @bind-Errors="errors">
+            <MudGrid>
+                <!-- Основная информация -->
+                <MudItem xs="12">
+                    <MudText Typo="Typo.h6" Class="mb-3">Create New Bill of Lading</MudText>
+                    <MudAlert Severity="MudBlazor.Severity.Info" Elevation="0" Class="mb-3">
+                        Vessel Call: @VesselCall?.FullInfo
+                    </MudAlert>
+                </MudItem>
+
+                <!-- BL Number и Date -->
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="NewBill.Num"
+                                 Label="BL Number *"
+                                 Required="true"
+                                 RequiredError="BL Number is required"
+                                 Immediate="true"/>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="NewBill.Date"
+                                 Label="BL Date *"
+                                 Required="true"
+                                 RequiredError="Date is required"
+                                 DateFormat="dd.MM.yyyy"/>
+                </MudItem>
+
+                <!-- Shipper Information -->
+                <MudItem xs="12">
+                    <MudDivider Class="my-4"/>
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Shipper Information</MudText>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="NewBill.ShipperName"
+                                 Label="Shipper Name *"
+                                 Required="true"
+                                 FullWidth="true"/>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="NewBill.ShipperCode"
+                                 Label="Shipper Code"/>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="NewBill.ShipperNameRu"
+                                 Label="Shipper Name (RU)"/>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="NewBill.ShipperAddress"
+                                 Label="Shipper Address"
+                                 Lines="2"/>
+                </MudItem>
+
+                <!-- Consignee Information -->
+                <MudItem xs="12">
+                    <MudDivider Class="my-4"/>
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Consignee Information</MudText>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="NewBill.ConsigneeName"
+                                 Label="Consignee Name *"
+                                 Required="true"
+                                 FullWidth="true"/>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="NewBill.ConsigneeCode"
+                                 Label="Consignee Code"/>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="NewBill.ConsigneeNameRu"
+                                 Label="Consignee Name (RU)"/>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="NewBill.ConsigneeAddress"
+                                 Label="Consignee Address"
+                                 Lines="2"/>
+                </MudItem>
+
+                <!-- Cargo Details -->
+                <MudItem xs="12">
+                    <MudDivider Class="my-4"/>
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Cargo Details</MudText>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="NewBill.CargoDescription"
+                               Label="Cargo Description"
+                               Lines="3"/>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="NewBill.Pol"
+                                 Label="Port of Loading (POL)"/>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="NewBill.Pod"
+                                 Label="Port of Discharge (POD)"/>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="NewBill.FinalPod"
+                                 Label="Final POD"/>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="SaveAsync" 
+                 Variant="Variant.Filled" 
+                 Color="Color.Primary"
+                 Disabled="@(!isValid)"
+                 StartIcon="@Icons.Material.Filled.Save">
+            Save
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    
+    [Parameter] public Guid VesselCallId { get; set; }
+    [Parameter] public VesselCallDto VesselCall { get; set; }
+
+    private BillOfLadingDto NewBill = new();
+    private MudForm form;
+    private bool isValid;
+    private string[] errors;
+
+    protected override void OnInitialized()
+    {
+        if (VesselCallId != Guid.Empty)
+        {
+            NewBill.VesselCallId = VesselCallId;
+        }
+        
+        NewBill.Date = DateTime.Now;
+        NewBill.Status = BaseEntityStatus.New;
+    }
+
+    private async Task SaveAsync()
+    {
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            try
+            {
+                // Дополнительная валидация
+                var validationResult = await Validator.ValidateAsync(NewBill);
+                if (!validationResult.IsValid)
+                {
+                    foreach (var error in validationResult.Errors)
+                    {
+                        Snackbar.Add(error.ErrorMessage, MudBlazor.Severity.Error);
+                    }
+                    return;
+                }
+
+                var createdBill = await BillOfLadingService.CreateAsync(NewBill);
+                Snackbar.Add($"Bill of Lading '{createdBill.Num}' created successfully", MudBlazor.Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error creating bill of lading: {ex.Message}", MudBlazor.Severity.Error);
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

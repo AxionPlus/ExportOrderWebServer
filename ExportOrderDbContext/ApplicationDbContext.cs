@@ -1,13 +1,14 @@
 ﻿    using ExportOrderEntites.AuditLog;
 using ExportOrderEntites.BillofLading;
 using ExportOrderEntites.EmailLogRecords;
+using ExportOrderEntites.ImportDocument;
 using ExportOrderEntites.ImportVesselCall;
 using ExportOrderEntites.ReleaseRecord;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
+using System.Security.Claims;
 
 namespace ExportOrderDbContext;
 
@@ -39,6 +40,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<ExportOrderEntity> ExportOrders { get; set; }
     public DbSet<MyCompanyEntity> MyCompany { get; set; }
     public DbSet<PersonEntity> Persons { get; set; }
+
 
     #endregion
 
@@ -107,6 +109,42 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.Entity<EmailLogRecord>(entity => { entity.ToTable(name: "EmailLogRecords"); });
         modelBuilder.Entity<ReleaseRemark>(entity => { entity.ToTable(name: "ReleaseRemarks"); });
 
+
+        //Import
+
+        modelBuilder.Entity<BookingBaseEntity>(entity =>
+        {
+            entity.ToTable(name: "Import_Bookings");
+            //entity.HasMany(s => s.BillOfLadings);
+        });
+        modelBuilder.Entity<BillOfLadingBaseEntity>(entity =>
+        {
+            entity.ToTable(name: "Import_BillOfLadings");
+            entity.HasMany(s => s.ContainerRecords);
+        });
+        modelBuilder.Entity<BillOfLadingContainerRecordBaseEntity>(entity => { entity.ToTable(name: "Import_BillOfLading_ContainerRecords"); });
+        modelBuilder.Entity<VesselBaseEntity>(entity => { entity.ToTable(name: "Import_Vessels"); });
+        modelBuilder.Entity<VesselCallBaseEntity>(entity =>
+        {
+            entity.ToTable(name: "Import_VesselCalls");
+            entity.HasMany(s => s.BillOfLadings);
+        });
+        modelBuilder.Entity<CustomerBaseEntity>(entity => { entity.ToTable(name: "Import_Customers"); });
+        modelBuilder.Entity<PortBaseEntity>(entity => { entity.ToTable(name: "Import_Ports"); });
+        modelBuilder.Entity<TerminalBaseEntity>(entity => { entity.ToTable(name: "Import_Terminals"); });
+
+
+
+
+
+
+
+
+
+
+
+
+
         //modelBuilder.Entity<DocumentHistory>(entity => { entity.ToTable(name: "History_Documents"); });
         //modelBuilder.Entity<ExportOrderHistory>(entity => { entity.ToTable(name: "History_ExportOrders"); });
         //modelBuilder.Entity<ExportOrderRecordHistory>(entity => { entity.ToTable(name: "History_ExportOrderRecords"); });
@@ -127,6 +165,92 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
+
+        var entries = ChangeTracker
+                                 .Entries()
+                                 .Where(e => e.Entity is BaseEntity &&
+                                            (e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted));
+
+        // Получаем идентификатор текущего пользователя
+        var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        var currentUser = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+
+        foreach (var entry in entries)
+        {
+            var entity = (BaseEntity)entry.Entity;
+
+            if (!entity.HandledBySystem)
+            {
+                if (string.IsNullOrWhiteSpace(currentUser) || string.IsNullOrWhiteSpace(currentUserId))
+                {
+                    var tryCount = 0;
+                    do
+                    {
+                        currentUser = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+                        currentUserId =
+                            _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+                        tryCount++;
+                    } while (tryCount > 2 || !string.IsNullOrWhiteSpace(currentUser) ||
+                             !string.IsNullOrWhiteSpace(currentUserId));
+
+                    if (string.IsNullOrWhiteSpace(currentUser) && string.IsNullOrWhiteSpace(currentUserId))
+                        throw new UnauthorizedAccessException(
+                            "User identity is required to save changes, pls try again or re-Login");
+
+                    if (string.IsNullOrWhiteSpace(currentUser))
+                    {
+                        var user = await Users
+                            .OfType<ApplicationUser>()
+                            .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
+
+                        if (user == null)
+                            throw new UnauthorizedAccessException(
+                                "User identity is required to save changes, pls try again or re-Login");
+                        currentUser = user.UserName;
+                    }
+                }
+            }
+            else
+            {
+                currentUser = "system-handler";
+                entity.HandledBySystem = false;
+            }
+
+
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entity.CreatedAt = DateTime.UtcNow;
+                    entity.CreatedBy = currentUser;
+                    entity.Version = 1;
+                    entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+       
+                    break;
+
+                case EntityState.Modified:
+                    entity.UpdatedAt = DateTime.UtcNow;
+                    entity.UpdatedBy = currentUser;
+                    entity.Version++;
+                    entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); ;
+                    break;
+
+                case EntityState.Deleted:
+                    entry.State = EntityState.Modified; // Мягкое удаление (Soft Delete)
+                    entity.DeletedAt = DateTime.UtcNow;
+                    entity.DeletedBy = currentUser;
+                    entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); ;
+                    break;
+            }
+        }
+
+
+
+
+
+
+
+
+
         var auditEntries = OnBeforeSaveChanges();
         var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         await OnAfterSaveChanges(auditEntries);

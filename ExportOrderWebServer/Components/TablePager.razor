@@ -1,6 +1,6 @@
 ﻿@typeparam T
-
 <style>
+
     .PageSelector {
         margin: auto;
     }
@@ -15,6 +15,7 @@
         .PageSelector * .mud-input.mud-input-outlined.mud-input-adorned-end {
             padding-right: 0px;
         }
+
 </style>
 
 @if (Table is not null)
@@ -22,7 +23,7 @@
     @if (PageSelector)
     {
         <div style="width:59px;margin: auto; padding-inline:3px;">
-            <MudSelect T="int" Value="@RowsPerPage" ValueChanged="@((v)=>{RowsPerPage = v; RowsPerPageChanged.InvokeAsync(v);} )" Variant="Variant.Outlined" Class="PageSelector">
+            <MudSelect T="int" Value="@RowsPerPage" ValueChanged="@((v) => { RowsPerPage = v; RowsPerPageChanged.InvokeAsync(v); })" Variant="Variant.Outlined" Class="PageSelector">
                 @foreach (int item in Items)
                 {
                     <MudSelectItem Value="@item" />
@@ -31,13 +32,15 @@
         </div>
     }
 
-    <MudPagination SelectedChanged="PageChanged" Count="@((Table.GetFilteredItemsCount() + Table.RowsPerPage - 1) / Table.RowsPerPage)"
-                   Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
-    <span class="mud-typography-body1" style="margin:auto; padding-left:10px;">(@ItemsCount)</span>
+    <MudPagination SelectedChanged="PageChanged" Count="Count" Size="Size.Small" ShowFirstButton="true" ShowLastButton="true" BoundaryCount="1" MiddleCount="3" />
+    <span class="mud-typography-body1" style="margin:auto;padding-left:10px;">(@RecordCount)</span>
 }
 @code {
     [Parameter]
     public MudTable<T>? Table { get; set; }
+    [Parameter]
+    public Task ReloadData { get; set; }
+
     [Parameter]
     public int? ItemsCount { get; set; }
     [Parameter]
@@ -53,4 +56,18 @@
     private void PageChanged(int i)
     {
         Table?.NavigateTo(i - 1);
-    }}
+    }
+    private int Count
+    {
+        get
+        {
+            if (Table == null)
+                return 0;
+
+            return (Table.GetFilteredItemsCount() + Table.RowsPerPage - 1) / Table.RowsPerPage;
+        }
+    }
+
+    private int RecordCount => ItemsCount ?? (Table?.TotalItems ?? 0);
+
+}

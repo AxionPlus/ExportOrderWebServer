@@ -1,0 +1,164 @@
+﻿@using ExportOrderEntites.ImportDocument
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Validator
+@using FluentValidation
+@inject IBillOfLadingService BillOfLadingService
+@inject ISnackbar Snackbar
+@inject IValidator<BillOfLadingDto> Validator
+
+<MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
+    <DialogContent>
+        @if (BillToEdit == null)
+        {
+            <MudProgressLinear Indeterminate="true"/>
+        }
+        else
+        {
+            <MudForm @ref="form" @bind-IsValid="isValid" @bind-Errors="errors">
+                <MudTabs @bind-ActivePanelIndex="activeTabIndex">
+                    <!-- Основная информация -->
+                    <MudTabPanel Text="Basic Info">
+                        <MudGrid Class="mt-3">
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="BillToEdit.Num"
+                                           Label="BL Number *"
+                                           Required="true"
+                                           Immediate="true"/>
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <MudDatePicker @bind-Date="BillToEdit.Date"
+                                             Label="BL Date *"
+                                             Required="true"
+                                             DateFormat="dd.MM.yyyy"/>
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudSelect @bind-Value="BillToEdit.Status"
+                                         Label="Status *"
+                                         Required="true"
+                                         T="BaseEntityStatus">
+                                    @foreach (BaseEntityStatus status in Enum.GetValues(typeof(BaseEntityStatus)))
+                                    {
+                                        <MudSelectItem Value="@status">@status.ToString()</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+                        </MudGrid>
+                    </MudTabPanel>
+
+                    <!-- Shipper & Consignee -->
+                    <MudTabPanel Text="Parties">
+                        <MudGrid Class="mt-3">
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="BillToEdit.ShipperName"
+                                           Label="Shipper Name *"
+                                           Required="true"/>
+                                <MudTextField @bind-Value="BillToEdit.ShipperCode"
+                                           Label="Shipper Code"/>
+                                <MudTextField @bind-Value="BillToEdit.ShipperNameRu"
+                                           Label="Shipper Name (RU)"/>
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="BillToEdit.ConsigneeName"
+                                           Label="Consignee Name *"
+                                           Required="true"/>
+                                <MudTextField @bind-Value="BillToEdit.ConsigneeCode"
+                                           Label="Consignee Code"/>
+                                <MudTextField @bind-Value="BillToEdit.ConsigneeNameRu"
+                                           Label="Consignee Name (RU)"/>
+                            </MudItem>
+                        </MudGrid>
+                    </MudTabPanel>
+
+                    <!-- Cargo Details -->
+                    <MudTabPanel Text="Cargo">
+                        <MudGrid Class="mt-3">
+                            <MudItem xs="12">
+                                <MudTextField @bind-Value="BillToEdit.CargoDescription"
+                                           Label="Cargo Description"
+                                           Lines="3"/>
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <MudTextField @bind-Value="BillToEdit.Pol"
+                                           Label="POL"/>
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <MudTextField @bind-Value="BillToEdit.Pod"
+                                           Label="POD"/>
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <MudTextField @bind-Value="BillToEdit.FinalPod"
+                                           Label="Final POD"/>
+                            </MudItem>
+                        </MudGrid>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudForm>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="SaveAsync"
+                 Variant="Variant.Filled"
+                 Color="Color.Primary"
+                 Disabled="@(!isValid || BillToEdit == null)"
+                 StartIcon="@Icons.Material.Filled.Save">
+            Save Changes
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    
+    [Parameter] public BillOfLadingDto BillOfLading { get; set; }
+
+    private BillOfLadingDto BillToEdit;
+    private MudForm form;
+    private bool isValid;
+    private string[] errors;
+    private int activeTabIndex = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (BillOfLading != null)
+        {
+            // Загружаем полные данные коносамента
+            BillToEdit = await BillOfLadingService.GetByIdAsync(BillOfLading.Id);
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        await form.Validate();
+
+        if (form.IsValid && BillToEdit != null)
+        {
+            try
+            {
+                var validationResult = await Validator.ValidateAsync(BillToEdit);
+                if (!validationResult.IsValid)
+                {
+                    foreach (var error in validationResult.Errors)
+                    {
+                        Snackbar.Add(error.ErrorMessage, MudBlazor.Severity.Error);
+                    }
+                    return;
+                }
+
+                var updatedBill = await BillOfLadingService.UpdateAsync(BillToEdit);
+                Snackbar.Add($"Bill of Lading '{updatedBill.Num}' updated successfully", MudBlazor.Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error updating bill of lading: {ex.Message}", MudBlazor.Severity.Error);
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

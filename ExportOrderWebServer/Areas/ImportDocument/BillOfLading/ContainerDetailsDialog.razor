@@ -1,0 +1,102 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+
+<MudDialog>
+    <DialogContent>
+        @if (Container != null)
+        {
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.h6" Class="mb-3">Container Details</MudText>
+                    <MudChip T="string" Color="Color.Primary" Class="mb-3">@Container.ContainerNo</MudChip>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField Label="Container Type" 
+                               @bind-Value="Container.ContainerTypeId"
+                               ReadOnly="true"/>
+                    <MudTextField Label="ISO Code" 
+                               @bind-Value="Container.IsoCode"
+                               ReadOnly="true"/>
+                    <MudTextField Label="Tare Weight" 
+                               @bind-Value="Container.TareWt"
+                               ReadOnly="true"/>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField Label="Seal No" 
+                               @bind-Value="Container.SealNo"
+                               ReadOnly="true"/>
+                    <MudTextField Label="Package Type" 
+                               @bind-Value="Container.PackageType"
+                               ReadOnly="true"/>
+                    <MudTextField Label="No of Packages" 
+                               @bind-Value="Container.NoOfPackage"
+                               ReadOnly="true"/>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField Label="Gross Weight" 
+                               Value="@($"{Container.GrossWeight} {Container.GrossWeightUOM}")"
+                               ReadOnly="true"/>
+                    <MudTextField Label="Volume" 
+                               Value="@Container.Volume.ToString()"
+                               ReadOnly="true"/>
+                    <MudTextField Label="Full/Empty" 
+                               @bind-Value="Container.FullOrEmpty"
+                               ReadOnly="true"/>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudCheckBox T="bool" Label="Is SOC" 
+                               @bind-Checked="Container.IsSoc"
+                               ReadOnly="true"/>
+                    <MudCheckBox T="bool" Label="Out of Gauge"
+                               @bind-Checked="Container.OutOfGauge"
+                               ReadOnly="true"/>
+                    <MudCheckBox T="bool" Label="Container as Cargo"
+                               @bind-Checked="Container.ContainerAsCargo"
+                               ReadOnly="true"/>
+                </MudItem>
+
+                @if (!string.IsNullOrEmpty(Container.ReeferTemp))
+                {
+                    <MudItem xs="12">
+                        <MudDivider Class="my-3"/>
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">Reefer Information</MudText>
+                        <MudGrid>
+                            <MudItem xs="4">
+                                <MudTextField Label="Temperature" 
+                                           Value="@($"{Container.ReeferTempSign}{Container.ReeferTemp} {Container.ReeferTempUOM}")"
+                                           ReadOnly="true"/>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudTextField Label="Humidity" 
+                                           @bind-Value="Container.ReeferHumidity"
+                                           ReadOnly="true"/>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudTextField Label="Ventilation" 
+                                           @bind-Value="Container.ReeferVentilation"
+                                           ReadOnly="true"/>
+                            </MudItem>
+                        </MudGrid>
+                    </MudItem>
+                }
+            </MudGrid>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    
+    [Parameter] public BillOfLadingContainerRecordDto Container { get; set; }
+
+    private void Close()
+    {
+        MudDialog.Close();
+    }
+}

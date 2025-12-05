@@ -1,29 +1,62 @@
-﻿<style>
-    .TextFieldIconButton.mud-icon-button {
-        padding: 2px;
+﻿@using System.Linq.Expressions
+<style>
+    .mud-icon-button.TextFieldIconButton {
+        padding: 4px;
     }
 
-    .text-upper input {
+    .text-upper input, .text-upper textarea {
         text-transform: uppercase;
     }
 
+    .Label-Disabled
+    {
+        color:darkred;
+    }
 </style>
+@if (NoHeader)
+{   
+    <MudTextField T="string" Class="@TextClass"
+                       Value="Value"
+                       ValueChanged="@(async(e)=>{
+                                         
+                                             await ValueChanged.InvokeAsync(e.ToUpper());
+                                }
+                                     )"                      
+                       TextChanged="@TextChanged"
+                       Variant="Variant.Outlined"
+                       Required="@Required"
+                       Error="@Error"
+                       RequiredError=""
+                       Immediate="true"
+                       ReadOnly="@ReadOnly"
+                       MaxLength="@MaxLength"
+                       AutoFocus="@AutoFocus"
+                       Lines="@Lines"
+                       Disabled="Disabled"
+                       Clearable="@Clearable"
+                       Placeholder="@Placeholder"
+                       OnBlur="@OnBlur"
+                       Mask="Mask"
+                       For ="For"
+                       OnClearButtonClick="@OnClearButtonClick">
+</MudTextField>
 
-<div class="FieldContainer" style="@Style">
-    <div class="fieldName">@Label</div>
-    <div style="width:100%;">
+}
+else
+{
+<InputWrap Style="@Style" Disabled="@Disabled" Label="@Label" TooltipText="@TooltipText" ProgressLinear="@ProgressLinear">
 
         <MudTextField T="string" Class="@TextClass"
                       Value="Value"
                       ValueChanged="@(async(e)=>{
-                            if(UpperCase)
                                 await ValueChanged.InvokeAsync(e.ToUpper());
-                            else
-                                await ValueChanged.InvokeAsync(e);}
-                      )"
+                  }
+                            )"                      
                       TextChanged="@TextChanged"
                       Variant="Variant.Outlined"
-                      Required="@Required" RequiredError="" Error="@Error"
+                      Required="@Required"
+                      Error="@Error"
+                      RequiredError=""
                       Immediate="true"
                       ReadOnly="@ReadOnly"
                       MaxLength="@MaxLength"
@@ -34,18 +67,30 @@
                       Placeholder="@Placeholder"
                       OnBlur="@OnBlur"
                       Mask="Mask"
+                      For ="For"
+                      Adornment="@Adornment"
+                      AdornmentIcon="@AdornmentIcon"
                       OnClearButtonClick="@OnClearButtonClick">
         </MudTextField>
-
         @if (IsIconButton)
         {
-            <MudIconButton Class="TextFieldIconButton" Icon="@Icons.Material.Filled.Dehaze" Size="Size.Small" OnClick="Button_Click"></MudIconButton>
+            <MudIconButton Class="TextFieldIconButton" Icon="@Icon" Color="@IconColor" Size="@IconSize" OnClick="Button_Click"></MudIconButton>
         }
 
-    </div>
-</div>
 
+</InputWrap>
+}
 @code {
+   [Parameter] public Adornment  Adornment{ get; set; }
+   [Parameter] public string AdornmentIcon { get; set; }
+
+    [Parameter] public Expression<Func<string>>? For { get; set; }
+    [Parameter] public bool ProgressLinear { get; set; }
+    [Parameter] public bool NoHeader { get; set; }
+    [Parameter] public Color IconColor { get; set; } = Color.Default;
+    [Parameter] public Size IconSize { get; set; } = Size.Small;
+    [Parameter]
+    public string? TooltipText { get; set; }
     [Parameter]
     public IMask? Mask { get; set; }
     [Parameter]
@@ -73,17 +118,13 @@
     [Parameter]
     public bool Error { get; set; }
     [Parameter]
-    public bool Dense { get; set; }
-    [Parameter]
     public int Lines { get; set; } = 1;
-    //[Parameter]
-    //public string? Text { get; set; }
-    [Parameter]
-    public string? Value { get; set; }
+    // [Parameter]
+    // public string? Text { get; set; }
     [Parameter]
     public string? Placeholder { get; set; }
-
-
+    [Parameter]
+    public string? Value { get; set; }
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
     [Parameter]
@@ -94,28 +135,36 @@
     public EventCallback OnBlur { get; set; }
     [Parameter]
     public EventCallback<string> TextChanged { get; set; }
+    [Parameter]
+    public bool Dense { get; set; }
 
-    // private string TextClass
-    // {
-    //     get
-    //     {
-    //         if (UpperCase)
-    //             return $"TextField text-upper {Class}";
-    //         else
-    //             return $"TextField {Class}";
-    //     }
-    // }
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Dehaze;
+
 
     private string TextClass
     {
         get
         {
-            var dense = Dense ? " Dense" : "";
+            var dense =  Dense ? " Dense" : "" ;
 
             if (UpperCase)
                 return $"TextField{dense} text-upper {Class}";
             else
                 return $"TextField{dense} {Class}";
+        }
+    }
+
+
+    private string LabelClass
+    {
+        get
+        {
+         
+
+            if (Disabled)
+                return $"fieldName Label-Disabled";
+            else
+                return $"fieldName";
         }
     }
 

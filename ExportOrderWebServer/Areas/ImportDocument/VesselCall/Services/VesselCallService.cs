@@ -9,6 +9,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services;
 
 public interface IVesselCallService
 {
+    Task<VesselCallDto> GetByIdForArrivalNoticeAsync(Guid id, CancellationToken cancellationToken = default);
     Task<VesselCallDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<PaginatedResult<VesselCallDto>> GetPaginatedAsync(
         int pageNumber,
@@ -41,6 +42,41 @@ public class VesselCallService : IVesselCallService
         _vesselService = vesselService;
         _portService = portService;
         _logger = logger;
+    }
+
+    public async Task<VesselCallDto> GetByIdForArrivalNoticeAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Получаем IQueryable
+            var query = _vesselCallCrudProvider.GetAllAsync(
+                s => s.Vessel,
+                s => s.Terminal,
+                s => s.PortOfLoading
+            );
+
+            // Добавляем ThenInclude для коллекции BillOfLadings
+            query = query
+                .Include(s => s.BillOfLadings)
+                .ThenInclude(b => b.Pol)
+                .Include(s => s.BillOfLadings)
+                .ThenInclude(b => b.TsPort)
+                .Include(s => s.BillOfLadings)
+                .ThenInclude(b => b.ContainerRecords);
+
+            // Выполняем запрос с фильтром
+            var entity = await query.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
+            if (entity == null)
+                throw new KeyNotFoundException($"Vessel call with ID {id} not found");
+
+            return entity.ToDto();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting vessel call by ID: {VesselCallId}", id);
+            throw;
+        }
     }
 
     public async Task<VesselCallDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -197,8 +233,8 @@ public class VesselCallService : IVesselCallService
     {
         try
         {
-            var entities = await _vesselCallCrudProvider.GetAllAsync(cancellationToken);
-            var filteredEntities = entities.Where(e => e.VesselId == vesselId);
+            var entities = _vesselCallCrudProvider.GetAllAsync();
+            var filteredEntities = await entities.Where(e => e.VesselId == vesselId).ToListAsync(cancellationToken);
             return filteredEntities.ToDtoList();
         }
         catch (Exception ex)
@@ -212,8 +248,8 @@ public class VesselCallService : IVesselCallService
     {
         try
         {
-            var entities = await _vesselCallCrudProvider.GetAllAsync(cancellationToken, s => s.Vessel, s => s.PortOfLoading, s => s.Terminal);
-            var filteredEntities = entities.Where(e => e.ETA >= startDate && e.ETA <= endDate);
+            var entities = _vesselCallCrudProvider.GetAllAsync(s => s.Vessel, s => s.PortOfLoading, s => s.Terminal).AsSplitQuery().AsQueryable();
+            var filteredEntities = await entities.Where(e => e.ETA >= startDate && e.ETA <= endDate).ToListAsync(cancellationToken);
             return filteredEntities.ToDtoList();
         }
         catch (Exception ex)
@@ -227,14 +263,14 @@ public class VesselCallService : IVesselCallService
     {
         try
         {
-            var entities = await _vesselCallCrudProvider.GetAllAsync(cancellationToken);
+            var entities = _vesselCallCrudProvider.GetAllAsync();
 
             if (excludeId.HasValue)
             {
-                return entities.Any(e => e.VoyageNo == voyageNo && e.Id != excludeId.Value);
+                return await entities.AnyAsync(e => e.VoyageNo == voyageNo && e.Id != excludeId.Value, cancellationToken);
             }
 
-            return entities.Any(e => e.VoyageNo == voyageNo);
+            return await entities.AnyAsync(e => e.VoyageNo == voyageNo, cancellationToken);
         }
         catch (Exception ex)
         {

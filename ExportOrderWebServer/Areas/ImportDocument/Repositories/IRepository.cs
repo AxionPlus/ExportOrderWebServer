@@ -8,7 +8,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
     {
         Task<T?> GetByIdAsync(Guid id,  CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includes);
         Task<T?> GetByIdAsync(long id, params Expression<Func<T, object>>[] includes);
-        Task<IEnumerable<T>> GetAllAsync( params Expression<Func<T, object>>[] includes);
+        IQueryable<T> GetAllAsync( params Expression<Func<T, object>>[] includes);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
         Task<PaginatedResult<T>> GetPaginatedAsync(
             int pageNumber,

@@ -41,7 +41,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
             return await query.FirstOrDefaultAsync(e => EF.Property<long>(e, "Id") == id);
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync( params Expression<Func<T, object>>[] includes)
+        public virtual IQueryable<T> GetAllAsync( params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet.AsQueryable();
 
@@ -51,7 +51,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
                 query = query.Include(include);
             }
 
-            return await query.ToListAsync();
+            return query;
         }
 
         public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)

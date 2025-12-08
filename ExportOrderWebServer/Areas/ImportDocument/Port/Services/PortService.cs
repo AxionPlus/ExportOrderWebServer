@@ -1,4 +1,5 @@
-﻿using ExportOrderEntites.ImportDocument;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.Provider;
@@ -8,6 +9,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Port.Services;
 public interface IPortService
 {
     Task<PortDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<PortDto?> GetByIsoCodeAsync(string? isoCode, CancellationToken cancellationToken = default);
     Task<PaginatedResult<PortDto>> GetPaginatedAsync(
         int pageNumber,
         int pageSize, CancellationToken cancellationToken,
@@ -49,6 +51,19 @@ public class PortService : IPortService
         }
     }
 
+    public async Task<PortDto?> GetByIsoCodeAsync(string? isoCode, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(isoCode))
+            return null;
+
+        var query = _portCrudProvider.GetAllAsync();
+        query = query.Where(s => s.IsoCode == isoCode);
+
+        var entity = await query.FirstOrDefaultAsync(cancellationToken);
+
+        return entity?.ToDto();
+    }
+
     public async Task<PaginatedResult<PortDto>> GetPaginatedAsync(
         int pageNumber,
         int pageSize,
@@ -87,25 +102,6 @@ public class PortService : IPortService
     {
         try
         {
-            if (dto.Id == Guid.Empty)
-            {
-                dto.Id = Guid.NewGuid();
-            }
-
-            if (dto.CreatedAt == default)
-            {
-                dto.CreatedAt = DateTimeOffset.UtcNow;
-            }
-
-            if (dto.Status == default)
-            {
-                dto.Status = BaseEntityStatus.New;
-            }
-
-            if (dto.Version == 0)
-            {
-                dto.Version = 1;
-            }
 
             var entity = dto.ToEntity();
             var createdEntity = await _portCrudProvider.CreateAsync(entity, cancellationToken);
@@ -126,9 +122,8 @@ public class PortService : IPortService
             if (existingEntity == null)
                 throw new KeyNotFoundException($"Port with ID {dto.Id} not found");
 
-            // Увеличиваем версию
-            dto.Version = existingEntity.Version + 1;
-            dto.UpdatedAt = DateTimeOffset.UtcNow;
+            if (existingEntity.Timestamp != dto.Timestamp)
+                throw new NullReferenceException($"has been changed by another user");
 
             existingEntity.UpdateEntity(dto);
             await _portCrudProvider.UpdateAsync(existingEntity, cancellationToken);

@@ -1,17 +1,18 @@
 ﻿
 using System.Globalization;
 using System.Xml.Linq;
-using BillOfLadingDto = ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto.BillOfLadingDto;
-using BillOfLadingContainerRecordDto = ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto.BillOfLadingContainerRecordDto;
+using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
+using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
+
 namespace ExportOrderWebServer.Areas.ImportDocument.Services
 {
     public interface IXMLParserService
     {
-        List<BillOfLadingDto> ParseManifest(string xmlContent);
-        List<BillOfLadingDto> ParseManifestFromFile(string filePath);
-        List<BillOfLadingDto> ParseAllManifestsInDirectory(string directoryPath);
-        BillOfLadingDto ParseSingleBLFromXml(string xmlContent);
-        void ExportToCsv(List<BillOfLadingDto> bills, string outputPath);
+        List<BillOfLadingBaseDto> ParseManifest(string xmlContent);
+        List<BillOfLadingBaseDto> ParseManifestFromFile(string filePath);
+        List<BillOfLadingBaseDto> ParseAllManifestsInDirectory(string directoryPath);
+        BillOfLadingBaseDto ParseSingleBLFromXml(string xmlContent);
+        void ExportToCsv(List<BillOfLadingBaseDto> bills, string outputPath);
         ParserStatistics GetParserStatistics();
     }
 
@@ -59,7 +60,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             _parser = new ManifestParser(_configuration, _statistics);
         }
 
-        public List<BillOfLadingDto> ParseManifest(string xmlContent)
+        public List<BillOfLadingBaseDto> ParseManifest(string xmlContent)
         {
             _statistics.LastParseTime = DateTime.UtcNow;
 
@@ -79,7 +80,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             }
         }
 
-        public List<BillOfLadingDto> ParseManifestFromFile(string filePath)
+        public List<BillOfLadingBaseDto> ParseManifestFromFile(string filePath)
         {
             _statistics.LastParseTime = DateTime.UtcNow;
 
@@ -106,9 +107,9 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             }
         }
 
-        public List<BillOfLadingDto> ParseAllManifestsInDirectory(string directoryPath)
+        public List<BillOfLadingBaseDto> ParseAllManifestsInDirectory(string directoryPath)
         {
-            var allBills = new List<BillOfLadingDto>();
+            var allBills = new List<BillOfLadingBaseDto>();
 
             try
             {
@@ -151,7 +152,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             }
         }
 
-        public BillOfLadingDto ParseSingleBLFromXml(string xmlContent)
+        public BillOfLadingBaseDto ParseSingleBLFromXml(string xmlContent)
         {
             try
             {
@@ -179,7 +180,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             }
         }
 
-        public void ExportToCsv(List<BillOfLadingDto> bills, string outputPath)
+        public void ExportToCsv(List<BillOfLadingBaseDto> bills, string outputPath)
         {
             try
             {
@@ -326,15 +327,15 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             _statistics = statistics;
         }
 
-        public List<BillOfLadingDto> ParseManifest(string xmlContent)
+        public List<BillOfLadingBaseDto> ParseManifest(string xmlContent)
         {
             var xmlDoc = XDocument.Parse(xmlContent);
             var blElements = xmlDoc.Root?.Elements("BL");
 
             if (blElements == null || !blElements.Any())
-                return new List<BillOfLadingDto>();
+                return new List<BillOfLadingBaseDto>();
 
-            var result = new List<BillOfLadingDto>();
+            var result = new List<BillOfLadingBaseDto>();
 
             foreach (var blElement in blElements)
             {
@@ -355,7 +356,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             return result;
         }
 
-        public BillOfLadingDto ParseSingleBL(XElement blElement)
+        public BillOfLadingBaseDto ParseSingleBL(XElement blElement)
         {
             // Получаем TS порты из XML
             var tsPorts = new List<string>();
@@ -366,16 +367,16 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                     tsPorts.Add(tsPort);
             }
 
-            var dto = new BillOfLadingDto
+            var dto = new BillOfLadingBaseDto
             {
                 Num = GetElementValue(blElement, "BLNo"),
                 Date = ParseDate(GetElementValue(blElement, "BLDate")),
-                TsPort = tsPorts.Count > 0 ? string.Join(", ", tsPorts) : string.Empty,
+                TsPort = null,
                 TsDate = ParseDate(GetElementValue(blElement, "FirstPOLLoadDate")),
                 CustomerCode = GetElementValue(blElement, "CustomerCode"),
                 BookingParty = GetElementValue(blElement, "Booking_Party"),
                 Origin = GetElementValue(blElement, "Origin"),
-                Pol = GetElementValue(blElement, "POL"),
+                Pol = new PortDto{IsoCode = GetElementValue(blElement, "POL") } ,
                 Pod = GetElementValue(blElement, "POD"),
                 FinalPod = GetElementValue(blElement, "FPOD") ?? GetElementValue(blElement, "Place_of_Final_Delivery"),
                 Shipper = GetElementValue(blElement, "Shipper"),
@@ -396,9 +397,9 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             return dto;
         }
 
-        private List<BillOfLadingContainerRecordDto> ParseContainers(XElement blElement)
+        private List<BillOfLadingContainerRecordBaseDto> ParseContainers(XElement blElement)
         {
-            var containers = new List<BillOfLadingContainerRecordDto>();
+            var containers = new List<BillOfLadingContainerRecordBaseDto>();
             var containersElement = blElement.Element("CONTAINERS");
 
             if (containersElement == null)
@@ -408,7 +409,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             {
                 try
                 {
-                    var containerDto = new BillOfLadingContainerRecordDto
+                    var containerDto = new BillOfLadingContainerRecordBaseDto
                     {
                         ContainerNo = GetElementValue(containerElement, "ContainerNo"),
                         ContainerTypeId = GetElementValue(containerElement, "ContainerTypeId"),
@@ -449,41 +450,41 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
             return containers;
         }
 
-        private void ProcessAdditionalFields(XElement blElement, BillOfLadingDto dto)
+        private void ProcessAdditionalFields(XElement blElement, BillOfLadingBaseDto baseDto)
         {
             // Обработка Notify полей
             var notify1Name = GetElementValue(blElement, "Notify1_name");
             var notify1Address = GetElementValue(blElement, "Notify1_address");
 
-            if (!string.IsNullOrEmpty(notify1Name) && string.IsNullOrEmpty(dto.ConsigneeName))
+            if (!string.IsNullOrEmpty(notify1Name) && string.IsNullOrEmpty(baseDto.ConsigneeName))
             {
-                dto.ConsigneeName = notify1Name;
-                dto.ConsigneeAddress = notify1Address;
+                baseDto.ConsigneeName = notify1Name;
+                baseDto.ConsigneeAddress = notify1Address;
             }
 
             // Обработка дополнительных полей
             var additionalShipper = GetElementValue(blElement, "Shipper");
             var additionalConsignee = GetElementValue(blElement, "ConsigneeAddress");
 
-            if (!string.IsNullOrEmpty(additionalShipper) && string.IsNullOrEmpty(dto.ShipperAddress))
+            if (!string.IsNullOrEmpty(additionalShipper) && string.IsNullOrEmpty(baseDto.ShipperAddress))
             {
-                dto.ShipperAddress = additionalShipper;
+                baseDto.ShipperAddress = additionalShipper;
             }
 
-            if (!string.IsNullOrEmpty(additionalConsignee) && string.IsNullOrEmpty(dto.ConsigneeAddress))
+            if (!string.IsNullOrEmpty(additionalConsignee) && string.IsNullOrEmpty(baseDto.ConsigneeAddress))
             {
-                dto.ConsigneeAddress = additionalConsignee;
+                baseDto.ConsigneeAddress = additionalConsignee;
             }
         }
 
-        private void ProcessReeferContainer(XElement containerElement, BillOfLadingContainerRecordDto dto)
+        private void ProcessReeferContainer(XElement containerElement, BillOfLadingContainerRecordBaseDto baseDto)
         {
-            if (dto.ContainerTypeId?.StartsWith("R", StringComparison.OrdinalIgnoreCase) == true ||
-                dto.ContainerTypeId?.Contains("H", StringComparison.OrdinalIgnoreCase) == true)
+            if (baseDto.ContainerTypeId?.StartsWith("R", StringComparison.OrdinalIgnoreCase) == true ||
+                baseDto.ContainerTypeId?.Contains("H", StringComparison.OrdinalIgnoreCase) == true)
             {
-                if (string.IsNullOrEmpty(dto.ReeferTemp) && dto.ReeferTempSign != null)
+                if (string.IsNullOrEmpty(baseDto.ReeferTemp) && baseDto.ReeferTempSign != null)
                 {
-                    dto.ReeferTemp = "18";
+                    baseDto.ReeferTemp = "18";
                 }
             }
         }
@@ -515,25 +516,49 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
 
         private DateTime? ParseDate(string dateString)
         {
-            if (string.IsNullOrWhiteSpace(dateString) || dateString == ".")
+            if (string.IsNullOrWhiteSpace(dateString) ||
+                dateString == "." ||
+                dateString == ".." ||
+                dateString.Trim() == "")
                 return null;
 
-            if (DateTime.TryParse(dateString, out DateTime result))
-                return result;
+            dateString = dateString.Trim();
 
+            // Пробуем разные форматы
             string[] formats = {
-                _configuration.DateFormat,
                 "yyyy-MM-dd",
                 "dd.MM.yyyy",
                 "MM/dd/yyyy",
                 "yyyy/MM/dd",
-                "dd-MM-yyyy"
+                "dd-MM-yyyy",
+                "yyyyMMdd",
+                "ddMMyyyy",
+                "MMddyyyy",
+                "dd-MMM-yyyy",
+                "dd MMM yyyy",
+                "yyyy-MM-ddTHH:mm:ss",
+                "yyyy-MM-dd HH:mm:ss",
+                "dd.MM.yyyy HH:mm:ss"
             };
 
-            if (DateTime.TryParseExact(dateString, formats, _configuration.NumberCulture,
-                DateTimeStyles.None, out DateTime exactResult))
-                return exactResult;
+            // Сначала пробуем стандартный парсинг
+            if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+                return result;
 
+            // Пробуем точные форматы
+            foreach (var format in formats)
+            {
+                if (DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture,
+                        DateTimeStyles.None, out DateTime exactResult))
+                    return exactResult;
+            }
+
+            // Пробуем удалить время если есть
+            var datePart = dateString.Split(' ', 'T')[0];
+            if (DateTime.TryParse(datePart, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOnlyResult))
+                return dateOnlyResult;
+
+          //  _logger?.LogDebug("Failed to parse date string: '{DateString}'", dateString);
             return null;
         }
 

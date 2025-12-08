@@ -179,8 +179,8 @@ public class CustomerService : ICustomerService
     {
         try
         {
-            var entities = await _customerCrudProvider.GetAllAsync(cancellationToken);
-            return entities.Any(e => e.Code == code);
+            var entities =  _customerCrudProvider.GetAllAsync();
+            return await entities.AnyAsync(e => e.Code == code, cancellationToken);
         }
         catch (Exception ex)
         {

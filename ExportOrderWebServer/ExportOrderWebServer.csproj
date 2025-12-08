@@ -57,6 +57,7 @@
     <PackageReference Include="AspNetCore.Reporting" Version="2.1.0" />
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
     <PackageReference Include="FluentValidation" Version="11.12.0" />
     <PackageReference Include="MailKit" Version="4.12.1" />
@@ -272,6 +273,7 @@
   <ItemGroup>
     <Folder Include="Areas\CustomsReport\" />
     <Folder Include="Areas\ImportDocument\Components\" />
+    <Folder Include="Areas\ImportDocument\Resources\" />
     <Folder Include="Resources\TempFiles\" />
     <Folder Include="wwwroot\js\" />
   </ItemGroup>

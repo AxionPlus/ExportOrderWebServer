@@ -1,0 +1,415 @@
+﻿@using Blazored.LocalStorage
+@using ExportOrderWebServer.Areas.ImportDocument.Extensions
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+
+@inject IBillOfLadingService BillOfLadingService
+@inject IVesselCallService VesselCallService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+
+
+
+<MudPaper Class="pa-4 h-100" Elevation="1">
+    @if (BillOfLadingDto != null)
+    {
+        <div class="d-flex justify-space-between align-center mb-4">
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Bl No</MudText>
+                <MudText Typo="Typo.h6" Color="Color.Primary">@BillOfLadingDto.Num</MudText>
+            </div>
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">POL</MudText>
+                <MudText Typo="Typo.h6">@BillOfLadingDto.Pol?.IsoCode</MudText>
+            </div>
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">TS Port</MudText>
+                <MudText Typo="Typo.h6">@BillOfLadingDto.TsPort?.IsoCode</MudText>
+            </div>
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">TS Date</MudText>
+                <MudDatePicker @bind-Date="@BillOfLadingDto.TsDate" />
+            </div>
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Customs</MudText>
+                <MudSelect T="string" @bind-Value="BillOfLadingDto.CustomsMode">
+                    <MudSelectItem Value="@("ГТД")">ГТД (ДТ)</MudSelectItem>
+                    <MudSelectItem Value="@("ВТТ")">ВТТ (ТТ)</MudSelectItem>
+                </MudSelect>
+            </div>
+            <div>
+                <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.SaveAs" OnClick="OnSave" >Save</MudButton>
+                <MudButton Color="Color.Warning" Variant="Variant.Outlined" OnClick="OnReset">Reset</MudButton>
+            </div>
+        </div>
+        <!-- Основная информация -->
+        <MudGrid>
+            <!-- Табы для деталей -->
+            <MudItem xs="12">
+                <MudTabs @bind-ActivePanelIndex="activeTabIndex">
+                    <MudTabPanel Text="Shipper & Consignee">
+                        <MudGrid>
+                            <!-- Shipper -->
+                            <MudItem xs="12" sm="6">
+                                <MudCard Elevation="0" Class="ma-2">
+                                    <MudCardHeader>
+                                        <MudAvatar Color="Color.Info">
+                                            <MudIcon Icon="@Icons.Material.Filled.Person" />
+                                        </MudAvatar>
+                                        <MudText Class="ml-1" Style="text-wrap: none" Typo="Typo.subtitle1">Shipper (@BillOfLadingDto.Shipper)</MudText>
+                                    </MudCardHeader>
+                                    <MudCardContent>
+                                        <MudText Typo="Typo.h6"> @BillOfLadingDto.ShipperName  @BillOfLadingDto.ShipperAddress</MudText>
+
+                                        <MudTextField @bind-Value="BillOfLadingDto.ShipperNameRu" Variant="Variant.Outlined" Class="mt-3"
+                                                      Label="Shipper Name (RU)" />
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+
+                            <!-- Consignee -->
+                            <MudItem xs="12" sm="6">
+                                <MudCard Elevation="0" Class="ma-2">
+                                    <MudCardHeader>
+                                        <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.RightClick">
+                                            <ActivatorContent>
+                                                <MudAvatar Color="Color.Success">
+                                                    <MudIcon Icon="@Icons.Material.Filled.Business" />
+                                                </MudAvatar>
+                                                <MudText Class="ml-1" Style="text-wrap: none" Typo="Typo.subtitle1">Consignee (@BillOfLadingDto.Consignee)</MudText>
+                                            </ActivatorContent>
+                                            <ChildContent>
+                                                <MudMenuItem> find translate </MudMenuItem>
+                                            </ChildContent>
+                                        </MudMenu>
+                                    </MudCardHeader>
+                                    <MudCardContent>
+                                        <MudText Typo="Typo.h6"> @BillOfLadingDto.ConsigneeName @BillOfLadingDto.ConsigneeAddress</MudText>
+
+                                        <MudTextField @bind-Value="@BillOfLadingDto.ConsigneeNameRu" Variant="Variant.Outlined" Class="mt-3"
+                                                      Label="Consignee Name (RU)" />
+                                        <MudTextField @bind-Value="@BillOfLadingDto.ConsigneeAddressRu" Variant="Variant.Outlined" Class="mt-3"
+                                                      Label="Consignee Address (RU)" />
+                                        <MudTextField @bind-Value="@BillOfLadingDto.ConsigneeCountryRu" Variant="Variant.Outlined" Class="mt-3"
+                                                      Label="Consignee Country (RU)" />
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                        </MudGrid>
+                    </MudTabPanel>
+
+                    <MudTabPanel Text="Cargo Details (Containers)">
+                        <MudCard Elevation="0" Class="ma-2">
+                            <MudCardContent>
+                                <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-3">Cargo Description</MudText>
+                                <MudText Typo="Typo.body2">@BillOfLadingDto.CargoDescription</MudText>
+                                <MudMenu ActivationEvent="@MouseEvent.RightClick" Class="w-100">
+                                    <ActivatorContent>
+                                        <MudTextField @bind-Value="@BillOfLadingDto.CargoDescriptionRu" Variant="Variant.Outlined"
+                                                      Label="Cargo Description (RU)" Lines="3" />
+                                    </ActivatorContent>
+                                    <ChildContent>
+                                        <MudMenuItem OnClick="SetForAllContainersCargoDescription">for all containers</MudMenuItem>
+                                    </ChildContent>
+                                </MudMenu>
+                            </MudCardContent>
+                        </MudCard>
+                        <MudCard Elevation="0" Class="ma-2">
+                            @if (BillOfLadingDto.ContainerRecords?.Any() == true)
+                            {
+                                <MudTable T="BillOfLadingContainerRecordBaseDto" Items="@BillOfLadingDto.ContainerRecords" Dense
+                                          Hover
+                                          HorizontalScrollbar
+                                          RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+                                          RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked
+                                          ApplyButtonPosition="TableApplyButtonPosition.Start" EditButtonPosition="TableEditButtonPosition.Start" EditTrigger="TableEditTrigger.EditButton">
+                                    <HeaderContent>
+                                        <MudTh Style="width: 100px">Container No</MudTh>
+                                        <MudTh Style="width: 40px">SOC</MudTh>
+                                        <MudTh Style="width: 50px">Type</MudTh>
+                                        <MudTh Style="width: 100px">Weight</MudTh>
+                                        <MudTh Style="width: 80px">Pkgs</MudTh>
+                                        <MudTh Style="width: 500px">CargoDescription</MudTh>
+                                        <MudTh Style="width: 60px">IMO</MudTh>
+                                        <MudTh Style="width: 60px">UNNO</MudTh>
+                                        <MudTh Style="width: 50px">REF</MudTh>
+                                        <MudTh>Actions</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="Container No">@context.ContainerNo</MudTd>
+                                        <MudTd DataLabel="SOC">@(context.IsSoc ? "Y" : "N")</MudTd>
+                                        <MudTd DataLabel="Type">@context.ContainerTypeId (@context.IsoCode)</MudTd>
+                                        <MudTd DataLabel="Weight">@context.GrossWeight (@context.GrossWeightUOM)</MudTd>
+                                        <MudTd DataLabel="Packages">@context.NoOfPackage</MudTd>
+                                        <MudTd DataLabel="CargoDescription">
+                                            <div style="width: 500px;
+                                                                                                                                                                                        word-wrap: break-word;
+                                                                                                                                                                                        white-space: normal;
+                                                                                                                                                                                        overflow: hidden;
+                                                                                                                                                                                        text-overflow: ellipsis;
+                                                                                                                                                                                        display: -webkit-box;
+                                                                                                                                                                                        -webkit-box-orient: vertical;">
+                                                @context.CargoDescriptionRu
+                                            </div>
+                                        </MudTd>
+                                        <MudTd DataLabel="IMCOClass">@context.IMCOClass</MudTd>
+                                        <MudTd DataLabel="IMCONumber">@context.IMCONumber</MudTd>
+                                        <MudTd DataLabel="ReeferTemp">@context.ReeferFullTemp</MudTd>
+                                        <MudTd DataLabel="Actions">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Info"
+                                                           Color="Color.Info"
+                                                           Size="Size.Small"
+                                                           OnClick="@(() => ShowContainerDetails(context))" />
+                                        </MudTd>
+                                    </RowTemplate>
+                                    <RowEditingTemplate>
+                                        <MudTd DataLabel="Container No"><MudText Typo="Typo.h6">@context.ContainerNo</MudText></MudTd>
+                                        <MudTd DataLabel="SOC">@(context.IsSoc ? "Y" : "N")</MudTd>
+                                        <MudTd DataLabel="Type">@context.ContainerTypeId (@context.IsoCode)</MudTd>
+                                        <MudTd DataLabel="Weight">@context.GrossWeight (@context.GrossWeightUOM)</MudTd>
+                                        <MudTd DataLabel="Packages">@context.NoOfPackage</MudTd>
+                                        <MudTd DataLabel="CargoDescription"><MudTextField Style="min-width: 470px" @bind-Value="@context.CargoDescriptionRu" Lines="3" /></MudTd>
+                                        <MudTd DataLabel="IMCOClass">@context.IMCOClass</MudTd>
+                                        <MudTd DataLabel="IMCONumber">@context.IMCONumber</MudTd>
+                                        <MudTd DataLabel="ReeferTemp">@context.ReeferFullTemp</MudTd>
+
+                                        <MudTd DataLabel="Actions"></MudTd>
+                                    </RowEditingTemplate>
+                                    <FooterContent>
+                                        <MudTd colspan="9">
+                                            <div class="d-flex justify-space-between align-center mb-4">
+                                                <div>
+                                                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">TotalContainers</MudText>
+                                                    <MudText Typo="Typo.h6"> @BillOfLadingDto.TotalContainers</MudText>
+                                                </div>
+                                                <div>
+                                                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">TotalGrossWeight</MudText>
+                                                    <MudText Typo="Typo.h6">@BillOfLadingDto.TotalGrossWeight.ToString("N3")</MudText>
+                                                </div>
+                                                <div>
+                                                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">TotalNoOfPackage</MudText>
+                                                    <MudText Typo="Typo.h6">@BillOfLadingDto.TotalNoOfPackage.ToString("N0")</MudText>
+                                                </div>
+                                            </div>
+                                        </MudTd>
+                                    </FooterContent>
+                                </MudTable>
+                            }
+                            else
+                            {
+                                <MudAlert Severity="Severity.Info">
+                                    No container records found.
+                                </MudAlert>
+                            }
+                        </MudCard>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudItem>
+        </MudGrid>
+    }
+    else
+    {
+        <div class="d-flex flex-column align-center justify-center h-100">
+            <MudIcon Icon="@Icons.Material.Filled.Description" Size="Size.Large" Color="Color.Secondary" Class="mb-3" />
+            <MudText Typo="Typo.h6" Color="Color.Secondary">Select a bill of lading</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center">
+                Click on a bill of lading from the list to view details
+            </MudText>
+        </div>
+    }
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public BillOfLadingBaseDto? BillOfLadingDto { get; set; }
+    [Parameter]
+    public EventCallback<BillOfLadingBaseDto> OnRequestData { get; set; }
+
+    private bool isLoading = false;
+    private BillOfLadingContainerRecordBaseDto elementBeforeEdit { get; set; }
+    private int activeTabIndex = 0;
+
+
+
+    public async void Get(BillOfLadingBaseDto billOfLadingBaseDto)
+    {
+        try
+        {
+            BillOfLadingDto = await BillOfLadingService.GetByIdAsync(billOfLadingBaseDto.Id);
+
+            activeTabIndex = 0; // Сбрасываем на первую вкладку
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading bills of lading: {ex.Message}", Severity.Error);
+        }
+    }
+    public async Task LoadBillOfLadingById(Guid id)
+    {
+        try
+        {
+            // Используем EventCallback если он установлен
+            if (OnRequestData.HasDelegate)
+            {
+                await OnRequestData.InvokeAsync(new BillOfLadingBaseDto { Id = id });
+            }
+            else
+            {
+                // Или загружаем напрямую
+                BillOfLadingDto = await BillOfLadingService.GetByIdAsync(id);
+                activeTabIndex = 0;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading bill of lading: {ex.Message}", Severity.Error);
+        }
+    }
+    private void ShowContainerDetails(BillOfLadingContainerRecordBaseDto container)
+    {
+        var parameters = new DialogParameters
+        {
+            ["Container"] = container
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small
+        };
+
+        DialogService.Show<ContainerDetailsDialog>("Container Details", parameters, options);
+    }
+
+
+
+
+    private void BackupItem(object element)
+    {
+        elementBeforeEdit = BackupObject.DeepCopy((BillOfLadingContainerRecordBaseDto)element);
+    }
+
+    private async void ItemHasBeenCommitted(object element)
+    {
+        var bookingCargoRecordDto = (BillOfLadingContainerRecordBaseDto)element;
+
+
+        // Проверяем, были ли изменения
+        if (ObjectComparer.AreEqualByJsonBytes<BillOfLadingContainerRecordBaseDto>(bookingCargoRecordDto, elementBeforeEdit))
+            return;
+        try
+        {
+            await BillOfLadingService.UpdateAsync(bookingCargoRecordDto);
+
+            Snackbar.Add("Save succeeded", Severity.Success);
+
+
+        }
+        catch (OperationCanceledException ex)
+        {
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving data: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            // await GetBookingItem_Click();
+            StateHasChanged();
+        }
+
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        BackupObject.CreateObjectBackup<BillOfLadingContainerRecordBaseDto>(elementBeforeEdit, element);
+    }
+    private Task SetForAllContainersCargoDescription()
+    {
+        throw new NotImplementedException();
+    }
+
+    private async Task OpenEditDialog(BillOfLadingBaseDto bill)
+    {
+        var parameters = new DialogParameters
+        {
+            ["BillOfLading"] = bill
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+
+        var dialog = await DialogService.ShowAsync<EditBillOfLadingDialog>("Edit Bill of Lading", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            // Обновляем выбранный коносамент
+            // SelectedBill = await BillOfLadingService.GetByIdAsync(bill.Id);
+            // await OnVesselCallChanged();
+        }
+    }
+    private async Task OpenDeleteDialog(Guid billId, string billNumber)
+    {
+        var parameters = new DialogParameters
+        {
+            ["ContentText"] = $"Are you sure you want to delete bill of lading '{billNumber}'? This action cannot be undone.",
+            ["ButtonText"] = "Delete",
+            ["Color"] = Color.Error
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = DialogService.Show<ConfirmationDialog>("Delete Confirmation", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            try
+            {
+                var success = await BillOfLadingService.DeleteAsync(billId);
+                if (success)
+                {
+                    Snackbar.Add($"Bill of lading '{billNumber}' deleted successfully", Severity.Success);
+                    // await OnVesselCallChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error deleting bill of lading: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private async Task OnSave()
+    {
+        try
+        {
+            await BillOfLadingService.UpdateAsync(BillOfLadingDto);
+            Snackbar.Add("Save succeeded", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add($"Error saving data: {ex.Message}", Severity.Error);
+        }
+    }
+    private async Task OnReset()
+    {
+
+        if (BillOfLadingDto != null)
+             Get(BillOfLadingDto);
+ 
+    }
+}

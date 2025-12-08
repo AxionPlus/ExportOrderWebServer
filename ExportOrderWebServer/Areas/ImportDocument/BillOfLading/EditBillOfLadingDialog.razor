@@ -5,7 +5,7 @@
 @using FluentValidation
 @inject IBillOfLadingService BillOfLadingService
 @inject ISnackbar Snackbar
-@inject IValidator<BillOfLadingDto> Validator
+@inject IValidator<BillOfLadingBaseDto> Validator
 
 <MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
     <DialogContent>
@@ -65,7 +65,8 @@
                                 <MudTextField @bind-Value="BillToEdit.ConsigneeCode"
                                            Label="Consignee Code"/>
                                 <MudTextField @bind-Value="BillToEdit.ConsigneeNameRu"
-                                           Label="Consignee Name (RU)"/>
+                                              Label="Consignee Name (RU)"/>
+
                             </MudItem>
                         </MudGrid>
                     </MudTabPanel>
@@ -111,9 +112,9 @@
 @code {
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     
-    [Parameter] public BillOfLadingDto BillOfLading { get; set; }
+    [Parameter] public BillOfLadingBaseDto BillOfLadingBase { get; set; }
 
-    private BillOfLadingDto BillToEdit;
+    private BillOfLadingBaseDto BillToEdit;
     private MudForm form;
     private bool isValid;
     private string[] errors;
@@ -121,10 +122,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (BillOfLading != null)
+        if (BillOfLadingBase != null)
         {
             // Загружаем полные данные коносамента
-            BillToEdit = await BillOfLadingService.GetByIdAsync(BillOfLading.Id);
+            BillToEdit = await BillOfLadingService.GetByIdAsync(BillOfLadingBase.Id);
         }
     }
 

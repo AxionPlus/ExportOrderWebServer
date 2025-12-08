@@ -164,9 +164,9 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Provider
                    "System";
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken, params Expression<Func<T, object>>[] includes)
+        public virtual IQueryable<T> GetAllAsync(params Expression<Func<T, object>>[] includes)
         {
-            return await _repository.FindAsync(e => e.Status != BaseEntityStatus.Canceled);
+            return  _repository.GetAllAsync(includes);
         }
 
         public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)

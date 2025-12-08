@@ -15,12 +15,20 @@ public class BillOfLadingBaseEntity : BaseEntity
     public DateTime Date { get; set; } //BLDate
 
     public DateTime? TsDate { get; set; } //BLDate
-    public string? TsPort { get; set; } //BLDate
+
+    [ForeignKey("TsPort")]
+    public Guid? TsPortId { get; set; } //BLDate
+    public PortBaseEntity? TsPort { get; set; } //BLDate
+    public string? Carrier { get; set; }
 
     public string CustomerCode { get; set; } = string.Empty;
     public string BookingParty { get; set; } = string.Empty;
     public string Origin { get; set; } = string.Empty;
-    public string Pol { get; set; } = string.Empty;
+
+
+    [ForeignKey("Pol")]
+    public Guid? PolId { get; set; } //BLDate
+    public PortBaseEntity? Pol { get; set; } //BLDate
     public string Pod { get; set; } = string.Empty;
     public string FinalPod { get; set; } = string.Empty;
     public string Shipper { get; set; } = string.Empty;
@@ -40,6 +48,8 @@ public class BillOfLadingBaseEntity : BaseEntity
 
     public string PartBl { get; set; } = string.Empty;
     public string CargoDescription { get; set; } = string.Empty;
+    public string? CargoDescriptionRu { get; set; }
+    public string CustomsMode { get; set; } = "ГТД";
 
     public List<BillOfLadingContainerRecordBaseEntity> ContainerRecords { get; set; } = new();
 
@@ -73,6 +83,9 @@ public class BillOfLadingContainerRecordBaseEntity : BaseEntity
     public string? ReeferHumidity { get; set; } 
     public string? ReeferVentilation { get; set; } 
     public string BookingNo { get; set; } = string.Empty;
+
+
+    public string? CargoDescriptionRu { get; set; } 
 
     public bool ContainerAsCargo { get; set; }
 

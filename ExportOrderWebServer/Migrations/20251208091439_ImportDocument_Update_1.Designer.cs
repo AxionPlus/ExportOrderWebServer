@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ExportOrderDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251208091439_ImportDocument_Update_1")]
+    partial class ImportDocument_Update_1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1153,9 +1156,6 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<string>("CargoDescriptionRu")
                         .HasColumnType("text");
 
-                    b.Property<string>("Carrier")
-                        .HasColumnType("text");
-
                     b.Property<string>("Consignee")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1185,10 +1185,6 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CustomerCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CustomsMode")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -1230,8 +1226,9 @@ namespace ExportOrderWebServer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("PolId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Pol")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Shipper")
                         .IsRequired()
@@ -1261,8 +1258,8 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<DateTime?>("TsDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid?>("TsPortId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("TsPort")
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1277,10 +1274,6 @@ namespace ExportOrderWebServer.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PolId");
-
-                    b.HasIndex("TsPortId");
 
                     b.HasIndex("VesselCallId");
 
@@ -2715,25 +2708,11 @@ namespace ExportOrderWebServer.Migrations
 
             modelBuilder.Entity("ExportOrderEntites.ImportDocument.BillOfLadingBaseEntity", b =>
                 {
-                    b.HasOne("ExportOrderEntites.ImportDocument.PortBaseEntity", "Pol")
-                        .WithMany()
-                        .HasForeignKey("PolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExportOrderEntites.ImportDocument.PortBaseEntity", "TsPort")
-                        .WithMany()
-                        .HasForeignKey("TsPortId");
-
                     b.HasOne("ExportOrderEntites.ImportDocument.VesselCallBaseEntity", "VesselCall")
                         .WithMany("BillOfLadings")
                         .HasForeignKey("VesselCallId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Pol");
-
-                    b.Navigation("TsPort");
 
                     b.Navigation("VesselCall");
                 });

@@ -1,11 +1,12 @@
-﻿using ExportOrderEntites.ImportDocument;
+﻿using ExportOrderEntites;
+using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.Port.Mapper
 {
     public static class PortMapper
     {
-        public static PortDto ToDto(this PortBaseEntity entity)
+        public static PortDto? ToDto(this PortBaseEntity entity)
         {
             if (entity == null) return null;
 
@@ -35,6 +36,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Port.Mapper
                 Timestamp = entity.Timestamp
             };
         }
+   
 
         public static PortBaseEntity ToEntity(this PortDto dto)
         {
@@ -51,6 +53,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Port.Mapper
                 AuxIsoCode = dto.AuxIsoCode,
                 PikYugIsoCode = dto.PikYugIsoCode,
 
+                HandledBySystem = dto.HandledBySystem,
                 // BaseEntity fields
                 Status = dto.Status,
             };

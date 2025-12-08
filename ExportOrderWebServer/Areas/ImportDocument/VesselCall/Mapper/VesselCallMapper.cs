@@ -1,4 +1,5 @@
 ﻿using ExportOrderEntites.ImportDocument;
+using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.Vessel.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Mapper;
@@ -29,6 +30,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
                 PortOfLoading = entity.PortOfLoading.ToDto(), // Предполагая существование ToPortDto
                 FeederBlNo = entity.FeederBlNo,
 
+                BillOfLadings = entity.BillOfLadings.Any()? entity.BillOfLadings.ToDtoList(): new (),
                 // BaseEntity fields
                 Status = entity.Status,
                 Version = entity.Version,

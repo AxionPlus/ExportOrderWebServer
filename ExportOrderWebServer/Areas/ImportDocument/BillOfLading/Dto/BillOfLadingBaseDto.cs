@@ -1,23 +1,24 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ExportOrderEntites.ImportDocument;
+using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 
-public class BillOfLadingDto : BaseEntity
+public class BillOfLadingBaseDto : BaseEntity
 {
     [Required]
     public string Num { get; set; } = string.Empty;
     public DateTime? Date { get; set; }
 
     public DateTime? TsDate { get; set; }
-    public string? TsPort { get; set; } = string.Empty;
+    public PortDto? TsPort { get; set; } 
+    public string? Carrier { get; set; } = string.Empty;
 
     public string CustomerCode { get; set; } = string.Empty;
     public string BookingParty { get; set; } = string.Empty;
     public string Origin { get; set; } = string.Empty;
-    public string Pol { get; set; } = string.Empty;
+    public PortDto? Pol { get; set; }
     public string Pod { get; set; } = string.Empty;
     public string FinalPod { get; set; } = string.Empty;
     public string Shipper { get; set; } = string.Empty;
@@ -32,26 +33,69 @@ public class BillOfLadingDto : BaseEntity
     public string ConsigneeAddress { get; set; } = string.Empty;
     public string? ConsigneeNameRu { get; set; }
     public string? ConsigneeAddressRu { get; set; }
+    public string? ConsigneeCountryRu { get; set; } = "РОССИЯ";
 
     public string PartBl { get; set; } = string.Empty;
     public string CargoDescription { get; set; } = string.Empty;
+    public string? CargoDescriptionRu { get; set; }
 
+    public string CustomsMode { get; set; } = "ГТД";
     public Guid VesselCallId { get; set; }
     public VesselCallDto VesselCall { get; set; }
 
-    public List<BillOfLadingContainerRecordDto> ContainerRecords { get; set; } = new();
+    public List<BillOfLadingContainerRecordBaseDto> ContainerRecords { get; set; } = new();
 
-    [NotMapped]
-    public string BillOfLadingDisplay => $"{Num} - {Date:dd.MM.yyyy}";
-
-    [NotMapped]
-    public string FullInfo => $"{Num} ({Date:dd.MM.yyyy}) | Shipper: {ShipperName} | Consignee: {ConsigneeName}";
-
-    [NotMapped]
     public int TotalContainers => ContainerRecords?.Count ?? 0;
+
+
+    public bool HasTranslate
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ConsigneeNameRu))
+                return false;
+            if (string.IsNullOrWhiteSpace(ConsigneeAddressRu))
+                return false;
+            if (string.IsNullOrWhiteSpace(ConsigneeCountryRu))
+                return false;
+            if (string.IsNullOrWhiteSpace(CargoDescriptionRu))
+                return false;
+            if (string.IsNullOrWhiteSpace(ShipperNameRu))
+                return false;
+            if (ContainerRecords.Any(s => string.IsNullOrWhiteSpace(s.CargoDescriptionRu)))
+                return false;
+
+            return true;
+        }
+    }
+
+    public double TotalGrossWeight => ContainerRecords.Sum(s => s.GrossWeight);
+    public double TotalNoOfPackage => ContainerRecords.Sum(s => s.NoOfPackage);
+
+
+    public string? ShipperFullName
+    {
+        get
+        {
+            if (Pol == null || string.IsNullOrWhiteSpace(Pol.CountryRu) || string.IsNullOrWhiteSpace(ShipperNameRu))
+                return null;
+            return $"{Pol.CountryRu}, {ShipperNameRu}";
+        }
+    }
+
+    public string? ConsigneeFullName
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ConsigneeCountryRu) || string.IsNullOrWhiteSpace(ConsigneeNameRu) || string.IsNullOrWhiteSpace(ConsigneeAddressRu))
+                return null;
+            return $"{ConsigneeCountryRu}, {ConsigneeNameRu} {ConsigneeAddressRu}";
+        }
+    }
+
 }
 
-public class BillOfLadingContainerRecordDto : BaseEntity
+public class BillOfLadingContainerRecordBaseDto : BaseEntity
 {
     public string ContainerNo { get; set; } = string.Empty;
     public string ContainerTypeId { get; set; } = string.Empty;
@@ -70,11 +114,16 @@ public class BillOfLadingContainerRecordDto : BaseEntity
     public string? IMCONumber { get; set; }
     public string? ReeferTempSign { get; set; }
     public string? ReeferTemp { get; set; }
+    public string? ReeferFullTemp =>
+        string.IsNullOrEmpty(ReeferTempSign)
+            ? ReeferTemp
+            : $"{ReeferTempSign.Substring(0, 1)}{ReeferTemp}";
     public string? ReeferTempUOM { get; set; }
     public string? ReeferHumidity { get; set; }
     public string? ReeferVentilation { get; set; }
     public string BookingNo { get; set; } = string.Empty;
-    public bool ContainerAsCargo { get; set; }
 
+    public bool ContainerAsCargo { get; set; }
+    public string? CargoDescriptionRu { get; set; }
     public Guid BillOfLadingId { get; set; }
 }

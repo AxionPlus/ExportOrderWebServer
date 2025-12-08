@@ -7,6 +7,7 @@ using ExportOrderWebServer.Areas.Import.ImportManifest.Provider;
 using ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider;
 using ExportOrderWebServer.Areas.Import.ReleaseRecords.Services;
 using ExportOrderWebServer.Areas.Import.VesselCall.Provider;
+using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Provider;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Validator;
@@ -21,6 +22,7 @@ using ExportOrderWebServer.Areas.ImportDocument.Port.Services;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Validator;
 using ExportOrderWebServer.Areas.ImportDocument.Provider;
 using ExportOrderWebServer.Areas.ImportDocument.Repositories;
+using ExportOrderWebServer.Areas.ImportDocument.Services;
 using ExportOrderWebServer.Areas.ImportDocument.Terminal.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Terminal.Provider;
 using ExportOrderWebServer.Areas.ImportDocument.Terminal.Services;
@@ -174,8 +176,14 @@ builder.Services.AddScoped<IBillOfLadingService, BillOfLadingService>();
 builder.Services.AddScoped<IVesselCallService, VesselCallService>();
 
 // Добавить валидаторы
-builder.Services.AddTransient<IValidator<ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto.BillOfLadingDto>, BillOfLadingDtoValidator>();
-builder.Services.AddTransient<IValidator<ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto.BillOfLadingContainerRecordDto>, BillOfLadingContainerRecordDtoValidator>();
+builder.Services.AddTransient<IValidator<BillOfLadingBaseDto>, BillOfLadingDtoValidator>();
+builder.Services.AddTransient<IValidator<BillOfLadingContainerRecordBaseDto>, BillOfLadingContainerRecordDtoValidator>();
+
+
+builder.Services.AddScoped<IExcelExportService, ClosedXmlExcelExportService>();
+builder.Services.AddScoped<IArrivalNoticeExportService, ArrivalNoticeExportService>();
+
+builder.Services.AddScoped<IManifestXmlGenerator, ManifestXmlGenerator>();
 
 // Добавление сервиса с настройками
 builder.Services.AddXMLParserService(config =>

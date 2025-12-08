@@ -8,6 +8,7 @@ using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection.Emit;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Controller;
 
@@ -19,16 +20,18 @@ public class ManifestController : ControllerBase
     private readonly IBillOfLadingService _billOfLadingService;
     private readonly IVesselCallService _vesselCallService;
     private readonly ILogger<ManifestController> _logger;
-
+    private readonly IManifestXmlGenerator _xmlGenerator;
     public ManifestController(
         IXMLParserService parserService,
         IBillOfLadingService billOfLadingService,
         IVesselCallService vesselCallService,
+        IManifestXmlGenerator xmlGenerator,
         ILogger<ManifestController> logger)
     {
         _parserService = parserService;
         _billOfLadingService = billOfLadingService;
         _vesselCallService = vesselCallService;
+        _xmlGenerator = xmlGenerator;
         _logger = logger;
     }
 
@@ -244,6 +247,36 @@ public class ManifestController : ControllerBase
         var stats = _parserService.GetParserStatistics();
         return Ok(stats);
     }
+
+    [HttpPost("generate")]
+    public IActionResult GenerateManifest([FromBody] VesselCallDto vesselCall)
+    {
+        try
+        {
+            var xmlBytes = _xmlGenerator.GenerateManifestXml(vesselCall);
+
+            return File(xmlBytes, "application/xml", $"manifest_{vesselCall.Vessel?.Name}_{vesselCall.VoyageNo}.xml");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Ошибка генерации XML: {ex.Message}");
+        }
+    }
+
+    [HttpPost("preview")]
+    public IActionResult PreviewManifest([FromBody] VesselCallDto vesselCall)
+    {
+        try
+        {
+            var xmlString = _xmlGenerator.GenerateManifestXmlString(vesselCall);
+            return Content(xmlString, "application/xml");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Ошибка генерации XML: {ex.Message}");
+        }
+    }
+
 
 }
 

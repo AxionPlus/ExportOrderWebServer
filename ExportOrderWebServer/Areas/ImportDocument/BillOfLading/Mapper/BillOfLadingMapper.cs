@@ -1,26 +1,28 @@
 ﻿using ExportOrderEntites.ImportDocument;
+using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
+using ExportOrderWebServer.Areas.ImportDocument.Port.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper;
-using Dto = ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Mapper;
 
 public static class BillOfLadingMapper
 {
-    public static Dto.BillOfLadingDto ToDto(this BillOfLadingBaseEntity entity)
+    public static Dto.BillOfLadingBaseDto ToDto(this BillOfLadingBaseEntity entity)
     {
         if (entity == null) return null;
 
-        return new Dto.BillOfLadingDto
+        return new Dto.BillOfLadingBaseDto
         {
             Id = entity.Id,
             Num = entity.Num,
             Date = entity.Date,
             TsDate = entity.TsDate,
-            TsPort = entity.TsPort,
+            TsPort = entity.TsPort?.ToDto(),
+            Carrier = entity.Carrier,
             CustomerCode = entity.CustomerCode,
             BookingParty = entity.BookingParty,
             Origin = entity.Origin,
-            Pol = entity.Pol,
+            Pol = entity.Pol.ToDto(),
             Pod = entity.Pod,
             FinalPod = entity.FinalPod,
             Shipper = entity.Shipper,
@@ -36,8 +38,10 @@ public static class BillOfLadingMapper
             ConsigneeAddressRu = entity.ConsigneeAddressRu,
             PartBl = entity.PartBl,
             CargoDescription = entity.CargoDescription,
+            CargoDescriptionRu = entity.CargoDescriptionRu,
+            CustomsMode = entity.CustomsMode,
             VesselCallId = entity.VesselCallId,
-            VesselCall = entity.VesselCall.ToDto(),
+            // VesselCall = entity.VesselCall.ToDto(),
             ContainerRecords = entity.ContainerRecords?.Select(cr => cr.ToDto()).ToList() ?? new(),
 
             // BaseEntity fields
@@ -56,11 +60,11 @@ public static class BillOfLadingMapper
         };
     }
 
-    public static Dto.BillOfLadingContainerRecordDto ToDto(this BillOfLadingContainerRecordBaseEntity entity)
+    public static Dto.BillOfLadingContainerRecordBaseDto ToDto(this BillOfLadingContainerRecordBaseEntity entity)
     {
         if (entity == null) return null;
 
-        return new Dto.BillOfLadingContainerRecordDto
+        return new Dto.BillOfLadingContainerRecordBaseDto
         {
             Id = entity.Id,
             ContainerNo = entity.ContainerNo,
@@ -85,7 +89,7 @@ public static class BillOfLadingMapper
             ReeferVentilation = entity.ReeferVentilation,
             BookingNo = entity.BookingNo,
             ContainerAsCargo = entity.ContainerAsCargo,
-
+            CargoDescriptionRu = entity.CargoDescriptionRu,
             // BaseEntity fields
             Status = entity.Status,
             Version = entity.Version,
@@ -102,109 +106,113 @@ public static class BillOfLadingMapper
         };
     }
 
-    public static BillOfLadingBaseEntity ToEntity(this Dto.BillOfLadingDto dto)
+    public static BillOfLadingBaseEntity ToEntity(this Dto.BillOfLadingBaseDto baseDto)
     {
-        if (dto == null) return null;
+        if (baseDto == null) return null;
 
         return new BillOfLadingBaseEntity
         {
-            Id = dto.Id,
-            Num = dto.Num,
-            Date = dto.Date.Value,
-            TsDate = dto.TsDate,
-            TsPort = dto.TsPort,
-            CustomerCode = dto.CustomerCode,
-            BookingParty = dto.BookingParty,
-            Origin = dto.Origin,
-            Pol = dto.Pol,
-            Pod = dto.Pod,
-            FinalPod = dto.FinalPod,
-            Shipper = dto.Shipper,
-            ShipperCode = dto.ShipperCode,
-            ShipperName = dto.ShipperName,
-            ShipperAddress = dto.ShipperAddress,
-            ShipperNameRu = dto.ShipperNameRu,
-            Consignee = dto.Consignee,
-            ConsigneeCode = dto.ConsigneeCode,
-            ConsigneeName = dto.ConsigneeName,
-            ConsigneeAddress = dto.ConsigneeAddress,
-            ConsigneeNameRu = dto.ConsigneeNameRu,
-            ConsigneeAddressRu = dto.ConsigneeAddressRu,
-            PartBl = dto.PartBl,
-            CargoDescription = dto.CargoDescription,
-            VesselCallId = dto.VesselCallId,
-            ContainerRecords = dto.ContainerRecords?.Select(cr => cr.ToEntity()).ToList() ?? new(),
-            HandledBySystem = dto.HandledBySystem,
+            Id = baseDto.Id,
+            Num = baseDto.Num,
+            Date = baseDto.Date.Value,
+            TsDate = baseDto.TsDate,
+            TsPortId = baseDto.TsPort?.Id,
+            Carrier = baseDto.Carrier,
+            CustomerCode = baseDto.CustomerCode,
+            BookingParty = baseDto.BookingParty,
+            Origin = baseDto.Origin,
+            PolId = baseDto.Pol?.Id,
+            Pod = baseDto.Pod,
+            FinalPod = baseDto.FinalPod,
+            Shipper = baseDto.Shipper,
+            ShipperCode = baseDto.ShipperCode,
+            ShipperName = baseDto.ShipperName,
+            ShipperAddress = baseDto.ShipperAddress,
+            ShipperNameRu = baseDto.ShipperNameRu,
+            Consignee = baseDto.Consignee,
+            ConsigneeCode = baseDto.ConsigneeCode,
+            ConsigneeName = baseDto.ConsigneeName,
+            ConsigneeAddress = baseDto.ConsigneeAddress,
+            ConsigneeNameRu = baseDto.ConsigneeNameRu,
+            ConsigneeAddressRu = baseDto.ConsigneeAddressRu,
+            PartBl = baseDto.PartBl,
+            CargoDescription = baseDto.CargoDescription,
+            CargoDescriptionRu = baseDto.CargoDescriptionRu,
+            VesselCallId = baseDto.VesselCallId,
+            ContainerRecords = baseDto.ContainerRecords?.Select(cr => cr.ToEntity()).ToList() ?? new(),
+            HandledBySystem = baseDto.HandledBySystem,
             // BaseEntity fields
-            Status = dto.Status,
+            Status = baseDto.Status,
         };
     }
 
-    public static BillOfLadingContainerRecordBaseEntity ToEntity(this Dto.BillOfLadingContainerRecordDto dto)
+    public static BillOfLadingContainerRecordBaseEntity ToEntity(this Dto.BillOfLadingContainerRecordBaseDto baseDto)
     {
-        if (dto == null) return null;
+        if (baseDto == null) return null;
 
         return new BillOfLadingContainerRecordBaseEntity
         {
-            Id = dto.Id,
-           // ContainerNo = dto.ContainerNo,
-            ContainerTypeId = dto.ContainerTypeId,
-            IsoCode = dto.IsoCode,
-            TareWt = dto.TareWt,
-            FullOrEmpty = dto.FullOrEmpty,
-            IsSoc = dto.IsSoc,
-            SealNo = dto.SealNo,
-            PackageType = dto.PackageType,
-            NoOfPackage = dto.NoOfPackage,
-            GrossWeight = dto.GrossWeight,
-            GrossWeightUOM = dto.GrossWeightUOM,
-            Volume = dto.Volume,
-            OutOfGauge = dto.OutOfGauge,
-            IMCOClass = dto.IMCOClass,
-            IMCONumber = dto.IMCONumber,
-            ReeferTempSign = dto.ReeferTempSign,
-            ReeferTemp = dto.ReeferTemp,
-            ReeferTempUOM = dto.ReeferTempUOM,
-            ReeferHumidity = dto.ReeferHumidity,
-            ReeferVentilation = dto.ReeferVentilation,
-            BookingNo = dto.BookingNo,
-            ContainerAsCargo = dto.ContainerAsCargo,
-            HandledBySystem = dto.HandledBySystem,
+            Id = baseDto.Id,
+            ContainerNo = baseDto.ContainerNo,
+            ContainerTypeId = baseDto.ContainerTypeId,
+            IsoCode = baseDto.IsoCode,
+            TareWt = baseDto.TareWt,
+            FullOrEmpty = baseDto.FullOrEmpty,
+            IsSoc = baseDto.IsSoc,
+            SealNo = baseDto.SealNo,
+            PackageType = baseDto.PackageType,
+            NoOfPackage = baseDto.NoOfPackage,
+            GrossWeight = baseDto.GrossWeight,
+            GrossWeightUOM = baseDto.GrossWeightUOM,
+            Volume = baseDto.Volume,
+            OutOfGauge = baseDto.OutOfGauge,
+            IMCOClass = baseDto.IMCOClass,
+            IMCONumber = baseDto.IMCONumber,
+            ReeferTempSign = baseDto.ReeferTempSign,
+            ReeferTemp = baseDto.ReeferTemp,
+            ReeferTempUOM = baseDto.ReeferTempUOM,
+            ReeferHumidity = baseDto.ReeferHumidity,
+            ReeferVentilation = baseDto.ReeferVentilation,
+            BookingNo = baseDto.BookingNo,
+            ContainerAsCargo = baseDto.ContainerAsCargo,
+            HandledBySystem = baseDto.HandledBySystem,
             // BaseEntity fields
-            Status = dto.Status,
+            Status = baseDto.Status,
         };
     }
 
-    public static void UpdateEntity(this BillOfLadingBaseEntity entity, Dto.BillOfLadingDto dto)
+    public static void UpdateEntity(this BillOfLadingBaseEntity entity, Dto.BillOfLadingBaseDto baseDto)
     {
         if (entity == null) throw new ArgumentNullException(nameof(entity));
-        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        if (baseDto == null) throw new ArgumentNullException(nameof(baseDto));
 
         //entity.Num = dto.Num;
-        entity.Date = dto.Date.Value;
-        entity.TsDate = dto.TsDate;
-        entity.TsPort = dto.TsPort;
+        entity.Date = baseDto.Date.Value;
+        entity.TsDate = baseDto.TsDate;
+        entity.TsPortId = baseDto.TsPort?.Id;
         //entity.CustomerCode = dto.CustomerCode;
         //entity.BookingParty = dto.BookingParty;
-        entity.Origin = dto.Origin;
-        entity.Pol = dto.Pol;
-        entity.Pod = dto.Pod;
-        entity.FinalPod = dto.FinalPod;
-        entity.Shipper = dto.Shipper;
+        entity.Origin = baseDto.Origin;
+        entity.PolId = baseDto.Pol?.Id;
+        entity.Pod = baseDto.Pod;
+        entity.FinalPod = baseDto.FinalPod;
+        entity.Shipper = baseDto.Shipper;
         //entity.ShipperCode = dto.ShipperCode;
-        entity.ShipperName = dto.ShipperName;
-        entity.ShipperAddress = dto.ShipperAddress;
-        entity.ShipperNameRu = dto.ShipperNameRu;
-        entity.Consignee = dto.Consignee;
+        entity.ShipperName = baseDto.ShipperName;
+        entity.ShipperAddress = baseDto.ShipperAddress;
+        entity.ShipperNameRu = baseDto.ShipperNameRu;
+        entity.Consignee = baseDto.Consignee;
         //entity.ConsigneeCode = dto.ConsigneeCode;
-        entity.ConsigneeName = dto.ConsigneeName;
-        entity.ConsigneeAddress = dto.ConsigneeAddress;
-        entity.ConsigneeNameRu = dto.ConsigneeNameRu;
-        entity.ConsigneeAddressRu = dto.ConsigneeAddressRu;
-       // entity.PartBl = dto.PartBl;
-        entity.CargoDescription = dto.CargoDescription;
-        entity.VesselCallId = dto.VesselCallId;
-        entity.Status = dto.Status;
+        entity.ConsigneeName = baseDto.ConsigneeName;
+        entity.ConsigneeAddress = baseDto.ConsigneeAddress;
+        entity.ConsigneeNameRu = baseDto.ConsigneeNameRu;
+        entity.ConsigneeAddressRu = baseDto.ConsigneeAddressRu;
+        // entity.PartBl = dto.PartBl;
+        entity.CargoDescription = baseDto.CargoDescription;
+        entity.CargoDescriptionRu = baseDto.CargoDescriptionRu;
+        entity.VesselCallId = baseDto.VesselCallId;
+        entity.Status = baseDto.Status;
+        entity.CustomsMode = baseDto.CustomsMode;
 
         // Обновляем контейнерные записи
         //if (dto.ContainerRecords != null)
@@ -217,14 +225,43 @@ public static class BillOfLadingMapper
         //    }
         //}
     }
-
-    public static IEnumerable<Dto.BillOfLadingDto> ToDtoList(this IEnumerable<BillOfLadingBaseEntity> entities)
+    public static void UpdateEntity(this BillOfLadingContainerRecordBaseEntity entity, Dto.BillOfLadingContainerRecordBaseDto baseDto)
     {
-        if (entities == null) return Enumerable.Empty<Dto.BillOfLadingDto>();
-        return entities.Select(entity => entity.ToDto());
+        if (entity == null) throw new ArgumentNullException(nameof(entity));
+        if (baseDto == null) throw new ArgumentNullException(nameof(baseDto));
+
+        entity.ContainerTypeId = baseDto.ContainerTypeId;
+        entity.IsoCode = baseDto.IsoCode;
+        entity.TareWt = baseDto.TareWt;
+        entity.FullOrEmpty = baseDto.FullOrEmpty;
+        entity.IsSoc = baseDto.IsSoc;
+        entity.SealNo = baseDto.SealNo;
+        entity.PackageType = baseDto.PackageType;
+        entity.NoOfPackage = baseDto.NoOfPackage;
+        entity.GrossWeight = baseDto.GrossWeight;
+        entity.GrossWeightUOM = baseDto.GrossWeightUOM;
+        entity.Volume = baseDto.Volume;
+        entity.OutOfGauge = baseDto.OutOfGauge;
+        entity.IMCOClass = baseDto.IMCOClass;
+        entity.IMCONumber = baseDto.IMCONumber;
+        entity.ReeferTempSign = baseDto.ReeferTempSign;
+        entity.ReeferTemp = baseDto.ReeferTemp;
+        entity.ReeferTempUOM = baseDto.ReeferTempUOM;
+        entity.ReeferHumidity = baseDto.ReeferHumidity;
+        entity.ReeferVentilation = baseDto.ReeferVentilation;
+        entity.ContainerAsCargo = baseDto.ContainerAsCargo;
+        entity.HandledBySystem = baseDto.HandledBySystem;
+        entity.CargoDescriptionRu = baseDto.CargoDescriptionRu;
+        entity.Status = baseDto.Status;
     }
 
-    public static List<BillOfLadingBaseEntity> ToEntityList(this IEnumerable<Dto.BillOfLadingDto> dtos)
+
+    public static List<BillOfLadingBaseDto> ToDtoList(this IEnumerable<BillOfLadingBaseEntity> entities)
+    {
+        return entities.Select(entity => entity.ToDto()).ToList();
+    }
+
+    public static List<BillOfLadingBaseEntity> ToEntityList(this IEnumerable<Dto.BillOfLadingBaseDto> dtos)
     {
         if (dtos == null) return new List<BillOfLadingBaseEntity>();
         return dtos.Select(dto => dto.ToEntity()).ToList();

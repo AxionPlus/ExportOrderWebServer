@@ -5,7 +5,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Provider
 {
     public interface ICrudProvider<T>
     {
-        Task<IEnumerable<T>> GetAllAsync (CancellationToken cancellationToken= default, params Expression<Func<T, object>>[] includes);
+        IQueryable<T> GetAllAsync (params Expression<Func<T, object>>[] includes);
         Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includes);
         Task<PaginatedResult<T>> GetPaginatedAsync(
             int pageNumber,

@@ -6,7 +6,7 @@
 @using FluentValidation
 @inject IBillOfLadingService BillOfLadingService
 @inject ISnackbar Snackbar
-@inject IValidator<BillOfLadingDto> Validator
+@inject IValidator<BillOfLadingBaseDto> Validator
 
 <MudDialog>
     <DialogContent>
@@ -129,7 +129,7 @@
     [Parameter] public Guid VesselCallId { get; set; }
     [Parameter] public VesselCallDto VesselCall { get; set; }
 
-    private BillOfLadingDto NewBill = new();
+    private BillOfLadingBaseDto NewBill = new();
     private MudForm form;
     private bool isValid;
     private string[] errors;

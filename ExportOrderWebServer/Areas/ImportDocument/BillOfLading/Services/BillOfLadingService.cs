@@ -1,46 +1,56 @@
-﻿using ExportOrderEntites.ImportDocument;
-using ExportOrderWebServer.Areas.ImportDocument.Provider;
+﻿using ExportOrderEntites;
+using ExportOrderEntites.ImportDocument;
+using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Mapper;
+using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
+using ExportOrderWebServer.Areas.ImportDocument.Port.Services;
+using ExportOrderWebServer.Areas.ImportDocument.Provider;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services;
-using Dto = ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services;
 
 public interface IBillOfLadingService
 {
-    Task<Dto.BillOfLadingDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<PaginatedResult<Dto.BillOfLadingDto>> GetPaginatedAsync(
+    Task<BillOfLadingBaseDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<PaginatedResult<BillOfLadingBaseDto>> GetPaginatedAsync(
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default,
         string? searchTerm = null,
         string? sortBy = null,
         bool sortDesc = false);
-    Task<Dto.BillOfLadingDto> CreateAsync(Dto.BillOfLadingDto dto, CancellationToken cancellationToken = default);
-    Task<Dto.BillOfLadingDto> UpdateAsync(Dto.BillOfLadingDto dto, CancellationToken cancellationToken = default);
+    Task<BillOfLadingBaseDto> CreateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default);
+    Task<BillOfLadingBaseDto> UpdateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<IEnumerable<Dto.BillOfLadingDto>> GetByVesselCallIdAsync(Guid vesselCallId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<Dto.BillOfLadingDto>> GetByContainerNumberAsync(string containerNo, CancellationToken cancellationToken = default);
+    Task<IEnumerable<BillOfLadingBaseDto>> GetByVesselCallIdAsync(Guid vesselCallId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<BillOfLadingBaseDto>> GetByContainerNumberAsync(string containerNo, CancellationToken cancellationToken = default);
     Task<bool> CheckBillNumberExistsAsync(string billNo, Guid? excludeId = null, CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(Dto.BillOfLadingContainerRecordBaseDto baseDto, CancellationToken cancellationToken = default);
 }
 
 public class BillOfLadingService : IBillOfLadingService
 {
     private readonly ICrudProvider<BillOfLadingBaseEntity> _billOfLadingCrudProvider;
     private readonly IVesselCallService _vesselCallService;
+    private readonly IPortService _portService;
     private readonly ILogger<BillOfLadingService> _logger;
-
+    protected readonly ApplicationDbContext _context;
     public BillOfLadingService(
         ICrudProvider<BillOfLadingBaseEntity> billOfLadingCrudProvider,
-        IVesselCallService vesselCallService,
-        ILogger<BillOfLadingService> logger)
+    ApplicationDbContext context,
+    IVesselCallService vesselCallService,
+    IPortService portService,
+    ILogger<BillOfLadingService> logger)
     {
         _billOfLadingCrudProvider = billOfLadingCrudProvider;
         _vesselCallService = vesselCallService;
+        _portService = portService;
         _logger = logger;
+        _context = context;
     }
 
-    public async Task<Dto.BillOfLadingDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<BillOfLadingBaseDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -65,7 +75,7 @@ public class BillOfLadingService : IBillOfLadingService
         }
     }
 
-    public async Task<PaginatedResult<Dto.BillOfLadingDto>> GetPaginatedAsync(
+    public async Task<PaginatedResult<BillOfLadingBaseDto>> GetPaginatedAsync(
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default,
@@ -85,7 +95,7 @@ public class BillOfLadingService : IBillOfLadingService
                 s => s.VesselCall,
                 s => s.VesselCall.Vessel);
 
-            return new PaginatedResult<Dto.BillOfLadingDto>
+            return new PaginatedResult<BillOfLadingBaseDto>
             {
                 Items = entities.Items.ToDtoList(),
                 TotalCount = entities.TotalCount,
@@ -101,79 +111,88 @@ public class BillOfLadingService : IBillOfLadingService
         }
     }
 
-    public async Task<Dto.BillOfLadingDto> CreateAsync(Dto.BillOfLadingDto dto, CancellationToken cancellationToken = default)
+    public async Task<BillOfLadingBaseDto> CreateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default)
     {
         try
         {
             // Проверяем уникальность номера BL
-            var exists = await CheckBillNumberExistsAsync(dto.Num, null, cancellationToken);
+            var exists = await CheckBillNumberExistsAsync(baseDto.Num, null, cancellationToken);
             if (exists)
-                throw new InvalidOperationException($"Bill of lading with number '{dto.Num}' already exists");
+                throw new InvalidOperationException($"Bill of lading with number '{baseDto.Num}' already exists");
 
             // Проверяем существование связанной сущности VesselCall
-            await ValidateVesselCall(dto.VesselCallId, cancellationToken);
-
-            // Устанавливаем значения по умолчанию
-            if (dto.Id == Guid.Empty)
-                dto.Id = Guid.NewGuid();
-
-            if (dto.CreatedAt == default)
-                dto.CreatedAt = DateTimeOffset.UtcNow;
-
-            if (dto.Status == default)
-                dto.Status = BaseEntityStatus.New;
-
-            if (dto.Version == 0)
-                dto.Version = 1;
+            await ValidateVesselCall(baseDto.VesselCallId, cancellationToken);
 
             // Устанавливаем BillOfLadingId для ContainerRecords
-            foreach (var containerRecord in dto.ContainerRecords)
+            foreach (var containerRecord in baseDto.ContainerRecords)
             {
-                containerRecord.BillOfLadingId = dto.Id;
+                containerRecord.BillOfLadingId = baseDto.Id;
             }
 
-            var entity = dto.ToEntity();
+
+            var pol = await _portService.GetByIsoCodeAsync(baseDto.Pol?.IsoCode, cancellationToken);
+
+            if (pol != null)
+                baseDto.Pol = pol;
+            else
+            {
+                var newPol = new PortDto()
+                {
+                    NameRu = baseDto.Pol.IsoCode,
+                    NameEn = baseDto.Pol.IsoCode,
+                    CountryEn = baseDto.Pol.IsoCode,
+                    CountryRu = baseDto.Pol.IsoCode,
+                    IsoCode = baseDto.Pol.IsoCode,
+                    PikYugIsoCode = baseDto.Pol.IsoCode,
+                    HandledBySystem = true,
+                };
+
+                baseDto.Pol = await _portService.CreateAsync(newPol, cancellationToken);
+            }
+
+            var entity = baseDto.ToEntity();
+
             var createdEntity = await _billOfLadingCrudProvider.CreateAsync(entity, cancellationToken);
             return createdEntity.ToDto();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating bill of lading with number: {BillNumber}", dto.Num);
+            _logger.LogError(ex, "Error creating bill of lading with number: {BillNumber}", baseDto.Num);
             throw;
         }
     }
 
-    public async Task<Dto.BillOfLadingDto> UpdateAsync(Dto.BillOfLadingDto dto, CancellationToken cancellationToken = default)
+    public async Task<BillOfLadingBaseDto> UpdateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default)
     {
         try
         {
             var existingEntity = await _billOfLadingCrudProvider.GetByIdAsync(
-                dto.Id,
+                baseDto.Id,
                 cancellationToken,
                 s => s.ContainerRecords);
 
             if (existingEntity == null)
-                throw new KeyNotFoundException($"Bill of lading with ID {dto.Id} not found");
+                throw new KeyNotFoundException($"Bill of lading with ID {baseDto.Id} not found");
 
             // Проверяем уникальность номера BL, если он изменился
-            if (existingEntity.Num != dto.Num)
+            if (existingEntity.Num != baseDto.Num)
             {
-                var exists = await CheckBillNumberExistsAsync(dto.Num, dto.Id, cancellationToken);
+                var exists = await CheckBillNumberExistsAsync(baseDto.Num, baseDto.Id, cancellationToken);
                 if (exists)
-                    throw new InvalidOperationException($"Bill of lading with number '{dto.Num}' already exists");
+                    throw new InvalidOperationException($"Bill of lading with number '{baseDto.Num}' already exists");
             }
 
             // Проверяем существование связанной сущности VesselCall
-            await ValidateVesselCall(dto.VesselCallId, cancellationToken);
+            await ValidateVesselCall(baseDto.VesselCallId, cancellationToken);
 
 
-            existingEntity.UpdateEntity(dto);
+            existingEntity.UpdateEntity(baseDto);
             await _billOfLadingCrudProvider.UpdateAsync(existingEntity, cancellationToken);
             return existingEntity.ToDto();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating bill of lading: {BillId}", dto.Id);
+            _logger.LogError(ex, "Error updating bill of lading: {BillId}", baseDto.Id);
             throw;
         }
     }
@@ -196,16 +215,19 @@ public class BillOfLadingService : IBillOfLadingService
         }
     }
 
-    public async Task<IEnumerable<Dto.BillOfLadingDto>> GetByVesselCallIdAsync(Guid vesselCallId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BillOfLadingBaseDto>> GetByVesselCallIdAsync(Guid vesselCallId, CancellationToken cancellationToken = default)
     {
         try
         {
-            var entities = await _billOfLadingCrudProvider.GetAllAsync(
-                cancellationToken,
-                s => s.VesselCall,
-                s => s.VesselCall.Vessel);
-
-            var filteredEntities = entities.Where(e => e.VesselCallId == vesselCallId);
+            var entities = _billOfLadingCrudProvider
+                .GetAllAsync(
+                s => s.VesselCall, 
+                s => s.Pol,
+                s => s.TsPort,
+                s=>s.ContainerRecords)
+                .AsSplitQuery(); ;
+            entities = entities.Where(e => e.VesselCallId == vesselCallId);
+            var filteredEntities = await entities.ToListAsync(cancellationToken);
             return filteredEntities.ToDtoList();
         }
         catch (Exception ex)
@@ -215,19 +237,18 @@ public class BillOfLadingService : IBillOfLadingService
         }
     }
 
-    public async Task<IEnumerable<Dto.BillOfLadingDto>> GetByContainerNumberAsync(string containerNo, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BillOfLadingBaseDto>> GetByContainerNumberAsync(string containerNo, CancellationToken cancellationToken = default)
     {
         try
         {
-            var entities = await _billOfLadingCrudProvider.GetAllAsync(
-                cancellationToken,
+            var entities = _billOfLadingCrudProvider.GetAllAsync(
                 s => s.VesselCall,
                 s => s.VesselCall.Vessel,
                 s => s.ContainerRecords);
 
-            var filteredEntities = entities.Where(e =>
+            var filteredEntities = await entities.Where(e =>
                 e.ContainerRecords.Any(cr =>
-                    cr.ContainerNo.Contains(containerNo, StringComparison.OrdinalIgnoreCase)));
+                    cr.ContainerNo.Contains(containerNo, StringComparison.OrdinalIgnoreCase))).ToListAsync(cancellationToken); ;
 
             return filteredEntities.ToDtoList();
         }
@@ -242,7 +263,7 @@ public class BillOfLadingService : IBillOfLadingService
     {
         try
         {
-            var entities = await _billOfLadingCrudProvider.GetAllAsync(cancellationToken);
+            var entities = await _billOfLadingCrudProvider.GetAllAsync().ToListAsync(cancellationToken); ;
 
             if (excludeId.HasValue)
                 return entities.Any(e => e.Num == billNo && e.Id != excludeId.Value);
@@ -254,6 +275,22 @@ public class BillOfLadingService : IBillOfLadingService
             _logger.LogError(ex, "Error checking bill number existence: {BillNumber}", billNo);
             throw;
         }
+    }
+
+    public async Task UpdateAsync(BillOfLadingContainerRecordBaseDto baseDto, CancellationToken cancellationToken = default)
+    {
+        var entity = await _context.Set<BillOfLadingContainerRecordBaseEntity>().FirstAsync(s => s.Id == baseDto.Id, cancellationToken: cancellationToken);
+
+        if (entity.Timestamp != baseDto.Timestamp)
+        {
+            throw new ArgumentException($"has been changed by another User");
+        }
+
+        entity.UpdateEntity(baseDto);
+        _context.Set<BillOfLadingContainerRecordBaseEntity>().Update(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+
+
     }
 
     private async Task ValidateVesselCall(Guid vesselCallId, CancellationToken cancellationToken)

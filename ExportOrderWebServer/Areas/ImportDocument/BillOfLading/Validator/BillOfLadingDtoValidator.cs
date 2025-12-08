@@ -3,7 +3,7 @@ using Dto = ExportOrderEntites.BillofLading.Dto;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Validator;
 
-public class BillOfLadingDtoValidator : AbstractValidator<Dto.BillOfLadingDto>
+public class BillOfLadingDtoValidator : AbstractValidator<Dto.BillOfLadingBaseDto>
 {
     public BillOfLadingDtoValidator()
     {
@@ -40,7 +40,7 @@ public class BillOfLadingDtoValidator : AbstractValidator<Dto.BillOfLadingDto>
     }
 }
 
-public class BillOfLadingContainerRecordDtoValidator : AbstractValidator<Dto.BillOfLadingContainerRecordDto>
+public class BillOfLadingContainerRecordDtoValidator : AbstractValidator<Dto.BillOfLadingContainerRecordBaseDto>
 {
     public BillOfLadingContainerRecordDtoValidator()
     {

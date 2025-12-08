@@ -1,9 +1,10 @@
 ﻿
 using ExportOrderEntites.ImportDocument;
+using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
+using ExportOrderWebServer.Areas.ImportDocument.Terminal.Dto;
 using global::ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
 using global::ExportOrderWebServer.Areas.ImportDocument.Vessel.Dto;
 using System.ComponentModel.DataAnnotations.Schema;
-using ExportOrderWebServer.Areas.ImportDocument.Terminal.Dto;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
 
@@ -24,7 +25,7 @@ public class VesselCallDto : BaseEntity
         public Guid PortOfLoadingId { get; set; }
         public PortDto PortOfLoading { get; set; }
 
-        public List<BillOfLadingDto> BillOfLadings { get; set; } = new List<BillOfLadingDto>();
+        public List<BillOfLadingBaseDto> BillOfLadings { get; set; } = new ();
 
         public string FeederBlNo { get; set; } = string.Empty;
 

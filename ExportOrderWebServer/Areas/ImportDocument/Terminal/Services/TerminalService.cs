@@ -56,7 +56,7 @@ public class TerminalService : ITerminalService
     {
         try
         {
-            var entities = await _terminalCrudProvider.GetAllAsync(cancellationToken);
+            var entities = await _terminalCrudProvider.GetAllAsync().ToArrayAsync(cancellationToken);
             var entity = entities.FirstOrDefault(e => e.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
             if (entity == null)
@@ -201,8 +201,9 @@ public class TerminalService : ITerminalService
     {
         try
         {
-            var entities = await _terminalCrudProvider.GetAllAsync(cancellationToken);
-            return entities.Any(e => e.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var entities = await _terminalCrudProvider.GetAllAsync().ToListAsync(cancellationToken);
+
+            return  entities.Any(e => e.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
         catch (Exception ex)
         {
@@ -215,10 +216,10 @@ public class TerminalService : ITerminalService
     {
         try
         {
-            var entities = await _terminalCrudProvider.GetAllAsync(cancellationToken);
-            var filteredEntities = entities
+            var entities =  _terminalCrudProvider.GetAllAsync();
+            var filteredEntities = await entities
                 .Where(e => e.CustomsPost.Equals(customsPost, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+                .ToListAsync(cancellationToken);
 
             return filteredEntities.ToDtoList();
         }

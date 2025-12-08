@@ -6,6 +6,21 @@
     link.click();
     document.body.removeChild(link);
 }
+function downloadFileBase64(byteBase64, fileName) {
+    try {
+        const link = document.createElement('a');
+        link.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' + byteBase64;
+        link.download = fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return true;
+    } catch (error) {
+        console.error('Download error:', error);
+        return false;
+    }
+}
 
 window.focusLastRow = function () {
     const rows = document.querySelectorAll('.mud-table-body tr');

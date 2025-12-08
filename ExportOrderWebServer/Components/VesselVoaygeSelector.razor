@@ -10,12 +10,12 @@
     <TextField Label="Voyage" Style="width:150px; padding-left:10px;" UpperCase Value="@VesselCall?.VoyageNo" ReadOnly />
 
 
-        <div style="margin-top:25px;margin-left:4px;display: flex; align-items: center;">
-            <MudTooltip Text = "Select vessel call menu">
-                <MudIconButton Class="TextFieldIconButton" Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Small" Color="Color.Primary" OnClick="SelectVslCall_Click"/>
-            </MudTooltip>
-        </div>
-    
+    <div style="margin-top:25px;margin-left:4px;display: flex; align-items: center;">
+        <MudTooltip Text="Select vessel call menu">
+            <MudIconButton Class="TextFieldIconButton" Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Small" Color="Color.Primary" OnClick="SelectVslCall_Click" />
+        </MudTooltip>
+    </div>
+
 </div>
 
 @code {
@@ -29,6 +29,8 @@
     [Parameter]
     public EventCallback<Guid> VesselCallIdChanged { get; set; }
 
+    [Parameter]
+    public EventCallback OnClick { get; set; }
 
     private async Task SelectVslCall_Click()
     {
@@ -55,6 +57,10 @@
             VesselCallId = VesselCall.Id;
             await VesselCallIdChanged.InvokeAsync(VesselCallId);
             await VesselCallChanged.InvokeAsync(VesselCall);
+
+            @if (OnClick.HasDelegate)
+                await OnClick.InvokeAsync();
+
         }
     }
 }

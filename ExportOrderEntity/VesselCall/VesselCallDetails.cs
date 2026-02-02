@@ -10,3 +10,9 @@ public class VesselCallDetail : Entity
     public string? AgentPOD { get; set; }                   // Агент в порту выгрузки
     public List<ExportOrderEntity> ExportOrders { get; set; } = new List<ExportOrderEntity>();  //public IList<ExportOrderEntity>
 }
+
+//public enum VesselCallDirection
+//{
+//    Import,
+//    Export
+//}

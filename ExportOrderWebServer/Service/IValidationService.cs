@@ -91,7 +91,7 @@ namespace ExportOrderWebServer.Service
             {
                 Console.WriteLine(ex.Message);
                 return Enumerable.Empty<string>();
-            }            
+            }
         }
 
         public int ControlDigit(string cntrNum)

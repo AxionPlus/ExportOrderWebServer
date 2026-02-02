@@ -5,5 +5,6 @@ public enum EntityStatus
     New,
     Customs, 
     Completed,
-    Cancelled
+    Cancelled,
+    Confirmed
 }

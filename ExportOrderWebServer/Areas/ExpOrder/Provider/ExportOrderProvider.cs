@@ -134,7 +134,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     IsImo = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.IsIMO.Equals(true)).Equals(true)),
                     IsEmpty = record.Records.Any(eor => eor.Contents.Any(c => c.DocumentRecord.CommodityEngName.ToUpper().Contains("EMPTY")).Equals(true)),
                     Status = record.Status,
-                    BlTemplate = record.Carrier != null ? record.Carrier.BlTemplate : BLTemplate.standard,
+                    BlTemplate = record.Carrier != null ? record.Carrier.BlTemplate : BLTemplate.Standard,
                     CreateTime = record.CreateTime,
                     VersionNo = record.VersionNo,
                 }
@@ -887,7 +887,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     BLDateOEL = s.VesselCallDetail == null ? null :
                                     !s.VesselCallDetail.VesselCall.ETS.HasValue ? null :
                                         DateToStr(s.VesselCallDetail.VesselCall.ETS.Value),
-                    BLtemplate = s.Carrier == null ? BLTemplate.standard.ToString() : s.Carrier.BlTemplate.ToString(),
+                    BLtemplate = s.Carrier == null ? BLTemplate.Standard.ToString() : s.Carrier.BlTemplate.ToString(),
                     CarrierNameEn = s.Carrier?.NameEn,
                     TerminalName = s.VesselCallDetail?.VesselCall.Terminal.Name,
                     VesselName = s.VesselCallDetail == null ? string.Empty :
@@ -933,7 +933,7 @@ public class ExportOrderProvider : IExportOrderProvider
                     TotalNetWeight = s.Records.Sum(r => r.Contents.Sum(c => c.NetWt)),
                     TotalTareWeight = s.Records.Sum(r => r.CntrTareWt),
                     TotalGrossNTareWeight = s.Records.Sum(r => r.Contents.Sum(c => c.GrossWt)) + s.Records.Sum(r => r.CntrTareWt),
-                    ExportOrderRecordsDTO = billRecords(s.Records)
+                    ExportOrderRecordsDTO = billRecords(s.Records, s.CommodityShortEn)
                 }).ToList();
 
                 return ItemsDTO;
@@ -1008,7 +1008,7 @@ public class ExportOrderProvider : IExportOrderProvider
         return eoRecordsDTO;
     };
 
-    private readonly Func<List<ExportOrderRecord>, List<ExportOrderRecordDTO>> billRecords = (_eoRecords) =>
+    private readonly Func<List<ExportOrderRecord>, string?, List<ExportOrderRecordDTO>> billRecords = (_eoRecords, commodityShortEn) =>
     {
         List<ExportOrderRecordDTO> eoRecordsDTO = new();
 
@@ -1030,12 +1030,13 @@ public class ExportOrderProvider : IExportOrderProvider
                 GrossWt = record.Contents.Sum(c => c.GrossWt),
                 Volume = record.Contents.Sum(c => c.Volume),
                 GrossAndTare = (record.Contents.Sum(c => c.GrossWt) + record.CntrTareWt),
-                RecordCommoditiesEn = string.Join("; ", record.Contents.Select(rc =>
-                    string.Concat(rc.DocumentRecord.CommodityEngName,
-                                    rc.DocumentRecord.IsIMO ?
-                                        string.Concat(" IMO: ", rc.DocumentRecord.IMO, " UNNO: ", rc.DocumentRecord.UNNO) : "")
-                    )
-                    .Distinct().Order().ToArray()),
+                RecordCommoditiesEn = !string.IsNullOrWhiteSpace(commodityShortEn) ? commodityShortEn :
+                    string.Join("; ", record.Contents.Select(rc =>
+                        string.Concat(rc.DocumentRecord.CommodityEngName,
+                                        rc.DocumentRecord.IsIMO ?
+                                            string.Concat(" IMO: ", rc.DocumentRecord.IMO, " UNNO: ", rc.DocumentRecord.UNNO) : "")
+                        )
+                        .Distinct().Order().ToArray()),
             };
 
             eoRecordsDTO.Add(eoRecordDTO);

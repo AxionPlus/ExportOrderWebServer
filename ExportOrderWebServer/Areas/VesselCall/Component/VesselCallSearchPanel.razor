@@ -1,0 +1,63 @@
+﻿<MudForm @ref="searchForm">
+    <Container ToggleContent="@ToggleContent">
+        <MudGrid>
+            <MudItem xs="4">
+                <VesselCallSearchField @bind-VesselName="@Filter.VesselName" @bind-VesselVoyage="@Filter.VesselVoyage" />
+                <DateRangePickerSearch @bind-DateFrom="@Filter.DateFrom" @bind-DateTo="@Filter.DateTo" Clearable Manage />
+            </MudItem>
+            <MudItem xs="4">
+
+            </MudItem>
+            <MudItem xs="4">
+                <!-- Actions -->
+                <MudButton Variant="Variant.Filled" Style="margin-left: 10px"
+                           Color="Color.Primary"
+                           OnClick="HandleSearch"
+                           Disabled="IsLoading"
+                           StartIcon="@Icons.Material.Filled.Search"
+                           Size="Size.Small">
+                    @(IsLoading ? "Searching..." : "Search")
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Style="margin-left: 5px"
+                           Color="Color.Secondary"
+                           OnClick="HandleReset"
+                           Disabled="IsLoading"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           Size="Size.Small">
+                    Reset
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </Container>
+</MudForm>
+
+@code {
+    private MudForm searchForm = new();
+    [Parameter]
+    public bool? ToggleContent { get; set; }
+    [Parameter]
+    public VesselCallPageFilter Filter { get; set; } = new();
+    [Parameter]
+    public EventCallback<VesselCallPageFilter> FilterChanged { get; set; }
+    [Parameter]
+    public EventCallback OnSearch { get; set; }
+    [Parameter]
+    public bool IsLoading { get; set; } = false;
+
+    private async Task HandleSearch()
+    {
+        await OnSearch.InvokeAsync();
+    }
+
+    private async Task HandleReset()
+    {
+        Filter = new VesselCallPageFilter
+        {
+            DateFrom = DateTime.Today.AddDays(-14),
+            DateTo = DateTime.Today.AddDays(45)
+        };
+
+        await FilterChanged.InvokeAsync(Filter);
+        await OnSearch.InvokeAsync();
+    }
+}

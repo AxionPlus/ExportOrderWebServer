@@ -27,7 +27,7 @@ public class ViewReportController : ControllerBase
     {
         var ids = new List<long>() { Id };
 
-        var items = await _exportOrderProvider.GetItemsExportOrderDTOAsync(ids);   //var Item = await _exportOrderProvider.GetExportOrderDTOAsync(Id);
+        var items = await _exportOrderProvider.GetItemsExportOrderDTOAsync(ids);
 
         if (items is null) return BadRequest("Records not found.");
 
@@ -498,5 +498,15 @@ public class ViewReportController : ControllerBase
 
         return File(fileBytes, "application/xlsx", $"{filePath}.xlsx");
 
+    }
+
+    //----------------------------------------------------------------------------
+    // NEW
+    [HttpGet]
+    [Route("ViewExportOrders")]
+    public IActionResult ViewExportOrders(byte[] fileBuffer)
+    {
+        //Response.Headers.Add("Content-Disposition", "inline; filename=document.pdf");
+        return File(fileBuffer, "application/pdf");        
     }
 }

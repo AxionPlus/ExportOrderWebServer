@@ -20,6 +20,11 @@ global using ExportOrderWebServer.Service;
 global using ExportOrderWebServer.Areas.Identity;
 global using ExportOrderWebServer.Areas.Statistic;
 
+// DTO
+global using ExportOrderWebServer.Dto;
+global using ExportOrderWebServer.Areas.ExportOrder.Dto;
+
+// PROVIDERS
 global using ExportOrderWebServer.Areas.Carrier.Provider;
 global using ExportOrderWebServer.Areas.Cntr.Provider;
 global using ExportOrderWebServer.Areas.CntrType.Provider;
@@ -29,6 +34,7 @@ global using ExportOrderWebServer.Areas.Customer.Provider;
 global using ExportOrderWebServer.Areas.Customs.Provider;
 global using ExportOrderWebServer.Areas.Document.Provider;
 global using ExportOrderWebServer.Areas.ExpOrder.Provider;
+global using ExportOrderWebServer.Areas.ExportOrder.Provider;
 global using ExportOrderWebServer.Areas.Location.Provider;
 global using ExportOrderWebServer.Areas.MyCompany.Provider;
 global using ExportOrderWebServer.Areas.Terminal.Provider;

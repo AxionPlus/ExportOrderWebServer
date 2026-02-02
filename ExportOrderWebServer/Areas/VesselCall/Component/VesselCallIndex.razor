@@ -1,0 +1,498 @@
+﻿@page "/vesselcalls"
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
+
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject HttpClient Http
+@inject IJSRuntime jsRuntime
+@inject IExportOrderProvider_New ExportOrderProvider
+@* @inject ICreatePdfFileService CreatePdfFileService *@
+@inject IVesselCallProvider _vesselCallProvider
+@inject IVesselProvider _vesselProvider
+@* @inject ITerminalProvider _terminalProvider *@
+@* @inject ILocationProvider _locationProvider *@
+@inject ICarrierProvider _carrierProvider
+@inject ICatalogProvider CatalogProvider
+
+<style>
+    .mud-input-control.mud-input-control-margin-dense {
+        margin: unset;
+    }
+
+        .mud-input-control.mud-input-control-margin-dense.mud-input-outlined-with-label {
+            margin-top: unset;
+            margin-bottom: unset;
+        }
+
+    .mud-icon-button-edge-margin-end {
+        margin-right: 2px;
+        margin-inline-end: 2px;
+        margin-inline-start: unset;
+    }
+
+    .mud-select.mud-autocomplete * .mud-input.mud-input-outlined.mud-input-adorned-end {
+        padding-inline-end: 6px;
+        padding-inline-start: unset;
+    }
+
+    .Container-table .tableMenu .mud-table-cell {
+        padding: unset;
+    }
+</style>
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <div class="ToolBar-container">
+        <MudToolBar Class="ToolBar ToolBar-new">
+            <ShowMainMenuButton Class="ToolBar-IconButton" ExitHref="/" />
+            <MudSpacer />
+            <div class="ToolBar-Title"><span>vessel calls</span></div>
+            <MudSpacer />
+            <div class="ToolBar-iconbutton" style="margin-right: 20px">
+                <MudTooltip Text="new vessel call">
+                    <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.AddBox" OnClick="AddItem_Click" />
+                </MudTooltip>
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PushPin" />
+            </div>
+            <div class="ToolBar-iconbutton">
+                <MudIconButton Class="ToolBar-IconButton" Icon="@Icons.Material.Outlined.PeopleAlt" />
+            </div>
+        </MudToolBar>
+    </div>
+
+    @* <VesselCallComponent @ref="component" /> *@
+</MudContainer>
+
+@* <div class="Container-item">
+    <div class="container-content">
+        <div class="container-column" style="width:270px;">
+            <div class="container-content">
+                <MudAutocomplete Class="Autocomplete" T="string" Label="Vessel" @bind-Value="@Filter.Vessel" SearchFunc="@SearchVessel"
+                                 Style="width: 250px"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                 CloseIcon="" OpenIcon="" MaxItems="20"
+                                 ResetValueOnEmptyText="true" Clearable />
+            </div>
+            <div class="container-content">
+                <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
+                           Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
+                    Search
+                </MudButton>
+                <MudSpacer />
+                <MudSelect Class="Autocomplete" Style="width:142px" T="EntityStatus?" Label="Status" @bind-Value="@Filter.Status"
+                           ToStringFunc="@(s => s == null ? null : s.ToString())"
+                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
+                           Disabled="IsSelectable">
+                    @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
+                    {
+                        <MudSelectItem Value="@status" />
+                    }
+                </MudSelect>
+            </div>
+        </div>
+        <div class="container-column" style="width:470px; margin-left:30px">
+            <div class="container-content">
+                <MudAutocomplete Class="Autocomplete" T="string" Label="Voyage" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
+                                 Style="width: 170px"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                 CloseIcon="" OpenIcon=""
+                                 ResetValueOnEmptyText="true" Clearable />
+                <div style="width:120px">
+                    <MudDatePicker Class="DatePicker" Label="From" @bind-Date="Filter.DateFrom"
+                                   DateFormat="dd.MM.yy"
+                                   ShowWeekNumbers="true"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   IconSize=Size.Small
+                                   AutoClose=true
+                                   Clearable />
+                </div>
+                <div style="width:120px">
+                    <MudDatePicker Class="DatePicker" Label="To" @bind-Date="Filter.DateTo"
+                                   DateFormat="dd.MM.yy"
+                                   ShowWeekNumbers="true"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   IconSize=Size.Small
+                                   AutoClose=true
+                                   Clearable />
+                </div>
+            </div>
+            <div class="container-content">
+                <MudAutocomplete Class="Autocomplete" T="string" Label="Terminal" @bind-Value="@Filter.Terminal" SearchFunc="@SearchTerminal"
+                                 Style="width: 170px"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                 CloseIcon="" OpenIcon="" MaxItems="20"
+                                 ResetValueOnEmptyText="true" Clearable />
+                <MudAutocomplete Class="Autocomplete" T="string" Label="POD" @bind-Value="@Filter.POD" SearchFunc="@SearchPort"
+                                 Style="width: 260px"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense"
+                                 CloseIcon="" OpenIcon="" MaxItems="20"
+                                 ResetValueOnEmptyText="true" Clearable />
+            </div>
+        </div>
+
+        <MudSpacer />
+
+        @if (!IsSelectable)
+        {
+            <div class="container-column" style="width:160px">
+                <MudButton Class="Button" OnClick="@(async () => { await ManifestReport_Click(false); })"
+                           Style="width:142px; margin-bottom:10px;"
+                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Preview">
+                    CGO Manifest
+                </MudButton>
+                <MudButton Class="Button" OnClick="@(async () => { await ManifestReport_Click(true); })"
+                           Style="width:142px; margin-bottom:10px"
+                           Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Preview">
+                    IMO Manifest
+                </MudButton>
+                <MudButton Class="Button" OnClick="@(async () => { await ViewReportCustoms_Click(); })"
+                           Style="width:142px; margin-bottom:10px"
+                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Preview">
+                    Explanation
+                </MudButton>
+            </div>
+            <div class="container-column" style="width:105px; margin-inline:20px">
+                <MudButton Class="Button" OnClick="@(async () => { await SaveFileFillBill_Click(); })"
+                           Style="margin-bottom:10px"
+                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Download">
+                    Fill Bill
+                </MudButton>
+            </div>
+        }
+    </div>
+</div> *@
+
+@* <div class="Container-table">
+    <div class="tableMenu">
+        <MudSpacer />
+        <TablePager T="VesselCallDetailDTO" Table="mudTable" ItemsCount="@Items?.Count()" />
+    </div>
+
+    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30">
+        <HeaderContent>
+            <MudTh Style="width: 42px"></MudTh>
+            <MudTh Style="width: 42px"></MudTh>
+            <MudTh Style="width:270px">
+                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x => x.VesselName!)">Vessel</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:150px">
+                <MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x => x.VoyageNo!)">Voyage</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:220px">POD</MudTh>
+            <MudTh Style="width: 90px">Terminal</MudTh>
+            <MudTh Style="width: 120px">ETA</MudTh>
+            <MudTh Style="width: 120px">ETS</MudTh>
+            <MudTh Style="width: 80px"><MudTableSortLabel SortBy="new Func<VesselCallDetailDTO, object>(x => x.Status!)">Status</MudTableSortLabel></MudTh>
+            <MudTh Style="width: 42px"></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            @if (!IsSelectable)
+            {
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async () => { await ShowItem_Click(context.VesselCallId); })" />
+                </MudTd>
+                <MudTd>
+                    <MudTooltip Text="Add new ExportOrder">
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Disabled="context.Status == EntityStatus.Completed"
+                                       OnClick="@(async()=>{ await AddExportOrder_Click(context.Id); })" />
+                    </MudTooltip>
+                </MudTd>
+            }
+            else
+            {
+                <MudTd>
+                    <MudTooltip Text="Upload">
+                        <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Secondary" OnClick="@(() => SelectItem_Click(context.Id, context.Status))" />
+                    </MudTooltip>
+                </MudTd>
+                <MudTd></MudTd>
+            }
+            <MudTd>@context.VesselName</MudTd>
+            <MudTd>@context.VoyageNo</MudTd>
+            <MudTd>@context.POD</MudTd>
+            <MudTd>@context.Terminal</MudTd>
+            <MudTd>@(context.ETA.HasValue? context.ETA.Value.ToString("dd.MM.yy") : "---")</MudTd>
+            <MudTd>@(context.ETS.HasValue? context.ETS.Value.ToString("dd.MM.yy") : "---")</MudTd>
+            <MudTd>@context.Status.ToString()</MudTd>
+            <MudTd>
+                @if (!IsSelectable)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Disabled="@(IsLoadingData || !IsRoleForEdit)"
+                                   OnClick="@(async()=>{ await RemoveVesselCallDetail_Click(context.Id, context.POD); })" />
+                }
+            </MudTd>
+        </RowTemplate>
+        <PagerContent></PagerContent>
+    </MudTable>
+</div> *@
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    public string? ApplicationUser { get; set; }
+    private MudTable<VesselCallDetailDTO> mudTable = new();
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter]
+    public bool IsSelectable { get; set; } = false;
+
+    private PagedResult<VesselCallDto> PagedResult = new();
+    public VesselCallPageFilter Filter { get; set; } = new();
+
+    private bool IsLoading { get; set; } = false;
+    public bool IsRoleForEdit { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
+            IsRoleForEdit = true;
+
+        ApplicationUser = authState.User.Identity?.Name;
+    }
+
+    // public async Task GetItems()
+    // {
+    //     IsLoading = true;
+
+    //     var response = await _vesselCallProvider.GetItemsAsync(Filter);
+    //     if (!response.HasErrors && response.Object is not null)
+    //         Items = (IEnumerable<VesselCallDetailDTO>)response.Object;
+
+    //     IsLoading = false;
+
+    //     await InvokeAsync(StateHasChanged);
+    // }
+
+    // private async Task ShowItem_Click(long vesselCallId)
+    // {
+    //     var parameters = new DialogParameters { ["Id"] = vesselCallId };
+    //     var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false };
+    //     var dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>(null, parameters, options);
+
+    //     var result = await dialog.Result;
+
+    //     if (result != null && result.Data != null && (bool)result.Data == true)
+    //         await GetItems();
+    // }
+
+    private async Task AddItem_Click()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<VesselCall_ItemDialog>(null, parameters, options);
+
+        var result = await dialog.Result;
+
+        //await GetItems();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // private async Task AddExportOrder_Click(long vcdId)
+    // {
+    //     //var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));
+    //     await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}exportorder?vcdId={vcdId}", "_blank");
+    // }
+
+    // private async Task RemoveVesselCallDetail_Click(long id, string? pod)
+    // {
+    //     bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+    //                                     (MarkupString)$"Do you want Delete record?<br/>Discharge port: <b>{pod}</b>",
+    //                                     yesText: "DELETE!", cancelText: "NO");
+
+    //     if (msgResult.HasValue)
+    //         if (msgResult.Value)
+    //         {
+    //             IsLoading = true;
+    //             var response = await _vesselCallProvider.RemoveItemAsync(id, ApplicationUser);  // substitution of RemoveVesselCallDetailAsync
+    //             IsLoading = false;
+
+    //             if (response.HasErrors)
+    //                 Snackbar.Add($"Unable to delete", Severity.Warning);
+    //             else
+    //             {
+    //                 Snackbar.Add($"Deleted Successfully", Severity.Success);
+    //                 await GetItems();
+    //             }
+    //         }
+    // }
+
+    // private async void SelectItem_Click(long vcdId, EntityStatus? status)
+    // {
+    //     if (status.Equals(EntityStatus.Completed))
+    //     {
+    //         bool? result = await DialogService.ShowMessageBox("Warning",
+    //                                                           "Unable select Vessel Call due to status - Completed.",
+    //                                                           yesText: "Close");
+
+    //         return;
+    //     }
+
+    //     if (MudDialog is not null)
+    //         MudDialog.Close(vcdId);
+    // }
+
+    // private async Task ManifestReport_Click(bool _isImo)
+    // {
+    //     long vesselcallid = await GetVoyageId();
+    //     if (vesselcallid == 0) return;
+
+    //     await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}");
+    // }
+
+    // private async Task SaveFileFillBill_Click()
+    // {
+    //     long vesselcallid = await GetVoyageId();
+    //     if (vesselcallid == 0) return;
+
+    //     await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelFillBill?vslcallid={vesselcallid}");
+    // }
+
+    // private async Task ViewReportCustoms_Click()
+    // {
+    //     long vesselcallid = await GetVoyageId();
+    //     if (vesselcallid == 0) return;
+
+    //     await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportCustoms?vslcallid={vesselcallid}");
+    // }
+
+    // private async Task ViewFilePdfCustoms_Click(long voyageId)
+    // {
+    //     // if (!IsOneVoyageSelected())
+    //     // {
+    //     //     Snackbar.Add("Выберите записи для одного рейса.", Severity.Warning);
+    //     //     return;
+    //     // }
+
+    //     Filter.FileType = FileType.Customs;
+
+    //     IsLoading = true;
+
+    //     // Данные для файла
+    //     var dtoItems = await ExportOrderProvider.GetFileCustomsDto(Filter, voyageId, cancellationToken: CancellationToken.None);
+
+    //     if (dtoItems is null || !dtoItems.Any())
+    //     {
+    //         Snackbar.Add("Данные для Pdf файла не получены.", Severity.Warning);
+    //         IsLoading = false;
+    //         return;
+    //     }
+
+    //     // Вывод файла в новую вкладку браузера
+    //     using ICreatePdfFileService pdfService = new CreatePdfFileService();
+
+    //     KeyValuePair<string, byte[]> fileData = await pdfService.CreateFileCustoms(dtoItems);
+
+    //     if (fileData.Value != Array.Empty<byte>())
+    //     {
+    //         await jsRuntime.InvokeVoidAsync("jsOpenPdfInNewTab",
+    //             Convert.ToBase64String(fileData.Value));
+    //     }
+
+    //     IsLoading = false;
+    // }
+
+    // private async Task<long> GetVoyageId()
+    // {
+    //     if (Items is null || Items!.Count() == 0) return 0;
+
+    //     var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
+    //     if (voyageGroup.Count() != 1)
+    //     {
+    //         Snackbar.Add($"More then one Voyage selected.<br>Select one Voyage please.", Severity.Warning);
+    //         return 0;
+    //     }
+
+    //     long voyageId = voyageGroup.FirstOrDefault();
+
+    //     string terminal = Items.GroupBy(g => g.VesselCallId).Select(g => g.FirstOrDefault()!.Terminal).FirstOrDefault()!;
+
+    //     var response = await _carrierProvider.GetTerminalNameAsync(voyageId, terminal);
+    //     if (response.HasErrors)
+    //     {
+    //         Snackbar.Add(response.Errors.FirstOrDefault()!, Severity.Warning);
+    //         await Task.Delay(1000);
+    //         return 0;
+    //     }
+
+    //     return voyageId;
+    // }
+
+    #region SEARCH FUNCTIONS
+
+    private async Task<IEnumerable<string>> SearchVessel(string value, CancellationToken token)
+    {
+        //var result = await _vesselProvider.GetNamesEn();
+        var result = await CatalogProvider.GetVesselNames();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchVoyage(string value, CancellationToken token)
+    {
+        var result = await _vesselCallProvider.GetVoyages(Filter.VesselName);
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result.Distinct();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
+    }
+
+    private async Task<IEnumerable<string>> SearchPort(string value, CancellationToken token)
+    {
+        //var result = await _locationProvider.GetNamesEn();
+        var result = await CatalogProvider.GetLocationNames();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchTerminal(string value, CancellationToken token)
+    {
+        //var result = await _terminalProvider.GetNames();
+        var result = await CatalogProvider.GetTerminalNames();
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SearchCarrier(string value, CancellationToken token)
+    {
+        var result = await _carrierProvider.GetNames();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return result;
+
+        if (result.Count() == 0)
+            return Enumerable.Empty<string>();
+        else
+            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    }
+
+    #endregion
+}

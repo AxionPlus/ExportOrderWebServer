@@ -1,0 +1,65 @@
+﻿<MudForm @ref="searchForm">
+    <Container ToggleContent="@ToggleContent">
+        <MudGrid>
+            <MudItem xs="2">
+                <TextField Label="Поручение №" Style="width: 200px" Clearable @bind-Value="@Filter.Num" />
+                <TextField Label="Контейнер №" Style="width: 200px" Clearable @bind-Value="@Filter.ContainerNum" />
+            </MudItem>
+            <MudItem xs="4">
+                <VesselCallSearchField @bind-VesselName="@Filter.VesselName" @bind-VesselVoyage="@Filter.VesselVoyage" />
+                <DateRangePickerSearch @bind-DateFrom="@Filter.DateFrom" @bind-DateTo="@Filter.DateTo" Clearable Manage />
+            </MudItem>
+            <MudItem xs="2">
+                <Autocomplete T="string" Label="Port" @bind-Value="Filter.PortOfDischarge" IsLocation Placeholder="Select Port..." Clearable />
+                <Autocomplete T="string" Label="Carrier" @bind-Value="Filter.Carrier" IsCarrier Placeholder="Select Carrier name..." Clearable />
+            </MudItem>
+            <MudSpacer />
+            <MudItem xs="1">                
+                <MudButton Variant="Variant.Filled" Style="margin-top: 15px"
+                           Color="Color.Primary"
+                           OnClick="HandleSearch"
+                           Disabled="IsLoading"
+                           StartIcon="@Icons.Material.Filled.Search"
+                           Size="Size.Small">
+                    @(IsLoading ? "Searching..." : "Search")
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Style="margin-top: 15px"
+                           Color="Color.Secondary"
+                           OnClick="HandleReset"
+                           Disabled="IsLoading"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           Size="Size.Small">
+                    Reset
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </Container>
+</MudForm>
+
+@code {
+    private MudForm searchForm = new();
+    [Parameter]
+    public bool? ToggleContent { get; set; }
+    [Parameter]
+    public ExportOrderPageFilter Filter { get; set; } = new();
+    [Parameter]
+    public EventCallback<ExportOrderPageFilter> FilterChanged { get; set; }
+    [Parameter]
+    public EventCallback OnSearch { get; set; }
+    [Parameter]
+    public EventCallback OnReset { get; set; }
+    [Parameter]
+    public bool IsLoading { get; set; } = false;
+
+    private async Task HandleSearch()
+    {
+        await FilterChanged.InvokeAsync(Filter);
+        await OnSearch.InvokeAsync();
+    }
+
+    private async Task HandleReset()
+    {
+        await OnReset.InvokeAsync();
+        await OnSearch.InvokeAsync();
+    }
+}

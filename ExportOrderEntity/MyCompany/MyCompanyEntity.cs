@@ -22,7 +22,7 @@ public class PersonEntity : CatalogEntity
     public string? BirthYear { get; set; }      // Год рождения
     public string? BirthPlace { get; set; }     // Место рождения (КРАСНОДАРСКИЙ КРАЙ)
     public string? CompanyName { get; set; }    // Место работы
-    public string? CompanyEmail { get; set; }    // Место работы
+    public string? CompanyEmail { get; set; }   // Место работы
     public string? Address { get; set; }        // Место жительства
     public string? Passport { get; set; }       // паспорт: номер, кем и когда выдан
 }

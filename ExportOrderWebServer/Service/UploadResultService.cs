@@ -25,7 +25,6 @@ public class UploadResultService : IUploadResultService
     public UploadResultService(ICntrTypeProvider cntrTypeProvider,
                                 IDocumentProvider documentProvider,
                                 IExportOrderProvider exportOrderProvider,
-                                ICommodityProvider commodityProvider,
                                 ISupplementaryUnitProvider supplementaryUnitProvider)
     {
         _cntrTypeProvider = cntrTypeProvider;

@@ -17,6 +17,7 @@
 @* ENTITIES *@
 @using ExportOrderEntites;
 @using ExportOrderEntites.DTO;
+@using ExportOrderEntites.Object.Dto
 @using ExportOrderEntites.MyCompany;
 
 
@@ -24,6 +25,7 @@
 @using ExportOrderWebServer
 @using ExportOrderWebServer.Shared
 @using ExportOrderWebServer.Components
+@using ExportOrderWebServer.Dto
 
 @* AREAS *@
 @using ExportOrderWebServer.Areas.Carrier;
@@ -41,6 +43,8 @@
 @using ExportOrderWebServer.Areas.VesselCall;
 @using ExportOrderWebServer.Areas.SupplementaryUnit
 @using ExportOrderWebServer.Areas.Import.VesselCall.Provider
+@using ExportOrderWebServer.Areas.ExportOrder.Dto
+@using ExportOrderWebServer.Areas.VesselCall.Dto
 
 @* SERVER PROVIDERS*@
 @using ExportOrderWebServer.Areas.User.Provider;
@@ -56,8 +60,10 @@
 @using ExportOrderWebServer.Areas.VesselCall.Provider;
 @using ExportOrderWebServer.Areas.Document.Provider;
 @using ExportOrderWebServer.Areas.ExpOrder.Provider;
+@using ExportOrderWebServer.Areas.ExportOrder.Provider
 @using ExportOrderWebServer.Areas.MyCompany.Provider;
 @using ExportOrderWebServer.Areas.SupplementaryUnit.Provider
 
 @* SERVICES *@
 @using ExportOrderWebServer.Service
+@using ExportOrderWebServer.Service.FileService

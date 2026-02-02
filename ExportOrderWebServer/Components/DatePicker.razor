@@ -19,10 +19,8 @@
     <MudDatePicker Class="DatePicker" Date="@Date"
                    DateChanged="@(
                                 async(e)=>{
-                                    Date= e;
-                                    await DateChanged.InvokeAsync(e);
-
-                                    await OnBlur.InvokeAsync(); 
+                                Date = e;
+                                await DateChanged.InvokeAsync(e);
                                 })"
                    Editable="true"
                    Mask="@(new DateMask("dd.MM.yy"))"
@@ -95,5 +93,3 @@ else
     [Parameter]
     public EventCallback<DateTime?> DateChanged { get; set; }
 }
-
-

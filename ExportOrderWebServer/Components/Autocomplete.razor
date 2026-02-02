@@ -1,8 +1,4 @@
-﻿@using ExportOrderWebServer.Areas.ImportDocument.Dto
-@using ExportOrderWebServer.Areas.ImportDocument.Provider
-
-@inject ICatalogObjectProvider CatalogProvider
-
+﻿@inject ICatalogProvider CatalogProvider
 @typeparam T where T : class
 
 @if (NoHeader)
@@ -44,15 +40,14 @@ else
                          Immediate="true"
                          OnBlur="OnBlur"
                          Placeholder="@Placeholder"
-                         Clearable="@Clearable"
-                          />
+                         Clearable="@Clearable"                         
+                         />       
        
     </InputWrap>
 }
 
 @code {
     MudAutocomplete<T> AutocompleteRef;
-    private CancellationTokenSource _searchCancellationTokenSource;
     private IEnumerable<T> _cachedResults = Enumerable.Empty<T>();
     private string _lastSearchValue = string.Empty;
 
@@ -61,7 +56,7 @@ else
 
 
     // Common parameters
-  // [Parameter] public DropdownWidth RelativeWidth { get; set; } = DropdownWidth.Ignore;
+    //[Parameter] public DropdownWidth RelativeWidth { get; set; } = DropdownWidth.Ignore;
     [Parameter] public string? Placeholder { get; set; }
     [Parameter] public string? TooltipText { get; set; }
     [Parameter] public bool Clearable { get; set; }
@@ -77,12 +72,24 @@ else
     [Parameter] public int MinSearchLength { get; set; } = 2;
     [Parameter] public int DebounceMilliseconds { get; set; } = 300;
     [Parameter] public int? TakeRecords { get; set; } 
+    //[Parameter] public SystemPermission Permission { get; set; } = SystemPermission.Read;
     [Parameter] public string? PermissionResource { get; set; } = string.Empty;
     [Parameter] public bool ProgressLinear { get; set; }
     // Entity type flags
     [Parameter] public bool IsVessel { get; set; }
-    [Parameter] public bool IsTerminal { get; set; }
-    [Parameter] public bool IsPort{ get; set; }
+    [Parameter] public bool IsGeneralRate { get; set; }
+    [Parameter] public bool IsLocationNode { get; set; }
+    [Parameter] public bool IsContractor { get; set; }
+    [Parameter] public bool IsCustomer { get; set; }
+    [Parameter] public bool IsCustomerShortEnName { get; set; }
+    [Parameter] public bool IsAgent { get; set; }
+    [Parameter] public bool IsCarrier { get; set; }
+    [Parameter] public bool IsTerminalOrDepot { get; set; }
+    [Parameter] public bool IsServiceContract { get; set; }
+    [Parameter] public bool IsContainerType { get; set; }
+    [Parameter] public bool IsContainerEventType { get; set; }
+    [Parameter] public bool IsLocation { get; set; }
+    [Parameter] public bool IsLocationNodeCode { get; set; }
 
 
     // Function to convert T to string for display
@@ -91,6 +98,7 @@ else
     // OnClear parameter
     [Parameter] public EventCallback OnClear { get; set; }
     [Parameter] public EventCallback OnBlur { get; set; }
+
     protected override void OnInitialized()
     {
         _searchCancellationTokenSource = new CancellationTokenSource();
@@ -117,8 +125,8 @@ else
 
     public void Dispose()
     {
-        _searchCancellationTokenSource?.Cancel();
-        _searchCancellationTokenSource?.Dispose();
+        // _searchCancellationTokenSource?.Cancel();
+        // _searchCancellationTokenSource?.Dispose();
     }
 
     public async Task ClearAsync()
@@ -186,6 +194,7 @@ else
 
     private async Task<IEnumerable<T>> GetSearchResults(string value, CancellationToken token)
     {
+        var status = ConfirmEntity ? EntityStatus.Confirmed : (EntityStatus?)null;
         var entityType = GetEntityType();
         var isCyrillic = ContainsCyrillic(value);
 
@@ -193,11 +202,20 @@ else
         {
             IEnumerable<ObjectDto> results = entityType switch
             {
-                EntityType.Terminal => await CatalogProvider.GetTerminal(cancellationToken: token),
-                EntityType.Port => await CatalogProvider.GetPort( cancellationToken: token),
-                EntityType.Vessel => await CatalogProvider.GetVessel( cancellationToken: token),
-
-                _ => Enumerable.Empty<ObjectDto>()
+                // EntityType.TerminalOrDepot => await CatalogProvider.GetTerminalAndDepot(PermissionResource, Permission, status, cancellationToken: token),
+                // EntityType.Agent => await CatalogProvider.GetAgent(status, cancellationToken: token),
+                // EntityType.Carrier => await CatalogProvider.GetCarrier(status, cancellationToken: token),
+                // EntityType.Contractor => await CatalogProvider.GetContractor(status, cancellationToken: token),
+                // EntityType.Customer => await CatalogProvider.GetCustomer(status, cancellationToken: token),
+                // EntityType.CustomerShortEn => await CatalogProvider.GetCustomer(status, CatalogObjectDataType.Default, cancellationToken: token),
+                // EntityType.ContainerType => await CatalogProvider.GetContainerTypeSize(cancellationToken: token),
+                // EntityType.ContainerEventType => await CatalogProvider.GetContainerEventType(cancellationToken: token),
+                // EntityType.LocationNode => await CatalogProvider.GetLocationNode(PermissionResource, Permission, cancellationToken: token),
+                // EntityType.LocationNodeCode => await CatalogProvider.GetLocationNode(PermissionResource, Permission, cancellationToken: token),
+                // EntityType.Vessel => await CatalogProvider.GetVessel(cancellationToken: token),
+                // EntityType.GeneralRate => await CatalogProvider.GetGeneralRate(cancellationToken: token),
+                // EntityType.ServiceContract => await CatalogProvider.GetServiceContract(cancellationToken: token),
+                // _ => await CatalogProvider.GetAnyContractor(status, cancellationToken: token),
             };
 
             var filteredResults = FilterResultsByLanguage(results, value, isCyrillic, entityType);
@@ -207,13 +225,10 @@ else
         {
             IEnumerable<string> results = entityType switch
             {
-                EntityType.Terminal => (await CatalogProvider.GetTerminal(cancellationToken: token))
-                    .Select(s => isCyrillic ? s.Name : s.NameEn ?? s.Name),
-                EntityType.Port => (await CatalogProvider.GetPort( cancellationToken: token))
-                    .Select(s => isCyrillic ? s.Name : s.NameEn ?? s.Name),
-                EntityType.Vessel => (await CatalogProvider.GetVessel( cancellationToken: token))
-                    .Select(s => isCyrillic ? s.Name : s.NameEn ?? s.Name),
-
+                EntityType.TerminalOrDepot => await CatalogProvider.GetTerminalNames(),
+                EntityType.Carrier => await CatalogProvider.GetCarrierNames(),                
+                EntityType.Location => await CatalogProvider.GetLocationNames(),                
+                EntityType.Vessel => await CatalogProvider.GetVesselNames(),
                 _ => Enumerable.Empty<string>()
             };
 
@@ -225,12 +240,15 @@ else
     }
     private IEnumerable<ObjectDto> FilterResultsByLanguage(IEnumerable<ObjectDto> results, string value, bool isCyrillic, EntityType entityType)
     {
+        if (entityType == EntityType.LocationNodeCode)
+        {
+            return results.Where(x => ContainsIgnoreCase(x.ShortName, value));
+        }
 
         // Для кириллицы ищем по Name, для латиницы - по NameEn (если есть) или Name
-        return results.Where(x =>
-            isCyrillic
-                ? ContainsIgnoreCase(x.Name, value)
-                : (ContainsIgnoreCase(x.NameEn, value) || ContainsIgnoreCase(x.Name, value))
+        return results.Where(x => isCyrillic
+            ? ContainsIgnoreCase(x.Name, value)
+            : (ContainsIgnoreCase(x.NameEn, value) || ContainsIgnoreCase(x.Name, value))
         );
     }
 
@@ -240,11 +258,21 @@ else
     }
     private EntityType GetEntityType()
     {
-        if (IsTerminal) return EntityType.Terminal;
+        if (IsTerminalOrDepot) return EntityType.TerminalOrDepot;
+        if (IsAgent) return EntityType.Agent;
+        if (IsCarrier) return EntityType.Carrier;
+        if (IsContractor) return EntityType.Contractor;
+        if (IsCustomerShortEnName) return EntityType.CustomerShortEn;
+        if (IsCustomer) return EntityType.Customer;
+        if (IsContainerType) return EntityType.ContainerType;
+        if (IsContainerEventType) return EntityType.ContainerEventType;
+        if (IsLocation) return EntityType.Location;
+        if (IsLocationNode) return EntityType.LocationNode;
+        if (IsLocationNodeCode) return EntityType.LocationNodeCode;
         if (IsVessel) return EntityType.Vessel;
-        if (IsPort) return EntityType.Port;
-
-        return EntityType.Terminal;
+        if (IsGeneralRate) return EntityType.GeneralRate;
+        if (IsServiceContract) return EntityType.ServiceContract;
+        return EntityType.Customer;
     }
 
     private bool ContainsIgnoreCase(string source, string value)
@@ -254,9 +282,20 @@ else
 
     private enum EntityType
     {
-        Terminal,
+        TerminalOrDepot,
+        Agent,
+        Carrier,
+        Contractor,
+        Customer,
+        CustomerShortEn,
+        ContainerType,
+        ContainerEventType,
+        Location,
+        LocationNode,
+        LocationNodeCode,
         Vessel,
-        Port,
- 
+        GeneralRate,
+        ServiceContract,
+        AnyContractor
     }
 }

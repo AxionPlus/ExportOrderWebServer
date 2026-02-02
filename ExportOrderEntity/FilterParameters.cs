@@ -19,6 +19,7 @@ public class FilterParameters
     public bool? IsIMO { get; set; }
     [MaxLength(10)]
     public string? HScode { get; set; }
+    public long VesselCallId { get; set; }
     public string? Vessel { get; set; }
     public string? Voyage { get; set; }
     public string? Terminal { get; set; }

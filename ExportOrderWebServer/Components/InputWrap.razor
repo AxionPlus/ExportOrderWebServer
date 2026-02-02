@@ -1,6 +1,6 @@
 ﻿<div class="FieldContainer" style="@Style">
-    <div style ="height:20px">
-        <div class="@LabelClass" >
+    <div style="height:20px">
+        <div class="@LabelClass">
             @Label
             @if (!string.IsNullOrWhiteSpace(TooltipText))
             {
@@ -8,7 +8,7 @@
                     <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Outlined" Text="?" />
                 </MudTooltip>
             }
-        </div>  
+        </div>
         @if (ProgressLinear)
         {
             <div style="margin-inline:5px;">
@@ -21,6 +21,7 @@
         @ChildContent
     </div>
 </div>
+
 @code {
     [Parameter]
     public bool ProgressLinear { get; set; }
@@ -34,7 +35,7 @@
     public bool Disabled { get; set; }
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment? ChildContent { get; set; }
 
     private string LabelClass
     {

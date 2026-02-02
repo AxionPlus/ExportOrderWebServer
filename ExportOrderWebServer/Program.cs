@@ -117,7 +117,8 @@ services.AddTransient<IImportVesselCallProvider, ImportVesselCallProvider>();
 services.AddTransient<IVesselCallProvider, VesselCallProvider>();
 services.AddTransient<ICntrTypeProvider, CntrTypeProvider>();
 services.AddTransient<IDocumentProvider, DocumentProvider>();
-services.AddTransient<IExportOrderProvider, ExportOrderProvider>();
+services.AddTransient<IExportOrderProvider, ExportOrderProvider>();         // DELETE
+services.AddTransient<IExportOrderProvider_New, ExportOrderProvider_New>();
 services.AddTransient<IMyCompanyProvider, MyCompanyProvider>();
 services.AddTransient<ISupplementaryUnitProvider, SupplementaryUnitProvider>();
 services.AddTransient<IBillofLadingProvider, BillofLadingProvider>();
@@ -129,8 +130,11 @@ services.AddTransient<IImportManifestProvider, ImportManifestProvider>();
 
 // SERVICES
 services.AddTransient<IHttpCustomMethods, HttpCustomMethods>();
-services.AddTransient<IUploadResultService, UploadResultService>();
-services.AddTransient<IValidationService, ValidationService>();
+services.AddTransient<IUploadResultService, UploadResultService>();         // DELETE
+services.AddTransient<IUploadFileService, UploadFileService>();
+services.AddTransient<IValidationService, ValidationService>();             // DELETE
+services.AddTransient<IValidationService_New, ValidationService_New>();
+
 
 // FILE SERVICES
 services.AddTransient<IExcelFileCreateService, ExcelFileCreateService>();

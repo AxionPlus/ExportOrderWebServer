@@ -13,7 +13,9 @@
     </MudNavGroup>
     <AuthorizeView Roles="Admin, Top Manager, Manager">
         <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
-        <MudNavLink Href="/ExportOrders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink>
+        @* <MudNavLink Href="/vesselcalls" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink> *@
+        @* <MudNavLink Href="/ExportOrders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink> *@
+        <MudNavLink Href="/New_ExportOrders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink>
         <MudNavLink Href="/documents" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Description">Documents</MudNavLink>
     </AuthorizeView>
     <AuthorizeView Roles="Admin, Top Manager">

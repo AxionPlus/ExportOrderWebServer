@@ -22,6 +22,50 @@ function downloadFileBase64(byteBase64, fileName) {
     }
 }
 
+async function jsOpenPdfInNewTab(byteBase64) {
+    try {
+        // Декодируем base64
+        const binaryString = window.atob(byteBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        // Создаем Blob объект
+        const blob = new Blob([bytes], { type: "application/pdf" });
+
+        // Создаем URL для Blob
+        const url = URL.createObjectURL(blob);
+
+        // Открываем в новой вкладке
+        const newWindow = window.open(url, '_blank');
+
+        // Если браузер заблокировал всплывающее окно, предоставляем ссылку для клика
+        if (!newWindow) {
+            // Fallback: создаем ссылку для клика
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';            
+            link.textContent = `Открыть файл`;  //`Открыть ${filename}`
+            link.click();
+        }
+
+        // Очистка через минуту
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+        //------------------------------------------------------------------------------
+        //// Для небольших файлов можно использовать data URL напрямую
+        //const dataUrl = `data:application/pdf;base64,${byteBase64}`;
+        //const newWindow = window.open(dataUrl, '_blank');
+        //// Освобождаем URL через некоторое время
+        //setTimeout(() => { URL.revokeObjectURL(url); }, 60000);
+        //------------------------------------------------------------------------------
+    }
+    catch (error) {
+        console.error('Error loading PDF:', error);
+    }
+}
+
 window.focusLastRow = function () {
     const rows = document.querySelectorAll('.mud-table-body tr');
     if (rows.length > 0) {

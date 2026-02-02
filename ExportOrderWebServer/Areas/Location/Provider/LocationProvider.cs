@@ -197,11 +197,9 @@ public class LocationProvider : ILocationProvider
 
     public async Task<IEnumerable<string>> GetNamesEn()
     {
-        using (var _db = _dbContext.CreateDbContextAsync())
-        {
-            var db = await _db;
-            return await db.Locations.OrderBy(s => s.NameEn).Select(s => s.NameEn!).ToListAsync();
-        }
+        using var _db = _dbContext.CreateDbContextAsync();
+        var db = await _db;
+        return await db.Locations.OrderBy(s => s.NameEn).Select(s => s.NameEn!).ToListAsync();
     }
 
     public async Task<IEnumerable<string>> GetUNLocodes()

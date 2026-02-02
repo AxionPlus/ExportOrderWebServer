@@ -455,6 +455,7 @@ body {
         padding-inline-start: unset;
     }
 
+/*CHECK BOX*/
 .CheckBox {
     display: flex;
     justify-content: center;

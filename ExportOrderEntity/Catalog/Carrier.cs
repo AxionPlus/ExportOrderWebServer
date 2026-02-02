@@ -29,14 +29,14 @@ public class CarrierTerminalDetails
 
 public enum BLTemplate
 {
-    standard,
-    ametist,
-    certa_lam,
-    safetrans,
-    sinokor,
-    soling,
-    transsinergia,
-    nca,
-    oel,
-    lotka
+    Standard = 0,
+    //ametist = 1,
+    //certa_lam = 2,
+    Safetrans = 3,
+    //sinokor = 4,
+    //soling = 5,
+    //transsinergia = 6,
+    Nca = 7,
+    //oel = 8,
+    Lotka = 9
 }

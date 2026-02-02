@@ -3,12 +3,13 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject HttpClient Http
-@inject IJSRuntime jsRuntime
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 @inject IVesselCallProvider _vesselCallProvider
 @inject IVesselProvider _vesselProvider
-@inject ITerminalProvider _terminalProvider
-@inject ILocationProvider _locationProvider
+@inject IExportOrderProvider_New ExportOrderProvider
 @inject ICarrierProvider _carrierProvider
+@inject ICatalogProvider CatalogProvider
 
 <style>
     .mud-input-control.mud-input-control-margin-dense {
@@ -47,7 +48,7 @@
                                  ResetValueOnEmptyText="true" Clearable />
             </div>
             <div class="container-content">
-                <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoadingData" OnClick="@(async () => { await GetItems(); })"
+                <MudButton Class="Button" Style="width: 80px" Disabled="@IsLoading" OnClick="@(async () => { await GetItems(); })"
                            Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
                     Search
                 </MudButton>
@@ -108,19 +109,19 @@
         @if (!IsSelectable)
         {
             <div class="container-column" style="width:160px">
-                <MudButton Class="Button" OnClick="@(async () => { await ManifestReport_Click(false); })"
+                <MudButton Class="Button" OnClick="@(async () => { await ViewManifestReport_Click(false); })"
                            Style="width:142px; margin-bottom:10px;"
                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                            StartIcon="@Icons.Material.Filled.Preview">
                     CGO Manifest
                 </MudButton>
-                <MudButton Class="Button" OnClick="@(async () => { await ManifestReport_Click(true); })"
+                <MudButton Class="Button" OnClick="@(async () => { await ViewManifestReport_Click(true); })"
                            Style="width:142px; margin-bottom:10px"
                            Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small"
                            StartIcon="@Icons.Material.Filled.Preview">
                     IMO Manifest
                 </MudButton>
-                <MudButton Class="Button" OnClick="@(async () => { await ViewReportCustoms_Click(); })"
+                <MudButton Class="Button" OnClick="@(async () => { await ViewFileCustomsReport_Click(); })"
                            Style="width:142px; margin-bottom:10px"
                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                            StartIcon="@Icons.Material.Filled.Preview">
@@ -145,7 +146,7 @@
         <TablePager T="VesselCallDetailDTO" Table="mudTable" ItemsCount="@Items?.Count()" />
     </div>
         
-    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoadingData" Virtualize="true" RowsPerPage="30" >
+    <MudTable Class="Table MultiSelection" @ref="mudTable" Items="@Items" Loading="IsLoading" Virtualize="true" RowsPerPage="30" >
         <HeaderContent>
             <MudTh Style="width: 42px"></MudTh>            
             <MudTh Style="width: 42px"></MudTh>
@@ -194,7 +195,7 @@
             <MudTd>
                 @if (!IsSelectable)
                 {
-                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Disabled="@(IsLoadingData || !IsRoleForEdit)"
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Disabled="@(IsLoading || !IsRoleForEdit)"
                                    OnClick="@(async()=>{ await RemoveVesselCallDetail_Click(context.Id, context.POD); })" />
                 }
             </MudTd>            
@@ -203,7 +204,7 @@
     </MudTable>
 </div>
 
-<OverlayLoadingData Visible="@IsLoadingData" />
+<OverlayLoadingData Visible="@IsLoading" />
 
 @code {
     public string? ApplicationUser { get; set; }
@@ -215,7 +216,7 @@
     private IEnumerable<VesselCallDetailDTO> Items { get; set; } = new List<VesselCallDetailDTO>();
     private FilterParameters Filter { get; set; } = new();
 
-    private bool IsLoadingData = false;
+    private bool IsLoading = false;
     public bool IsRoleForEdit { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
@@ -230,13 +231,13 @@
 
     public async Task GetItems()
     {
-        IsLoadingData = true;
+        IsLoading = true;
 
         var response = await _vesselCallProvider.GetItemsAsync(Filter);
         if (!response.HasErrors && response.Object is not null)
             Items = (IEnumerable<VesselCallDetailDTO>)response.Object;
 
-        IsLoadingData = false;
+        IsLoading = false;
 
         await InvokeAsync(StateHasChanged);
     }
@@ -255,8 +256,8 @@
 
     private async Task AddExportOrder_Click(long vcdId)
     {
-        //var result = await ValueTask.FromResult(jsRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));
-        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.MainPageUrl}exportorder?vcdId={vcdId}", "_blank");
+        //var result = await ValueTask.FromResult(JSRuntime.InvokeVoidAsync("open", $"{Navigation.BaseUri}exportorder?IsNewItem={true}&vcdId={vcdId}", "_blank"));        
+        await JSRuntime.InvokeVoidAsync("open", $"{NavigationManager.BaseUri}New_ExportOrder/{0}/{vcdId}", "_blank");
     }
 
     private async Task RemoveVesselCallDetail_Click(long id, string? pod)
@@ -264,13 +265,13 @@
         bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
                                         (MarkupString)$"Do you want Delete record?<br/>Discharge port: <b>{pod}</b>",
                                         yesText: "DELETE!", cancelText: "NO");        
-        
+
         if (msgResult.HasValue)
             if (msgResult.Value)
             {
-                IsLoadingData = true;
+                IsLoading = true;
                 var response = await _vesselCallProvider.RemoveItemAsync(id, ApplicationUser);  // substitution of RemoveVesselCallDetailAsync
-                IsLoadingData = false;
+                IsLoading = false;
 
                 if (response.HasErrors)
                     Snackbar.Add($"Unable to delete", Severity.Warning);
@@ -297,12 +298,33 @@
             MudDialog.Close(vcdId);
     }
 
-    private async Task ManifestReport_Click(bool _isImo)
+    private async Task ViewManifestReport_Click(bool _isImo)
     {
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}");
+        //await JSRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}");
+
+        IsLoading = true;
+
+        // Данные для файла
+        var dtoItems = await ExportOrderProvider.GetFileDto(vesselcallid, FileType.Manifest, _isImo, cancellationToken: CancellationToken.None);
+
+        // Вывод файла в новую вкладку браузера
+        using ICreatePdfFileService pdfService = new CreatePdfFileService();
+
+        byte[] fileData = await pdfService.CreateFileManifest(dtoItems, _isImo);
+
+        // if (fileData != Array.Empty<byte>())
+        //     await JSRuntime.InvokeVoidAsync("jsOpenPdfInNewTab",
+        //         Convert.ToBase64String(fileData));
+
+        if (fileData != Array.Empty<byte>())
+            await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                $"Manifest_{Items.FirstOrDefault()?.VoyageNo}.docx",
+                Convert.ToBase64String(fileData));
+
+        IsLoading = false;
     }
 
     private async Task SaveFileFillBill_Click()
@@ -310,29 +332,62 @@
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelFillBill?vslcallid={vesselcallid}");
+        //await JSRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}SaveFileExcelFillBill?vslcallid={vesselcallid}");
+
+        IsLoading = true;
+
+        // Данные для файла
+        var dtoItems = await ExportOrderProvider.GetFileDto(vesselcallid, FileType.Manifest, cancellationToken: CancellationToken.None);
+
+        // Сохранение файла
+        using ICreateExcelFileService excelService = new CreateExcelFileService();
+
+        byte[] fileData = await excelService.CreateExcelFileFillBill(dtoItems.ToArray());
+
+        if (fileData != Array.Empty<byte>())
+            await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                $"FillBill_{dtoItems.FirstOrDefault()!.VoyageNum}.xlsx",
+                Convert.ToBase64String(fileData));
+
+        IsLoading = false;
     }
 
-    private async Task ViewReportCustoms_Click()
+    private async Task ViewFileCustomsReport_Click()
     {
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
 
-        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportCustoms?vslcallid={vesselcallid}");
+        //await JSRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportCustoms?vslcallid={vesselcallid}");
+
+        IsLoading = true;
+
+        // Данные для файла
+        var dtoItems = await ExportOrderProvider.GetFileDto(vesselcallid, FileType.Customs, cancellationToken: CancellationToken.None);
+
+        // Вывод файла в новую вкладку браузера
+        using ICreatePdfFileService pdfService = new CreatePdfFileService();
+
+        byte[] fileData = await pdfService.CreateFileCustoms(dtoItems);
+
+        if (fileData != Array.Empty<byte>())
+            await JSRuntime.InvokeVoidAsync("jsOpenPdfInNewTab",
+                Convert.ToBase64String(fileData));
+
+        IsLoading = false;
     }
 
     private async Task<long> GetVoyageId()
     {
         if (Items is null || Items!.Count() == 0) return 0;
  
-        var voyageGroup = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
-        if (voyageGroup.Count() != 1)
+        var voyages = Items.GroupBy(g => g.VesselCallId).Select(g => g.Key);
+        if (voyages.Count() != 1)
         {
             Snackbar.Add($"More then one Voyage selected.<br>Select one Voyage please.", Severity.Warning);
             return 0;
         }
 
-        long voyageId = voyageGroup.FirstOrDefault();
+        long voyageId = voyages.FirstOrDefault();
 
         string terminal = Items.GroupBy(g => g.VesselCallId).Select(g => g.FirstOrDefault()!.Terminal).FirstOrDefault()!;
 
@@ -351,7 +406,8 @@
 
     private async Task<IEnumerable<string>> SearchVessel(string value, CancellationToken token)
     {
-        var result = await _vesselProvider.GetNamesEn();
+        //var result = await _vesselProvider.GetNamesEn();
+        var result = await CatalogProvider.GetVesselNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -377,7 +433,7 @@
 
     private async Task<IEnumerable<string>> SearchPort(string value, CancellationToken token)
     {
-        var result = await _locationProvider.GetNamesEn();
+        var result = await CatalogProvider.GetLocationNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();
@@ -390,7 +446,7 @@
     
     private async Task<IEnumerable<string>> SearchTerminal(string value, CancellationToken token)
     {
-        var result = await _terminalProvider.GetNames();
+        var result = await CatalogProvider.GetTerminalNames();
 
         if (result.Count() == 0)
             return Enumerable.Empty<string>();

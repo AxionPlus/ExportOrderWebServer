@@ -1,0 +1,82 @@
+﻿<div style="display:flex">
+    <div class="FieldContainer" style="@InitialStyle; @Style">
+        <div class="fieldName">Date From</div>
+        <MudDatePicker Class="DatePicker"
+                       Date="@DateFrom" 
+                       DateChanged="@(async(e)=>{ DateFrom = e; await DateFromChanged.InvokeAsync(e); })"
+                       Editable="true"
+                       Mask="@(new DateMask("dd.MM.yy"))"
+                       DateFormat="dd.MM.yy"
+                       ShowWeekNumbers="true"
+                       ShowToolbar="false"
+                       Variant="Variant.Outlined"
+                       Disabled="@Disabled"
+                       ErrorText=""
+                       Required="@Required" RequiredError="" Clearable="@Clearable" />
+    </div>
+
+    <div class="FieldContainer" style="@InitialStyle">
+        <div class="fieldName">Date To</div>
+        <MudDatePicker Class="DatePicker"
+                       Date="@DateTo"
+                       DateChanged="@(async(e)=>{ DateTo = e; await DateToChanged.InvokeAsync(e); })"
+                       Editable="true"
+                       Mask="@(new DateMask("dd.MM.yy"))"
+                       DateFormat="dd.MM.yy"
+                       ShowWeekNumbers="true"
+                       ShowToolbar="false"
+                       Variant="Variant.Outlined"
+                       Disabled="@Disabled"
+                       ErrorText=""
+                       Required="@Required" RequiredError="" Clearable="@Clearable" />
+    </div>
+
+    @if (Manage)
+    {
+        <div style="margin-top:28px; padding-left:10px">
+            <MudLink OnClick="@((_)=>{DateFrom = DateFrom.HasValue ? DateFrom.Value.AddDays(-5): DateTime.Today.AddDays(-5);
+                                DateTo = DateTo.HasValue ? DateTo.Value.AddDays(-5): DateTime.Today.AddDays(-5); })">-5</MudLink> |
+        
+            <MudLink OnClick="@((_)=>{DateFrom = DateFrom.HasValue ? DateFrom.Value.AddDays(-1):DateTime.Today.AddDays(-1);
+                                DateTo = DateTo.HasValue ? DateTo.Value.AddDays(-1):DateTime.Today.AddDays(-1); })">-1</MudLink> |
+
+            <MudLink OnClick="@((_)=>{DateFrom = DateTime.Today; DateTo = DateTime.Today; })">Сегодня</MudLink> |
+
+            <MudLink OnClick="@((_)=>{DateFrom = DateFrom.HasValue ? DateFrom.Value.AddDays(1):DateTime.Today.AddDays(1);
+                                DateTo = DateTo.HasValue ? DateTo.Value.AddDays(1):DateTime.Today.AddDays(1); })">+1</MudLink> |
+
+            <MudLink OnClick="@((_)=>{DateFrom = DateFrom.HasValue ? DateFrom.Value.AddDays(5):DateTime.Today.AddDays(5);
+                                DateTo= DateTo.HasValue ? DateTo.Value.AddDays(5):DateTime.Today.AddDays(5); })">+5</MudLink>
+        </div>
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public DateTime? DateFrom { get; set; }
+    [Parameter]
+    public DateTime? DateTo { get; set; }
+    [Parameter]
+    public string? Style { get; set; }    
+    [Parameter]
+    public bool Manage { get; set; }
+    [Parameter]
+    public bool Clearable { get; set; }
+    [Parameter]
+    public bool Required { get; set; }
+    [Parameter]
+    public bool Disabled { get; set; }
+    [Parameter]
+    public EventCallback<DateTime?> DateFromChanged { get; set; }
+    [Parameter]
+    public EventCallback<DateTime?> DateToChanged { get; set; }
+
+    private string InitialStyle
+    { 
+        get
+        {
+            return string.Concat("padding-left:10px;", Clearable ? "width:125px" : "width:115px");
+        }
+    }
+}

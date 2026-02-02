@@ -1,0 +1,479 @@
+﻿@page "/New_ExportOrders"
+
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+@inject IExportOrderProvider_New ExportOrderProvider
+
+<ToolBar Label="Поручения">
+    <RightContent>        
+        <ToolBarIconButton TooltipText="Добавить поручение" Delay="1500" Duration="1000" Icon="@Icons.Material.Outlined.AddBox" OnClick="NewItem"></ToolBarIconButton>
+    </RightContent>
+</ToolBar>
+
+<ExportOrderSearchPanel @bind-Filter="@Filter" ToggleContent="@ToggleContent" IsLoading="@IsLoading" OnSearch="OnSearch_Click" OnReset="ResetFilters" />
+
+<TableWrap T="ExportOrderDto" Table="_tableRef" PageSelector @bind-RowsPerPage="@Filter.PageSize" TotalItems="@PagedResult.TotalCount">
+    <Content>
+        <MudTable @ref="_tableRef" Class="Table P4 MultiSelect Head-sticky"
+                  @bind-SelectedItems="SelectedItems"
+                  ServerData="ServerReload"                  
+                  RowsPerPage="@Filter.PageSize"
+                  Virtualize="true"                  
+                  MultiSelection="true" SelectOnRowClick="false">
+            <ColGroup>
+                <col style="width: 30px;" /> <!-- Фиксированная ширина первого столбца -->
+            </ColGroup>
+            <HeaderContent>
+                <MudTh Style="width:45px">
+                    <MudTooltip Delay="500" Duration="1000" Text="перенести в другой рейс" Arrow="true" Placement="Placement.Right">
+                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.TransferWithinAStation" Disabled="@DisabledToSaveFiles"
+                                       Size="Size.Small" Color="Color.Secondary" OnClick="SetNewVesselCall" />
+                    </MudTooltip>
+                </MudTh>
+                <MudTh Style="width:100px">
+                    <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
+                        <MudButton Class="Button" Size="Size.Small" Color="Color.Primary" OnClick="@(async () => await SaveFilesPdf_Click(FileType.Order))"
+                                   Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save"
+                                   Disabled="@DisabledToSaveFiles">
+                            Orders
+                        </MudButton>                        
+                    </MudTooltip>
+                </MudTh>
+                <MudTh Style="width:50px">XML</MudTh>
+                <MudTh Style="width:52px">Rolis</MudTh>
+                <MudTh Style="width:100px">
+                    <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
+                        <MudButton Class="Button" Size="Size.Small" Color="Color.Primary" OnClick="@(async () => await SaveFilesPdf_Click(FileType.Bill))"
+                                   Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save"
+                                   Disabled="@DisabledToSaveFiles">
+                            Bs/L
+                        </MudButton>
+                    </MudTooltip>
+                </MudTh>
+                <MudTh Style="width:160px">
+                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.Num!)">Number</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:80px">
+                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.Dated!)">Dated</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:220px">
+                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.Vessel!)">Vessel</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:110px">
+                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.VoyageNo!)">Voyage</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:180px">
+                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.VoyageNo!)">POD</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="min-width:130px">
+                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.Carrier!)">Carrier</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:80px">Terminal</MudTh>
+                <MudTh Style="width:45px">IMO</MudTh>
+                <MudTh Style="width:64px">Empty</MudTh>
+                <MudTh Style="width:100px">
+                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.Status!)">Status</MudTableSortLabel>
+                </MudTh>
+                <MudTh Style="width:45px">Del</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudTooltip Delay="1500" Duration="1000" Text="view Details">
+                        <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoading" Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(async()=>{ await EditItem(context.Id); })" />
+                    </MudTooltip>
+                </MudTd>
+                <MudTd>
+                    <MudTooltip Delay="1500" Duration="1000" Text="view Export Order">
+                        <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoading" Icon="@Icons.Material.Outlined.Print"
+                                       OnClick="@(async()=>{ await ViewFilePdf_Click(context.Id, FileType.Order); })" />
+                    </MudTooltip>
+                </MudTd>
+                <MudTd>
+                    <MudTooltip Delay="1500" Duration="1000" Text="save xml file">
+                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium" Disabled="@IsLoading"
+                                       OnClick="@(async()=>{ await SaveFileXML_Click(context.Id); })" />
+                    </MudTooltip>
+                </MudTd>
+                <MudTd>
+                    <MudTooltip Delay="1500" Duration="1000" Text="save xlsx file for ROLIS">
+                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.FileDownload" Size="Size.Medium" Disabled="@IsLoading"
+                                       OnClick="@(async()=>{ await SaveFileRolis_Click(context.Id); })" />
+                    </MudTooltip>
+                </MudTd>
+                <MudTd>
+                    <MudTooltip Delay="1500" Duration="1000" Text="View pdf BL">
+                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Print" Disabled="@IsLoading"
+                                       Size="Size.Small" OnClick="@(async () => await ViewFilePdf_Click(context.Id, FileType.Bill))" />
+                    </MudTooltip>
+                    @* <MudTooltip Delay="1500" Duration="1000" Text="View pdf XXL_BL">
+                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Expand" Disabled
+                                       Size="Size.Small" OnClick="@(async () => await ViewFilesPdf_Click(context.Id, true))" />
+                    </MudTooltip> *@
+                </MudTd>
+                <MudTd>@context.Num</MudTd>
+                <MudTd>@(context.Dated.HasValue ? context.Dated.Value.ToString("dd.MM.yy") : "")</MudTd>
+                <MudTd>@context.VesselName</MudTd>
+                <MudTd>@context.VesselVoyage</MudTd>
+                <MudTd>@context.PortOfDischarge</MudTd>
+                <MudTd>@context.CarrierNameEn</MudTd>
+                <MudTd>@(context.TerminalName ?? "---")</MudTd>
+                <MudTd>
+                    @if (context.IsIMO.Equals(true))
+                    {
+                        <MudTooltip Text="IMO"><MudIcon Icon="@Icons.Custom.Uncategorized.BioHazard" Color="Color.Error"></MudIcon></MudTooltip>
+                    }
+                </MudTd>
+                <MudTd>
+                    @if (context.IsEmpty.Equals(true))
+                    {
+                        <MudTooltip Text="Empty"><MudIcon Icon="@Icons.Material.Outlined.Battery1Bar"></MudIcon></MudTooltip>
+                    }
+                </MudTd>
+                <MudTd>@context.Status.ToString()</MudTd>
+                <MudTd Style="align-content:flex-end">
+                    <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoading"
+                                   Icon="@Icons.Material.Outlined.DeleteOutline" Color="Color.Secondary"
+                                   OnClick="@(async()=>await RemoveItem_Click(context.Id, context.Num))" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent></PagerContent>
+        </MudTable>
+    </Content>
+</TableWrap>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    MudTable<ExportOrderDto>? _tableRef;
+    private HashSet<ExportOrderDto> SelectedItems = new();
+    private PagedResult<ExportOrderDto> PagedResult = new();
+    private ExportOrderPageFilter Filter { get; set; } = new();
+    private FileType FileType;
+
+    private bool ToggleContent { get; set; } = true;
+    private bool IsLoading { get; set; } = false;
+    private bool DisabledToSaveFiles => IsLoading || PagedResult is null || !PagedResult.Items.Any();
+
+    protected override void OnInitialized()
+    {
+        ResetFilters();
+    }
+
+    private void ResetFilters()
+    {
+        Filter = new ExportOrderPageFilter
+        {
+            PageNumber = 1,
+            PageSize = 25,
+            DateFrom = DateTime.Today.AddDays(-7),
+            DateTo = DateTime.Today
+        };
+    }
+
+    private async Task ReloadTableData()
+    {
+        if (_tableRef != null)
+            await _tableRef.ReloadServerData();
+    }
+
+    private async Task OnSearch_Click()
+    {
+        if (_tableRef != null)
+            await _tableRef.ReloadServerData();
+    }
+
+    private async Task<TableData<ExportOrderDto>> ServerReload(TableState state, CancellationToken token)
+    {
+        try
+        {
+            IsLoading = true;
+
+            SelectedItems = new();
+
+            Filter.PageNumber = state.Page + 1;
+            Filter.PageSize = state.PageSize;            
+
+            PagedResult = await ExportOrderProvider.GetPagedResultAsync(Filter, token);
+            return new TableData<ExportOrderDto>
+            {
+                TotalItems = PagedResult.TotalCount,
+                Items = PagedResult.Items
+            };
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return new TableData<ExportOrderDto>
+            {
+                TotalItems = 0,
+                Items = new List<ExportOrderDto>()
+            };
+        }
+        finally
+        {
+            IsLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task NewItem()
+    {
+        await JSRuntime.InvokeVoidAsync("open", $"{NavigationManager.BaseUri}New_ExportOrder", "_blank");   //exportorder
+    }
+
+    private async Task EditItem(long id)
+    {
+        //await JSRuntime.InvokeVoidAsync("open", $"{NavigationManager.BaseUri}New_ExportOrder?Id={id}", "_blank");  //exportorder
+        await JSRuntime.InvokeVoidAsync("open", $"{NavigationManager.BaseUri}New_ExportOrder/{id}", "_blank");
+        //await JSRuntime.InvokeVoidAsync("open", $"{NavigationManager.BaseUri}New_ExportOrder/{id}/{null}", "_blank");        
+    }
+
+    private async Task SetNewVesselCall()
+    {
+        if (SelectedItems is null || SelectedItems.Count == 0)
+        {
+            Snackbar.Add($"Select at list one record.", Severity.Warning);
+            return;
+        }
+
+        var Voyages = SelectedItems.GroupBy(s => s.VesselCallId).ToArray();
+
+        if (Voyages.Count() > 1)
+        {
+            Snackbar.Add($"Export Orders for one Voyage only is available.", Severity.Warning);
+            return;
+        }
+
+        var parameters = new DialogParameters { ["IsSelectable"] = true };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
+        var dialogResult = await dialog.Result;
+
+        if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data is not null)
+        {
+            bool? questionResult = await DialogService.ShowMessageBox(
+                    "Set New Vessel CALL?",
+                    "Do you want to Roll Export Order(s)?",
+                    yesText: "Yes", cancelText: "No");
+
+            if (!questionResult.HasValue) return;
+            if (!questionResult.Value) return;
+
+            IsLoading = true;
+
+            var newVesselCallDetailId = (long)dialogResult.Data;
+
+            long[] selectedIds = SelectedItems.Select(s => s.Id).ToArray();
+
+            await ExportOrderProvider.SetNewVesselCall(selectedIds, newVesselCallDetailId);
+            Snackbar.Add("Рейс успешно изменён.", Severity.Success);
+
+            IsLoading = false;
+
+            // /// Set delay
+            // int delayCounter = selectedIds.Length switch
+            // {
+            //     0 => 0,
+            //     < 20 => 1000,
+            //     < 50 => 2000,
+            //     < 100 => 5000,
+            //     < 200 => 10000,
+            //     _ => 15000
+            // };
+
+            // var t = Task.Run(async delegate
+            // {
+            //     await Task.Delay(delayCounter);
+            //     //return GetItems();
+            // });
+
+            // t.Wait();
+        }
+    }
+
+    private async Task RemoveItem_Click(long id, string? num)
+    {
+        bool? result = await DialogService.ShowMessageBox("Delete",
+                                    (MarkupString)$"Do you want to Delete record?<br/><b>{num}</b>",
+                                    yesText: "DELETE!", cancelText: "NO");
+
+        if (result.HasValue)
+            if (result.Value)
+            {
+                IsLoading = true;
+                await ExportOrderProvider.RemoveItemAsync(id, CancellationToken.None);
+                IsLoading = false;
+
+                Snackbar.Add($"Deleted successfully", Severity.Success);
+                await InvokeAsync(StateHasChanged);
+            }
+    }
+
+    #region FILES
+    private async Task SaveFilesPdf_Click(FileType fileType)
+    {
+        if (!IsOneVoyageSelected())
+        {
+            Snackbar.Add("Выберите записи для одного рейса.", Severity.Warning);
+            return;
+        }
+
+        Filter.FileType = fileType;
+
+        long[]? ids = null;
+
+        if (SelectedItems.Any())
+            ids = SelectedItems.Select(s => s.Id).ToArray();
+
+        IsLoading = true;
+
+        // Данные для файла        
+        var dtoItems = await ExportOrderProvider.GetFilesDto(Filter, ids, cancellationToken: CancellationToken.None);
+
+        if (dtoItems is null || !dtoItems.Any())
+        {
+            Snackbar.Add("Данные для Pdf файла не получены.", Severity.Warning);
+            IsLoading = false;
+            return;
+        }
+
+        // Сохранение файла
+        using ICreatePdfFileService pdfService = new CreatePdfFileService();
+
+        KeyValuePair<string, byte[]> fileData = (fileType) switch
+        {
+            FileType.Order => await pdfService.CreateFilesExportOrder(dtoItems),
+            FileType.Bill => await pdfService.CreateFilesBillOfLading(dtoItems),
+            _ => new(string.Empty, Array.Empty<byte>())
+        };
+
+        if (fileData.Value != Array.Empty<byte>())
+        {
+            await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                fileData.Key,
+                Convert.ToBase64String(fileData.Value));
+        }        
+        
+        IsLoading = false;
+    }
+
+    private async Task SaveFileXML_Click(long id)
+    {
+        IsLoading = true;
+
+        // Данные для файла
+        long[]? ids = { id };
+        var dtoItems = await ExportOrderProvider.GetFilesDto(Filter, ids, cancellationToken: CancellationToken.None);
+
+        if (dtoItems is null || !dtoItems.Any())
+        {
+            Snackbar.Add("Данные для xml файла не получены.", Severity.Warning);
+            IsLoading = false;
+            return;
+        }        
+
+        // Сохранение файла
+        using ICreateXmlFileService xmlService = new CreateXmlFileService();
+
+        byte[] fileData = await xmlService.CreateXmlFileExportOrder(dtoItems.FirstOrDefault()!);
+
+        if (fileData != Array.Empty<byte>())
+        {
+            await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                $"Customs_{dtoItems.FirstOrDefault()!.Num}.xml",
+                Convert.ToBase64String(fileData));
+        }
+
+        IsLoading = false;
+    }
+
+    private async Task SaveFileRolis_Click(long id)
+    {
+        IsLoading = true;
+
+        // Данные для файла
+        long[]? ids = { id };
+        var dtoItems = await ExportOrderProvider.GetFilesDto(Filter, ids, cancellationToken: CancellationToken.None);
+
+        if (dtoItems is null || !dtoItems.Any())
+        {
+            Snackbar.Add("Данные для Rolis файла не получены.", Severity.Warning);
+            IsLoading = false;
+            return;
+        }
+
+        // Сохранение файла
+        using ICreateExcelFileService excelService = new CreateExcelFileService();
+
+        byte[] fileData = await excelService.CreateExcelFileRolis(dtoItems.FirstOrDefault()!);
+
+        if (fileData != Array.Empty<byte>())
+        {
+            await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                $"Rolis_{dtoItems.FirstOrDefault()!.VoyageNum}_{dtoItems.FirstOrDefault()!.Num}.xlsx",
+                Convert.ToBase64String(fileData));
+        }
+
+        IsLoading = false;
+    }
+
+    private async Task ViewFilePdf_Click(long id, FileType fileType)
+    {
+        Filter.FileType = fileType;
+
+        long[]? ids = { id };
+
+        IsLoading = true;
+
+        // Данные для файла
+        var dtoItems = await ExportOrderProvider.GetFilesDto(Filter, ids, cancellationToken: CancellationToken.None);
+
+        if (dtoItems is null || !dtoItems.Any())
+        {
+            Snackbar.Add("Данные для Pdf файла не получены.", Severity.Warning);
+            IsLoading = false;
+            return;
+        }
+
+        // Вывод файла в новую вкладку браузера
+        using ICreatePdfFileService pdfService = new CreatePdfFileService();
+
+        KeyValuePair<string, byte[]> fileData = (fileType) switch
+        {
+            FileType.Order => await pdfService.CreateFilesExportOrder(dtoItems),
+            FileType.Bill => await pdfService.CreateFilesBillOfLading(dtoItems),
+            _ => new(string.Empty, Array.Empty<byte>())
+        };
+
+        if (fileData.Value != Array.Empty<byte>())
+        {
+            await JSRuntime.InvokeVoidAsync("jsOpenPdfInNewTab",                
+                Convert.ToBase64String(fileData.Value));
+        }
+
+        IsLoading = false;
+    }
+       
+    private bool IsOneVoyageSelected()
+    {
+        bool isOne = true;
+
+        if (SelectedItems.Any())
+        {
+            if (SelectedItems.GroupBy(s => s.VesselCallId).Count() > 1)
+                isOne = false;
+        }
+        else
+        {
+            if (PagedResult.Items.GroupBy(s => s.VesselCallId).Count() > 1)
+                isOne = false;
+        }
+
+        return isOne;
+    }
+
+    #endregion
+}

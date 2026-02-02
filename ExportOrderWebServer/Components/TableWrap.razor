@@ -1,4 +1,5 @@
 ﻿@typeparam T
+
 <style>
 
 
@@ -15,7 +16,6 @@
             @if (PageSelector)
             {
                 <div style="width:59px;margin: auto; padding-inline:3px;">
-                    <MudSelect T="int" Value="@RowsPerPage" ValueChanged="@((v) => { Table.Items= new List<T>(); RowsPerPage = v; RowsPerPageChanged.InvokeAsync(v); })" Variant="Variant.Outlined" Class="PageSelector">
                         @foreach (int item in Items)
                         {
                             <MudSelectItem Value="@item" />
@@ -39,6 +39,7 @@
 
 
 </div>
+
 @code {
     [Parameter]
     public int? TotalItems { get; set; }
@@ -59,8 +60,8 @@
     public MudTable<T>? Table { get; set; }
     [Parameter]
     public bool PageSelector { get; set; }
-
-    [Parameter] public int RowsPerPage { get; set; } = 25;
+    [Parameter]
+    public int RowsPerPage { get; set; } = 25;
     [Parameter]
     public EventCallback<int> RowsPerPageChanged { get; set; }
     [Parameter]

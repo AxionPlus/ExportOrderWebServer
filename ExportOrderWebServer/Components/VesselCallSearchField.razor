@@ -1,0 +1,73 @@
+﻿@inject ICatalogProvider CatalogProvider
+@inject IDialogService DialogService
+
+<div style="display:flex">
+    <div class="FieldContainer" style="width:220px; padding-left:10px;">
+        <div class="fieldName">Vessel</div>
+        <MudAutocomplete Class="Autocomplete" T="string"
+                         Value="@VesselName"
+                         ValueChanged="@(async (e) => { VesselName = e is null ? string.Empty : e.ToUpper(); await VesselNameChanged.InvokeAsync(e is null ? e : e.ToUpper()); })"
+                         SearchFunc="VesselSearch"
+                         CloseIcon="" OpenIcon=""
+                         Variant="Variant.Outlined"
+                         ResetValueOnEmptyText="true"
+                         Clearable
+                         OnClearButtonClick="async (_) => { await VesselNameChanged.InvokeAsync(string.Empty); }" />
+    </div>
+    <TextField Class="TextField" Label="Voyage" Style="width:150px; padding-left:10px;" UpperCase Value="@VesselVoyage"
+               ValueChanged="@(async (e) => { VesselVoyage = e is null ? string.Empty : e.ToUpper(); await VesselVoyageChanged.InvokeAsync(e is null ? e : e.ToUpper()); })"
+               Clearable
+               OnClearButtonClick="async (_) => { await VesselVoyageChanged.InvokeAsync(string.Empty); }" />
+
+    @if (!HiddenButton)
+    {
+        <div style="margin-top:28px;margin-left:4px;">
+            <MudIconButton Class="TextFieldIconButton" Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Small" OnClick="SelectVslCall_Click"></MudIconButton>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public bool HiddenButton { get; set; }
+    [Parameter]
+    public long VesselCallDetailId { get; set; }
+    [Parameter]
+    public string? VesselName { get; set; }
+    [Parameter]
+    public string? VesselVoyage { get; set; }
+    [Parameter]
+    public EventCallback<string?> VesselNameChanged { get; set; }
+    [Parameter]
+    public EventCallback<string?> VesselVoyageChanged { get; set; }
+
+    private async Task<IEnumerable<string>> VesselSearch(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+            return Enumerable.Empty<string>();
+
+        var vessels = await CatalogProvider.GetVesselNames();
+
+        return vessels.Where(x => !string.IsNullOrWhiteSpace(x) && x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Order().ToArray();
+    }
+
+    private async Task SelectVslCall_Click()
+    {
+        // var parameters = new DialogParameters();
+        // var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, BackdropClick = false };
+        // var dialog = await DialogService.ShowAsync<VesselCallSearchPanel>("Select Vessel CALL", parameters, options);
+        // var result = await dialog.Result;
+
+        // if (result is not null && !result.Canceled && result.Data is not null)
+        // {
+        //     var vesselCall = (VesselCallDto)result.Data;
+
+        //     VesselCallDetailId = vesselCall.VesselCallDetailId;
+        //     VesselName = vesselCall.VesselName;
+        //     VesselVoyage = vesselCall.VesselVoyage;
+
+        //     await VesselNameChanged.InvokeAsync((VesselName));
+        //     await VesselVoyageChanged.InvokeAsync((VesselVoyage));
+        // }
+    }
+}

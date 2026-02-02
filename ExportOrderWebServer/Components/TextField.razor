@@ -13,45 +13,18 @@
         color:darkred;
     }
 </style>
-@if (NoHeader)
-{   
-    <MudTextField T="string" Class="@TextClass"
-                       Value="Value"
-                       ValueChanged="@(async(e)=>{
-                                         
-                                             await ValueChanged.InvokeAsync(e.ToUpper());
-                                }
-                                     )"                      
-                       TextChanged="@TextChanged"
-                       Variant="Variant.Outlined"
-                       Required="@Required"
-                       Error="@Error"
-                       RequiredError=""
-                       Immediate="true"
-                       ReadOnly="@ReadOnly"
-                       MaxLength="@MaxLength"
-                       AutoFocus="@AutoFocus"
-                       Lines="@Lines"
-                       Disabled="Disabled"
-                       Clearable="@Clearable"
-                       Placeholder="@Placeholder"
-                       OnBlur="@OnBlur"
-                       Mask="Mask"
-                       For ="For"
-                       OnClearButtonClick="@OnClearButtonClick">
-</MudTextField>
 
-}
-else
-{
-<InputWrap Style="@Style" Disabled="@Disabled" Label="@Label" TooltipText="@TooltipText" ProgressLinear="@ProgressLinear">
-
+<div class="FieldContainer" style="@Style">
+    <div class="fieldName">@Label</div>
+    <div style="width:100%">
         <MudTextField T="string" Class="@TextClass"
                       Value="Value"
                       ValueChanged="@(async(e)=>{
                                 await ValueChanged.InvokeAsync(e.ToUpper());
-                  }
-                            )"                      
+                            else
+                                await ValueChanged.InvokeAsync(e);}
+                      )"
+                      Text="@Text"
                       TextChanged="@TextChanged"
                       Variant="Variant.Outlined"
                       Required="@Required"
@@ -67,16 +40,19 @@ else
                       Placeholder="@Placeholder"
                       OnBlur="@OnBlur"
                       Mask="Mask"
-                      For ="For"
+                      OnClearButtonClick="@OnClearButtonClick"
+                      IconSize="@IconSize"
                       Adornment="@Adornment"
+                      AdornmentColor="@AdornmentColor"
                       AdornmentIcon="@AdornmentIcon"
-                      OnClearButtonClick="@OnClearButtonClick">
+                      OnAdornmentClick="@OnAdornmentClick">
         </MudTextField>
         @if (IsIconButton)
         {
             <MudIconButton Class="TextFieldIconButton" Icon="@Icon" Color="@IconColor" Size="@IconSize" OnClick="Button_Click"></MudIconButton>
         }
-
+    </div>
+</div>
 
 </InputWrap>
 }
@@ -119,12 +95,21 @@ else
     public bool Error { get; set; }
     [Parameter]
     public int Lines { get; set; } = 1;
-    // [Parameter]
-    // public string? Text { get; set; }
+    [Parameter]
+    public string? Text { get; set; }
+    [Parameter]
+    public string? Value { get; set; }
     [Parameter]
     public string? Placeholder { get; set; }
     [Parameter]
-    public string? Value { get; set; }
+    public Size IconSize { get; set; }
+    [Parameter]
+    public Adornment Adornment { get; set; }
+    [Parameter]
+    public Color AdornmentColor { get; set; }
+    [Parameter]
+    public string? AdornmentIcon { get; set; }
+
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
     [Parameter]
@@ -136,10 +121,7 @@ else
     [Parameter]
     public EventCallback<string> TextChanged { get; set; }
     [Parameter]
-    public bool Dense { get; set; }
-
-    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Dehaze;
-
+    public EventCallback OnAdornmentClick { get; set; }
 
     private string TextClass
     {
@@ -153,19 +135,4 @@ else
                 return $"TextField{dense} {Class}";
         }
     }
-
-
-    private string LabelClass
-    {
-        get
-        {
-         
-
-            if (Disabled)
-                return $"fieldName Label-Disabled";
-            else
-                return $"fieldName";
-        }
-    }
-
 }

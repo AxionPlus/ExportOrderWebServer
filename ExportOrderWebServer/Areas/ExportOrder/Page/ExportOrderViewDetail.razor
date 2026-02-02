@@ -1,0 +1,927 @@
+﻿@page "/New_ExportOrder"
+@page "/New_ExportOrder/{Id:long}/{vcdId:long?}"
+
+@using System.Globalization
+@attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
+
+@inject ISnackbar Snackbar
+@inject IJSRuntime jsRuntime
+@inject IDialogService DialogService
+@inject IValidationService_New ValidationService
+
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject IExportOrderProvider_New ExportOrderProvider
+@inject ICarrierProvider CarrierProvider
+@inject ICntrTypeProvider CntrTypeProvider
+
+<style>
+    .Container-item > .container-content.MainData {
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+
+    .Container-item > .container-content.ExpOrder {
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+
+    .Table * .mud-table-cell *.mud-input-control {
+        margin: unset;
+    }
+
+    .Table * .mud-table-cell *.mud-input > input.mud-input-root-outlined {
+        padding: 4px 4px 1px 4px;
+    }
+
+    .sub-Table {
+        background-color: lightblue;
+        transition: none;
+        box-shadow: none;
+    }
+
+    .mud-table-foot > .mud-table-row {
+        background: lightgray;
+    }
+
+    .infoSC {
+        margin-bottom: 3px;
+    }
+
+    .Summary {
+        margin-top: 3px;
+        margin-bottom: 3px;
+        color: var(--mud-palette-primary);
+    }
+</style>
+
+<ToolBar  Label="Поручение">
+    <RightContent>
+        <ToolBarIconButton TooltipText="Копировать поручение" Delay="1500" Duration="1000" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem"></ToolBarIconButton>
+        <div style="width:10px"></div>
+        <ToolBarIconButton TooltipText="Сохранить поручение" Delay="1500" Duration="1000" Icon="@Icons.Material.Outlined.Save" OnClick="SaveItem"></ToolBarIconButton>
+    </RightContent>
+</ToolBar>
+
+<MudForm @ref="Form">    
+    <div class="Container-item">
+        <div class="container-content MainData" style="padding-bottom:2px">
+            <TextField Style="width:200px" Label="Поручение №" Text="@Item.Num" @bind-Value="Item.Num" UpperCase Required />
+            <DatePicker Style="width:130px" Label="Дата" @bind-Date="Item.Dated" Clearable Required />
+            <TextField Class="TextField" Style="width:450px"
+                       Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
+                       Text="@(Item.VesselCallDetail == null
+                            ? string.Empty
+                            : string.Concat(Item.VesselCallDetail.VesselCall.Vessel.Name, " / ",
+                                Item.VesselCallDetail.VesselCall.VoyageNo, " / ",
+                                Item.VesselCallDetail.POD == null ? string.Empty : Item.VesselCallDetail.POD.NameEn)
+                             )"
+                       TextChanged="@((e)=> {
+                            if (string.IsNullOrWhiteSpace(e))
+                            {
+                                Item.VesselCallDetail = null; Item.Carrier = null;
+                            }                                
+                       })"
+                       Clearable
+                       OnClearButtonClick="@(()=> { Item.VesselCallDetail = null; Item.Carrier = null; })"
+                       IconSize="Size.Small"
+                       Adornment="Adornment.Start"
+                       AdornmentColor="Color.Primary"
+                       AdornmentIcon="@Icons.Material.Filled.Waves"
+                       OnAdornmentClick="@GetVesselCallDetail_Click" />
+            <div style="display:flex">
+                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Style="padding:8px; margin-top: 20px;" Size="Size.Small" Color="Color.Primary" OnClick="@AddCarrier_Click" />
+                <div class="FieldContainer">
+                    <div class="fieldName">Carrier</div>
+                    <div style="width:100%">
+                        <MudAutocomplete Class="Autocomplete" T="CarrierCatalog" Style="width:330px" @bind-Value="Item.Carrier"
+                                         ToStringFunc="@(e => e != null ? e.Name : "")"
+                                         SearchFunc="@SearchCarrier"
+                                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                                         Required RequiredError="" Clearable
+                                         CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                         ResetValueOnEmptyText="true"
+                                         Placeholder="Carrier"
+                                         MaxItems="10" />                        
+                    </div>
+                </div>
+            </div>
+            <Select T="PersonEntity" Style="width:200px" Label="Person" @bind-Value="@Item.Person"
+                    ToStringFunc="@(s => s == null
+                        ? string.Empty
+                        : string.Concat($"{s.FamilyName} ",
+                        $"{(s.Name == null ? string.Empty : s.Name.Substring(0, 1))}. ",
+                        $"{(s.SurName == null ? string.Empty : s.SurName.Substring(0, 1))}."))">
+                @if (Persons.Count() > 0)
+                    @foreach (var person in Persons)
+                    {
+                        <MudSelectItem Value="@person">
+                            @($"{person.FamilyName} {person.Name!.Substring(0, 1)}. {person.SurName!.Substring(0, 1)}.")
+                        </MudSelectItem>
+                    }
+            </Select>
+            <Select T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Item.Status"
+                    ToStringFunc="@(str => str.ToString())">
+                @switch (Item.Status)
+                {
+                    case EntityStatus.New:
+                        <MudSelectItem Value="@(EntityStatus.Customs)" />
+                        <MudSelectItem Value="@(EntityStatus.Cancelled)" />
+                        break;
+
+                    case EntityStatus.Customs:
+                        <MudSelectItem Value="@(EntityStatus.Cancelled)" />
+                        break;
+
+                    case EntityStatus.Cancelled:
+                        if (IsRoleForEdit)
+                        {
+                            <MudSelectItem Value="@(EntityStatus.New)" />
+                            <MudSelectItem Value="@(EntityStatus.Customs)" />
+                        }
+                        break;
+
+                    case EntityStatus.Completed:
+                        if (IsRoleForEdit)
+                        {
+                            <MudSelectItem Value="@(EntityStatus.New)" />
+                            <MudSelectItem Value="@(EntityStatus.Customs)" />
+                        }
+                        break;
+                }
+            </Select>
+        </div>
+    </div>
+
+    <div class="Container-item">
+        <div class="container-content ExpOrder" style="padding-bottom:unset">
+            <div class="documents">
+                <div class="controlIconButtons" style="display:flex">
+                    <MudTooltip Text="Add Document (добавить Декларацию)" Duration="1500" Delay="500">
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Small" Color="Color.Primary" OnClick="AddDocuments_Click"></MudIconButton>
+                    </MudTooltip>
+                    <MudSpacer />
+                    <h6 class="container-content-head">Documents:</h6>
+                    <MudSpacer />
+                    <MudTooltip Text="Remove selected Documents (удалить выбранные Декларации)" Duration="1500" Delay="500">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="RemoveDocument"></MudIconButton>
+                    </MudTooltip>
+                </div>
+
+                <MudPaper Width="450px" Elevation="0" Style="height:220px; overflow:auto">
+                    @if (Item.Documents != null)
+                    {
+                        <MudTreeView T="ExportOrderDocumentDTO" Items="@TreeItems" @bind-SelectedValue="SelectedDocument"
+                                     Dense="true" Hover="true" SelectionMode="SelectionMode.ToggleSelection">
+                            <ItemTemplate>
+                                @if (context.Value != null)
+                                {
+                                    <MudTreeViewItem Style="width:100%" Value="@context.Value">
+                                        <BodyContent Context="item">
+                                            <div class="d-flex" style="flex-direction:row; justify-content: space-between; width:100%">
+                                                <MudText>@(context.Value.DocumentName)</MudText>
+                                                <MudSpacer />
+                                                <MudTooltip Text="Кол-во выбранных товаров в этой ДТ" Delay="1000">
+                                                    <MudText Typo="@Typo.caption">@(context.Value.DocumentRecords.Count().ToString())</MudText>
+                                                </MudTooltip>
+                                                <MudSpacer />
+                                                <MudTooltip Text="Список поручений по этой ДТ" Delay="1000">
+                                                    <MudIconButton Icon="@Icons.Custom.FileFormats.FileDocument" Size="Size.Small"
+                                                                   OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
+                                                    </MudIconButton>
+                                                </MudTooltip>
+                                            </div>
+                                        </BodyContent>
+                                        <ChildContent>
+                                            <MudTable Class="Table" T="ExportOrderDocumentRecordDTO" Items="@(context.Value.DocumentRecords)" Context="DocRecord">
+                                                <RowTemplate>
+                                                    <MudTd Style="width: 30px; color:gray">@DocRecord.Seq</MudTd>
+                                                    <MudTd Style="width: 115px; color:gray">@DocRecord.CommodityHSCode</MudTd>
+                                                    <MudTd Style="text-align:left; color:gray">@DocRecord.CommodityName</MudTd>
+                                                </RowTemplate>
+                                            </MudTable>
+                                        </ChildContent>
+                                    </MudTreeViewItem>
+                                }
+                            </ItemTemplate>
+                        </MudTreeView>
+                        <PopoverExpOrderList DocumentName="@DocumentName" IsPopoverOpen="@IsPopoverOpen" ExportOrderNums="@ExportOrderNums"
+                                             ExportOrdersTotalNetWt="@ExportOrdersTotalNetWt" ExportOrdersTotalGrossWt="@ExportOrdersTotalGrossWt"
+                                             CloseButton_Click="@(()=> IsPopoverOpen = false)" />
+                    }
+                </MudPaper>
+            </div>
+            <div class="documents-info" style="margin-left:15px; width:100%">
+                @if (Item.Documents != null && Item.Documents.Count() > 0)
+                {
+                    <h6 class="infoSC">Shipper(s):</h6>
+                    @foreach (var shipper in Item.Shippers.GroupBy(x => x.Name).Select(g => g.Key))
+                    {
+                        <div style="padding-left:10px">@shipper@(Item.Shippers.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
+                    }
+                    <br />
+                    <h6 class="infoSC">Consignee(s):</h6>
+                    @foreach (var consignee in Item.Consignees.GroupBy(x => x.Name).Select(g => g.Key))
+                    {
+                        <div style="padding-left:10px">@consignee@(Item.Consignees.GroupBy(x => x.Name).Select(g => g.Key).Count() > 1 ? ";" : "")</div>
+                    }
+                }
+            </div>
+        </div>
+        <div class="container-content ExpOrder" style="padding-top:unset">
+            <div style="display:flex; margin-top:3px">
+                <span style="margin-top:12px; margin-right:6px"><b>Товар кратко:</b></span>
+                <MudTextField Class="TextField" T="string" Style="width:350px" @bind-Value="@Item.CommodityShort"
+                              Text="@Item.CommodityShort"
+                              TextChanged="(e) => { if (!string.IsNullOrWhiteSpace(e)) Item.CommodityShort = e.ToUpper().Trim(); else Item.CommodityShort = null; }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Clearable />
+            </div>
+            <div style="display:flex; margin-top:3px; margin-left:15px">
+                <span style="margin-top:12px; margin-right:6px"><b>Товар кратко (на анг. для к/с):</b></span>
+                <MudTextField Class="TextField" T="string" Style="width:350px" @bind-Value="@Item.CommodityShortEn"
+                              Text="@Item.CommodityShortEn"
+                              TextChanged="(e) => { if (!string.IsNullOrWhiteSpace(e)) Item.CommodityShortEn = e.ToUpper().Trim(); else Item.CommodityShortEn = null; }"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Immediate="true" Clearable />
+            </div>
+        </div>
+    </div>
+
+    <div class="Container-table" style="min-height:360px; max-height:460px; overflow:auto">
+        <div class="tableMenu">
+            <MudButton Class="Button" Style="margin-inline:80px; margin-bottom:2px" OnClick="UploadFile_Click"
+                       Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.UploadFile"
+                       Disabled="@(Item.VesselCallDetail is null)">
+                Upload New
+            </MudButton>
+            <MudTooltip Text="Download Template (загрузить проформу)" Duration="1500" Delay="500">
+                <MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" OnClick="DownloadExcelTemplate"></MudIconButton>
+            </MudTooltip>
+            <MudSpacer />
+            <TablePager T="ExportOrderRecord" Table="mudTable" ItemsCount="@Item.Records.Count()" />
+        </div>
+
+        <MudTable Class="Table ItemTable" @ref="mudTable" Items="@Item.Records" Context="expOrderRecord" RowsPerPage="10"
+                  Virtualize="true" HorizontalScrollbar="true" ReadOnly="@(Item.VesselCallDetail is null)">
+            <HeaderContent>
+                <MudTh Style="width:40px;">
+                    <div class="controlIconButtons">
+                        <MudTooltip Text="add new Container record" Duration="1500" Delay="500" Placement="Placement.End">
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Disabled="@(Item.VesselCallDetail is null)" OnClick="AddExportOrderRecord_Click"
+                                           Color="Color.Primary" Size="Size.Small" />
+                        </MudTooltip>
+                    </div>
+                </MudTh>
+                <MudTh Style="width:125px">Container</MudTh>
+                <MudTh Style="width:65px">Type</MudTh>
+                <MudTh Style="width:80px">TareWt</MudTh>
+                <MudTh Style="width:320px">Seals</MudTh>
+                <MudTh Style="width:35px">Seq</MudTh>
+                <MudTh Style="width:90px">QTY</MudTh>
+                <MudTh Style="width:140px">Pkg Name</MudTh>
+                <MudTh Style="width:120px">NET</MudTh>
+                <MudTh Style="width:120px">GROSS</MudTh>
+                <MudTh Style="width:35px"></MudTh>
+                <MudTh></MudTh>
+                <MudTh Style="width:40px">
+                    <MudTooltip Text="delete All records" Duration="1500" Delay="500" Placement="Placement.End">
+                        <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" Size="Size.Small" OnClick="@RemoveAllContainerRecords" />
+                    </MudTooltip>
+                </MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudTooltip Text="Edit Container Content" Delay="1000" Duration="1500" Placement="Placement.End">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => ShowRecordContent_Click(expOrderRecord))" />
+                    </MudTooltip>
+                </MudTd>
+                <MudTd>
+                    <MudTextField Class="TextField" T="string" 
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Value="@expOrderRecord.CntrNum"
+                                  ValueChanged="async (e) =>
+                                  {
+                                       bool hasErrors = await CntrNumHasError(e);
+                                       if (hasErrors)
+                                           e = string.Empty;
+                                       else
+                                           expOrderRecord.CntrNum = e.ToUpper();
+                                  }"
+                                  Required RequiredError="" />
+                </MudTd>
+                <MudTd>
+                    <MudSelect Class="Autocomplete" T="CntrTpSz" @bind-Value="@expOrderRecord.CntrType"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft"
+                               CloseIcon="" OpenIcon="">
+                        @if (CntrTypes.Count() > 0)
+                            @foreach (var type in CntrTypes)
+                            {
+                                <MudSelectItem Value="@type">@type.Normolize!.ToString()</MudSelectItem>
+                            }
+                    </MudSelect>
+                </MudTd>
+                <MudTd>
+                    <MudNumericField Class="TextField Quantity" T="double" @bind-Value="expOrderRecord.CntrTareWt"
+                                     Variant="Variant.Outlined" Margin="Margin.Dense"
+                                     Required RequiredError="" HideSpinButtons="true" />
+                </MudTd>
+                <MudTd>
+                    <MudTextField Class="TextField" Style="width:312px" T="string" @bind-Value="expOrderRecord.Seal"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudTd>
+                <MudTd></MudTd>
+                <MudTd>
+                    <MudTextField Class="TextField Quantity" Style="width:80px" T="uint?" Value="@((uint?)expOrderRecord.Contents.Sum(s => s.PackageQty))" ReadOnly
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudTd>
+                <MudTd></MudTd>
+                <MudTd>
+                    <MudTextField Class="TextField Numeric" T="double?" Value="@(expOrderRecord.Contents.Sum(s => s.NetWt))" Format="## ##0.###" ReadOnly
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudTd>
+                <MudTd>
+                    <MudTextField Class="TextField Numeric" T="double?" Value="@(expOrderRecord.Contents.Sum(s => s.GrossWt))" Format="## ##0.###" ReadOnly
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Style="@(expOrderRecord.IsShowCntrContent ? "transform: rotate(180deg);" : "")"
+                                   Size="@Size.Small" OnClick="(_)=>{expOrderRecord.IsShowCntrContent = !expOrderRecord.IsShowCntrContent;}" />
+                </MudTd>
+                <MudTd></MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => { await RemoveContainerRecord(expOrderRecord); })" />
+                </MudTd>
+            </RowTemplate>
+            <ChildRowContent>
+                @if (expOrderRecord.IsShowCntrContent)
+                {
+                    <MudTr>
+                        <td colspan="4"></td>
+                        <td colspan="6">
+                            <MudTable Class="sub-Table" @ref="mudCntrContentTable" Context="CntrContent" Items="@expOrderRecord.Contents">
+                                <RowTemplate>
+                                    <MudTd Style="width:300px; padding-right:12px; text-align:end">@CntrContent.DocumentRecord.Document.Name</MudTd>
+                                    <MudTd Style="width:33px">@CntrContent.DocumentRecord.Seq</MudTd>
+                                    <MudTd Style="width:88px">@CntrContent.PackageQty</MudTd>
+                                    <MudTd Style="width:120px; text-align:center">@CntrContent.PackageName</MudTd>
+                                    <MudTd Style="width:120px">@CntrContent.NetWt</MudTd>
+                                    <MudTd Style="width:120px">@CntrContent.GrossWt</MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        </td>
+                        <td colspan="3"></td>
+                    </MudTr>
+                }
+            </ChildRowContent>
+            <FooterContent>
+                @if (Item.Records.Count > 0)
+                {
+                    <MudTd colspan="2" Style="text-align:end">
+                        <h6 class="Summary">Total containers:</h6>
+                    </MudTd>
+                    <MudTd Style="text-align:center">
+                        <h6 class="Summary">@Item.Records.Count().ToString("###")</h6>
+                    </MudTd>
+                    <MudTd Style="text-align:center">
+                        <h6 class="Summary">@Item.Records.Sum(s => s.CntrTareWt).ToString()</h6>
+                    </MudTd>
+                    <MudTd colspan="2"></MudTd>
+                    <MudTd Style="text-align:center">
+                        <h6 class="Summary">@Item.Records.SelectMany(s => s.Contents).Sum(c => c.PackageQty)</h6>
+                    </MudTd>
+                    <MudTd></MudTd>
+                    <MudTd Style="text-align:end; padding-right:8px">
+                        <h6 class="Summary">
+                            @(Item.Records.SelectMany(s => s.Contents).Sum(c => c.NetWt.HasValue ? c.NetWt.Value : 0).ToString("### ###.###"))
+                        </h6>
+                    </MudTd>
+                    <MudTd Style="text-align:end; padding-right:8px">
+                        <h6 class="Summary">
+                            @(Item.Records.SelectMany(s => s.Contents).Sum(c => c.GrossWt.HasValue ? c.GrossWt.Value : 0).ToString("### ###.###"))
+                        </h6>
+                    </MudTd>
+                    <MudTd colspan="3"></MudTd>
+                }
+            </FooterContent>
+            <PagerContent></PagerContent>
+        </MudTable>
+    </div>
+</MudForm>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    public string? ApplicationUser { get; set; }
+    [Parameter]
+    public long Id { get; set; }
+    [Parameter]
+    public long? vcdId { get; set; }
+
+    private MudForm? Form;
+    private MudTable<ExportOrderRecord>? mudTable;
+    private MudTable<ContainerContent>? mudCntrContentTable;
+
+    private ExportOrderEntity Item { get; set; } = new();
+
+    private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
+    private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
+
+    private string? DocumentName { get; set; } = null;    
+    private string? ExportOrdersTotalNetWt { get; set; } = null;
+    private string? ExportOrdersTotalGrossWt { get; set; } = null;
+    private IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
+
+    private List<TreeItemData<ExportOrderDocumentDTO>> TreeItems { get; set; } = new();
+    private List<ExportOrderDocumentDTO> DocumentsDTO { get; set; } = new();
+    private List<ExportOrderDocumentRecordDTO> DocumentRecordsDTO { get; set; } = new();
+    private ExportOrderDocumentDTO? SelectedDocument { get; set; } = null;
+
+    private bool IsLoading { get; set; } = false;
+    private bool IsRoleForEdit = false;
+    private bool IsPopoverOpen = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
+            IsRoleForEdit = true;
+
+        ApplicationUser = authState.User.Identity?.Name;
+
+        CntrTypes = await CntrTypeProvider.GetCntrTypes();
+        Persons = await ExportOrderProvider.GetPersonsAsync(CancellationToken.None);
+        
+        await GetItem();
+    }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+
+    //     if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
+    //         IsRoleForEdit = true;
+    
+    //     ApplicationUser = authState.User.Identity?.Name;
+    //     CntrTypes = await CntrTypeProvider.GetCntrTypes();
+    //     Persons = await ExportOrderProvider.GetPersonsAsync(CancellationToken.None);
+
+    //     await GetItem();
+    // }
+
+    private async Task GetItem()
+    {
+        IsLoading = true;
+
+        if (Id == 0)
+        {
+            if (vcdId != null)
+                /// create a new Item with a certain VesselCallDetail
+                Item.VesselCallDetail = await ExportOrderProvider.GetVesselCallDetailAsync(vcdId);
+        }            
+        else
+            Item = await ExportOrderProvider.GetItemAsync(Id);
+
+        FillUpTreeItems();
+        
+        IsLoading = false;
+    }
+
+    private async Task SaveItem()
+    {
+        if (Form is null || Item.VesselCallDetail is null) return;
+
+        await Form.Validate();
+
+        if (!Form.IsValid)
+        {
+            Snackbar.Add("Fill up all reqired fields", Severity.Error);
+            return;
+        }
+
+        // /// Check Container Numbers
+        // if (Item.Records is not null && Item.Records.Any())
+        // {
+        //     bool? proceedWithErrors = await CntrNumHasError();
+        //     if (!proceedWithErrors.HasValue) return;
+        // }
+
+        /// Save
+        IsLoading = true;
+
+        AppObjectResponse appObjectResponse = new();
+
+        if (Id == 0)
+            appObjectResponse = await ExportOrderProvider.NewItemAsync(Item, ApplicationUser);
+        else
+            appObjectResponse = await ExportOrderProvider.ModifyItemAsync(Item, ApplicationUser);
+
+        if (appObjectResponse.HasErrors)
+            Snackbar.Add($"{appObjectResponse.Errors.FirstOrDefault()}", Severity.Error);
+        else
+        {
+            Id = Item.Id;
+            Snackbar.Add("Saved Successfully", Severity.Success);
+        }
+
+        IsLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CopyItem()
+    {
+        Id = 0;
+        Item.Id = 0;
+        Item.CreateTime = DateTime.Now;
+
+        foreach (var record in Item.Records)
+        {
+            record.Id = 0;
+
+            foreach (var content in record.Contents)
+                content.Id = 0;
+        }
+
+        Item.Num = Item.Status == EntityStatus.Customs || Item.Status == EntityStatus.Cancelled ? Item.Num + "-" : string.Empty;
+
+        Item.Status = EntityStatus.New;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #region DOCUMENTS
+
+    private async Task AddDocuments_Click()
+    {
+        if (Item is null) return;
+
+        var parameters = new DialogParameters { ["IsSelectable"] = true };
+        var options = new DialogOptions { FullScreen = true, NoHeader = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Document_Index>(null, parameters, options);
+
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled && result.Data is not null)
+        {
+            var documents = (IEnumerable<DocumentEntity>)result.Data;
+
+            Item.Documents.AddRange(documents);
+
+            DocumentsDTO = new();
+            foreach (var document in documents)
+            {
+                DocumentsDTO.Add(new ExportOrderDocumentDTO()
+                {
+                    Id = document.Id,
+                    DocumentName = document.Name,
+                    DocumentRecords = new List<ExportOrderDocumentRecordDTO>()
+                });
+            }
+
+            TreeItems.AddRange(DocumentsDTO.Select(s => new TreeItemData<ExportOrderDocumentDTO>() { Value = s }).ToList());
+        }
+    }
+
+    private async Task RemoveDocument()
+    {
+        await Task.Delay(50);
+
+        if (Item is null || SelectedDocument is null) return;
+
+
+        /// Cntr RECORDS
+        var records = Item.Records.Where(eor => eor.Contents.Any(co => co.DocumentRecord.Document.Id == SelectedDocument.Id)).ToList();
+
+        foreach (var record in records)
+            if (record.Contents.Count() == 1)
+                Item.Records.Remove(record);
+            else
+            {
+                var contents = record.Contents.Where(c => c.DocumentRecord.Document.Id == SelectedDocument.Id).ToList();
+
+                if (contents.Count() > 0)
+                    foreach (var content in contents)
+                        record.Contents.Remove(content);
+
+                /// if no any content left in the record after removing, then Remove whole record
+                if (!record.Contents.Any())
+                    Item.Records.Remove(record);
+            }
+
+        /// Documents
+        var removingDocument = Item.Documents.FirstOrDefault(s => s.Id.Equals(SelectedDocument.Id));
+        if (removingDocument is not null)
+            Item.Documents.Remove(removingDocument);
+
+        /// TreeItems
+        var removingItem = TreeItems.FirstOrDefault(s => s.Value != null && s.Value.Id == SelectedDocument.Id);
+        if (removingItem is not null)
+            TreeItems.Remove(removingItem);
+
+        SelectedDocument = null;
+    }
+
+    #endregion
+
+    #region CNTR RECORDS
+
+    private async void AddExportOrderRecord_Click()
+    {        
+        Item.Records.Add(new ExportOrderRecord());
+        Snackbar.Add("Новая запись добавлена в конец таблицы.", Severity.Info);
+        await FocusLastRow();
+    }
+
+    private async void ShowRecordContent_Click(ExportOrderRecord record)
+    {
+        if (Item.Documents.Count() == 0 || Item.VesselCallDetail is null) return;
+
+        if (string.IsNullOrWhiteSpace(record.CntrNum))
+        {
+            Snackbar.Add("Укажите номер Контейнера.", Severity.Warning);
+            return;
+        }
+
+        /// Serve Original records
+        List<ContainerContent> originalContainerContents = FuncOriginalRecordContents(record.Contents);
+
+        var parameters = new DialogParameters() { ["Item"] = record, ["Documents"] = Item.Documents };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Large, CloseButton = false, CloseOnEscapeKey = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<ExportOrder_ItemRecordDialog>(null, parameters, options);
+        var result = await dialog.Result;
+
+        /// Refresh saved records (button Save) or return old one (button Exit)
+        if (result is not null && result.Data != null && (bool)result.Data == true)
+        {
+            FillUpTreeItems();
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+            record.Contents = originalContainerContents; /// возврат начальных значений коллекции
+    }
+
+    private async Task RemoveContainerRecord(ExportOrderRecord record)
+    {
+        if (record is null) return;
+
+        bool? result = await DialogService.ShowMessageBox(
+                 "Delete record",
+                 (MarkupString)$"<b>Do you want to remove record with {record.CntrNum}?<b>",
+                 yesText: "REMOVE", cancelText: "NO");
+
+        if (result.HasValue)
+            if (result.Value)
+                Item!.Records.Remove(record);
+
+        FillUpTreeItems();
+    }
+
+    private async Task RemoveAllContainerRecords()
+    {
+        if (!Item.Records.Any()) return;
+
+        bool? result = await DialogService.ShowMessageBox("Delete All records",
+                                                            (MarkupString)$"<b>Do you want to remove all records?<b>",
+                                                            yesText: "REMOVE", cancelText: "NO");
+
+        if (!result.HasValue)
+            return;
+        else
+        {
+            Item.Records.RemoveRange(0, Item.Records.Count());
+            Item.Documents.RemoveRange(0, Item.Documents.Count());
+            ClearTreeItems();
+        }
+
+        //await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UploadFile_Click()
+    {
+        if (Item.VesselCallDetail is null) return;
+
+        var parameters = new DialogParameters() { ["EoId"] = Item.Id, ["VoyageId"] = Item.VesselCallDetail.VesselCall.Id };
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
+        var dialog = DialogService.Show<UploadFileContainerList>("Импорт списка ДТ", parameters, options);
+
+        var dialogResult = await dialog.Result;
+
+        try
+        {
+            if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data != null)
+            {
+                var uploadedResult = (UploadedResult)dialogResult.Data;
+
+                if (uploadedResult is null) return;
+
+                Item.Records = uploadedResult.Records;
+                Item.Documents = uploadedResult.Documents;
+
+                StateHasChanged();
+
+                FillUpTreeItems();
+
+                Snackbar.Add($"Uploaded", Severity.Success);
+            }
+            else
+                Snackbar.Add($"NOT uploaded", Severity.Warning);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            //IsLoading = false;
+        }
+    }
+
+    private async Task DownloadExcelTemplate()
+    {
+        await jsRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.DownloadFileUrl}DownloadExcelTemplate");
+    }
+
+    #endregion
+
+    private async Task GetVesselCallDetail_Click()
+    {
+        DialogParameters parameters = new DialogParameters { ["IsSelectable"] = true };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<VesselCallComponent>("select VESSEL CALL", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled && result.Data is not null)
+        {
+            Item.VesselCallDetail = await ExportOrderProvider.GetVesselCallDetailAsync((long)result.Data);
+
+            /// check Carrier for Terminal: is the Carrier has any of Terminals like VesselCall's Terminal
+            if (Item.VesselCallDetail is not null && Item.Carrier is not null)
+                if (!Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)))
+                    Item.Carrier = null;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddCarrier_Click()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = false, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<Carrier_ItemDialog>(null, parameters, options);
+    }
+
+    private async Task<bool> CntrNumHasError(string? text = null)
+    {
+        if (Item.VesselCallDetail is null) return true;
+
+        var cntrNums = Item.Records.Where(r => !string.IsNullOrWhiteSpace(r.CntrNum)).Select(r => r.CntrNum).ToList()
+            ?? new();
+
+        if (!string.IsNullOrWhiteSpace(text))
+            cntrNums.Add(text);
+
+        if (!cntrNums.Any())
+            return true;
+
+        /// Коллекция существующих номеров кнтр-ов, исключая редактируемую коллекцию (edited)
+        var dbVoyageCntrNums = await ExportOrderProvider.GetCntrNumsInVoyage(Item.Id, Item.VesselCallDetail.VesselCall.Id);
+
+        var errMessages = ValidationService.ValidateCntrNums(cntrNums.ToArray(), dbVoyageCntrNums);
+
+        if (string.IsNullOrEmpty(errMessages)) return false;
+
+        bool? dialogResult = await DialogService.ShowMessageBox(null, (MarkupString)$"{errMessages}", yesText: "Продолжить", cancelText: "Отменить");
+
+        if (dialogResult.HasValue)
+            if (dialogResult.Value)
+                    return false;
+
+        return true;
+    }
+
+    private void FillUpTreeItems()
+    {
+        if (Item.Records.Any())
+        {
+            ClearTreeItems();
+
+            var documentRecords = Item.Records.SelectMany(r => r.Contents).Select(c => c.DocumentRecord)
+                                                                           .Where(dr => dr.Document != null && !string.IsNullOrEmpty(dr.Document.Name))
+                                                                           .GroupBy(dr => new { dr.Seq, dr.Document.Name })
+                                                                           .ToList();
+
+            foreach (var record in documentRecords)
+            {
+                DocumentRecordsDTO.Add(new ExportOrderDocumentRecordDTO()
+                {
+                    DocumentId = record.FirstOrDefault()!.Document.Id,
+                    Seq = record.Key.Seq,
+                    DocumentName = record.Key.Name,
+                    CommodityHSCode = record.FirstOrDefault()!.CommodityHSCode,
+                    CommodityName = record.FirstOrDefault()!.CommodityName
+                });
+            }
+
+            DocumentsDTO = DocumentRecordsDTO.GroupBy(dr => dr.DocumentName).Select(g => new ExportOrderDocumentDTO()
+            {
+                Id = g.FirstOrDefault()!.DocumentId,
+                DocumentName = g.Key,
+                DocumentRecords = g.OrderBy(r => r.Seq).ToList()
+            }).ToList();
+
+            TreeItems = DocumentsDTO.Select(s => new TreeItemData<ExportOrderDocumentDTO>() { Value = s }).ToList();
+
+            //StateHasChanged();
+        }
+    }
+
+    private void ClearTreeItems()
+    {
+        TreeItems.Clear();
+        DocumentsDTO = new();
+        DocumentRecordsDTO = new();
+    }
+
+    private async void TreeItemIcon_OnClick(string? docName)
+    {
+        if (!string.IsNullOrWhiteSpace(docName))
+        {
+            IsPopoverOpen = !IsPopoverOpen;
+
+            if (IsPopoverOpen)
+            {
+                var exportOrderNums = await ExportOrderProvider.GetDocumentExportOrderNums(docName, CancellationToken.None);
+                double[] total = await ExportOrderProvider.GetDocumentExportOrderTotalWeights(docName, CancellationToken.None);
+
+                if (exportOrderNums != Enumerable.Empty<string>())
+                {
+                    var numberFormat = (NumberFormatInfo)CultureInfo.CurrentCulture.NumberFormat.Clone();
+                    numberFormat.NumberGroupSeparator = " "; // пробел как разделитель тысяч
+
+                    DocumentName = docName;
+                    ExportOrderNums = exportOrderNums;
+                    ExportOrdersTotalNetWt = total[0].ToString("N3", numberFormat);
+                    ExportOrdersTotalGrossWt = total[1].ToString("N3", numberFormat);
+                }
+
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+                ExportOrderNums = Enumerable.Empty<string>();
+        }
+    }    
+
+    private async Task FocusLastRow()
+    {
+        if (Item.Records is not null && Item.Records.Any())
+            await jsRuntime.InvokeVoidAsync("focusLastRow");
+    }
+
+    private async Task<IEnumerable<CarrierCatalog>> SearchCarrier(string value, CancellationToken token)
+    {
+        /// check Terminal for this Carrier before select
+        string? terminal = Item.VesselCallDetail?.VesselCall.Terminal.Name;
+
+        if (terminal is null)
+            return Enumerable.Empty<CarrierCatalog>();
+
+        /// select Carrier
+        IEnumerable<CarrierCatalog> Carriers = new List<CarrierCatalog>();
+
+        var response = await CarrierProvider.GetItemsAsync();
+        if (!response.HasErrors && response.Object is not null)
+            Carriers = (IEnumerable<CarrierCatalog>)response.Object;
+
+        Carriers = Carriers.OrderBy(x => x.Name).Where(x => x.CarrierDetails.Where(d => d.TerminalName == terminal).ToList().Count > 0).ToArray();   //ToList
+
+        if (string.IsNullOrWhiteSpace(value))
+            return Carriers;
+
+        return Carriers.Where(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)); //.ToList();
+    }
+
+    private readonly Func<List<ContainerContent>, List<ContainerContent>> FuncOriginalRecordContents = (originals) =>
+    {
+        List<ContainerContent> contents = new();
+
+        foreach (var original in originals)
+        {
+            contents.Add(new ContainerContent()
+            {
+                Id = original.Id,
+                PackageQty = original.PackageQty,
+                PackageName = original.PackageName,
+                NetWt = original.NetWt,
+                GrossWt = original.GrossWt,
+                Volume = original.Volume,
+                SupplementaryUnitQuantity = original.SupplementaryUnitQuantity,
+                SupplementaryUnit = original.SupplementaryUnit,
+                DocumentRecord = original.DocumentRecord,
+                DocumentName = original.DocumentName,
+                ExportOrderRecord = original.ExportOrderRecord
+            });
+        }
+
+        return contents;
+    };
+}

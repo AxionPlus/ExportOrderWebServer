@@ -77,6 +77,7 @@ else
     [Parameter] public bool ProgressLinear { get; set; }
     // Entity type flags
     [Parameter] public bool IsVessel { get; set; }
+    [Parameter] public bool IsVoyage { get; set; }
     [Parameter] public bool IsGeneralRate { get; set; }
     [Parameter] public bool IsLocationNode { get; set; }
     [Parameter] public bool IsContractor { get; set; }
@@ -101,7 +102,7 @@ else
 
     protected override void OnInitialized()
     {
-        _searchCancellationTokenSource = new CancellationTokenSource();
+        //_searchCancellationTokenSource = new CancellationTokenSource();
 
         // Validate generic type parameter
         if (typeof(T) != typeof(string) && typeof(T) != typeof(ObjectDto))
@@ -229,6 +230,7 @@ else
                 EntityType.Carrier => await CatalogProvider.GetCarrierNames(),                
                 EntityType.Location => await CatalogProvider.GetLocationNames(),                
                 EntityType.Vessel => await CatalogProvider.GetVesselNames(),
+                EntityType.Voyage => await CatalogProvider.GetVoyages(),
                 _ => Enumerable.Empty<string>()
             };
 
@@ -270,6 +272,7 @@ else
         if (IsLocationNode) return EntityType.LocationNode;
         if (IsLocationNodeCode) return EntityType.LocationNodeCode;
         if (IsVessel) return EntityType.Vessel;
+        if (IsVoyage) return EntityType.Voyage;
         if (IsGeneralRate) return EntityType.GeneralRate;
         if (IsServiceContract) return EntityType.ServiceContract;
         return EntityType.Customer;
@@ -296,6 +299,7 @@ else
         Vessel,
         GeneralRate,
         ServiceContract,
-        AnyContractor
+        AnyContractor,
+        Voyage
     }
 }

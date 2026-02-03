@@ -18,9 +18,10 @@
 {
     <MudDatePicker Class="DatePicker" Date="@Date"
                    DateChanged="@(
-                                async(e)=>{
-                                Date = e;
-                                await DateChanged.InvokeAsync(e);
+                                    async(e)=>{
+                                        Date = e;
+                                        await DateChanged.InvokeAsync(e);
+                                        await OnBlur.InvokeAsync();
                                 })"
                    Editable="true"
                    Mask="@(new DateMask("dd.MM.yy"))"
@@ -40,11 +41,10 @@ else
 <InputWrap Style="@Style" Disabled="@Disabled" Label="@Label" TooltipText="@TooltipText">
     <MudDatePicker Class="DatePicker" Date="@Date"
                    DateChanged="@(
-                                async(e)=>{
-                                    Date= e;
-                                    await DateChanged.InvokeAsync(e);
-
-                                    await OnBlur.InvokeAsync(); 
+                                    async(e)=>{
+                                        Date= e;
+                                        await DateChanged.InvokeAsync(e);
+                                        await OnBlur.InvokeAsync(); 
                                 })"
                    Editable="true"
                    Mask="@(new DateMask("dd.MM.yy"))"
@@ -62,13 +62,11 @@ else
 }
 @code {
     [Parameter]
-    public string? TooltipText { get; set; }
-    [Parameter] public bool NoHeader { get; set; }
-
-    [Parameter] 
-    public string DateFormat { get; set; } = "dd.MM.yy";
+    public bool NoHeader { get; set; }
     [Parameter]
-    public EventCallback OnBlur { get; set; }
+    public string? TooltipText { get; set; }    
+    [Parameter] 
+    public string DateFormat { get; set; } = "dd.MM.yy";    
     [Parameter]
     public bool Clearable { get; set; }
     [Parameter]
@@ -76,20 +74,21 @@ else
     [Parameter]
     public bool Disabled { get; set; } 
     [Parameter]
-    public bool ReadOnly { get; set; } 
-
+    public bool ReadOnly { get; set; }
     [Parameter]
     public string? Style { get; set; }
     [Parameter]
     public string? Label { get; set; }
 
     [Parameter]
-    public DateTime? Date { get; set; }
-    
+    public DateTime? Date { get; set; }    
     [Parameter]
     public DateTime? MaxDate { get; set; }
     [Parameter]
     public DateTime? MinDate { get; set; }
+
+    [Parameter]
+    public EventCallback OnBlur { get; set; }
     [Parameter]
     public EventCallback<DateTime?> DateChanged { get; set; }
 }

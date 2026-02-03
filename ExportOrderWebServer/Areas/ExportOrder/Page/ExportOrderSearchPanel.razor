@@ -2,11 +2,11 @@
     <Container ToggleContent="@ToggleContent">
         <MudGrid>
             <MudItem xs="2">
-                <TextField Label="Поручение №" Style="width: 200px" Clearable @bind-Value="@Filter.Num" />
-                <TextField Label="Контейнер №" Style="width: 200px" Clearable @bind-Value="@Filter.ContainerNum" />
+                <TextField Label="Поручение №" Style="width: 200px" Clearable Text="@Filter.Num" @bind-Value="@Filter.Num" />
+                <TextField Label="Контейнер №" Style="width: 200px" Clearable Text="@Filter.ContainerNum" @bind-Value="@Filter.ContainerNum" />
             </MudItem>
             <MudItem xs="4">
-                <VesselCallSearchField @bind-VesselName="@Filter.VesselName" @bind-VesselVoyage="@Filter.VesselVoyage" />
+                <VesselCallSearchField @bind-VesselName="@Filter.VesselName" @bind-VesselVoyage="@Filter.VesselVoyage" HiddenButton=true />
                 <DateRangePickerSearch @bind-DateFrom="@Filter.DateFrom" @bind-DateTo="@Filter.DateTo" Clearable Manage />
             </MudItem>
             <MudItem xs="2">

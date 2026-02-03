@@ -612,13 +612,13 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
         await using var db = await _dbContext.CreateDbContextAsync(cancellationToken);
 
         return await db.ExportOrders.AsNoTracking().AsSplitQuery()
-                                        .Include(s => s.Records).ThenInclude(er => er.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
-                                        .Where(s => s.Records.SelectMany(er => er.Contents)
-                                                             .Any(c => !string.IsNullOrWhiteSpace(c.DocumentRecord.Document.Name) &&
-                                                                        c.DocumentRecord.Document.Name == documentNum))
-                                        .Select(s => new string(string.Concat(s.Num, " (", s.Status.ToString(), ")")))
-                                        .Order()
-                                        .ToArrayAsync(cancellationToken);
+                                    .Include(s => s.Records).ThenInclude(er => er.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
+                                    .Where(s => s.Records.SelectMany(er => er.Contents)
+                                                         .Any(c => !string.IsNullOrWhiteSpace(c.DocumentRecord.Document.Name) &&
+                                                              c.DocumentRecord.Document.Name == documentNum))
+                                    .Select(s => new string(string.Concat(s.Num, " (", s.Status.ToString(), ")")))                                    
+                                    .ToArrayAsync(cancellationToken)
+            ?? throw new ArgumentException($"Export Order Numbers not found for Declaration: {documentNum}");
 
     }
 
@@ -629,11 +629,17 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
         await using var db = await _dbContext.CreateDbContextAsync(cancellationToken);
 
         var containerContents = await db.ExportOrders.AsNoTracking().AsSplitQuery()
-                                              .Include(s => s.Records).ThenInclude(er => er.Contents).ThenInclude(c => c.DocumentRecord).ThenInclude(dr => dr.Document)
-                                              .SelectMany(s => s.Records).SelectMany(eor => eor.Contents)
-                                              .Where(con => !string.IsNullOrWhiteSpace(con.DocumentRecord.Document.Name) &&
-                                                con.DocumentRecord.Document.Name == documentNum)
-                                              .ToArrayAsync(cancellationToken);
+                                                     .Include(s => s.Records).ThenInclude(er => er.Contents)
+                                                                             .ThenInclude(c => c.DocumentRecord)
+                                                                             .ThenInclude(dr => dr.Document)
+                                                     .SelectMany(s => s.Records).SelectMany(eor => eor.Contents)
+                                                     .Where(con => !string.IsNullOrWhiteSpace(con.DocumentRecord.Document.Name) &&
+                                                            con.DocumentRecord.Document.Name == documentNum)
+                                                     .ToArrayAsync(cancellationToken)
+            ?? throw new ArgumentException($"Export Order Weights not found for Declaration: {documentNum}");
+
+        if (containerContents is null || containerContents.Length == 0)
+            return Array.Empty<double>();
 
         double? net = containerContents.Sum(con => con.NetWt);
         double? gross = containerContents.Sum(con => con.GrossWt);

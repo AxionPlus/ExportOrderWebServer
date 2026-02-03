@@ -7,10 +7,8 @@ using MailKit.Search;
 using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
-using MimeKit;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
 using System.Xml;
 using ExportOrderEntites.EmailLogRecords;
 

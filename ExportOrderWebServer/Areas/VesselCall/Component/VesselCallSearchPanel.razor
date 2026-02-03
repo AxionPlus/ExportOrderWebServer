@@ -42,10 +42,13 @@
     [Parameter]
     public EventCallback OnSearch { get; set; }
     [Parameter]
+    public EventCallback OnReset { get; set; }
+    [Parameter]
     public bool IsLoading { get; set; } = false;
 
     private async Task HandleSearch()
     {
+        await FilterChanged.InvokeAsync(Filter);
         await OnSearch.InvokeAsync();
     }
 
@@ -57,7 +60,7 @@
             DateTo = DateTime.Today.AddDays(45)
         };
 
-        await FilterChanged.InvokeAsync(Filter);
+        await OnReset.InvokeAsync();
         await OnSearch.InvokeAsync();
     }
 }

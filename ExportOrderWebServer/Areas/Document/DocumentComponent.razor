@@ -2,7 +2,8 @@
 @inject IJSRuntime jsRuntime
 @inject IDialogService DialogService
 @inject IDocumentProvider _DocumentProvider
-@inject IExportOrderProvider _ExportOrderProvider
+@* @inject IExportOrderProvider _ExportOrderProvider *@
+@inject IExportOrderProvider_New ExportOrderProvider
 
 <style>
     .Table.MultiSelection * table tr > th:first-child {
@@ -26,29 +27,30 @@
         padding-inline-end: 6px;
         padding-inline-start: unset;
     }
+
+    .mud-select {
+        flex-grow:unset;
+    }
 </style>
 
 <div class="Container-item">
     <div class="container-content">
-        <MudButton Class="Button" Style="width: 80px" OnClick="@(async () => { await GetItems(); })"
+        <MudButton Class="Button" Style="width:80px;padding-top:6px;" OnClick="@GetItems"
                    Variant="Variant.Filled" Size="Size.Small" Color="Color.Secondary">
             Search
         </MudButton>            
-        <MudAutocomplete Class="Autocomplete" T="string" Style="width: 270px" @bind-Value="Filter.Document" SearchFunc="@SearchDocument"
+        <MudAutocomplete Class="Autocomplete" T="string" Style="width:270px;padding-top:6px;" @bind-Value="Filter.Document" SearchFunc="@SearchDocument"
                          Label="Декларация"
                          Variant="Variant.Outlined" Margin="Margin.Dense"
                          CloseIcon="" OpenIcon=""
                          AutoFocus="true"
                          MinCharacters="3" MaxItems="20"
-                         ResetValueOnEmptyText="true" Clearable />            
-        <MudTextField Class="TextField" Label="Shipper" Style="width: 300px" @bind-Value="@Filter.Shipper"
-                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
-        <MudTextField Class="TextField" Label="Consignee" Style="width: 300px" @bind-Value="@Filter.Consignee"
-                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />            
-        <MudTextField Class="TextField" Label="Cargo" Style="width: 270px" @bind-Value="@Filter.CargoDescriptionShort"
-                      Variant="Variant.Outlined" Margin="Margin.Dense" Clearable />
+                         ResetValueOnEmptyText="true" Clearable />
+        <TextField Class="TextField" Placeholder="Shipper..." Style="width: 300px" Clearable @bind-Value="@Filter.Shipper" />
+        <TextField Class="TextField" Placeholder="Consignee..." Style="width: 300px" Clearable @bind-Value="@Filter.Consignee" />
+        <TextField Class="TextField" Placeholder="Cargo..." Style="width: 240px" Clearable @bind-Value="@Filter.CargoDescriptionShort" />
         <MudSelect Class="Autocomplete" T="EntityStatus?" Label="Status" @bind-Value="Filter.Status"
-                   Style="width:145px"
+                   Style="width:150px"
                    ToStringFunc="@(s => s == null ? string.Empty : s.ToString())"
                    Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
                    Disabled="IsSelectable">
@@ -59,7 +61,7 @@
                     <MudSelectItem Value="@status" />
                 }
             }
-        </MudSelect>            
+        </MudSelect>
     </div>
 </div>
 
@@ -81,6 +83,9 @@
             <MudTh Style="width:50px">Type</MudTh>
             <MudTh Style="width:230px">
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Name!)">Name</MudTableSortLabel>
+                <PopoverExpOrderList DocumentName="@SelectedDocumentName" IsPopoverOpen="@IsPopoverOpen" ExportOrderNums="@ExportOrderNums"
+                                     ExportOrdersTotalNetWt="@ExportOrdersTotalNetWt" ExportOrdersTotalGrossWt="@ExportOrdersTotalGrossWt"
+                                     CloseButton_Click="@(()=> { IsPopoverOpen = false; ClearPopover(); })" />
             </MudTh>
             <MudTh Style="text-align:start; width:450px">
                 <MudTableSortLabel SortBy="new Func<DocumentEntity, object>(x=>x.Shipper!.Name!)">Shipper</MudTableSortLabel>
@@ -95,10 +100,7 @@
             <MudTd><MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>OpenItem_Click(context.Id))" /></MudTd>            
             <MudTd>@context.Type.ToString()</MudTd>
             <MudTd>
-                <MudLink OnClick="@(()=> ShowExportOrderNums_Click(context.Name))">@context.Name</MudLink>
-                <PopoverExpOrderList DocumentName="@context.Name" IsPopoverOpen="@IsPopoverOpen" ExportOrderNums="@ExportOrderNums"
-                                     ExportOrdersTotalNetWt="@ExportOrdersTotalNetWt" ExportOrdersTotalGrossWt="@ExportOrdersTotalGrossWt"
-                                     CloseButton_Click="@(()=> { IsPopoverOpen = false; ClearPopoverExpOrderList(); })" />
+                <MudLink OnClick="@(()=>ShowExportOrderNums_Click(context.Name))">@context.Name</MudLink>                
             </MudTd>
             <MudTd Style="text-align: start">@(context.Shipper == null ? "---" : context.Shipper.Name)</MudTd>
             <MudTd Style="text-align: start">@(context.Consignee == null ? "---" : context.Consignee.Name)</MudTd>
@@ -122,7 +124,9 @@
 
     public IEnumerable<DocumentEntity>? Items { get; set; } = new List<DocumentEntity>();
     private HashSet<DocumentEntity> SelectedItems = new();
-    private FilterParameters Filter { get; set; } = new();    
+    private FilterParameters Filter { get; set; } = new();
+
+    private string? SelectedDocumentName { get; set; }
     private IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
     private string? ExportOrdersTotalNetWt { get; set; } = null;
     private string? ExportOrdersTotalGrossWt { get; set; } = null;
@@ -205,15 +209,15 @@
     private async void ShowExportOrderNums_Click(string? docName)
     {
         if (!string.IsNullOrWhiteSpace(docName))
-        {            
-            ClearPopoverExpOrderList();
+        {
+            SelectedDocumentName = docName;
 
             IsPopoverOpen = !IsPopoverOpen;
 
             if (IsPopoverOpen)
             {
-                var exportOrders = await _ExportOrderProvider.GetDocumentExportOrderNums(docName);
-                double[] totals = await _ExportOrderProvider.GetDocumentExportOrderTotalWeights(docName);
+                var exportOrders = await ExportOrderProvider.GetDocumentExportOrderNums(docName);
+                double[] totals = await ExportOrderProvider.GetDocumentExportOrderTotalWeights(docName);
 
                 if (exportOrders != null && exportOrders.Any())
                 {
@@ -229,11 +233,12 @@
         }
     }
 
-    private void ClearPopoverExpOrderList()
+    private void ClearPopover()
     {
         ExportOrderNums = Enumerable.Empty<string>();
         ExportOrdersTotalNetWt = null;
         ExportOrdersTotalGrossWt = null;
+        SelectedDocumentName = null;
     }
 
     private async Task<IEnumerable<string>> SearchDocument(string value, CancellationToken token)

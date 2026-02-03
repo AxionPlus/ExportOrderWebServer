@@ -1,6 +1,7 @@
 ﻿@page "/vesselcalls"
 @attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
+@using ExportOrderWebServer.Areas.VesselCall
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
@@ -241,7 +242,7 @@
     [Parameter]
     public bool IsSelectable { get; set; } = false;
 
-    private PagedResult<VesselCallDto> PagedResult = new();
+    // private PagedResult<VesselCallDto> PagedResult = new();
     public VesselCallPageFilter Filter { get; set; } = new();
 
     private bool IsLoading { get; set; } = false;

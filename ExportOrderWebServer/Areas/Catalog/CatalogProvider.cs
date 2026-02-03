@@ -8,7 +8,8 @@ public interface ICatalogProvider
     Task<IEnumerable<string>> GetTerminalNames();
     Task<IEnumerable<string>> GetCustomsOfficesCodes();
     Task<IEnumerable<string>> GetCustomsOfficesNames();
-    Task<IEnumerable<CustomsCatalog>> GetCustomsOfficesAsync();
+    Task<IEnumerable<string>> GetVoyages();
+    Task<IEnumerable<CustomsCatalog>> GetCustomsOfficesAsync();    
 }
 
 public class CatalogProvider : ICatalogProvider
@@ -82,6 +83,13 @@ public class CatalogProvider : ICatalogProvider
         await using var db = await _dbContext.CreateDbContextAsync();
                 
         return await db.Vessels.Where(s => !string.IsNullOrWhiteSpace(s.Name)).Select(s => s.Name!).ToListAsync()
+            ?? Enumerable.Empty<string>();
+    }
+    public async Task<IEnumerable<string>> GetVoyages()
+    {
+        await using var db = await _dbContext.CreateDbContextAsync();
+
+        return await db.VesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync()
             ?? Enumerable.Empty<string>();
     }
 

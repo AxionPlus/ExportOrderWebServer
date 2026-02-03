@@ -595,6 +595,10 @@ body {
         margin-top: 2px;
     }
 
+    .FieldContainer .mud-select.mud-autocomplete {
+        margin-top: 2px;
+    }
+
     .FieldContainer * div.fieldName {
         padding-left: 10px;
         font-size: 12px;
@@ -602,7 +606,7 @@ body {
         text-transform: uppercase;
         display: flex;
         justify-content: space-between;
-        text-wrap:nowrap;
+        text-wrap: nowrap;
     }
 
     .FieldContainer.header-inline * div.fieldName {

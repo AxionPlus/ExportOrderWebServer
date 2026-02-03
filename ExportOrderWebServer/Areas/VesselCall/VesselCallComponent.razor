@@ -1,4 +1,4 @@
-﻿@using ExportOrderWebServer.Areas.Import.VesselCall.Provider
+﻿@using ExportOrderWebServer.Areas.VesselCall
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
@@ -37,7 +37,7 @@
     }
  </style>
 
-<div class="Container-item">
+@* <div class="Container-item">
     <div class="container-content">
         <div class="container-column" style="width:270px;">
             <div class="container-content">
@@ -64,30 +64,33 @@
                 </MudSelect>
             </div>
         </div>
-        <div class="container-column" style="width:470px; margin-left:30px">
+        <div class="container-column" style="width:460px; margin-left:30px">
             <div class="container-content">
                 <MudAutocomplete Class="Autocomplete" T="string" Label="Voyage" @bind-Value="Filter.Voyage" SearchFunc="@SearchVoyage"
                                  Style="width: 170px"
                                  Variant="Variant.Outlined" Margin="Margin.Dense"
                                  CloseIcon="" OpenIcon=""
                                  ResetValueOnEmptyText="true" Clearable />
-                <div style="width:120px">
-                    <MudDatePicker Class="DatePicker" Label="From" @bind-Date="Filter.DateFrom"
-                                   DateFormat="dd.MM.yy"
-                                   ShowWeekNumbers="true"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   IconSize=Size.Small
-                                   AutoClose=true
-                                   Clearable />
-                </div>
-                <div style="width:120px">
-                    <MudDatePicker Class="DatePicker" Label="To" @bind-Date="Filter.DateTo"
-                                   DateFormat="dd.MM.yy"
-                                   ShowWeekNumbers="true"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   IconSize=Size.Small
-                                   AutoClose=true
-                                   Clearable />
+                <div style="display:flex;width:270px">
+                    <div style="width:120px">
+                        <MudDatePicker Class="DatePicker" Label="From" @bind-Date="Filter.DateFrom"
+                                       DateFormat="dd.MM.yy"
+                                       ShowWeekNumbers="true"
+                                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                                       IconSize=Size.Small
+                                       AutoClose=true
+                                       Clearable />
+                    </div>
+                    <MudSpacer />
+                    <div style="width:120px">
+                        <MudDatePicker Class="DatePicker" Label="To" @bind-Date="Filter.DateTo"
+                                       DateFormat="dd.MM.yy"
+                                       ShowWeekNumbers="true"
+                                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                                       IconSize=Size.Small
+                                       AutoClose=true
+                                       Clearable />
+                    </div>
                 </div>
             </div>
             <div class="container-content">
@@ -138,7 +141,81 @@
             </div>
         }
     </div>
-</div>    
+</div>     *@
+
+<Container>
+    <MudGrid>
+        <MudItem xs="2">
+            <MudButton Variant="Variant.Filled" Style="margin-top:25px"
+                       Color="Color.Primary"
+                       OnClick="GetItems"
+                       Disabled="IsLoading"
+                       StartIcon="@Icons.Material.Filled.Search"
+                       Size="Size.Small">
+                @(IsLoading ? "Searching..." : "Search")
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Style="margin-top:25px"
+                       Color="Color.Secondary"
+                       OnClick="ResetFilters"
+                       Disabled="IsLoading"
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       Size="Size.Small">
+                Reset
+            </MudButton>
+        </MudItem>
+        <MudItem xs="3">
+            <Autocomplete T="string" Label="Vessel" Style="width: 250px" @bind-Value="Filter.Vessel" IsVessel Clearable />
+            <Autocomplete T="string" Label="Port" Style="width:250px" @bind-Value="Filter.POD" IsLocation Clearable />
+        </MudItem>
+        <MudItem xs="2">
+            <Autocomplete T="string" Label="Voyage" Style="width:170px" @bind-Value="Filter.Voyage" IsVoyage Clearable />
+            <Autocomplete T="string" Label="Terminal" Style="width:170px" @bind-Value="Filter.Terminal" IsTerminalOrDepot Clearable />
+        </MudItem>
+        <MudItem xs="3">
+            <div style="display:flex;justify-content:space-between;width:250px">
+                <DatePicker Style="width:120px" Label="From" @bind-Date="Filter.DateFrom" Clearable />
+                <DatePicker Style="width:120px" Label="To" @bind-Date="Filter.DateTo" Clearable />
+            </div>
+            <Select T="EntityStatus?" Style="width:150px" Label="Status" @bind-Value="Filter.Status"
+                    ToStringFunc="@(s => s == null ? null : s.ToString())"
+                    Disabled="IsSelectable">
+                @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
+                {
+                    <MudSelectItem Value="@status" />
+                }
+            </Select>            
+        </MudItem>                
+        @if (!IsSelectable)
+        {
+            <MudItem xs="2">
+                <MudButton Class="Button" OnClick="@(async () => { await ViewManifestReport_Click(false); })"
+                           Style="width:142px; margin-bottom:5px;"
+                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Download">
+                    CGO Manifest
+                </MudButton>
+                <MudButton Class="Button" OnClick="@(async () => { await ViewManifestReport_Click(true); })"
+                           Style="width:142px; margin-bottom:5px"
+                           Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Download">
+                    IMO Manifest
+                </MudButton>
+                <MudButton Class="Button" OnClick="@(async () => { await ViewFileCustomsReport_Click(); })"
+                           Style="width:142px; margin-bottom:5px"
+                           Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Preview">
+                    Explanation
+                </MudButton>
+                <MudButton Class="Button" OnClick="@(async () => { await SaveFileFillBill_Click(); })"
+                           Style="width:105px"
+                           Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Download">
+                    Fill Bill
+                </MudButton>
+            </MudItem>
+        }        
+    </MudGrid>
+</Container>
 
 <div class="Container-table">
     <div class="tableMenu">
@@ -240,6 +317,15 @@
         IsLoading = false;
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    private void ResetFilters()
+    {
+        Filter = new FilterParameters
+        {
+            DateFrom = DateTime.Today.AddDays(-7),
+            DateTo = DateTime.Today
+        };
     }
 
     private async Task ShowItem_Click(long vesselCallId)
@@ -404,71 +490,71 @@
 
     #region SEARCH FUNCTIONS
 
-    private async Task<IEnumerable<string>> SearchVessel(string value, CancellationToken token)
-    {
-        //var result = await _vesselProvider.GetNamesEn();
-        var result = await CatalogProvider.GetVesselNames();
+    // private async Task<IEnumerable<string>> SearchVessel(string value, CancellationToken token)
+    // {
+    //     //var result = await _vesselProvider.GetNamesEn();
+    //     var result = await CatalogProvider.GetVesselNames();
 
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
+    //     if (result.Count() == 0)
+    //         return Enumerable.Empty<string>();
 
-        if (string.IsNullOrWhiteSpace(value))
-            return result;
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
+    //     if (string.IsNullOrWhiteSpace(value))
+    //         return result;
+    //     else
+    //         return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    // }
 
-    private async Task<IEnumerable<string>> SearchVoyage(string value, CancellationToken token)
-    {
-        var result = await _vesselCallProvider.GetVoyages(Filter.Vessel);
+    // private async Task<IEnumerable<string>> SearchVoyage(string value, CancellationToken token)
+    // {
+    //     var result = await _vesselCallProvider.GetVoyages(Filter.Vessel);
 
-        if (string.IsNullOrWhiteSpace(value))
-            return result.Distinct();
+    //     if (string.IsNullOrWhiteSpace(value))
+    //         return result.Distinct();
 
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
-    }
+    //     if (result.Count() == 0)
+    //         return Enumerable.Empty<string>();
+    //     else
+    //         return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Distinct();
+    // }
 
-    private async Task<IEnumerable<string>> SearchPort(string value, CancellationToken token)
-    {
-        var result = await CatalogProvider.GetLocationNames();
+    // private async Task<IEnumerable<string>> SearchPort(string value, CancellationToken token)
+    // {
+    //     var result = await CatalogProvider.GetLocationNames();
 
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
+    //     if (result.Count() == 0)
+    //         return Enumerable.Empty<string>();
 
-        if (string.IsNullOrWhiteSpace(value))
-            return result;
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
+    //     if (string.IsNullOrWhiteSpace(value))
+    //         return result;
+    //     else
+    //         return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    // }
     
-    private async Task<IEnumerable<string>> SearchTerminal(string value, CancellationToken token)
-    {
-        var result = await CatalogProvider.GetTerminalNames();
+    // private async Task<IEnumerable<string>> SearchTerminal(string value, CancellationToken token)
+    // {
+    //     var result = await CatalogProvider.GetTerminalNames();
 
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
+    //     if (result.Count() == 0)
+    //         return Enumerable.Empty<string>();
         
-        if (string.IsNullOrWhiteSpace(value))
-            return result;
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
+    //     if (string.IsNullOrWhiteSpace(value))
+    //         return result;
+    //     else
+    //         return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    // }
 
-    private async Task<IEnumerable<string>> SearchCarrier(string value, CancellationToken token)
-    {
-        var result = await _carrierProvider.GetNames();
+    // private async Task<IEnumerable<string>> SearchCarrier(string value, CancellationToken token)
+    // {
+    //     var result = await _carrierProvider.GetNames();
 
-        if (string.IsNullOrWhiteSpace(value))
-            return result;
+    //     if (string.IsNullOrWhiteSpace(value))
+    //         return result;
 
-        if (result.Count() == 0)
-            return Enumerable.Empty<string>();
-        else
-            return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
-    }
+    //     if (result.Count() == 0)
+    //         return Enumerable.Empty<string>();
+    //     else
+    //         return result.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+    // }
 
     #endregion
 }

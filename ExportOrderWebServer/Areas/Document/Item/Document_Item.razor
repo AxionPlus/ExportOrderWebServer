@@ -211,13 +211,11 @@
         {
             try
             {
-                await jsRuntime.InvokeVoidAsync("window.close");
-                //await jsRuntime.InvokeVoidAsync("closeWindow");
+                await jsRuntime.InvokeVoidAsync("window.close"); //await jsRuntime.InvokeVoidAsync("closeWindow");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при закрытии окна: {ex.Message}");
-                
+                Console.WriteLine($"Ошибка при закрытии окна: {ex.Message}");                
             }
         }        
     }

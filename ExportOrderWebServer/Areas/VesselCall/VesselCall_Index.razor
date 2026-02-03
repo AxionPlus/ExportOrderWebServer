@@ -1,6 +1,7 @@
 ﻿@page "/vesselcall"
 @attribute [Authorize(Roles = "Admin, Top Manager, Manager")]
 
+@using ExportOrderWebServer.Areas.VesselCall
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider authenticationStateProvider
@@ -27,13 +28,13 @@
             </div>
         </MudToolBar>
     </div>
-
     <VesselCallComponent @ref="component" />
 </MudContainer>
 
 @code {
     [CascadingParameter] public string? ApplicationUser { get; set; }
     private VesselCallComponent component = new();
+
     //private bool IsRoleForEdit { get; set; } = false;
 
     // protected override async Task OnAfterRenderAsync(bool first)

@@ -19,11 +19,7 @@
     <div style="width:100%">
         <MudTextField T="string" Class="@TextClass"
                       Value="Value"
-                      ValueChanged="@(async(e)=>{
-                                await ValueChanged.InvokeAsync(e.ToUpper());
-                            else
-                                await ValueChanged.InvokeAsync(e);}
-                      )"
+                      ValueChanged="@(async(e)=>{ await ValueChanged.InvokeAsync(e.ToUpper()); })"
                       Text="@Text"
                       TextChanged="@TextChanged"
                       Variant="Variant.Outlined"
@@ -49,21 +45,15 @@
         </MudTextField>
         @if (IsIconButton)
         {
-            <MudIconButton Class="TextFieldIconButton" Icon="@Icon" Color="@IconColor" Size="@IconSize" OnClick="Button_Click"></MudIconButton>
+            <MudIconButton Class="TextFieldIconButton" Icon="@IconBtn" Color="@IconBtnColor" Size="@IconBtnSize" OnClick="Button_Click"></MudIconButton>
         }
     </div>
 </div>
 
-</InputWrap>
-}
 @code {
-   [Parameter] public Adornment  Adornment{ get; set; }
-   [Parameter] public string AdornmentIcon { get; set; }
-
     [Parameter] public Expression<Func<string>>? For { get; set; }
     [Parameter] public bool ProgressLinear { get; set; }
     [Parameter] public bool NoHeader { get; set; }
-    [Parameter] public Color IconColor { get; set; } = Color.Default;
     [Parameter] public Size IconSize { get; set; } = Size.Small;
     [Parameter]
     public string? TooltipText { get; set; }
@@ -102,7 +92,14 @@
     [Parameter]
     public string? Placeholder { get; set; }
     [Parameter]
-    public Size IconSize { get; set; }
+    public bool Dense { get; set; }
+
+    [Parameter]
+    public string? IconBtn { get; set; }
+    [Parameter]
+    public Color IconBtnColor { get; set; } = Color.Default;
+    [Parameter]
+    public Size IconBtnSize { get; set; }
     [Parameter]
     public Adornment Adornment { get; set; }
     [Parameter]

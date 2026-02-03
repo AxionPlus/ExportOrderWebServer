@@ -14,11 +14,11 @@
                          Clearable
                          OnClearButtonClick="async (_) => { await VesselNameChanged.InvokeAsync(string.Empty); }" />
     </div>
-    <TextField Class="TextField" Label="Voyage" Style="width:150px; padding-left:10px;" UpperCase Value="@VesselVoyage"
-               ValueChanged="@(async (e) => { VesselVoyage = e is null ? string.Empty : e.ToUpper(); await VesselVoyageChanged.InvokeAsync(e is null ? e : e.ToUpper()); })"
-               Clearable
-               OnClearButtonClick="async (_) => { await VesselVoyageChanged.InvokeAsync(string.Empty); }" />
-
+    <TextField Class="TextField" Label="Voyage" Style="width:150px; padding-left:10px;" UpperCase Clearable
+               Text="@VesselVoyage"
+               Value="@VesselVoyage"
+               ValueChanged="@(async (e) => { VesselVoyage = e is null ? string.Empty : e.ToUpper(); await VesselVoyageChanged.InvokeAsync(e is null ? e : e.ToUpper()); })"               
+               OnClearButtonClick="async (_) => { await VesselVoyageChanged.InvokeAsync(string.Empty); }" />    
     @if (!HiddenButton)
     {
         <div style="margin-top:28px;margin-left:4px;">
@@ -56,6 +56,7 @@
         // var parameters = new DialogParameters();
         // var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, BackdropClick = false };
         // var dialog = await DialogService.ShowAsync<VesselCallSearchPanel>("Select Vessel CALL", parameters, options);
+        // // var dialog = await DialogService.ShowAsync<VesselCallComponent>("Select Vessel CALL", parameters, options);
         // var result = await dialog.Result;
 
         // if (result is not null && !result.Canceled && result.Data is not null)
@@ -66,8 +67,8 @@
         //     VesselName = vesselCall.VesselName;
         //     VesselVoyage = vesselCall.VesselVoyage;
 
-        //     await VesselNameChanged.InvokeAsync((VesselName));
-        //     await VesselVoyageChanged.InvokeAsync((VesselVoyage));
+        //     await VesselNameChanged.InvokeAsync(VesselName);
+        //     await VesselVoyageChanged.InvokeAsync(VesselVoyage);
         // }
     }
 }

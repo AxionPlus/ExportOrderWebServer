@@ -22,8 +22,9 @@
 
 <MudForm @ref="@Form" >
     <DialogToolBar ToolBarTitle="Vessel Call" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
-                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
-    <div class="Container-item" style="flex-direction:column">
+                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))">
+    </DialogToolBar>
+    @* <div class="Container-item" style="flex-direction:column">
         <div class="container-content">
             <MudAutocomplete Class="Autocomplete" T="VesselEntity" Label="Vessel" Style="width: 300px; margin-right:20px" @bind-Value="Item.Vessel"
                              ToStringFunc="@(e => e != null ? e.Name : "")"
@@ -137,7 +138,109 @@
                 </MudTable>
             </div>
         </div>            
-    </div>
+    </div> *@
+    <Container>
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <div class="FieldContainer">
+                    <div class="fieldName">Vessel</div>
+                    <div style="width:100%">
+                        <MudAutocomplete Class="Autocomplete" T="VesselEntity" Style="width: 300px" @bind-Value="Item.Vessel"
+                                         ToStringFunc="@(e => e != null ? e.Name : "")"
+                                         SearchFunc="SearchVessel"
+                                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                                         Required RequiredError="" Clearable
+                                         CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                         ResetValueOnEmptyText="true"
+                                         MaxItems="20" />
+                    </div>
+                </div>
+                <div class="FieldContainer">
+                    <div class="fieldName">Load Terminal</div>
+                    <div style="width:100%">
+                        <MudAutocomplete Class="Autocomplete" T="TerminalCatalog" Style="width: 300px" @bind-Value="Item.Terminal"
+                                         ToStringFunc="@(e => e != null ? e.Name : "")"
+                                         SearchFunc="SearchTerminal"
+                                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                                         Required RequiredError="" Clearable
+                                         CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                         ResetValueOnEmptyText="true"
+                                         MaxItems="20" />
+                    </div>
+                </div>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <TextField Style="width: 200px" Label="Voyage" Text="@Item.VoyageNo" @bind-Value="@Item.VoyageNo" Clearable Required />
+                <TextField Style="width: 200px" Label="Voyage Terminal" Text="@Item.VoyageNoTerminal" @bind-Value="@Item.VoyageNoTerminal" Clearable Required />
+            </MudItem>
+            <MudItem xs="12" md="2">                
+                <DatePicker Style="width:130px" Label="ETA" @bind-Date="Item.ETA" Clearable Required />
+                <DatePicker Style="width:130px" Label="ETS" @bind-Date="Item.ETS" Clearable Required />
+            </MudItem>
+            <MudSpacer/>
+            <MudItem xs="12" md="2">
+                <Select T="EntityStatus" Style="width:120px" Label="Status" @bind-Value="Item.Status"
+                    ToStringFunc="@(str => str.ToString())">
+                    @foreach (EntityStatus status in Enum.GetValues(typeof(EntityStatus)))
+                    {
+                        <MudSelectItem Value="@status" />
+                    }
+                </Select>
+            </MudItem>
+        </MudGrid>
+    </Container>
+    
+    <div class="Container-table">
+        <MudTable Class="Table dialogTable" @ref="mudTable" Items="@Item.Details" Loading="IsLoadingData">
+            <HeaderContent>
+                <MudTh Style="width:35px">
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="AddDetailItem" />
+                </MudTh>
+                <MudTh Style="width: 260px">
+                    PORT of discharge
+                    <MudTooltip Text="Add new Port">
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Primary" Disabled="IsLoadingData"
+                                        OnClick="@AddLocation" />
+                    </MudTooltip>
+                </MudTh>
+                <MudTh Style="width: 385px">Agent</MudTh>
+                <MudTh Style="width: 260px">FINAL Destination</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(() => RemoveDetail_Click(context))" />
+                </MudTd>
+                <MudTd DataLabel="Port">
+                    <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 250px; text-align:start" @bind-Value="context.POD"
+                                        ToStringFunc="@(e => e != null ? e.Name : "")"
+                                        SearchFunc="SearchLocation"
+                                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                                        Required RequiredError="" Clearable
+                                        CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                        ResetValueOnEmptyText="true"
+                                        MaxItems="20" />
+                </MudTd>
+                <MudTd DataLabel="Agent">
+                    <MudTextField Class="TextField" T="string" Style="width: 375px;" Text="@context.AgentPOD"
+                                    TextChanged="async (e)=> context.AgentPOD = e?.ToUpper()"
+                                    Variant="Variant.Outlined" Margin="Margin.Dense"
+                                    Immediate="true"
+                                    Required RequiredError="" Clearable />
+                </MudTd>
+                <MudTd DataLabel="Final">
+                    <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 250px" @bind-Value="context.FinalDestination"
+                                        ToStringFunc="@(e => e != null ? e.Name : "")"
+                                        SearchFunc="SearchLocation"
+                                        Variant="Variant.Outlined" Margin="Margin.Dense"
+                                        Clearable
+                                        CloseIcon="" OpenIcon="" IconSize="Size.Small"
+                                        ResetValueOnEmptyText="true"
+                                        MaxItems="20"
+                                        Disabled="true" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </div>        
 </MudForm>
 
 <OverlayLoadingData Visible="@IsLoadingData" />
@@ -146,7 +249,6 @@
     private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
-    private bool IsDialogResultOk { get; set; } = false;    
     private MudTable<VesselCallDetail>? mudTable;
 
     [Parameter]
@@ -156,8 +258,12 @@
 
     private VesselCallEntity Item { get; set; } = new();
 
+    private bool IsDialogResultOk { get; set; } = false;
+    private bool? ToggleContent { get; set; }
+
     private bool IsLoadingData = false;
     private bool IsRoleForEdit = false;
+
     private EntityStatus ItemStatus { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool first)

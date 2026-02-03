@@ -54,7 +54,7 @@
     }
 </style>
 
-<ToolBar  Label="Поручение">
+<ToolBar Label="Поручение" IsWindowOpen=true>
     <RightContent>
         <ToolBarIconButton TooltipText="Копировать поручение" Delay="1500" Duration="1000" Icon="@Icons.Material.Outlined.CopyAll" OnClick="CopyItem"></ToolBarIconButton>
         <div style="width:10px"></div>
@@ -101,7 +101,7 @@
                                          CloseIcon="" OpenIcon="" IconSize="Size.Small"
                                          ResetValueOnEmptyText="true"
                                          Placeholder="Carrier"
-                                         MaxItems="10" />                        
+                                         MaxItems="10" />
                     </div>
                 </div>
             </div>
@@ -186,7 +186,7 @@
                                                 <MudSpacer />
                                                 <MudTooltip Text="Список поручений по этой ДТ" Delay="1000">
                                                     <MudIconButton Icon="@Icons.Custom.FileFormats.FileDocument" Size="Size.Small"
-                                                                   OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName is null ? null : context.Value.DocumentName))">
+                                                                   OnClick="@(() => TreeItemIcon_OnClick(context.Value.DocumentName))">
                                                     </MudIconButton>
                                                 </MudTooltip>
                                             </div>
@@ -206,7 +206,7 @@
                         </MudTreeView>
                         <PopoverExpOrderList DocumentName="@DocumentName" IsPopoverOpen="@IsPopoverOpen" ExportOrderNums="@ExportOrderNums"
                                              ExportOrdersTotalNetWt="@ExportOrdersTotalNetWt" ExportOrdersTotalGrossWt="@ExportOrdersTotalGrossWt"
-                                             CloseButton_Click="@(()=> IsPopoverOpen = false)" />
+                                             CloseButton_Click="@(()=> { IsPopoverOpen = false; ClearPopover(); })" />
                     }
                 </MudPaper>
             </div>
@@ -247,9 +247,9 @@
         </div>
     </div>
 
-    <div class="Container-table" style="min-height:360px; max-height:460px; overflow:auto">
+    <div class="Container-table" style="overflow:auto">
         <div class="tableMenu">
-            <MudButton Class="Button" Style="margin-inline:80px; margin-bottom:2px" OnClick="UploadFile_Click"
+            <MudButton Class="Button" Style="margin-inline:40px; margin-bottom:2px" OnClick="UploadFile_Click"
                        Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small"
                        StartIcon="@Icons.Material.Filled.UploadFile"
                        Disabled="@(Item.VesselCallDetail is null)">
@@ -262,7 +262,7 @@
             <TablePager T="ExportOrderRecord" Table="mudTable" ItemsCount="@Item.Records.Count()" />
         </div>
 
-        <MudTable Class="Table ItemTable" @ref="mudTable" Items="@Item.Records" Context="expOrderRecord" RowsPerPage="10"
+        <MudTable Class="Table P2" @ref="mudTable" Items="@Item.Records" Context="expOrderRecord" RowsPerPage="12"
                   Virtualize="true" HorizontalScrollbar="true" ReadOnly="@(Item.VesselCallDetail is null)">
             <HeaderContent>
                 <MudTh Style="width:40px;">
@@ -453,7 +453,7 @@
 
         CntrTypes = await CntrTypeProvider.GetCntrTypes();
         Persons = await ExportOrderProvider.GetPersonsAsync(CancellationToken.None);
-        
+
         await GetItem();
     }
 
@@ -463,7 +463,7 @@
 
     //     if (authState.User.IsInRole("Admin") || authState.User.IsInRole("Top Manager"))
     //         IsRoleForEdit = true;
-    
+
     //     ApplicationUser = authState.User.Identity?.Name;
     //     CntrTypes = await CntrTypeProvider.GetCntrTypes();
     //     Persons = await ExportOrderProvider.GetPersonsAsync(CancellationToken.None);
@@ -485,7 +485,7 @@
             Item = await ExportOrderProvider.GetItemAsync(Id);
 
         FillUpTreeItems();
-        
+
         IsLoading = false;
     }
 
@@ -754,7 +754,7 @@
         {
             Item.VesselCallDetail = await ExportOrderProvider.GetVesselCallDetailAsync((long)result.Data);
 
-            /// check Carrier for Terminal: is the Carrier has any of Terminals like VesselCall's Terminal
+            /// check Carrier for Terminal: Has Carrier any Terminal in the VesselCall Terminals List
             if (Item.VesselCallDetail is not null && Item.Carrier is not null)
                 if (!Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)))
                     Item.Carrier = null;
@@ -794,7 +794,7 @@
 
         if (dialogResult.HasValue)
             if (dialogResult.Value)
-                    return false;
+                return false;
 
         return true;
     }
@@ -840,6 +840,13 @@
         TreeItems.Clear();
         DocumentsDTO = new();
         DocumentRecordsDTO = new();
+    }
+
+    private void ClearPopover()
+    {
+        ExportOrderNums = Enumerable.Empty<string>();
+        ExportOrdersTotalNetWt = null;
+        ExportOrdersTotalGrossWt = null;
     }
 
     private async void TreeItemIcon_OnClick(string? docName)

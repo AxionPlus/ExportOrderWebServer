@@ -7,6 +7,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 
 public class BillOfLadingBaseDto : BaseEntity
 {
+    public string? FileName { get; set; } = string.Empty;
     [Required]
     public string Num { get; set; } = string.Empty;
     public DateTime? Date { get; set; }

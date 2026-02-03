@@ -1,22 +1,22 @@
-﻿using System.Linq.Expressions;
-using ExportOrderWebServer.Areas.ImportDocument.Provider;
+﻿using ExportOrderWebServer.Areas.ImportDocument.Provider;
+using System.Linq.Expressions;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
 {
     public class GenericRepository<T> : IRepository<T> where T : class
     {
-        protected readonly ApplicationDbContext _context;
-        protected readonly DbSet<T> _dbSet;
+        protected readonly IDbContextFactory<ApplicationDbContext> _context;
+        // protected readonly DbSet<T> _dbSet;
 
-        public GenericRepository(ApplicationDbContext context)
+        public GenericRepository(IDbContextFactory<ApplicationDbContext> context)
         {
             _context = context;
-            _dbSet = context.Set<T>();
         }
 
         public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includes)
         {
-            IQueryable<T> query = _dbSet.AsQueryable();
+            await using var context = await _context.CreateDbContextAsync(cancellationToken);
+            IQueryable<T> query = context.Set<T>().AsQueryable();
 
             // Включение связанных данных
             foreach (var include in includes)
@@ -30,7 +30,8 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
 
         public virtual async Task<T?> GetByIdAsync(long id, params Expression<Func<T, object>>[] includes)
         {
-            IQueryable<T> query = _dbSet.AsQueryable();
+            await using var context = await _context.CreateDbContextAsync();
+            IQueryable<T> query = context.Set<T>().AsQueryable();
 
             // Включение связанных данных
             foreach (var include in includes)
@@ -43,7 +44,8 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
 
         public virtual IQueryable<T> GetAllAsync( params Expression<Func<T, object>>[] includes)
         {
-            IQueryable<T> query = _dbSet.AsQueryable();
+            var context = _context.CreateDbContext();
+            IQueryable<T> query = context.Set<T>().AsQueryable();
 
             // Включение связанных данных
             foreach (var include in includes)
@@ -56,7 +58,9 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
 
         public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _dbSet.Where(predicate).ToListAsync();
+            await using var context = await _context.CreateDbContextAsync();
+         
+            return await context.Set<T>().Where(predicate).ToListAsync();
         }
 
         public virtual async Task<PaginatedResult<T>> GetPaginatedAsync(
@@ -66,7 +70,8 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             params Expression<Func<T, object>>[] includes)
         {
-            IQueryable<T> query = _dbSet.AsQueryable();
+            await using var context = await _context.CreateDbContextAsync();
+            IQueryable<T> query = context.Set<T>().AsQueryable();
 
             // Включение связанных данных
             foreach (var include in includes)
@@ -107,21 +112,27 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
 
         public virtual async Task<T> AddAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
+
+            await using var context = await _context.CreateDbContextAsync();
+    
+            await context.Set<T>().AddAsync(entity);
+            await context.SaveChangesAsync();
             return entity;
         }
 
         public virtual async Task UpdateAsync(T entity)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
+            await using var context = await _context.CreateDbContextAsync();
+            context.Set<T>().Update(entity);
+            await context.SaveChangesAsync();
         }
 
         public virtual async Task DeleteAsync(T entity)
         {
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
+            await using var context = await _context.CreateDbContextAsync();
+            context.Set<T>().Remove(entity);
+        
+            await context.SaveChangesAsync();
         }
 
         public virtual async Task DeleteAsync(Guid id)
@@ -144,21 +155,26 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Repositories
 
         public virtual async Task<bool> ExistsAsync(Guid id)
         {
-            return await _dbSet.AnyAsync(e => EF.Property<Guid>(e, "Id") == id);
+            await using var context = await _context.CreateDbContextAsync();
+          
+            return await context.Set<T>().AnyAsync(e => EF.Property<Guid>(e, "Id") == id);
         }
 
         public virtual async Task<bool> ExistsAsync(long id)
         {
-            return await _dbSet.AnyAsync(e => EF.Property<long>(e, "Id") == id);
+            await using var context = await _context.CreateDbContextAsync();
+            return await context.Set<T>().AnyAsync(e => EF.Property<long>(e, "Id") == id);
         }
 
         public virtual async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null)
         {
+            await using var context = await _context.CreateDbContextAsync();
+
             if (predicate != null)
             {
-                return await _dbSet.CountAsync(predicate);
+                return await context.Set<T>().CountAsync(predicate);
             }
-            return await _dbSet.CountAsync();
+            return await context.Set<T>().CountAsync();
         }
     }
 }

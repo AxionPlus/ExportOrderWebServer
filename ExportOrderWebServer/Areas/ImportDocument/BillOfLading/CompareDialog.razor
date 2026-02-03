@@ -1,0 +1,64 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+
+<MudSimpleTable Dense Hover Striped Style="overflow-x: auto;">
+    <thead>
+        <tr>
+            <th>Item</th>
+            @foreach (var h in List)
+            {
+                <th>@h.FileName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+            <td>Shipper</td>
+            @foreach (var x in List)
+            {
+                <td>@x.Shipper</td>
+            }
+        </tr>
+
+        <tr>
+            <td>Shipper Address</td>
+            @foreach (var x in List)
+            {
+                <td>@x.ShipperAddress</td>
+            }
+        </tr>
+
+        <tr>
+            <td>Consignee</td>
+            @foreach (var x in List)
+            {
+                <td>@x.Consignee</td>
+            }
+        </tr>
+
+        <tr>
+            <td>Consignee Address</td>
+            @foreach (var x in List)
+            {
+                <td>@x.ConsigneeAddress</td>
+            }
+        </tr>
+
+        <tr>
+            <td>CargoDescription</td>
+            @foreach (var x in List)
+            {
+                <td>@x.CargoDescription</td>
+            }
+        </tr>
+
+    </tbody>
+</MudSimpleTable>
+
+
+
+@code {
+
+    [Parameter] public List<BillOfLadingBaseDto> List { get; set; } = new List<BillOfLadingBaseDto>();
+
+}

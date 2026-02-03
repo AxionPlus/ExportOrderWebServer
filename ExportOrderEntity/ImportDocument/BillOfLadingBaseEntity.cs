@@ -45,6 +45,7 @@ public class BillOfLadingBaseEntity : BaseEntity
 
     public string? ConsigneeNameRu { get; set; }
     public string? ConsigneeAddressRu { get; set; }
+    public string? ConsigneeCountryRu { get; set; }
 
     public string PartBl { get; set; } = string.Empty;
     public string CargoDescription { get; set; } = string.Empty;
@@ -61,7 +62,7 @@ public class BillOfLadingBaseEntity : BaseEntity
 
 public class BillOfLadingContainerRecordBaseEntity : BaseEntity
 {
-
+    public Guid BillOfLadingBaseEntityId { get; set; }
     public string ContainerNo { get; set; } = string.Empty;
     public string ContainerTypeId { get; set; } = string.Empty;
     public string IsoCode { get; set; } = string.Empty;

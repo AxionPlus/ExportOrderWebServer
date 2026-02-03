@@ -1,0 +1,54 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+
+@inject IVesselCallService VesselCallService
+@inject ISnackbar Snackbar
+
+<MudContainer>
+
+    <MudTextField @bind-Value="@VesselCallDto.GoogleTableUrl" Variant="Variant.Outlined" Class="mt-3"
+                  Label="Google Table Url" />
+
+    <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.SaveAs" OnClick="OnSave" Disabled="@isLoading">Save</MudButton>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public VesselCallDto VesselCallDto { get; set; }
+    bool isLoading;
+
+    private async Task OnSave()
+    {
+        try
+        {
+            isLoading = true;
+         
+
+            await VesselCallService.UpdateAsync(VesselCallDto);
+            Snackbar.Add("Vessel call updated successfully", MudBlazor.Severity.Success);
+
+
+            // Close dialog
+            MudDialog?.Close();
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+        }
+        catch (ArgumentException ex)
+        {
+            Snackbar.Add($"Validation error: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving vessel call: {ex.Message}", MudBlazor.Severity.Error);
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+}

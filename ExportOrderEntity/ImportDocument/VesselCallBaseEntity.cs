@@ -6,11 +6,12 @@ namespace ExportOrderEntites.ImportDocument
 {
     public class VesselCallBaseEntity : BaseEntity
     {
-
+        public string? GoogleTableUrl { get; set; } = string.Empty;
 
         [ForeignKey("Vessel")]
         public Guid VesselId { get; set; }
         public VesselBaseEntity Vessel { get; set; }
+
 
         public string VoyageNo { get; set; } = string.Empty;
         public string TerminalVoyageNo { get; set; } = string.Empty;

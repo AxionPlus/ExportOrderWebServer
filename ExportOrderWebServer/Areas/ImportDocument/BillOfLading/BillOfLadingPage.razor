@@ -3,6 +3,7 @@
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Services
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
 
 @inject IBillOfLadingService BillOfLadingService
@@ -13,6 +14,7 @@
 @inject ILocalStorageService localStorage
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
+@inject IGoogleSheetsParser GoogleSheetsParser
 <style>
     .mud-table-dense * .mud-table-row .mud-table-cell {
         padding-inline-start: 10px;
@@ -28,50 +30,65 @@
 
 <PageTitle>Bill of Lading Management</PageTitle>
 <ToolBar Label="Bill of Lading Management">
-
-
     <RightContent>
         <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenUploadDialog" Color="Color.Secondary" TooltipText="Upload XML Manifest" />
 
     </RightContent>
-
 </ToolBar>
 <!-- Заголовок страницы -->
 <!-- Верхняя часть: Выбор судозахода -->
 <Container>
 
     <VesselVoaygeSelector @bind-VesselCallId="SelectedVesselCallId" @bind-VesselCall="@SelectedVesselCall" OnClick="OnVesselCallChanged" />
-    <MudButton OnClick="OnVesselCallChanged"
-               Variant="Variant.Outlined"
-               Color="Color.Warning"
-               Size="Size.Small"
-               StartIcon="@Icons.Material.Filled.Refresh">
-        Refresh
-    </MudButton>
-    <MudButton OnClick="ExportBillOfLadingsToExcel"
-               Variant="Variant.Outlined"
-               Color="Color.Primary"
-               Size="Size.Small"
-               StartIcon="@Icons.Material.Filled.Download"
-               Disabled="@(SelectedVesselCallId == Guid.Empty || isLoading)">
-        @if (isLoading)
-        {
-            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-        }
-        Export to Excel
-    </MudButton>
-    <MudButton OnClick="ExportArrivalNoticeToExcel"
-               Variant="Variant.Outlined"
-               Color="Color.Primary"
-               Size="Size.Small"
-               StartIcon="@Icons.Material.Filled.Download"
-               Disabled="@(SelectedVesselCallId == Guid.Empty || isLoading)">
-        @if (isLoading)
-        {
-            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-        }
-        ArrivalNotice
-    </MudButton>
+    @if (SelectedVesselCallId != Guid.Parse("00000000-0000-0000-0000-000000000000"))
+    {
+        <MudButton OnClick="OnSetGoogleTableUrl"
+                   Variant="Variant.Outlined"
+                   Color="Color.Secondary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Link">
+            Url
+        </MudButton>
+        <MudButton OnClick="OnTranslate"
+                   Variant="Variant.Outlined"
+                   Color="Color.Secondary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Translate" Disabled="@(string.IsNullOrWhiteSpace(SelectedVesselCall!.GoogleTableUrl))">
+            Translate
+        </MudButton>
+
+        <MudButton OnClick="OnVesselCallChanged"
+                   Variant="Variant.Outlined"
+                   Color="Color.Warning"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Refresh">
+            Refresh
+        </MudButton>
+        <MudButton OnClick="ExportBillOfLadingsToExcel"
+                   Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Download"
+                   Disabled="@(SelectedVesselCallId == Guid.Empty || isLoading)">
+            @if (isLoading)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Export to Excel
+        </MudButton>
+        <MudButton OnClick="ExportArrivalNoticeToExcel"
+                   Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Download"
+                   Disabled="@(SelectedVesselCallId == Guid.Empty || isLoading)">
+            @if (isLoading)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            ArrivalNotice
+        </MudButton>
+    }
 </Container>
 
 <MudGrid Class="mt-1">
@@ -84,7 +101,7 @@
                 <MudItem xs="12" md="3" Class="pr-md-3">
                     <MudPaper Class="pa-4" Elevation="3" Style="height: calc(100vh - 190px); overflow-y: auto;display: flex; flex-direction: column;">
                         <div class="d-flex justify-space-between align-center mb-3">
-                            <TextField Value="@SearchText" ValueChanged="(e) => SearchTextChanged(e)" NoHeader Clearable/>
+                            <TextField Value="@SearchText" ValueChanged="(e) => SearchTextChanged(e)" NoHeader Clearable />
                             <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Color="Color.Warning" />
                         </div>
 
@@ -132,6 +149,7 @@
     }
 </MudGrid>
 
+<OverlayLoadingData Visible="isLoading" />
 @code {
     private Guid SelectedVesselCallId = Guid.Empty;
     private VesselCallDto? SelectedVesselCall;
@@ -139,7 +157,7 @@
     private Guid SelectedBillId = Guid.Empty;
     private BillOfLadingBaseDto? SelectedBill;
     private IEnumerable<BillOfLadingBaseDto> billOfLadings = new List<BillOfLadingBaseDto>();
-    private List<BillOfLadingBaseDto> BillOfLadings = new ();
+    private List<BillOfLadingBaseDto> BillOfLadings = new();
 
 
 
@@ -177,7 +195,7 @@
     private bool ContainerMatchesSearch(BillOfLadingContainerRecordBaseDto container, string searchTextLower)
     {
         if (string.IsNullOrWhiteSpace(searchTextLower)) return false;
-    
+
         return
             (!string.IsNullOrWhiteSpace(container.ContainerNo) && container.ContainerNo.Contains(searchTextLower, StringComparison.OrdinalIgnoreCase)) ||
             (!string.IsNullOrWhiteSpace(container.SealNo) && container.SealNo.Contains(searchTextLower, StringComparison.OrdinalIgnoreCase)) ||
@@ -208,6 +226,7 @@
 
     private async Task LoadState()
     {
+        isLoading = true; StateHasChanged();
         try
         {
             var savedValue = await localStorage.GetItemAsStringAsync("SelectedVesselCallId");
@@ -224,6 +243,11 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Ошибка загрузки: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false; 
+            StateHasChanged();
         }
     }
     private async Task OnVesselCallChanged()
@@ -332,7 +356,8 @@
         {
             CloseButton = true,
             MaxWidth = MaxWidth.Medium,
-            FullWidth = true
+            FullWidth = true,
+            BackdropClick = false,
         };
 
         var dialog = await DialogService.ShowAsync<UploadManifestDialog>("Upload XML Manifest", parameters, options);
@@ -365,22 +390,22 @@
 
             // Используем HttpClientFactory
             var httpClient = HttpClientFactory.CreateClient();
-        
+
             // Настраиваем базовый адрес
             httpClient.BaseAddress = new Uri(Navigation.BaseUri);
-        
+
             var response = await httpClient.GetAsync($"api/excel-export/bill-of-lading/list/{SelectedVesselCallId}");
 
             if (response.IsSuccessStatusCode)
             {
                 var fileBytes = await response.Content.ReadAsByteArrayAsync();
                 var contentDisposition = response.Content.Headers.ContentDisposition;
-                var fileName = contentDisposition?.FileNameStar 
-                               ?? contentDisposition?.FileName 
+                var fileName = contentDisposition?.FileNameStar
+                               ?? contentDisposition?.FileName
                                ?? $"BillOfLadings_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-            
+
                 await DownloadFile(fileBytes, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            
+
                 Snackbar.Add($"Successfully exported {BillOfLadings.Count} bills of lading", Severity.Success);
             }
             else
@@ -459,7 +484,64 @@
     {
         // Используем JavaScript для скачивания файла
         await JSRuntime.InvokeVoidAsync("downloadFileBase64",
-            Convert.ToBase64String(fileBytes), 
+            Convert.ToBase64String(fileBytes),
             fileName);
     }
+
+    private async Task OnSetGoogleTableUrl()
+    {
+
+        var parameters = new DialogParameters
+        {
+            ["VesselCallDto"] = SelectedVesselCall
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+
+        var dialog = await DialogService.ShowAsync<SetGoogleTableUrlDialog>("set GoogleTable Url", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false })
+        {
+            // Обновляем выбранный коносамент
+            // SelectedBill = await BillOfLadingService.GetByIdAsync(bill.Id);
+            await OnVesselCallChanged();
+        }
+    }
+
+    private async Task OnTranslate()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Translate",
+            (MarkupString)$"Do you want to Translate?",
+            yesText: "Yes,do it!", cancelText: "No");
+
+        if (!result.HasValue || !result.Value)
+            return;
+
+        try
+        {
+
+            isLoading = true;
+            var billOfLadings = await GoogleSheetsParser.ParseSheetViaCsv(SelectedVesselCall.GoogleTableUrl);
+
+            await BillOfLadingService.TranslateAsync(billOfLadings);
+            Snackbar.Add($"Successfully Translate", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error Translate: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
 }

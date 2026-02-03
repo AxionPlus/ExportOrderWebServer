@@ -62,15 +62,15 @@ else
                         <MudGrid>
                             <MudItem xs="12" md="6">
                                 <MudTextField Label="Voyage No *" Variant="Variant.Outlined"
-                                           @bind-Value="VesselCallDto.VoyageNo"
-                                           Required
-                                           OnBlur="CheckVoyageAvailability"
-                                           Class="mt-3" />
+                                              @bind-Value="VesselCallDto.VoyageNo"
+                                              Required
+                                              OnBlur="CheckVoyageAvailability"
+                                              Class="mt-3" />
                             </MudItem>
                             <MudItem xs="12" md="6">
                                 <MudTextField Label="Terminal Voyage No" Variant="Variant.Outlined"
-                                           @bind-Value="VesselCallDto.TerminalVoyageNo"
-                                           Class="mt-3" />
+                                              @bind-Value="VesselCallDto.TerminalVoyageNo"
+                                              Class="mt-3" />
                             </MudItem>
                         </MudGrid>
 
@@ -118,13 +118,13 @@ else
                         <MudGrid>
                             <MudItem xs="12" md="6">
                                 <MudDatePicker Label="ETA *" Variant="Variant.Outlined"
-                                            @bind-Date="VesselCallDto.ETA"
-                                            Required />
+                                               @bind-Date="VesselCallDto.ETA"
+                                               Required />
                             </MudItem>
                             <MudItem xs="12" md="6">
                                 <MudDatePicker Label="ETS *" Variant="Variant.Outlined"
-                                            @bind-Date="VesselCallDto.ETS"
-                                            Required />
+                                               @bind-Date="VesselCallDto.ETS"
+                                               Required />
                             </MudItem>
                         </MudGrid>
 
@@ -150,8 +150,8 @@ else
 
                         <!-- Feeder BL No -->
                         <MudTextField Label="Feeder BL No" Variant="Variant.Outlined"
-                                   @bind-Value="VesselCallDto.FeederBlNo"
-                                   Class="mt-3" />
+                                      @bind-Value="VesselCallDto.FeederBlNo"
+                                      Class="mt-3" />
 
                         <!-- Status -->
                         <MudSelect T="BaseEntityStatus"
@@ -431,19 +431,6 @@ else
 
             if (VesselCallDto.IsNew)
             {
-                // Set default values for new vessel call
-                if (VesselCallDto.Id == Guid.Empty)
-                    VesselCallDto.Id = Guid.NewGuid();
-
-                if (VesselCallDto.CreatedAt == default)
-                    VesselCallDto.CreatedAt = DateTimeOffset.UtcNow;
-
-                if (VesselCallDto.Status == default)
-                    VesselCallDto.Status = BaseEntityStatus.New;
-
-                if (VesselCallDto.Version == 0)
-                    VesselCallDto.Version = 1;
-
                 await VesselCallService.CreateAsync(VesselCallDto);
                 Snackbar.Add("Vessel call created successfully", MudBlazor.Severity.Success);
             }

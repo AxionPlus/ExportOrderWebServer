@@ -148,9 +148,10 @@ public class ManifestController : ControllerBase
     }
 
     [HttpPost("upload-bulk")]
-    public async Task<IActionResult> UploadBulkManifests([Required] Guid vesselCallId, List<IFormFile> files)
+    public async Task<IActionResult> UploadBulkManifests(string vesselCallId, List<IFormFile> files)
     {
         var response = new UploadManifestResponse();
+        var vesselCallGuid = Guid.Parse(vesselCallId);
 
         try
         {
@@ -160,7 +161,7 @@ public class ManifestController : ControllerBase
             // Проверяем существование судозахода
             try
             {
-                await _vesselCallService.GetByIdAsync(vesselCallId);
+                await _vesselCallService.GetByIdAsync(vesselCallGuid);
             }
             catch (KeyNotFoundException)
             {
@@ -181,7 +182,7 @@ public class ManifestController : ControllerBase
 
                     foreach (var billDto in parsedBills)
                     {
-                        billDto.VesselCallId = vesselCallId;
+                        billDto.VesselCallId = vesselCallGuid;
 
                         try
                         {

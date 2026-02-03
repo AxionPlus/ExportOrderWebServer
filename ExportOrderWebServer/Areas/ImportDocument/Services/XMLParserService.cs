@@ -331,6 +331,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
         {
             var xmlDoc = XDocument.Parse(xmlContent);
             var blElements = xmlDoc.Root?.Elements("BL");
+            var carrier = xmlDoc.Root?.Element("Carrier")?.Value;
 
             if (blElements == null || !blElements.Any())
                 return new List<BillOfLadingBaseDto>();
@@ -342,6 +343,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                 try
                 {
                     var dto = ParseSingleBL(blElement);
+                    dto.Carrier = carrier;
                     result.Add(dto);
                 }
                 catch (Exception ex) when (_configuration.IgnoreParseErrors)
@@ -359,13 +361,13 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
         public BillOfLadingBaseDto ParseSingleBL(XElement blElement)
         {
             // Получаем TS порты из XML
-            var tsPorts = new List<string>();
-            for (int i = 1; i <= 4; i++)
-            {
-                var tsPort = GetElementValue(blElement, $"TS{i}");
-                if (!string.IsNullOrEmpty(tsPort) && tsPort != ".")
-                    tsPorts.Add(tsPort);
-            }
+            //var tsPorts = new List<string>();
+            //for (int i = 1; i <= 4; i++)
+            //{
+            //    var tsPort = GetElementValue(blElement, $"TS{i}");
+            //    if (!string.IsNullOrEmpty(tsPort) && tsPort != ".")
+            //        tsPorts.Add(tsPort);
+            //}
 
             var dto = new BillOfLadingBaseDto
             {
@@ -426,8 +428,8 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                         OutOfGauge = ParseOutOfGauge(GetElementValue(containerElement, "OutOfGauge")),
                         IMCOClass = GetElementValue(containerElement, "IMCOClass"),
                         IMCONumber = GetElementValue(containerElement, "IMCONumber")?.Trim(),
-                        ReeferTempSign = GetElementValue(containerElement, "CNTRReeferTempSign"),
-                        ReeferTemp = GetElementValue(containerElement, "CNTRReeferTemp"),
+                        ReeferTempSign = GetElementValue(containerElement, "CNTRReeferTempSign"), // знак
+                        ReeferTemp = GetElementValue(containerElement, "CNTRReeferTemp"),   // температура цифра
                         ReeferTempUOM = GetElementValue(containerElement, "CNTRReeferTempUOM"),
                         ReeferHumidity = GetElementValue(containerElement, "ReeferHumidity") ?? GetElementValue(containerElement, "CNTRReeferHumidity"),
                         ReeferVentilation = GetElementValue(containerElement, "ReeferVentilation") ?? GetElementValue(containerElement, "CNTRReeferVentilation"),
@@ -436,7 +438,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                         HandledBySystem = true,
                     };
 
-                    ProcessReeferContainer(containerElement, containerDto);
+                    // ProcessReeferContainer(containerElement, containerDto); -не пойму для чего
                     containers.Add(containerDto);
                 }
                 catch (Exception ex) when (_configuration.IgnoreParseErrors)

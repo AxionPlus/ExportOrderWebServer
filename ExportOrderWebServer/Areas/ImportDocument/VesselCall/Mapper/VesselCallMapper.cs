@@ -1,7 +1,6 @@
-﻿using ExportOrderEntites.ImportDocument;
+﻿using ExportOrderEntites;
+using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Mapper;
-using ExportOrderWebServer.Areas.ImportDocument.Vessel.Dto;
-using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.Terminal.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.Vessel.Mapper;
@@ -29,6 +28,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
                 PortOfLoadingId = entity.PortOfLoadingId,
                 PortOfLoading = entity.PortOfLoading.ToDto(), // Предполагая существование ToPortDto
                 FeederBlNo = entity.FeederBlNo,
+                GoogleTableUrl = entity.GoogleTableUrl,
 
                 BillOfLadings = entity.BillOfLadings.Any()? entity.BillOfLadings.ToDtoList(): new (),
                 // BaseEntity fields
@@ -58,6 +58,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
                 VoyageNo = dto.VoyageNo,
                 TerminalVoyageNo = dto.TerminalVoyageNo,
                 TerminalId = dto.TerminalId,
+                GoogleTableUrl = dto.GoogleTableUrl,
                 ETA = dto.ETA.Value,
                 ETS = dto.ETS.Value,
                 PortOfLoadingId = dto.PortOfLoadingId,
@@ -82,6 +83,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
             entity.PortOfLoadingId = dto.PortOfLoadingId;
             entity.FeederBlNo = dto.FeederBlNo;
             entity.Status = dto.Status;
+            entity.GoogleTableUrl = dto.GoogleTableUrl;
         }
 
 

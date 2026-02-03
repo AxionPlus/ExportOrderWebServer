@@ -17,23 +17,23 @@
     @if (BillOfLadingDto != null)
     {
         <div class="d-flex justify-space-between align-center mb-4">
-            <div>
+            <div style="width:200px">
                 <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Bl No</MudText>
                 <MudText Typo="Typo.h6" Color="Color.Primary">@BillOfLadingDto.Num</MudText>
             </div>
-            <div>
+            <div style="width:100px">
                 <MudText Typo="Typo.subtitle2" Color="Color.Secondary">POL</MudText>
                 <MudText Typo="Typo.h6">@BillOfLadingDto.Pol?.IsoCode</MudText>
             </div>
-            <div>
+            <div style="width:100px">
                 <MudText Typo="Typo.subtitle2" Color="Color.Secondary">TS Port</MudText>
-                <MudText Typo="Typo.h6">@BillOfLadingDto.TsPort?.IsoCode</MudText>
+                <MudText Typo="Typo.h6">@(string.IsNullOrWhiteSpace(BillOfLadingDto.TsPort?.IsoCode) ? "N/A" : BillOfLadingDto.TsPort?.IsoCode)</MudText>
             </div>
-            <div>
+            <div style="width:126px">
                 <MudText Typo="Typo.subtitle2" Color="Color.Secondary">TS Date</MudText>
                 <MudDatePicker @bind-Date="@BillOfLadingDto.TsDate" />
             </div>
-            <div>
+            <div style="width:100px">
                 <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Customs</MudText>
                 <MudSelect T="string" @bind-Value="BillOfLadingDto.CustomsMode">
                     <MudSelectItem Value="@("ГТД")">ГТД (ДТ)</MudSelectItem>
@@ -41,7 +41,7 @@
                 </MudSelect>
             </div>
             <div>
-                <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.SaveAs" OnClick="OnSave" >Save</MudButton>
+                <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.SaveAs" OnClick="OnSave">Save</MudButton>
                 <MudButton Color="Color.Warning" Variant="Variant.Outlined" OnClick="OnReset">Reset</MudButton>
             </div>
         </div>
@@ -64,8 +64,10 @@
                                     <MudCardContent>
                                         <MudText Typo="Typo.h6"> @BillOfLadingDto.ShipperName  @BillOfLadingDto.ShipperAddress</MudText>
 
-                                        <MudTextField @bind-Value="BillOfLadingDto.ShipperNameRu" Variant="Variant.Outlined" Class="mt-3"
+                                        <MudTextField @bind-Value="@BillOfLadingDto.ShipperNameRu" Variant="Variant.Outlined" Class="mt-3"
                                                       Label="Shipper Name (RU)" />
+                                        <MudTextField Value="@BillOfLadingDto.Pol?.NameRu" Variant="Variant.Outlined" Class="mt-3" ReadOnly
+                                                      Label="Shipper Country Name" />
                                     </MudCardContent>
                                 </MudCard>
                             </MudItem>
@@ -120,7 +122,7 @@
                         <MudCard Elevation="0" Class="ma-2">
                             @if (BillOfLadingDto.ContainerRecords?.Any() == true)
                             {
-                                <MudTable T="BillOfLadingContainerRecordBaseDto" Items="@BillOfLadingDto.ContainerRecords" Dense
+                                <MudTable T="BillOfLadingContainerRecordBaseDto" Items="@BillOfLadingDto.ContainerRecords.OrderBy(s => s.ContainerNo)" Dense
                                           Hover
                                           HorizontalScrollbar
                                           RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
@@ -144,14 +146,14 @@
                                         <MudTd DataLabel="Type">@context.ContainerTypeId (@context.IsoCode)</MudTd>
                                         <MudTd DataLabel="Weight">@context.GrossWeight (@context.GrossWeightUOM)</MudTd>
                                         <MudTd DataLabel="Packages">@context.NoOfPackage</MudTd>
-                                        <MudTd DataLabel="CargoDescription">
+                                        <MudTd DataLabel="CargoDescription" Style="@(string.IsNullOrWhiteSpace(context.CargoDescriptionRu) ? "background-color: aliceblue;" : "")">
                                             <div style="width: 500px;
-                                                                                                                                                                                        word-wrap: break-word;
-                                                                                                                                                                                        white-space: normal;
-                                                                                                                                                                                        overflow: hidden;
-                                                                                                                                                                                        text-overflow: ellipsis;
-                                                                                                                                                                                        display: -webkit-box;
-                                                                                                                                                                                        -webkit-box-orient: vertical;">
+                                                                word-wrap: break-word;
+                                                                white-space: normal;
+                                                                overflow: hidden;
+                                                                text-overflow: ellipsis;
+                                                                display: -webkit-box;
+                                                                -webkit-box-orient: vertical;">
                                                 @context.CargoDescriptionRu
                                             </div>
                                         </MudTd>
@@ -220,7 +222,11 @@
             </MudText>
         </div>
     }
+
+    <OverlayLoadingData Visible="isLoading" />
 </MudPaper>
+
+
 
 @code {
 
@@ -235,24 +241,31 @@
 
 
 
-    public async void Get(BillOfLadingBaseDto billOfLadingBaseDto)
+    public async Task Get(BillOfLadingBaseDto billOfLadingBaseDto)
     {
         try
         {
+            isLoading = true;
             BillOfLadingDto = await BillOfLadingService.GetByIdAsync(billOfLadingBaseDto.Id);
 
-            activeTabIndex = 0; // Сбрасываем на первую вкладку
+            // activeTabIndex = 0; // Сбрасываем на первую вкладку
             StateHasChanged();
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Error loading bills of lading: {ex.Message}", Severity.Error);
         }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
     public async Task LoadBillOfLadingById(Guid id)
     {
         try
         {
+            isLoading = true;
             // Используем EventCallback если он установлен
             if (OnRequestData.HasDelegate)
             {
@@ -263,12 +276,16 @@
                 // Или загружаем напрямую
                 BillOfLadingDto = await BillOfLadingService.GetByIdAsync(id);
                 activeTabIndex = 0;
-                StateHasChanged();
             }
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Error loading bill of lading: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
     private void ShowContainerDetails(BillOfLadingContainerRecordBaseDto container)
@@ -299,7 +316,7 @@
     {
         var bookingCargoRecordDto = (BillOfLadingContainerRecordBaseDto)element;
 
-
+        isLoading = true;
         // Проверяем, были ли изменения
         if (ObjectComparer.AreEqualByJsonBytes<BillOfLadingContainerRecordBaseDto>(bookingCargoRecordDto, elementBeforeEdit))
             return;
@@ -321,8 +338,13 @@
         }
         finally
         {
-            // await GetBookingItem_Click();
-            StateHasChanged();
+            if (BillOfLadingDto != null)
+                await Get(BillOfLadingDto);
+            else
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
         }
 
     }
@@ -331,9 +353,46 @@
     {
         BackupObject.CreateObjectBackup<BillOfLadingContainerRecordBaseDto>(elementBeforeEdit, element);
     }
-    private Task SetForAllContainersCargoDescription()
+    private async Task SetForAllContainersCargoDescription()
     {
-        throw new NotImplementedException();
+        isLoading = true;
+
+        try
+        {
+            foreach (var containerRecord in BillOfLadingDto!.ContainerRecords)
+            {
+                containerRecord.CargoDescriptionRu = BillOfLadingDto.CargoDescriptionRu;
+
+                await BillOfLadingService.UpdateAsync(containerRecord);
+            }
+
+            await BillOfLadingService.UpdateAsync(BillOfLadingDto);
+
+
+            Snackbar.Add("Save succeeded", Severity.Success);
+
+
+        }
+        catch (OperationCanceledException ex)
+        {
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving data: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            if (BillOfLadingDto != null)
+                await Get(BillOfLadingDto);
+            else
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+
+
     }
 
     private async Task OpenEditDialog(BillOfLadingBaseDto bill)
@@ -371,10 +430,10 @@
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-        var dialog = DialogService.Show<ConfirmationDialog>("Delete Confirmation", parameters, options);
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Delete Confirmation", parameters, options);
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (result is { Canceled: false })
         {
             try
             {
@@ -394,6 +453,7 @@
 
     private async Task OnSave()
     {
+        isLoading = true;
         try
         {
             await BillOfLadingService.UpdateAsync(BillOfLadingDto);
@@ -404,12 +464,22 @@
             Console.WriteLine(ex);
             Snackbar.Add($"Error saving data: {ex.Message}", Severity.Error);
         }
+        finally
+        {
+            if (BillOfLadingDto != null)
+                await Get(BillOfLadingDto);
+            else
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
     }
     private async Task OnReset()
     {
 
         if (BillOfLadingDto != null)
-             Get(BillOfLadingDto);
- 
+            await Get(BillOfLadingDto);
+
     }
 }

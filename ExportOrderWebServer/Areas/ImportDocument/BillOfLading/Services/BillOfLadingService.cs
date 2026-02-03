@@ -1,10 +1,14 @@
-﻿using ExportOrderEntites;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using ExportOrderEntites;
+using ExportOrderEntites.BillofLading.Dto;
 using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Mapper;
+using ExportOrderWebServer.Areas.ImportDocument.Extensions;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Services;
 using ExportOrderWebServer.Areas.ImportDocument.Provider;
+using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services;
@@ -26,7 +30,11 @@ public interface IBillOfLadingService
     Task<IEnumerable<BillOfLadingBaseDto>> GetByContainerNumberAsync(string containerNo, CancellationToken cancellationToken = default);
     Task<bool> CheckBillNumberExistsAsync(string billNo, Guid? excludeId = null, CancellationToken cancellationToken = default);
 
-    Task UpdateAsync(Dto.BillOfLadingContainerRecordBaseDto baseDto, CancellationToken cancellationToken = default);
+    Task UpdateAsync(BillOfLadingContainerRecordBaseDto baseDto, CancellationToken cancellationToken = default);
+
+    Task TranslateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingsDto, CancellationToken cancellationToken = default);
+    Task UpdateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingDtos, VesselCallDto? vesselCall, CancellationToken cancellationToken = default);
+    Task<IEnumerable<string>> CheckBillNumbersExistsAsync(IEnumerable<string> parsedBillsNum, CancellationToken cancellationToken = default);
 }
 
 public class BillOfLadingService : IBillOfLadingService
@@ -35,10 +43,10 @@ public class BillOfLadingService : IBillOfLadingService
     private readonly IVesselCallService _vesselCallService;
     private readonly IPortService _portService;
     private readonly ILogger<BillOfLadingService> _logger;
-    protected readonly ApplicationDbContext _context;
+    protected readonly IDbContextFactory<ApplicationDbContext> _context;
     public BillOfLadingService(
         ICrudProvider<BillOfLadingBaseEntity> billOfLadingCrudProvider,
-    ApplicationDbContext context,
+        IDbContextFactory<ApplicationDbContext> context,
     IVesselCallService vesselCallService,
     IPortService portService,
     ILogger<BillOfLadingService> logger)
@@ -61,6 +69,7 @@ public class BillOfLadingService : IBillOfLadingService
                 s => s.VesselCall.Vessel,
                 s => s.VesselCall.Terminal,
                 s => s.VesselCall.PortOfLoading,
+                s => s.Pol,
                 s => s.ContainerRecords);
 
             if (entity == null)
@@ -221,10 +230,10 @@ public class BillOfLadingService : IBillOfLadingService
         {
             var entities = _billOfLadingCrudProvider
                 .GetAllAsync(
-                s => s.VesselCall, 
+                s => s.VesselCall,
                 s => s.Pol,
                 s => s.TsPort,
-                s=>s.ContainerRecords)
+                s => s.ContainerRecords)
                 .AsSplitQuery(); ;
             entities = entities.Where(e => e.VesselCallId == vesselCallId);
             var filteredEntities = await entities.ToListAsync(cancellationToken);
@@ -279,7 +288,9 @@ public class BillOfLadingService : IBillOfLadingService
 
     public async Task UpdateAsync(BillOfLadingContainerRecordBaseDto baseDto, CancellationToken cancellationToken = default)
     {
-        var entity = await _context.Set<BillOfLadingContainerRecordBaseEntity>().FirstAsync(s => s.Id == baseDto.Id, cancellationToken: cancellationToken);
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+        var entity = await db.Set<BillOfLadingContainerRecordBaseEntity>().FirstAsync(s => s.Id == baseDto.Id, cancellationToken: cancellationToken);
 
         if (entity.Timestamp != baseDto.Timestamp)
         {
@@ -287,10 +298,147 @@ public class BillOfLadingService : IBillOfLadingService
         }
 
         entity.UpdateEntity(baseDto);
-        _context.Set<BillOfLadingContainerRecordBaseEntity>().Update(entity);
-        await _context.SaveChangesAsync(cancellationToken);
+        db.Set<BillOfLadingContainerRecordBaseEntity>().Update(entity);
+        await db.SaveChangesAsync(cancellationToken);
 
 
+    }
+
+    public async Task TranslateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingsDto, CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+
+        foreach (var billOfLadingDto in billOfLadingsDto)
+        {
+
+            var entity = await db.Set<BillOfLadingBaseEntity>().Include(s => s.ContainerRecords).FirstOrDefaultAsync(s => s.Num == billOfLadingDto.Num, cancellationToken: cancellationToken);
+            if (entity == null) continue;
+
+
+            entity.ConsigneeNameRu = billOfLadingDto.ConsigneeNameRu.FixCsvContent().ToUpper();
+            entity.ConsigneeAddressRu = billOfLadingDto.ConsigneeAddressRu.FixCsvContent().ToUpper();
+            entity.ConsigneeCountryRu = billOfLadingDto.ConsigneeCountryRu.FixCsvContent().ToUpper();
+
+            entity.CargoDescriptionRu = billOfLadingDto.CargoDescriptionRu.FixCsvContent().ToUpper().Replace(";", ",");
+            entity.CustomsMode = billOfLadingDto.CustomsMode.FixCsvContent().ToUpper();
+
+
+            if (billOfLadingDto.ContainerRecords.Any())
+            {
+                foreach (var containerRecordDto in billOfLadingDto.ContainerRecords)
+                {
+                    var containerRecord =
+                        entity.ContainerRecords.FirstOrDefault(s => s.ContainerNo == containerRecordDto.ContainerNo);
+                    if (containerRecord == null) continue;
+
+                    containerRecord.CargoDescriptionRu = containerRecordDto.CargoDescriptionRu.FixCsvContent().ToUpper().Replace(";", ",");
+                }
+            }
+            else
+            {
+                foreach (var containerRecord in entity.ContainerRecords)
+                    containerRecord.CargoDescriptionRu = billOfLadingDto.CargoDescriptionRu.FixCsvContent().ToUpper().Replace(";", ",");
+            }
+
+
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+    }
+
+    public async Task UpdateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingDtos, VesselCallDto? vesselCall,
+        CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+        foreach (var billOfLadingDto in billOfLadingDtos)
+        {
+            var entity = await db.Set<BillOfLadingBaseEntity>().AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Num == billOfLadingDto.Num, cancellationToken: cancellationToken);
+
+            if (entity == null) continue;
+
+            // Обновляем основную сущность
+            entity.ReUpdateEntity(billOfLadingDto);
+            var pol = await _portService.GetByIsoCodeAsync(billOfLadingDto.Pol?.IsoCode, cancellationToken);
+
+            if (pol != null)
+                entity.PolId = pol.Id;
+            else
+            {
+                var newPol = new PortDto()
+                {
+                    NameRu = billOfLadingDto.Pol.IsoCode,
+                    NameEn = billOfLadingDto.Pol.IsoCode,
+                    CountryEn = billOfLadingDto.Pol.IsoCode,
+                    CountryRu = billOfLadingDto.Pol.IsoCode,
+                    IsoCode = billOfLadingDto.Pol.IsoCode,
+                    PikYugIsoCode = billOfLadingDto.Pol.IsoCode,
+                    HandledBySystem = true,
+                };
+
+                var Pol = await _portService.CreateAsync(newPol, cancellationToken);
+                entity.PolId = Pol.Id;
+
+            }
+
+            db.Entry(entity).State = EntityState.Modified;
+            var bug = db.ChangeTracker.DebugView.LongView;
+            await db.SaveChangesAsync(cancellationToken);
+            db.ChangeTracker.Clear();
+
+
+            // Удаляем старые записи контейнеров
+            var entityContainerRecords = await db.Set<BillOfLadingContainerRecordBaseDto>().AsNoTracking()
+                .Where(s => s.BillOfLadingId == entity.Id).ToListAsync(cancellationToken);
+
+            if (entityContainerRecords.Any())
+                foreach (var containerRecord in entityContainerRecords)
+                {
+                    db.Entry(containerRecord).State = EntityState.Deleted;
+
+                    //var currentContainerIds = entity.ContainerRecords
+                    //    .Select(c => c.Id)
+                    //    .ToList();
+                    //await db.Set<BillOfLadingContainerRecordBaseEntity>()
+                    //    .Where(c => currentContainerIds.Contains(c.Id))
+                    //    .ExecuteDeleteAsync(cancellationToken);
+                }
+
+            bug = db.ChangeTracker.DebugView.LongView;
+            await db.SaveChangesAsync(cancellationToken);
+            db.ChangeTracker.Clear();
+
+
+            // Если в DTO есть новые контейнеры, добавляем их
+            if (billOfLadingDto.ContainerRecords.Any())
+            {
+                foreach (var containerDto in billOfLadingDto.ContainerRecords)
+                {
+                    var containerEntity = containerDto.ToEntity();
+                    entity.ContainerRecords.Add(containerEntity);
+                    containerEntity.BillOfLadingBaseEntityId = entity.Id;
+                    db.Entry(containerEntity).State = EntityState.Added;
+
+                }
+            }
+            db.Entry(entity).State = EntityState.Modified;
+            bug = db.ChangeTracker.DebugView.LongView;
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+
+    }
+
+    public async Task<IEnumerable<string>> CheckBillNumbersExistsAsync(IEnumerable<string> parsedBillsNum, CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+        var list = await db.Set<BillOfLadingBaseEntity>().AsNoTracking().Where(s => parsedBillsNum.Any(n => n == s.Num))
+            .Select(s => s.Num).ToListAsync(cancellationToken);
+
+        return list;
     }
 
     private async Task ValidateVesselCall(Guid vesselCallId, CancellationToken cancellationToken)
@@ -304,4 +452,7 @@ public class BillOfLadingService : IBillOfLadingService
             throw new ArgumentException($"Vessel call with ID {vesselCallId} does not exist");
         }
     }
+
+
+
 }

@@ -1,4 +1,4 @@
-﻿    using ExportOrderEntites.AuditLog;
+﻿using ExportOrderEntites.AuditLog;
 using ExportOrderEntites.BillofLading;
 using ExportOrderEntites.EmailLogRecords;
 using ExportOrderEntites.ImportDocument;
@@ -120,9 +120,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         modelBuilder.Entity<BillOfLadingBaseEntity>(entity =>
         {
             entity.ToTable(name: "Import_BillOfLadings");
+            entity.HasQueryFilter(s => s.DeletedAt == null);
             entity.HasMany(s => s.ContainerRecords);
         });
-        modelBuilder.Entity<BillOfLadingContainerRecordBaseEntity>(entity => { entity.ToTable(name: "Import_BillOfLading_ContainerRecords"); });
+        modelBuilder.Entity<BillOfLadingContainerRecordBaseEntity>(entity => { entity.ToTable(name: "Import_BillOfLading_ContainerRecords");
+            entity.HasQueryFilter(s => s.DeletedAt == null);
+        });
         modelBuilder.Entity<VesselBaseEntity>(entity => { entity.ToTable(name: "Import_Vessels"); });
         modelBuilder.Entity<VesselCallBaseEntity>(entity =>
         {
@@ -224,7 +227,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                     entity.CreatedBy = currentUser;
                     entity.Version = 1;
                     entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-       
+
                     break;
 
                 case EntityState.Modified:

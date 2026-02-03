@@ -147,44 +147,45 @@ services.AddTransient<IReleaseService, ReleaseService>();
 
 //Import Document
 // Регистрация репозиториев
-builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+builder.Services.AddTransient(typeof(IRepository<>), typeof(GenericRepository<>));
 //builder.Services.AddScoped<ICrudProvider<BookingBaseEntity>, BookingCrudProvider>();
-builder.Services.AddScoped<ICrudProvider<VesselBaseEntity>, VesselCrudProvider>();
-builder.Services.AddScoped<ICrudProvider<PortBaseEntity>, PortCrudProvider>();
-builder.Services.AddScoped<ICrudProvider<CustomerBaseEntity>, CustomerCrudProvider>();
-builder.Services.AddScoped<ICrudProvider<VesselCallBaseEntity>, VesselCallCrudProvider>();
-builder.Services.AddScoped<ICrudProvider<BillOfLadingBaseEntity>, BillOfLadingCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<VesselBaseEntity>, VesselCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<PortBaseEntity>, PortCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<CustomerBaseEntity>, CustomerCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<VesselCallBaseEntity>, VesselCallCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<BillOfLadingBaseEntity>, BillOfLadingCrudProvider>();
 //builder.Services.AddScoped<ICrudProvider<BillOfLadingContainerRecordBaseEntity>, ContainerRecordCrudProvider>();
 
-builder.Services.AddScoped<IVesselCallService, VesselCallService>();
+builder.Services.AddTransient<IVesselCallService, VesselCallService>();
 builder.Services.AddTransient<IValidator<VesselCallDto>, VesselCallDtoValidator>();
-builder.Services.AddScoped<ICrudProvider<VesselCallBaseEntity>, VesselCallCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<VesselCallBaseEntity>, VesselCallCrudProvider>();
 
-builder.Services.AddScoped<IVesselService, VesselService>();
+builder.Services.AddTransient<IVesselService, VesselService>();
 builder.Services.AddTransient<IValidator<VesselDto>, VesselDtoValidator>();
-builder.Services.AddScoped<ICrudProvider<VesselBaseEntity>, VesselCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<VesselBaseEntity>, VesselCrudProvider>();
 
-builder.Services.AddScoped<ITerminalService, TerminalService>();
+builder.Services.AddTransient<ITerminalService, TerminalService>();
 builder.Services.AddTransient<IValidator<TerminalDto>, TerminalDtoValidator>();
-builder.Services.AddScoped<ICrudProvider<TerminalBaseEntity>, TerminalCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<TerminalBaseEntity>, TerminalCrudProvider>();
 
-builder.Services.AddScoped<IPortService, PortService>();
+builder.Services.AddTransient<IPortService, PortService>();
 builder.Services.AddTransient<IValidator<PortDto>, PortDtoValidator>();
-builder.Services.AddScoped<ICrudProvider<PortBaseEntity>, PortCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<PortBaseEntity>, PortCrudProvider>();
 
-builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddTransient<ICustomerService, CustomerService>();
 builder.Services.AddTransient<IValidator<CustomerDto>, CustomerDtoValidator>();
-builder.Services.AddScoped<ICrudProvider<CustomerBaseEntity>, CustomerCrudProvider>();
+builder.Services.AddTransient<ICrudProvider<CustomerBaseEntity>, CustomerCrudProvider>();
 
 
-builder.Services.AddScoped<IBillOfLadingService, BillOfLadingService>();
-builder.Services.AddScoped<IVesselCallService, VesselCallService>();
+builder.Services.AddTransient<IBillOfLadingService, BillOfLadingService>();
+builder.Services.AddTransient<IVesselCallService, VesselCallService>();
 
 // Добавить валидаторы
 builder.Services.AddTransient<IValidator<BillOfLadingBaseDto>, BillOfLadingDtoValidator>();
 builder.Services.AddTransient<IValidator<BillOfLadingContainerRecordBaseDto>, BillOfLadingContainerRecordDtoValidator>();
 
 
+builder.Services.AddScoped<IGoogleSheetsParser, GoogleSheetsParser>();
 builder.Services.AddScoped<IExcelExportService, ClosedXmlExcelExportService>();
 builder.Services.AddScoped<IArrivalNoticeExportService, ArrivalNoticeExportService>();
 

@@ -22,7 +22,7 @@ public static class BillOfLadingMapper
             CustomerCode = entity.CustomerCode,
             BookingParty = entity.BookingParty,
             Origin = entity.Origin,
-            Pol = entity.Pol.ToDto(),
+            Pol = entity.Pol?.ToDto(),
             Pod = entity.Pod,
             FinalPod = entity.FinalPod,
             Shipper = entity.Shipper,
@@ -224,6 +224,67 @@ public static class BillOfLadingMapper
         //        entity.ContainerRecords.Add(containerEntity);
         //    }
         //}
+    }
+    public static void ReUpdateEntity(this BillOfLadingBaseEntity entity, Dto.BillOfLadingBaseDto baseDto)
+    {
+        if (entity == null) throw new ArgumentNullException(nameof(entity));
+        if (baseDto == null) throw new ArgumentNullException(nameof(baseDto));
+
+        entity.Date = baseDto.Date.Value;
+        entity.CustomerCode = baseDto.CustomerCode;
+        entity.BookingParty = baseDto.BookingParty;
+        entity.Origin = baseDto.Origin;
+        entity.PolId = baseDto.Pol?.Id;
+        entity.Pod = baseDto.Pod;
+        entity.FinalPod = baseDto.FinalPod;
+        entity.Shipper = baseDto.Shipper;
+        entity.ShipperCode = baseDto.ShipperCode;
+        entity.ShipperName = baseDto.ShipperName;
+        entity.ShipperAddress = baseDto.ShipperAddress;
+        entity.Consignee = baseDto.Consignee;
+        entity.ConsigneeCode = baseDto.ConsigneeCode;
+        entity.ConsigneeName = baseDto.ConsigneeName;
+        entity.ConsigneeAddress = baseDto.ConsigneeAddress;
+        entity.PartBl = baseDto.PartBl;
+        entity.CargoDescription = baseDto.CargoDescription;
+        entity.CustomsMode = baseDto.CustomsMode;
+
+        //Обновляем контейнерные записи
+        if (baseDto.ContainerRecords.Any())
+        {
+            entity.ContainerRecords.Clear();
+            foreach (var containerDto in baseDto.ContainerRecords)
+            {
+                entity.ContainerRecords.Add(containerDto.ToEntity());
+            }
+        }
+    }
+    public static void ReUpdateEntity(this BillOfLadingContainerRecordBaseEntity entity, Dto.BillOfLadingContainerRecordBaseDto baseDto)
+    {
+        if (entity == null) throw new ArgumentNullException(nameof(entity));
+        if (baseDto == null) throw new ArgumentNullException(nameof(baseDto));
+
+        entity.ContainerTypeId = baseDto.ContainerTypeId;
+        entity.IsoCode = baseDto.IsoCode;
+        entity.TareWt = baseDto.TareWt;
+        entity.FullOrEmpty = baseDto.FullOrEmpty;
+        entity.IsSoc = baseDto.IsSoc;
+        entity.SealNo = baseDto.SealNo;
+        entity.PackageType = baseDto.PackageType;
+        entity.NoOfPackage = baseDto.NoOfPackage;
+        entity.GrossWeight = baseDto.GrossWeight;
+        entity.GrossWeightUOM = baseDto.GrossWeightUOM;
+        entity.Volume = baseDto.Volume;
+        entity.OutOfGauge = baseDto.OutOfGauge;
+        entity.IMCOClass = baseDto.IMCOClass;
+        entity.IMCONumber = baseDto.IMCONumber;
+        entity.ReeferTempSign = baseDto.ReeferTempSign;
+        entity.ReeferTemp = baseDto.ReeferTemp;
+        entity.ReeferTempUOM = baseDto.ReeferTempUOM;
+        entity.ReeferHumidity = baseDto.ReeferHumidity;
+        entity.ReeferVentilation = baseDto.ReeferVentilation;
+        entity.ContainerAsCargo = baseDto.ContainerAsCargo;
+        entity.HandledBySystem = baseDto.HandledBySystem;
     }
     public static void UpdateEntity(this BillOfLadingContainerRecordBaseEntity entity, Dto.BillOfLadingContainerRecordBaseDto baseDto)
     {

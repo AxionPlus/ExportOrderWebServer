@@ -1,61 +1,164 @@
-﻿@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+﻿@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Controller
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Services
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
 @inject IHttpClientFactory HttpClientFactory
 @inject ISnackbar Snackbar
 @inject IVesselCallService VesselCallService
+@inject IDialogService DialogService
+
+@inject IXMLParserService _parserService;
+@inject IBillOfLadingService _billOfLadingService;
+
 
 <MudDialog>
     <DialogContent>
         <MudForm @ref="form" @bind-IsValid="@isValid" @bind-Errors="@errors">
             <MudGrid>
-                <MudItem xs="12">
+                <MudItem xs="12" md="12">
                     <MudAlert Severity="Severity.Info" Class="mb-3">
                         Select one or more XML manifest files to upload and process.
                     </MudAlert>
                 </MudItem>
-                <MudItem xs="12" sm="6" md="4">
-                    <VesselVoaygeSelector @bind-VesselCall="@VesselCall" />
+
+                <MudItem xs="12" md="12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <VesselVoaygeSelector @bind-VesselCall="@VesselCall" />
+                        <div>
+                            <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".xml" MaximumFileCount="100">
+                                <ActivatorContent>
+                                    @if (!isUploading)
+                                    {
+                                        <MudButton Variant="Variant.Filled"
+                                                   Color="Color.Primary"
+                                                   StartIcon="@Icons.Material.Filled.CloudUpload">
+                                            Multiple Files
+                                        </MudButton>
+                                    }
+                                    else
+                                    {
+                                        <MudButton Variant="Variant.Filled" Disabled
+                                                   Color="Color.Primary"
+                                                   StartIcon="@Icons.Material.Filled.CloudUpload">
+                                            Multiple Files
+                                        </MudButton>
+                                    }
+                                </ActivatorContent>
+                            </MudFileUpload>
+                        </div>
+                    </div>
                 </MudItem>
 
-                <MudItem xs="12" Class="mt-3">
+                <MudItem xs="12" md="12" Class="mt-3">
 
-                    <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".xml">
-                        <ActivatorContent>
-                            <MudButton Variant="Variant.Filled"
-                                       Color="Color.Primary"
-                                       StartIcon="@Icons.Material.Filled.CloudUpload">
-                                Multiple Files
-                            </MudButton>
-                        </ActivatorContent>
-                    </MudFileUpload>
 
-                    @if (files.Any())
+
+                    @if (isUploading)
                     {
-                        <MudList T="string">
-                            @foreach (var file in files)
+                        <div class="d-flex m-auto justify-items-center">
+                            <MudProgressCircular Color="Color.Primary" Value="@_value" Size="Size.Large">
+                                @_value %
+                            </MudProgressCircular>
+                        </div>
+                    }
+                    else
+                    {
+
+
+                        if (files.Any())
+                        {
+                            <MudList T="string">
+                                @foreach (var file in files)
+                                {
+                                    <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+                                        @file.Name <code class="ml-2">@file.Size bytes</code>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        }
+
+                        <div class="d-flex">
+
+                            @if (UploadManifestResponse != null && UploadManifestResponse.ExistedBills.Any())
                             {
-                                <MudListItem Icon="@Icons.Material.Filled.AttachFile">
-                                    @file.Name <code>@file.Size bytes</code>
-                                </MudListItem>
+
+                                <MudTable Style="width:380px; margin-right:20px" T="BillOfLadingBaseDto" @bind-SelectedItems="SelectedBillOfLadingDtos" MultiSelection Items="@UploadManifestResponse.ExistedBills.GroupBy(s => s.Num).Where(s => s.Count() == 1).SelectMany(s => s.ToList()).OrderBy(s => s.Num).ToList()"
+                                          Striped Dense Hover FixedHeader Height="@("450px")">
+                                    <ToolBarContent>
+                                        <MudButton OnClick="OnUpdateBillOfLading" Color="Color.Secondary" Variant="Variant.Text" Disabled="@(!SelectedBillOfLadingDtos.Any())">Update</MudButton>
+                                        <MudSpacer />
+                                        <MudText Typo="Typo.h6">Ttl: @UploadManifestResponse.ExistedBills.GroupBy(s => s.Num).Where(s => s.Count() == 1).SelectMany(s => s.ToList()).OrderBy(s => s.Num).ToList().Count()</MudText>
+                                        <MudSpacer />
+                                        <MudText Typo="Typo.h6">Slct: @SelectedBillOfLadingDtos.Count()</MudText>
+                                    </ToolBarContent>
+
+                                    <HeaderContent>
+                                        <MudTh>BillOfLading</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="BillOfLading">@context.Num</MudTd>
+                                    </RowTemplate>
+
+                                </MudTable>
                             }
-                        </MudList>
+
+                            @if (UploadManifestResponse != null && UploadManifestResponse.ExistedBills.GroupBy(s => s.Num).Any(s => s.Count() > 1))
+                            {
+
+                                <MudTable T="BillOfLadingBaseDto" @bind-SelectedItems="SelectedDuplicateBillOfLadingDtos" MultiSelection Items="@UploadManifestResponse.ExistedBills.GroupBy(s => s.Num).Where(s => s.Count() > 1).SelectMany(s => s.ToList()).OrderBy(s => s.Num).ToList()"
+                                          Striped Dense Hover FixedHeader Height="@("450px")">
+                                    <ToolBarContent>
+                                        <MudButton OnClick="OnUpdateDuplicateBillOfLading" Color="Color.Secondary" Variant="Variant.Text" Disabled="@(!SelectedDuplicateBillOfLadingDtos.Any())">Update</MudButton>
+                                        <MudButton OnClick="OnCompareBillOfLading" Color="Color.Info" Variant="Variant.Text" Disabled="@(!SelectedDuplicateBillOfLadingDtos.Any())">Compare</MudButton>
+                                        <MudSpacer />
+                                        <MudText Typo="Typo.h6">Total: @UploadManifestResponse.ExistedBills.GroupBy(s => s.Num).Where(s => s.Count() > 1).SelectMany(s => s.ToList()).OrderBy(s => s.Num).ToList().Count()</MudText>
+                                        <MudSpacer />
+                                        <MudText Typo="Typo.h6">Select: @SelectedDuplicateBillOfLadingDtos.Count()</MudText>
+                                    </ToolBarContent>
+                                    <HeaderContent>
+                                        <MudTh>BillOfLading</MudTh>
+                                        <MudTh>FileName</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="BillOfLading">@context.Num</MudTd>
+                                        <MudTd DataLabel="FileName">@context.FileName</MudTd>
+                                    </RowTemplate>
+
+                                </MudTable>
+                            }
+                        </div>
+
                     }
                 </MudItem>
+
+                @if (files.Any())
+                {
+                    <h5 class="ml-3 mt-3">Total files: @files.Count</h5>
+                }
+
 
             </MudGrid>
         </MudForm>
     </DialogContent>
 
     <DialogActions>
-        <MudButton OnClick="Cancel" Variant="Variant.Text">Cancel</MudButton>
-        <MudButton OnClick="UploadAsync"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Disabled="@((VesselCall == null && !files.Any() ) || isUploading)"
-                   StartIcon="@Icons.Material.Filled.Upload">
-            @(isUploading ? "Uploading..." : "Upload")
-        </MudButton>
+        @if (files.Any())
+        {
+            <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Error">Cancel</MudButton>
+            <MudButton OnClick="UploadAsync"
+                       Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       Disabled="@(VesselCall == null || isUploading )"
+                       StartIcon="@Icons.Material.Filled.Upload">
+                @(isUploading ? "Uploading..." : "Upload")
+            </MudButton>
+        }
+        @if (@UploadManifestResponse != null && @UploadManifestResponse.ExistedBills.Any())
+        {
+            <MudButton OnClick="() => { UploadManifestResponse = new(); }" Variant="Variant.Text" Color="Color.Error" Disabled="@(isUploading)">Cancel</MudButton>
+        }
     </DialogActions>
 </MudDialog>
 
@@ -69,15 +172,32 @@
     private string[] errors = Array.Empty<string>();
     private bool isUploading = false;
     private string fileError = string.Empty;
+    private UploadManifestResponse? UploadManifestResponse;
+
+
+    private TableGroupDefinition<BillOfLadingBaseDto> _groupDefinition = new()
+    {
+        GroupName = "Group",
+        Indentation = true,
+        Expandable = true,
+        Selector = (e) => e.Num
+
+
+    };
+
+    public HashSet<BillOfLadingBaseDto> SelectedBillOfLadingDtos = new HashSet<BillOfLadingBaseDto>();
+    public HashSet<BillOfLadingBaseDto> SelectedDuplicateBillOfLadingDtos = new HashSet<BillOfLadingBaseDto>();
+    double _value = 0;
 
     IList<IBrowserFile> files = new List<IBrowserFile>();
 
     private void UploadFiles(IReadOnlyList<IBrowserFile> files)
     {
         foreach (var file in files)
-        {
-            this.files.Add(file);
-        }
+            if (!this.files.Contains(file))
+            {
+                this.files.Add(file);
+            }
         //TODO upload the files to the server
     }
 
@@ -97,7 +217,7 @@
 
     private void Cancel()
     {
-        MudDialog.Cancel();
+        files = new List<IBrowserFile>();
     }
 
     private async Task UploadAsync()
@@ -108,81 +228,193 @@
             return;
         }
 
+        if (VesselCall == null || VesselCall.Id == Guid.Empty)
+        {
+            Snackbar.Add("Please select a vessel call", Severity.Error);
+            return;
+        }
         isUploading = true;
+        StateHasChanged();
 
+        UploadManifestResponse = new UploadManifestResponse();
+
+        int i = 0;
+
+        var parsedBills = new List<BillOfLadingBaseDto>();
+        double progress = Math.Round((double)(100 / files.Count()), 2);
+
+        foreach (var file in files)
+        {
+            try
+            {
+                UploadManifestResponse.ProcessedFiles++;
+
+                using var memoryStream = new MemoryStream();
+                await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                using var reader = new StreamReader(memoryStream);
+                var xmlContent = await reader.ReadToEndAsync();
+
+                var parsedBillsFile = _parserService.ParseManifest(xmlContent);
+
+                foreach (var parsedBillFile in parsedBillsFile)
+                {
+                    parsedBillFile.FileName = file.Name;
+                    parsedBills.Add(parsedBillFile);
+                }
+
+
+                UploadManifestResponse.ParsedBills += parsedBillsFile.Count;
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error processing file '{file.Name}': {ex.Message}");
+                isUploading = false;
+            }
+
+            _value = progress * i++;
+            StateHasChanged();
+        }
+        _value = 100;
+
+        await Task.Delay(300);
+
+        progress = Math.Round((double)(100 / parsedBills.Count()), 2);
+        _value = 0;
+        StateHasChanged();
+
+
+        var parsedBillsNum = parsedBills.Select(s => s.Num);
+
+        var existsBills = await _billOfLadingService.CheckBillNumbersExistsAsync(parsedBillsNum);
+
+
+        UploadManifestResponse.ExistedBills = parsedBills.Where(s => existsBills.Any(n => n == s.Num)).ToList();
+        UploadManifestResponse.SkippedBills = UploadManifestResponse.ExistedBills.Count();
+
+
+        var parsedCreateBills = parsedBills.Where(s => !existsBills.Contains(s.Num)).ToList();
+        if (parsedCreateBills.Any())
+            foreach (var billDto in parsedCreateBills)
+            {
+                _value = progress * i++;
+                StateHasChanged();
+                try
+                {
+
+                    billDto.VesselCallId = VesselCall.Id;
+
+                    var createdBill = await _billOfLadingService.CreateAsync(billDto);
+                    UploadManifestResponse.SavedBills++;
+                    UploadManifestResponse.Bills.Add(createdBill);
+
+                }
+                catch (Exception ex)
+                {
+                    UploadManifestResponse.Errors.Add($"Error saving bill '{billDto.Num}': {ex.Message}");
+                    isUploading = false;
+                }
+
+            }
+
+        files = new List<IBrowserFile>();
+
+        isUploading = false;
+        StateHasChanged();
+    }
+
+    private async Task OnUpdateBillOfLading()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Update BillOfLading",
+            (MarkupString)$"Do you want to Update BillOfLadings ({SelectedBillOfLadingDtos.Count()})?",
+            yesText: "Yes,do it!", cancelText: "No");
+
+        if (!result.HasValue || !result.Value)
+            return;
+
+        isUploading = true;
+        StateHasChanged();
+        var task = Task.Run(() => { _value++; });
         try
         {
-            using var content = new MultipartFormDataContent();
-
-            // Добавляем параметры
-            if (VesselCall == null)
-                return;
-            else
-            {
-                content.Add(new StringContent(VesselCall.Id.ToString()), "VesselCallId");
-            }
-
-            if (!string.IsNullOrEmpty(VesselCall.Vessel.Name))
-            {
-                content.Add(new StringContent(VesselCall.Vessel.Name), "VesselName");
-            }
-
-            if (!string.IsNullOrEmpty(VesselCall.VoyageNo))
-            {
-                content.Add(new StringContent(VesselCall.VoyageNo), "VoyageNumber");
-            }
-
-
-            // Добавляем файлы
-            foreach (var file in files)
-            {
-                var fileContent = new StreamContent(file.OpenReadStream(10485760)); // 10MB limit
-                content.Add(fileContent, "Files", file.Name);
-            }
-            var httpClient = HttpClientFactory.CreateClient("ManifestClient");
-            httpClient.Timeout = TimeSpan.FromMinutes(10); // Увеличьте таймаут
-
-            var response = await httpClient.PostAsync($"{ApplicationParameter.PostUrl}/api/manifest/upload", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var result = await response.Content.ReadFromJsonAsync<UploadManifestResponse>();
-
-                if (result.Success)
-                {
-                    Snackbar.Add($"Successfully uploaded {result.SavedBills} bill(s) of lading", Severity.Success);
-
-                    if (result.Warnings.Any())
-                    {
-                        foreach (var warning in result.Warnings)
-                        {
-                            Snackbar.Add(warning, Severity.Warning);
-                        }
-                    }
-
-                    MudDialog.Close(DialogResult.Ok(true));
-                }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        Snackbar.Add(error, Severity.Error);
-                    }
-                }
-            }
-            else
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Upload failed: {response.StatusCode} - {errorContent}", Severity.Error);
-            }
+            await _billOfLadingService.UpdateAsync(SelectedBillOfLadingDtos, VesselCall);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error uploading files: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Error saving bills: {ex.Message}");
+            isUploading = false;
         }
         finally
         {
+            task.Dispose();
             isUploading = false;
+            StateHasChanged();
         }
     }
+    private async Task OnUpdateDuplicateBillOfLading()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Update BillOfLading",
+            (MarkupString)$"Do you want to Update BillOfLadings ({SelectedDuplicateBillOfLadingDtos.Count()})?",
+            yesText: "Yes,do it!", cancelText: "No");
+
+        if (!result.HasValue || !result.Value)
+            return;
+
+        isUploading = true;
+        StateHasChanged();
+        var task = Task.Run(() =>
+        {
+            while (true)
+            {
+                _value++;
+
+                if (_value > 99)
+                    _value = 2;
+
+                StateHasChanged();
+            }
+        });
+
+        try
+        {
+            await _billOfLadingService.UpdateAsync(SelectedDuplicateBillOfLadingDtos, VesselCall);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving bills: {ex.Message}");
+            isUploading = false;
+        }
+        finally
+        {
+            task.Dispose();
+            isUploading = false;
+            StateHasChanged();
+        }
+    }
+    private async Task OnCompareBillOfLading()
+    {
+        var parameters = new DialogParameters
+        {
+            ["List"] = SelectedDuplicateBillOfLadingDtos.ToList(),
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            BackdropClick = false,
+        };
+
+        var dialog = await DialogService.ShowAsync<CompareDialog>("Compare Bill of Lading", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+        }
+    }
+
 }

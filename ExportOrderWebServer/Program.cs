@@ -40,6 +40,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 // Регистрируем провайдер кодировок (добавьте в самое начало)
@@ -48,17 +49,20 @@ IServiceCollection services = builder.Services;
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+dataSourceBuilder.EnableDynamicJson();
+var dataSource = dataSourceBuilder.Build();
+
+
 // Add services to the container.
-services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseNpgsql(connectionString,
-                    optionsBuilder => optionsBuilder.MigrationsAssembly("ExportOrderWebServer"));
-},
-ServiceLifetime.Transient);
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(dataSource, optionsBuilder =>
+        optionsBuilder.MigrationsAssembly("ExportOrderWebServer")
+    ));
 
 services.AddDbContextFactory<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(connectionString);
+    options.UseNpgsql(dataSource);
 },
 ServiceLifetime.Transient);
 

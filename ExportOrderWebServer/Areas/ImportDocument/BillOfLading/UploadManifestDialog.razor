@@ -57,7 +57,7 @@
 
                     @if (isUploading)
                     {
-                        <div class="d-flex m-auto justify-items-center">
+                        <div class="d-flex align-items-center justify-items-center">
                             <MudProgressCircular Color="Color.Primary" Value="@_value" Size="Size.Large">
                                 @_value %
                             </MudProgressCircular>
@@ -163,7 +163,7 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public VesselCallDto? VesselCall { get; set; }
 
@@ -173,6 +173,8 @@
     private bool isUploading = false;
     private string fileError = string.Empty;
     private UploadManifestResponse? UploadManifestResponse;
+    private System.Timers.Timer _progressTimer;
+    private bool _isDisposed;
 
 
     private TableGroupDefinition<BillOfLadingBaseDto> _groupDefinition = new()
@@ -280,10 +282,10 @@
 
         await Task.Delay(300);
 
-        progress = Math.Round((double)(100 / parsedBills.Count()), 2);
-        _value = 0;
         StateHasChanged();
 
+        progress = Math.Round((double)(100 / parsedBills.Count()), 2);
+        _value = 0;
 
         var parsedBillsNum = parsedBills.Select(s => s.Num);
 
@@ -335,8 +337,10 @@
             return;
 
         isUploading = true;
+        // Запускаем таймер для анимации
+        StartProgressTimer();
         StateHasChanged();
-        var task = Task.Run(() => { _value++; });
+
         try
         {
             await _billOfLadingService.UpdateAsync(SelectedBillOfLadingDtos, VesselCall);
@@ -348,8 +352,15 @@
         }
         finally
         {
-            task.Dispose();
+
             isUploading = false;
+            StopProgressTimer();
+            SelectedBillOfLadingDtos = new HashSet<BillOfLadingBaseDto>();
+            if (!_isDisposed)
+            {
+                isUploading = false;
+                StateHasChanged();
+            }
             StateHasChanged();
         }
     }
@@ -364,19 +375,10 @@
             return;
 
         isUploading = true;
+        // Запускаем таймер для анимации
+        StartProgressTimer();
         StateHasChanged();
-        var task = Task.Run(() =>
-        {
-            while (true)
-            {
-                _value++;
 
-                if (_value > 99)
-                    _value = 2;
-
-                StateHasChanged();
-            }
-        });
 
         try
         {
@@ -389,8 +391,15 @@
         }
         finally
         {
-            task.Dispose();
+            StopProgressTimer();
+
+            if (!_isDisposed)
+            {
+                isUploading = false;
+                StateHasChanged();
+            }
             isUploading = false;
+            SelectedDuplicateBillOfLadingDtos = new HashSet<BillOfLadingBaseDto>();
             StateHasChanged();
         }
     }
@@ -417,4 +426,33 @@
         }
     }
 
+
+    private void StartProgressTimer()
+    {
+        _progressTimer = new System.Timers.Timer(2000);
+        _progressTimer.Elapsed += async (sender, e) =>
+        {
+            _value++;
+            if (_value > 99) _value = 1;
+
+            await InvokeAsync(StateHasChanged);
+        };
+        _progressTimer.Start();
+    }
+
+    private void StopProgressTimer()
+    {
+        if (_progressTimer != null)
+        {
+            _progressTimer.Stop();
+            _progressTimer.Dispose();
+            _progressTimer = null;
+        }
+    }
+
+    public void Dispose()
+    {
+        _isDisposed = true;
+        StopProgressTimer();
+    }
 }

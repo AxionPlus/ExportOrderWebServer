@@ -124,7 +124,7 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     
     [Parameter] public Guid VesselCallId { get; set; }
     [Parameter] public VesselCallDto VesselCall { get; set; }

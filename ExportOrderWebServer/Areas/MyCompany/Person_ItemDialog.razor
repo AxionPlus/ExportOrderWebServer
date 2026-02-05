@@ -93,7 +93,7 @@
 }
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     private MudForm? Form { get; set; }
     [Parameter]
     public long? Id { get; set; }

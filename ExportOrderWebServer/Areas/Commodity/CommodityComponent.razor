@@ -117,7 +117,7 @@
 @code {
     [Parameter]
     public string? ApplicationUser { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     private MudTable<CommodityCatalog> mudTable = new();
 
     [Parameter]

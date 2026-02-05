@@ -25,7 +25,7 @@
     [Parameter]
     public string? ApplicationUser { get; set; }
     private MudForm Form { get; set; } = new();
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = new();
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
     private bool IsDialogResultOk { get; set; } = false;
     
     private MudTextField<ushort?> NewItemCode { get; set; } = new();

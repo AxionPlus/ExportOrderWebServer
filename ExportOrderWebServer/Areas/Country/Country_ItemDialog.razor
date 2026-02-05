@@ -29,7 +29,7 @@
 @code {
     private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = new();
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
     private bool IsDialogResultOk { get; set; } = false;
 
     [Parameter]

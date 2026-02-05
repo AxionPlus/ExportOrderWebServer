@@ -127,7 +127,7 @@ else
     [Parameter]
     public CustomerDto CustomerDto { get; set; } = new CustomerDto();
     [CascadingParameter]
-    MudDialogInstance? MudDialog { get; set; }
+    IMudDialogInstance? MudDialog { get; set; }
     bool IsLoading;
     MudForm? mudForm;
     private string Title => CustomerDto.IsNew ? "New Customer" : "Edit Customer";

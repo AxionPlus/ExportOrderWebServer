@@ -133,7 +133,7 @@
     [CascadingParameter] public string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
     private MudTable<ContainerContent>? mudTable;
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = new();
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
     public ExportOrderRecord Item { get; set; } = new();

@@ -7,7 +7,7 @@
     <MudButton Style="margin-top:10px" OnClick="Close" Color="Color.Success">Release</MudButton>
 </div>
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     private DateTime? Date { get; set; } = DateTime.Today.AddDays(1);
 
 

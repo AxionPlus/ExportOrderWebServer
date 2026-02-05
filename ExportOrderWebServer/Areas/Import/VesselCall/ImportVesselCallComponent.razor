@@ -205,7 +205,7 @@
 @code {
     public string? ApplicationUser { get; set; }
     private MudTable<VesselCallDetailDTO> mudTable = new();
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     [Parameter]
     public bool IsSelectable { get; set; } = false;    
 

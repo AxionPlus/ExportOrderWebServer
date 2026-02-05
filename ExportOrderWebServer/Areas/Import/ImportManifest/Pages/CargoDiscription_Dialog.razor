@@ -17,7 +17,7 @@
 
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     [Parameter] public string CargoDesctiption { get; set; }
 
     [Parameter] public IEnumerable<BillOfLadingContainerRecordDto> Records { get; set; } = new List<BillOfLadingContainerRecordDto>();

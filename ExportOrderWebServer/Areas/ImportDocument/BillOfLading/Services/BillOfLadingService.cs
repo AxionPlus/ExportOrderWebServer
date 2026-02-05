@@ -132,12 +132,7 @@ public class BillOfLadingService : IBillOfLadingService
             // Проверяем существование связанной сущности VesselCall
             await ValidateVesselCall(baseDto.VesselCallId, cancellationToken);
 
-            // Устанавливаем BillOfLadingId для ContainerRecords
-            foreach (var containerRecord in baseDto.ContainerRecords)
-            {
-                containerRecord.BillOfLadingId = baseDto.Id;
-            }
-
+  
 
             var pol = await _portService.GetByIsoCodeAsync(baseDto.Pol?.IsoCode, cancellationToken);
 
@@ -390,8 +385,8 @@ public class BillOfLadingService : IBillOfLadingService
 
 
             // Удаляем старые записи контейнеров
-            var entityContainerRecords = await db.Set<BillOfLadingContainerRecordBaseDto>().AsNoTracking()
-                .Where(s => s.BillOfLadingId == entity.Id).ToListAsync(cancellationToken);
+            var entityContainerRecords = await db.Set<BillOfLadingContainerRecordBaseEntity>().AsNoTracking()
+                .Where(s => s.BillOfLadingBaseEntityId == entity.Id).ToListAsync(cancellationToken);
 
             if (entityContainerRecords.Any())
                 foreach (var containerRecord in entityContainerRecords)

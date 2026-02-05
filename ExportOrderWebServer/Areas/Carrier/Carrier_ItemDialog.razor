@@ -109,7 +109,7 @@
     private MudTable<CarrierTerminalDetails>? mudTable;
 
     [CascadingParameter]
-    private MudDialogInstance MudDialog { get; set; } = new();
+    private IMudDialogInstance? MudDialog { get; set; } 
     private bool IsDialogResultOk { get; set; } = false;
 
     [Parameter]

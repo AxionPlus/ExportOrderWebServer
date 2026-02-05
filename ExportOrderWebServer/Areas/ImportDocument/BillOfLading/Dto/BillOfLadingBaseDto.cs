@@ -126,5 +126,5 @@ public class BillOfLadingContainerRecordBaseDto : BaseEntity
 
     public bool ContainerAsCargo { get; set; }
     public string? CargoDescriptionRu { get; set; }
-    public Guid BillOfLadingId { get; set; }
+
 }

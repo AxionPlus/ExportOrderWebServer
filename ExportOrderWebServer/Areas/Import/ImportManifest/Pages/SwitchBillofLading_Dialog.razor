@@ -35,7 +35,7 @@
     <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="() => MudDialog?.Cancel()">Cancel</MudButton>
 </div>
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     [Parameter] public BillOfLadingDto? BillofLading { get; set; }
     [Parameter] public string? ApplicationUser { get; set; }
     MudForm? _mudForm;

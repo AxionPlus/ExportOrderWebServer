@@ -67,7 +67,7 @@
 
 @code {
     [CascadingParameter]
-    MudDialogInstance MudDialog { get; set; } = new();
+    IMudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
     public long EoId { get; set; }      // Id поручения

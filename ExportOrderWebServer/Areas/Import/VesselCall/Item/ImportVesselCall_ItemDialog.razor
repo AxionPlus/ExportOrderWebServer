@@ -177,7 +177,7 @@
 
 @code {
     private string? ApplicationUser { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     private MudForm? Form { get; set; }
     private MudTable<ImportVesselCallDetail>? mudTable;
 

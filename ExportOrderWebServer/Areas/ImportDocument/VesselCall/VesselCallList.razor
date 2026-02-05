@@ -160,7 +160,7 @@
     MudTable<VesselCallDto>? mudTable;
     bool IsLoading;
     private PaginatedResult<VesselCallDto>? PagedResult;
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     private int RowsPerPage = 20;
     private string? _searchTerm;
     private DateTime? _dateFrom;

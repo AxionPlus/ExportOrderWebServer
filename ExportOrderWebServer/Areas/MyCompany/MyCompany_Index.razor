@@ -87,7 +87,7 @@
 
 @code {
     [CascadingParameter] public string? ApplicationUser { get; set; }
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     private MudForm? Form { get; set; }
     private MudTable<PersonEntity> mudTable = new();
 

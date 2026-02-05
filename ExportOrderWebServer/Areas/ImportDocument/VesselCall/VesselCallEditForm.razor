@@ -254,7 +254,7 @@ else
     [Parameter]
     public VesselCallDto VesselCallDto { get; set; } = new VesselCallDto();
     [CascadingParameter]
-    MudDialogInstance? MudDialog { get; set; }
+    IMudDialogInstance? MudDialog { get; set; }
     bool IsLoading;
     MudForm? mudForm;
     private string Title => VesselCallDto.IsNew ? "New Vessel Call" : "Edit Vessel Call";

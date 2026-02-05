@@ -44,7 +44,7 @@
 @code {
     private string? ApplicationUser { get; set; }
     private MudForm? Form { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new();
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     private bool IsDialogResultOk { get; set; } = false;
 
     [Parameter]

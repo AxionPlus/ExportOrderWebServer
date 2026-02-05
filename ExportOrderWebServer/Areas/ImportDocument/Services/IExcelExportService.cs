@@ -211,7 +211,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
             "№ Коносамента", "№ Контейнера", "Тип контейнера", "ISO код", "Вес тары",
             "Статус", "SOC", "№ Пломбы", "Тип упаковки", "Кол-во мест",
             "Вес брутто", "Ед. измерения", "Объем", "Температура",
-            "Класс опасности", "Booking №", "Контейнер как груз", "Описание RU"
+            "Класс опасности","ООН Номер", "Booking №", "Контейнер как груз", "Описание RU"
         };
 
         for (int i = 0; i < headers.Length; i++)
@@ -241,12 +241,11 @@ public class ClosedXmlExcelExportService : IExcelExportService
                 worksheet.Cell(row, 12).Value = container.GrossWeightUOM;
                 worksheet.Cell(row, 13).Value = container.Volume;
                 worksheet.Cell(row, 14).Value = container.ReeferFullTemp;
-                worksheet.Cell(row, 15).Value = !string.IsNullOrEmpty(container.IMCOClass)
-                    ? $"Класс {container.IMCOClass}"
-                    : "";
-                worksheet.Cell(row, 16).Value = container.BookingNo;
-                worksheet.Cell(row, 17).Value = container.ContainerAsCargo ? "Да" : "Нет";
-                worksheet.Cell(row, 18).Value = container.CargoDescriptionRu;
+                worksheet.Cell(row, 15).Value = container.IMCOClass;
+                worksheet.Cell(row, 16).Value = container.IMCONumber;
+                worksheet.Cell(row, 17).Value = container.BookingNo;
+                worksheet.Cell(row, 18).Value = container.ContainerAsCargo ? "Да" : "Нет";
+                worksheet.Cell(row, 19).Value = container.CargoDescriptionRu;
 
                 // Форматирование
                 worksheet.Cell(row, 10).Style.NumberFormat.Format = "0";

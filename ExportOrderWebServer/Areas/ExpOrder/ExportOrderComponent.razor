@@ -230,7 +230,7 @@
 @code {
     public string? ApplicationUser { get; set; }
     private MudTable<ExportOrderComponentDTO> mudTable = new();
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
 
     public IEnumerable<ExportOrderComponentDTO> Items { get; set; } = new List<ExportOrderComponentDTO>();
     private HashSet<ExportOrderComponentDTO> SelectedItems = new HashSet<ExportOrderComponentDTO>();

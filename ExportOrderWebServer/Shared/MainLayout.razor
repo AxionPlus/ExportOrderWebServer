@@ -3,34 +3,36 @@
 
 <PageTitle>Export Order</PageTitle>
 <MudThemeProvider />
-<MudDialogProvider />
 <MudPopoverProvider />
+<MudDialogProvider />
 <MudSnackbarProvider />
 
 
 <MudLayout>
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="@DrawerClipMode.Never" Variant="@DrawerVariant.Temporary" Anchor="@Anchor.Start">
+    <MudDrawer @bind-Open="@_drawerOpen" Elevation="2">
         <NavMenu />
     </MudDrawer>
-    <MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="padding-bottom: 15px;">
-        <CascadingValue Value=ShowMainMenu>
-            <AuthorizeView>
-                <Authorized>
-                    <CascadingValue Value=ApplicationUser>
-                        @Body
-                    </CascadingValue>                    
-                </Authorized>
-                <NotAuthorized>
-                    <LoginRedirect />
-                </NotAuthorized>
-            </AuthorizeView>
-        </CascadingValue>
-    </MudContainer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="padding-bottom: 15px;">
+            <CascadingValue Value=ShowMainMenu>
+                <AuthorizeView>
+                    <Authorized>
+                        <CascadingValue Value=ApplicationUser>
+                            @Body
+                        </CascadingValue>
+                    </Authorized>
+                    <NotAuthorized>
+                        <LoginRedirect />
+                    </NotAuthorized>
+                </AuthorizeView>
+            </CascadingValue>
+        </MudContainer>
+    </MudMainContent>
 </MudLayout>
 
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
 
     public string? ApplicationUser { get; set; }
 

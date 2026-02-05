@@ -115,7 +115,7 @@
 
 @code {
     private MudTable<DocumentEntity>? mudTable;
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
     public bool IsSelectable { get; set; } = false;    

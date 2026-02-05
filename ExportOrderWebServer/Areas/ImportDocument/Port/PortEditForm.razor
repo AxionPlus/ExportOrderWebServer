@@ -42,7 +42,7 @@ else
     [Parameter]
     public PortDto PortDto { get; set; } = new PortDto();
     [CascadingParameter]
-    MudDialogInstance? MudDialog { get; set; }
+    IMudDialogInstance? MudDialog { get; set; }
     bool IsLoading;
     MudForm? mudForm;
 

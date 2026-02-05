@@ -1522,7 +1522,7 @@ public class CreatePdfFileService : ICreatePdfFileService
                 .Where(r => !string.IsNullOrWhiteSpace(r.CntrType))
                 .Where(r => r.CntrType?.Substring(0, 2) == "40")
                 .Where(r => r.GrossWt > 0)
-                .GroupBy(r => r.CntrType)
+                .GroupBy(r => r.CntrType?.Substring(0, 2))
                 .Select(g => new
                 {
                     CntrsCount = g.Count(),
@@ -1537,7 +1537,7 @@ public class CreatePdfFileService : ICreatePdfFileService
                 .Where(r => !string.IsNullOrWhiteSpace(r.CntrType))
                 .Where(r => r.CntrType?.Substring(0, 2) == "45")
                 .Where(r => r.GrossWt > 0)
-                .GroupBy(r => r.CntrType)
+                .GroupBy(r => r.CntrType?.Substring(0, 2))
                 .Select(g => new
                 {
                     CntrsCount = g.Count(),
@@ -1601,7 +1601,7 @@ public class CreatePdfFileService : ICreatePdfFileService
                 .Where(r => !string.IsNullOrWhiteSpace(r.CntrType))
                 .Where(r => r.CntrType?.Substring(0, 2) == "40")
                 .Where(r => r.GrossWt is null || r.GrossWt == 0)
-                .GroupBy(r => r.CntrType)
+                .GroupBy(r => r.CntrType?.Substring(0, 2))
                 .Select(g => new
                 {
                     CntrsCount = g.Count(),
@@ -1615,8 +1615,8 @@ public class CreatePdfFileService : ICreatePdfFileService
                 .SelectMany(s => s.Records)
                 .Where(r => !string.IsNullOrWhiteSpace(r.CntrType))
                 .Where(r => r.CntrType?.Substring(0, 2) == "45")
-                .Where(r => r.GrossWt is null || r.GrossWt == 0)
-                .GroupBy(r => r.CntrType)
+                .Where(r => r.GrossWt is null || r.GrossWt == 0)                
+                .GroupBy(r => r.CntrType?.Substring(0, 2))
                 .Select(g => new
                 {
                     CntrsCount = g.Count(),

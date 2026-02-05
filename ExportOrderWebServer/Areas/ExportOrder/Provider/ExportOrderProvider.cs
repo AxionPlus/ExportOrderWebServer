@@ -192,7 +192,7 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
         if (!string.IsNullOrWhiteSpace(filter.PortOfDischarge))
             query = query.Where(s => s.VesselCallDetail != null &&
                                         s.VesselCallDetail.POD != null &&
-                                        s.VesselCallDetail.POD.Name == filter.PortOfDischarge);
+                                        s.VesselCallDetail.POD.NameEn == filter.PortOfDischarge);
 
         // Диапазон дат - From
         if (filter.DateFrom.HasValue)
@@ -679,7 +679,7 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
             VesselCallId = entity.VesselCallDetail!.VesselCall.Id,
             VesselName = entity.VesselCallDetail?.VesselCall.Vessel.Name,
             VesselVoyage = entity.VesselCallDetail?.VesselCall.VoyageNo,
-            PortOfDischarge = entity.VesselCallDetail?.POD?.Name,
+            PortOfDischarge = entity.VesselCallDetail?.POD?.NameEn,
             CarrierId = entity.Carrier == null ? 0 : entity.Carrier.Id,
             CarrierNameEn = entity.Carrier?.NameEn,
             TerminalName = entity.VesselCallDetail?.VesselCall.Terminal.Name,

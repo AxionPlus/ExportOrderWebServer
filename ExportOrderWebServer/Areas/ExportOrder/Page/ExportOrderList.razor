@@ -65,7 +65,7 @@
                     <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.VoyageNo!)">Voyage</MudTableSortLabel>
                 </MudTh>
                 <MudTh Style="width:180px">
-                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.VoyageNo!)">POD</MudTableSortLabel>
+                    <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.POD!)">POD</MudTableSortLabel>
                 </MudTh>
                 <MudTh Style="min-width:130px">
                     <MudTableSortLabel SortBy="new Func<ExportOrderComponentDTO, object>(x => x.Carrier!)">Carrier</MudTableSortLabel>
@@ -107,11 +107,7 @@
                     <MudTooltip Delay="1500" Duration="1000" Text="View pdf BL">
                         <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Print" Disabled="@IsLoading"
                                        Size="Size.Small" OnClick="@(async () => await ViewFilePdf_Click(context.Id, FileType.Bill))" />
-                    </MudTooltip>
-                    @* <MudTooltip Delay="1500" Duration="1000" Text="View pdf XXL_BL">
-                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Expand" Disabled
-                                       Size="Size.Small" OnClick="@(async () => await ViewFilesPdf_Click(context.Id, true))" />
-                    </MudTooltip> *@
+                    </MudTooltip>                    
                 </MudTd>
                 <MudTd>@context.Num</MudTd>
                 <MudTd>@(context.Dated.HasValue ? context.Dated.Value.ToString("dd.MM.yy") : "")</MudTd>

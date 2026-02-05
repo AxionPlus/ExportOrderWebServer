@@ -50,7 +50,7 @@ public class CatalogProvider : ICatalogProvider
     {
         await using var db = await _dbContext.CreateDbContextAsync();
 
-        return await db.Locations.Where(s => !string.IsNullOrWhiteSpace(s.Name)).Select(s => s.Name!).ToListAsync()
+        return await db.Locations.Where(s => !string.IsNullOrWhiteSpace(s.NameEn)).Select(s => s.NameEn!).ToListAsync()
             ?? Enumerable.Empty<string>();
     }
 
@@ -85,11 +85,14 @@ public class CatalogProvider : ICatalogProvider
         return await db.Vessels.Where(s => !string.IsNullOrWhiteSpace(s.Name)).Select(s => s.Name!).ToListAsync()
             ?? Enumerable.Empty<string>();
     }
+    
     public async Task<IEnumerable<string>> GetVoyages()
     {
         await using var db = await _dbContext.CreateDbContextAsync();
 
-        return await db.VesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync()
+        //return await db.VesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).ToArrayAsync()
+        //return await db.VesselCalls.Select(s => s.VoyageNo).ToArrayAsync()
+        return await db.VesselCalls.OrderByDescending(s => s.CreateTime).Select(s => s.VoyageNo).Distinct().ToArrayAsync()
             ?? Enumerable.Empty<string>();
     }
 

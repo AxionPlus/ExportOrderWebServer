@@ -54,13 +54,8 @@
                    ToStringFunc="@(s => s == null ? string.Empty : s.ToString())"
                    Variant="Variant.Outlined" Margin="Margin.Dense" Clearable
                    Disabled="IsSelectable">
-            @foreach (EntityStatus? status in Enum.GetValues(typeof(EntityStatus)))
-            {
-                if (status == EntityStatus.New || status == EntityStatus.Completed)
-                {
-                    <MudSelectItem Value="@status" />
-                }
-            }
+            <MudSelectItem T="EntityStatus?" Value="@EntityStatus.New" />
+            <MudSelectItem T="EntityStatus?" Value="@EntityStatus.Completed" />
         </MudSelect>
     </div>
 </div>
@@ -70,7 +65,7 @@
         @if (IsSelectable)
         {
             <MudTooltip Text="upload selected" Duration="1500" Delay="1000">
-                <MudIconButton Icon="@Icons.Material.Filled.Upload" Color="Color.Primary" OnClick="@(SelectItems_Click)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Upload" Size="Size.Small" Color="Color.Primary" OnClick="@(SelectItems_Click)" />
             </MudTooltip>
         }
         <MudSpacer />

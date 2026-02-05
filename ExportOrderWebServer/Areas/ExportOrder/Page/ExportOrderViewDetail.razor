@@ -705,7 +705,7 @@
 
         var parameters = new DialogParameters() { ["EoId"] = Item.Id, ["VoyageId"] = Item.VesselCallDetail.VesselCall.Id };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<UploadFileContainerList>("Импорт списка ДТ", parameters, options);
+        var dialog = await DialogService.ShowAsync<UploadFileContainerList>("Импорт списка ДТ", parameters, options);
 
         var dialogResult = await dialog.Result;
 

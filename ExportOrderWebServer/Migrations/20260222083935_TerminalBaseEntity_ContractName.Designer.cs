@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ExportOrderDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExportOrderWebServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260222083935_TerminalBaseEntity_ContractName")]
+    partial class TerminalBaseEntity_ContractName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1394,8 +1397,9 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TareWt")
-                        .HasColumnType("integer");
+                    b.Property<string>("TareWt")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<long>("Timestamp")
                         .HasColumnType("bigint");
@@ -1762,14 +1766,6 @@ namespace ExportOrderWebServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CaptainLastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CaptainName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1804,9 +1800,6 @@ namespace ExportOrderWebServer.Migrations
                     b.Property<long>("LockToken")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("PortOfLoadingDate")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<Guid>("PortOfLoadingId")
                         .HasColumnType("uuid");
 
@@ -1822,9 +1815,6 @@ namespace ExportOrderWebServer.Migrations
 
                     b.Property<long>("Timestamp")
                         .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("TranslateUpdateTime")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

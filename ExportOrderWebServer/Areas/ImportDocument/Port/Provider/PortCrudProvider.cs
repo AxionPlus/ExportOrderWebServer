@@ -17,13 +17,13 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Port.Provider
 
         protected override Expression<Func<PortBaseEntity, bool>>? CreateSearchFilter(string searchTerm)
         {
-            return e => e.NameRu.Contains(searchTerm) ||
-                        e.NameEn.Contains(searchTerm) ||
-                        e.CountryRu.Contains(searchTerm) ||
-                        e.CountryEn.Contains(searchTerm) ||
-                        e.IsoCode.Contains(searchTerm) ||
-                        e.AuxIsoCode.Contains(searchTerm) ||
-                        e.PikYugIsoCode.Contains(searchTerm);
+            return e => e.NameRu.ToUpper().Contains(searchTerm.ToUpper()) ||
+                        e.NameEn.ToUpper().Contains(searchTerm.ToUpper()) ||
+                        e.CountryRu.ToUpper().Contains(searchTerm.ToUpper()) ||
+                        e.CountryEn.ToUpper().Contains(searchTerm.ToUpper()) ||
+                        e.IsoCode.ToUpper().Contains(searchTerm.ToUpper()) ||
+                        e.AuxIsoCode.ToUpper().Contains(searchTerm.ToUpper()) ||
+                        e.PikYugIsoCode.ToUpper().Contains(searchTerm.ToUpper());
         }
 
         protected override Func<IQueryable<PortBaseEntity>, IOrderedQueryable<PortBaseEntity>>?

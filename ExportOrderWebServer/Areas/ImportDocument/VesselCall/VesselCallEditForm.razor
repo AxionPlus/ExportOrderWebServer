@@ -147,7 +147,10 @@ else
                                 </MudText>
                             </ItemTemplate>
                         </MudAutocomplete>
-
+                        
+                    <MudDatePicker Label="POL Date" Variant="Variant.Outlined"
+                                       @bind-Date="VesselCallDto.PortOfLoadingDate"
+                                        />
                         <!-- Feeder BL No -->
                         <MudTextField Label="Feeder BL No" Variant="Variant.Outlined"
                                       @bind-Value="VesselCallDto.FeederBlNo"

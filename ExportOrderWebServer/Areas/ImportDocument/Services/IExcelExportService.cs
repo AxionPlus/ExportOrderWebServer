@@ -1,15 +1,17 @@
-﻿using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
+using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
+using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
 namespace ExportOrderWebServer.Areas.ImportDocument.Services;
 
 public interface IExcelExportService
 {
     Task<byte[]> ExportBillOfLadingToExcelAsync(List<BillOfLadingBaseDto> billOfLadingList);
+    Task<byte[]> ExportBillOfLadingToExcelAsync(VesselCallDto vesselCall);
     Task<byte[]> ExportBillOfLadingToExcelAsync(BillOfLadingBaseDto billOfLading);
     Task<string> ExportBillOfLadingToExcelFileAsync(List<BillOfLadingBaseDto> billOfLadingList, string filePath);
     Task<byte[]> ExportBillOfLadingContainersToExcelAsync(BillOfLadingBaseDto billOfLading);
 
-
+    Task<byte[]> ExportBillOfLadingToExcelForTranslateAsync(List<BillOfLadingBaseDto> billOfLadingList);
 }
 
 // ClosedXmlExcelExportService.cs
@@ -19,6 +21,40 @@ public interface IExcelExportService
 
 public class ClosedXmlExcelExportService : IExcelExportService
 {
+    public async Task<byte[]> ExportBillOfLadingToExcelAsync(VesselCallDto vesselCall)
+    {
+        var billOfLadingList = vesselCall.BillOfLadings.ToList();
+
+        if (billOfLadingList == null || !billOfLadingList.Any())
+            throw new ArgumentException("Список коносаментов пуст");
+
+        using var workbook = new XLWorkbook();
+
+        // 1. Лист со сводной информацией
+        var summaryWorksheet = workbook.Worksheets.Add("Сводка по коносаментам");
+        FillSummaryWorksheet(summaryWorksheet, billOfLadingList, vesselCall);
+
+        // 2. Лист с детальной информацией по всем коносаментам
+        var detailsWorksheet = workbook.Worksheets.Add("Детали коносаментов");
+        FillDetailsWorksheet(detailsWorksheet, billOfLadingList);
+
+        // 3. Лист с контейнерами (группировка по коносаментам)
+        var containersWorksheet = workbook.Worksheets.Add("Контейнеры");
+        FillAllContainersWorksheet(containersWorksheet, billOfLadingList);
+
+        // 4. Отдельные листы для каждого коносамента с контейнерами
+        //foreach (var bol in billOfLadingList)
+        //{
+        //    var worksheetName = GetValidWorksheetName($"Конт {bol.Num}");
+        //    var bolWorksheet = workbook.Worksheets.Add(worksheetName);
+        //    FillBolContainerWorksheet(bolWorksheet, bol);
+        //}
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        return await Task.FromResult(stream.ToArray());
+    }
+
     public async Task<byte[]> ExportBillOfLadingToExcelAsync(List<BillOfLadingBaseDto> billOfLadingList)
     {
         if (billOfLadingList == null || !billOfLadingList.Any())
@@ -28,7 +64,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
 
         // 1. Лист со сводной информацией
         var summaryWorksheet = workbook.Worksheets.Add("Сводка по коносаментам");
-        FillSummaryWorksheet(summaryWorksheet, billOfLadingList);
+        FillSummaryWorksheet(summaryWorksheet, billOfLadingList, null);
 
         // 2. Лист с детальной информацией по всем коносаментам
         var detailsWorksheet = workbook.Worksheets.Add("Детали коносаментов");
@@ -74,8 +110,105 @@ public class ClosedXmlExcelExportService : IExcelExportService
         return await Task.FromResult(stream.ToArray());
     }
 
-    private void FillSummaryWorksheet(IXLWorksheet worksheet, List<BillOfLadingBaseDto> billOfLadingList)
+    public async Task<byte[]> ExportBillOfLadingToExcelForTranslateAsync(List<BillOfLadingBaseDto> billOfLadingList)
     {
+        if (billOfLadingList == null || !billOfLadingList.Any())
+            throw new ArgumentException("Список коносаментов пуст");
+
+        using var workbook = new XLWorkbook();
+
+        // 1. Лист с детальной информацией по всем коносаментам
+        var detailsWorksheet = workbook.Worksheets.Add("Коносаменты");
+
+        // Заголовки столбцов
+        var headers = new[]
+        {
+           "ДЛСТР", "Коносамент",  "Контейнер" ,  "товар Руский" ,   "Получатель ИМЯ",  "Получатель Адресс" ,  "Получатель страна" ,  "Режим" ,  "REMARKS", "Получатель Коносамент",  "Получатель Коносамент Коротко",   "товар Коносамент"
+
+        };
+
+        for (int i = 0; i < headers.Length; i++)
+        {
+            detailsWorksheet.Cell(1, i + 1).Value = headers[i];
+            detailsWorksheet.Cell(1, i + 1).Style.Font.Bold = true;
+            detailsWorksheet.Cell(1, i + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+            detailsWorksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightBlue;
+            //detailsWorksheet.Cell(1, i + 1).Style.Alignment.WrapText = true;
+        }
+
+        detailsWorksheet.Column(1).Width = 8;
+        detailsWorksheet.Column(2).Width = 18;
+        detailsWorksheet.Column(3).Width = 13;
+        detailsWorksheet.Column(4).Width = 50;
+        detailsWorksheet.Column(5).Width = 35;
+        detailsWorksheet.Column(6).Width = 35;
+        detailsWorksheet.Column(7).Width = 10;
+        detailsWorksheet.Column(8).Width = 5;
+        detailsWorksheet.Column(9).Width = 11;
+        detailsWorksheet.Column(10).Width = 25;
+        detailsWorksheet.Column(11).Width = 25;
+        detailsWorksheet.Column(12).Width = 50;
+
+
+
+
+        int row = 2;
+        foreach (var bol in billOfLadingList)
+        {
+            detailsWorksheet.Cell(row, 2).Value = bol.Num;
+            detailsWorksheet.Cell(row, 7).Value = "РОССИЯ";
+            detailsWorksheet.Cell(row, 8).Value = "ДТ";
+            detailsWorksheet.Cell(row, 10).Value = bol.ConsigneeName + " " + bol.ConsigneeAddress;
+            detailsWorksheet.Cell(row, 11).Value = bol.ConsigneeName;
+            detailsWorksheet.Cell(row, 12).Value = bol.CargoDescription.Replace("SAID TO CONTAIN / WEIGHTMEASURE", "").Replace("SAID TO CONTAIN / WEIGHT MEASURE", "").Replace("SAID TO CONTAIN/WEIGHT MEASURE", "");
+            row++;
+        }
+
+        // 2. Лист с контейнерами (группировка по коносаментам)
+        var containersWorksheet = workbook.Worksheets.Add("Контейнеры");
+
+        // Заголовки столбцов
+        headers = new[]
+       {
+            "BL NUM",   "CntrNum", "TypeSize" ,   "TARE"
+
+        };
+
+        for (int i = 0; i < headers.Length; i++)
+        {
+            containersWorksheet.Cell(1, i + 1).Value = headers[i];
+            containersWorksheet.Cell(1, i + 1).Style.Font.Bold = true;
+            containersWorksheet.Cell(1, i + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+            containersWorksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightBlue;
+            // containersWorksheet.Cell(1, i + 1).Style.Alignment.WrapText = true;
+        }
+
+        containersWorksheet.Column(1).Width = 18;
+        containersWorksheet.Column(2).Width = 13;
+        containersWorksheet.Column(3).Width = 10;
+        containersWorksheet.Column(4).Width = 10;
+
+        row = 2;
+        foreach (var bol in billOfLadingList)
+            foreach (var record in bol.ContainerRecords)
+            {
+                containersWorksheet.Cell(row, 1).Value = bol.Num;
+                containersWorksheet.Cell(row, 2).Value = record.ContainerNo;
+                containersWorksheet.Cell(row, 3).Value = record.ContainerTypeSize;
+                containersWorksheet.Cell(row, 4).Value = record.TareWt;
+
+                row++;
+            }
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        return await Task.FromResult(stream.ToArray());
+    }
+
+    private void FillSummaryWorksheet(IXLWorksheet worksheet, List<BillOfLadingBaseDto> billOfLadings, VesselCallDto? vesselCall = null)
+    {
+        var billOfLadingList = vesselCall != null ? vesselCall.BillOfLadings.ToList() : billOfLadings;
+
         // Заголовок
         worksheet.Cell(1, 1).Value = "Сводная информация по коносаментам";
         worksheet.Range(1, 1, 1, 5).Merge();
@@ -118,17 +251,79 @@ public class ClosedXmlExcelExportService : IExcelExportService
         worksheet.Range(4, 1, 4, 5).Style.Border.RightBorder = XLBorderStyleValues.Thin;
 
         worksheet.Columns().AdjustToContents();
+
+
+        worksheet.Cell(6, 1).Value = "Вес груза:";
+        worksheet.Cell(7, 1).Value = "Вес тары:";
+        worksheet.Cell(8, 1).Value = "Общий вес с тарой:";
+
+        worksheet.Cell(6, 2).Value = vesselCall?.GrossWtFull;
+        worksheet.Cell(7, 2).Value = vesselCall?.TareWtContainers;
+        worksheet.Cell(8, 2).Value = vesselCall?.GrossWtFull + vesselCall?.TareWtContainers;
+
+        int column = 1;
+        worksheet.Cell(10, column++).Value = "20' порожние:";
+        worksheet.Cell(10, column++).Value = vesselCall?.QuantityEmpty20; //qty
+        worksheet.Cell(10, column++).Value = vesselCall?.TareWtEmpty20; //tare wt
+        worksheet.Cell(10, column++).Value = 0; // gross wt
+        worksheet.Cell(10, column++).Value = vesselCall?.TareWtEmpty20; // total
+
+        column = 1;
+        worksheet.Cell(11, column++).Value = "40' порожние:";
+        worksheet.Cell(11, column++).Value = vesselCall?.QuantityEmpty40;   //qty
+        worksheet.Cell(11, column++).Value = vesselCall?.TareWtEmpty40;   //tare wt
+        worksheet.Cell(11, column++).Value = 0;   // gross wt
+        worksheet.Cell(11, column++).Value = vesselCall?.TareWtEmpty40;    // total
+
+        column = 1;
+        worksheet.Cell(12, column++).Value = "20' груженые:";
+        worksheet.Cell(12, column++).Value = vesselCall?.QuantityFull20; //qty
+        worksheet.Cell(12, column++).Value = vesselCall?.TareWtFull20; //tare wt
+        worksheet.Cell(12, column++).Value = vesselCall?.GrossWtFull20; // gross wt
+        worksheet.Cell(12, column++).Value = vesselCall?.TareWtFull20 + vesselCall?.GrossWtFull20; // total
+
+        column = 1;
+        worksheet.Cell(13, column++).Value = "40' груженые:";
+        worksheet.Cell(13, column++).Value = vesselCall?.QuantityFull40;   //qty
+        worksheet.Cell(13, column++).Value = vesselCall?.TareWtFull40; ;   //tare wt
+        worksheet.Cell(13, column++).Value = vesselCall?.GrossWtFull40;   // gross wt
+        worksheet.Cell(13, column++).Value = vesselCall?.TareWtFull40 + vesselCall?.GrossWtFull40;   // total
+
+        column = 1;
+        worksheet.Cell(15, column++).Value = "Итого:";
+        worksheet.Cell(15, column++).FormulaA1 = $"SUM(B10:B13)";
+        worksheet.Cell(15, column++).FormulaA1 = $"SUM(C10:C13)";
+        worksheet.Cell(15, column++).FormulaA1 = $"SUM(D10:D13)";
+        worksheet.Cell(15, column++).FormulaA1 = $"SUM(E10:E13)";
+
+
+
+        // IMO груз
+        column = 1;
+        worksheet.Cell(20, column++).Value = "20' ИМО груженые:";
+        worksheet.Cell(20, column++).Value = vesselCall?.QuantityImo20; //qty
+        worksheet.Cell(20, column++).Value = vesselCall?.TareWtImo20; //tare wt
+        worksheet.Cell(20, column++).Value = vesselCall?.GrossWtImo20; // gross wt
+        worksheet.Cell(20, column++).Value = vesselCall?.TareWtImo20 + vesselCall?.GrossWtImo20; // total
+
+        column = 1;
+        worksheet.Cell(21, column++).Value = "40' ИМО груженые:";
+        worksheet.Cell(21, column++).Value = vesselCall?.QuantityImo40;   //qty
+        worksheet.Cell(21, column++).Value = vesselCall?.TareWtImo40; ;   //tare wt
+        worksheet.Cell(21, column++).Value = vesselCall?.GrossWtImo40;   // gross wt
+        worksheet.Cell(21, column++).Value = vesselCall?.TareWtImo40 + vesselCall?.GrossWtImo40;   // total
+
+        column = 1;
+        worksheet.Cell(23, column++).Value = "Итого:";
+        worksheet.Cell(23, column++).FormulaA1 = $"SUM(B20:B21)";
+        worksheet.Cell(23, column++).FormulaA1 = $"SUM(C20:C21)";
+        worksheet.Cell(23, column++).FormulaA1 = $"SUM(D20:D21)";
+        worksheet.Cell(23, column++).FormulaA1 = $"SUM(E20:E21)";
+
     }
 
     private void FillDetailsWorksheet(IXLWorksheet worksheet, List<BillOfLadingBaseDto> billOfLadingList)
     {
-        // Заголовок
-        worksheet.Cell(1, 1).Value = "Детали коносаментов";
-        worksheet.Range(1, 1, 1, 20).Merge();
-        worksheet.Cell(1, 1).Style.Font.Bold = true;
-        worksheet.Cell(1, 1).Style.Font.FontSize = 14;
-        worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
         // Заголовки столбцов
         var headers = new[]
         {
@@ -141,15 +336,15 @@ public class ClosedXmlExcelExportService : IExcelExportService
 
         for (int i = 0; i < headers.Length; i++)
         {
-            worksheet.Cell(3, i + 1).Value = headers[i];
-            worksheet.Cell(3, i + 1).Style.Font.Bold = true;
-            worksheet.Cell(3, i + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-            worksheet.Cell(3, i + 1).Style.Fill.BackgroundColor = XLColor.LightBlue;
-            worksheet.Cell(3, i + 1).Style.Alignment.WrapText = true;
+            worksheet.Cell(1, i + 1).Value = headers[i];
+            worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+            worksheet.Cell(1, i + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+            worksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightBlue;
+            worksheet.Cell(1, i + 1).Style.Alignment.WrapText = true;
         }
 
         // Данные
-        int row = 4;
+        int row = 2;
         foreach (var bol in billOfLadingList)
         {
             worksheet.Cell(row, 1).Value = bol.Num;
@@ -195,17 +390,11 @@ public class ClosedXmlExcelExportService : IExcelExportService
         worksheet.Columns().AdjustToContents();
 
         // Фиксируем заголовки
-        worksheet.SheetView.FreezeRows(3);
+        worksheet.SheetView.FreezeRows(1);
     }
 
     private void FillAllContainersWorksheet(IXLWorksheet worksheet, List<BillOfLadingBaseDto> billOfLadingList)
     {
-        worksheet.Cell(1, 1).Value = "Все контейнеры";
-        worksheet.Range(1, 1, 1, 18).Merge();
-        worksheet.Cell(1, 1).Style.Font.Bold = true;
-        worksheet.Cell(1, 1).Style.Font.FontSize = 14;
-        worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
         var headers = new[]
         {
             "№ Коносамента", "№ Контейнера", "Тип контейнера", "ISO код", "Вес тары",
@@ -216,13 +405,13 @@ public class ClosedXmlExcelExportService : IExcelExportService
 
         for (int i = 0; i < headers.Length; i++)
         {
-            worksheet.Cell(3, i + 1).Value = headers[i];
-            worksheet.Cell(3, i + 1).Style.Font.Bold = true;
-            worksheet.Cell(3, i + 1).Style.Fill.BackgroundColor = XLColor.LightGreen;
-            worksheet.Cell(3, i + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+            worksheet.Cell(1, i + 1).Value = headers[i];
+            worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+            worksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightGreen;
+            worksheet.Cell(1, i + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
         }
 
-        int row = 4;
+        int row = 2;
         foreach (var bol in billOfLadingList)
         {
             foreach (var container in bol.ContainerRecords)
@@ -273,7 +462,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
         dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
         worksheet.Columns().AdjustToContents();
-        worksheet.SheetView.FreezeRows(3);
+        worksheet.SheetView.FreezeRows(1);
     }
 
     private void FillBolContainerWorksheet(IXLWorksheet worksheet, BillOfLadingBaseDto billOfLading)

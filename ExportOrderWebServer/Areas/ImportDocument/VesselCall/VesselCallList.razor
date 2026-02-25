@@ -171,8 +171,8 @@
     protected override async Task OnInitializedAsync()
     {
         // Устанавливаем дефолтные даты: последние 30 дней
-        _dateTo = DateTime.Today.AddDays(1);
-        _dateFrom = DateTime.Today.AddDays(-30);
+        _dateTo = DateTime.Today.AddDays(40);
+        _dateFrom = DateTime.Today.AddDays(-10);
     }
 
     private async Task<TableData<VesselCallDto>> ServerReload(TableState state, CancellationToken token)

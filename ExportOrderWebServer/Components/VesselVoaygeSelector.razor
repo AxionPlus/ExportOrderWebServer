@@ -4,10 +4,18 @@
 @inject IDialogService DialogService
 
 <div style="display:flex">
+    
+    @if (VesselCall == null)
+    {
+        <h6>select Vessel Call</h6>
+    }
+    else
+    {
+        <h6>@VesselCall?.Vessel?.Name / @VesselCall?.VoyageNo</h6>
+    }
+@*     <TextField Label="Vessel" Value="@VesselCall?.Vessel?.Name" style="width:220px;" ReadOnly UpperCase />
 
-    <TextField Label="Vessel" Text="@VesselCall?.Vessel?.Name" style="width:220px;" ReadOnly UpperCase />
-
-    <TextField Label="Voyage" Style="width:150px; padding-left:10px;" UpperCase Text="@VesselCall?.VoyageNo" ReadOnly />
+    <TextField Label="Voyage" Value="@VesselCall?.VoyageNo" Style="width:150px; padding-left:10px;" UpperCase ReadOnly /> *@
 
 
     <div style="margin-top:25px;margin-left:4px;display: flex; align-items: center;">

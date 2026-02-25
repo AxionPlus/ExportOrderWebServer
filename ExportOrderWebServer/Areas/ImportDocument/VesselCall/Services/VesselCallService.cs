@@ -23,6 +23,7 @@ public interface IVesselCallService
     Task<IEnumerable<VesselCallDto>> GetByVesselIdAsync(Guid vesselId, CancellationToken cancellationToken = default);
     Task<IEnumerable<VesselCallDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
     Task<bool> CheckVoyageNumberExistsAsync(string voyageNo, Guid? excludeId = null, CancellationToken cancellationToken = default);
+    Task CaptainChangeName(VesselCallDto? vesselCall, CancellationToken cancellationToken = default);
 }
 
 public class VesselCallService : IVesselCallService
@@ -277,6 +278,18 @@ public class VesselCallService : IVesselCallService
             _logger.LogError(ex, "Error checking voyage number existence: {VoyageNo}", voyageNo);
             throw;
         }
+    }
+
+    public async Task CaptainChangeName(VesselCallDto? vesselCall, CancellationToken cancellationToken = default)
+    {
+
+        var entity = await _vesselCallCrudProvider.GetByIdAsync(vesselCall.Id, cancellationToken);
+        if (entity == null) return;
+
+        entity.CaptainName = vesselCall.CaptainName;
+        entity.CaptainLastName = vesselCall.CaptainLastName;
+
+        await _vesselCallCrudProvider.UpdateAsync(entity, cancellationToken);
     }
 
     private async Task ValidateRelatedEntities(VesselCallDto dto, CancellationToken cancellationToken)

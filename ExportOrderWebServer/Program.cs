@@ -192,6 +192,11 @@ builder.Services.AddTransient<IValidator<BillOfLadingContainerRecordBaseDto>, Bi
 builder.Services.AddScoped<IGoogleSheetsParser, GoogleSheetsParser>();
 builder.Services.AddScoped<IExcelExportService, ClosedXmlExcelExportService>();
 builder.Services.AddScoped<IArrivalNoticeExportService, ArrivalNoticeExportService>();
+builder.Services.AddScoped<IManifestExportService, ManifestExportService>();
+builder.Services.AddScoped<IManifestHazardousExportService, ManifestHazardousExportService>();
+builder.Services.AddScoped<IObligationExcelService, ObligationExcelService>();
+builder.Services.AddScoped<IFeederBlExcelService, FeederBlExcelService>();
+builder.Services.AddScoped<IFillBillExcelService, FillBillExcelService>();
 
 builder.Services.AddScoped<IManifestXmlGenerator, ManifestXmlGenerator>();
 

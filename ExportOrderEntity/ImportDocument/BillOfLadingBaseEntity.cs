@@ -66,7 +66,7 @@ public class BillOfLadingContainerRecordBaseEntity : BaseEntity
     public string ContainerNo { get; set; } = string.Empty;
     public string ContainerTypeId { get; set; } = string.Empty;
     public string IsoCode { get; set; } = string.Empty;
-    public string TareWt { get; set; } = string.Empty;
+    public int TareWt { get; set; } 
     public string FullOrEmpty { get; set; } = string.Empty;
     public bool IsSoc { get; set; } 
     public string SealNo { get; set; } = string.Empty;

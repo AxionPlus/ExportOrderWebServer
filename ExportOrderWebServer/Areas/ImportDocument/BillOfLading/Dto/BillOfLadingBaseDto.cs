@@ -13,7 +13,7 @@ public class BillOfLadingBaseDto : BaseEntity
     public DateTime? Date { get; set; }
 
     public DateTime? TsDate { get; set; }
-    public PortDto? TsPort { get; set; } 
+    public PortDto? TsPort { get; set; }
     public string? Carrier { get; set; } = string.Empty;
 
     public string CustomerCode { get; set; } = string.Empty;
@@ -48,6 +48,8 @@ public class BillOfLadingBaseDto : BaseEntity
 
     public int TotalContainers => ContainerRecords?.Count ?? 0;
 
+    public bool IsRef => ContainerRecords.Any(s => !string.IsNullOrWhiteSpace(s.ReeferTemp));
+    public bool IsImo => ContainerRecords.Any(s => !string.IsNullOrWhiteSpace(s.IMCOClass));
 
     public bool HasTranslate
     {
@@ -70,7 +72,8 @@ public class BillOfLadingBaseDto : BaseEntity
         }
     }
 
-    public double TotalGrossWeight => ContainerRecords.Sum(s => s.GrossWeight);
+    public double TotalGrossWeight => ContainerRecords.Sum(s => s.ContainerAsCargo ? s.GrossWeight + s.TareWt : s.GrossWeight);
+    public double TotalTareWeight => ContainerRecords.Sum(s => s.ContainerAsCargo ? 0 : s.TareWt);
     public double TotalNoOfPackage => ContainerRecords.Sum(s => s.NoOfPackage);
 
 
@@ -90,7 +93,7 @@ public class BillOfLadingBaseDto : BaseEntity
         {
             if (string.IsNullOrWhiteSpace(ConsigneeCountryRu) || string.IsNullOrWhiteSpace(ConsigneeNameRu) || string.IsNullOrWhiteSpace(ConsigneeAddressRu))
                 return null;
-            return $"{ConsigneeCountryRu}, {ConsigneeNameRu} {ConsigneeAddressRu}";
+            return $"{ConsigneeCountryRu}, {ConsigneeNameRu}, {ConsigneeAddressRu}";
         }
     }
 
@@ -100,8 +103,9 @@ public class BillOfLadingContainerRecordBaseDto : BaseEntity
 {
     public string ContainerNo { get; set; } = string.Empty;
     public string ContainerTypeId { get; set; } = string.Empty;
+    public string ContainerTypeSize => string.IsNullOrWhiteSpace(ContainerTypeId) ?  "N/A" : $"{ContainerTypeId.Substring(2, 2)}{ContainerTypeId.Substring(0, 2)}"  ;
     public string IsoCode { get; set; } = string.Empty;
-    public string TareWt { get; set; } = string.Empty;
+    public int TareWt { get; set; }
     public string FullOrEmpty { get; set; } = string.Empty;
     public bool IsSoc { get; set; }
     public string SealNo { get; set; } = string.Empty;

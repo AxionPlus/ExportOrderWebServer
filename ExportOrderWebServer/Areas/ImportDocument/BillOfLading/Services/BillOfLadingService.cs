@@ -1,5 +1,4 @@
 ﻿using DocumentFormat.OpenXml.Wordprocessing;
-using ExportOrderEntites;
 using ExportOrderEntites.BillofLading.Dto;
 using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
@@ -25,14 +24,17 @@ public interface IBillOfLadingService
         bool sortDesc = false);
     Task<BillOfLadingBaseDto> CreateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default);
     Task<BillOfLadingBaseDto> UpdateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default);
-    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task DeleteAsync(BillOfLadingBaseDto billOfLadingDto, CancellationToken cancellationToken = default);
     Task<IEnumerable<BillOfLadingBaseDto>> GetByVesselCallIdAsync(Guid vesselCallId, CancellationToken cancellationToken = default);
     Task<IEnumerable<BillOfLadingBaseDto>> GetByContainerNumberAsync(string containerNo, CancellationToken cancellationToken = default);
     Task<bool> CheckBillNumberExistsAsync(string billNo, Guid? excludeId = null, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(BillOfLadingContainerRecordBaseDto baseDto, CancellationToken cancellationToken = default);
+    Task DeleteAsync(BillOfLadingContainerRecordBaseDto baseDto, CancellationToken cancellationToken = default);
+
 
     Task TranslateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingsDto, CancellationToken cancellationToken = default);
+    Task TranshipmentDataAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingsDto, CancellationToken cancellationToken = default);
     Task UpdateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingDtos, VesselCallDto? vesselCall, CancellationToken cancellationToken = default);
     Task<IEnumerable<string>> CheckBillNumbersExistsAsync(IEnumerable<string> parsedBillsNum, CancellationToken cancellationToken = default);
 }
@@ -69,6 +71,7 @@ public class BillOfLadingService : IBillOfLadingService
                 s => s.VesselCall.Vessel,
                 s => s.VesselCall.Terminal,
                 s => s.VesselCall.PortOfLoading,
+                s => s.TsPort,
                 s => s.Pol,
                 s => s.ContainerRecords);
 
@@ -122,8 +125,7 @@ public class BillOfLadingService : IBillOfLadingService
 
     public async Task<BillOfLadingBaseDto> CreateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default)
     {
-        try
-        {
+      
             // Проверяем уникальность номера BL
             var exists = await CheckBillNumberExistsAsync(baseDto.Num, null, cancellationToken);
             if (exists)
@@ -132,7 +134,7 @@ public class BillOfLadingService : IBillOfLadingService
             // Проверяем существование связанной сущности VesselCall
             await ValidateVesselCall(baseDto.VesselCallId, cancellationToken);
 
-  
+
 
             var pol = await _portService.GetByIsoCodeAsync(baseDto.Pol?.IsoCode, cancellationToken);
 
@@ -158,12 +160,7 @@ public class BillOfLadingService : IBillOfLadingService
 
             var createdEntity = await _billOfLadingCrudProvider.CreateAsync(entity, cancellationToken);
             return createdEntity.ToDto();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating bill of lading with number: {BillNumber}", baseDto.Num);
-            throw;
-        }
+  
     }
 
     public async Task<BillOfLadingBaseDto> UpdateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default)
@@ -201,22 +198,27 @@ public class BillOfLadingService : IBillOfLadingService
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var entity = await _billOfLadingCrudProvider.GetByIdAsync(id, cancellationToken);
-            if (entity == null)
-                return false;
 
-            await _billOfLadingCrudProvider.DeleteAsync(entity, cancellationToken);
-            return true;
-        }
-        catch (Exception ex)
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+        var entity = await db.Set<BillOfLadingBaseEntity>().Include(s => s.ContainerRecords).FirstAsync(s => s.Id == baseDto.Id, cancellationToken: cancellationToken);
+
+        if (entity.Timestamp != baseDto.Timestamp)
         {
-            _logger.LogError(ex, "Error deleting bill of lading: {BillId}", id);
-            throw;
+            throw new ArgumentException($"has been changed by another User");
         }
+
+        foreach (var containerRecord in entity.ContainerRecords)
+            db.Entry(containerRecord).State = EntityState.Deleted;
+
+
+        db.Entry(entity).State = EntityState.Deleted;
+
+        await db.SaveChangesAsync(cancellationToken);
+
+
     }
 
     public async Task<IEnumerable<BillOfLadingBaseDto>> GetByVesselCallIdAsync(Guid vesselCallId, CancellationToken cancellationToken = default)
@@ -299,16 +301,45 @@ public class BillOfLadingService : IBillOfLadingService
 
     }
 
+    public async Task DeleteAsync(BillOfLadingContainerRecordBaseDto baseDto, CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+        var entity = await db.Set<BillOfLadingContainerRecordBaseEntity>().FirstAsync(s => s.Id == baseDto.Id, cancellationToken: cancellationToken);
+
+        if (entity.Timestamp != baseDto.Timestamp)
+        {
+            throw new ArgumentException($"has been changed by another User");
+        }
+
+        db.Entry(entity).State = EntityState.Deleted;
+
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task TranslateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingsDto, CancellationToken cancellationToken = default)
     {
         await using var db = await _context.CreateDbContextAsync(cancellationToken);
 
+        Guid? vesselCallId = null;
 
         foreach (var billOfLadingDto in billOfLadingsDto)
         {
 
-            var entity = await db.Set<BillOfLadingBaseEntity>().Include(s => s.ContainerRecords).FirstOrDefaultAsync(s => s.Num == billOfLadingDto.Num, cancellationToken: cancellationToken);
+            var entity = await db.Set<BillOfLadingBaseEntity>()
+                .Include(s => s.VesselCall).ThenInclude(s => s.Terminal)
+                .Include(s => s.ContainerRecords).FirstOrDefaultAsync(s => s.Num == billOfLadingDto.Num, cancellationToken: cancellationToken);
             if (entity == null) continue;
+
+
+            if (entity.VesselCall.Terminal.Name == "NUTEP")
+            {
+                entity.ShipperNameRu = entity.ShipperName;
+            }
+            if (entity.VesselCall.Terminal.Name == "NLE")
+            {
+                entity.ShipperNameRu =  Transliteration.ToCyrillicAdvanced(entity.ShipperName);
+            }
 
 
             entity.ConsigneeNameRu = billOfLadingDto.ConsigneeNameRu.FixCsvContent().ToUpper();
@@ -329,6 +360,8 @@ public class BillOfLadingService : IBillOfLadingService
 
                     containerRecord.CargoDescriptionRu = containerRecordDto.CargoDescriptionRu.FixCsvContent().ToUpper().Replace(";", ",");
                 }
+
+                entity.CargoDescriptionRu = "*";
             }
             else
             {
@@ -337,9 +370,48 @@ public class BillOfLadingService : IBillOfLadingService
             }
 
 
-            await db.SaveChangesAsync(cancellationToken);
+            vesselCallId = entity.VesselCallId;
+
+
+             await db.SaveChangesAsync(cancellationToken);
         }
 
+
+        var VesselCall = await db.Set<VesselCallBaseEntity>()
+            .FirstAsync(s => s.Id == vesselCallId, cancellationToken: cancellationToken);
+
+        VesselCall.TranslateUpdateTime = DateTime.Now;
+
+    }
+
+    public async Task TranshipmentDataAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingsDto,
+        CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+        foreach (var billOfLadingDto in billOfLadingsDto)
+        {
+            var entity = await db.Set<BillOfLadingBaseEntity>().AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Num == billOfLadingDto.Num, cancellationToken: cancellationToken);
+
+            if (entity == null) continue;
+            if (billOfLadingDto.TsPort == null) continue;
+
+            var tsPort = await db.Set<PortBaseEntity>().AsNoTracking()
+                .FirstOrDefaultAsync(s => s.IsoCode == billOfLadingDto.TsPort.IsoCode,
+                    cancellationToken: cancellationToken) ?? await db.Set<PortBaseEntity>().AsNoTracking()
+                .FirstOrDefaultAsync(s => s.NameEn == billOfLadingDto.TsPort.IsoCode.ToUpper(),
+                    cancellationToken: cancellationToken);
+
+            if (tsPort == null) continue;
+
+            entity.TsDate = billOfLadingDto.TsDate;
+            entity.TsPortId = tsPort.Id;
+
+            db.Entry(entity).State = EntityState.Modified;
+            var bug = db.ChangeTracker.DebugView.LongView;
+            await db.SaveChangesAsync(cancellationToken);
+            db.ChangeTracker.Clear();
+        }
     }
 
     public async Task UpdateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingDtos, VesselCallDto? vesselCall,

@@ -1,0 +1,183 @@
+﻿@page "/import/terminal"
+@using ExportOrderWebServer.Areas.ImportDocument.Provider
+@using ExportOrderWebServer.Areas.ImportDocument.Terminal.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Terminal.Services
+
+@inject ITerminalService TerminalService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
+
+<PageTitle>Terminals</PageTitle>
+
+<ToolBar Label="Terminals" OnNew="NewTerminal"></ToolBar>
+
+<Container>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ReloadTableData"
+               StartIcon="@Icons.Material.Filled.Search" Class="ml-2">
+        Search
+    </MudButton>
+</Container>
+
+<TableWrap T="TerminalDto" Table="mudTable" PageSelector @bind-RowsPerPage="@RowsPerPage">
+    <TableMenu>
+    </TableMenu>
+    <Content>
+        <MudTable @ref="mudTable" T="TerminalDto" Class="Table P4 MultiSelect"
+                  ServerData="ServerReload"
+                  RowsPerPage="@RowsPerPage"
+                  SelectOnRowClick="false"
+                  Hover="true" Virtualize="true">
+            <PagerContent />
+            <HeaderContent>
+                <MudTh Style="width:30px"></MudTh>
+                <MudTh Style="width:200px">Name</MudTh>
+                <MudTh Style="width:200px">NameRu</MudTh>
+                <MudTh Style="width:200px">Email</MudTh>
+                <MudTh Style="width:150px">Customs Post</MudTh>
+                <MudTh Style="width:200px">Customs PostName</MudTh>
+                <MudTh Style="width:150px">Contract Id</MudTh>
+                <MudTh Style="width:150px">Contract Name</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="(_) => ShowItem_Click(context)" Color="Color.Warning" Disabled="@IsLoading" />
+                </MudTd>
+
+                <MudTd>@context.Name</MudTd>
+                <MudTd>@context.NameRu</MudTd>
+                <MudTd>@context.Email</MudTd>
+                <MudTd>@context.CustomsPost</MudTd>
+                <MudTd>@context.CustomsPostName</MudTd>
+                <MudTd>@context.ContractId</MudTd>
+                <MudTd>@context.ContractName</MudTd>
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <PagerContent />
+        </MudTable>
+    </Content>
+</TableWrap>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    MudTable<TerminalDto>? mudTable;
+    bool IsLoading;
+    private PaginatedResult<TerminalDto>? PagedResult;
+    private int RowsPerPage = 50;
+
+    private async Task<TableData<TerminalDto>> ServerReload(TableState state, CancellationToken token)
+    {
+        try
+        {
+            IsLoading = true;
+
+            // Определяем направление сортировки
+            bool sortDesc = state.SortDirection == SortDirection.Descending;
+            string? sortBy = state.SortLabel;
+
+            // Вызываем сервис с параметрами поиска и сортировки
+            PagedResult = await TerminalService.GetPaginatedAsync(
+                state.Page + 1,
+                state.PageSize,
+                token,
+                null,
+                sortBy,
+                sortDesc);
+
+            if (mudTable != null)
+            {
+                mudTable.TotalItems = PagedResult.TotalCount;
+                mudTable.Items = PagedResult.Items;
+            }
+
+            return new TableData<TerminalDto>()
+            {
+                TotalItems = PagedResult.TotalCount,
+                Items = PagedResult.Items,
+            };
+        }
+        catch (OperationCanceledException ex)
+        {
+            return new TableData<TerminalDto>()
+            {
+                TotalItems = 0,
+                Items = new List<TerminalDto>()
+            };
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading data: {ex.Message}", Severity.Error);
+            return new TableData<TerminalDto>()
+            {
+                TotalItems = 0,
+                Items = new List<TerminalDto>()
+            };
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShowItem_Click(TerminalDto context)
+    {
+        var parameters = new DialogParameters
+        {
+            ["TerminalDto"] = context
+        };
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Large,
+            NoHeader = true,
+            CloseButton = false,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+            BackgroundClass = "dialog-blurry"
+        };
+        var dialog = await DialogService.ShowAsync<TerminalEditForm>("", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && result.Data is bool && (bool)result.Data)
+        {
+            await ReloadTableData();
+        }
+    }
+
+    private async Task NewTerminal()
+    {
+        var parameters = new DialogParameters
+        {
+
+        };
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Large,
+            NoHeader = true,
+            CloseButton = false,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+            BackgroundClass = "dialog-blurry"
+        };
+        var dialog = await DialogService.ShowAsync<TerminalEditForm>("", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && result.Data is bool && (bool)result.Data)
+        {
+            await ReloadTableData();
+        }
+    }
+
+    private async Task ReloadTableData()
+    {
+        if (mudTable != null)
+            await mudTable.ReloadServerData();
+    }
+}

@@ -17,6 +17,9 @@ namespace ExportOrderEntites.ImportDocument
         public string TerminalVoyageNo { get; set; } = string.Empty;
 
 
+        public string CaptainName { get; set; } = string.Empty;
+        public string CaptainLastName { get; set; } = string.Empty;
+        public DateTime? TranslateUpdateTime { get; set; } 
 
         [ForeignKey("Terminal")]
         public Guid TerminalId { get; set; }
@@ -29,6 +32,7 @@ namespace ExportOrderEntites.ImportDocument
         [ForeignKey("PortOfLoading")]
         public Guid PortOfLoadingId { get; set; }
         public PortBaseEntity PortOfLoading { get; set; }
+        public DateTime? PortOfLoadingDate { get; set; }
 
 
         public List<BillOfLadingBaseEntity> BillOfLadings { get; set; } = new List<BillOfLadingBaseEntity>();

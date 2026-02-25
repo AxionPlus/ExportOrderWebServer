@@ -1,0 +1,294 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Services
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+@using ClosedXML.Excel;
+@using ExportOrderWebServer.Areas.ImportDocument.Port.Dto
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@inject IVesselCallService VesselCallService
+@inject IDialogService DialogService
+
+@inject IXMLParserService _parserService;
+@inject IBillOfLadingService _billOfLadingService;
+
+
+<MudDialog>
+    <DialogContent>
+
+        <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".xls,.xlsx" MaximumFileCount="100">
+            <ActivatorContent>
+                @if (!isUploading)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.CloudUpload">
+                        Multiple Files
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Filled" Disabled
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.CloudUpload">
+                        Multiple Files
+                    </MudButton>
+                }
+            </ActivatorContent>
+        </MudFileUpload>
+
+
+    </DialogContent>
+
+    <DialogActions>
+        @if (files.Any())
+        {
+            <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Error">Cancel</MudButton>
+            <MudButton OnClick="UploadAsync"
+                       Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       Disabled="@( isUploading )"
+                       StartIcon="@Icons.Material.Filled.Upload">
+                @(isUploading ? "Uploading..." : "Upload")
+            </MudButton>
+        }
+        @if (@UploadManifestResponse != null && @UploadManifestResponse.ExistedBills.Any())
+        {
+            <MudButton OnClick="() => { UploadManifestResponse = new(); }" Variant="Variant.Text" Color="Color.Error" Disabled="@(isUploading)">Cancel</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+    private MudForm form;
+    private bool isValid = true;
+    private bool isUploading = false;
+    private UploadManifestResponse? UploadManifestResponse;
+    private System.Timers.Timer _progressTimer;
+    private bool _isDisposed;
+
+    double _value = 0;
+
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+
+    private void UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var file in files)
+            if (!this.files.Contains(file))
+            {
+                this.files.Add(file);
+            }
+        //TODO upload the files to the server
+    }
+
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        int order = 0;
+        double len = bytes;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+
+    private void Cancel()
+    {
+        files = new List<IBrowserFile>();
+    }
+
+    private async Task UploadAsync()
+    {
+        if (!files.Any())
+        {
+            return;
+        }
+
+
+        isUploading = true;
+        StateHasChanged();
+
+        UploadManifestResponse = new UploadManifestResponse();
+
+
+        var parsedBills = new List<BillOfLadingBaseDto>();
+
+        foreach (var file in files)
+        {
+            try
+            {
+                UploadManifestResponse.ProcessedFiles++;
+
+                using var memoryStream = new MemoryStream();
+                await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                parsedBills.AddRange(ParseXls(memoryStream));
+
+                if (parsedBills.Any())
+                {
+                    await _billOfLadingService.TranshipmentDataAsync(parsedBills);
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error '{file.Name}': {ex.Message}");
+                isUploading = false;
+            }
+
+            StateHasChanged();
+        }
+
+
+        StateHasChanged();
+
+
+        files = new List<IBrowserFile>();
+
+        isUploading = false;
+        StateHasChanged();
+    }
+
+
+    private IEnumerable<BillOfLadingBaseDto> ParseXls(MemoryStream memoryStream)
+    {
+        var parsedBills = new List<BillOfLadingBaseDto>();
+        using var workbook = new XLWorkbook(memoryStream);
+
+        // Поиск листа с названием "TS" или содержащего "TS"
+        var tsSheet = workbook.Worksheets.FirstOrDefault(ws =>
+            ws.Name.ToUpper().Contains("TS"));
+
+        if (tsSheet == null)
+        {
+            throw new InvalidOperationException("Не найден лист с TS данными");
+        }
+
+        // Определяем границы данных
+        var firstRow = tsSheet.FirstRowUsed();
+        var lastRow = tsSheet.LastRowUsed();
+
+        if (firstRow == null || lastRow == null)
+        {
+            throw new InvalidOperationException("Лист 'TS' пустой");
+        }
+
+        for (int row = firstRow.RowNumber(); row <= lastRow.RowNumber(); row++)
+        {
+
+            var billNumber = tsSheet.Cell(row, 1).GetValue<string>().Trim();
+            var port = tsSheet.Cell(row, 2).GetValue<string>().Trim();
+            var dateValue = tsSheet.Cell(row, 3).GetValue<string>();
+
+            // Пропускаем пустые строки или строки с заголовками
+            if (string.IsNullOrWhiteSpace(billNumber))
+                continue;
+
+            // Парсинг даты
+            DateTime? tsDate = ParseDate(dateValue);
+
+
+            var billOfLading = new BillOfLadingBaseDto
+            {
+                Num = billNumber,
+                TsPort = new PortDto { IsoCode = port },
+                TsDate = tsDate,
+            };
+
+            parsedBills.Add(billOfLading);
+
+        }
+
+        return parsedBills;
+    }
+
+
+    private DateTime? ParseDate(object dateValue)
+    {
+        if (dateValue == null)
+            return null;
+
+        try
+        {
+            // Если значение уже DateTime
+            if (dateValue is DateTime dateTime)
+            {
+                return dateTime;
+            }
+
+            var dateString = dateValue.ToString().Trim();
+
+            if (string.IsNullOrWhiteSpace(dateString))
+                return null;
+
+            // Пробуем разные форматы дат
+            string[] formats = new[]
+            {
+                        "yyyy-MM-dd HH:mm:ss",
+                        "yyyy-MM-dd",
+                        "dd.MM.yyyy",
+                        "dd/MM/yyyy",
+                        "MM/dd/yyyy",
+                        "dd.MM.yy",
+                        "dd/MM/yy"
+                    };
+
+            if (DateTime.TryParseExact(dateString, formats,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out DateTime result))
+            {
+                return result;
+            }
+
+            // Если парсинг с форматами не удался, пробуем обычный парсинг
+            if (DateTime.TryParse(dateString, out result))
+            {
+                return result;
+            }
+        }
+        catch
+        {
+            // Игнорируем ошибки парсинга даты
+        }
+
+        return null;
+    }
+
+
+    private void StartProgressTimer()
+    {
+        _progressTimer = new System.Timers.Timer(2000);
+        _progressTimer.Elapsed += async (sender, e) =>
+        {
+            _value++;
+            if (_value > 99) _value = 1;
+
+            await InvokeAsync(StateHasChanged);
+        };
+        _progressTimer.Start();
+    }
+
+    private void StopProgressTimer()
+    {
+        if (_progressTimer != null)
+        {
+            _progressTimer.Stop();
+            _progressTimer.Dispose();
+            _progressTimer = null;
+        }
+    }
+
+    public void Dispose()
+    {
+        _isDisposed = true;
+        StopProgressTimer();
+    }
+}

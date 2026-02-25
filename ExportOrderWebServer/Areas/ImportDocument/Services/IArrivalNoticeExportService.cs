@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Excel;
-using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.Services;
@@ -15,17 +14,21 @@ public class ArrivalNoticeExportService : IArrivalNoticeExportService
 {
     public async Task<byte[]> GenerateArrivalNoticeAsync(VesselCallDto vesselCall)
     {
+        var decimalFormat = "# ### ##0.000_-; # ### ##0,000_-;_-* \"-\"??_-;_-@_-";
+        var intFormat = "# ### ##0_-;# ### ##0_-;_-* \"-\"??_-;_-@_-";
+
         var vesselName = vesselCall.Vessel.Name;
         var voyageNumber = vesselCall.VoyageNo;
         var feederBl = vesselCall.FeederBlNo;
         var arrivalDate = vesselCall.ETA;
         var vesselFlag = vesselCall.Vessel.FlagRu;
+        var portOfLoading = vesselCall.PortOfLoading.FullRu;
 
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("УВЕДОМЛЕНИЕ");
 
         // Заголовок
-        worksheet.Cell(1, 1).Value = "УВЕДОМЛЕНИЕ О ПРИБЫТИИ ТОВАРОВ";
+        worksheet.Cell(1, 1).Value = $"УВЕДОМЛЕНИЕ О ПРИБЫТИИ ТОВАРОВ ({vesselName} {voyageNumber}) - ALPHA SHIPPING (SHANGHAI) LTD";
         worksheet.Range(1, 1, 1, 14).Merge();
         worksheet.Cell(1, 1).Style.Font.Bold = true;
         worksheet.Cell(1, 1).Style.Font.FontSize = 14;
@@ -33,35 +36,54 @@ public class ArrivalNoticeExportService : IArrivalNoticeExportService
         worksheet.Cell(1, 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
 
-        // Основная информация
-        worksheet.Cell(2, 1).Value = "Порт выгрузки:";
-        worksheet.Cell(2, 3).Value = "НОВОРОССИЙСК";
+        // Установить строки 1-7 как повторяющиеся на каждой странице
+        worksheet.PageSetup.SetRowsToRepeatAtTop(1, 7);
 
-        worksheet.Cell(3, 1).Value = "Название судна:";
-        worksheet.Cell(3, 3).Value = vesselName;
-        worksheet.Cell(3, 5).Value = "Рейс:";
-        worksheet.Cell(3, 6).Value = voyageNumber;
+        // Основная информация
+
+
+        worksheet.Cell(2, 1).Value = "Порт выгрузки:";
+        worksheet.Range(2, 1, 2, 2).Merge();
+
+        worksheet.Cell(3, 1).Value = "Название судна / Рейс:";
+        worksheet.Range(3, 1, 3, 2).Merge();
 
         worksheet.Cell(4, 1).Value = "Флаг судна:";
+        worksheet.Range(4, 1, 4, 2).Merge();
+
+        worksheet.Cell(5, 1).Value = "Дата прихода:";
+        worksheet.Range(5, 1, 5, 2).Merge();
+
+        worksheet.Cell(2, 3).Value = "НОВОРОССИЙСК";
+        worksheet.Cell(3, 3).Value = $"{vesselName} {voyageNumber}";
         worksheet.Cell(4, 3).Value = vesselFlag;
+        worksheet.Cell(5, 3).Value = arrivalDate;
+        worksheet.Range(5, 3, 5, 5).Merge();
 
-        worksheet.Cell(5, 1).Value = "Перевозчик:";
-        worksheet.Cell(5, 3).Value = "ALPHA SHIPPING (SHANGHAI) LTD";
-        worksheet.Cell(5, 7).Value = "Сервисный К/С:";
-        worksheet.Cell(5, 9).Value = feederBl;
-
-        worksheet.Cell(6, 1).Value = "Перевозчик страна:";
-        worksheet.Cell(6, 3).Value = "КИТАЙ";
-        worksheet.Cell(6, 7).Value = "Страна порта отправления:";
-
-        worksheet.Cell(7, 1).Value = "Дата прихода:";
-        worksheet.Cell(7, 3).Value = arrivalDate;
-        worksheet.Range(7, 3, 7, 5).Merge();
-        worksheet.Cell(7, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+        worksheet.Range(2, 1, 5, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
 
-        // Заголовки таблицы (начиная с 9 строки)
-        int startRow = 9;
+        worksheet.Cell(2, 7).Value = "Порт отправления:";
+        worksheet.Cell(2, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+        worksheet.Cell(2, 8).Value = portOfLoading;
+        worksheet.Cell(2, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+
+
+
+        worksheet.Cell(2, 12).Value = "Перевозчик:";
+        worksheet.Cell(3, 12).Value = "Страна Перевозчика:";
+        worksheet.Cell(4, 12).Value = "Сервисный К/С:";
+
+        worksheet.Cell(2, 13).Value = "ALPHA SHIPPING (SHANGHAI) LTD";
+        worksheet.Cell(3, 13).Value = "КИТАЙ";
+        worksheet.Cell(4, 13).Value = feederBl;
+
+        worksheet.Range(2, 12, 4, 13).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+
+        // Заголовки таблицы (начиная с 7 строки)
+        int startRow = 7;
+        worksheet.Row(6).Height = 9;
+        worksheet.Row(7).Height = 28;
         var headers = new[]
         {
             "№", "№контейнера", "Размер", "Тип", "№пломбы", "Кол-во мест",
@@ -90,17 +112,73 @@ public class ArrivalNoticeExportService : IArrivalNoticeExportService
         int currentRow = startRow + 1;
         int itemNumber = 1;
 
-        foreach (var bilOfLadingDto in vesselCall.BillOfLadings.OrderBy(s => s.TsDate).ThenBy(s => s.Num))
+        var BillOfLadings = vesselCall.BillOfLadings.OrderBy(s => s.TsDate).ThenBy(s => s.Num);
+        // 1. Находим все номера контейнеров, которые встречаются более одного раза
+        var duplicateContainerNos = BillOfLadings
+            .SelectMany(bl => bl.ContainerRecords)
+            .Where(c => !string.IsNullOrWhiteSpace(c.ContainerNo))
+            .GroupBy(c => c.ContainerNo)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToHashSet(); // Используем HashSet для быстрого поиска
+
+        // 2. Проходим по всем записям и модифицируем дубликаты
+        // Словарь для отслеживания количества встреченных дубликатов (чтобы не менять первый)
+        var duplicateCounter = new Dictionary<string, int>();
+
+        foreach (var bilOfLadingDto in BillOfLadings)
             foreach (var containerRecord in bilOfLadingDto.ContainerRecords.OrderBy(s => s.ContainerNo))
             {
-                worksheet.Cell(currentRow, 1).Value = itemNumber;
-                worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "0";
+                if (containerRecord.ContainerAsCargo)
+                {
+                    containerRecord.GrossWeight += containerRecord.TareWt;
+                    containerRecord.TareWt = 0;
+
+                    containerRecord.NoOfPackage += 1;
+                }
+
+                bool isDuplicate = false;
+
+                // Проверка на дубликаты ContainerNo
+                if (!string.IsNullOrWhiteSpace(containerRecord.ContainerNo) &&
+                    duplicateContainerNos.Contains(containerRecord.ContainerNo))
+                {
+                    if (!duplicateCounter.ContainsKey(containerRecord.ContainerNo))
+                    {
+                        duplicateCounter[containerRecord.ContainerNo] = 0;
+                    }
+
+                    duplicateCounter[containerRecord.ContainerNo]++;
+
+                    // Если это не первое вхождение дубликата
+                    if (duplicateCounter[containerRecord.ContainerNo] > 1)
+                    {
+                        isDuplicate = true;
+                        containerRecord.ContainerNo = $"{containerRecord.ContainerNo} ч";
+                    }
+                }
+
+                // ==========================================
+                // Запись данных в Excel
+                // ==========================================
+
+                // Колонка 1: Порядковый номер (пустой для дубликатов)
+                if (isDuplicate)
+                {
+                    worksheet.Cell(currentRow, 1).Value = ""; // Пустое значение для дубликатов
+                }
+                else
+                {
+                    worksheet.Cell(currentRow, 1).Value = itemNumber;
+                    worksheet.Cell(currentRow, 1).Style.NumberFormat.Format = "0";
+                }
 
                 worksheet.Cell(currentRow, 2).Value = containerRecord.ContainerNo;
-                worksheet.Cell(currentRow, 3).Value = containerRecord.IsoCode;
-                worksheet.Cell(currentRow, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center; 
 
-                worksheet.Cell(currentRow, 4).Value = containerRecord.ContainerTypeId;
+                worksheet.Cell(currentRow, 3).Value = containerRecord.ContainerTypeId.Substring(2, 2);
+                worksheet.Cell(currentRow, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                worksheet.Cell(currentRow, 4).Value = containerRecord.ContainerTypeId.Substring(0, 2);
                 worksheet.Cell(currentRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
                 worksheet.Cell(currentRow, 5).Value = containerRecord.SealNo;
@@ -110,12 +188,18 @@ public class ArrivalNoticeExportService : IArrivalNoticeExportService
                 worksheet.Cell(currentRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
                 worksheet.Cell(currentRow, 7).Value = containerRecord.CargoDescriptionRu;
+                worksheet.Cell(currentRow, 7).Style.Alignment.WrapText = true;
 
                 worksheet.Cell(currentRow, 8).Value = containerRecord.GrossWeight;
-                worksheet.Cell(currentRow, 8).Style.NumberFormat.Format = @"# ##0.000\ _₽";
+                worksheet.Cell(currentRow, 8).Style.NumberFormat.Format = decimalFormat;
                 worksheet.Cell(currentRow, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
+                // Колонка 9: TareWt (0 для дубликатов)
+                if (isDuplicate)
+                    containerRecord.TareWt = 0; // Ноль для дубликатов
+
                 worksheet.Cell(currentRow, 9).Value = containerRecord.TareWt;
+
                 worksheet.Cell(currentRow, 9).Style.NumberFormat.Format = "0";
                 worksheet.Cell(currentRow, 9).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
@@ -127,9 +211,8 @@ public class ArrivalNoticeExportService : IArrivalNoticeExportService
 
                 worksheet.Cell(currentRow, 12).Value = bilOfLadingDto.ShipperFullName;
                 worksheet.Cell(currentRow, 13).Value = bilOfLadingDto.ConsigneeFullName;
-                worksheet.Cell(currentRow, 14).Value = bilOfLadingDto.CustomsMode; // Таможенный режим
+                worksheet.Cell(currentRow, 14).Value = bilOfLadingDto.CustomsMode;
                 worksheet.Cell(currentRow, 14).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
 
                 // Добавление границ
                 for (int col = 1; col <= headers.Length; col++)
@@ -139,80 +222,177 @@ public class ArrivalNoticeExportService : IArrivalNoticeExportService
                     worksheet.Cell(currentRow, col).Style.Border.RightBorder = XLBorderStyleValues.Thin;
                 }
 
+                worksheet.Range(currentRow, 1, currentRow, 14).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                // Инкремент счетчиков
                 currentRow++;
-                itemNumber++;
+
+                // itemNumber инкрементируем ТОЛЬКО для первых вхождений
+                if (!isDuplicate)
+                    itemNumber++;
             }
 
         // Итоги внизу таблицы
         int summaryStartRow = currentRow + 2;
 
+        var records = BillOfLadings.SelectMany(s => s.ContainerRecords).ToList();
+
+        var mty20Qty = records.Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty != "F");
+        var mty40Qty = records.Where(s => s.ContainerTypeId.Contains("40")).Count(s => s.FullOrEmpty != "F");
+        var full20Qty = records.Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty == "F");
+        var full40Qty = records.Where(s => s.ContainerTypeId.Contains("40")).Count(s => s.FullOrEmpty == "F");
+
+        var mty20Tare = records.Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty != "F").Sum(s => s.TareWt);
+        var mty40Tare = records.Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty != "F").Sum(s => s.TareWt);
+        var full20Tare = records.Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.TareWt);
+        var full40Tare = records.Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.TareWt);
+
+        var mty20Wt = records.Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty != "F").Sum(s => s.GrossWeight);
+        var mty40Wt = records.Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty != "F").Sum(s => s.GrossWeight);
+        var full20Wt = records.Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.GrossWeight);
+        var full40Wt = records.Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.GrossWeight);
+
         // Веса
-        worksheet.Cell(summaryStartRow, 6).Value = "Вес груза:";
-        worksheet.Cell(summaryStartRow, 7).FormulaA1 = $"SUM(I{startRow + 1}:I{currentRow - 1})";
-        worksheet.Cell(summaryStartRow, 7).Style.NumberFormat.Format = @"# ##0.000\ _₽";
+        worksheet.Cell(summaryStartRow, 4).Value = "Вес груза:";
+        worksheet.Cell(summaryStartRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-        worksheet.Cell(summaryStartRow + 1, 6).Value = "Вес тары:";
-        worksheet.Cell(summaryStartRow + 1, 7).FormulaA1 = $"SUM(J{startRow + 1}:J{currentRow - 1})";
-        worksheet.Cell(summaryStartRow + 1, 7).Style.NumberFormat.Format = @"# ##0.000\ _₽";
+        worksheet.Range(summaryStartRow, 5, summaryStartRow, 6).Merge();
+        worksheet.Cell(summaryStartRow, 5).FormulaA1 = $"SUM(H{startRow + 1}:H{currentRow - 1})";
+        worksheet.Cell(summaryStartRow, 5).Style.NumberFormat.Format = decimalFormat;
 
-        worksheet.Cell(summaryStartRow + 2, 6).Value = "Общий вес с тарой:";
-        worksheet.Cell(summaryStartRow + 2, 7).FormulaA1 =
-            $"SUM(G{summaryStartRow}:H{summaryStartRow + 1})";
-        worksheet.Cell(summaryStartRow + 2, 7).Style.NumberFormat.Format = @"# ##0.000\ _₽";
+        summaryStartRow++;
+        worksheet.Cell(summaryStartRow, 4).Value = "Вес тары:";
+        worksheet.Cell(summaryStartRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+        worksheet.Range(summaryStartRow, 5, summaryStartRow, 6).Merge();
+        worksheet.Cell(summaryStartRow, 5).FormulaA1 = $"SUM(I{startRow + 1}:I{currentRow - 1})";
+        worksheet.Cell(summaryStartRow, 5).Style.NumberFormat.Format = intFormat;
+
+        summaryStartRow++;
+        worksheet.Cell(summaryStartRow, 4).Value = "Общий вес с тарой:";
+        worksheet.Cell(summaryStartRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+        worksheet.Range(summaryStartRow, 5, summaryStartRow, 6).Merge();
+        worksheet.Cell(summaryStartRow, 5).FormulaA1 =
+            $"SUM(E{summaryStartRow - 3}:F{summaryStartRow - 1})";
+        worksheet.Cell(summaryStartRow, 5).Style.NumberFormat.Format = decimalFormat;
+
+
+        worksheet.Range(summaryStartRow - 3, 5, summaryStartRow, 6).Style.Font.Bold = true;
+        worksheet.Range(summaryStartRow - 3, 5, summaryStartRow, 6).Style.Font.FontSize = 12;
+
 
         // Статистика по контейнерам
-        int containerStatsRow = summaryStartRow;
-        int containerStatsCol = 11;
+        int containerStatsRow = currentRow + 2;
 
-        worksheet.Cell(containerStatsRow, containerStatsCol).Value = "контейнеров:";
-        worksheet.Cell(containerStatsRow, containerStatsCol + 1).FormulaA1 =
-            $"SUM(K{containerStatsRow + 2}:K{containerStatsRow + 5})";
 
-        worksheet.Cell(containerStatsRow + 1, containerStatsCol).Value = "20' порожние:";
-        worksheet.Cell(containerStatsRow + 1, containerStatsCol + 1).Value = 0;
-        worksheet.Cell(containerStatsRow + 1, containerStatsCol + 2).Value = "тара";
-        worksheet.Cell(containerStatsRow + 1, containerStatsCol + 3).Value = 0;
-        worksheet.Cell(containerStatsRow + 1, containerStatsCol + 4).Value = "весгруза";
-        worksheet.Cell(containerStatsRow + 1, containerStatsCol + 5).Value = 0;
-        worksheet.Cell(containerStatsRow + 1, containerStatsCol + 6).Value = "ИТОГО";
-        worksheet.Cell(containerStatsRow + 1, containerStatsCol + 7).Value = 0;
+        worksheet.Cell(containerStatsRow++, 7).Value = "20' порожние:";
+        worksheet.Cell(containerStatsRow++, 7).Value = "40' порожние:";
+        worksheet.Cell(containerStatsRow++, 7).Value = "20' груженые:";
+        worksheet.Cell(containerStatsRow++, 7).Value = "40' груженые:";
+        containerStatsRow++;
+        worksheet.Cell(containerStatsRow, 7).Value = "Итого:";
 
-        worksheet.Cell(containerStatsRow + 2, containerStatsCol).Value = "40' порожние:";
-        worksheet.Cell(containerStatsRow + 2, containerStatsCol + 1).Value = 0;
-        worksheet.Cell(containerStatsRow + 2, containerStatsCol + 2).Value = 0;
-        worksheet.Cell(containerStatsRow + 2, containerStatsCol + 3).Value = 0;
-        worksheet.Cell(containerStatsRow + 2, containerStatsCol + 4).Value = 0;
-        worksheet.Cell(containerStatsRow + 2, containerStatsCol + 5).Value = 0;
-        worksheet.Cell(containerStatsRow + 2, containerStatsCol + 6).Value = 0;
-        worksheet.Cell(containerStatsRow + 2, containerStatsCol + 7).Value = 0;
+        containerStatsRow = currentRow + 2;
 
-        worksheet.Cell(containerStatsRow + 3, containerStatsCol).Value = "20' груженые:";
-        worksheet.Cell(containerStatsRow + 3, containerStatsCol + 1).FormulaA1 =
-            $"COUNTIF($C${startRow + 1}:$C${currentRow - 1},\"20\")";
-        worksheet.Cell(containerStatsRow + 3, containerStatsCol + 2).FormulaA1 =
-            $"SUMIF($C${startRow + 1}:$C${currentRow - 1},20,$J${startRow + 1}:$J${currentRow - 1})";
-        worksheet.Cell(containerStatsRow + 3, containerStatsCol + 3).Value = "";
-        worksheet.Cell(containerStatsRow + 3, containerStatsCol + 4).FormulaA1 =
-            $"SUMIF($C${startRow + 1}:$C${currentRow - 1},20,$I${startRow + 1}:$I${currentRow - 1})";
-        worksheet.Cell(containerStatsRow + 3, containerStatsCol + 5).FormulaA1 =
-            $"L{containerStatsRow + 3}+R{containerStatsRow + 3}";
+        // кол-во -8
+        worksheet.Cell(containerStatsRow - 1, 8).Value = "кол-во";
+        worksheet.Cell(containerStatsRow++, 8).Value = mty20Qty;
+        worksheet.Cell(containerStatsRow++, 8).Value = mty40Qty;
+        worksheet.Cell(containerStatsRow++, 8).Value = full20Qty;
+        worksheet.Cell(containerStatsRow++, 8).Value = full40Qty;
 
-        worksheet.Cell(containerStatsRow + 4, containerStatsCol).Value = "40' груженые:";
-        worksheet.Cell(containerStatsRow + 4, containerStatsCol + 1).FormulaA1 =
-            $"COUNTIF($C${startRow + 1}:$C${currentRow - 1},\"40\")";
-        worksheet.Cell(containerStatsRow + 4, containerStatsCol + 2).FormulaA1 =
-            $"SUMIF($C${startRow + 1}:$C${currentRow - 1},40,$J${startRow + 1}:$J${currentRow - 1})";
-        worksheet.Cell(containerStatsRow + 4, containerStatsCol + 3).Value = "";
-        worksheet.Cell(containerStatsRow + 4, containerStatsCol + 4).FormulaA1 =
-            $"SUMIF($C${startRow + 1}:$C${currentRow - 1},40,$I${startRow + 1}:$I${currentRow - 1})";
-        worksheet.Cell(containerStatsRow + 4, containerStatsCol + 5).FormulaA1 =
-            $"L{containerStatsRow + 4}+R{containerStatsRow + 4}";
+        containerStatsRow++;
+        worksheet.Cell(containerStatsRow, 8).FormulaA1 = $"SUM(H{containerStatsRow - 5}:H{containerStatsRow - 2})";
 
-        // Итоговые формулы
-        worksheet.Cell(containerStatsRow + 6, containerStatsCol + 5).FormulaA1 =
-            $"S{containerStatsRow + 3}+S{containerStatsRow + 4}+S{containerStatsRow + 1}";
-        worksheet.Cell(containerStatsRow + 6, containerStatsCol + 7).FormulaA1 =
-            $"S{containerStatsRow + 6}=G{summaryStartRow + 2}";
+        containerStatsRow = currentRow + 2;
+
+        // тара - 9-10
+        worksheet.Cell(containerStatsRow - 1, 9).Value = "вес тары";
+        worksheet.Range(containerStatsRow - 1, 9, containerStatsRow - 1, 10).Merge();
+
+        worksheet.Cell(containerStatsRow, 9).Value = mty20Tare;
+        worksheet.Range(containerStatsRow, 9, containerStatsRow, 10).Merge();
+
+        containerStatsRow++;
+        worksheet.Cell(containerStatsRow, 9).Value = mty40Tare;
+        worksheet.Range(containerStatsRow, 9, containerStatsRow, 10).Merge();
+
+        containerStatsRow++;
+        worksheet.Cell(containerStatsRow, 9).Value = full20Tare;
+        worksheet.Range(containerStatsRow, 9, containerStatsRow, 10).Merge();
+
+        containerStatsRow++;
+        worksheet.Cell(containerStatsRow, 9).Value = full40Tare;
+        worksheet.Range(containerStatsRow, 9, containerStatsRow, 10).Merge();
+
+        containerStatsRow++;
+        containerStatsRow++;
+        worksheet.Cell(containerStatsRow, 9).FormulaA1 = $"SUM(I{containerStatsRow - 5}:J{containerStatsRow - 2})";
+        worksheet.Range(containerStatsRow, 9, containerStatsRow, 10).Merge();
+
+
+        containerStatsRow = currentRow + 2;
+
+        // вес груза -11-12
+        worksheet.Cell(containerStatsRow - 1, 11).Value = "вес груза";
+        worksheet.Range(containerStatsRow - 1, 11, containerStatsRow - 1, 12).Merge();
+
+        worksheet.Range(containerStatsRow, 11, containerStatsRow, 12).Merge();
+        worksheet.Cell(containerStatsRow, 11).Value = mty20Wt;
+
+        containerStatsRow++;
+        worksheet.Range(containerStatsRow, 11, containerStatsRow, 12).Merge();
+        worksheet.Cell(containerStatsRow, 11).Value = mty40Wt;
+
+        containerStatsRow++;
+        worksheet.Range(containerStatsRow, 11, containerStatsRow, 12).Merge();
+        worksheet.Cell(containerStatsRow, 11).Value = full20Wt;
+
+        containerStatsRow++;
+        worksheet.Range(containerStatsRow, 11, containerStatsRow, 12).Merge();
+        worksheet.Cell(containerStatsRow, 11).Value = full40Wt;
+
+        containerStatsRow++;
+        containerStatsRow++;
+        worksheet.Range(containerStatsRow, 11, containerStatsRow, 12).Merge();
+        worksheet.Cell(containerStatsRow, 11).FormulaA1 = $"SUM(K{containerStatsRow - 5}:L{containerStatsRow - 2})";
+
+        containerStatsRow = currentRow + 2;
+        // вес ИТОГО  тара + груз -13
+        worksheet.Cell(containerStatsRow - 1, 13).Value = "вес тары + груза";
+
+        worksheet.Cell(containerStatsRow++, 13).Value = mty20Wt + mty20Tare;
+        worksheet.Cell(containerStatsRow++, 13).Value = mty40Wt + mty40Tare;
+        worksheet.Cell(containerStatsRow++, 13).Value = full20Wt + full20Tare;
+        worksheet.Cell(containerStatsRow++, 13).Value = full40Wt + full40Tare;
+
+        containerStatsRow++;
+
+        worksheet.Cell(containerStatsRow, 13).FormulaA1 = $"SUM(M{containerStatsRow - 5}:M{containerStatsRow - 2})";
+
+        // форматирование тотал
+        worksheet.Range(containerStatsRow - 5, 7, containerStatsRow, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+        worksheet.Range(containerStatsRow - 6, 8, containerStatsRow, 13).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+        worksheet.Range(containerStatsRow - 6, 11, containerStatsRow - 2, 13).Style.NumberFormat.Format = decimalFormat;
+        worksheet.Range(containerStatsRow - 6, 8, containerStatsRow, 10).Style.NumberFormat.Format = intFormat;
+
+        worksheet.Range(containerStatsRow, 9, containerStatsRow, 13).Style.NumberFormat.Format = decimalFormat;
+
+        worksheet.Range(containerStatsRow, 7, containerStatsRow, 13).Style.Font.Bold = true;
+        worksheet.Range(containerStatsRow, 7, containerStatsRow, 13).Style.Font.FontSize = 12;
+
+
+        // Настройка нижнего колонтитула
+        var footer = worksheet.PageSetup.Footer;
+
+        // Очистить существующий колонтитул
+        footer.Clear();
+
+        // Вариант 1: Номер страницы по центру
+        worksheet.PageSetup.Footer.Left.AddText($"{vesselName} / {voyageNumber}");
+        worksheet.PageSetup.Footer.Right.AddText("Страница &P из &N");
 
         // Установка фиксированных ширин столбцов
         worksheet.Column(1).Width = 5;   // №
@@ -250,7 +430,7 @@ public class ArrivalNoticeExportService : IArrivalNoticeExportService
 
         // 5. ВПИСАТЬ ВСЕ СТОЛБЦЫ НА ОДНУ СТРАНИЦУ ПО ШИРИНЕ
         worksheet.PageSetup.AdjustTo(100); // Масштаб 100%
-        worksheet.PageSetup.FitToPages(1,0); // По ширине на 1 страницу По высоте без ограничений (0 = не ограничивать)
+        worksheet.PageSetup.FitToPages(1, 0); // По ширине на 1 страницу По высоте без ограничений (0 = не ограничивать)
 
         // Фиксируем заголовки
         worksheet.SheetView.FreezeRows(startRow);

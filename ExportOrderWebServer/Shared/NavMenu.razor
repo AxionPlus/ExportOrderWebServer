@@ -49,7 +49,15 @@
         <MudNavLink Href="/Importvesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
     </AuthorizeView>
     
-    
+    <AuthorizeView Roles="Admin">
+        <MudNavGroup Title="Import-Hub" Icon="@Icons.Material.Filled.Archive" IconColor="Color.Info" Expanded="false">
+        <MudNavLink Href="/import/bill-of-lading" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">bill-of-lading</MudNavLink>
+        <MudNavLink Href="/import/vessel-call" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">vessel-call</MudNavLink>
+        <MudNavLink Href="/import/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">vessel</MudNavLink>
+        <MudNavLink Href="/import/port" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">port</MudNavLink>
+        <MudNavLink Href="/import/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">terminal</MudNavLink>
+        </MudNavGroup>   
+    </AuthorizeView>
     
 
 </MudNavMenu>

@@ -117,20 +117,14 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Provider
         public virtual async Task UpdateAsync(T entity, CancellationToken cancellationToken)
         {
           //  SetAuditFields(entity, false);
-            entity.Version++;
             await _repository.UpdateAsync(entity);
         }
 
         public virtual async Task DeleteAsync(T entity, CancellationToken cancellationToken)
         {
-           //entity.Status = BaseEntityStatus.Canceled;
-           //entity.DeletedAt = DateTimeOffset.UtcNow;
-           //entity.DeletedBy = GetCurrentUserId();
-           //entity.DeleteReason = "Deleted via CRUD provider";
-           //entity.Version++;
-
             await _repository.DeleteAsync(entity);
         }
+       
 
         protected virtual void SetAuditFields(T entity, bool isNew)
         {

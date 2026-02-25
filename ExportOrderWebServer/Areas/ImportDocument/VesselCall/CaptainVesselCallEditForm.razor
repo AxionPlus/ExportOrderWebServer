@@ -1,0 +1,33 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+
+@inject IVesselCallService vesselCallService
+
+<TextField Label="Captain Name" Value="@VesselCall?.CaptainName" style="width:300px;"  UpperCase />
+<TextField Label="Captain LastName" Value="@VesselCall?.CaptainLastName" Style="width:300px;" UpperCase  />
+
+
+<MudButton OnClick="onSave">Save</MudButton>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter]
+    public VesselCallDto? VesselCall { get; set; }
+
+    private async Task onSave()
+    {
+        try
+        {
+            await   vesselCallService.CaptainChangeName(VesselCall);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+      MudDialog?.Close();
+    }
+
+}

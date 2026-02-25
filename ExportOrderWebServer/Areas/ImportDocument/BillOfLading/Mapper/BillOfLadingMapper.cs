@@ -1,4 +1,5 @@
-﻿using ExportOrderEntites.ImportDocument;
+﻿using ExportOrderEntites;
+using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper;
@@ -36,6 +37,7 @@ public static class BillOfLadingMapper
             ConsigneeAddress = entity.ConsigneeAddress,
             ConsigneeNameRu = entity.ConsigneeNameRu,
             ConsigneeAddressRu = entity.ConsigneeAddressRu,
+            ConsigneeCountryRu = entity.ConsigneeCountryRu,
             PartBl = entity.PartBl,
             CargoDescription = entity.CargoDescription,
             CargoDescriptionRu = entity.CargoDescriptionRu,
@@ -76,7 +78,7 @@ public static class BillOfLadingMapper
             SealNo = entity.SealNo,
             PackageType = entity.PackageType,
             NoOfPackage = entity.NoOfPackage,
-            GrossWeight = entity.GrossWeight,
+            GrossWeight =  entity.GrossWeight,
             GrossWeightUOM = entity.GrossWeightUOM,
             Volume = entity.Volume,
             OutOfGauge = entity.OutOfGauge,
@@ -135,6 +137,7 @@ public static class BillOfLadingMapper
             ConsigneeAddress = baseDto.ConsigneeAddress,
             ConsigneeNameRu = baseDto.ConsigneeNameRu,
             ConsigneeAddressRu = baseDto.ConsigneeAddressRu,
+            ConsigneeCountryRu = baseDto.ConsigneeCountryRu,
             PartBl = baseDto.PartBl,
             CargoDescription = baseDto.CargoDescription,
             CargoDescriptionRu = baseDto.CargoDescriptionRu,
@@ -207,6 +210,7 @@ public static class BillOfLadingMapper
         entity.ConsigneeAddress = baseDto.ConsigneeAddress;
         entity.ConsigneeNameRu = baseDto.ConsigneeNameRu;
         entity.ConsigneeAddressRu = baseDto.ConsigneeAddressRu;
+        entity.ConsigneeCountryRu = baseDto.ConsigneeCountryRu;
         // entity.PartBl = dto.PartBl;
         entity.CargoDescription = baseDto.CargoDescription;
         entity.CargoDescriptionRu = baseDto.CargoDescriptionRu;

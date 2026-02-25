@@ -1,4 +1,5 @@
-﻿using ExportOrderEntites;
+﻿using DocumentFormat.OpenXml.Vml.Office;
+using ExportOrderEntites;
 using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Mapper;
@@ -29,8 +30,13 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
                 PortOfLoading = entity.PortOfLoading.ToDto(), // Предполагая существование ToPortDto
                 FeederBlNo = entity.FeederBlNo,
                 GoogleTableUrl = entity.GoogleTableUrl,
+                PortOfLoadingDate = entity.PortOfLoadingDate,
 
-                BillOfLadings = entity.BillOfLadings.Any()? entity.BillOfLadings.ToDtoList(): new (),
+                CaptainName = entity.CaptainName,
+                CaptainLastName = entity.CaptainLastName,
+                TranslateUpdateTime = entity.TranslateUpdateTime,
+
+                BillOfLadings = entity.BillOfLadings.Any() ? entity.BillOfLadings.ToDtoList() : new(),
                 // BaseEntity fields
                 Status = entity.Status,
                 Version = entity.Version,
@@ -61,8 +67,13 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
                 GoogleTableUrl = dto.GoogleTableUrl,
                 ETA = dto.ETA.Value,
                 ETS = dto.ETS.Value,
+                PortOfLoadingDate = dto.PortOfLoadingDate,
                 PortOfLoadingId = dto.PortOfLoadingId,
                 FeederBlNo = dto.FeederBlNo,
+
+                CaptainName = dto.CaptainName,
+                CaptainLastName = dto.CaptainLastName,
+                TranslateUpdateTime = dto.TranslateUpdateTime,
 
                 // BaseEntity fields
                 Status = dto.Status,
@@ -80,14 +91,18 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
             entity.TerminalId = dto.TerminalId;
             entity.ETA = dto.ETA.Value;
             entity.ETS = dto.ETS.Value;
+            entity.PortOfLoadingDate = dto.PortOfLoadingDate;
             entity.PortOfLoadingId = dto.PortOfLoadingId;
             entity.FeederBlNo = dto.FeederBlNo;
             entity.Status = dto.Status;
             entity.GoogleTableUrl = dto.GoogleTableUrl;
+            entity.CaptainName = dto.CaptainName;
+            entity.CaptainLastName = dto.CaptainLastName;
+            entity.TranslateUpdateTime = dto.TranslateUpdateTime;
         }
 
 
- 
+
 
         public static IEnumerable<VesselCallDto> ToDtoList(this IEnumerable<VesselCallBaseEntity> entities)
         {

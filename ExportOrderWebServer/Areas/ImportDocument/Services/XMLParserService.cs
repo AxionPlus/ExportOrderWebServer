@@ -416,7 +416,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                         ContainerNo = GetElementValue(containerElement, "ContainerNo"),
                         ContainerTypeId = GetElementValue(containerElement, "ContainerTypeId"),
                         IsoCode = GetElementValue(containerElement, "ISOCode"),
-                        TareWt = GetElementValue(containerElement, "TareWt"),
+                        TareWt = ParseInt(GetElementValue(containerElement, "TareWt")),
                         FullOrEmpty = GetElementValue(containerElement, "FullOrEmpty"),
                         IsSoc = GetElementValue(containerElement, "Ownership")?.Equals("SOC", StringComparison.OrdinalIgnoreCase) ?? false,
                         SealNo = GetElementValue(containerElement, "SealNo")?.Trim(),

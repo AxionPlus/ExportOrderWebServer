@@ -1,0 +1,104 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.Terminal.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.Terminal.Services
+
+@inject ITerminalService TerminalService
+@inject ISnackbar Snackbar
+
+
+<PageTitle>Terminal</PageTitle>
+
+@if (TerminalDto.IsNew)
+{
+    <ToolBar Label="Terminal" OnSave="OnSave"></ToolBar>
+}
+else
+{
+    <ToolBar Label="Terminal" OnRefresh="OnRefresh" OnSave="OnSave"></ToolBar>
+}
+
+<Container Rows Style="min-width:400px">
+    <MudForm @ref="mudForm">
+        <TextField Label="Name" @bind-Value="TerminalDto.Name" Required />
+        <TextField Label="Name Ru" @bind-Value="TerminalDto.NameRu" Required />
+        <TextField Label="Email" @bind-Value="TerminalDto.Email" />
+        <TextField Label="Customs Post" @bind-Value="TerminalDto.CustomsPost" />
+        <TextField Label="Customs PostName" @bind-Value="TerminalDto.CustomsPostName" />
+        <TextField Label="Contract Id" @bind-Value="TerminalDto.ContractId" />
+        <TextField Label="Contract Name" @bind-Value="TerminalDto.ContractName" />
+
+    </MudForm>
+</Container>
+
+<OverlayLoadingData Visible="@IsLoading" />
+
+@code {
+    [Parameter]
+    public TerminalDto TerminalDto { get; set; } = new TerminalDto();
+
+    [CascadingParameter]
+    public IMudDialogInstance? DialogService { get; set; }
+
+    bool IsLoading;
+    MudForm? mudForm;
+
+    private async Task OnSave()
+    {
+        await mudForm?.Validate();
+
+        if (!mudForm.IsValid)
+        {
+            return;
+        }
+
+        try
+        {
+            IsLoading = true;
+
+            if (TerminalDto.IsNew)
+            {
+                await TerminalService.CreateAsync(TerminalDto);
+                Snackbar.Add("Terminal created successfully", Severity.Success);
+            }
+            else
+            {
+                await TerminalService.UpdateAsync(TerminalDto);
+                Snackbar.Add("Terminal updated successfully", Severity.Success);
+            }
+
+            // Закрываем диалог с результатом успеха
+            DialogService?.Close(true);
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"Error saving terminal: {e.Message}", Severity.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+            // Обновляем данные в форме после сохранения, если диалог не закрылся (на случай ошибки)
+            if (mudForm.IsValid)
+            {
+                await OnRefresh();
+            }
+        }
+    }
+
+    private async Task OnRefresh()
+    {
+        if (TerminalDto.IsNew) return;
+
+        IsLoading = true;
+        try
+        {
+            TerminalDto = await TerminalService.GetByIdAsync(TerminalDto.Id);
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"Error loading terminal: {e.Message}", Severity.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

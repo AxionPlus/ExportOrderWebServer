@@ -35,9 +35,9 @@
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
-                    <MudCheckBox T="bool" Label="Is SOC" @bind-Checked="Container.IsSoc" />
-                    <MudCheckBox T="bool" Label="Out of Gauge" @bind-Checked="Container.OutOfGauge" />
-                    <MudCheckBox T="bool" Label="Container as Cargo" @bind-Checked="Container.ContainerAsCargo" />
+                    <MudCheckBox T="bool" Label="Is SOC" @bind-Value="Container.IsSoc" />
+                    <MudCheckBox T="bool" Label="Out of Gauge" @bind-Value="Container.OutOfGauge" />
+                    <MudCheckBox T="bool" Label="Container as Cargo" @bind-Value="Container.ContainerAsCargo" />
                 </MudItem>
 
 
@@ -90,6 +90,6 @@
 
     private void Save()
     {
-        MudDialog.Close();
+        MudDialog.Close(true);
     }
 }

@@ -13,9 +13,12 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Terminal.Mapper
             {
                 Id = entity.Id,
                 Name = entity.Name,
+                NameRu = entity.NameRu,
                 Email = entity.Email,
                 CustomsPost = entity.CustomsPost,
                 CustomsPostName = entity.CustomsPostName,
+                ContractId = entity.ContractId,
+                ContractName = entity.ContractName,
 
                 // BaseEntity fields
                 Status = entity.Status,
@@ -41,9 +44,12 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Terminal.Mapper
             {
                 Id = dto.Id,
                 Name = dto.Name,
+                NameRu = dto.NameRu,
                 Email = dto.Email,
                 CustomsPost = dto.CustomsPost,
                 CustomsPostName = dto.CustomsPostName,
+                ContractId = dto.ContractId,
+                ContractName = dto.ContractName,
 
                 // BaseEntity fields
                 Status = dto.Status,
@@ -56,9 +62,12 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Terminal.Mapper
             if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             entity.Name = dto.Name;
+            entity.NameRu = dto.NameRu;
             entity.Email = dto.Email;
             entity.CustomsPost = dto.CustomsPost;
             entity.CustomsPostName = dto.CustomsPostName;
+            entity.ContractId = dto.ContractId;
+            entity.ContractName = dto.ContractName;
             entity.Status = dto.Status;
         }
 

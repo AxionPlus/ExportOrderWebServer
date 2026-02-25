@@ -152,6 +152,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Areas\ImportDocument\Resources\FeederBL_Template.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Areas\ImportDocument\Resources\Obligation_Template.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="DataSet\BillOfLading.xsd">
       <SubType>Designer</SubType>
       <LastGenOutput>BillOfLading.Designer.cs</LastGenOutput>

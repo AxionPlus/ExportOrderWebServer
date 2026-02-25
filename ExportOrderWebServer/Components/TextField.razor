@@ -20,8 +20,6 @@
         <MudTextField T="string" Class="@TextClass"
                       Value="Value"
                       ValueChanged="@(async(e)=>{ await ValueChanged.InvokeAsync(e.ToUpper()); })"
-                      Text="@Text"
-                      TextChanged="@TextChanged"
                       Variant="Variant.Outlined"
                       Required="@Required"
                       Error="@Error"

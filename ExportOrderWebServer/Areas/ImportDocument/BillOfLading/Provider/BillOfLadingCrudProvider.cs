@@ -79,6 +79,11 @@ public class BillOfLadingCrudProvider : BaseCrudProvider<BillOfLadingBaseEntity>
         await base.UpdateAsync(entity, cancellationToken);
     }
 
+    public override async Task DeleteAsync(BillOfLadingBaseEntity entity, CancellationToken cancellationToken)
+    {
+        await base.DeleteAsync(entity, cancellationToken);
+    }
+
     private void ValidateBillOfLading(BillOfLadingBaseEntity entity)
     {
         if (string.IsNullOrWhiteSpace(entity.Num))

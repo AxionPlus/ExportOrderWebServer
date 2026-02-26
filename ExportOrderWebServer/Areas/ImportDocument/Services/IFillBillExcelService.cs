@@ -36,12 +36,14 @@ public class FillBillExcelService : IFillBillExcelService
         int row = 1;
 
         worksheet.Cell(row, 9).Value = "Подписант: Фамилия";
+        worksheet.Cell(row, 10).Value = vesselCall.CaptainLastName;
         row++;
 
         worksheet.Cell(row, 1).Value = "Название парохода";
         worksheet.Cell(row, 2).Value = vesselCall.Vessel?.Name ?? string.Empty;
 
         worksheet.Cell(row, 9).Value = "Имя и Отчество";
+        worksheet.Cell(row, 10).Value = vesselCall.CaptainName;
         row++;
 
         worksheet.Cell(row, 1).Value = "Флаг";

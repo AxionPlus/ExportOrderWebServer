@@ -220,6 +220,14 @@ public class ManifestExportService : IManifestExportService
 
             foreach (var container in sortedContainers)
             {
+                if (container.ContainerAsCargo)
+                {
+                    container.GrossWeight += container.TareWt;
+                    container.TareWt = 0;
+
+                    container.NoOfPackage += 1;
+                }
+
                 worksheet.Cell(currentRow, 10).Value = seqNumber;
 
                 worksheet.Cell(currentRow, 11).Value = container.ContainerNo;
@@ -292,7 +300,7 @@ public class ManifestExportService : IManifestExportService
 
         // === ПОСЛЕДНЯЯ СТРАНИЦА (ИТОГИ) ===
 
-        var records = vesselCall.BillOfLadings.SelectMany(s => s.ContainerRecords).ToList();
+        var records = sortedBillOfLadings.SelectMany(s => s.ContainerRecords).ToList();
         var mty20Qty = records.Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty != "F");
         var mty40Qty = records.Where(s => s.ContainerTypeId.Contains("40")).Count(s => s.FullOrEmpty != "F");
         var full20Qty = records.Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty == "F");

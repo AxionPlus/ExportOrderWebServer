@@ -7,18 +7,18 @@
     
     @if (VesselCall == null)
     {
-        <h6>select Vessel Call</h6>
+        <div class="m-auto">select Vessel Call</div>
     }
     else
     {
-        <h6>@VesselCall?.Vessel?.Name / @VesselCall?.VoyageNo</h6>
+        <div class="m-auto">@VesselCall?.Vessel?.Name / @VesselCall?.VoyageNo</div>
     }
 @*     <TextField Label="Vessel" Value="@VesselCall?.Vessel?.Name" style="width:220px;" ReadOnly UpperCase />
 
     <TextField Label="Voyage" Value="@VesselCall?.VoyageNo" Style="width:150px; padding-left:10px;" UpperCase ReadOnly /> *@
 
 
-    <div style="margin-top:25px;margin-left:4px;display: flex; align-items: center;">
+    <div style="margin-left:4px;display: flex; align-items: center;">
         <MudTooltip Text="Select vessel call menu">
             <MudIconButton Class="TextFieldIconButton" Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Small" Color="Color.Primary" OnClick="SelectVslCall_Click" />
         </MudTooltip>

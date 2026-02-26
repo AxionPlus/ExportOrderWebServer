@@ -286,8 +286,8 @@ public class VesselCallService : IVesselCallService
         var entity = await _vesselCallCrudProvider.GetByIdAsync(vesselCall.Id, cancellationToken);
         if (entity == null) return;
 
-        entity.CaptainName = vesselCall.CaptainName;
-        entity.CaptainLastName = vesselCall.CaptainLastName;
+        entity.CaptainName = vesselCall.CaptainName.Trim().ToUpper();
+        entity.CaptainLastName = vesselCall.CaptainLastName.Trim().ToUpper();
 
         await _vesselCallCrudProvider.UpdateAsync(entity, cancellationToken);
     }

@@ -2,10 +2,10 @@
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
 
 @inject IVesselCallService vesselCallService
-
-<TextField Label="Captain Name" Value="@VesselCall?.CaptainName" style="width:300px;"  UpperCase />
-<TextField Label="Captain LastName" Value="@VesselCall?.CaptainLastName" Style="width:300px;" UpperCase  />
-
+<MudContainer Class="">
+    <TextField Label="Captain Name" @bind-Value="@VesselCall.CaptainName" style="width:300px;" UpperCase />
+    <TextField Label="Captain LastName" @bind-Value="@VesselCall.CaptainLastName" Style="width:300px;" UpperCase />
+</MudContainer>
 
 <MudButton OnClick="onSave">Save</MudButton>
 
@@ -18,7 +18,7 @@
     {
         try
         {
-            await   vesselCallService.CaptainChangeName(VesselCall);
+            await vesselCallService.CaptainChangeName(VesselCall);
 
         }
         catch (Exception e)
@@ -27,7 +27,7 @@
             throw;
         }
 
-      MudDialog?.Close();
+        MudDialog?.Close();
     }
 
 }

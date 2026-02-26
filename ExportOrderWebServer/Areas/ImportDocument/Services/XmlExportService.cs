@@ -281,7 +281,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                     CargoName = container.CargoDescriptionRu ?? throw new NullReferenceException($"CargoDescriptionRu is null - {billOfLading}/{container.ContainerNo}"),
                     oversized = container.OutOfGauge ? "true" : "false",
                     NumberOfUnits = container.NoOfPackage.ToString(),
-                    CargoWeight = FormatWeight(container.GrossWeight),
+                    CargoWeight = FormatNleWeight(container.GrossWeight),
                     SealList = new SealListType
                     {
                         Seals = ParseSealList(container.SealNo)
@@ -296,7 +296,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                     containerType.TemperatureCondition = new TemperatureConditionType
                     {
                         Value = GetTemperatureValue(container),
-                        Unit = container.ReeferTempUOM ?? "C"
+                        Unit =  "C"
                     };
                 }
 
@@ -359,9 +359,9 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
         private string FormatWeight(double weight) => weight.ToString("F3").Replace(".", ",");
 
         // Для NLE формат веса без десятичных знаков
-        private string FormatNleWeight(string tareWeight) => double.TryParse(tareWeight, out double weight) ? weight.ToString("F0") : tareWeight;
 
         private string FormatNleWeight(int tareWeight) => ((double)tareWeight).ToString("F0");
+        private string FormatNleWeight(double weight) => weight.ToString("F3").Replace(",", ".");
 
 
         private string GetTemperatureValue(BillOfLadingContainerRecordBaseDto container)

@@ -377,10 +377,12 @@ public class BillOfLadingService : IBillOfLadingService
         }
 
 
-        var VesselCall = await db.Set<VesselCallBaseEntity>()
+        var vesselCall = await db.Set<VesselCallBaseEntity>()
             .FirstAsync(s => s.Id == vesselCallId, cancellationToken: cancellationToken);
 
-        VesselCall.TranslateUpdateTime = DateTime.Now;
+        vesselCall.TranslateUpdateTime = DateTime.Now;
+
+        await db.SaveChangesAsync(cancellationToken);
 
     }
 

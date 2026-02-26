@@ -29,7 +29,7 @@ public class VesselCallDto : BaseEntity
     public PortDto PortOfLoading { get; set; }
     public DateTime? PortOfLoadingDate { get; set; }
 
-   
+
 
     public List<BillOfLadingBaseDto> BillOfLadings { get; set; } = new();
 
@@ -51,8 +51,8 @@ public class VesselCallDto : BaseEntity
     public int QuantityFull20 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty == "F");
     public int QuantityFull40 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("40")).Count(s => s.FullOrEmpty == "F");
 
-    public int QuantityImo20 => BillOfLadings.Where(s=>s.IsImo).SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty == "F");
-    public int QuantityImo40 => BillOfLadings.Where(s=>s.IsImo).SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("40")).Count(s => s.FullOrEmpty == "F");
+    public int QuantityImo20 => BillOfLadings.Where(s => s.IsImo).SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty == "F");
+    public int QuantityImo40 => BillOfLadings.Where(s => s.IsImo).SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("40")).Count(s => s.FullOrEmpty == "F");
 
 
 
@@ -60,23 +60,23 @@ public class VesselCallDto : BaseEntity
         .Select(s => s.First()).Count();
 
 
-    public int TareWtEmpty20 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty != "F").Sum(s => s.TareWt);
-    public int TareWtEmpty40 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty != "F").Sum(s => s.TareWt);
-    public int TareWtFull20 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s =>  s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.TareWt);
-    public int TareWtFull40 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s =>  s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.TareWt);
+    public int TareWtEmpty20 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty != "F").Sum(s => s.ContainerAsCargo ? 0 : s.TareWt);
+    public int TareWtEmpty40 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty != "F").Sum(s => s.ContainerAsCargo ? 0 : s.TareWt);
+    public int TareWtFull20 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.ContainerAsCargo ? 0 : s.TareWt);
+    public int TareWtFull40 => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.ContainerAsCargo ? 0 : s.TareWt);
 
-    public int TareWtImo20 => BillOfLadings.Where(s=>s.IsImo).SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.TareWt);
-    public int TareWtImo40 => BillOfLadings.Where(s => s.IsImo).SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.TareWt);
+    public int TareWtImo20 => BillOfLadings.Where(s => s.IsImo).SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.ContainerAsCargo ? 0 : s.TareWt);
+    public int TareWtImo40 => BillOfLadings.Where(s => s.IsImo).SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.ContainerAsCargo ? 0 : s.TareWt);
 
-    public int TareWtContainers =>   BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Sum(s => s.TareWt);
+    public int TareWtContainers => BillOfLadings.SelectMany(s => s.ContainerRecords).GroupBy(s => s.ContainerNo).Select(s => s.First()).Sum(s => s.TareWt);
 
 
 
-    public double GrossWtFull20 => BillOfLadings.SelectMany(s => s.ContainerRecords).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.GrossWeight);
-    public double GrossWtFull40 => BillOfLadings.SelectMany(s => s.ContainerRecords).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.GrossWeight);
+    public double GrossWtFull20 => BillOfLadings.SelectMany(s => s.ContainerRecords).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.ContainerAsCargo ? s.GrossWeight + s.TareWt : s.GrossWeight);
+    public double GrossWtFull40 => BillOfLadings.SelectMany(s => s.ContainerRecords).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.ContainerAsCargo ? s.GrossWeight + s.TareWt : s.GrossWeight);
 
-    public double GrossWtImo20 => BillOfLadings.Where(s=>s.IsImo).SelectMany(s => s.ContainerRecords).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.GrossWeight);
-    public double GrossWtImo40 => BillOfLadings.Where(s => s.IsImo).SelectMany(s => s.ContainerRecords).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.GrossWeight);
+    public double GrossWtImo20 => BillOfLadings.Where(s => s.IsImo).SelectMany(s => s.ContainerRecords).Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty == "F").Sum(s => s.ContainerAsCargo ? s.GrossWeight + s.TareWt :s.GrossWeight);
+    public double GrossWtImo40 => BillOfLadings.Where(s => s.IsImo).SelectMany(s => s.ContainerRecords).Where(s => s.ContainerTypeId.Contains("40")).Where(s => s.FullOrEmpty == "F").Sum(s => s.ContainerAsCargo ? s.GrossWeight + s.TareWt : s.GrossWeight);
 
     public double GrossWtFull => BillOfLadings.SelectMany(s => s.ContainerRecords).Where(s => s.FullOrEmpty == "F").Sum(s => s.GrossWeight);
 

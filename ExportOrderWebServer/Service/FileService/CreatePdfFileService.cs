@@ -267,7 +267,7 @@ public class CreatePdfFileService : ICreatePdfFileService
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return Array.Empty<byte>();
+            return [];
         }        
     }
 
@@ -471,18 +471,15 @@ public class CreatePdfFileService : ICreatePdfFileService
         var voyage = items.GroupBy(g => g.VesselCallId).FirstOrDefault()!
                         .Select(g => new ExportOrderFileDto()
                         {
-                            Dated = g.Dated,
+                            DateExplanation = g.DateExplanation,
                             CustomsOfficeName = g.CustomsOfficeName,
                             CustomsOfficeNameShort = g.CustomsOfficeNameShort,
                             CustomsDapartment = g.CustomsDapartment,
-                            //DateExplanation = string.Concat("____ ",
-                            //    g.Dated?.ToString("MMMM", CultureInfo.GetCultureInfo("ru-RU")),
-                            //    g.Dated?.ToString("yyyy")
-                            //),
+                            
                             VesselName = g.VesselName,
                             VesselFlag = g.VesselFlag,
                             VoyageNum = g.VoyageNum,
-                            //VesselFlagVoyage = string.Concat(g.VesselName, "флаг ", g.VesselFlag, ", рейс: ", g.VoyageNum),
+                            
                             PersonFamily = g.PersonFamily,
                             PersonNameSurname = g.PersonNameSurname,
                             PersonBirthYear = g.PersonBirthYear,
@@ -528,7 +525,7 @@ public class CreatePdfFileService : ICreatePdfFileService
 
             InsertCustomsVoyageData(tableMain, voyage);
             InsertCustomsRecordsData(tableExportOrders, items);
-            InsertCustomsFooterData(tableFooter, voyage.Dated, voyage.PersonSign);
+            InsertCustomsFooterData(tableFooter, voyage.DateExplanation, voyage.PersonSign);
 
             mainPart.Document.Save();
         }
@@ -1271,7 +1268,7 @@ public class CreatePdfFileService : ICreatePdfFileService
 
         tableRow = table.Elements<TableRow>().ElementAt(4);
         cells = tableRow.Elements<TableCell>().ToArray();
-        UpdateCell(cells[0], CustomsLetterDate(item.Dated) ?? string.Empty, fontName, fontSize);
+        UpdateCell(cells[0], CustomsLetterDate(item.DateExplanation) ?? string.Empty, fontName, fontSize);
         UpdateCell(cells[1], item.CustomsDapartment ?? string.Empty, fontName, fontSize);
 
         tableRow = table.Elements<TableRow>().ElementAt(5);

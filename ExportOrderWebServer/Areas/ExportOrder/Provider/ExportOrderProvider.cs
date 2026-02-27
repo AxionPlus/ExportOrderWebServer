@@ -702,7 +702,8 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
                 BLtemplate = s.Carrier?.BlTemplate ?? BLTemplate.Standard,
                 BLDate = s.VesselCallDetail?.VesselCall.ETS?.ToString("dd.MM.yyyy"),
                 LoadingDate = s.VesselCallDetail?.VesselCall.ETA?.ToString("dd.MM.yyyy"),
-                
+                DateExplanation = s.VesselCallDetail?.VesselCall.ETS,
+
                 CarrierNameEn = s.Carrier?.NameEn,
                 CarrierLocation = s.Carrier?.Location?.Name,
                 CarrierCountryEn = s.Carrier?.Location?.Country?.ENG,

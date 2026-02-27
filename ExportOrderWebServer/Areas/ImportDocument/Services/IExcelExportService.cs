@@ -153,7 +153,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
 
 
         int row = 2;
-        foreach (var bol in billOfLadingList)
+        foreach (var bol in billOfLadingList.OrderBy(s=>s.ConsigneeName))
         {
             detailsWorksheet.Cell(row, 2).Value = bol.Num;
             detailsWorksheet.Cell(row, 7).Value = "РОССИЯ";

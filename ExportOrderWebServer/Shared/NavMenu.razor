@@ -48,8 +48,8 @@
         <MudNavLink Href="/ImportManifest" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Import Manifest</MudNavLink>
         <MudNavLink Href="/Importvesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
     </AuthorizeView>
-    
-    <AuthorizeView Roles="Admin">
+
+    <AuthorizeView Roles="ImportHub">
         <MudNavGroup Title="Import-Hub" Icon="@Icons.Material.Filled.Archive" IconColor="Color.Info" Expanded="false">
         <MudNavLink Href="/import/bill-of-lading" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">bill-of-lading</MudNavLink>
         <MudNavLink Href="/import/vessel-call" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">vessel-call</MudNavLink>

@@ -1,5 +1,6 @@
 ﻿@* CustomerList.razor *@
 @page "/import/customer"
+@attribute [Authorize(Roles = "ImportHub")]
 @using ExportOrderEntites.ImportDocument
 @using ExportOrderWebServer.Areas.ImportDocument.Customer.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.Customer.Services

@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer;
 using ExportOrderWebServer.Areas.Catalog;
+using ExportOrderWebServer.Areas.Import;
 using ExportOrderWebServer.Areas.Import.BillofLadings.Provider;
 using ExportOrderWebServer.Areas.Import.ImportManifest.Provider;
 using ExportOrderWebServer.Areas.Import.ReleaseRecords.Provider;
@@ -197,6 +198,7 @@ builder.Services.AddScoped<IManifestHazardousExportService, ManifestHazardousExp
 builder.Services.AddScoped<IObligationExcelService, ObligationExcelService>();
 builder.Services.AddScoped<IFeederBlExcelService, FeederBlExcelService>();
 builder.Services.AddScoped<IFillBillExcelService, FillBillExcelService>();
+builder.Services.AddScoped<IYandexDiskService, YandexDiskService>();
 
 builder.Services.AddScoped<IManifestXmlGenerator, ManifestXmlGenerator>();
 

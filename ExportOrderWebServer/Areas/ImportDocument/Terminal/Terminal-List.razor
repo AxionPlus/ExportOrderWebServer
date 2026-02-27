@@ -1,4 +1,5 @@
 ﻿@page "/import/terminal"
+@attribute [Authorize(Roles = "ImportHub")]
 @using ExportOrderWebServer.Areas.ImportDocument.Provider
 @using ExportOrderWebServer.Areas.ImportDocument.Terminal.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.Terminal.Services

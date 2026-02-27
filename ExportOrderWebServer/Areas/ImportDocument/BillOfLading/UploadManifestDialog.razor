@@ -129,6 +129,35 @@
                             }
                         </div>
 
+                        @if (UploadManifestResponse != null && UploadManifestResponse.Errors.Any())
+                        {
+                      
+                            <MudList T="string" Class="mt-3">
+                                    @foreach (var error in UploadManifestResponse.Errors)
+                                    {
+                                        <MudListItem Icon="@Icons.Material.Filled.Error">
+                                            @error
+                                        </MudListItem>
+                                    }
+                                </MudList>
+
+                            
+                        }
+
+                        @if (UploadManifestResponse != null)
+                        {
+
+
+                            <MudList T="string" Class="mt-3">
+
+                                <MudListItem Icon="@Icons.Material.Filled.Error" IconColor="Color.Info">ParsedBills: @UploadManifestResponse.ParsedBills</MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Error" IconColor="Color.Success">SavedBills: @UploadManifestResponse.SavedBills</MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Error" IconColor="Color.Warning">SkippedBills: @UploadManifestResponse.SkippedBills</MudListItem>
+
+
+                            </MudList>
+
+                        }
                     }
                 </MudItem>
 

@@ -2,6 +2,7 @@
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
 using Org.BouncyCastle.Asn1.X509;
+using System.Reflection;
 using System.Reflection.Metadata;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.Services;
@@ -15,13 +16,13 @@ public class ObligationExcelService : IObligationExcelService
 {
     private readonly string _templatePath;
 
-    public ObligationExcelService(string templatePath = "Templates/ObligationTemplate.xlsx")
+    public ObligationExcelService()
     {
-        _templatePath = templatePath;
-
-
+        _templatePath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\Areas\\ImportDocument\\Resources\\Obligation_Template.xlsx";
+#if DEBUG
         _templatePath =
             "C:\\Users\\Sergey Vasilenko\\source\\repos\\AxionPlus\\ExportOrderWebServer\\ExportOrderWebServer\\Areas\\ImportDocument\\Resources\\Obligation_Template.xlsx";
+#endif
     }
 
 

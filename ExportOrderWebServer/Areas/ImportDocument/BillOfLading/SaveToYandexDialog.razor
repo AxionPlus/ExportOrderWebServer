@@ -1,0 +1,145 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.Services
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+
+@inject IExcelExportService _excelService;
+@inject IArrivalNoticeExportService _arrivalNoticeExportService;
+@inject IManifestExportService _manifestExportService;
+@inject IManifestHazardousExportService _manifestHazardousExportService;
+@inject IFeederBlExcelService _feederBlExcelService;
+@inject IFillBillExcelService _fillBillExcelService;
+@inject IYandexDiskService _diskService;
+@inject IVesselCallService _vesselCallService
+@inject IObligationExcelService _obligationExcelService
+
+@inject ISnackbar Snackbar
+
+<MudContainer>
+    <MudList T="string">
+        <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+            <MudCheckBox T="bool" @bind-Value="@ArrivalNotice"></MudCheckBox>
+        </MudListItem>
+        <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+            <MudCheckBox T="bool" @bind-Value="@CargoManifest"></MudCheckBox>
+        </MudListItem>
+        <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+            <MudCheckBox T="bool" @bind-Value="@DgManifest"></MudCheckBox>
+        </MudListItem>
+        <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+            <MudCheckBox T="bool" @bind-Value="@FillBill"></MudCheckBox>
+        </MudListItem>
+        <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+            <MudCheckBox T="bool" @bind-Value="@Obligation"></MudCheckBox>
+        </MudListItem>
+        <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+            <MudCheckBox T="bool" @bind-Value="@Xml"></MudCheckBox>
+        </MudListItem>
+        <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+            <MudCheckBox T="bool" @bind-Value="@Translate"></MudCheckBox>
+        </MudListItem>
+
+
+    </MudList>
+
+    <MudButton OnClick="OnSave">Save</MudButton>
+</MudContainer>
+
+@code {
+    [Parameter] public VesselCallDto? VesselCall { get; set; }
+    bool isLoading = false;
+
+    bool ArrivalNotice = false;
+    bool CargoManifest = false;
+    bool DgManifest = false;
+    bool FillBill = false;
+    bool Obligation = false;
+    bool Xml = false;
+    bool Translate = false;
+
+    private async Task OnSave()
+    {
+        try
+        {
+            if (VesselCall == null)
+            {
+                Snackbar.Add("Please select a vessel call first", Severity.Warning);
+                return;
+            }
+
+            var vesselCall = await _vesselCallService.GetByIdForArrivalNoticeAsync(VesselCall.Id);
+            var uploadDto = new YandexFileUploadDto
+            {
+                VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
+                VoyageNo = vesselCall.VoyageNo ?? "0000",
+                FileName = string.Empty,
+                BaseFolderPath = "Документы Импорт"
+            };
+
+            if (vesselCall.BillOfLadings.Any())
+            {
+                Snackbar.Add("No bills of lading to export", Severity.Info);
+                return;
+            }
+
+
+            if (ArrivalNotice)
+            {
+                uploadDto.FileName = $"УВЕДОМЛЕНИЕ_О_ПРИБЫТИИ_ТОВАРОВ_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                var fileBytes = await _arrivalNoticeExportService.GenerateArrivalNoticeAsync(vesselCall);
+                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+            }
+            else if (CargoManifest)
+            {
+                uploadDto.FileName = $"CargoManifest_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                var fileBytes = await _manifestExportService.GenerateManifestAsync(vesselCall);
+                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+            }
+            else if (DgManifest)
+            {
+                uploadDto.FileName = $"DG_Manifest_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                var fileBytes = await _manifestHazardousExportService.GenerateManifestAsync(vesselCall);
+                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+            }
+            else if (FillBill)
+            {
+                uploadDto.FileName = $"Fill-Bill_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                var fileBytes = await _fillBillExcelService.GenerateExcel(vesselCall);
+                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+            }
+            else if (Obligation)
+            {
+                uploadDto.FileName = $"Обязательство_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                var fileBytes = await _obligationExcelService.GenerateObligationAsync(vesselCall);
+                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+            }
+            else if (Xml)
+            {
+                uploadDto.FileName = $"Xml-{vesselCall.Terminal.Name}_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                var fileBytes = new XmlExportService().CreateManifestXml(vesselCall);
+                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+            }
+            else if (Translate)
+            {
+                uploadDto.FileName = $"Translate_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                var fileBytes = await _excelService.ExportBillOfLadingToExcelForTranslateAsync(vesselCall.BillOfLadings);
+                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+            }
+
+
+
+            Snackbar.Add($"Successfully Save To Yandex", Severity.Success);
+
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error exporting to Excel: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+}

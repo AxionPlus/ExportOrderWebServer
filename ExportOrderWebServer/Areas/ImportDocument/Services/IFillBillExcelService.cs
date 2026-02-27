@@ -145,8 +145,8 @@ public class FillBillExcelService : IFillBillExcelService
                 worksheet.Cell(row, col++).Value = container.IMCONumber;
                 worksheet.Cell(row, col++).Value = billOfLading.Num;
                 worksheet.Cell(row, col++).Value = billOfLading.TsDate;
-                worksheet.Cell(row, col++).Value = billOfLading.TsPort?.IsoCode ?? string.Empty;
-                worksheet.Cell(row, col++).Value = billOfLading.Pol?.IsoCode ?? string.Empty;
+                worksheet.Cell(row, col++).Value = billOfLading.TsPort?.PikYugIsoCode ?? string.Empty;
+                worksheet.Cell(row, col++).Value = billOfLading.Pol?.PikYugIsoCode ?? string.Empty;
                 worksheet.Cell(row, col++).Value = billOfLading.ShipperNameRu;
                 worksheet.Cell(row, col++).Value = billOfLading.Pol?.CountryRu;
                 worksheet.Cell(row, col++).Value = string.Empty; // Shipper City

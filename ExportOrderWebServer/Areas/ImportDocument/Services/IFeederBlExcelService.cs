@@ -1,6 +1,6 @@
 ﻿using ClosedXML.Excel;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
-using ExportOrderWebServer.DataSet;
+using System.Reflection;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.Services;
 
@@ -15,13 +15,14 @@ public class FeederBlExcelService : IFeederBlExcelService
 
     private readonly string _templatePath;
 
-    public FeederBlExcelService(string templatePath = "Templates/FeederBL_Template.xlsx")
+    public FeederBlExcelService()
     {
-        _templatePath = templatePath;
+        _templatePath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\Areas\\ImportDocument\\Resources\\FeederBL_Template.xlsx";
 
-
+#if  DEBUG
         _templatePath =
             "C:\\Users\\Sergey Vasilenko\\source\\repos\\AxionPlus\\ExportOrderWebServer\\ExportOrderWebServer\\Areas\\ImportDocument\\Resources\\FeederBL_Template.xlsx";
+#endif
     }
     public async Task<byte[]> GenerateFeederBlAsync(VesselCallDto vesselCall)
     {

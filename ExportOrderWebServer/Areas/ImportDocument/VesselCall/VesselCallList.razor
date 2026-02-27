@@ -1,5 +1,6 @@
 ﻿@* VesselCallList.razor *@
 @page "/import/vessel-call"
+@attribute [Authorize(Roles = "ImportHub")]
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
 @using ExportOrderWebServer.Areas.ImportDocument.Provider

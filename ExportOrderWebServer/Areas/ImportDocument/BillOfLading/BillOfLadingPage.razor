@@ -1,4 +1,6 @@
 ﻿@page "/import/bill-of-lading"
+@attribute [Authorize(Roles = "ImportHub")]
+
 @using Blazored.LocalStorage
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
@@ -18,7 +20,13 @@
 @inject IGoogleSheetsParser GoogleSheetsParser
 @inject IObligationExcelService ObligationExcelService
 
-
+@inject IExcelExportService _excelService;
+@inject IArrivalNoticeExportService _arrivalNoticeExportService;
+@inject IManifestExportService _manifestExportService;
+@inject IManifestHazardousExportService _manifestHazardousExportService;
+@inject IFeederBlExcelService _feederBlExcelService;
+@inject IFillBillExcelService _fillBillExcelService;
+@inject IYandexDiskService _diskService;
 <style>
     .mud-table-dense * .mud-table-row .mud-table-cell {
         padding-inline-start: 10px;
@@ -104,6 +112,7 @@
                 <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Obligation" OnClick="ObligationToExcel" />
                 <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Xml" OnClick="Xml" />
                 <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Fill Bill" OnClick="ExportFillBillToExcel" />
+                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Save to Yandex" OnClick="OnSaveToYandex" />
             </ChildContent>
         </MudMenu>
     }
@@ -434,31 +443,13 @@
             isLoading = true;
             StateHasChanged();
 
-            // Используем HttpClientFactory
-            var httpClient = HttpClientFactory.CreateClient();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var fileBytes = await _excelService.ExportBillOfLadingToExcelAsync(vesselCall);
 
-            // Настраиваем базовый адрес
-            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+            await DownloadFile(fileBytes, $"сводная_таблица_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")} ", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-            var response = await httpClient.GetAsync($"api/excel-export/bill-of-lading/list/{SelectedVesselCallId}");
+            Snackbar.Add($"Successfully exported {BillOfLadings.Count} сводная_таблица", Severity.Success);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                var contentDisposition = response.Content.Headers.ContentDisposition;
-                var fileName = contentDisposition?.FileNameStar
-                               ?? contentDisposition?.FileName
-                               ?? $"BillOfLadings_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-
-                await DownloadFile(fileBytes, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-                Snackbar.Add($"Successfully exported {BillOfLadings.Count} bills of lading", Severity.Success);
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Export failed: {errorMessage}", Severity.Error);
-            }
         }
         catch (Exception ex)
         {
@@ -489,31 +480,13 @@
             isLoading = true;
             StateHasChanged();
 
-            // Используем HttpClientFactory
-            var httpClient = HttpClientFactory.CreateClient();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var fileBytes = await _arrivalNoticeExportService.GenerateArrivalNoticeAsync(vesselCall);
 
-            // Настраиваем базовый адрес
-            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+            await DownloadFile(fileBytes, $"УВЕДОМЛЕНИЕ_О_ПРИБЫТИИ_ТОВАРОВ_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")} ", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-            var response = await httpClient.GetAsync($"api/excel-export/bill-of-lading/arrivalNotice/{SelectedVesselCallId}");
+            Snackbar.Add($"Successfully exported {BillOfLadings.Count} УВЕДОМЛЕНИЕ_О_ПРИБЫТИИ_ТОВАРОВ", Severity.Success);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                var contentDisposition = response.Content.Headers.ContentDisposition;
-                var fileName = contentDisposition?.FileNameStar
-                               ?? contentDisposition?.FileName
-                               ?? $"ArrivalNotice_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-
-                await DownloadFile(fileBytes, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-                Snackbar.Add($"Successfully exported {BillOfLadings.Count} bills of lading", Severity.Success);
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Export failed: {errorMessage}", Severity.Error);
-            }
         }
         catch (Exception ex)
         {
@@ -544,31 +517,13 @@
             isLoading = true;
             StateHasChanged();
 
-            // Используем HttpClientFactory
-            var httpClient = HttpClientFactory.CreateClient();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var fileBytes = await _manifestExportService.GenerateManifestAsync(vesselCall);
 
-            // Настраиваем базовый адрес
-            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+            await DownloadFile(fileBytes, $"CargoManifest_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")} ", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-            var response = await httpClient.GetAsync($"api/excel-export/bill-of-lading/manifest/{SelectedVesselCallId}");
+            Snackbar.Add($"Successfully exported {BillOfLadings.Count} CargoManifest", Severity.Success);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                var contentDisposition = response.Content.Headers.ContentDisposition;
-                var fileName = contentDisposition?.FileNameStar
-                               ?? contentDisposition?.FileName
-                               ?? $"CargoManifest_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-
-                await DownloadFile(fileBytes, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-                Snackbar.Add($"Successfully exported {BillOfLadings.Count} bills of lading", Severity.Success);
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Export failed: {errorMessage}", Severity.Error);
-            }
         }
         catch (Exception ex)
         {
@@ -774,32 +729,13 @@
 
             isLoading = true;
             StateHasChanged();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var fileBytes = await _manifestHazardousExportService.GenerateManifestAsync(vesselCall);
 
-            // Используем HttpClientFactory
-            var httpClient = HttpClientFactory.CreateClient();
+            await DownloadFile(fileBytes, $"DG_Manifest_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")} ", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-            // Настраиваем базовый адрес
-            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+            Snackbar.Add($"Successfully exported {BillOfLadings.Count} DG_Manifest", Severity.Success);
 
-            var response = await httpClient.GetAsync($"api/excel-export/bill-of-lading/dg-manifest/{SelectedVesselCallId}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                var contentDisposition = response.Content.Headers.ContentDisposition;
-                var fileName = contentDisposition?.FileNameStar
-                               ?? contentDisposition?.FileName
-                               ?? $"DG_Manifest_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-
-                await DownloadFile(fileBytes, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-                Snackbar.Add($"Successfully exported {BillOfLadings.Count} bills of lading", Severity.Success);
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Export failed: {errorMessage}", Severity.Error);
-            }
         }
         catch (Exception ex)
         {
@@ -830,32 +766,13 @@
 
             isLoading = true;
             StateHasChanged();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var fileBytes = await _feederBlExcelService.GenerateFeederBlAsync(vesselCall);
 
-            // Используем HttpClientFactory
-            var httpClient = HttpClientFactory.CreateClient();
+            await DownloadFile(fileBytes, $"Feeder-BillOfLading_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")} ", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-            // Настраиваем базовый адрес
-            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
-
-            var response = await httpClient.GetAsync($"api/excel-export/bill-of-lading/feeder-bl/{SelectedVesselCallId}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                var contentDisposition = response.Content.Headers.ContentDisposition;
-                var fileName = contentDisposition?.FileNameStar
-                               ?? contentDisposition?.FileName
-                               ?? $"Feeder-BillOfLading_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-
-                await DownloadFile(fileBytes, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-                Snackbar.Add($"Successfully exported {BillOfLadings.Count} bills of lading", Severity.Success);
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Export failed: {errorMessage}", Severity.Error);
-            }
+            Snackbar.Add($"Successfully exported {BillOfLadings.Count} Feeder-BillOfLading", Severity.Success);
+           
         }
         catch (Exception ex)
         {
@@ -887,31 +804,14 @@
             isLoading = true;
             StateHasChanged();
 
-            // Используем HttpClientFactory
-            var httpClient = HttpClientFactory.CreateClient();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var bolList = vesselCall.BillOfLadings;
+            var fileBytes = await _excelService.ExportBillOfLadingToExcelForTranslateAsync(bolList); 
 
-            // Настраиваем базовый адрес
-            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+            await DownloadFile(fileBytes, $"BillOfLadings_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")} ", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-            var response = await httpClient.GetAsync($"api/excel-export/bill-of-lading/translate-list/{SelectedVesselCallId}");
+            Snackbar.Add($"Successfully exported {BillOfLadings.Count} BillOfLadings", Severity.Success);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                var contentDisposition = response.Content.Headers.ContentDisposition;
-                var fileName = contentDisposition?.FileNameStar
-                               ?? contentDisposition?.FileName
-                               ?? $"BillOfLadings_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-
-                await DownloadFile(fileBytes, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-                Snackbar.Add($"Successfully exported {BillOfLadings.Count} bills of lading", Severity.Success);
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Export failed: {errorMessage}", Severity.Error);
-            }
         }
         catch (Exception ex)
         {
@@ -942,32 +842,24 @@
 
             isLoading = true;
             StateHasChanged();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var fileBytes = await _fillBillExcelService.GenerateExcel(vesselCall);
 
-            // Используем HttpClientFactory
-            var httpClient = HttpClientFactory.CreateClient();
+            await DownloadFile(fileBytes, $"FillBill_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_ETA{vesselCall.ETA:ddMMyy}_{DateTime.Now.ToString("ddMMyymmss")}", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-            // Настраиваем базовый адрес
-            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+            Snackbar.Add($"Successfully exported {BillOfLadings.Count} FillBill", Severity.Success);
 
-            var response = await httpClient.GetAsync($"api/excel-export/bill-of-lading/fill-bill/{SelectedVesselCallId}");
-
-            if (response.IsSuccessStatusCode)
+            var uploadDto = new YandexFileUploadDto
             {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                var contentDisposition = response.Content.Headers.ContentDisposition;
-                var fileName = contentDisposition?.FileNameStar
-                               ?? contentDisposition?.FileName
-                               ?? $"Feeder-BillOfLading_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+                VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
+                VoyageNo = vesselCall.VoyageNo ?? "0000",
+                FileName = $"Fill-Bill_{vesselCall.Vessel?.Name}_{vesselCall.VoyageNo}_v{DateTime.Now:ddMMyymmss}.xlsx",
+                BaseFolderPath = "Документы Импорт"
+            };
 
-                await DownloadFile(fileBytes, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-                Snackbar.Add($"Successfully exported {BillOfLadings.Count} bills of lading", Severity.Success);
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Export failed: {errorMessage}", Severity.Error);
-            }
+            // 3. Загружаем на Яндекс.Диск
+            var pathOnDisk = await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+          
         }
         catch (Exception ex)
         {
@@ -1005,4 +897,76 @@
     }
 
 
-}
+    private async Task OnSaveToYandex()
+    {
+        try
+        {
+            if (SelectedVesselCallId == Guid.Empty)
+            {
+                Snackbar.Add("Please select a vessel call first", Severity.Warning);
+                return;
+            }
+
+            if (!BillOfLadings.Any())
+            {
+                Snackbar.Add("No bills of lading to export", Severity.Info);
+                return;
+            }
+
+            isLoading = true;
+            StateHasChanged();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var fileBytes = await _fillBillExcelService.GenerateExcel(vesselCall);
+            var uploadDto = new YandexFileUploadDto
+            {
+                VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
+                VoyageNo = vesselCall.VoyageNo ?? "0000",
+                FileName = $"Fill-Bill_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx",
+                BaseFolderPath = "Документы Импорт"
+            };
+
+            // Загружаем на Яндекс.Диск
+            var pathOnDisk = await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+
+
+             fileBytes = await _arrivalNoticeExportService.GenerateArrivalNoticeAsync(vesselCall);
+             uploadDto = new YandexFileUploadDto
+            {
+                VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
+                VoyageNo = vesselCall.VoyageNo ?? "0000",
+                FileName = $"УВЕДОМЛЕНИЕ_О_ПРИБЫТИИ_ТОВАРОВ_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx",
+                BaseFolderPath = "Документы Импорт"
+            };
+
+            // Загружаем на Яндекс.Диск
+             pathOnDisk = await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+
+             fileBytes = await ObligationExcelService.GenerateObligationAsync(vesselCall);
+             uploadDto = new YandexFileUploadDto
+             {
+                 VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
+                 VoyageNo = vesselCall.VoyageNo ?? "0000",
+                 FileName = $"Обязательство_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx",
+                 BaseFolderPath = "Документы Импорт"
+             };
+
+             // Загружаем на Яндекс.Диск
+             pathOnDisk = await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+
+
+            Snackbar.Add($"Successfully Save To Yandex", Severity.Success);
+
+          
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error exporting to Excel: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    }

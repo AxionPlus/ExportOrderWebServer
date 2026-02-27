@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager NavigationManager
 
 <PageTitle>Export Order</PageTitle>
 <MudThemeProvider />
@@ -10,7 +11,9 @@
 
 <MudLayout>
     <MudDrawer @bind-Open="@_drawerOpen" Elevation="2">
-        <NavMenu />
+        <CascadingValue Value=ShowMainMenu>
+            <NavMenu />
+        </CascadingValue>
     </MudDrawer>
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="padding-bottom: 15px;">
@@ -43,6 +46,7 @@
     void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
+        StateHasChanged();
     }
 
     private async Task LogoutApp()

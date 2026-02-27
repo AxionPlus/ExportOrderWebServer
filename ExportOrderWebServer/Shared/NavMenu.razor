@@ -1,63 +1,73 @@
 ﻿<MudNavMenu>  
     <MudNavGroup Title="My Company" Icon="@Icons.Material.Filled.PeopleAlt" Expanded="false">
         <AuthorizeView Roles="Admin, Top Manager">
-            <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Attribution">Users</MudNavLink>
-            <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Roles</MudNavLink>
+            <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Attribution">Users</MudNavLink>
+            <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Groups">Roles</MudNavLink>
             <MudDivider Class="my-2" />
         </AuthorizeView>
         <AuthorizeView Roles="Admin, Top Manager, Manager">            
-            <MudNavLink Href="/mycompany" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleOutline">Company</MudNavLink>
-            <MudNavLink Href="/statistic" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AccountBalanceWallet">Statistic</MudNavLink>
+            <MudNavLink Href="/mycompany" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.PeopleOutline">Company</MudNavLink>
+            <MudNavLink Href="/statistic" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.AccountBalanceWallet">Statistic</MudNavLink>
             <MudDivider Class="my-2" />
         </AuthorizeView>
     </MudNavGroup>
     <AuthorizeView Roles="Admin, Top Manager, Manager">
-        <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
+        <MudNavLink Href="/vesselcall" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
         @* <MudNavLink Href="/vesselcalls" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink> *@
         @* <MudNavLink Href="/ExportOrders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink> *@
         <MudNavLink Href="/New_ExportOrders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article">Export Order</MudNavLink>
-        <MudNavLink Href="/documents" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Description">Documents</MudNavLink>
+        <MudNavLink Href="/documents" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Description">Documents</MudNavLink>
     </AuthorizeView>
     <AuthorizeView Roles="Admin, Top Manager">
-        <MudNavLink Href="/uploadPdfExportOrders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Cached">КПС Морской Порт</MudNavLink>
+        <MudNavLink Href="/uploadPdfExportOrders" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Cached">КПС Морской Порт</MudNavLink>
     </AuthorizeView>
     <AuthorizeView Roles="Admin, Top Manager, Manager">
         <MudDivider Class="my-2" />
         <MudNavGroup Title="Catalogues" Icon="@Icons.Material.Filled.Archive" Expanded="false">
-            <MudNavLink Href="/carrier" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Carrier</MudNavLink>
-            <MudNavLink Href="/commodity" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Commodity</MudNavLink>        
-            <MudNavLink Href="/country" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Country</MudNavLink>
-            <MudNavLink Href="/customer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Customer</MudNavLink>
-            <MudNavLink Href="/customsoffice" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Customs Office</MudNavLink>
+            <MudNavLink Href="/carrier" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Carrier</MudNavLink>
+            <MudNavLink Href="/commodity" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Commodity</MudNavLink>
+            <MudNavLink Href="/country" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Country</MudNavLink>
+            <MudNavLink Href="/customer" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Customer</MudNavLink>
+            <MudNavLink Href="/customsoffice" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Customs Office</MudNavLink>
             <MudDivider Class="my-2" />
-            <MudNavLink Href="/location" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.LocationOn">Location</MudNavLink>
-            <MudNavLink Href="/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Terminal</MudNavLink>
-            <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Anchor">Vessel</MudNavLink>
+            <MudNavLink Href="/location" Match="NavLinkMatch.Prefix"@onclick="@CloseDrawer" Icon="@Icons.Material.Filled.LocationOn">Location</MudNavLink>
+            <MudNavLink Href="/terminal" Match="NavLinkMatch.Prefix"@onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Terminal</MudNavLink>
+            <MudNavLink Href="/vessel" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Anchor">Vessel</MudNavLink>
             <MudDivider Class="my-2" />
-            <MudNavLink Href="/containerType" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Container Types</MudNavLink>
-            <MudNavLink Href="/supplementaryUnit" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Supplementary Units</MudNavLink>
+            <MudNavLink Href="/containerType" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Container Types</MudNavLink>
+            <MudNavLink Href="/supplementaryUnit" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Supplementary Units</MudNavLink>
         </MudNavGroup>    
     </AuthorizeView>
     <AuthorizeView Roles="Admin, ImpDept">
-        <MudNavLink Href="/billofladings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">bill of ladings</MudNavLink>
-        <MudNavLink Href="/uploadmanifest" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">upload manifest</MudNavLink>
-        <MudNavLink Href="/releaseImport" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">release Import</MudNavLink>
-        <MudNavLink Href="/releaseRecords" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">release Records</MudNavLink>
+        <MudNavLink Href="/billofladings" Match="NavLinkMatch.Prefix"@onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">bill of ladings</MudNavLink>
+        <MudNavLink Href="/uploadmanifest" Match="NavLinkMatch.Prefix"@onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">upload manifest</MudNavLink>
+        <MudNavLink Href="/releaseImport" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">release Import</MudNavLink>
+        <MudNavLink Href="/releaseRecords" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">release Records</MudNavLink>
     </AuthorizeView>
     <AuthorizeView Roles="Admin, ImpDept">
-        <MudNavLink Href="/ImportManifest" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Import Manifest</MudNavLink>
-        <MudNavLink Href="/Importvesselcall" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
+        <MudNavLink Href="/ImportManifest" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">Import Manifest</MudNavLink>
+        <MudNavLink Href="/Importvesselcall" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Directions">Vessel Call</MudNavLink>
     </AuthorizeView>
 
     <AuthorizeView Roles="ImportHub">
-        <MudNavGroup Title="Import-Hub" Icon="@Icons.Material.Filled.Archive" IconColor="Color.Info" Expanded="false">
-        <MudNavLink Href="/import/bill-of-lading" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">bill-of-lading</MudNavLink>
-        <MudNavLink Href="/import/vessel-call" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">vessel-call</MudNavLink>
-        <MudNavLink Href="/import/vessel" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">vessel</MudNavLink>
-        <MudNavLink Href="/import/port" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">port</MudNavLink>
-        <MudNavLink Href="/import/terminal" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">terminal</MudNavLink>
+        <MudNavGroup Title="Import-Hub" Icon="@Icons.Material.Filled.Archive"@onclick="@CloseDrawer" IconColor="Color.Info" Expanded="false">
+            <MudNavLink Href="/import/bill-of-lading" Match="NavLinkMatch.Prefix"@onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">bill-of-lading</MudNavLink>
+            <MudNavLink Href="/import/vessel-call" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">vessel-call</MudNavLink>
+            <MudNavLink Href="/import/vessel" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">vessel</MudNavLink>
+            <MudNavLink Href="/import/port" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">port</MudNavLink>
+            <MudNavLink Href="/import/terminal" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">terminal</MudNavLink>
         </MudNavGroup>   
     </AuthorizeView>
     
 
 </MudNavMenu>
+
+@code {
+    [CascadingParameter]
+    public EventCallback ShowMainMenu { get; set; }
+
+    private async Task CloseDrawer()
+    {
+        await ShowMainMenu.InvokeAsync();
+    }
+}

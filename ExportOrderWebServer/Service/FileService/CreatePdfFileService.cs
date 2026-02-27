@@ -1329,7 +1329,8 @@ public class CreatePdfFileService : ICreatePdfFileService
             var cells = tableRow.Elements<TableCell>().ToArray();
 
             UpdateCell(cells[0], item.Num ?? string.Empty, fontName, fontSize);
-            UpdateCell(cells[1], item.Records?.Sum(r => r.PackageQty)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize);
+            //UpdateCell(cells[1], item.Records?.Sum(r => r.PackageQty)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize);
+            UpdateCell(cells[1], item.Records?.Count.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize);
             UpdateCell(cells[2], item.Records?.Sum(r => r.GrossWt)?.ToString("N3", numberFormat) ?? string.Empty, fontName, fontSize);
             UpdateCell(cells[3], item.Records?.Sum(r => r.GrossAndTare)?.ToString("N3", numberFormat) ?? string.Empty, fontName, fontSize);
             UpdateCell(cells[4], item.CommodityShort ?? string.Join(", ", item.Commodities) ?? string.Empty, fontName, fontSize);
@@ -1343,7 +1344,8 @@ public class CreatePdfFileService : ICreatePdfFileService
         var cellsFooter = footerRow.Elements<TableCell>().ToArray();
 
         UpdateCell(cellsFooter[0], "Итого:", fontName, fontSize, true);
-        UpdateCell(cellsFooter[1], exportOrders.SelectMany(eo => eo.Records).Sum(r => r.PackageQty)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
+        //UpdateCell(cellsFooter[1], exportOrders.SelectMany(eo => eo.Records).Sum(r => r.PackageQty)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
+        UpdateCell(cellsFooter[1], exportOrders.SelectMany(eo => eo.Records).Count().ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
         UpdateCell(cellsFooter[2], exportOrders.SelectMany(eo => eo.Records).Sum(r => r.GrossWt)?.ToString("N3", numberFormat) ?? string.Empty, fontName, fontSize, true);
         UpdateCell(cellsFooter[3], exportOrders.SelectMany(eo => eo.Records).Sum(r => r.GrossAndTare)?.ToString("N3", numberFormat) ?? string.Empty, fontName, fontSize, true);
     }

@@ -4,7 +4,7 @@
 
 <MudForm @ref="@Form" Style="max-width:fit-content">
     <DialogToolBar ToolBarTitle="Customs Office" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
-                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>        
+                   CloseDialog="@(() => MudDialog?.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>        
     <div class="Container-item">
         <div class="container-content">
             <MudTextField Class="TextField" T="string" Style="width: 150px" Label="Код" @bind-Value="@Item.Code"
@@ -12,20 +12,20 @@
                           Immediate="true" Required RequiredError="" Clearable />
          </div>
          <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 250px" Label="пост (кратко)" Text="@Item.OfficeShort"
-                          TextChanged="@(async (e)=> { Item.OfficeShort = e.ToUpper(); })"
+            <MudTextField Class="TextField" T="string" Style="width: 250px" Label="пост (кратко)" Value="@Item.OfficeShort"
+                          ValueChanged="@(async (e)=> { Item.OfficeShort = e.ToUpper(); })"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true" Required RequiredError="" Clearable />
          </div>
          <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 500px" Label="Таможенный пост" Text="@Item.Office"
-                          TextChanged="@(async (e)=> { Item.Office = e.ToUpper(); })"
+            <MudTextField Class="TextField" T="string" Style="width: 500px" Label="Таможенный пост" Value="@Item.Office"
+                          ValueChanged="@(async (e)=> { Item.Office = e.ToUpper(); })"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true" Required RequiredError="" Clearable />
          </div>
          <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 500px" Label="Таможенный орган" Text="@Item.Dapartment"
-                          TextChanged="@(async (e)=> { Item.Dapartment = e.ToUpper(); })"
+            <MudTextField Class="TextField" T="string" Style="width: 500px" Label="Таможенный орган" Value="@Item.Dapartment"
+                          ValueChanged="@(async (e)=> { Item.Dapartment = e.ToUpper(); })"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true" Required RequiredError="" Clearable />
          </div>

@@ -4,16 +4,16 @@
 
 <MudForm @ref="@Form" Style="max-width:fit-content">
     <DialogToolBar ToolBarTitle="Доп. единицы" SaveButtonDisabled="@IsLoadingData" SaveItem="@SaveItem_Click"
-                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+                   CloseDialog="@(() => MudDialog?.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
     <div class="Container-item">
         <div class="container-content">
             <MudTextField Class="TextField" T="ushort?" Label="Код" Style="width:60px; margin-inline:10px" @ref="NewItemCode" @bind-Value="@Item.Code"
                           Variant="Variant.Outlined" Clearable Required RequiredError="" />
             <MudTextField Class="TextField" T="string" Label="Кратко" Style="width:160px; margin-inline:10px"
-                          Text="@Item.ShortName" TextChanged="(e) => Item.ShortName = e.ToUpper().Trim()"
+                          Value="@Item.ShortName" ValueChanged="(e) => Item.ShortName = e.ToUpper().Trim()"
                           Variant="Variant.Outlined" Clearable Required RequiredError="" />
             <MudTextField Class="TextField" T="string" Label="Наименование" Style="width:340px; margin-inline:10px"
-                          Text="@Item.FullName" TextChanged="(e) => Item.FullName = e.ToUpper().Trim()"
+                          Value="@Item.FullName" ValueChanged="(e) => Item.FullName = e.ToUpper().Trim()"
                           Variant="Variant.Outlined" Clearable Required RequiredError="" />
         </div>
     </div>

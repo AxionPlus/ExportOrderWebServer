@@ -164,13 +164,13 @@
                                   Adornment="Adornment.End" IconSize="Size.Small"
                                   AdornmentIcon="@Icons.Material.Filled.CopyAll"
                                   OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" /> *@
-                    <TextField Class="TextField" Style="width:360px" Text="@context.CommodityEngName"
-                                  TextChanged="@((e) => context.CommodityEngName = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper())"
-                                  Lines=2
-                                  Required 
-                                  Adornment="Adornment.End" IconSize="Size.Small"
-                                  AdornmentIcon="@Icons.Material.Filled.CopyAll"
-                                  OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" />
+                    <TextField Class="TextField" Style="width:360px" Value="@context.CommodityEngName"
+                               ValueChanged="@((e) => context.CommodityEngName = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper())"
+                               Lines=2
+                               Required 
+                               Adornment="Adornment.End" IconSize="Size.Small"
+                               AdornmentIcon="@Icons.Material.Filled.CopyAll"
+                               OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" />
                 </MudTd>
                 <MudTd></MudTd>
                 <MudTd>

@@ -14,16 +14,16 @@
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true" Lines="6"
                           Placeholder="Наименование на русском"
-                          Required RequiredError="" Clearable /> *@
-            <TextField Class="TextField" Style="width: 600px" Label="Name" Text="@Item.Name"
-                       TextChanged="@((e)=> { Item.Name = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper(); })"
+                          Required RequiredError="" Clearable /> *@            
+            <TextField Class="TextField" Style="width: 600px" Label="Name" Value="@Item.Name"
+                       ValueChanged="@((e)=> { Item.Name = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper(); })"
                        Lines="6"
                        Placeholder="Наименование на русском"
                        Required Clearable />
          </div>
-         <div class="container-content">
-            <TextField Class="TextField" Style="width: 600px" Label="Name En" Text="@Item.NameEn"
-                       TextChanged="@((e)=> { Item.NameEn = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper(); })"                          
+         <div class="container-content">            
+            <TextField Class="TextField" Style="width: 600px" Label="Name En" Value="@Item.NameEn"
+                       ValueChanged="@((e)=> { Item.NameEn = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper(); })"
                        Lines="6"
                        Placeholder="Name in english"
                        Required Clearable />

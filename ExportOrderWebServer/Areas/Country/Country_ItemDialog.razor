@@ -4,19 +4,19 @@
 
 <MudForm @ref="@Form" Style="max-width:fit-content">    
     <DialogToolBar ToolBarTitle="Country" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
-                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+                   CloseDialog="@(() => MudDialog?.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
     <div class="Container-item">
         <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 400px" Label="Name Ru" Text="@Item.RUS"
-                          TextChanged="async (e)=> { Item.RUS = e.ToUpper(); }"
+            <MudTextField Class="TextField" T="string" Style="width: 400px" Label="Name Ru" Value="@Item.RUS"
+                          ValueChanged="async (e)=> { Item.RUS = e.ToUpper(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true"
                           Required RequiredError="" Clearable />
 
         </div>
         <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 400px" Label="Name En" Text="@Item.ENG"
-                          TextChanged="@(async (e)=> { Item.ENG = e.ToUpper(); })"
+            <MudTextField Class="TextField" T="string" Style="width: 400px" Label="Name En" Value="@Item.ENG"
+                          ValueChanged="@(async (e)=> { Item.ENG = e.ToUpper(); })"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true"
                           Required RequiredError="" Clearable />

@@ -221,11 +221,11 @@
                                         MaxItems="20" />
                 </MudTd>
                 <MudTd DataLabel="Agent">
-                    <MudTextField Class="TextField" T="string" Style="width: 375px;" Text="@context.AgentPOD"
-                                    TextChanged="async (e)=> context.AgentPOD = e?.ToUpper()"
-                                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                                    Immediate="true"
-                                    Required RequiredError="" Clearable />
+                    <MudTextField Class="TextField" T="string" Style="width: 375px;" Value="@context.AgentPOD"
+                                  ValueChanged="async (e)=> context.AgentPOD = e?.ToUpper()"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Immediate="true"
+                                  Required RequiredError="" Clearable />
                 </MudTd>
                 <MudTd DataLabel="Final">
                     <MudAutocomplete Class="Autocomplete" T="LocationCatalog" Style="width: 250px" @bind-Value="context.FinalDestination"

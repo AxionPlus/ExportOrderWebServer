@@ -13,12 +13,12 @@
 
 <MudForm @ref="@Form" Style="max-width:fit-content">
     <DialogToolBar ToolBarTitle="Vessel" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
-                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+                   CloseDialog="@(() => MudDialog?.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
     <div class="Container-item">
         <div class="container-head"></div>
         <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 360px" Label="Name" Text="@Item.Name"
-                          TextChanged="async (e)=> { Item.Name = e.ToUpper(); }"
+            <MudTextField Class="TextField" T="string" Style="width: 360px" Label="Name" Value="@Item.Name"
+                          ValueChanged="async (e)=> { Item.Name = e.ToUpper(); }"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true" AutoFocus="true"
                           Required RequiredError="" Clearable />

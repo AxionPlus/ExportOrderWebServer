@@ -61,14 +61,14 @@
             </MudTd>
             <MudTd>
                 <MudTextField Class="TextField" T="string" Variant="Variant.Outlined" Required RequiredError="" Disabled="@(context.ISO is not null)"
-                              Text="@context.ISO"
-                              TextChanged="@(async (e) => { context.ISO = e.ToUpper();
+                              Value="@context.ISO"
+                              ValueChanged="@(async (e) => { context.ISO = e.ToUpper();
                                                             NewItems.FirstOrDefault(x => x.ISO == context.ISO)!.ISO = e.ToUpper(); })" />
             </MudTd>
             <MudTd>
                 <MudTextField Class="TextField" T="string" Variant="Variant.Outlined" Required RequiredError="" Disabled="@(context.Normolize is not null)"
-                              Text="@context.Normolize"
-                              TextChanged="@(async (e) => { context.Normolize = e.ToUpper();
+                              Value="@context.Normolize"
+                              ValueChanged="@(async (e) => { context.Normolize = e.ToUpper();
                                                             NewItems.FirstOrDefault(x => x.Normolize == context.Normolize)!.Normolize = e.ToUpper(); })" />
             </MudTd>
             <MudTd></MudTd>

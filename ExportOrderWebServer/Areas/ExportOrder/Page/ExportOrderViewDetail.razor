@@ -241,16 +241,16 @@
             <div style="display:flex; margin-top:3px">
                 <span style="margin-top:12px; margin-right:6px"><b>Товар кратко:</b></span>
                 <MudTextField Class="TextField" T="string" Style="width:350px" @bind-Value="@Item.CommodityShort"
-                              Text="@Item.CommodityShort"
-                              TextChanged="(e) => { if (!string.IsNullOrWhiteSpace(e)) Item.CommodityShort = e.ToUpper().Trim(); else Item.CommodityShort = null; }"
+                              Value="@Item.CommodityShort"
+                              ValueChanged="(e) => { if (!string.IsNullOrWhiteSpace(e)) Item.CommodityShort = e.ToUpper().Trim(); else Item.CommodityShort = null; }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" Clearable />
             </div>
             <div style="display:flex; margin-top:3px; margin-left:15px">
                 <span style="margin-top:12px; margin-right:6px"><b>Товар кратко (на анг. для к/с):</b></span>
                 <MudTextField Class="TextField" T="string" Style="width:350px" @bind-Value="@Item.CommodityShortEn"
-                              Text="@Item.CommodityShortEn"
-                              TextChanged="(e) => { if (!string.IsNullOrWhiteSpace(e)) Item.CommodityShortEn = e.ToUpper().Trim(); else Item.CommodityShortEn = null; }"
+                              Value="@Item.CommodityShortEn"
+                              ValueChanged="(e) => { if (!string.IsNullOrWhiteSpace(e)) Item.CommodityShortEn = e.ToUpper().Trim(); else Item.CommodityShortEn = null; }"
                               Variant="Variant.Outlined" Margin="Margin.Dense"
                               Immediate="true" Clearable />
             </div>

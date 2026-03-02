@@ -6,23 +6,27 @@
 
 <MudForm @ref="@Form" Style="max-width:fit-content">
     <DialogToolBar ToolBarTitle="Customer" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
-                   CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
+                   CloseDialog="@(() => MudDialog?.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>
     <div class="Container-item">
         <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 600px" Label="Name" Text="@Item.Name"
+            @* <MudTextField Class="TextField" T="string" Style="width: 600px" Label="Name" Text="@Item.Name"
                           TextChanged="@((e)=> { Item.Name = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper(); })"
                           Variant="Variant.Outlined" Margin="Margin.Dense"
                           Immediate="true" Lines="6"
                           Placeholder="Наименование на русском"
-                          Required RequiredError="" Clearable />
+                          Required RequiredError="" Clearable /> *@
+            <TextField Class="TextField" Style="width: 600px" Label="Name" Text="@Item.Name"
+                       TextChanged="@((e)=> { Item.Name = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper(); })"
+                       Lines="6"
+                       Placeholder="Наименование на русском"
+                       Required Clearable />
          </div>
          <div class="container-content">
-            <MudTextField Class="TextField" T="string" Style="width: 600px" Label="Name En" Text="@Item.NameEn"
-                          TextChanged="@((e)=> { Item.NameEn = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper(); })"
-                          Variant="Variant.Outlined" Margin="Margin.Dense"
-                          Immediate="true" Lines="6"
-                          Placeholder="Name in english"
-                          Required RequiredError="" Clearable />
+            <TextField Class="TextField" Style="width: 600px" Label="Name En" Text="@Item.NameEn"
+                       TextChanged="@((e)=> { Item.NameEn = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper(); })"                          
+                       Lines="6"
+                       Placeholder="Name in english"
+                       Required Clearable />
         </div>
         <div class="container-content" style="justify-content: flex-start">
             <MudAutocomplete Class="Autocomplete" T="CountryCatalog" Style="width: 300px; margin-right:20px" Label="Country" @bind-Value="Item.Country"

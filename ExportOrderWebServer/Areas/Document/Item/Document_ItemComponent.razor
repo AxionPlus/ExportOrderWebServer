@@ -89,12 +89,17 @@
             </MudTooltip>
             @if (Value.Shipper is not null)
             {
-                <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 530px" @bind-Value="@Value.Shipper.Name"
+                @* <MudTextField Class="TextField" Placeholder="Shipper Ru" Style="width: 530px" @bind-Value="@Value.Shipper.Name"
                               Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-                              Required RequiredError="" Clearable />
-                <MudTextField Class="TextField" Placeholder="Shipper En" Style="width: 530px" @bind-Value="@Value.Shipper.NameEn"
-                              Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-                              Required RequiredError="" Clearable />
+                              Required RequiredError="" Clearable /> *@
+                <TextField Class="TextField" Style="width: 530px" @bind-Value="@Value.Shipper.Name"
+                           Lines="3"
+                           Placeholder="Shipper Ru"
+                           Required Clearable />
+                <TextField Class="TextField" Style="width: 530px" @bind-Value="@Value.Shipper.NameEn"
+                           Lines="3"
+                           Placeholder="Shipper En"
+                           Required Clearable />
             }            
         </div>
         <div class="container-content">
@@ -107,12 +112,14 @@
             </MudTooltip>
             @if (Value.Consignee is not null)
             {
-                <MudTextField Class="TextField" Placeholder="Consignee ru" Style="width: 530px" @bind-Value="@Value.Consignee.Name"
-                              Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-                              Required RequiredError="" Clearable />
-                <MudTextField Class="TextField" Placeholder="Consignee en" Style="width: 530px" @bind-Value="@Value.Consignee.NameEn"
-                              Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3"
-                              Required RequiredError="" Clearable />
+                <TextField Class="TextField" Style="width: 530px" @bind-Value="@Value.Consignee.Name"
+                           Lines="3"
+                           Placeholder="Consignee ru"
+                           Required Clearable />
+                <TextField Class="TextField" Style="width: 530px" @bind-Value="@Value.Consignee.NameEn"
+                           Lines="3"
+                           Placeholder="Consignee en"
+                           Required Clearable />
             }            
         </div>
     </div>    
@@ -146,13 +153,21 @@
                 <MudTd>@context.Seq.ToString("000")</MudTd>
                 <MudTd><b>@context.CommodityHSCode</b></MudTd>
                 <MudTd>                    
-                    <MudTextField Class="TextField" T="string" Style="width:360px" @bind-Value="@context.CommodityName"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 />                    
+                    @* <MudTextField Class="TextField" T="string" Style="width:360px" @bind-Value="@context.CommodityName"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 /> *@
+                    <TextField Class="TextField" Style="width:360px" Lines=2 @bind-Value="@context.CommodityName" />
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField" T="string" Style="width:360px" Text="@context.CommodityEngName"
+                    @* <MudTextField Class="TextField" T="string" Style="width:360px" Text="@context.CommodityEngName"
                                   TextChanged="@((e) => context.CommodityEngName = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper())"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 Required RequiredError=""
+                                  Adornment="Adornment.End" IconSize="Size.Small"
+                                  AdornmentIcon="@Icons.Material.Filled.CopyAll"
+                                  OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" /> *@
+                    <TextField Class="TextField" Style="width:360px" Text="@context.CommodityEngName"
+                                  TextChanged="@((e) => context.CommodityEngName = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper())"
+                                  Lines=2
+                                  Required 
                                   Adornment="Adornment.End" IconSize="Size.Small"
                                   AdornmentIcon="@Icons.Material.Filled.CopyAll"
                                   OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" />
@@ -175,10 +190,12 @@
                     }
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField IMO" T="string" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="@context.IMO" />
+                    @* <MudTextField Class="TextField IMO" T="string" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="@context.IMO" /> *@
+                    <TextField Class="TextField IMO" @bind-Value="@context.IMO" />
                 </MudTd>
                 <MudTd>
-                    <MudTextField Class="TextField IMO" T="string" Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" @bind-Value="@context.UNNO" />
+                    @* <MudTextField Class="TextField IMO" T="string" Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" @bind-Value="@context.UNNO" /> *@
+                    <TextField Class="TextField IMO" MaxLength="4" @bind-Value="@context.UNNO" />
                 </MudTd>
             </RowTemplate>
         </MudTable>

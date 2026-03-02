@@ -67,7 +67,7 @@
         <div class="container-content MainData" style="padding-bottom:2px">
             <TextField Style="width:200px" Label="Поручение №" Text="@Item.Num" @bind-Value="Item.Num" UpperCase Required />
             <DatePicker Style="width:130px" Label="Дата" @bind-Date="Item.Dated" Clearable Required />
-            <TextField Class="TextField" Style="width:450px"
+@*             <TextField Class="TextField" Style="width:450px"
                        Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
                        Text="@(Item.VesselCallDetail == null
                             ? string.Empty
@@ -83,6 +83,16 @@
                        })"
                        Clearable
                        OnClearButtonClick="@(()=> { Item.VesselCallDetail = null; Item.Carrier = null; })"
+                       IconSize="Size.Small"
+                       Adornment="Adornment.Start"
+                       AdornmentColor="Color.Primary"
+                       AdornmentIcon="@Icons.Material.Filled.Waves"
+                       OnAdornmentClick="@GetVesselCallDetail_Click" /> *@
+            <TextField Class="TextField" Style="width:450px" Value="@VesselCallDetailText"
+                       Label="Vessel / Voyage / Port"
+                       Placeholder="select Voyage ..."
+                       Required Clearable
+                       OnClearButtonClick="@(()=> { VesselCallDetailText = null; Item.VesselCallDetail = null; Item.Carrier = null; })"
                        IconSize="Size.Small"
                        Adornment="Adornment.Start"
                        AdornmentColor="Color.Primary"
@@ -428,7 +438,8 @@
     private IEnumerable<CntrTpSz> CntrTypes { get; set; } = new List<CntrTpSz>();
     private IEnumerable<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
 
-    private string? DocumentName { get; set; } = null;    
+    private string? VesselCallDetailText { get; set; } = null;
+    private string? DocumentName { get; set; } = null;
     private string? ExportOrdersTotalNetWt { get; set; } = null;
     private string? ExportOrdersTotalGrossWt { get; set; } = null;
     private IEnumerable<string> ExportOrderNums { get; set; } = new List<string>();
@@ -484,6 +495,7 @@
         else
             Item = await ExportOrderProvider.GetItemAsync(Id);
 
+        SetVoyageText();
         FillUpTreeItems();
 
         IsLoading = false;
@@ -758,9 +770,20 @@
             if (Item.VesselCallDetail is not null && Item.Carrier is not null)
                 if (!Item.Carrier.CarrierDetails.Any(cd => cd.TerminalName.Equals(Item.VesselCallDetail.VesselCall.Terminal.Name)))
                     Item.Carrier = null;
+
+            SetVoyageText();
         }
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    private void SetVoyageText()
+    {
+        VesselCallDetailText = Item.VesselCallDetail == null
+                               ? null
+                               : string.Concat(Item.VesselCallDetail.VesselCall.Vessel.Name, " / ",
+                                   Item.VesselCallDetail.VesselCall.VoyageNo, " / ",
+                                   Item.VesselCallDetail.POD == null ? string.Empty : Item.VesselCallDetail.POD.NameEn);
     }
 
     private async Task AddCarrier_Click()

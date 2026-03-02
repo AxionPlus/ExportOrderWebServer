@@ -6,7 +6,7 @@
 <MudContainer MaxWidth="MaxWidth.Large">
     <MudForm @ref="@Form">
         <DialogToolBar ToolBarTitle="Товар" SaveButtonDisabled="IsLoadingData" SaveItem="@SaveItem_Click"
-                       CloseDialog="@(() => MudDialog.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>        
+                       CloseDialog="@(() => MudDialog?.Close(DialogResult.Ok(IsDialogResultOk)))"></DialogToolBar>        
         <div class="Container-item">
             <div class="container-content">
                 <MudTextField Class="TextField" T="string" Style="width:200px" Label="HS code" @ref="@Hscode" @bind-Value="@Item.HSCode"
@@ -29,18 +29,16 @@
                 <MudCheckBox Class="CheckBox" T="bool" Label="Is IMO" LabelPosition="LabelPosition.Start"
                              Value="@Item.IsIMO" ValueChanged="@((e) => { Item.IsIMO = e; IsIMOChanged(); })" />
             </div>
-            <div class="container-content">                    
-                <MudTextField Class="TextField" T="string" Style="width: 450px" Label="Name" Text="@Item.Name"
-                              TextChanged="(e) => Item.Name = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper()"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Lines="6"
-                              Required RequiredError="" Clearable />                    
-                <div style="width:10px"></div>
-                <MudTextField Class="TextField" T="string" Style="width: 450px" Label="Name En" Text="@Item.NameEn"
-                              TextChanged="(e) => Item.NameEn = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper()"
-                              Variant="Variant.Outlined" Margin="Margin.Dense"
-                              Immediate="true" Lines="6"
-                              Required RequiredError="" Clearable />
+            <div class="container-content" style="gap:10px">
+                <TextField Class="TextField" Style="width: 450px" Label="Name" Value="@Item.Name"
+                           ValueChanged="(e) => Item.Name = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper()"
+                           Lines="6"
+                           Required Clearable />
+                @* <div style="width:10px"></div> *@
+                <TextField Class="TextField" Style="width: 450px" Label="Name En" Value="@Item.NameEn"
+                           ValueChanged="(e) => Item.NameEn = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper()"
+                           Lines="6"
+                           Required Clearable />
             </div>
         </div>
     </MudForm>

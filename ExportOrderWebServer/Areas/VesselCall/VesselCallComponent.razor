@@ -78,13 +78,13 @@
         @if (!IsSelectable)
         {
             <MudItem xs="2">
-                <MudButton Class="Button" OnClick="@(async () => { await ViewManifestReport_Click(false); })"
+                <MudButton Class="Button" OnClick="@(async () => { await SaveManifestReport_Click(false); })"
                            Style="width:142px; margin-bottom:5px;"
                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                            StartIcon="@Icons.Material.Filled.Download">
                     CGO Manifest
                 </MudButton>
-                <MudButton Class="Button" OnClick="@(async () => { await ViewManifestReport_Click(true); })"
+                <MudButton Class="Button" OnClick="@(async () => { await SaveManifestReport_Click(true); })"
                            Style="width:142px; margin-bottom:5px"
                            Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small"
                            StartIcon="@Icons.Material.Filled.Download">
@@ -274,12 +274,10 @@
             MudDialog.Close(vcdId);
     }
 
-    private async Task ViewManifestReport_Click(bool _isImo)
+    private async Task SaveManifestReport_Click(bool _isImo)
     {
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
-
-        //await JSRuntime.InvokeVoidAsync("open", $"{ApplicationParameter.ViewReportUrl}ViewReportManifest?vslcallid={vesselcallid}&isIMO={_isImo}");
 
         IsLoading = true;
 

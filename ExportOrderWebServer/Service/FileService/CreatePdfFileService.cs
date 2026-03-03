@@ -82,26 +82,26 @@ public class CreatePdfFileService : ICreatePdfFileService
         catch (FileNotFoundException ex)
         {
             Console.WriteLine(ex.Message);
-            return new(string.Empty, Array.Empty<byte>());
+            return new(string.Empty, []);
             throw new ApplicationException($"Не удалось создать Excel файл.", ex);
         }
         catch (IOException ex)
         {
             Console.WriteLine(ex.Message);
-            return new(string.Empty, Array.Empty<byte>());
+            return new(string.Empty, []);
         }
         catch (ArgumentException ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return new(string.Empty, Array.Empty<byte>());
+            return new(string.Empty, []);
             throw new ArgumentException(ex.Message);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return new(string.Empty, Array.Empty<byte>());
+            return new(string.Empty, []);
         }
     }
     
@@ -113,7 +113,6 @@ public class CreatePdfFileService : ICreatePdfFileService
             {
                 /// Копирование файла из образца
                 FileName = $"BL_{item.Num}_{item.VoyageNum}.docx";
-                //FilePath = Path.Combine(DirTemporary, FileName);
 
                 CreateTemporaryFile(Path.Combine("BillOfLading",
                     string.Concat(
@@ -129,16 +128,16 @@ public class CreatePdfFileService : ICreatePdfFileService
                 /// CONVERT WORD TO PDF
                 ConvertWordToPdf(FilePath);
             }
-            
+
+            /// DELETE all Word files before zip creation                
+            foreach (var file in Directory.GetFiles(DirTemporary))
+            {
+                if (Path.GetExtension(file).Equals(".docx", StringComparison.OrdinalIgnoreCase))
+                    File.Delete(file);
+            }
+
             if (Items.Count() > 1)
             {
-                /// DELETE all Word files before zip creation                
-                foreach (var file in Directory.GetFiles(DirTemporary))
-                {
-                    if (Path.GetExtension(file).Equals(".docx", StringComparison.OrdinalIgnoreCase))
-                        File.Delete(file);
-                }
-
                 /// CREATE ZIP-FILE if any and return it's bytes
                 FilePath = $"{DirTemporary}.zip";
                 ZipFile.CreateFromDirectory(DirTemporary, FilePath);
@@ -153,27 +152,27 @@ public class CreatePdfFileService : ICreatePdfFileService
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return new(string.Empty, Array.Empty<byte>());
+            return new(string.Empty, []);
             throw new ApplicationException($"Не удалось создать Pdf файл.", ex);
         }
         catch (IOException ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return new(string.Empty, Array.Empty<byte>());
+            return new(string.Empty, []);
         }
         catch (ArgumentException ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return new(string.Empty, Array.Empty<byte>());
+            return new(string.Empty, []);
             throw new ArgumentException(ex.Message);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return new(string.Empty, Array.Empty<byte>());
+            return new(string.Empty, []);
         }
     }
 
@@ -200,27 +199,27 @@ public class CreatePdfFileService : ICreatePdfFileService
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return Array.Empty<byte>();
+            return [];
             throw new ApplicationException($"Не удалось создать Pdf файл.", ex);
         }
         catch (IOException ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return Array.Empty<byte>();
+            return [];
         }
         catch (ArgumentException ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return Array.Empty<byte>();
+            return [];
             throw new ArgumentException(ex.Message);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return Array.Empty<byte>();
+            return [];
         }             
     }
 
@@ -247,20 +246,20 @@ public class CreatePdfFileService : ICreatePdfFileService
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return Array.Empty<byte>();
+            return [];
             throw new ApplicationException($"Не удалось создать Pdf файл.", ex);
         }
         catch (IOException ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return Array.Empty<byte>();
+            return [];
         }
         catch (ArgumentException ex)
         {
             Console.WriteLine(ex.Message);
             //Dispose();
-            return Array.Empty<byte>();
+            return [];
             throw new ArgumentException(ex.Message);
         }
         catch (Exception ex)
@@ -548,8 +547,8 @@ public class CreatePdfFileService : ICreatePdfFileService
             { "NUM", item.Num ?? string.Empty },
             { "Dated", item.Dated?.ToString("dd.MM.yyyy") ?? string.Empty },
             { "BLNum", item.BLNum ?? string.Empty },
-            { "ContractNo", item.Contract ?? string.Empty },
-            { "ContractDated", item.ContractDate ?? string.Empty},
+            { "ContractNo", item.CarrierContract ?? string.Empty },
+            { "ContractDated", item.CarrierContractDate ?? string.Empty},
             { "MyCompanyNameRu", item.MyCompanyName ?? string.Empty },
             { "MyCompanyEmail", item.MyCompanyEmail ?? string.Empty },
             { "Person", item.PersonSign ?? string.Empty }
@@ -786,11 +785,11 @@ public class CreatePdfFileService : ICreatePdfFileService
 
         tableRow = table.Elements<TableRow>().ElementAt(5);
         cells = tableRow.Elements<TableCell>().ToArray();
-        UpdateCell(cells[0], item.POLAgent ?? string.Empty, fontName, fontSize);
+        UpdateCell(cells[1], item.POLAgent ?? string.Empty, fontName, fontSize);
 
         tableRow = table.Elements<TableRow>().ElementAt(7);
         cells = tableRow.Elements<TableCell>().ToArray();
-        UpdateCell(cells[0], item.PODAgent ?? string.Empty, fontName, fontSize);
+        UpdateCell(cells[1], item.PODAgent ?? string.Empty, fontName, fontSize);
 
         tableRow = table.Elements<TableRow>().ElementAt(9);
         cells = tableRow.Elements<TableCell>().ToArray();
@@ -1897,7 +1896,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             double widthPx = 0;
             double heightPx = 0;
 
-            // Получаем 3 строки, которые занимает объедиенная ячейка Логтипа
+            // Получаем 3 строки, которые занимает объедиенная ячейка Логотипа
             var imageRows = table.Elements<TableRow>().Take(3).ToArray();
             TableCell cell = imageRows[0].Elements<TableCell>().ElementAt(0);   // first cell in the first row
 

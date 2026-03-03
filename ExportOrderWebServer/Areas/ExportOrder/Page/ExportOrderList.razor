@@ -224,7 +224,6 @@
     {
         //await JSRuntime.InvokeVoidAsync("open", $"{NavigationManager.BaseUri}New_ExportOrder?Id={id}", "_blank");  //exportorder
         await JSRuntime.InvokeVoidAsync("open", $"{NavigationManager.BaseUri}New_ExportOrder/{id}", "_blank");
-        //await JSRuntime.InvokeVoidAsync("open", $"{NavigationManager.BaseUri}New_ExportOrder/{id}/{null}", "_blank");        
     }
 
     private async Task SetNewVesselCall()

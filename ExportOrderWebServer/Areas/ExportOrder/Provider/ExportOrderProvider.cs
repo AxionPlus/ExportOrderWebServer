@@ -707,13 +707,24 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
                 CarrierNameEn = s.Carrier?.NameEn,
                 CarrierLocation = s.Carrier?.Location?.Name,
                 CarrierCountryEn = s.Carrier?.Location?.Country?.ENG,
-                CarrierContract = s.Carrier?.CarrierDetails?.Any(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name) == true
-                    ? s.Carrier?.CarrierDetails?.FirstOrDefault(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name)!.Contract
-                    : string.Empty,
-                CarrierContractDate = s.Carrier?.CarrierDetails?.Any(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name) == true
-                    ? s.Carrier?.CarrierDetails?.FirstOrDefault(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name)!.DateContract?.ToString("dd.MM.yyyy")
-                    : string.Empty,
+                //CarrierContract = s.Carrier?.CarrierDetails?.Any(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name) == true
+                //    ? s.Carrier?.CarrierDetails?.FirstOrDefault(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name)!.Contract
+                //    : string.Empty,
+                //CarrierContractDate = s.Carrier?.CarrierDetails?.Any(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name) == true
+                //    ? s.Carrier?.CarrierDetails?.FirstOrDefault(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name)!.DateContract?.ToString("dd.MM.yyyy")
+                //    : string.Empty,
 
+                CarrierContract = s.Carrier?.CarrierDetails?
+                                    .Where(d => d.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name)
+                                    .Select(d => d.Contract)
+                                    .FirstOrDefault(),
+
+                CarrierContractDate = s.Carrier?.CarrierDetails?
+                                        .Where(d => d.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name)
+                                        .Select(d => d.DateContract?.ToString("dd.MM.yyyy"))
+                                        .FirstOrDefault(),
+                
+                TerminalName = s.VesselCallDetail?.VesselCall.Terminal.Name,
                 VesselCallId = s.VesselCallDetail != null ? s.VesselCallDetail.VesselCall.Id : 0,
                 VoyageNum = s.VesselCallDetail?.VesselCall.VoyageNo,
                 VesselName = s.VesselCallDetail?.VesselCall.Vessel.Name,
@@ -766,44 +777,24 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
                 CustomsOfficeName = s.VesselCallDetail?.VesselCall.Terminal.Customs?.Office,
                 CustomsOfficeNameShort = s.VesselCallDetail?.VesselCall.Terminal.Customs?.OfficeShort,
                 CustomsDapartment = s.VesselCallDetail?.VesselCall.Terminal.Customs?.Dapartment,                
-                TerminalName = s.VesselCallDetail == null ? string.Empty : s.VesselCallDetail.VesselCall.Terminal.Name,
 
-                //VesselName = s.VesselCallDetail == null ? string.Empty :
-                //                        string.IsNullOrEmpty(s.VesselCallDetail.VesselCall.Vessel.Name) ? string.Empty :
-                //                            s.VesselCallDetail.VesselCall.Vessel.Name,
-                //VesselFlag = s.VesselCallDetail == null ? string.Empty :
-                //                        s.VesselCallDetail.VesselCall.Vessel.Flag == null ? string.Empty :
-                //                            s.VesselCallDetail.VesselCall.Vessel.Flag.RUS,
-                //VesselFlagEn = s.VesselCallDetail == null ? string.Empty :
-                //                        s.VesselCallDetail.VesselCall.Vessel.Flag == null ? string.Empty :
-                //                            s.VesselCallDetail.VesselCall.Vessel.Flag.ENG,
-                //VoyageNum = s.VesselCallDetail == null ? string.Empty : s.VesselCallDetail.VesselCall.VoyageNo,
                 PortOfDischarge = string.Concat(s.VesselCallDetail?.POD?.Name, ", ", s.VesselCallDetail?.POD?.Country?.RUS),
                 PortOfDischargeEn = string.Concat(s.VesselCallDetail?.POD?.NameEn, ", ", s.VesselCallDetail?.POD?.Country?.ENG),
                 PortOfDischargeEnCountryRus = string.Concat(s.VesselCallDetail?.POD?.NameEn, ", ", s.VesselCallDetail?.POD?.Country?.RUS),
-                PortOfDischargeUnlocode = s.VesselCallDetail?.POD?.UnLocode,
-                //PODEnCountryEn = string.Concat(s.VesselCallDetail?.POD?.NameEn, ", ", s.VesselCallDetail?.POD?.Country?.ENG),
+                PortOfDischargeUnlocode = s.VesselCallDetail?.POD?.UnLocode,                
                 //PlaceReceipt = string.Empty,
                 //PlaceDelivery =string.Empty,
                 //FinalDestination = s.VesselCallDetail == null ? string.Empty :
                 //                                s.VesselCallDetail.FinalDestination == null ? string.Empty :
                 //                                    s.VesselCallDetail.FinalDestination.Country == null ? string.Empty :
                 //                                        string.Concat(s.VesselCallDetail.FinalDestination.NameEn, ", ", s.VesselCallDetail.FinalDestination.Country.ENG),
-                POLAgent = s.Carrier == null ? string.Empty :
-                                    s.VesselCallDetail == null ? string.Empty :
-                                        s.VesselCallDetail.VesselCall.Terminal.Name == null ? string.Empty :
-                                            s.Carrier.CarrierDetails.FirstOrDefault(cd => cd.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.AgentPOL,
-                PODAgent = s.VesselCallDetail == null ? string.Empty : s.VesselCallDetail.AgentPOD,
-
-                Contract = s.Carrier == null ? null :
-                                    s.VesselCallDetail == null ? null :
-                                        string.IsNullOrEmpty(s.VesselCallDetail.VesselCall.Terminal.Name) ? null :
-                                            s.Carrier.CarrierDetails.FirstOrDefault(c => c.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.Contract,
-                ContractDate = s.Carrier == null ? null :
-                                        s.VesselCallDetail == null ? null :
-                                            string.IsNullOrEmpty(s.VesselCallDetail.VesselCall.Terminal.Name) ? null :
-                                                s.Carrier.CarrierDetails.FirstOrDefault(c => c.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract.HasValue ?
-                                                    s.Carrier.CarrierDetails.FirstOrDefault(c => c.TerminalName == s.VesselCallDetail.VesselCall.Terminal.Name)!.DateContract!.Value.ToString("dd.MM.yyyy") : "",
+                
+                POLAgent = s.Carrier?.CarrierDetails
+                            .Where(cd => cd.TerminalName == s.VesselCallDetail?.VesselCall.Terminal.Name)
+                            .Select(vcd => vcd.AgentPOL)
+                            .FirstOrDefault(),
+                PODAgent = s.VesselCallDetail?.AgentPOD,
+                
                 MyCompanyName = s.Person?.CompanyName,
                 MyCompanyEmail = s.Person?.CompanyEmail,
                 
@@ -817,12 +808,19 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
                 PersonSign = string.Concat(s.Person?.Name?[..1], ". ", s.Person?.SurName?[..1], ". ", s.Person?.FamilyName),
                 PersonXml = string.Concat(s.Person?.Name, " ", s.Person?.FamilyName, " телефон: ", s.Person?.Phone),
 
+                //Records = fileType switch
+                //{                    
+                //    FileType.Bill => s.Records.Select(rec => EntityRecordToFileBillDto(rec)).ToList(),
+                //    FileType.Customs => s.Records.Select(rec => EntityRecordToFileManifestDto(rec)).ToList(),                    
+                //    FileType.Manifest => s.Records.Select(rec => EntityRecordToFileManifestDto(rec)).ToList(),
+                //    _ => EntityRecordToFileOrderDto(s.Records)
+                //}
+
                 Records = fileType switch
-                {                    
+                {
+                    FileType.Order => EntityRecordToFileOrderDto(s.Records),
                     FileType.Bill => s.Records.Select(rec => EntityRecordToFileBillDto(rec)).ToList(),
-                    FileType.Customs => s.Records.Select(rec => EntityRecordToFileManifestDto(rec)).ToList(),                    
-                    FileType.Manifest => s.Records.Select(rec => EntityRecordToFileManifestDto(rec)).ToList(),
-                    _ => EntityRecordToFileOrderDto(s.Records)
+                    _ => s.Records.Select(rec => EntityRecordToFileManifestDto(rec)).ToList()
                 }
             };
         }
@@ -847,7 +845,7 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
             Seal = record.Seal,
 
             PackageQty = (uint)record.Contents.Sum(c => c.PackageQty)! > 0 ? (uint)record.Contents.Sum(c => c.PackageQty)! : null,
-            PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName is not null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
+            PackageNames = string.Join(", ", record.Contents.Select(rc => rc.PackageName != null ? rc.PackageName.ToUpper() : "").Distinct().Order()),
             NetWt = record.Contents.Sum(c => c.NetWt),
             GrossWt = record.Contents.Sum(c => c.GrossWt),
             Volume = record.Contents.Sum(c => c.Volume),
@@ -884,6 +882,7 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
             //    record.Contents.Where(c => isIMO ? c.DocumentRecord.IsIMO == true : true)
             //                   .Sum(c => c.GrossWt),
             GrossAndTare = record.CntrTareWt + record.Contents.Sum(c => c.GrossWt),
+
             Commodity = string.Join(", ",
                 record.Contents
                       //.Where(c => isIMO ? c.DocumentRecord.IsIMO == true : true)
@@ -895,11 +894,7 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
                               g.FirstOrDefault()!.IsIMO ? string.Concat(" IMO:", g.FirstOrDefault()!.IMO, " UNNO:", g.FirstOrDefault()!.UNNO) : "")
                       ).ToArray().Order()
             ),
-            //ShipperEn = string.Join("; ", record.Contents.Select(c => c.DocumentRecord.Document.Shipper?.NameEn).Distinct().ToArray()),
-            //ShipperCountryEn = string.Join("; ", record.Contents.Select(c => c.DocumentRecord.Document.Shipper?.CountryENG).Distinct().ToArray()),
-            //ConsigneeEn = string.Join("; ", record.Contents.Select(c => c.DocumentRecord.Document.Consignee?.NameEn).Distinct().ToArray()),
-            //ConsigneeCountryEn = string.Join("; ", record.Contents.Select(c => c.DocumentRecord.Document.Consignee?.CountryENG).Distinct().ToArray()),
-
+            
             ShipperEn = string.Join("; ", record.Contents.GroupBy(c => c.DocumentRecord.Document.Shipper?.NameEn).Select(g => g.Key).ToArray()),
             ShipperCountryEn = string.Join("; ", record.Contents.GroupBy(c => c.DocumentRecord.Document.Shipper?.CountryENG).Select(g => g.Key).ToArray()),
             ConsigneeEn = string.Join("; ", record.Contents.GroupBy(c => c.DocumentRecord.Document.Consignee?.NameEn).Select(g => g.Key).ToArray()),

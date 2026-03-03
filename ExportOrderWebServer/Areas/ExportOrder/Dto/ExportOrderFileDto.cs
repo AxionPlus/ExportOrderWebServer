@@ -9,14 +9,14 @@ public class ExportOrderFileDto
     public DateTime? DateExplanation { get; set; }      // дата Объяснения
     public string BLNum { get; set; }
     public BLTemplate BLtemplate { get; set; }
-    public string? BLDate { get; set; }               // дата к/с
+    public string? BLDate { get; set; }                 // дата к/с
     public string? LoadingDate { get; set; }            // дата погрузки в поручении
     public string? CarrierNameEn { get; set; }
     public string? CarrierLocation { get; set; }
     public string? CarrierCountryEn { get; set; }
     public string? CarrierContract { get; set; }
     public string? CarrierContractDate { get; set; }
-    //
+    
     public string? TerminalName { get; set; }    
     public long VesselCallId { get; set; }              // Vessel Call - id
     public string? VoyageNum { get; set; }              // Vessel Call - number
@@ -35,8 +35,7 @@ public class ExportOrderFileDto
     public string POLEn { get; set; } = "NOVOROSSIYSK";
     public string POLEnCountryEn { get; set; } = "NOVOROSSIYSK, RUSSIA";
     public string? PortOfDischarge { get; set; }
-    public string? PortOfDischargeEn { get; set; }        
-    //public string? PODEnCountryEn { get; set; }
+    public string? PortOfDischargeEn { get; set; }
     public string? PortOfDischargeEnCountryRus { get; set; }
     public string? PortOfDischargeUnlocode { get; set; }
     //public string? PlaceReceipt { get; set; }
@@ -50,8 +49,6 @@ public class ExportOrderFileDto
     public string? CommodityShort { get; set; }
     public string? CommodityShortEn { get; set; }
 
-    public string? Contract { get; set; }
-    public string? ContractDate { get; set; }
     public string? CustomsOfficeCode { get; set; }
     public string? CustomsOfficeName { get; set; }
     public string? CustomsOfficeNameShort { get; set; }
@@ -68,8 +65,7 @@ public class ExportOrderFileDto
     public string? PersonBirthPlace { get; set; }
     public string? PersonAddress { get; set; }
     public string? PersonCompany { get; set; }
-
-    public List<ExportOrderRecordFileDto> Records { get; set; } = new();
+    public List<ExportOrderRecordFileDto> Records { get; set; } = [];
 }
 
 public class ExportOrderRecordFileDto
@@ -82,13 +78,10 @@ public class ExportOrderRecordFileDto
     public string? Seal { get; set; }
     public double? GrossAndTare { get; set; }
     public string? Measurement { get; set; }    // ед.измерения
-    public string? Shipper { get; set; }
     public string? ShipperEn { get; set; }
     public string? ShipperCountryEn { get; set; }
-    public string? Consignee { get; set; }
     public string? ConsigneeEn { get; set; }
     public string? ConsigneeCountryEn { get; set; }
-    public bool IsIMO { get; set; } = false;
 
     // Content
     public uint SeqContent { get; set; }      // Content index for xml File

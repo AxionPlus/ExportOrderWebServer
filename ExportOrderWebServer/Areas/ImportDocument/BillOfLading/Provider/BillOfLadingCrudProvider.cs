@@ -101,8 +101,8 @@ public class BillOfLadingCrudProvider : BaseCrudProvider<BillOfLadingBaseEntity>
         if (string.IsNullOrWhiteSpace(entity.ConsigneeName))
             throw new ArgumentException("Consignee name is required");
 
-        if (entity.Date > DateTime.UtcNow)
-            throw new ArgumentException("BL date cannot be in the future");
+        //if (entity.Date > DateTime.UtcNow)
+        //    throw new ArgumentException("BL date cannot be in the future");
 
         // Проверяем контейнерные записи
         foreach (var container in entity.ContainerRecords)

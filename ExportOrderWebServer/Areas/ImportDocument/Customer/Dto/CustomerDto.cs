@@ -11,6 +11,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Customer.Dto
         public string Address { get; set; } = string.Empty;
         public string? NameRu { get; set; }
         public string? AddressRu { get; set; }
+        public string? CountryRu { get; set; }
 
         [NotMapped]
         public string DisplayName => !string.IsNullOrWhiteSpace(NameRu) ? NameRu : Name;

@@ -13,7 +13,8 @@ namespace ExportOrderEntites.ImportDocument
         public string Name { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
 
-        public string? NameRu { get; set; }
-        public string? AddressRu { get; set; }
+        public string? NameRu { get; set; } = string.Empty;
+        public string? AddressRu { get; set; } = string.Empty;
+        public string? CountryRu { get; set; } = string.Empty;
     }
 }

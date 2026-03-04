@@ -2,12 +2,14 @@
 using ExportOrderWebServer.Areas.ImportDocument.Customer.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Customer.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.Provider;
+using Humanizer;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.Customer.Services;
 
 public interface ICustomerService
 {
     Task<CustomerDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<CustomerDto> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<PaginatedResult<CustomerDto>> GetPaginatedAsync(
         int pageNumber,
         int pageSize, CancellationToken cancellationToken,
@@ -18,17 +20,22 @@ public interface ICustomerService
     Task<CustomerDto> UpdateAsync(CustomerDto dto, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     Task<bool> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default);
+    Task CopyFromVesselCall(Guid vesselCallId, CancellationToken cancellationToken = default);
+
+    Task GetCustomerTranslateFromVesselCall(Guid vesselCallId, CancellationToken cancellationToken = default);
 }
 
 public class CustomerService : ICustomerService
 {
     private readonly ICrudProvider<CustomerBaseEntity> _customerCrudProvider;
     private readonly ILogger<CustomerService> _logger;
+    protected readonly IDbContextFactory<ApplicationDbContext> _context;
 
     public CustomerService(
-        ICrudProvider<CustomerBaseEntity> customerCrudProvider,
+        ICrudProvider<CustomerBaseEntity> customerCrudProvider, IDbContextFactory<ApplicationDbContext> context,
         ILogger<CustomerService> logger)
     {
+        _context = context;
         _customerCrudProvider = customerCrudProvider;
         _logger = logger;
     }
@@ -50,6 +57,24 @@ public class CustomerService : ICustomerService
         }
     }
 
+    public async Task<CustomerDto> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+        try
+        {
+            var entity = await db.Set<CustomerBaseEntity>().FirstOrDefaultAsync(s=>s.Code == code, cancellationToken);
+            if (entity == null)
+                throw new KeyNotFoundException($"Customer with code {code} not found");
+
+            return entity.ToDto();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting customer by code: {code}", code);
+            throw;
+        }
+    }
 
 
     public async Task<PaginatedResult<CustomerDto>> GetPaginatedAsync(
@@ -179,7 +204,7 @@ public class CustomerService : ICustomerService
     {
         try
         {
-            var entities =  _customerCrudProvider.GetAllAsync();
+            var entities = _customerCrudProvider.GetAllAsync();
             return await entities.AnyAsync(e => e.Code == code, cancellationToken);
         }
         catch (Exception ex)
@@ -187,5 +212,66 @@ public class CustomerService : ICustomerService
             _logger.LogError(ex, "Error checking customer existence by code: {CustomerCode}", code);
             throw;
         }
+    }
+
+    public async Task CopyFromVesselCall(Guid vesselCallId, CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+        var billOfLadings = await db.Set<BillOfLadingBaseEntity>().Where(s => s.VesselCallId == vesselCallId).ToListAsync(cancellationToken);
+
+        if (!billOfLadings.Any())
+            throw new InvalidOperationException($"BillOfLadings not found");
+
+
+        foreach (var billOfLading in billOfLadings)
+        {
+            var customerEntity = await db.Set<CustomerBaseEntity>()
+                .FirstOrDefaultAsync(s => s.Code == billOfLading.ConsigneeCode, cancellationToken);
+
+            if (customerEntity != null) continue;
+
+
+            var customerNew = new CustomerBaseEntity
+            {
+                FullName = billOfLading.Consignee,
+                Name = billOfLading.ConsigneeName,
+                Address = billOfLading.ConsigneeAddress,
+                NameRu = billOfLading.ConsigneeNameRu,
+                AddressRu = billOfLading.ConsigneeAddressRu,
+                CountryRu = billOfLading.ConsigneeCountryRu,
+                Code = billOfLading.ConsigneeCode,
+            };
+
+
+            db.Entry(customerNew).State = EntityState.Added;
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+
+    }
+
+    public async Task GetCustomerTranslateFromVesselCall(Guid vesselCallId, CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+        var billOfLadings = await db.Set<BillOfLadingBaseEntity>().Where(s => s.VesselCallId == vesselCallId).ToListAsync(cancellationToken);
+
+        if (!billOfLadings.Any())
+            throw new InvalidOperationException($"BillOfLadings not found");
+
+        foreach (var billOfLading in billOfLadings)
+        {
+            var customerEntity = await db.Set<CustomerBaseEntity>()
+                .FirstOrDefaultAsync(s => s.Code == billOfLading.ConsigneeCode, cancellationToken);
+
+            if (customerEntity == null) continue;
+
+            billOfLading.ConsigneeNameRu = customerEntity.NameRu;
+            billOfLading.ConsigneeAddressRu = customerEntity.AddressRu;
+            billOfLading.ConsigneeCountryRu = customerEntity.CountryRu;
+
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+
     }
 }

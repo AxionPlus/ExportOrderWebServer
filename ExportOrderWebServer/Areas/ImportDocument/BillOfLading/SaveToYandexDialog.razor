@@ -15,40 +15,46 @@
 @inject ISnackbar Snackbar
 
 <MudContainer>
-    <MudList T="string">
+    <MudList T="string" Disabled="@isLoading" Dense>
         <MudListItem Icon="@Icons.Material.Filled.AttachFile">
-            <MudCheckBox T="bool" @bind-Value="@ArrivalNotice"></MudCheckBox>
+            <MudCheckBox Dense T="bool" @bind-Value="@ArrivalNotice" Disabled="@isLoading">ArrivalNotice</MudCheckBox>
         </MudListItem>
         <MudListItem Icon="@Icons.Material.Filled.AttachFile">
-            <MudCheckBox T="bool" @bind-Value="@CargoManifest"></MudCheckBox>
+            <MudCheckBox Dense T="bool" @bind-Value="@CargoManifest" Disabled="@isLoading">CargoManifest</MudCheckBox>
         </MudListItem>
         <MudListItem Icon="@Icons.Material.Filled.AttachFile">
-            <MudCheckBox T="bool" @bind-Value="@DgManifest"></MudCheckBox>
+            <MudCheckBox Dense T="bool" @bind-Value="@DgManifest" Disabled="@isLoading">DgManifest</MudCheckBox>
         </MudListItem>
         <MudListItem Icon="@Icons.Material.Filled.AttachFile">
-            <MudCheckBox T="bool" @bind-Value="@FillBill"></MudCheckBox>
+            <MudCheckBox Dense T="bool" @bind-Value="@FillBill" Disabled="@isLoading">FillBill</MudCheckBox>
         </MudListItem>
         <MudListItem Icon="@Icons.Material.Filled.AttachFile">
-            <MudCheckBox T="bool" @bind-Value="@Obligation"></MudCheckBox>
+            <MudCheckBox Dense T="bool" @bind-Value="@Obligation" Disabled="@isLoading">Obligation</MudCheckBox>
         </MudListItem>
         <MudListItem Icon="@Icons.Material.Filled.AttachFile">
-            <MudCheckBox T="bool" @bind-Value="@Xml"></MudCheckBox>
+            <MudCheckBox Dense T="bool" @bind-Value="@Xml" Disabled="@isLoading">Xml</MudCheckBox>
         </MudListItem>
         <MudListItem Icon="@Icons.Material.Filled.AttachFile">
-            <MudCheckBox T="bool" @bind-Value="@Translate"></MudCheckBox>
+            <MudCheckBox Dense T="bool" @bind-Value="@FeederBl" Disabled="@isLoading">Feeder Bl</MudCheckBox>
         </MudListItem>
-
+        <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+            <MudCheckBox Dense T="bool" @bind-Value="@Translate" Disabled="@isLoading">Translate</MudCheckBox>
+        </MudListItem>
 
     </MudList>
-
-    <MudButton OnClick="OnSave">Save</MudButton>
+    <div class="d-flex mt-4">
+    <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="OnSave" Disabled="@isLoading" >@(isLoading ? "Loading..." : "Save")</MudButton>
+    <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="() => MudDialog?.Close()" Disabled="@isLoading" >Cancel</MudButton>
+    </div>
 </MudContainer>
 
 @code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     [Parameter] public VesselCallDto? VesselCall { get; set; }
     bool isLoading = false;
 
     bool ArrivalNotice = false;
+    bool FeederBl = false;
     bool CargoManifest = false;
     bool DgManifest = false;
     bool FillBill = false;
@@ -65,6 +71,8 @@
                 Snackbar.Add("Please select a vessel call first", Severity.Warning);
                 return;
             }
+            isLoading = true;
+            StateHasChanged();
 
             var vesselCall = await _vesselCallService.GetByIdForArrivalNoticeAsync(VesselCall.Id);
             var uploadDto = new YandexFileUploadDto
@@ -75,59 +83,75 @@
                 BaseFolderPath = "Документы Импорт"
             };
 
-            if (vesselCall.BillOfLadings.Any())
+            if (!vesselCall.BillOfLadings.Any())
             {
-                Snackbar.Add("No bills of lading to export", Severity.Info);
+                Snackbar.Add("No bills of lading to export", Severity.Warning);
+                isLoading = false;
+                StateHasChanged();
                 return;
             }
 
-
+   ;
             if (ArrivalNotice)
             {
                 uploadDto.FileName = $"УВЕДОМЛЕНИЕ_О_ПРИБЫТИИ_ТОВАРОВ_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
                 var fileBytes = await _arrivalNoticeExportService.GenerateArrivalNoticeAsync(vesselCall);
                 await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+                Snackbar.Add($"ArrivalNotice-Successfully Save To Yandex", Severity.Success);
             }
-            else if (CargoManifest)
+             if (CargoManifest)
             {
                 uploadDto.FileName = $"CargoManifest_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
                 var fileBytes = await _manifestExportService.GenerateManifestAsync(vesselCall);
                 await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+                Snackbar.Add($"CargoManifest-Successfully Save To Yandex", Severity.Success);
             }
-            else if (DgManifest)
+             if (DgManifest)
             {
                 uploadDto.FileName = $"DG_Manifest_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
                 var fileBytes = await _manifestHazardousExportService.GenerateManifestAsync(vesselCall);
                 await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+                Snackbar.Add($"DgManifest-Successfully Save To Yandex", Severity.Success);
             }
-            else if (FillBill)
+             if (FillBill)
             {
                 uploadDto.FileName = $"Fill-Bill_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
                 var fileBytes = await _fillBillExcelService.GenerateExcel(vesselCall);
                 await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+                Snackbar.Add($"FillBill-Successfully Save To Yandex", Severity.Success);
             }
-            else if (Obligation)
+             if (Obligation)
             {
                 uploadDto.FileName = $"Обязательство_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
                 var fileBytes = await _obligationExcelService.GenerateObligationAsync(vesselCall);
                 await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+                Snackbar.Add($"Obligation-Successfully Save To Yandex", Severity.Success);
             }
-            else if (Xml)
+             if (Xml)
             {
-                uploadDto.FileName = $"Xml-{vesselCall.Terminal.Name}_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                uploadDto.FileName = $"Xml-{vesselCall.Terminal.Name}_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xml";
                 var fileBytes = new XmlExportService().CreateManifestXml(vesselCall);
                 await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+                Snackbar.Add($"Xml-Successfully Save To Yandex", Severity.Success);
             }
-            else if (Translate)
+            if (FeederBl)
+            {
+                uploadDto.FileName = $"Feeder-Bl_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
+                var fileBytes = await _feederBlExcelService.GenerateFeederBlAsync(vesselCall);
+                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+                Snackbar.Add($"FeederBl-Successfully Save To Yandex", Severity.Success);
+            }
+             if (Translate)
             {
                 uploadDto.FileName = $"Translate_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
                 var fileBytes = await _excelService.ExportBillOfLadingToExcelForTranslateAsync(vesselCall.BillOfLadings);
                 await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+                Snackbar.Add($"Translate-Successfully Save To Yandex", Severity.Success);
             }
 
 
 
-            Snackbar.Add($"Successfully Save To Yandex", Severity.Success);
+            
 
 
         }
@@ -138,6 +162,14 @@
         finally
         {
             isLoading = false;
+            FeederBl = false;
+            ArrivalNotice = false;
+            CargoManifest = false;
+            DgManifest = false;
+            FillBill = false;
+            Obligation = false;
+            Xml = false;
+            Translate = false;
             StateHasChanged();
         }
     }

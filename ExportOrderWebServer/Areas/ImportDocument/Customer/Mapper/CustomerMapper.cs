@@ -18,6 +18,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Customer.Mapper
                 Address = entity.Address,
                 NameRu = entity.NameRu,
                 AddressRu = entity.AddressRu,
+                CountryRu = entity.CountryRu,
 
                 // BaseEntity fields
                 Status = entity.Status,
@@ -48,6 +49,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Customer.Mapper
                 Address = dto.Address,
                 NameRu = dto.NameRu,
                 AddressRu = dto.AddressRu,
+                CountryRu = dto.CountryRu,
 
                 // BaseEntity fields
                 Status = dto.Status,
@@ -65,6 +67,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Customer.Mapper
             entity.Address = dto.Address;
             entity.NameRu = dto.NameRu;
             entity.AddressRu = dto.AddressRu;
+            entity.CountryRu = dto.CountryRu;
             entity.Status = dto.Status;
         }
 

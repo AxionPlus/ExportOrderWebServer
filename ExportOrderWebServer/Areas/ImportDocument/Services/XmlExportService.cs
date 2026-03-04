@@ -39,7 +39,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                 DocHead = new DocHeadType
                 {
                     DocName = "Manifest",
-                    DocNumber = GenerateDocNumber(vesselCall),
+                    DocNumber = $"{DateTime.UtcNow:yyyyMMddmmss}",
                     DocDate = DateTime.UtcNow,
                     Modification = "create"
                 },
@@ -58,13 +58,13 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                         new PartyType
                         {
                             PartyFunction = "Stevedore",
-                            Name = vesselCall.Terminal?.Name?? throw new NullReferenceException("Terminal Name is null")
+                            Name = vesselCall.Terminal?.NameRu?? throw new NullReferenceException("Terminal Name is null")
                         }
                     }
                 },
                 Arrival = new NutepArrivalType
                 {
-                    VesselID = vesselCall.Vessel?.RolisCode ?? throw new NullReferenceException("Vessel RolisCode is null"),
+                    VesselID = vesselCall.Vessel?.RolisCode ?? throw new NullReferenceException("Vessel Rolis Code is null"),
                     Vessel = vesselCall.Vessel?.Name ?? throw new NullReferenceException("Vessel Name is null"),
                     ArrivalDate = vesselCall.ETA ?? DateTime.UtcNow
                 },
@@ -177,7 +177,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
                     {
                         DocName = "Коносамент",
                         DocNumber = billOfLading.Num,
-                        DocDate = billOfLading.Date ?? DateTime.UtcNow
+                        DocDate = billOfLading.TsDate ?? throw new NullReferenceException($"billOfLading {billOfLading.Num} TsDate is null"),
                     },
                     PartiesList = new NleBLPartiesListType
                     {

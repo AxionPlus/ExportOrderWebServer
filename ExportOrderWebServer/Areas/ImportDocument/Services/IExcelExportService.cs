@@ -156,6 +156,8 @@ public class ClosedXmlExcelExportService : IExcelExportService
         foreach (var bol in billOfLadingList.OrderBy(s=>s.ConsigneeName))
         {
             detailsWorksheet.Cell(row, 2).Value = bol.Num;
+            detailsWorksheet.Cell(row, 5).Value = bol.ConsigneeNameRu;
+            detailsWorksheet.Cell(row, 6).Value = bol.ConsigneeAddressRu;
             detailsWorksheet.Cell(row, 7).Value = "РОССИЯ";
             detailsWorksheet.Cell(row, 8).Value = "ДТ";
             detailsWorksheet.Cell(row, 10).Value = bol.ConsigneeName + " " + bol.ConsigneeAddress;
@@ -327,7 +329,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
         // Заголовки столбцов
         var headers = new[]
         {
-            "№ Коносамента", "Дата", "Код клиента", "Грузоотправитель", "Грузоотправитель RU",
+            "№ Коносамента", "Дата", "TS Дата", "Код клиента", "Грузоотправитель", "Грузоотправитель RU",
             "Адрес грузоотправителя", "Грузополучатель", "Грузополучатель RU",
             "Адрес грузополучателя", "Адрес RU", "Страна RU", "Порт погрузки",
             "Порт выгрузки", "Описание груза", "Описание груза RU", "Контейнеров",
@@ -347,34 +349,36 @@ public class ClosedXmlExcelExportService : IExcelExportService
         int row = 2;
         foreach (var bol in billOfLadingList)
         {
-            worksheet.Cell(row, 1).Value = bol.Num;
-            worksheet.Cell(row, 2).Value = bol.Date?.ToString("dd.MM.yyyy");
-            worksheet.Cell(row, 3).Value = bol.CustomerCode;
-            worksheet.Cell(row, 4).Value = bol.ShipperName;
-            worksheet.Cell(row, 5).Value = bol.ShipperNameRu;
-            worksheet.Cell(row, 6).Value = bol.ShipperAddress;
-            worksheet.Cell(row, 7).Value = bol.ConsigneeName;
-            worksheet.Cell(row, 8).Value = bol.ConsigneeNameRu;
-            worksheet.Cell(row, 9).Value = bol.ConsigneeAddress;
-            worksheet.Cell(row, 10).Value = bol.ConsigneeAddressRu;
-            worksheet.Cell(row, 11).Value = bol.ConsigneeCountryRu;
-            worksheet.Cell(row, 12).Value = bol.Pol?.IsoCode ?? string.Empty;
-            worksheet.Cell(row, 13).Value = bol.Pod;
-            worksheet.Cell(row, 14).Value = bol.CargoDescription;
-            worksheet.Cell(row, 15).Value = bol.CargoDescriptionRu;
-            worksheet.Cell(row, 16).Value = bol.TotalContainers;
-            worksheet.Cell(row, 17).Value = bol.TotalGrossWeight;
-            worksheet.Cell(row, 18).Value = bol.TotalNoOfPackage;
-            worksheet.Cell(row, 19).Value = bol.HasTranslate ? "✓" : "✗";
-            worksheet.Cell(row, 20).Value = bol.Carrier;
+            int column = 1;
+            worksheet.Cell(row, column++).Value = bol.Num;
+            worksheet.Cell(row, column++).Value = bol.Date?.ToString("dd.MM.yyyy");
+            worksheet.Cell(row, column++).Value = bol.TsDate?.ToString("dd.MM.yyyy");
+            worksheet.Cell(row, column++).Value = bol.CustomerCode;
+            worksheet.Cell(row, column++).Value = bol.ShipperName;
+            worksheet.Cell(row, column++).Value = bol.ShipperNameRu;
+            worksheet.Cell(row, column++).Value = bol.ShipperAddress;
+            worksheet.Cell(row, column++).Value = bol.ConsigneeName;
+            worksheet.Cell(row, column++).Value = bol.ConsigneeNameRu;
+            worksheet.Cell(row, column++).Value = bol.ConsigneeAddress;
+            worksheet.Cell(row, column++).Value = bol.ConsigneeAddressRu;
+            worksheet.Cell(row, column++).Value = bol.ConsigneeCountryRu;
+            worksheet.Cell(row, column++).Value = bol.Pol?.IsoCode ?? string.Empty;
+            worksheet.Cell(row, column++).Value = bol.Pod;
+            worksheet.Cell(row, column++).Value = bol.CargoDescription;
+            worksheet.Cell(row, column++).Value = bol.CargoDescriptionRu;
+            worksheet.Cell(row, column++).Value = bol.TotalContainers;
+            worksheet.Cell(row, column++).Value = bol.TotalGrossWeight;
+            worksheet.Cell(row, column++).Value = bol.TotalNoOfPackage;
+            worksheet.Cell(row, column++).Value = bol.HasTranslate ? "✓" : "✗";
+            worksheet.Cell(row, column++).Value = bol.Carrier;
 
             // Форматирование
-            worksheet.Cell(row, 16).Style.NumberFormat.Format = "0";
-            worksheet.Cell(row, 17).Style.NumberFormat.Format = "0.00";
-            worksheet.Cell(row, 18).Style.NumberFormat.Format = "0";
+            worksheet.Cell(row, 17).Style.NumberFormat.Format = "0";
+            worksheet.Cell(row, 18).Style.NumberFormat.Format = "0.00";
+            worksheet.Cell(row, 19).Style.NumberFormat.Format = "0";
 
             // Цветовая индикация перевода
-            worksheet.Cell(row, 19).Style.Font.FontColor = bol.HasTranslate
+            worksheet.Cell(row, 20).Style.Font.FontColor = bol.HasTranslate
                 ? XLColor.DarkGreen
                 : XLColor.DarkRed;
 

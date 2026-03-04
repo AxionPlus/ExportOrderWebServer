@@ -5,6 +5,7 @@
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Customer.Services
 @using ExportOrderWebServer.Areas.ImportDocument.Services
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
@@ -27,6 +28,8 @@
 @inject IFeederBlExcelService _feederBlExcelService;
 @inject IFillBillExcelService _fillBillExcelService;
 @inject IYandexDiskService _diskService;
+@inject ICustomerService _customerService;
+
 <style>
     .mud-table-dense * .mud-table-row .mud-table-cell {
         padding-inline-start: 10px;
@@ -43,6 +46,7 @@
 <PageTitle>Bill of Lading Management</PageTitle>
 <ToolBar Label="Bill of Lading Management">
     <RightContent>
+        <ToolBarIconButton Icon="@Icons.Material.Filled.FileDownloadDone" OnClick="OnCustomerCopy" Color="Color.Info" TooltipText="Customer Copy" />
         <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenUploadDialog" Color="Color.Secondary" TooltipText="Upload XML Manifest" />
         <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenTsDataUploadDialog" Color="Color.Secondary" TooltipText="TsData Upload" />
     </RightContent>
@@ -52,8 +56,8 @@
 <Container>
 
     <VesselVoaygeSelector @bind-VesselCallId="SelectedVesselCallId" @bind-VesselCall="@SelectedVesselCall" OnClick="OnVesselCallChanged" />
-    
-    
+
+
     @if (SelectedVesselCallId != Guid.Parse("00000000-0000-0000-0000-000000000000"))
     {
         <MudButton OnClick="CaptainNameDialog"
@@ -62,6 +66,13 @@
                    Size="Size.Small"
                    StartIcon="@Icons.Material.Filled.Link">
             Captain Name Dialog
+        </MudButton>
+        <MudButton OnClick="OnCustomerTranslate"
+                   Variant="Variant.Outlined"
+                   Color="Color.Secondary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Translate">
+            Get Customer Ru
         </MudButton>
         <MudButton OnClick="OnSetGoogleTableUrl"
                    Variant="Variant.Outlined"
@@ -87,6 +98,13 @@
         </MudButton>
 
 
+        <MudButton OnClick="OnSaveToYandex"
+                   Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Download">
+            ToYandex
+        </MudButton>
 
         <MudMenu Dense>
             <ActivatorContent>
@@ -112,7 +130,6 @@
                 <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Obligation" OnClick="ObligationToExcel" />
                 <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Xml" OnClick="Xml" />
                 <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Fill Bill" OnClick="ExportFillBillToExcel" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Save to Yandex" OnClick="OnSaveToYandex" />
             </ChildContent>
         </MudMenu>
     }
@@ -158,10 +175,10 @@
                                                     {
                                                         <img width="25" height="25" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE2UlEQVR4nO1aTWwbRRTexIViAgmNd8YJisiBnwPqBYEoUARISBQOnEDAiTOk/NxSjhy5wo0igZCaEEoRB4oS1NIWcCoIFQnpvtkUCSHBBQ6VADWp563th956neyO1+t1/SPXypNGcrSz873vzbyfeRvL2pVduf5EKqTwsK4LIcpI8J5MS8SfS5Sx+k2k0u9J0BUB+m2LaCiJiAR8U4IuS6XftfpJbMA3wgoLhQvTv9NNJpF7HbpRAn4cmevg61Y/iFynvFB601Ragj5nX9z52/8N+pw5z393nfJWP4hU+JBQ+m9TyczxCuV+9ii36lHmRIViSFy2AR/rqbJ513tCAM4KwDmhEEwrCufqXRLwUsQnjhENL1QH/47uGF7id+p3F8HHAJxlzI4TEUqvRKzpeofMOWPrtE+APhMmEh6hY1eY+JVEHYbjPW3s2I+dJwJ41HDoI3Hzwg4dR6QWCGIxFL4VwQB8v23FbdD3CYUz1lnaE4AcNkDmk97nEGsSCYfmWCKAnxjGmtnJUfgK69QyEan0t8FZdm3wnhEbeNAAUc3WGDtfoqF5oqE5otFCqWlml4Bu9PjiI+wnUuFacCSXkwxRJ3mlXzIjjA16MbeK5dA5L01eoJuTjYG0b8XzR7MShdeSoEu19RlLuN68qUce9IvpWBANCYVOXV5QSHtOVCj7dZlEkB/ygAc6VWtxCJfVBEkj35R9rDgdOKql3hVb0SQ7WthCPPaeLFdD6qdEt35XYkIznSLC/jB2vuTnHsbY+1XZTLAVqfD4pLN1RyoSEUIu3i+V/p4T2siZHZDayC55W8LBR9slknPxgexS6Up4bcZiTMaWoH9iH7WuRaYcGhdKvyyUPjVa8CrDBgkeN3xR2bbUBGxNt0ok527eHux8mdeyjPUZc3S5xAHnAkdB4dBEagK2wsel0otSac8o7mjkdNmPQttACxStmUC/Ixy6pRmRINdwBfxf7Vkt+1vHyMdgLMaMrsE66UXWsSkR4RSfj3Oy7WiyhqXsYukK71I9kB+u/+SdZIeMI5J3i88KwN/qnNhBP0Tz2uNrUSPWzXWLzzUl4pffoP+JUdDf3vwaSV8hwANC6R8agsU9A73UeD6qWtnjlzrBsQ6ObniNf6f+oGyq4yUBP6qFOs7G4uLVO2MnEg0HgH8lWTDRukpf9quABrfF8V82p4JjWAje+dBKK7Yq3pNXen/a+ewXPmHQxfQkNLKjT26QnRYnr/R+1s3qtthQvJsjWIpdONWKoXouTESA/jIFkdM9IWK3eLTGVuk2P/S2drS8rh8tOQjOPp0y/FYTJ642VDKm0dDT8CsGJSHabZQofAzD1ooj0rMSZWCKRrO8ZidLLOMTyutmRLpexts7F6ty0sWKGwJJ66QlwiIAX41crE62e7GqXnUh1VXXwQc7RYSLUBm+6n7egasuX/B73XzgICGjzYeKcKPtoUCPF1KRiGsHcQeQr7R1lulwO0goVBGMDTxotIMKLbWDWLgZ5vtAkHGFwtciIIBzXWjQzRvGOuw/IMqwD11Tgy4G5AODyGwXWqZHDIyjVqeFQ2DUWt5TDZrYZ1M0sZdjm9iudyiKoVc6TmRgPiskiVT4cOyHns9SfOhppdzopgzUpzd7ED6GDtTn6YH6h4F2a61d2RWrP+V/0z1ruMzmer0AAAAASUVORK5CYII=" alt="snowflake">
                                                     }
-                                                    
+
                                                     @if (bl.IsImo)
                                                     {
-                                                    <img width="25" height="25" src="data:image/png;base64,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" alt="radioactive-emoji">
+                                                        <img width="25" height="25" src="data:image/png;base64,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" alt="radioactive-emoji">
                                                     }
                                                 </div>
                                                 <MudText Typo="Typo.body2" Color="Color.Secondary">
@@ -189,7 +206,7 @@
 
                 <!-- Правая колонка: Детали коносамента -->
                 <MudItem xs="12" md="9" Class="pl-md-3">
-                    <BillOfLadingViewComponent @ref="billOfLadingView" 
+                    <BillOfLadingViewComponent @ref="billOfLadingView"
                                                BillOfLadingDto="SelectedBill" OnVesselCallChanged="OnVesselCallChanged" />
                 </MudItem>
             </MudGrid>
@@ -198,7 +215,7 @@
 </MudGrid>
 
 <OverlayLoadingData Visible="isLoading" />
-    @code {
+@code {
     private Guid SelectedVesselCallId = Guid.Empty;
     private VesselCallDto? SelectedVesselCall;
 
@@ -772,7 +789,7 @@
             await DownloadFile(fileBytes, $"Feeder-BillOfLading_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")} ", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
             Snackbar.Add($"Successfully exported {BillOfLadings.Count} Feeder-BillOfLading", Severity.Success);
-           
+
         }
         catch (Exception ex)
         {
@@ -806,7 +823,7 @@
 
             var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
             var bolList = vesselCall.BillOfLadings;
-            var fileBytes = await _excelService.ExportBillOfLadingToExcelForTranslateAsync(bolList); 
+            var fileBytes = await _excelService.ExportBillOfLadingToExcelForTranslateAsync(bolList);
 
             await DownloadFile(fileBytes, $"BillOfLadings_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")} ", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
@@ -849,17 +866,6 @@
 
             Snackbar.Add($"Successfully exported {BillOfLadings.Count} FillBill", Severity.Success);
 
-            var uploadDto = new YandexFileUploadDto
-            {
-                VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
-                VoyageNo = vesselCall.VoyageNo ?? "0000",
-                FileName = $"Fill-Bill_{vesselCall.Vessel?.Name}_{vesselCall.VoyageNo}_v{DateTime.Now:ddMMyymmss}.xlsx",
-                BaseFolderPath = "Документы Импорт"
-            };
-
-            // 3. Загружаем на Яндекс.Диск
-            var pathOnDisk = await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-          
         }
         catch (Exception ex)
         {
@@ -899,64 +905,45 @@
 
     private async Task OnSaveToYandex()
     {
+        var parameters = new DialogParameters
+        {
+            ["VesselCall"] = SelectedVesselCall
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            BackdropClick = false,
+        };
+
+        var dialog = await DialogService.ShowAsync<SaveToYandexDialog>("Save ToYandex", parameters, options);
+        var result = await dialog.Result;
+
+
+    }
+
+    private async Task OnCustomerCopy()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Customer Copy",
+            (MarkupString)$"Do you want to copy Customers?",
+            yesText: "Yes,do it!", cancelText: "No");
+
+        if (!result.HasValue || !result.Value)
+            return;
+
+        if (SelectedVesselCallId == Guid.Empty)
+        {
+            Snackbar.Add("Please select a vessel call first", Severity.Warning);
+            return;
+        }
+        isLoading = true;
+        StateHasChanged();
         try
         {
-            if (SelectedVesselCallId == Guid.Empty)
-            {
-                Snackbar.Add("Please select a vessel call first", Severity.Warning);
-                return;
-            }
-
-            if (!BillOfLadings.Any())
-            {
-                Snackbar.Add("No bills of lading to export", Severity.Info);
-                return;
-            }
-
-            isLoading = true;
-            StateHasChanged();
-            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
-            var fileBytes = await _fillBillExcelService.GenerateExcel(vesselCall);
-            var uploadDto = new YandexFileUploadDto
-            {
-                VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
-                VoyageNo = vesselCall.VoyageNo ?? "0000",
-                FileName = $"Fill-Bill_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx",
-                BaseFolderPath = "Документы Импорт"
-            };
-
-            // Загружаем на Яндекс.Диск
-            var pathOnDisk = await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-
-
-             fileBytes = await _arrivalNoticeExportService.GenerateArrivalNoticeAsync(vesselCall);
-             uploadDto = new YandexFileUploadDto
-            {
-                VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
-                VoyageNo = vesselCall.VoyageNo ?? "0000",
-                FileName = $"УВЕДОМЛЕНИЕ_О_ПРИБЫТИИ_ТОВАРОВ_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx",
-                BaseFolderPath = "Документы Импорт"
-            };
-
-            // Загружаем на Яндекс.Диск
-             pathOnDisk = await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-
-             fileBytes = await ObligationExcelService.GenerateObligationAsync(vesselCall);
-             uploadDto = new YandexFileUploadDto
-             {
-                 VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
-                 VoyageNo = vesselCall.VoyageNo ?? "0000",
-                 FileName = $"Обязательство_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx",
-                 BaseFolderPath = "Документы Импорт"
-             };
-
-             // Загружаем на Яндекс.Диск
-             pathOnDisk = await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-
-
-            Snackbar.Add($"Successfully Save To Yandex", Severity.Success);
-
-          
+            await _customerService.CopyFromVesselCall(SelectedVesselCallId);
         }
         catch (Exception ex)
         {
@@ -969,4 +956,32 @@
         }
     }
 
+    private async Task OnCustomerTranslate()
+    {
+        if (SelectedVesselCallId == Guid.Empty)
+        {
+            Snackbar.Add("Please select a vessel call first", Severity.Warning);
+            return;
+        }
+
+        bool? result = await DialogService.ShowMessageBox(
+            "Get Customer Ru",
+            (MarkupString)$"Do you want to get Customers Ru from Db?",
+            yesText: "Yes,do it!", cancelText: "No");
+
+        if (!result.HasValue || !result.Value)
+            return;
+        try
+        {
+            await _customerService.GetCustomerTranslateFromVesselCall(SelectedVesselCallId);
+
+            Snackbar.Add("Customers have been updated", Severity.Info);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
     }
+
+}

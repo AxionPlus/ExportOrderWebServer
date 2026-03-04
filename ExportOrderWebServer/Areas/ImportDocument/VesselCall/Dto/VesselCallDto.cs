@@ -37,7 +37,7 @@ public class VesselCallDto : BaseEntity
 
     [NotMapped]
     public string VesselCallDisplay => $"{Vessel?.Name} - {VoyageNo} ({ETA:dd.MM.yy})";
-    public string VesselCallFileNameDisplay => $"{Vessel?.Name}_{VoyageNo}_ETA{ETA:yy-MM-dd}";
+    public string VesselCallFileNameDisplay => $"{Vessel?.Name}_{VoyageNo}_ETA_{ETA:yy-MM-dd}";
 
     [NotMapped]
     public string FullInfo => $"{Vessel?.Name} {VoyageNo} → {Terminal?.Name} ETA: {ETA:dd.MM.yyyy HH:mm}";

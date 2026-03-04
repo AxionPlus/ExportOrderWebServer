@@ -30,7 +30,7 @@ public class GoogleSheetsParser : IGoogleSheetsParser
             result.Add(columns);
         }
 
-        foreach (var billOfLadingGroup in result.GroupBy(s => s[1]))
+        foreach (var billOfLadingGroup in result.GroupBy(s => s[1].Trim()))
         {
             var billOfLading = new BillOfLadingBaseDto
             {
@@ -38,13 +38,13 @@ public class GoogleSheetsParser : IGoogleSheetsParser
             };
             if (billOfLadingGroup.Count() == 1)
             {
-                billOfLading.ConsigneeNameRu = billOfLadingGroup.First()[4];
-                billOfLading.ConsigneeAddressRu = billOfLadingGroup.First()[5];
-                billOfLading.ConsigneeCountryRu = billOfLadingGroup.First()[6];
+                billOfLading.ConsigneeNameRu = billOfLadingGroup.First()[4].Trim();
+                billOfLading.ConsigneeAddressRu = billOfLadingGroup.First()[5].Trim();
+                billOfLading.ConsigneeCountryRu = billOfLadingGroup.First()[6].Trim();
 
-                billOfLading.CargoDescriptionRu = billOfLadingGroup.First()[3];
+                billOfLading.CargoDescriptionRu = billOfLadingGroup.First()[3].Trim();
 
-                billOfLading.CustomsMode = billOfLadingGroup.First()[7] switch
+                billOfLading.CustomsMode = billOfLadingGroup.First()[7].Trim() switch
                 {
                     "ДТ" => "ГТД",
                     "ТТ" => "ВТТ",
@@ -53,11 +53,11 @@ public class GoogleSheetsParser : IGoogleSheetsParser
             }
             else
             {
-                billOfLading.ConsigneeNameRu = billOfLadingGroup.First()[4];
-                billOfLading.ConsigneeAddressRu = billOfLadingGroup.First()[5];
-                billOfLading.ConsigneeCountryRu = billOfLadingGroup.First()[6];
+                billOfLading.ConsigneeNameRu = billOfLadingGroup.First()[4].Trim();
+                billOfLading.ConsigneeAddressRu = billOfLadingGroup.First()[5].Trim();
+                billOfLading.ConsigneeCountryRu = billOfLadingGroup.First()[6].Trim();
 
-                billOfLading.CustomsMode = billOfLadingGroup.First()[7] switch
+                billOfLading.CustomsMode = billOfLadingGroup.First()[7].Trim() switch
                 {
                     "ДТ" => "ГТД",
                     "ТТ" => "ВТТ",
@@ -69,8 +69,8 @@ public class GoogleSheetsParser : IGoogleSheetsParser
                 {
                     var billOfLadingRecord = new BillOfLadingContainerRecordBaseDto
                     {
-                        ContainerNo = record[2],
-                        CargoDescriptionRu = record[3]
+                        ContainerNo = record[2].Trim(),
+                        CargoDescriptionRu = record[3].Trim()
                     };
 
                     billOfLading.ContainerRecords.Add(billOfLadingRecord);

@@ -39,7 +39,7 @@
         </MudNavGroup>    
     </AuthorizeView>
     <AuthorizeView Roles="Admin, ImpDept">
-        <MudNavLink Href="/billofladings" Match="NavLinkMatch.Prefix"@onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">bill of ladings</MudNavLink>
+        <MudNavLink Href="/billofladings" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">bill of ladings</MudNavLink>
         <MudNavLink Href="/uploadmanifest" Match="NavLinkMatch.Prefix"@onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">upload manifest</MudNavLink>
         <MudNavLink Href="/releaseImport" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">release Import</MudNavLink>
         <MudNavLink Href="/releaseRecords" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">release Records</MudNavLink>
@@ -50,9 +50,10 @@
     </AuthorizeView>
 
     <AuthorizeView Roles="ImportHub">
-        <MudNavGroup Title="Import-Hub" Icon="@Icons.Material.Filled.Archive"@onclick="@CloseDrawer" IconColor="Color.Info" Expanded="false">
-            <MudNavLink Href="/import/bill-of-lading" Match="NavLinkMatch.Prefix"@onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">bill-of-lading</MudNavLink>
+        <MudNavGroup Title="Import-Hub" Icon="@Icons.Material.Filled.Archive" IconColor="Color.Info" Expanded="false">
+            <MudNavLink Href="/import/bill-of-lading" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">bill-of-lading</MudNavLink>
             <MudNavLink Href="/import/vessel-call" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">vessel-call</MudNavLink>
+            <MudNavLink Href="/import/customer" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">customer</MudNavLink>
             <MudNavLink Href="/import/vessel" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">vessel</MudNavLink>
             <MudNavLink Href="/import/port" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">port</MudNavLink>
             <MudNavLink Href="/import/terminal" Match="NavLinkMatch.Prefix" @onclick="@CloseDrawer" Icon="@Icons.Material.Filled.Notes">terminal</MudNavLink>

@@ -2,6 +2,7 @@
 @using ExportOrderWebServer.Areas.ImportDocument.Extensions
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Customer.Services
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
 
 @inject IBillOfLadingService BillOfLadingService
@@ -9,7 +10,7 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
-
+@inject ICustomerService _customerService;
 
 
 
@@ -85,7 +86,7 @@
                                                 <MudText Class="ml-1" Style="text-wrap: none" Typo="Typo.subtitle1">Consignee (@BillOfLadingDto.Consignee)</MudText>
                                             </ActivatorContent>
                                             <ChildContent>
-                                                <MudMenuItem> find translate </MudMenuItem>
+                                                <MudMenuItem OnClick="OnFindTranslate"> find translate </MudMenuItem>
                                             </ChildContent>
                                         </MudMenu>
                                     </MudCardHeader>
@@ -151,12 +152,12 @@
                                         <MudTd DataLabel="Packages">@context.NoOfPackage</MudTd>
                                         <MudTd DataLabel="CargoDescription" Style="@(string.IsNullOrWhiteSpace(context.CargoDescriptionRu) ? "background-color: aliceblue;" : "")">
                                             <div style="width: 500px;
-                                                                                                                                        word-wrap: break-word;
-                                                                                                                                        white-space: normal;
-                                                                                                                                        overflow: hidden;
-                                                                                                                                        text-overflow: ellipsis;
-                                                                                                                                        display: -webkit-box;
-                                                                                                                                        -webkit-box-orient: vertical;">
+                                                                                                                                                        word-wrap: break-word;
+                                                                                                                                                        white-space: normal;
+                                                                                                                                                        overflow: hidden;
+                                                                                                                                                        text-overflow: ellipsis;
+                                                                                                                                                        display: -webkit-box;
+                                                                                                                                                        -webkit-box-orient: vertical;">
                                                 @context.CargoDescriptionRu
                                             </div>
                                         </MudTd>
@@ -538,7 +539,24 @@
     }
 
 
+    private async Task OnFindTranslate()
+    {
+        try
+        {
+       
+            var customer = await _customerService.GetByCodeAsync(BillOfLadingDto.ConsigneeCode);
 
+            BillOfLadingDto.ConsigneeNameRu = customer.NameRu;
+            BillOfLadingDto.ConsigneeAddressRu = customer.AddressRu;
+            BillOfLadingDto.ConsigneeCountryRu = customer.CountryRu;
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+    }
 
 }
 

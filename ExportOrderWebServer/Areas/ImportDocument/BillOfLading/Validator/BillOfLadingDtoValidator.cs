@@ -12,10 +12,10 @@ public class BillOfLadingDtoValidator : AbstractValidator<Dto.BillOfLadingBaseDt
             .MaximumLength(50).WithMessage("BL number cannot exceed 50 characters")
             .Matches(@"^[A-Za-z0-9\-/]+$").WithMessage("BL number can only contain letters, numbers, hyphens and slashes");
 
-        RuleFor(x => x.Date)
-            .NotEmpty().WithMessage("BL date is required")
-            .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("BL date cannot be in the future")
-            .GreaterThanOrEqualTo(DateTime.UtcNow.AddYears(-5)).WithMessage("BL date cannot be too far in the past");
+        //RuleFor(x => x.Date)
+        //    .NotEmpty().WithMessage("BL date is required")
+        //    .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("BL date cannot be in the future")
+        //    .GreaterThanOrEqualTo(DateTime.UtcNow.AddYears(-5)).WithMessage("BL date cannot be too far in the past");
 
         RuleFor(x => x.VesselCallId)
             .NotEmpty().WithMessage("Vessel call is required")

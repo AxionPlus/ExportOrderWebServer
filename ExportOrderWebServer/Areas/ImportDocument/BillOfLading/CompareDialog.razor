@@ -2,59 +2,165 @@
 
 <MudSimpleTable Dense Hover Striped Style="overflow-x: auto;">
     <thead>
-        <tr>
-            <th>Item</th>
-            @foreach (var h in List)
-            {
-                <th>@h.FileName</th>
-            }
-        </tr>
+    <tr>
+        <th>Item</th>
+        @foreach (var h in List.OrderBy(s => s.Num))
+        {
+            <th>@h.FileName</th>
+        }
+    </tr>
     </thead>
     <tbody>
 
-        <tr>
-            <td>Shipper</td>
-            @foreach (var x in List)
-            {
-                <td>@x.Shipper</td>
-            }
-        </tr>
+    <tr>
+        <td>Shipper</td>
+        @foreach (var x in List.OrderBy(s => s.Num))
+        {
+            <td>@x.Shipper</td>
+        }
+    </tr>
 
-        <tr>
-            <td>Shipper Address</td>
-            @foreach (var x in List)
-            {
-                <td>@x.ShipperAddress</td>
-            }
-        </tr>
+    <tr>
+        <td>Shipper Address</td>
+        @foreach (var x in List.OrderBy(s => s.Num))
+        {
+            <td>@x.ShipperAddress</td>
+        }
+    </tr>
 
-        <tr>
-            <td>Consignee</td>
-            @foreach (var x in List)
-            {
-                <td>@x.Consignee</td>
-            }
-        </tr>
+    <tr>
+        <td>Consignee</td>
+        @foreach (var x in List.OrderBy(s => s.Num))
+        {
+            <td>@x.Consignee</td>
+        }
+    </tr>
 
-        <tr>
-            <td>Consignee Address</td>
-            @foreach (var x in List)
-            {
-                <td>@x.ConsigneeAddress</td>
-            }
-        </tr>
+    <tr>
+        <td>Consignee Address</td>
+        @foreach (var x in List.OrderBy(s => s.Num))
+        {
+            <td>@x.ConsigneeAddress</td>
+        }
+    </tr>
 
-        <tr>
-            <td>CargoDescription</td>
-            @foreach (var x in List)
-            {
-                <td>@x.CargoDescription</td>
-            }
-        </tr>
+    <tr>
+        <td>CargoDescription</td>
+        @foreach (var x in List.OrderBy(s => s.Num))
+        {
+            <td>@x.CargoDescription</td>
+        }
+    </tr>
 
     </tbody>
 </MudSimpleTable>
 
+<MudSimpleTable Dense Hover Striped Style="overflow-x: auto;">
+    <thead>
+        <tr>
+            <th>Статус</th>
+            <th>FileName</th>
+            <th>ContainerNo</th>
+            <th>NoOfPackage</th>
+            <th>GrossWeight</th>
+            <th>TareWt</th>
+            <th>SealNo</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (List != null && List.Any())
+        {
+            // 1. Получаем все уникальные номера контейнеров из всех файлов для построения строк
+            var allContainerNos = List
+                .SelectMany(b => b.ContainerRecords)
+                .Select(c => c.ContainerNo)
+                .Distinct()
+                .OrderBy(c => c);
+
+            foreach (var containerNo in allContainerNos)
+            {
+                // 2. Для каждого контейнера берем запись из ПЕРВОГО файла как эталон для сравнения
+                var firstFile = List.OrderBy(s => s.Num).FirstOrDefault();
+                var referenceRecord = firstFile?.ContainerRecords?.FirstOrDefault(c => c.ContainerNo == containerNo);
+
+                // 3. Проходим по всем файлам и выводим строки
+                foreach (var file in List.OrderBy(s => s.Num))
+                {
+                    var record = file.ContainerRecords?.FirstOrDefault(c => c.ContainerNo == containerNo);
+                    
+                    // Если в этом файле нет такого контейнера, помечаем как отсутствующий
+                    var isMissing = record == null;
+                    
+                    // Логика проверки несоответствий (сравниваем с эталоном)
+                    bool hasMismatch = false;
+                    if (referenceRecord != null && record != null)
+                    {
+                        hasMismatch = record.NoOfPackage != referenceRecord.NoOfPackage ||
+                                      record.GrossWeight != referenceRecord.GrossWeight ||
+                                      record.TareWt != referenceRecord.TareWt ||
+                                      record.SealNo != referenceRecord.SealNo;
+                    }
+                    else if (referenceRecord != null && record == null)
+                    {
+                        hasMismatch = true; // Отсутствует в текущем файле
+                    }
+
+                    <tr>
+                        <td>
+                            @if (string.IsNullOrEmpty(containerNo))
+                            {
+                                <MudChip T="string" Color="Color.Default">Пусто</MudChip>
+                            }
+                            else if (file == firstFile)
+                            {
+                                <MudChip  T="string" Color="Color.Primary">File</MudChip>
+                            }
+                            else if (hasMismatch || isMissing)
+                            {
+                                <MudChip T="string" Color="Color.Error">Error</MudChip>
+                            }
+                            else
+                            {
+                                <MudChip T="string" Color="Color.Success">OK</MudChip>
+                            }
+                        </td>
+                        <td>@file.FileName</td>
+                        <td>
+                            <MudText Color="@(isMissing ? Color.Error : Color.Default)">
+                                @(record?.ContainerNo ?? "Отсутствует")
+                            </MudText>
+                        </td>
+                        <td>
+                            <MudText Color="@(hasMismatch && record?.NoOfPackage != referenceRecord?.NoOfPackage ? Color.Error : Color.Default)">
+                                @(record?.NoOfPackage.ToString() ?? "-")
+                            </MudText>
+                        </td>
+                        <td>
+                            <MudText Color="@(hasMismatch && record?.GrossWeight != referenceRecord?.GrossWeight ? Color.Error : Color.Default)">
+                                @(record?.GrossWeight.ToString() ?? "-")
+                            </MudText>
+                        </td>
+                        <td>
+                            <MudText Color="@(hasMismatch && record?.TareWt != referenceRecord?.TareWt ? Color.Error : Color.Default)">
+                                @(record?.TareWt.ToString() ?? "-")
+                            </MudText>
+                        </td>
+                        <td>
+                            <MudText Color="@(hasMismatch && record?.SealNo != referenceRecord?.SealNo ? Color.Error : Color.Default)">
+                                @(record?.SealNo ?? "-")
+                            </MudText>
+                        </td>
+                    </tr>
+                }
+                
+                // Опционально: Разделитель между разными контейнерами для удобства чтения
+                <tr style="border-bottom: 2px solid #ccc;">
+                    <td colspan="7"></td>
+                </tr>
+            }
+        }
+    </tbody>
+</MudSimpleTable>
 
 
 @code {

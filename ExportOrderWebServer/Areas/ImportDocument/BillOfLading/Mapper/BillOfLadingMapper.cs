@@ -1,4 +1,5 @@
-﻿using ExportOrderEntites;
+﻿using DocumentFormat.OpenXml.Vml.Office;
+using ExportOrderEntites;
 using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Mapper;
@@ -15,6 +16,7 @@ public static class BillOfLadingMapper
         return new Dto.BillOfLadingBaseDto
         {
             Id = entity.Id,
+            IsFinalized = entity.IsFinalized,
             Num = entity.Num,
             Date = entity.Date,
             TsDate = entity.TsDate,
@@ -115,6 +117,7 @@ public static class BillOfLadingMapper
         return new BillOfLadingBaseEntity
         {
             Id = baseDto.Id,
+            IsFinalized = baseDto.IsFinalized,
             Num = baseDto.Num,
             Date = baseDto.Date.Value,
             TsDate = baseDto.TsDate,
@@ -189,6 +192,7 @@ public static class BillOfLadingMapper
         if (entity == null) throw new ArgumentNullException(nameof(entity));
         if (baseDto == null) throw new ArgumentNullException(nameof(baseDto));
 
+        entity.IsFinalized = baseDto.IsFinalized;
         //entity.Num = dto.Num;
         entity.Date = baseDto.Date.Value;
         entity.TsDate = baseDto.TsDate;

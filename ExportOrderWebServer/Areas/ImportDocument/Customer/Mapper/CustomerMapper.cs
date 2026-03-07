@@ -43,13 +43,13 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Customer.Mapper
             return new CustomerBaseEntity
             {
                 Id = dto.Id,
-                FullName = dto.FullName,
+                FullName = dto.FullName.Trim().ToUpper(),
                 Code = dto.Code,
-                Name = dto.Name,
-                Address = dto.Address,
-                NameRu = dto.NameRu,
-                AddressRu = dto.AddressRu,
-                CountryRu = dto.CountryRu,
+                Name = dto.Name.Trim().ToUpper(),
+                Address = dto.Address.Trim().ToUpper(),
+                NameRu = dto.NameRu?.Trim().ToUpper(),
+                AddressRu = dto.AddressRu?.Trim().ToUpper(),
+                CountryRu = dto.CountryRu?.Trim().ToUpper(),
 
                 // BaseEntity fields
                 Status = dto.Status,
@@ -61,13 +61,13 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Customer.Mapper
             if (entity == null) throw new ArgumentNullException(nameof(entity));
             if (dto == null) throw new ArgumentNullException(nameof(dto));
 
-            entity.FullName = dto.FullName;
+            entity.FullName = dto.FullName.Trim().ToUpper();
             entity.Code = dto.Code;
-            entity.Name = dto.Name;
-            entity.Address = dto.Address;
-            entity.NameRu = dto.NameRu;
-            entity.AddressRu = dto.AddressRu;
-            entity.CountryRu = dto.CountryRu;
+            entity.Name = dto.Name.Trim().ToUpper();
+            entity.Address = dto.Address.Trim().ToUpper();
+            entity.NameRu = dto.NameRu?.Trim().ToUpper();
+            entity.AddressRu = dto.AddressRu?.Trim().ToUpper();
+            entity.CountryRu = dto.CountryRu?.Trim().ToUpper();
             entity.Status = dto.Status;
         }
 

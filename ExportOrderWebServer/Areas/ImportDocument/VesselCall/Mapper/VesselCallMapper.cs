@@ -18,6 +18,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
             return new VesselCallDto
             {
                 Id = entity.Id,
+                IsFinalized = entity.IsFinalized,
                 VesselId = entity.VesselId,
                 Vessel = entity.Vessel.ToDto(), // Предполагая существование ToVesselDto
                 VoyageNo = entity.VoyageNo,
@@ -60,6 +61,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
             return new VesselCallBaseEntity
             {
                 Id = dto.Id,
+                IsFinalized = dto.IsFinalized,
                 VesselId = dto.VesselId,
                 VoyageNo = dto.VoyageNo,
                 TerminalVoyageNo = dto.TerminalVoyageNo,
@@ -85,6 +87,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper
             if (entity == null) throw new ArgumentNullException(nameof(entity));
             if (dto == null) throw new ArgumentNullException(nameof(dto));
 
+            entity.IsFinalized = dto.IsFinalized;
             entity.VesselId = dto.VesselId;
             entity.VoyageNo = dto.VoyageNo;
             entity.TerminalVoyageNo = dto.TerminalVoyageNo;

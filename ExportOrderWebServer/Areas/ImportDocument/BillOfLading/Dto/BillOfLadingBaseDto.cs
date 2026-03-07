@@ -10,6 +10,7 @@ public class BillOfLadingBaseDto : BaseEntity
     public string? FileName { get; set; } = string.Empty;
     [Required]
     public string Num { get; set; } = string.Empty;
+    public bool IsFinalized { get; set; }
     public DateTime? Date { get; set; }
 
     public DateTime? TsDate { get; set; }

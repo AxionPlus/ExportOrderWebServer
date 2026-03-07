@@ -11,5 +11,6 @@
         public List<string> Warnings { get; set; } = new();
         public List<BillOfLadingBaseDto> Bills { get; set; } = new();
         public List<BillOfLadingBaseDto> ExistedBills { get; set; } = new();
+        public List<BillOfLadingBaseDto> DuplicateBills { get; set; } = new();
     }
 }

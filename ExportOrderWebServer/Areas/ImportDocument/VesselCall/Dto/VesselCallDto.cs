@@ -10,6 +10,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
 
 public class VesselCallDto : BaseEntity
 {
+    public bool IsFinalized { get; set; }
     public string? GoogleTableUrl { get; set; } = string.Empty;
     public Guid VesselId { get; set; }
     public VesselDto Vessel { get; set; }

@@ -42,9 +42,18 @@
                 </MudSelect>
             </div>
             <div>
-                <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.SaveAs" OnClick="OnSave">Save</MudButton>
-                <MudButton Color="Color.Warning" Variant="Variant.Outlined" OnClick="OnReset">Reset</MudButton>
-                <MudButton Color="Color.Error" OnClick="OnDelete">Delete</MudButton>
+                @if (BillOfLadingDto.IsFinalized)
+                {
+                    <MudButton Color="Color.Warning" Variant="Variant.Outlined" OnClick="OnUnlock">Unlock</MudButton>
+                    <MudButton Color="Color.Warning" Variant="Variant.Outlined" OnClick="OnReset">Reset</MudButton>
+                }
+                else
+                {
+                    <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.SaveAs" OnClick="OnSave">Save</MudButton>
+                    <MudButton Color="Color.Warning" Variant="Variant.Outlined" OnClick="OnReset">Reset</MudButton>
+                    <MudButton Color="Color.Error" OnClick="OnDelete">Delete</MudButton>
+                }
+     
             </div>
         </div>
         <!-- Основная информация -->
@@ -556,6 +565,42 @@
             Console.WriteLine(ex);
             Snackbar.Add($"Error: {ex.Message}", Severity.Error);
         }
+    }
+
+    private async Task OnUnlock()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            $"Unlock  {BillOfLadingDto}",
+            (MarkupString)$"Do you want to Unlock {BillOfLadingDto}?",
+            yesText: "Yes,do it!", cancelText: "No");
+
+        if (!result.HasValue || !result.Value)
+            return;
+
+        isLoading = true;
+        try
+        {
+            BillOfLadingDto.IsFinalized = false;
+            await BillOfLadingService.UpdateAsync(BillOfLadingDto);
+            Snackbar.Add("Unlock succeeded", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            if (BillOfLadingDto != null)
+                await Get(BillOfLadingDto);
+            else
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+
+
     }
 
 }

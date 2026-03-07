@@ -110,7 +110,7 @@
                                           Striped Dense Hover FixedHeader Height="@("450px")">
                                     <ToolBarContent>
                                         <MudButton OnClick="OnUpdateDuplicateBillOfLading" Color="Color.Secondary" Variant="Variant.Text" Disabled="@(!SelectedDuplicateBillOfLadingDtos.Any())">Update</MudButton>
-                                        <MudButton OnClick="OnCompareBillOfLading" Color="Color.Info" Variant="Variant.Text" Disabled="@(!SelectedDuplicateBillOfLadingDtos.Any())">Compare</MudButton>
+                                        <MudButton OnClick="() => OnCompareBillOfLading(SelectedDuplicateBillOfLadingDtos)" Color="Color.Info" Variant="Variant.Text" Disabled="@(!SelectedDuplicateBillOfLadingDtos.Any())">Compare</MudButton>
                                         <MudSpacer />
                                         <MudText Typo="Typo.h6">Total: @UploadManifestResponse.ExistedBills.GroupBy(s => s.Num).Where(s => s.Count() > 1).SelectMany(s => s.ToList()).OrderBy(s => s.Num).ToList().Count()</MudText>
                                         <MudSpacer />
@@ -127,21 +127,46 @@
 
                                 </MudTable>
                             }
+
+                            @if (UploadManifestResponse != null && UploadManifestResponse.DuplicateBills.Any())
+                            {
+
+                                <MudTable T="BillOfLadingBaseDto" @bind-SelectedItems="SelectedDuplicateFileBillOfLadingDtos" MultiSelection Items="@UploadManifestResponse.DuplicateBills.OrderBy(s => s.Num).ToList()"
+                                          Striped Dense Hover FixedHeader Height="@("450px")">
+                                    <ToolBarContent>
+                                        <MudButton OnClick="OnCreateDuplicateBillOfLading" Color="Color.Secondary" Variant="Variant.Text" Disabled="@(!SelectedDuplicateFileBillOfLadingDtos.Any())">Create</MudButton>
+                                        <MudButton OnClick="() => OnCompareBillOfLading(SelectedDuplicateFileBillOfLadingDtos)" Color="Color.Info" Variant="Variant.Text" Disabled="@(!SelectedDuplicateFileBillOfLadingDtos.Any())">Compare</MudButton>
+                                        <MudSpacer />
+                                        <MudText Typo="Typo.h6">Total: @UploadManifestResponse.DuplicateBills.Count()</MudText>
+                                        <MudSpacer />
+                                        <MudText Typo="Typo.h6">Select: @SelectedDuplicateFileBillOfLadingDtos.Count()</MudText>
+                                    </ToolBarContent>
+                                    <HeaderContent>
+                                        <MudTh>BillOfLading</MudTh>
+                                        <MudTh>FileName</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="BillOfLading">@context.Num</MudTd>
+                                        <MudTd DataLabel="FileName">@context.FileName</MudTd>
+                                    </RowTemplate>
+
+                                </MudTable>
+                            }
                         </div>
 
                         @if (UploadManifestResponse != null && UploadManifestResponse.Errors.Any())
                         {
-                      
-                            <MudList T="string" Class="mt-3">
-                                    @foreach (var error in UploadManifestResponse.Errors)
-                                    {
-                                        <MudListItem Icon="@Icons.Material.Filled.Error">
-                                            @error
-                                        </MudListItem>
-                                    }
-                                </MudList>
 
-                            
+                            <MudList T="string" Class="mt-3">
+                                @foreach (var error in UploadManifestResponse.Errors)
+                                {
+                                    <MudListItem Icon="@Icons.Material.Filled.Error">
+                                        @error
+                                    </MudListItem>
+                                }
+                            </MudList>
+
+
                         }
 
                         @if (UploadManifestResponse != null)
@@ -217,6 +242,7 @@
 
     public HashSet<BillOfLadingBaseDto> SelectedBillOfLadingDtos = new HashSet<BillOfLadingBaseDto>();
     public HashSet<BillOfLadingBaseDto> SelectedDuplicateBillOfLadingDtos = new HashSet<BillOfLadingBaseDto>();
+    public HashSet<BillOfLadingBaseDto> SelectedDuplicateFileBillOfLadingDtos = new HashSet<BillOfLadingBaseDto>();
     double _value = 0;
 
     IList<IBrowserFile> files = new List<IBrowserFile>();
@@ -315,16 +341,18 @@
         progress = Math.Round((double)(100 / parsedBills.Count()), 2);
         _value = 0;
 
-        var parsedBillsNum = parsedBills.Select(s => s.Num);
+        var parsedBillsNum = parsedBills.Select(s => s.Num).Distinct();
 
         var existsBills = await _billOfLadingService.CheckBillNumbersExistsAsync(parsedBillsNum);
 
+        var doubleAtFiles = parsedBills.GroupBy(n => n.Num).Where(s => s.Count() > 1).ToList();
+        var doubleAtFilesNum = doubleAtFiles.Select(s => s.Key);
 
-        UploadManifestResponse.ExistedBills = parsedBills.Where(s => existsBills.Any(n => n == s.Num)).ToList();
+        UploadManifestResponse.ExistedBills = parsedBills.Where(s => existsBills.Any(n => n == s.Num)).Where(s => doubleAtFilesNum.Any(n => n == s.Num)).ToList();
         UploadManifestResponse.SkippedBills = UploadManifestResponse.ExistedBills.Count();
+        UploadManifestResponse.DuplicateBills = doubleAtFiles.SelectMany(s => s).ToList();
 
-
-        var parsedCreateBills = parsedBills.Where(s => !existsBills.Contains(s.Num)).ToList();
+        var parsedCreateBills = parsedBills.Where(s => !existsBills.Contains(s.Num)).Where(s => !doubleAtFilesNum.Contains(s.Num)).ToList();
         if (parsedCreateBills.Any())
             foreach (var billDto in parsedCreateBills)
             {
@@ -431,11 +459,11 @@
             StateHasChanged();
         }
     }
-    private async Task OnCompareBillOfLading()
+    private async Task OnCompareBillOfLading(HashSet<BillOfLadingBaseDto> list)
     {
         var parameters = new DialogParameters
         {
-            ["List"] = SelectedDuplicateBillOfLadingDtos.ToList(),
+            ["List"] = list.ToList(),
         };
 
         var options = new DialogOptions
@@ -483,4 +511,36 @@
         _isDisposed = true;
         StopProgressTimer();
     }
+
+    private async Task OnCreateDuplicateBillOfLading()
+    {
+        if (SelectedDuplicateFileBillOfLadingDtos.Any())
+            foreach (var billDto in SelectedDuplicateFileBillOfLadingDtos)
+            {
+                isUploading = true;
+                StateHasChanged();
+                try
+                {
+
+                    billDto.VesselCallId = VesselCall.Id;
+
+                    var createdBill = await _billOfLadingService.CreateAsync(billDto);
+                    UploadManifestResponse.SavedBills++;
+                    UploadManifestResponse.Bills.Add(createdBill);
+
+                }
+                catch (Exception ex)
+                {
+                    UploadManifestResponse.Errors.Add($"Error saving bill '{billDto.Num}': {ex.Message}");
+                    isUploading = false;
+                }
+
+            }
+
+        files = new List<IBrowserFile>();
+
+        isUploading = false;
+        StateHasChanged();
+    }
+
 }

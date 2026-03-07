@@ -807,6 +807,7 @@ public class ExportOrderProvider_New : IExportOrderProvider_New
                 PersonCompany = s.Person?.CompanyName,
                 PersonSign = string.Concat(s.Person?.Name?[..1], ". ", s.Person?.SurName?[..1], ". ", s.Person?.FamilyName),
                 PersonXml = string.Concat(s.Person?.Name, " ", s.Person?.FamilyName, " телефон: ", s.Person?.Phone),
+                PersonPhone = s.Person?.Phone,
 
                 //Records = fileType switch
                 //{                    

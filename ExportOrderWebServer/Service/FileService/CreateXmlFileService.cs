@@ -35,6 +35,7 @@ public class CreateXmlFileService : ICreateXmlFileService
                                                         Commodity = g.Select(eor => eor.Commodity).FirstOrDefault(),
                                                         HScode = g.Select(eor => eor.HSCode).FirstOrDefault(),
                                                         CommodityGrossWts = g.Sum(eor => eor.GrossWt),
+                                                        //CommodityGrossWts = Math.Round((double)g.Sum(eor => eor.GrossWt), 3, MidpointRounding.AwayFromZero),
                                                         CommodityNetWts = g.Sum(eor => eor.NetWt),
                                                         SupplementaryUnitQuantity = g.Select(eor => eor.SupplementaryUnitQuantity).FirstOrDefault(),
                                                         SupplementaryUnitCode = g.Select(eor => eor.SupplementaryUnitCode).FirstOrDefault(),
@@ -64,8 +65,9 @@ public class CreateXmlFileService : ICreateXmlFileService
                 xml.WriteElementString("GoodsDescription", string.Empty);
                 xml.WriteElementString("TotalPlacesQuantity", item.Records.Sum(r => r.PackageQty).ToString());
                 xml.WriteElementString("TotalVolumeQuantity", item.Records.Sum(r => r.PackageQty).ToString());                
-                xml.WriteElementString("TotalGrossWeightQuantity", item.Records.Sum(r => r.GrossWt)?.ToString(CultureInfo.InvariantCulture));   // "N3" или .ToString("########0.###", CultureInfo.GetCultureInfo("en-US")
-                xml.WriteElementString("TotalNetWeightQuantity", item.Records.Sum(r => r.NetWt)?.ToString(CultureInfo.InvariantCulture));    // "N3" или .ToString("########0.###", CultureInfo.GetCultureInfo("en-US")
+                //xml.WriteElementString("TotalGrossWeightQuantity", item.Records.Sum(r => r.GrossWt)?.ToString(CultureInfo.InvariantCulture));   // "F3" или .ToString("########0.###", CultureInfo.GetCultureInfo("en-US")
+                xml.WriteElementString("TotalGrossWeightQuantity", item.Records.Sum(r => r.GrossWt)?.ToString("F3", CultureInfo.InvariantCulture));   // "F3" или .ToString("########0.###", CultureInfo.GetCultureInfo("en-US")
+                xml.WriteElementString("TotalNetWeightQuantity", item.Records.Sum(r => r.NetWt)?.ToString("F3", CultureInfo.InvariantCulture));    // "F3" или .ToString("########0.###", CultureInfo.GetCultureInfo("en-US")
                 xml.WriteElementString("Carrier_Name", item.CarrierNameEn);
                 xml.WriteElementString("Carrier_CountryName", string.Empty);
                 xml.WriteElementString("Consignee_Name", string.Join(";\n", item.Consignees));
@@ -98,14 +100,15 @@ public class CreateXmlFileService : ICreateXmlFileService
                     xml.WriteElementString("GTDID", commodity.DocumentName);
                     xml.WriteElementString("GoodsCode", commodity.HScode);
                     xml.WriteElementString("GoodsDescription", commodity.Commodity);
-                    xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWts == 0 ? "0" : commodity.CommodityGrossWts?.ToString(CultureInfo.InvariantCulture));
-                    xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWts == 0 ? "0" : commodity.CommodityNetWts?.ToString(CultureInfo.InvariantCulture));
+                    //xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWts == 0 ? "0" : commodity.CommodityGrossWts?.ToString(CultureInfo.InvariantCulture));
+                    xml.WriteElementString("GrossWeightQuantity", commodity.CommodityGrossWts == 0 ? "0" : commodity.CommodityGrossWts?.ToString("F3", CultureInfo.InvariantCulture));
+                    xml.WriteElementString("NetWeightQuantity", commodity.CommodityNetWts == 0 ? "0" : commodity.CommodityNetWts?.ToString("F3", CultureInfo.InvariantCulture));
 
                     if (!string.IsNullOrEmpty(commodity.SupplementaryUnitCode))
                     {
                         xml.WriteElementString("MeasureUnitQualifierCode", commodity.SupplementaryUnitCode);
                         xml.WriteElementString("MeasureUnitQualifierName", commodity.SupplementaryUnitShortName ?? string.Empty);                        
-                        xml.WriteElementString("SupplementaryGoodsQuantity", commodity.SupplementaryUnitQuantity?.ToString(CultureInfo.InvariantCulture));
+                        xml.WriteElementString("SupplementaryGoodsQuantity", commodity.SupplementaryUnitQuantity?.ToString("F3", CultureInfo.InvariantCulture));
                     }
 
                     xml.WriteStartElement("COMMISSIONSHIPMENTContainer");

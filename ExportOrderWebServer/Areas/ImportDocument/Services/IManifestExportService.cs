@@ -19,9 +19,7 @@ public class ManifestExportService : IManifestExportService
 
         var vesselName = vesselCall.Vessel.Name;
         var voyageNumber = vesselCall.VoyageNo;
-        var onboardDate = vesselCall.ETA;
         var vesselFlag = vesselCall.Vessel.FlagEn;
-        var loadingPort = vesselCall.PortOfLoading.FullEn;
         var dischargingPort = vesselCall.Terminal?.Name ?? "N/A";
 
         using var workbook = new XLWorkbook();
@@ -38,6 +36,8 @@ public class ManifestExportService : IManifestExportService
         // Обработка каждого коносамента
         foreach (var billOfLading in sortedBillOfLadings)
         {
+            var loadingPort = billOfLading.TsPort?.FullEn;
+            var onboardDate = billOfLading.TsDate?.ToString("dd.MM.yyyy") ?? string.Empty;
             // === ЗАГОЛОВОК КОНОСАМЕНТА (как в шаблоне) ===
 
             // Строка 1: Заголовки полей (шаблон строка 3)
@@ -74,7 +74,7 @@ public class ManifestExportService : IManifestExportService
             worksheet.Cell(currentRow, 7).Value = voyageNumber;
             worksheet.Range(currentRow, 7, currentRow, 8).Merge();
 
-            worksheet.Cell(currentRow, 10).Value = billOfLading.TsDate?.ToString("dd.MM.yyyy") ?? string.Empty;
+            worksheet.Cell(currentRow, 10).Value = onboardDate;
             worksheet.Range(currentRow, 10, currentRow, 11).Merge();
 
             worksheet.Cell(currentRow, 13).Value = vesselFlag;

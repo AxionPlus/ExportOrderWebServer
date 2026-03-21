@@ -238,9 +238,10 @@
 
     private async Task RemoveVesselCallDetail_Click(long id, string? pod)
     {
-        bool? msgResult = await DialogService.ShowMessageBoxAsync("REMOVE",
-                                        (MarkupString)$"Do you want Delete record?<br/>Discharge port: <b>{pod}</b>",
-                                        yesText: "DELETE!", cancelText: "NO");        
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
+            "REMOVE",
+            (MarkupString)$"Do you want Delete record?<br/>Discharge port: <b>{pod}</b>",
+            yesText: "DELETE!", cancelText: "NO");        
 
         if (msgResult.HasValue)
             if (msgResult.Value)
@@ -263,9 +264,10 @@
     {
         if (status.Equals(EntityStatus.Completed))
         {
-            bool? result = await DialogService.ShowMessageBoxAsync("Warning",
-                                                              "Unable select Vessel Call due to status - Completed.",
-                                                              yesText: "Close");
+            bool? result = await DialogService.ShowMessageBoxAsync(
+                "Warning",
+                "Unable select Vessel Call due to status - Completed.",
+                yesText: "Close");
 
             return;
         }                

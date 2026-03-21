@@ -569,7 +569,7 @@
 
     private async Task OnUnlock()
     {
-        bool? result = await DialogService.ShowMessageBox(
+        bool? result = await DialogService.ShowMessageBoxAsync(
             $"Unlock  {BillOfLadingDto}",
             (MarkupString)$"Do you want to Unlock {BillOfLadingDto}?",
             yesText: "Yes,do it!", cancelText: "No");

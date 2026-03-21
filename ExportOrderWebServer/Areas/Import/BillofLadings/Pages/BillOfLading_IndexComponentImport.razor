@@ -120,7 +120,7 @@
 
     private async Task OpenRelease_Click(BillOfLadingDto billOfLading)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Release Mode",
             $"Do you want to open Release Mode?",
             yesText: "Yes", cancelText: "No");

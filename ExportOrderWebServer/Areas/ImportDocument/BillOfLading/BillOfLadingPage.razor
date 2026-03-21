@@ -589,7 +589,7 @@
 
     private async Task OnTranslate()
     {
-        bool? result = await DialogService.ShowMessageBox(
+        bool? result = await DialogService.ShowMessageBoxAsync(
             "Translate",
             (MarkupString)$"Do you want to Translate?",
             yesText: "Yes,do it!", cancelText: "No");
@@ -926,7 +926,7 @@
 
     private async Task OnCustomerCopy()
     {
-        bool? result = await DialogService.ShowMessageBox(
+        bool? result = await DialogService.ShowMessageBoxAsync(
             "Customer Copy",
             (MarkupString)$"Do you want to copy Customers?",
             yesText: "Yes,do it!", cancelText: "No");
@@ -964,7 +964,7 @@
             return;
         }
 
-        bool? result = await DialogService.ShowMessageBox(
+        bool? result = await DialogService.ShowMessageBoxAsync(
             "Get Customer Ru",
             (MarkupString)$"Do you want to get Customers Ru from Db?",
             yesText: "Yes,do it!", cancelText: "No");

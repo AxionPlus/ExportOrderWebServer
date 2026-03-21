@@ -52,10 +52,10 @@
 
                 if (string.IsNullOrWhiteSpace(cntrISO) || string.IsNullOrWhiteSpace(cntrNormolize))
                 {
-                    bool? result = await DialogService.ShowMessageBox(
-                    "Found out ERROR, skip record?",
-                    $"==={item}===",
-                    yesText: "Skip & Continue", cancelText: "Break");
+                    bool? result = await DialogService.ShowMessageBoxAsync(
+                        "Found out ERROR, skip record?",
+                        $"==={item}===",
+                        yesText: "Skip & Continue", cancelText: "Break");
 
                     if (result.HasValue)
                     {

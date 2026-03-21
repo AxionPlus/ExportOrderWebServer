@@ -93,7 +93,7 @@
 
     private async Task RemoveItem_Click(string? name, long id)
     {
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+        bool? msgResult = await DialogService.ShowMessageBoxAsync("REMOVE",
                                     (MarkupString)$"<b>Удалить запись?</b><br/>Carrier: {name}",
                                     yesText: "YES", cancelText: "NO");
 

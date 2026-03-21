@@ -67,27 +67,6 @@
         <div class="container-content MainData" style="padding-bottom:2px">
             <TextField Style="width:200px" Label="Поручение №" Text="@Item.Num" @bind-Value="Item.Num" UpperCase Required />
             <DatePicker Style="width:130px" Label="Дата" @bind-Date="Item.Dated" Clearable Required />
-@*             <TextField Class="TextField" Style="width:450px"
-                       Label="Vessel / Voyage / Port" Placeholder="select Voyage ..."
-                       Text="@(Item.VesselCallDetail == null
-                            ? string.Empty
-                            : string.Concat(Item.VesselCallDetail.VesselCall.Vessel.Name, " / ",
-                                Item.VesselCallDetail.VesselCall.VoyageNo, " / ",
-                                Item.VesselCallDetail.POD == null ? string.Empty : Item.VesselCallDetail.POD.NameEn)
-                             )"
-                       TextChanged="@((e)=> {
-                            if (string.IsNullOrWhiteSpace(e))
-                            {
-                                Item.VesselCallDetail = null; Item.Carrier = null;
-                            }                                
-                       })"
-                       Clearable
-                       OnClearButtonClick="@(()=> { Item.VesselCallDetail = null; Item.Carrier = null; })"
-                       IconSize="Size.Small"
-                       Adornment="Adornment.Start"
-                       AdornmentColor="Color.Primary"
-                       AdornmentIcon="@Icons.Material.Filled.Waves"
-                       OnAdornmentClick="@GetVesselCallDetail_Click" /> *@
             <TextField Class="TextField" Style="width:450px" Value="@VesselCallDetailText"
                        Label="Vessel / Voyage / Port"
                        Placeholder="select Voyage ..."
@@ -679,7 +658,7 @@
     {
         if (record is null) return;
 
-        bool? result = await DialogService.ShowMessageBox(
+        bool? result = await DialogService.ShowMessageBoxAsync(
                  "Delete record",
                  (MarkupString)$"<b>Do you want to remove record with {record.CntrNum}?<b>",
                  yesText: "REMOVE", cancelText: "NO");
@@ -695,9 +674,10 @@
     {
         if (!Item.Records.Any()) return;
 
-        bool? result = await DialogService.ShowMessageBox("Delete All records",
-                                                            (MarkupString)$"<b>Do you want to remove all records?<b>",
-                                                            yesText: "REMOVE", cancelText: "NO");
+        bool? result = await DialogService.ShowMessageBoxAsync(
+            "Delete All records",
+            (MarkupString)$"<b>Do you want to remove all records?<b>",
+            yesText: "REMOVE", cancelText: "NO");
 
         if (!result.HasValue)
             return;
@@ -813,7 +793,7 @@
 
         if (string.IsNullOrEmpty(errMessages)) return false;
 
-        bool? dialogResult = await DialogService.ShowMessageBox(null, (MarkupString)$"{errMessages}", yesText: "Продолжить", cancelText: "Отменить");
+        bool? dialogResult = await DialogService.ShowMessageBoxAsync(null, (MarkupString)$"{errMessages}", yesText: "Продолжить", cancelText: "Отменить");
 
         if (dialogResult.HasValue)
             if (dialogResult.Value)

@@ -197,7 +197,7 @@
             return;
         }
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
                                 "Send Release(s)?",
                                 $"Do you want to Send Release(s) to Customer?",
                                 yesText: "Yes", cancelText: "No");
@@ -242,7 +242,7 @@
         foreach (var record in Records)
             str.AppendLine($"<div>{record.ContainerNum} to {ReleaseTo:dd.MM.yy}</div>");
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
                                                 "Release(s)?",
                                                 (MarkupString)str.ToString(),
                                                 yesText: "Yes", cancelText: "No");
@@ -277,7 +277,7 @@
         foreach (var record in Records)
             str.AppendLine($"<div>{record.ContainerNum} to {record.ReleaseTo:dd.MM.yy}</div>");
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Release(s)?",
             (MarkupString)str.ToString(),
             yesText: "Yes", cancelText: "No");
@@ -310,7 +310,7 @@
 
         record.ReleaseTo = (DateTime)result.Data;
         // Уточнить
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
                                     "Release(s)?",
                                     $"Do you want to Issue Release(s) to {record.ReleaseTo:dd.MM.yy}?",
                                     yesText: "Yes", cancelText: "No");
@@ -329,7 +329,7 @@
     }
     private async Task RemoveReleaseImport_Click(ReleaseRecordDto record)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
                                                     "Release(s)?",
                                                     $"Do you want to Issue Release(s) to {record.ReleaseTo:dd.MM.yy}?",
                                                     yesText: "Yes", cancelText: "No");
@@ -375,7 +375,7 @@
             str.AppendLine($"<div>{record.ContainerNum} to {record.ReleaseTo:dd.MM.yy}</div>");
 
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
                             "Release(s)?",
                                (MarkupString)str.ToString(),
                             yesText: "Yes", cancelText: "No");
@@ -405,7 +405,7 @@
             Snackbar.Add($"Success", Severity.Success);
             await BlDataRefresh_Click();
 
-            bool? questionResult = await DialogService.ShowMessageBox(
+            bool? questionResult = await DialogService.ShowMessageBoxAsync(
                 "Send Invoice?",
                 "Do you want to send  Invoice to Customer?",
                 yesText: "Yes", cancelText: "No");

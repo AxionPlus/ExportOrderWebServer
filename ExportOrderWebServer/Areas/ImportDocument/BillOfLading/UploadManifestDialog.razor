@@ -384,7 +384,7 @@
 
     private async Task OnUpdateBillOfLading()
     {
-        bool? result = await DialogService.ShowMessageBox(
+        bool? result = await DialogService.ShowMessageBoxAsync(
             "Update BillOfLading",
             (MarkupString)$"Do you want to Update BillOfLadings ({SelectedBillOfLadingDtos.Count()})?",
             yesText: "Yes,do it!", cancelText: "No");
@@ -422,7 +422,7 @@
     }
     private async Task OnUpdateDuplicateBillOfLading()
     {
-        bool? result = await DialogService.ShowMessageBox(
+        bool? result = await DialogService.ShowMessageBoxAsync(
             "Update BillOfLading",
             (MarkupString)$"Do you want to Update BillOfLadings ({SelectedDuplicateBillOfLadingDtos.Count()})?",
             yesText: "Yes,do it!", cancelText: "No");

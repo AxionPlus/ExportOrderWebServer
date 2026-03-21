@@ -47,11 +47,11 @@
 
     private async void MakeSwitch_Click()
     {
-        _mudForm?.Validate();
+        _mudForm?.ValidateAsync();
         if (!_mudForm!.IsValid)
             return;
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Switch",
             $"Do you want to make Switch {BillofLading.Num} => {BillofLadingNum} ?",
             yesText: "Yes", 

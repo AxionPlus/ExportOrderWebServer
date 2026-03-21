@@ -32,8 +32,6 @@
 }
 else
 {
-
-
     <InputWrap Style="@Style" Disabled="@Disabled" Label="@Label" TooltipText="@TooltipText">
         <MudSelect Class="TextField Select" T="T"
                    Disabled="@Disabled"
@@ -68,26 +66,26 @@ else
 
     [Parameter] public Expression<Func<T>>? For { get; set; }
     [Parameter] public string? TooltipText { get; set; }        
+    
     [Parameter]
     public bool MultiSelection { get; set; }
     [Parameter]
     public T Value { get; set; }
+    
     [Parameter]
-    public IEnumerable<T> SelectedValues { get; set; } = new List<T>();
+    public IReadOnlyCollection<T> SelectedValues { get; set; } = new List<T>();
     
     [Parameter]
     public EventCallback<T> ValueChanged { get; set; }
     [Parameter]
-    public EventCallback<IEnumerable<T>> SelectedValuesChanged { get; set; }
+    public EventCallback<IReadOnlyCollection<T>> SelectedValuesChanged { get; set; }
         
     [Parameter]
     public Func<T, string> ToStringFunc { get; set; }
 
     [Parameter]
-    public Func<List<T>, string> MultiSelectionTextFunc { get; set; }
-
-
-    private Func<List<string>, string> InnerMultiSelectionTextFunc { get; set; }
+    public Func<IReadOnlyCollection<T>, string> MultiSelectionTextFunc { get; set; }
+        
     [Parameter]
     public bool SelectAll { get; set; }
     [Parameter] public bool NoHeader { get; set; }
@@ -106,19 +104,18 @@ else
     [Parameter]
     public string? Label { get; set; }
 
-
     private string LabelClass
     {
         get
         {
-
-
             if (Disabled)
                 return $"fieldName Label-Disabled";
             else
                 return $"fieldName";
         }
     }
+
+    private Func<IReadOnlyList<string>, string> InnerMultiSelectionTextFunc { get; set; }
 
     private void InitializeMultiSelectionTextFunc()
     {

@@ -174,9 +174,10 @@
 
         if (Item.Records.Any())
         {
-            bool? msg = await DialogService.ShowMessageBox("Удаление записей",
-                                                            (MarkupString)$"ДТ содержит товары.<br><b>Удалить текущие товары перед загрузкой новых?<b>",
-                                                            yesText: "Да", cancelText: "Отмена");
+            bool? msg = await DialogService.ShowMessageBoxAsync(
+                "Удаление записей",
+                (MarkupString)$"ДТ содержит товары.<br><b>Удалить текущие товары перед загрузкой новых?<b>",
+                yesText: "Да", cancelText: "Отмена");
 
             if (!msg.HasValue)
                 return;
@@ -190,7 +191,7 @@
 
         var parameters = new DialogParameters { ["ApplicationUser"] = ApplicationUser, ["DocumentName"] = Item.Name };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<UploadDocument>("Импорт списка товаров из ДТ", parameters, options);
+        var dialog = await DialogService.ShowAsync<UploadDocument>("Импорт списка товаров из ДТ", parameters, options);
 
         var dialogResult = await dialog.Result;
 

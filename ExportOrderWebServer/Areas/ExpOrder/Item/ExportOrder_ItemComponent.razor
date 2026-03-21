@@ -578,7 +578,7 @@
     {
         if (record is null) return;
 
-        bool? result = await DialogService.ShowMessageBox(
+        bool? result = await DialogService.ShowMessageBoxAsync(
                  "Delete record",
                  (MarkupString)$"<b>Do you want to remove record with {record.CntrNum}?<b>",
                  yesText: "REMOVE", cancelText: "NO");
@@ -594,9 +594,10 @@
     {
         if (Value is null || !Value.Records.Any()) return;
 
-        bool? result = await DialogService.ShowMessageBox("Delete All records",
-                                                            (MarkupString)$"<b>Do you want to remove all records?<b>",
-                                                            yesText: "REMOVE", cancelText: "NO");
+        bool? result = await DialogService.ShowMessageBoxAsync(
+            "Delete All records",
+            (MarkupString)$"<b>Do you want to remove all records?<b>",
+            yesText: "REMOVE", cancelText: "NO");
 
         if (!result.HasValue)
             return;
@@ -616,7 +617,7 @@
 
         var parameters = new DialogParameters() { ["EoId"] = Value.Id, ["VoyageId"] = Value.VesselCallDetail.VesselCall.Id };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<UploadExportOrderFile>("Импорт списка ДТ", parameters, options);
+        var dialog = await DialogService.ShowAsync<UploadExportOrderFile>("Импорт списка ДТ", parameters, options);
 
         var dialogResult = await dialog.Result;
 
@@ -808,7 +809,7 @@
                     foreach (string err in errors)
                         errMessage.Append($"{err}<br>");
 
-                    bool? result = await DialogService.ShowMessageBox(null, (MarkupString)$"{errMessage.ToString()}", yesText: "Продолжить", cancelText: "Отмена");
+                    bool? result = await DialogService.ShowMessageBoxAsync(null, (MarkupString)$"{errMessage.ToString()}", yesText: "Продолжить", cancelText: "Отмена");
 
                     if (!result.HasValue)
                         await ContainerField.FocusAsync();

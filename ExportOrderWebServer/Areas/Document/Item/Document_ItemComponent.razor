@@ -316,9 +316,10 @@
         if (record is null || Value is null)
             return;
 
-        bool? result = await DialogService.ShowMessageBox("Delete record",                 
-                                                          (MarkupString)$"<b>Удалить товар {record.Seq.ToString()}?<b>",
-                                                          yesText: "Удалить", cancelText: "Нет");
+        bool? result = await DialogService.ShowMessageBoxAsync(
+            "Delete record",
+            (MarkupString)$"<b>Удалить товар {record.Seq.ToString()}?<b>",
+            yesText: "Удалить", cancelText: "Нет");
 
         if (result.HasValue)
             if (result.Value)
@@ -338,9 +339,10 @@
         if (Value is null || string.IsNullOrWhiteSpace(text))
             return;
 
-        bool? msg = await DialogService.ShowMessageBox("Товары на анл.",
-                                                       (MarkupString)$"{text}<br><br><b>Применить это наименование ко всем товарам в ДТ?</b>",
-                                                       yesText: "Да", cancelText: "Отмена");
+        bool? msg = await DialogService.ShowMessageBoxAsync(
+            "Товары на анл.",
+            (MarkupString)$"{text}<br><br><b>Применить это наименование ко всем товарам в ДТ?</b>",
+            yesText: "Да", cancelText: "Отмена");
 
         if (msg.HasValue)
             if (msg.Value)

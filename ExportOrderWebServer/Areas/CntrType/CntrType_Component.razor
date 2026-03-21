@@ -119,9 +119,10 @@
 
     private async Task RemoveItem_Click(CntrTpSz item)
     {
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE Record",
-                                                (MarkupString)$"<b>Do you want to remove record?</b> <br/>Cntr Type<br/>{item.Normolize}<br/>",
-                                                yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
+            "REMOVE Record",
+            (MarkupString)$"<b>Do you want to remove record?</b> <br/>Cntr Type<br/>{item.Normolize}<br/>",
+            yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)
@@ -155,7 +156,7 @@
     {
         IDialogReference dialog = new DialogReference(Guid.NewGuid(), DialogService);
         DialogOptions dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
-        dialog = DialogService.Show<PathInputCntrType_Dialog>("INPUT: List of Container Types", dialogOptions);
+        dialog = await DialogService.ShowAsync<PathInputCntrType_Dialog>("INPUT: List of Container Types", dialogOptions);
 
         var result = await dialog.Result;
 

@@ -703,7 +703,7 @@ else
         paramerts.Add("Records", BillofLading.ContainerRecords);
         paramerts.Add("CargoDesctiption", BillofLading.ContainerRecords.FirstOrDefault().GoodsDescription);
         var dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<CargoDiscription_Dialog>("Set GoodsDescription Details for all Containers", paramerts, dialogOptions);
+        var dialog = await DialogService.ShowAsync<CargoDiscription_Dialog>("Set GoodsDescription Details for all Containers", paramerts, dialogOptions);
 
         var result = await dialog.Result;
 
@@ -719,7 +719,7 @@ else
         var paramerts = new DialogParameters();
 
         var dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Large, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<ImportVesselCall_Index>("Set Vessel Call", paramerts, dialogOptions);
+        var dialog = await DialogService.ShowAsync<ImportVesselCall_Index>("Set Vessel Call", paramerts, dialogOptions);
 
         var result = await dialog.Result;
 
@@ -907,7 +907,7 @@ else
         if (BillofLading.ConsigneeName.Replace(" ", "").Contains("TEKPOSEIDON", StringComparison.CurrentCultureIgnoreCase))//TEK POSEIDON LTD
         {
 
-            bool? msgResult = await DialogService.ShowMessageBox(
+            bool? msgResult = await DialogService.ShowMessageBoxAsync(
                 "Check Switch",
                 $"Pls check should be applied Switch for TEK POSEIDON LTD ?",
                 yesText: "Yes",
@@ -973,7 +973,7 @@ else
         paramerts.Add("BillofLading", BillofLading);
         paramerts.Add("ApplicationUser", ApplicationUser);
         var dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Medium, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<SwitchBillofLading_Dialog>($"Switch {BillofLading.Num}", paramerts, dialogOptions);
+        var dialog = await DialogService.ShowAsync<SwitchBillofLading_Dialog>($"Switch {BillofLading.Num}", paramerts, dialogOptions);
 
         var result = await dialog.Result;
 
@@ -997,7 +997,7 @@ else
 
     private async void UnlockBillofLadingData(MouseEventArgs obj)
     {
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Remove the lock",
             $"Do you want to Remove the lock from  {BillofLading.Num} ?",
             yesText: "Yes",
@@ -1040,7 +1040,7 @@ else
         var paramerts = new DialogParameters();
         paramerts.Add("Record", record);
         var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Small, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<InLiner_BillofLading_Dialog>("Update record", paramerts, dialogOptions);
+        var dialog = await DialogService.ShowAsync<InLiner_BillofLading_Dialog>("Update record", paramerts, dialogOptions);
 
         var result = await dialog.Result;
 
@@ -1062,7 +1062,7 @@ else
         var paramerts = new DialogParameters();
         paramerts.Add("VesselCallDetail1_Id", VesselCallDetail?.Id);
         var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<ShiftBillofladingToVessel_Dialog>("Shift Bill of Ladings", paramerts, dialogOptions);
+        var dialog = await DialogService.ShowAsync<ShiftBillofladingToVessel_Dialog>("Shift Bill of Ladings", paramerts, dialogOptions);
 
         var result = await dialog.Result;
 

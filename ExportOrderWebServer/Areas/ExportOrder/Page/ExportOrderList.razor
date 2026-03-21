@@ -34,20 +34,20 @@
                 </MudTh>
                 <MudTh Style="width:100px">
                     <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Поручения" Arrow="true" Placement="Placement.Right">
-                        <MudButton Class="Button" Size="Size.Small" Color="Color.Primary" OnClick="@(async () => await SaveFilesPdf_Click(FileType.Order))"
-                                   Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save"
-                                   Disabled="@DisabledToSaveFiles">
+                        <MudButton Class="Button" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled"
+                                   StartIcon="@Icons.Material.Filled.Save" Disabled="@DisabledToSaveFiles"
+                                   OnClick="@(async () => await SaveFilesWord_Click(FileType.Order))">
                             Orders
-                        </MudButton>                        
+                        </MudButton>
                     </MudTooltip>
                 </MudTh>
                 <MudTh Style="width:50px">XML</MudTh>
                 <MudTh Style="width:52px">Rolis</MudTh>
                 <MudTh Style="width:100px">
                     <MudTooltip Delay="500" Duration="1000" Text="сохранить выбранные Коносаменты" Arrow="true" Placement="Placement.Right">
-                        <MudButton Class="Button" Size="Size.Small" Color="Color.Primary" OnClick="@(async () => await SaveFilesPdf_Click(FileType.Bill))"
-                                   Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save"
-                                   Disabled="@DisabledToSaveFiles">
+                        <MudButton Class="Button" Size="Size.Small" Color="Color.Primary"  Variant="Variant.Filled"
+                                   StartIcon="@Icons.Material.Filled.Save" Disabled="@DisabledToSaveFiles"
+                                   OnClick="@(async () => await SaveFilesWord_Click(FileType.Bill))">
                             Bs/L
                         </MudButton>
                     </MudTooltip>
@@ -87,8 +87,8 @@
                 </MudTd>
                 <MudTd>
                     <MudTooltip Delay="1500" Duration="1000" Text="view Export Order">
-                        <MudIconButton Class="wrapper-iconbutton" Disabled="@IsLoading" Icon="@Icons.Material.Outlined.Print"
-                                       OnClick="@(async()=>{ await ViewFilePdf_Click(context.Id, FileType.Order); })" />
+                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Print" Size="Size.Small" Disabled="@IsLoading"
+                                       OnClick="@(async()=>{ await SaveFilesWord_Click(FileType.Order, context.Id); })" />
                     </MudTooltip>
                 </MudTd>
                 <MudTd>
@@ -105,8 +105,8 @@
                 </MudTd>
                 <MudTd>
                     <MudTooltip Delay="1500" Duration="1000" Text="View pdf BL">
-                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Print" Disabled="@IsLoading"
-                                       Size="Size.Small" OnClick="@(async () => await ViewFilePdf_Click(context.Id, FileType.Bill))" />
+                        <MudIconButton Class="wrapper-iconbutton" Icon="@Icons.Material.Outlined.Print" Size="Size.Small" Disabled="@IsLoading"
+                                       OnClick="@(async () => await SaveFilesWord_Click(FileType.Bill, context.Id))" />
                     </MudTooltip>                    
                 </MudTd>
                 <MudTd>@context.Num</MudTd>
@@ -151,7 +151,7 @@
 
     private bool ToggleContent { get; set; } = true;
     private bool IsLoading { get; set; } = false;
-    private bool DisabledToSaveFiles => IsLoading || PagedResult is null || !PagedResult.Items.Any();
+    private bool DisabledToSaveFiles => IsLoading || SelectedItems is null || !SelectedItems.Any();
 
     protected override void OnInitialized()
     {
@@ -249,7 +249,7 @@
 
         if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data is not null)
         {
-            bool? questionResult = await DialogService.ShowMessageBox(
+            bool? questionResult = await DialogService.ShowMessageBoxAsync(
                     "Set New Vessel CALL?",
                     "Do you want to Roll Export Order(s)?",
                     yesText: "Yes", cancelText: "No");
@@ -291,9 +291,10 @@
 
     private async Task RemoveItem_Click(long id, string? num)
     {
-        bool? result = await DialogService.ShowMessageBox("Delete",
-                                    (MarkupString)$"Do you want to Delete record?<br/><b>{num}</b>",
-                                    yesText: "DELETE!", cancelText: "NO");
+        bool? result = await DialogService.ShowMessageBoxAsync(
+            "Delete",
+            (MarkupString)$"Do you want to Delete record?<br/><b>{num}</b>",
+            yesText: "DELETE!", cancelText: "NO");
 
         if (result.HasValue)
             if (result.Value)
@@ -308,24 +309,31 @@
     }
 
     #region FILES
-    private async Task SaveFilesPdf_Click(FileType fileType)
+    
+    private async Task SaveFilesWord_Click(FileType fileType, long id = 0)
     {
-        if (!IsOneVoyageSelected())
-        {
-            Snackbar.Add("Выберите записи для одного рейса.", Severity.Warning);
-            return;
-        }
-
         Filter.FileType = fileType;
 
-        long[]? ids = null;
+        // single file
+        long[] ids = { id };    
 
-        if (SelectedItems.Any())
+        // selected files
+        if (id == 0)
+        {
+            if (!IsOneVoyageSelected())
+            {
+                Snackbar.Add("Выберите записи для одного рейса.", Severity.Warning);
+                return;
+            }
+
             ids = SelectedItems.Select(s => s.Id).ToArray();
+        }
+
+        if (ids.Length == 1 && ids[0] == 0) return;
 
         IsLoading = true;
 
-        // Данные для файла        
+        // Данные для файла
         var dtoItems = await ExportOrderProvider.GetFilesDto(Filter, ids, cancellationToken: CancellationToken.None);
 
         if (dtoItems is null || !dtoItems.Any())
@@ -350,8 +358,8 @@
             await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
                 fileData.Key,
                 Convert.ToBase64String(fileData.Value));
-        }        
-        
+        }
+
         IsLoading = false;
     }
 
@@ -415,43 +423,6 @@
         IsLoading = false;
     }
 
-    private async Task ViewFilePdf_Click(long id, FileType fileType)
-    {
-        Filter.FileType = fileType;
-
-        long[]? ids = { id };
-
-        IsLoading = true;
-
-        // Данные для файла
-        var dtoItems = await ExportOrderProvider.GetFilesDto(Filter, ids, cancellationToken: CancellationToken.None);
-
-        if (dtoItems is null || !dtoItems.Any())
-        {
-            Snackbar.Add("Данные для Pdf файла не получены.", Severity.Warning);
-            IsLoading = false;
-            return;
-        }
-
-        // Вывод файла в новую вкладку браузера
-        using ICreatePdfFileService pdfService = new CreatePdfFileService();
-
-        KeyValuePair<string, byte[]> fileData = (fileType) switch
-        {
-            FileType.Order => await pdfService.CreateFilesExportOrder(dtoItems),
-            FileType.Bill => await pdfService.CreateFilesBillOfLading(dtoItems),
-            _ => new(string.Empty, Array.Empty<byte>())
-        };
-
-        if (fileData.Value != Array.Empty<byte>())
-        {
-            await JSRuntime.InvokeVoidAsync("jsOpenPdfInNewTab",                
-                Convert.ToBase64String(fileData.Value));
-        }
-
-        IsLoading = false;
-    }
-       
     private bool IsOneVoyageSelected()
     {
         bool isOne = true;
@@ -461,14 +432,98 @@
             if (SelectedItems.GroupBy(s => s.VesselCallId).Count() > 1)
                 isOne = false;
         }
-        else
-        {
-            if (PagedResult.Items.GroupBy(s => s.VesselCallId).Count() > 1)
-                isOne = false;
-        }
+        // else
+        // {
+        //     if (PagedResult.Items.GroupBy(s => s.VesselCallId).Count() > 1)
+        //         isOne = false;
+        // }
 
         return isOne;
     }
+
+    // private async Task SaveFilesPdf_Click(FileType fileType)
+    // {
+    //     if (!IsOneVoyageSelected())
+    //     {
+    //         Snackbar.Add("Выберите записи для одного рейса.", Severity.Warning);
+    //         return;
+    //     }
+
+    //     Filter.FileType = fileType;
+
+    //     long[]? ids = null;
+
+    //     if (SelectedItems.Any())
+    //         ids = SelectedItems.Select(s => s.Id).ToArray();
+
+    //     IsLoading = true;
+
+    //     // Данные для файла
+    //     var dtoItems = await ExportOrderProvider.GetFilesDto(Filter, ids, cancellationToken: CancellationToken.None);
+
+    //     if (dtoItems is null || !dtoItems.Any())
+    //     {
+    //         Snackbar.Add("Данные для Pdf файла не получены.", Severity.Warning);
+    //         IsLoading = false;
+    //         return;
+    //     }
+
+    //     // Сохранение файла
+    //     using ICreatePdfFileService pdfService = new CreatePdfFileService();
+
+    //     KeyValuePair<string, byte[]> fileData = (fileType) switch
+    //     {
+    //         FileType.Order => await pdfService.CreateFilesExportOrder(dtoItems),
+    //         FileType.Bill => await pdfService.CreateFilesBillOfLading(dtoItems),
+    //         _ => new(string.Empty, Array.Empty<byte>())
+    //     };
+
+    //     if (fileData.Value != Array.Empty<byte>())
+    //     {
+    //         await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
+    //             fileData.Key,
+    //             Convert.ToBase64String(fileData.Value));
+    //     }
+
+    //     IsLoading = false;
+    // }
+
+    // private async Task ViewFilePdf_Click(long id, FileType fileType)
+    // {
+    //     Filter.FileType = fileType;
+
+    //     long[]? ids = { id };
+
+    //     IsLoading = true;
+
+    //     // Данные для файла
+    //     var dtoItems = await ExportOrderProvider.GetFilesDto(Filter, ids, cancellationToken: CancellationToken.None);
+
+    //     if (dtoItems is null || !dtoItems.Any())
+    //     {
+    //         Snackbar.Add("Данные для Pdf файла не получены.", Severity.Warning);
+    //         IsLoading = false;
+    //         return;
+    //     }
+
+    //     // Вывод файла в новую вкладку браузера
+    //     using ICreatePdfFileService pdfService = new CreatePdfFileService();
+
+    //     KeyValuePair<string, byte[]> fileData = (fileType) switch
+    //     {
+    //         FileType.Order => await pdfService.CreateFilesExportOrder(dtoItems),
+    //         FileType.Bill => await pdfService.CreateFilesBillOfLading(dtoItems),
+    //         _ => new(string.Empty, Array.Empty<byte>())
+    //     };
+
+    //     if (fileData.Value != Array.Empty<byte>())
+    //     {
+    //         await JSRuntime.InvokeVoidAsync("jsOpenPdfInNewTab",                
+    //             Convert.ToBase64String(fileData.Value));
+    //     }
+
+    //     IsLoading = false;
+    // }
 
     #endregion
 }

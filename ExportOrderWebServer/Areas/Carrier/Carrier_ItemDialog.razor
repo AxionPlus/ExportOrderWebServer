@@ -205,7 +205,7 @@
     {
         if (details is null) return;
 
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+        bool? msgResult = await DialogService.ShowMessageBoxAsync("REMOVE",
                                                 (MarkupString)$"<b>Удалить запись?</b> <br/>{details.TerminalName}<br/>",
                                                 yesText: "YES", cancelText: "NO");
 

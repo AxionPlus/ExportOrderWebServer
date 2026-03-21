@@ -88,9 +88,10 @@
 
     private async Task RemoveItem_Click(long id, string? name)
     {
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
-                                    (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel: {name}<br/>",
-                                    yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
+            "REMOVE",
+            (MarkupString)$"<b>Do you want to remove record?</b> <br/>Vessel: {name}<br/>",
+            yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)

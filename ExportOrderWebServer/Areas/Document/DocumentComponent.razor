@@ -2,7 +2,6 @@
 @inject IJSRuntime jsRuntime
 @inject IDialogService DialogService
 @inject IDocumentProvider _DocumentProvider
-@* @inject IExportOrderProvider _ExportOrderProvider *@
 @inject IExportOrderProvider_New ExportOrderProvider
 
 <style>
@@ -159,9 +158,10 @@
     {
         if (string.IsNullOrWhiteSpace(name) || id == 0) return;
 
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE  Record",                          
-                                                (MarkupString)$"<b>Do you want to remove record?</b> <br/>Declaration:<br/>{name}<br/>",
-                                                yesText: "YES", cancelText: "NO");
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
+            "REMOVE  Record",
+            (MarkupString)$"<b>Do you want to remove record?</b> <br/>Declaration:<br/>{name}<br/>",
+            yesText: "YES", cancelText: "NO");
 
         if (msgResult.HasValue)
             if (msgResult.Value)

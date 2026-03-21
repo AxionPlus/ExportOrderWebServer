@@ -24,42 +24,78 @@ function downloadFileBase64(byteBase64, fileName) {
 
 async function jsOpenPdfInNewTab(byteBase64) {
     try {
-        // Декодируем base64
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ base64
         const binaryString = window.atob(byteBase64);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
             bytes[i] = binaryString.charCodeAt(i);
         }
 
-        // Создаем Blob объект
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Blob пїЅпїЅпїЅпїЅпїЅпїЅ
         const blob = new Blob([bytes], { type: "application/pdf" });
 
-        // Создаем URL для Blob
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ URL пїЅпїЅпїЅ Blob
         const url = URL.createObjectURL(blob);
 
-        // Открываем в новой вкладке
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         const newWindow = window.open(url, '_blank');
 
-        // Если браузер заблокировал всплывающее окно, предоставляем ссылку для клика
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         if (!newWindow) {
-            // Fallback: создаем ссылку для клика
+            // Fallback: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             const link = document.createElement('a');
             link.href = url;
             link.target = '_blank';            
-            link.textContent = `Открыть файл`;  //`Открыть ${filename}`
+            link.textContent = `pdf file`; //link.textContent = `пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ`;  //`пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ${filename}`
             link.click();
         }
 
-        // Очистка через минуту
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         setTimeout(() => URL.revokeObjectURL(url), 60000);
 
         //------------------------------------------------------------------------------
-        //// Для небольших файлов можно использовать data URL напрямую
+        //// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ data URL пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         //const dataUrl = `data:application/pdf;base64,${byteBase64}`;
         //const newWindow = window.open(dataUrl, '_blank');
-        //// Освобождаем URL через некоторое время
+        //// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ URL пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         //setTimeout(() => { URL.revokeObjectURL(url); }, 60000);
         //------------------------------------------------------------------------------
+    }
+    catch (error) {
+        console.error('Error loading PDF:', error);
+    }
+}
+
+async function jsOpenWordInNewTab(byteBase64) {
+    try {
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ base64
+        const binaryString = window.atob(byteBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Blob пїЅпїЅпїЅпїЅпїЅпїЅ
+        const blob = new Blob([bytes], { type: "application/word" });
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ URL пїЅпїЅпїЅ Blob
+        const url = URL.createObjectURL(blob);
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        const newWindow = window.open(url, '_blank');
+
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        if (!newWindow) {
+            // Fallback: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.textContent = `word file`;  //`пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ${filename}`
+            link.click();
+        }
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
     }
     catch (error) {
         console.error('Error loading PDF:', error);

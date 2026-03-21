@@ -170,7 +170,7 @@
         var paramerts = new DialogParameters();
 
         var dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Large, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<ImportVesselCall_Index>("Set Vessel Call", paramerts, dialogOptions);
+        var dialog = await DialogService.ShowAsync<ImportVesselCall_Index>("Set Vessel Call", paramerts, dialogOptions);
 
         var result = await dialog.Result;
 
@@ -202,7 +202,7 @@
         var paramerts = new DialogParameters();
 
         var dialogOptions = new DialogOptions() { MaxWidth = MaxWidth.Large, CloseButton = true, FullWidth = true, CloseOnEscapeKey = true, BackdropClick = false };
-        var dialog = DialogService.Show<ImportVesselCall_Index>("Set Vessel Call", paramerts, dialogOptions);
+        var dialog = await DialogService.ShowAsync<ImportVesselCall_Index>("Set Vessel Call", paramerts, dialogOptions);
 
         var result = await dialog.Result;
 
@@ -258,7 +258,7 @@
             return;
         }
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Switch",
             $"Do you want to Shift All Bill of Ladings?",
             yesText: "Yes",
@@ -306,7 +306,7 @@
             return;
         }
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Switch",
             $"Do you want to Shift All Bill of Ladings?",
             yesText: "Yes",
@@ -354,7 +354,7 @@
             return;
         }
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Switch",
             $"Do you want to Shift All Bill of Ladings?",
             yesText: "Yes",
@@ -392,7 +392,7 @@
             return;
         }
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Switch",
             $"Do you want to Shift All Bill of Ladings?",
             yesText: "Yes",

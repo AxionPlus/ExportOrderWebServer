@@ -109,7 +109,7 @@
     {
         if (Form is null || Item is null) return;
 
-        await Form.Validate();
+        await Form.ValidateAsync();
 
         if (!Form.IsValid)
         {
@@ -194,7 +194,7 @@
             foreach (string msg in errMessages)
                 resultMessage.Append($"{msg}<br>");
 
-            bool? result = await DialogService.ShowMessageBox(null, (MarkupString)$"{resultMessage.ToString()}", yesText: "Продолжить", cancelText: "Отменить");
+            bool? result = await DialogService.ShowMessageBoxAsync(null, (MarkupString)$"{resultMessage.ToString()}", yesText: "Продолжить", cancelText: "Отменить");
 
             return result;
         }

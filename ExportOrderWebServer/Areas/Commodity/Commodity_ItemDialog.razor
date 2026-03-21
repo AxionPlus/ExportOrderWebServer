@@ -34,7 +34,6 @@
                            ValueChanged="(e) => Item.Name = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper()"
                            Lines="6"
                            Required Clearable />
-                @* <div style="width:10px"></div> *@
                 <TextField Class="TextField" Style="width: 450px" Label="Name En" Value="@Item.NameEn"
                            ValueChanged="(e) => Item.NameEn = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper()"
                            Lines="6"
@@ -51,10 +50,10 @@
     private MudForm Form { get; set; } = new();
     [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
     private bool IsDialogResultOk { get; set; } = false;
-    
+
     [Parameter]
     public long Id { get; set; }
-    private CommodityCatalog Item { get; set; } = new();  //new() { Name = string.Empty, NameEn = string.Empty, HSCode = string.Empty };
+    private CommodityCatalog Item { get; set; } = new();
 
     private bool IsLoadingData = false;
 
@@ -90,7 +89,7 @@
 
     private async Task SaveItem_Click()
     {
-        await Form.Validate();
+        await Form.ValidateAsync();
 
         if (!Form.IsValid) return;
 
@@ -136,9 +135,10 @@
         if (Item is not null && !Item.IsIMO)
             if (!string.IsNullOrWhiteSpace(Item.IMO) || !string.IsNullOrWhiteSpace(Item.UNNO))
             {
-                bool? result = await DialogService.ShowMessageBox("Delete IMO",
-                                                                  (MarkupString)$"Do you want to clear IMO data?",
-                                                                  yesText: "Yes", noText: "NO");
+                bool? result = await DialogService.ShowMessageBoxAsync(
+                    "Delete IMO",
+                    (MarkupString)$"Do you want to clear IMO data?",
+                    yesText: "Yes", noText: "NO");
 
                 if (result.HasValue)
                     if (result.Value)

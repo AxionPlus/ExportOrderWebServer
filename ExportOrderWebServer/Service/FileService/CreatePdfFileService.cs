@@ -39,9 +39,10 @@ public class CreatePdfFileService : ICreatePdfFileService
 
         if (Directory.Exists(DirTemporary))
             Directory.Delete(DirTemporary, true);
-    }    
+    }
 
     #region CREATE FILES
+
     public async Task<KeyValuePair<string, byte[]>> CreateFilesExportOrder(IEnumerable<ExportOrderFileDto> Items)
     {
         try
@@ -57,15 +58,15 @@ public class CreatePdfFileService : ICreatePdfFileService
                 CreateExportOrderSingleFile(item);
 
                 /// CONVERT WORD TO PDF
-                ConvertWordToPdf(FilePath);
+                //ConvertWordToPdf(FilePath);
             }
 
             /// DELETE all Word files before zip creation                
-            foreach (var file in Directory.GetFiles(DirTemporary))
-            {
-                if (Path.GetExtension(file).Equals(".docx", StringComparison.OrdinalIgnoreCase))
-                    File.Delete(file);
-            }
+            //foreach (var file in Directory.GetFiles(DirTemporary))
+            //{
+            //    if (Path.GetExtension(file).Equals(".docx", StringComparison.OrdinalIgnoreCase))
+            //        File.Delete(file);
+            //}
 
             /// CREATE ZIP-FILE if any and return it's bytes
             if (Items.Count() > 1)
@@ -104,7 +105,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             return new(string.Empty, []);
         }
     }
-    
+
     public async Task<KeyValuePair<string, byte[]>> CreateFilesBillOfLading(IEnumerable<ExportOrderFileDto> Items)
     {
         try
@@ -124,17 +125,17 @@ public class CreatePdfFileService : ICreatePdfFileService
 
                 /// CREATE a SINGLE FILE
                 CreateBillOfLadingSingleFile(item);
-                
+
                 /// CONVERT WORD TO PDF
-                ConvertWordToPdf(FilePath);
+                //ConvertWordToPdf(FilePath);
             }
 
             /// DELETE all Word files before zip creation                
-            foreach (var file in Directory.GetFiles(DirTemporary))
-            {
-                if (Path.GetExtension(file).Equals(".docx", StringComparison.OrdinalIgnoreCase))
-                    File.Delete(file);
-            }
+            //foreach (var file in Directory.GetFiles(DirTemporary))
+            //{
+            //    if (Path.GetExtension(file).Equals(".docx", StringComparison.OrdinalIgnoreCase))
+            //        File.Delete(file);
+            //}
 
             if (Items.Count() > 1)
             {
@@ -280,7 +281,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             using WordprocessingDocument doc = WordprocessingDocument.Open(FilePath, true);
 
             var mainPart = doc.MainDocumentPart;
-            var body = mainPart?.Document.Body;
+            var body = mainPart?.Document?.Body;
             //var sections = body?.Descendants<SectionProperties>();
 
             //if (mainPart is null || body is null || sections is null)
@@ -322,7 +323,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             InsertOrderDeclarationsData(tableDeclaration, item.Records);
             InsertOrderContainersData(tableCntrs, item.Records);
 
-            mainPart.Document.Save();
+            mainPart.Document?.Save();
         }
         catch (ArgumentException ex)
         {
@@ -341,7 +342,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             using WordprocessingDocument doc = WordprocessingDocument.Open(FilePath, true);
 
             var mainPart = doc.MainDocumentPart;
-            var body = mainPart?.Document.Body;
+            var body = mainPart?.Document?.Body;
 
             if (mainPart is null || body is null)
                 return;
@@ -371,7 +372,7 @@ public class CreatePdfFileService : ICreatePdfFileService
                     break;
             };
 
-            mainPart.Document.Save();
+            mainPart.Document?.Save();
         }
         catch (ArgumentException ex)
         {
@@ -392,7 +393,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             using WordprocessingDocument doc = WordprocessingDocument.Open(FilePath, true);
 
             var mainPart = doc.MainDocumentPart;
-            var body = mainPart?.Document.Body;
+            var body = mainPart?.Document?.Body;
             var sections = body?.Descendants<SectionProperties>();
 
             if (mainPart is null || body is null)
@@ -408,7 +409,7 @@ public class CreatePdfFileService : ICreatePdfFileService
                     {
                         if (mainPart.GetPartById(headerRef.Id!) is HeaderPart headerPart)
                         {
-                            var bookmarkStart = headerPart.Header.Descendants<BookmarkStart>()
+                            var bookmarkStart = headerPart.Header?.Descendants<BookmarkStart>()
                                     .FirstOrDefault(b => b.Name == "header");
 
                             if (bookmarkStart != null)
@@ -449,7 +450,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             Table tableFooter = body.Elements<Table>().Last();
             InsertManifestFooterData(tableFooter, items);
 
-            mainPart.Document.Save();
+            mainPart.Document?.Save();
         }
         catch (ArgumentException ex)
         {
@@ -495,7 +496,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             using WordprocessingDocument doc = WordprocessingDocument.Open(FilePath, true);
 
             var mainPart = doc.MainDocumentPart;
-            var body = mainPart?.Document.Body;
+            var body = mainPart?.Document?.Body;
             //var sections = body?.Descendants<SectionProperties>();
 
             //if (mainPart is null || body is null || sections is null)
@@ -526,7 +527,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             InsertCustomsRecordsData(tableExportOrders, items);
             InsertCustomsFooterData(tableFooter, voyage.DateExplanation, voyage.PersonSign);
 
-            mainPart.Document.Save();
+            mainPart.Document?.Save();
         }
         catch (Exception ex)
         {
@@ -551,7 +552,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             { "ContractDated", item.CarrierContractDate ?? string.Empty},
             { "MyCompanyNameRu", item.MyCompanyName ?? string.Empty },
             { "MyCompanyEmail", item.MyCompanyEmail ?? string.Empty },
-            { "Person", item.PersonSign ?? string.Empty }
+            { "Person", string.Concat(item.PersonSign ?? string.Empty, " (т. ", item.PersonPhone ?? string.Empty, ")") }
         };
     };
 
@@ -1100,8 +1101,8 @@ public class CreatePdfFileService : ICreatePdfFileService
             TableRow footerRow = table.Elements<TableRow>().LastOrDefault()!;
             cells = footerRow.Elements<TableCell>().ToArray();
 
-            //UpdateCell(cells[0], "TOTAL:", fontName, fontSize);
-            UpdateCell(cells[2], item.Records.Sum(r => r.PackageQty)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
+            //UpdateCell(cells[2], item.Records.Sum(r => r.PackageQty)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
+            UpdateCell(cells[2], item.Records.Sum(r => r.PackageQty) != 0 ? item.Records.Sum(r => r.PackageQty)!.Value.ToString("N0", numberFormat) : string.Empty, fontName, fontSize, true);
             UpdateCell(cells[4], item.Records.Sum(r => r.GrossWt)?.ToString("N3", numberFormat) ?? string.Empty, fontName, fontSize, true);
             UpdateCell(cells[5], item.Records.Sum(r => r.CntrTareWt)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
         }
@@ -1117,8 +1118,7 @@ public class CreatePdfFileService : ICreatePdfFileService
 
     private static void InsertBillSafetransFooterTable(MainDocumentPart mainPart, ExportOrderFileDto item)
     {
-        //var sections = mainPart.Document.Body?.Descendants<SectionProperties>().ToArray();
-        var sections = mainPart.Document.Descendants<SectionProperties>().ToArray();
+        var sections = mainPart.Document?.Descendants<SectionProperties>().ToArray();
 
         if (sections is null) return;
 
@@ -1243,7 +1243,8 @@ public class CreatePdfFileService : ICreatePdfFileService
         var cellsFooter = footerRow.Elements<TableCell>().ToArray();
 
         UpdateCell(cellsFooter[0], "TOTAL:", fontName, fontSize, true);
-        UpdateCell(cellsFooter[2], itemRecords.Sum(r => r.PackageQty)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
+        //UpdateCell(cellsFooter[2], itemRecords.Sum(r => r.PackageQty)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
+        UpdateCell(cellsFooter[2], itemRecords.Sum(r => r.PackageQty) != 0 ? itemRecords.Sum(r => r.PackageQty)!.Value.ToString("N0", numberFormat) : string.Empty, fontName, fontSize, true);
         UpdateCell(cellsFooter[4], itemRecords.Sum(r => r.CntrTareWt)?.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
         UpdateCell(cellsFooter[5], itemRecords.Sum(r => r.GrossWt)?.ToString("N3", numberFormat) ?? string.Empty, fontName, fontSize, true);
 
@@ -1677,23 +1678,34 @@ public class CreatePdfFileService : ICreatePdfFileService
     }
 
     /// MANAGE CELLS AND ROWS
-    private static void UpdateCell(TableCell cell, string text, string fontName, string fontSize, bool isBold = false)
+
+    private static void UpdateCell(TableCell cell, string content, string fontName, string fontSize, bool isBold = false)
     {
-        Run run = new(new Text(text) { Space = SpaceProcessingModeValues.Preserve })
+        Text text = new(content) { Space = SpaceProcessingModeValues.Preserve };
+
+        Run run = new(text)
         {
-            /// Создаем базовое форматирование
+            // Создаем базовое форматирование
             RunProperties = new RunProperties(
-                new RunFonts() { Ascii = fontName },
+                new RunFonts()
+                {
+                    Ascii = fontName,           // Для латиницы
+                    HighAnsi = fontName,        // Для символов с кодами 80-FF (включая русские)
+                    ComplexScript = fontName    // Для сложных скриптов (включая кириллицу)
+                },
                 new FontSize() { Val = fontSize })
         };
 
         if (isBold)
             run.RunProperties.AddChild(new Bold());
 
-        Paragraph paragraph = cell.Elements<Paragraph>().FirstOrDefault()
-            ?? new Paragraph() { ParagraphProperties = new() { Indentation = new Indentation() { Left = "57" } } };     // 57 twips = 1mm
+        var paragraph = cell.Elements<Paragraph>().FirstOrDefault();
+        if (paragraph == null)
+        {
+            paragraph = new Paragraph() { ParagraphProperties = new() { Indentation = new() { Left = "57" } } };    // 57 twips = 1mm
+            cell.Append(paragraph);
+        }
 
-        /// Записываем данные
         paragraph.Append(run);
     }
 
@@ -2116,4 +2128,24 @@ public class CreatePdfFileService : ICreatePdfFileService
 
         document.SaveToFile(FilePath, SpireDoc.FileFormat.PDF);
     }
+
+    //private static void UpdateCell(TableCell cell, string text, string fontName, string fontSize, bool isBold = false)
+    //{
+    //    Run run = new(new Text(text) { Space = SpaceProcessingModeValues.Preserve })
+    //    {
+    //        /// Создаем базовое форматирование
+    //        RunProperties = new RunProperties(
+    //            new RunFonts() { Ascii = fontName },
+    //            new FontSize() { Val = fontSize })
+    //    };
+
+    //    if (isBold)
+    //        run.RunProperties.AddChild(new Bold());
+
+    //    Paragraph paragraph = cell.Elements<Paragraph>().FirstOrDefault()
+    //        ?? new Paragraph() { ParagraphProperties = new() { Indentation = new Indentation() { Left = "57" } } };     // 57 twips = 1mm
+
+    //    /// Записываем данные
+    //    paragraph.Append(run);
+    //}
 }

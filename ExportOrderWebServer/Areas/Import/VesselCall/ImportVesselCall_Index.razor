@@ -282,7 +282,7 @@
 
     private async Task RemoveItemDetail_Click(long id, string pod)
     {
-        bool? msgResult = await DialogService.ShowMessageBox("REMOVE",
+        bool? msgResult = await DialogService.ShowMessageBoxAsync("REMOVE",
                                                              (MarkupString)$"Do you want Delete record?<br/>For discharge port:<b>{pod}</b>",
                                                              yesText: "DELETE!", cancelText: "NO");
 

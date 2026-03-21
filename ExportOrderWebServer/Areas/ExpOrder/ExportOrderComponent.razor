@@ -281,9 +281,10 @@
     {
         if (Items is null || !Items.Any()) return;
      
-        bool? result = await DialogService.ShowMessageBox("Delete",
-                                    (MarkupString)$"Do you want to Delete record?<br/><b>{num}</b>",
-                                    yesText: "DELETE!", cancelText: "NO");
+        bool? result = await DialogService.ShowMessageBoxAsync(
+            "Delete",
+            (MarkupString)$"Do you want to Delete record?<br/><b>{num}</b>",
+            yesText: "DELETE!", cancelText: "NO");
 
         if (result.HasValue)
             if (result.Value)
@@ -325,7 +326,7 @@
 
         if (dialogResult is not null && !dialogResult.Canceled && dialogResult.Data is not null)
         {
-            bool? questionResult = await DialogService.ShowMessageBox(
+            bool? questionResult = await DialogService.ShowMessageBoxAsync(
                     "Set New Vessel CALL?",
                     "Do you want to Roll Export Order(s)?",
                     yesText: "Yes", cancelText: "No");

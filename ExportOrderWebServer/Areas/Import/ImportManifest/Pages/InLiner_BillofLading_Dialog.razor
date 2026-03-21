@@ -85,11 +85,11 @@
 
     private async void MakeSwitch_Click()
     {
-        _mudForm?.Validate();
+        _mudForm?.ValidateAsync();
         if (!_mudForm!.IsValid)
             return;
 
-        bool? msgResult = await DialogService.ShowMessageBox(
+        bool? msgResult = await DialogService.ShowMessageBoxAsync(
             "Save",
             $"Do you want to Save amendments?",
             yesText: "Yes",

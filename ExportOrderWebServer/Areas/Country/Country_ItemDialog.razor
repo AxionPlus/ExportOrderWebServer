@@ -67,7 +67,7 @@
     {
         if (Item is null || Form is null) return;
 
-        await Form.Validate();
+        await Form.ValidateAsync();
 
         if (!Form.IsValid) return;
 

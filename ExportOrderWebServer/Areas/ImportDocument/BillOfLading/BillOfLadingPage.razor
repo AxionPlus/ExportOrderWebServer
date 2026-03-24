@@ -49,6 +49,7 @@
         <ToolBarIconButton Icon="@Icons.Material.Filled.FileDownloadDone" OnClick="OnCustomerCopy" Color="Color.Info" TooltipText="Customer Copy" />
         <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenUploadDialog" Color="Color.Secondary" TooltipText="Upload XML Manifest" />
         <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenTsDataUploadDialog" Color="Color.Secondary" TooltipText="TsData Upload" />
+        <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenEmptyBlUploadDialog" Color="Color.Secondary" TooltipText="Empty Bl Upload" />
     </RightContent>
 </ToolBar>
 <!-- Заголовок страницы -->
@@ -106,31 +107,17 @@
             ToYandex
         </MudButton>
 
-        <MudMenu Dense>
-            <ActivatorContent>
-                <MudButton Variant="Variant.Outlined"
-                           Color="Color.Primary"
-                           Size="Size.Small"
-                           StartIcon="@Icons.Material.Filled.Download"
-                           Disabled="@(SelectedVesselCallId == Guid.Empty || isLoading)">
-                    @if (isLoading)
-                    {
-                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                    }
-                    Download Menu
-                </MudButton>
-            </ActivatorContent>
-            <ChildContent>
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Export to Excel" OnClick="ExportBillOfLadingsToExcel" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Translate Excel" OnClick="ExportBillOfLadingsForTranslateToExcel" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Arrival Notice" OnClick="ExportArrivalNoticeToExcel" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Cargo Manifest" OnClick="ExportCargoManifestToExcel" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="DG Manifest" OnClick="ExportDGCargoManifestToExcel" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Feeder Bl" OnClick="ExportFeederBillOfLadingToExcel" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Obligation" OnClick="ObligationToExcel" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Xml" OnClick="Xml" />
-                <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Fill Bill" OnClick="ExportFillBillToExcel" />
-            </ChildContent>
+
+        <MudMenu Label="@(isLoading ? "Loading..." : "Download Menu")" Dense="true" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Download" Disabled="@(SelectedVesselCallId == Guid.Empty || isLoading)" Variant="Variant.Outlined">
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Export to Excel" OnClick="ExportBillOfLadingsToExcel" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Translate Excel" OnClick="ExportBillOfLadingsForTranslateToExcel" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Arrival Notice" OnClick="ExportArrivalNoticeToExcel" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Cargo Manifest" OnClick="ExportCargoManifestToExcel" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="DG Manifest" OnClick="ExportDGCargoManifestToExcel" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Feeder Bl" OnClick="ExportFeederBillOfLadingToExcel" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Obligation" OnClick="ObligationToExcel" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Xml" OnClick="Xml" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Fill Bill" OnClick="ExportFillBillToExcel" />
         </MudMenu>
     }
 </Container>
@@ -983,5 +970,31 @@
             Snackbar.Add($"Error: {ex.Message}", Severity.Error);
         }
     }
+
+    private async Task OpenEmptyBlUploadDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["VesselCall"] = SelectedVesselCall
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            BackdropClick = false,
+        };
+
+        var dialog = await DialogService.ShowAsync<UploadEmptyBillOfLadingDialog>("Upload Empty BillOfLading", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await OnVesselCallChanged();
+        }
+    }
+
+
 
 }

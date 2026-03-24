@@ -1,0 +1,316 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Services
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+@using ClosedXML.Excel;
+@using ExportOrderWebServer.Areas.ImportDocument.Extensions
+@using ExportOrderWebServer.Areas.ImportDocument.Port.Dto
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@inject IVesselCallService VesselCallService
+@inject IDialogService DialogService
+
+@inject IXMLParserService _parserService;
+@inject IBillOfLadingService _billOfLadingService;
+
+
+<MudDialog>
+    <DialogContent>
+        
+        <MudFileUpload @bind-Files=@_file>
+            <CustomContent>
+                <MudButton Variant="Variant.Filled"
+                           OnClick="@context.OpenFilePickerAsync"
+                           Color="Color.Primary">
+                    Choose file
+                </MudButton>
+            </CustomContent>
+        </MudFileUpload>
+
+
+        @if (BillOfLadingBaseDto == null)
+        {
+            <MudSkeleton Height="10px" />
+            <MudSkeleton Height="10px" />
+            <MudSkeleton Height="10px" />
+
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="110px" />
+        }
+        else
+        {
+
+            <div><span style="font-weight:500">Num:</span> @BillOfLadingBaseDto.Num</div>
+            <div><span style="font-weight:500">TsDate:</span> @BillOfLadingBaseDto.TsDate</div>
+            <div><span style="font-weight:500">TsPort:</span> @BillOfLadingBaseDto.TsPort?.IsoCode</div>
+            <div><span style="font-weight:500">Pol:</span> @BillOfLadingBaseDto.Pol?.IsoCode</div>
+            <div><span style="font-weight:500">Pod:</span> @BillOfLadingBaseDto.Pod</div>
+            <div><span style="font-weight:500">Shipper:</span> @BillOfLadingBaseDto.Shipper</div>
+            <div><span style="font-weight:500">Shipper Address:</span> @BillOfLadingBaseDto.ShipperAddress</div>
+            <div><span style="font-weight:500">Consignee:</span> @BillOfLadingBaseDto.Consignee</div>
+            <div><span style="font-weight:500">Consignee Address:</span> @BillOfLadingBaseDto.ConsigneeAddress</div>
+            <div><span style="font-weight:500">Cargo Description:</span> @BillOfLadingBaseDto.CargoDescription</div>
+        
+        
+            <MudSimpleTable Style="height:500px;margin-top:10px" FixedHeader Hover Dense>
+                <thead>
+                    <tr>
+                        <th>Container</th>
+                        <th>Type</th>
+                        <th>TareWt</th>
+                        <th>F/E</th>
+                        <th>Package</th>
+                        <th>GrossWgt</th>
+   
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in BillOfLadingBaseDto.ContainerRecords)
+                    {
+                        <tr>
+                   
+                            <td>@record.ContainerNo</td>
+                            <td>@record.ContainerTypeId</td>
+                            <td>@record.TareWt</td>
+                            <td>@record.FullOrEmpty</td>
+                            <td>@record.PackageType</td>
+                            <td>@record.GrossWeight</td>
+                    
+                    
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        
+        @if (_file != null || BillOfLadingBaseDto != null)
+        {
+            <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Error">
+                Cancel
+            </MudButton>
+        }
+        @if (BillOfLadingBaseDto != null)
+        {
+            <MudButton OnClick="OnSave" Variant="Variant.Text" Color="Color.Success" Disabled="@(isUploading)">Save</MudButton>
+        }
+        else if (_file != null)
+        {
+            <MudButton OnClick="UploadAsync"
+                       Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       Disabled="@(isUploading)"
+                       StartIcon="@Icons.Material.Filled.Upload">
+                @(isUploading ? "Uploading..." : "Upload")
+            </MudButton>
+        }
+     
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public VesselCallDto? VesselCall { get; set; }
+    private MudForm form;
+    private bool isValid = true;
+    private bool isUploading = false;
+    private UploadManifestResponse? UploadManifestResponse;
+    private System.Timers.Timer _progressTimer;
+    private bool _isDisposed;
+    private BillOfLadingBaseDto? BillOfLadingBaseDto;
+
+    double _value = 0;
+    private IBrowserFile? _file;
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+
+    private void UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        if (files == null)
+        {
+            this.files = new List<IBrowserFile>();
+            return;
+        }
+        foreach (var file in files)
+            if (!this.files.Contains(file))
+            {
+                this.files.Add(file);
+            }
+        //TODO upload the files to the server
+    }
+
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        int order = 0;
+        double len = bytes;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+
+    private void Cancel()
+    {
+        files = new List<IBrowserFile>();
+    }
+
+    private async Task UploadAsync()
+    {
+
+        if (_file == null) return;
+        isUploading = true;
+        StateHasChanged();
+
+        UploadManifestResponse = new UploadManifestResponse();
+
+
+
+
+        try
+        {
+            UploadManifestResponse.ProcessedFiles++;
+
+            using var memoryStream = new MemoryStream();
+            await _file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            BillOfLadingBaseDto = ParseXls(memoryStream);
+
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error '{_file.Name}': {ex.Message}");
+            isUploading = false;
+        }
+
+
+
+
+        StateHasChanged();
+
+
+        files = new List<IBrowserFile>();
+
+        isUploading = false;
+        StateHasChanged();
+    }
+
+
+    private BillOfLadingBaseDto ParseXls(MemoryStream memoryStream)
+    {
+        var parsedBills = new List<BillOfLadingBaseDto>();
+        using var workbook = new XLWorkbook(memoryStream);
+
+        // Поиск листа с названием "TS" или содержащего "TS"
+        var worksheet = workbook.Worksheets.FirstOrDefault();
+
+        if (worksheet == null)
+        {
+            throw new InvalidOperationException("Не найден лист с данными");
+        }
+
+
+        var billOfLading = new BillOfLadingBaseDto
+        {
+            Num = worksheet.Cell(2, 2).GetValue<string>(),
+            TsDate = worksheet.Cell(3, 2).GetValue<string>().ParseDate(),
+            Date = worksheet.Cell(3, 2).GetValue<string>().ParseDate(),
+            TsPort = new PortDto { IsoCode = worksheet.Cell(5, 2).GetValue<string>() },
+            Pol = new PortDto { IsoCode = worksheet.Cell(5, 2).GetValue<string>() },
+            Pod = worksheet.Cell(6, 2).GetValue<string>(),
+
+            Shipper = worksheet.Cell(7, 2).GetValue<string>(),
+            ShipperAddress = worksheet.Cell(8, 2).GetValue<string>(),
+            Consignee = worksheet.Cell(9, 2).GetValue<string>(),
+            ConsigneeAddress = worksheet.Cell(10, 2).GetValue<string>(),
+            CargoDescription = worksheet.Cell(11, 2).GetValue<string>(),
+        };
+
+        // start from  12 row
+
+        var lastRow = worksheet.LastRowUsed();
+
+        for (int row = 12; row <= lastRow.RowNumber(); row++)
+            if (!string.IsNullOrWhiteSpace(worksheet.Cell(row, 2).GetValue<string>()))
+            {
+                var record = new BillOfLadingContainerRecordBaseDto
+                {
+                    ContainerNo = worksheet.Cell(row, 2).GetValue<string>(),
+                    ContainerTypeId = worksheet.Cell(row, 3).GetValue<string>(),
+                    TareWt = worksheet.Cell(row, 4).GetValue<int>(),
+                    FullOrEmpty = worksheet.Cell(row, 5).GetValue<string>(),
+                    PackageType = worksheet.Cell(row, 7).GetValue<string>(),
+                    GrossWeight = worksheet.Cell(row, 8).GetValue<double>(),
+
+                };
+
+                billOfLading.ContainerRecords.Add(record);
+
+            }
+
+
+
+        return billOfLading;
+    }
+
+
+    private void StartProgressTimer()
+    {
+        _progressTimer = new System.Timers.Timer(2000);
+        _progressTimer.Elapsed += async (sender, e) =>
+        {
+            _value++;
+            if (_value > 99) _value = 1;
+
+            await InvokeAsync(StateHasChanged);
+        };
+        _progressTimer.Start();
+    }
+
+    private void StopProgressTimer()
+    {
+        if (_progressTimer != null)
+        {
+            _progressTimer.Stop();
+            _progressTimer.Dispose();
+            _progressTimer = null;
+        }
+    }
+
+    public void Dispose()
+    {
+        _isDisposed = true;
+        StopProgressTimer();
+    }
+
+    private async Task OnSave()
+    {
+        isUploading = true;
+        StateHasChanged();
+        try
+        {
+            BillOfLadingBaseDto.VesselCall = VesselCall;
+            BillOfLadingBaseDto.VesselCallId = VesselCall.Id;
+
+            await _billOfLadingService.CreateAsync(BillOfLadingBaseDto);
+
+        }
+        catch (Exception ex)
+        {
+       
+            Snackbar.Add($"Error: {ex.Message}");
+        }
+        finally
+        {
+            isUploading = true;
+            StateHasChanged();
+        }
+    }
+
+}

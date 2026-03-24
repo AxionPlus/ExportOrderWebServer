@@ -27,7 +27,7 @@
                         <VesselVoaygeSelector @bind-VesselCall="@VesselCall" />
                         <div>
                             <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".xml" MaximumFileCount="100">
-                                <ActivatorContent>
+                                <CustomContent>
                                     @if (!isUploading)
                                     {
                                         <MudButton Variant="Variant.Filled"
@@ -44,7 +44,7 @@
                                             Multiple Files
                                         </MudButton>
                                     }
-                                </ActivatorContent>
+                                </CustomContent>
                             </MudFileUpload>
                         </div>
                     </div>
@@ -249,6 +249,13 @@
 
     private void UploadFiles(IReadOnlyList<IBrowserFile> files)
     {
+        if (files == null)
+        {
+            this.files = new List<IBrowserFile>();
+            return;
+        }
+
+
         foreach (var file in files)
             if (!this.files.Contains(file))
             {
@@ -348,7 +355,7 @@
         var doubleAtFiles = parsedBills.GroupBy(n => n.Num).Where(s => s.Count() > 1).ToList();
         var doubleAtFilesNum = doubleAtFiles.Select(s => s.Key);
 
-        UploadManifestResponse.ExistedBills = parsedBills.Where(s => existsBills.Any(n => n == s.Num)).Where(s => doubleAtFilesNum.Any(n => n == s.Num)).ToList();
+        UploadManifestResponse.ExistedBills = parsedBills.Where(s => existsBills.Any(n => n == s.Num)).ToList();
         UploadManifestResponse.SkippedBills = UploadManifestResponse.ExistedBills.Count();
         UploadManifestResponse.DuplicateBills = doubleAtFiles.SelectMany(s => s).ToList();
 

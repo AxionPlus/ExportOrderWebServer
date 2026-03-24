@@ -16,28 +16,19 @@
 
 <MudDialog>
     <DialogContent>
-
-        <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".xls,.xlsx" MaximumFileCount="100">
-            <ActivatorContent>
-                @if (!isUploading)
-                {
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.CloudUpload">
-                        Multiple Files
-                    </MudButton>
-                }
-                else
-                {
-                    <MudButton Variant="Variant.Filled" Disabled
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.CloudUpload">
-                        Multiple Files
-                    </MudButton>
-                }
-            </ActivatorContent>
+        
+        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles" Accept=".xls,.xlsx" MaximumFileCount="100">
+            <CustomContent>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="@context.OpenFilePickerAsync"
+                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                    @(isUploading ? "Uploading..." : " Choose file")
+          
+                </MudButton>
+            </CustomContent>
+            <SelectedTemplate />
         </MudFileUpload>
-
 
     </DialogContent>
 
@@ -74,13 +65,9 @@
 
     IList<IBrowserFile> files = new List<IBrowserFile>();
 
-    private void UploadFiles(IReadOnlyList<IBrowserFile> files)
+    private void UploadFiles(IBrowserFile file)
     {
-        foreach (var file in files)
-            if (!this.files.Contains(file))
-            {
-                this.files.Add(file);
-            }
+        files.Add(file);
         //TODO upload the files to the server
     }
 

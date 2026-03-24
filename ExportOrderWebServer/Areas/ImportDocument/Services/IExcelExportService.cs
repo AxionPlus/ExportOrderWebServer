@@ -329,8 +329,8 @@ public class ClosedXmlExcelExportService : IExcelExportService
         // Заголовки столбцов
         var headers = new[]
         {
-            "№ Коносамента", "Дата", "TS Дата", "Код клиента", "Грузоотправитель", "Грузоотправитель RU",
-            "Адрес грузоотправителя", "Грузополучатель", "Грузополучатель RU",
+            "№ Коносамента", "Дата", "TS Дата", "Код Грузоотправитель", "Грузоотправитель", "Грузоотправитель RU",
+            "Адрес грузоотправителя", "Код Грузополучатель","Грузополучатель", "Грузополучатель RU",
             "Адрес грузополучателя", "Адрес RU", "Страна RU", "Порт погрузки",
             "Порт выгрузки", "Описание груза", "Описание груза RU", "Контейнеров",
             "Вес брутто", "Кол-во мест", "Перевод", "Перевозчик"
@@ -357,6 +357,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
             worksheet.Cell(row, column++).Value = bol.ShipperName;
             worksheet.Cell(row, column++).Value = bol.ShipperNameRu;
             worksheet.Cell(row, column++).Value = bol.ShipperAddress;
+            worksheet.Cell(row, column++).Value = bol.ConsigneeCode;
             worksheet.Cell(row, column++).Value = bol.ConsigneeName;
             worksheet.Cell(row, column++).Value = bol.ConsigneeNameRu;
             worksheet.Cell(row, column++).Value = bol.ConsigneeAddress;

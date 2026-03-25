@@ -226,8 +226,10 @@
             Pod = worksheet.Cell(6, 2).GetValue<string>(),
 
             Shipper = worksheet.Cell(7, 2).GetValue<string>(),
+            ShipperName = worksheet.Cell(7, 2).GetValue<string>(),
             ShipperAddress = worksheet.Cell(8, 2).GetValue<string>(),
             Consignee = worksheet.Cell(9, 2).GetValue<string>(),
+            ConsigneeName = worksheet.Cell(9, 2).GetValue<string>(),
             ConsigneeAddress = worksheet.Cell(10, 2).GetValue<string>(),
             CargoDescription = worksheet.Cell(11, 2).GetValue<string>(),
         };
@@ -299,16 +301,16 @@
             BillOfLadingBaseDto.VesselCallId = VesselCall.Id;
 
             await _billOfLadingService.CreateAsync(BillOfLadingBaseDto);
-
+            Snackbar.Add($"save");
         }
         catch (Exception ex)
         {
        
-            Snackbar.Add($"Error: {ex.Message}");
+            Snackbar.Add($"Error: {ex.Message}", Severity.Warning);
         }
         finally
         {
-            isUploading = true;
+            isUploading = false;
             StateHasChanged();
         }
     }

@@ -61,6 +61,15 @@
 
     @if (SelectedVesselCallId != Guid.Parse("00000000-0000-0000-0000-000000000000"))
     {
+        <MudButton OnClick="VesselChangeDialog"
+                   Variant="Variant.Outlined"
+                   Color="Color.Secondary"
+                   Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.Link">
+            Vsl Change
+        </MudButton>
+
+
         <MudButton OnClick="CaptainNameDialog"
                    Variant="Variant.Outlined"
                    Color="Color.Secondary"
@@ -996,5 +1005,28 @@
     }
 
 
+    private async Task VesselChangeDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["VesselCall"] = SelectedVesselCall
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            BackdropClick = false,
+        };
+
+        var dialog = await DialogService.ShowAsync<BillOfLadingShiftVesselCallDialog>("Upload Empty BillOfLading", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await OnVesselCallChanged();
+        }
+    }
 
 }

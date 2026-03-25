@@ -36,6 +36,7 @@ public interface IBillOfLadingService
     Task TranslateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingsDto, CancellationToken cancellationToken = default);
     Task TranshipmentDataAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingsDto, CancellationToken cancellationToken = default);
     Task UpdateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingDtos, VesselCallDto? vesselCall, CancellationToken cancellationToken = default);
+    Task ChangeVesselCallAsync(IEnumerable<string> billOfLadings, VesselCallDto vesselCall, CancellationToken cancellationToken = default);
     Task<IEnumerable<string>> CheckBillNumbersExistsAsync(IEnumerable<string> parsedBillsNum, CancellationToken cancellationToken = default);
 }
 
@@ -125,42 +126,43 @@ public class BillOfLadingService : IBillOfLadingService
 
     public async Task<BillOfLadingBaseDto> CreateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default)
     {
-      
-            // Проверяем уникальность номера BL
-            var exists = await CheckBillNumberExistsAsync(baseDto.Num, null, cancellationToken);
-            if (exists)
-                throw new InvalidOperationException($"Bill of lading with number '{baseDto.Num}' already exists");
 
-            // Проверяем существование связанной сущности VesselCall
-            await ValidateVesselCall(baseDto.VesselCallId, cancellationToken);
+        // Проверяем уникальность номера BL
+        var exists = await CheckBillNumberExistsAsync(baseDto.Num, null, cancellationToken);
+        if (exists)
+            throw new InvalidOperationException($"Bill of lading with number '{baseDto.Num}' already exists");
+
+        // Проверяем существование связанной сущности VesselCall
+        await ValidateVesselCall(baseDto.VesselCallId, cancellationToken);
 
 
 
-            var pol = await _portService.GetByIsoCodeAsync(baseDto.Pol?.IsoCode, cancellationToken);
+        var pol = await _portService.GetByIsoCodeAsync(baseDto.Pol?.IsoCode, cancellationToken);
 
-            if (pol != null)
-                baseDto.Pol = pol;
-            else
+        if (pol != null)
+            baseDto.Pol = pol;
+        else
+        {
+            var newPol = new PortDto()
             {
-                var newPol = new PortDto()
-                {
-                    NameRu = baseDto.Pol.IsoCode,
-                    NameEn = baseDto.Pol.IsoCode,
-                    CountryEn = baseDto.Pol.IsoCode,
-                    CountryRu = baseDto.Pol.IsoCode,
-                    IsoCode = baseDto.Pol.IsoCode,
-                    PikYugIsoCode = baseDto.Pol.IsoCode,
-                    HandledBySystem = true,
-                };
+                NameRu = baseDto.Pol.IsoCode,
+                NameEn = baseDto.Pol.IsoCode,
+                CountryEn = baseDto.Pol.IsoCode,
+                CountryRu = baseDto.Pol.IsoCode,
+                IsoCode = baseDto.Pol.IsoCode,
+                PikYugIsoCode = baseDto.Pol.IsoCode,
+                HandledBySystem = true,
+            };
 
-                baseDto.Pol = await _portService.CreateAsync(newPol, cancellationToken);
-            }
+            baseDto.Pol = await _portService.CreateAsync(newPol, cancellationToken);
+        }
 
-            var entity = baseDto.ToEntity();
+        var entity = baseDto.ToEntity();
+        entity.TsPortId = pol.Id;
 
-            var createdEntity = await _billOfLadingCrudProvider.CreateAsync(entity, cancellationToken);
-            return createdEntity.ToDto();
-  
+        var createdEntity = await _billOfLadingCrudProvider.CreateAsync(entity, cancellationToken);
+        return createdEntity.ToDto();
+
     }
 
     public async Task<BillOfLadingBaseDto> UpdateAsync(BillOfLadingBaseDto baseDto, CancellationToken cancellationToken = default)
@@ -338,7 +340,7 @@ public class BillOfLadingService : IBillOfLadingService
             }
             if (entity.VesselCall.Terminal.Name == "NLE")
             {
-                entity.ShipperNameRu =  Transliteration.ToCyrillicAdvanced(entity.ShipperName);
+                entity.ShipperNameRu = Transliteration.ToCyrillicAdvanced(entity.ShipperName);
             }
 
 
@@ -373,7 +375,7 @@ public class BillOfLadingService : IBillOfLadingService
             vesselCallId = entity.VesselCallId;
 
 
-             await db.SaveChangesAsync(cancellationToken);
+            await db.SaveChangesAsync(cancellationToken);
         }
 
 
@@ -497,6 +499,26 @@ public class BillOfLadingService : IBillOfLadingService
             await db.SaveChangesAsync(cancellationToken);
         }
 
+
+    }
+
+    public async Task ChangeVesselCallAsync(IEnumerable<string> billOfLadings, VesselCallDto vesselCall,
+        CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+        var billOfLadingEntitys = await db.Set<BillOfLadingBaseEntity>().Where(s => billOfLadings.Any(b => b == s.Num))
+            .ToListAsync<BillOfLadingBaseEntity>(cancellationToken);
+
+        if (!billOfLadingEntitys.Any())
+            return;
+
+        foreach (var billOfLadingEntity in billOfLadingEntitys)
+        {
+            billOfLadingEntity.VesselCallId = vesselCall.Id;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
 
     }
 

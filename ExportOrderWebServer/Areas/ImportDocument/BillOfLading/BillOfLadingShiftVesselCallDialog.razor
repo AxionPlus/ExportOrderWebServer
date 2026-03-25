@@ -1,0 +1,27 @@
+﻿@using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
+@using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
+@inject IBillOfLadingService _billOfLadingService
+<VesselVoaygeSelector @bind-VesselCall="@VesselCall" />
+
+<MudTextField T="string" @bind-Value="@billoflading" Lines="15" />
+
+<MudButton OnClick="OnSave" Variant="Variant.Filled" Color="Color.Info">Save</MudButton>
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public VesselCallDto? VesselCall { get; set; }
+
+    string? billoflading = String.Empty;
+
+
+    private async Task OnSave()
+    {
+        if (string.IsNullOrWhiteSpace(billoflading)) return;
+
+        var billofladings = billoflading.Split("\n").Select(s => s.Trim());
+
+
+        await _billOfLadingService.ChangeVesselCallAsync(billofladings, VesselCall);
+    }
+
+}

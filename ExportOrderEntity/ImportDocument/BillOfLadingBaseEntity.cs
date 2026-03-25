@@ -15,8 +15,9 @@ public class BillOfLadingBaseEntity : BaseEntity
 
     public DateTime? TsDate { get; set; } //BLDate
 
-    [ForeignKey("TsPort")]
     public Guid? TsPortId { get; set; } //BLDate
+
+    [ForeignKey("TsPortId")]
     public PortBaseEntity? TsPort { get; set; } //BLDate
     public string? Carrier { get; set; }
 
@@ -25,8 +26,9 @@ public class BillOfLadingBaseEntity : BaseEntity
     public string Origin { get; set; } = string.Empty;
 
 
-    [ForeignKey("Pol")]
     public Guid? PolId { get; set; } //BLDate
+
+    [ForeignKey("PolId")]
     public PortBaseEntity? Pol { get; set; } //BLDate
     public string Pod { get; set; } = string.Empty;
     public string FinalPod { get; set; } = string.Empty;

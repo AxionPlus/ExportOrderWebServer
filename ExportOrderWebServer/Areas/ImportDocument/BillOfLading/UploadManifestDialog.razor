@@ -31,17 +31,20 @@
                                     @if (!isUploading)
                                     {
                                         <MudButton Variant="Variant.Filled"
+
                                                    Color="Color.Primary"
+                                                   OnClick="@context.OpenFilePickerAsync"
                                                    StartIcon="@Icons.Material.Filled.CloudUpload">
-                                            Multiple Files
+                                            Choose files
                                         </MudButton>
                                     }
                                     else
                                     {
                                         <MudButton Variant="Variant.Filled" Disabled
                                                    Color="Color.Primary"
+                                                   OnClick="@context.OpenFilePickerAsync"
                                                    StartIcon="@Icons.Material.Filled.CloudUpload">
-                                            Multiple Files
+                                            Choose files
                                         </MudButton>
                                     }
                                 </CustomContent>

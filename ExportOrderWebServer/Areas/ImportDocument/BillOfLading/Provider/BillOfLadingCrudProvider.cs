@@ -116,10 +116,10 @@ public class BillOfLadingCrudProvider : BaseCrudProvider<BillOfLadingBaseEntity>
         if (string.IsNullOrWhiteSpace(container.ContainerNo))
             throw new ArgumentException("Container number is required");
 
-        if (container.NoOfPackage <= 0)
+        if (container.FullOrEmpty == "F" && container.NoOfPackage <= 0)
             throw new ArgumentException("Number of packages must be greater than 0");
 
-        if (container.GrossWeight <= 0)
+        if (container.FullOrEmpty == "F" && container.GrossWeight <= 0)
             throw new ArgumentException("Gross weight must be greater than 0");
     }
 }

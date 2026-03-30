@@ -4,6 +4,7 @@ using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Mapper;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Mapper;
+using ExportOrderWebServer.DataSet;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Mapper;
 
@@ -119,7 +120,7 @@ public static class BillOfLadingMapper
             Id = baseDto.Id,
             IsFinalized = baseDto.IsFinalized,
             Num = baseDto.Num,
-            Date = baseDto.Date.Value,
+            Date = baseDto.Date ?? throw new NullReferenceException($"{baseDto.Num} has no date Bl at XML "),
             TsDate = baseDto.TsDate,
             TsPortId = baseDto.TsPort?.Id,
             Carrier = baseDto.Carrier,

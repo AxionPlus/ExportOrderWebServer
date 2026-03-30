@@ -117,17 +117,12 @@
                     <MudTabPanel Text="Cargo Details (Containers)">
                         <MudCard Elevation="0" Class="ma-2">
                             <MudCardContent>
-                                <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-3">Cargo Description</MudText>
-                                <MudText Typo="Typo.body2">@BillOfLadingDto.CargoDescription</MudText>
-                                <MudMenu ActivationEvent="@MouseEvent.RightClick" Class="w-100">
-                                    <ActivatorContent>
-                                        <MudTextField @bind-Value="@BillOfLadingDto.CargoDescriptionRu" Variant="Variant.Outlined"
-                                                      Label="Cargo Description (RU)" Lines="3" />
-                                    </ActivatorContent>
-                                    <ChildContent>
-                                        <MudMenuItem OnClick="SetForAllContainersCargoDescription">for all containers</MudMenuItem>
-                                    </ChildContent>
+                                <MudMenu StartIcon="@Icons.Material.Filled.MoreVert" Label="Cargo Description" Color="Color.Secondary" Size="Size.Medium" Variant="Variant.Text" Class="mb-3" Style="font-size:16px" ActivationEvent="@MouseEvent.RightClick">
+                                    <MudMenuItem OnClick="SetForAllContainersCargoDescription">for all containers</MudMenuItem>
                                 </MudMenu>
+                                <MudText Typo="Typo.body2">@BillOfLadingDto.CargoDescription</MudText>
+                                <MudTextField @bind-Value="@BillOfLadingDto.CargoDescriptionRu" Variant="Variant.Outlined"
+                                              Label="Cargo Description (RU)" Lines="3" />
                             </MudCardContent>
                         </MudCard>
                         <MudCard Elevation="0" Class="ma-2">
@@ -161,12 +156,12 @@
                                         <MudTd DataLabel="Packages">@context.NoOfPackage</MudTd>
                                         <MudTd DataLabel="CargoDescription" Style="@(string.IsNullOrWhiteSpace(context.CargoDescriptionRu) ? "background-color: aliceblue;" : "")">
                                             <div style="width: 500px;
-                                                                                                                                                        word-wrap: break-word;
-                                                                                                                                                        white-space: normal;
-                                                                                                                                                        overflow: hidden;
-                                                                                                                                                        text-overflow: ellipsis;
-                                                                                                                                                        display: -webkit-box;
-                                                                                                                                                        -webkit-box-orient: vertical;">
+                                                word-wrap: break-word;
+                                                white-space: normal;
+                                                overflow: hidden;
+                                                text-overflow: ellipsis;
+                                                display: -webkit-box;
+                                                -webkit-box-orient: vertical;">
                                                 @context.CargoDescriptionRu
                                             </div>
                                         </MudTd>

@@ -271,32 +271,48 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
         {
             foreach (var container in billOfLading.ContainerRecords)
             {
-                var containerType = new NleContainerType
+
+                NleContainerType containerType;
+
+                if (container.FullOrEmpty?.ToUpper() == "E")
                 {
-                    Prefix = GetContainerPrefix(container.ContainerNo),
-                    Number = GetContainerNumber(container.ContainerNo),
-                    ISOType = container.IsoCode,
-                    IsEmpty = container.FullOrEmpty?.ToUpper() == "E",
-                    TareWeight = FormatNleWeight(container.TareWt),
-                    CargoName = container.CargoDescriptionRu ?? throw new NullReferenceException($"CargoDescriptionRu is null - {billOfLading}/{container.ContainerNo}"),
-                    oversized = container.OutOfGauge ? "true" : "false",
-                    NumberOfUnits = container.NoOfPackage.ToString(),
-                    CargoWeight = FormatNleWeight(container.GrossWeight),
-                    SealList = new SealListType
+                     containerType = new NleContainerType
                     {
-                        Seals = ParseSealList(container.SealNo)
-                    },
+                        Prefix = GetContainerPrefix(container.ContainerNo),
+                        Number = GetContainerNumber(container.ContainerNo),
+                        ISOType = container.IsoCode,
+                        IsEmpty = container.FullOrEmpty?.ToUpper() == "E",
+                        TareWeight = FormatNleWeight(container.TareWt),
+                    };
+                }
+                else
+                {
+                     containerType = new NleContainerType
+                    {
+                        Prefix = GetContainerPrefix(container.ContainerNo),
+                        Number = GetContainerNumber(container.ContainerNo),
+                        ISOType = container.IsoCode,
+                        IsEmpty = container.FullOrEmpty?.ToUpper() == "E",
+                        TareWeight = FormatNleWeight(container.TareWt),
+                        CargoName = container.CargoDescriptionRu ?? throw new NullReferenceException($"CargoDescriptionRu is null - {billOfLading}/{container.ContainerNo}"),
+                        oversized = container.OutOfGauge ? "true" : "false",
+                        NumberOfUnits = container.NoOfPackage.ToString(),
+                        CargoWeight = FormatNleWeight(container.GrossWeight),
+                        SealList = new SealListType
+                        {
+                            Seals = ParseSealList(container.SealNo)
+                        },
 
-                    CustomKindPlanOut = billOfLading.CustomsMode ?? "ГТД"
-                };
-
+                        CustomKindPlanOut = billOfLading.CustomsMode ?? "ГТД"
+                    };
+                }
                 // Добавляем температурные условия для рефрижераторов
                 if (!string.IsNullOrEmpty(container.ReeferTemp))
                 {
                     containerType.TemperatureCondition = new TemperatureConditionType
                     {
                         Value = GetTemperatureValue(container),
-                        Unit =  "C"
+                        Unit = "C"
                     };
                 }
 
@@ -326,16 +342,14 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
         {
             var serializer = new XmlSerializer(typeof(T));
 
-            using (var memoryStream = new MemoryStream())
-            using (var streamWriter = new StreamWriter(memoryStream, Encoding.GetEncoding("windows-1251")))
-            {
-                var namespaces = new XmlSerializerNamespaces();
-                namespaces.Add("", "");
+            using var memoryStream = new MemoryStream();
+            using var streamWriter = new StreamWriter(memoryStream, Encoding.GetEncoding("windows-1251"));
+            var namespaces = new XmlSerializerNamespaces();
+            namespaces.Add("", "");
 
-                serializer.Serialize(streamWriter, obj, namespaces);
-                streamWriter.Flush();
-                return memoryStream.ToArray();
-            }
+            serializer.Serialize(streamWriter, obj, namespaces);
+            streamWriter.Flush();
+            return memoryStream.ToArray();
         }
         // Генерация номера документа
         private string GenerateDocNumber(VesselCallDto vesselCall) => $"{DateTime.UtcNow:yyyyMMdd}_{vesselCall.Vessel?.Name?.Replace(" ", "_")}_{vesselCall.VoyageNo}";

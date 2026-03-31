@@ -3,6 +3,7 @@
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Services
 @using ExportOrderWebServer.Areas.ImportDocument.Customer.Services
+@using ExportOrderWebServer.Areas.ImportDocument.Services
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
 
 @inject IBillOfLadingService BillOfLadingService
@@ -11,7 +12,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject ICustomerService _customerService;
-
+@inject IJSRuntime JSRuntime
 
 
 <MudPaper Class="pa-4 h-100" Elevation="1">
@@ -42,6 +43,7 @@
                 </MudSelect>
             </div>
             <div>
+                <MudButton Color="Color.Info" Variant="Variant.Outlined" OnClick="OnXml">Xml</MudButton>
                 @if (BillOfLadingDto.IsFinalized)
                 {
                     <MudButton Color="Color.Warning" Variant="Variant.Outlined" OnClick="OnUnlock">Unlock</MudButton>
@@ -53,7 +55,7 @@
                     <MudButton Color="Color.Warning" Variant="Variant.Outlined" OnClick="OnReset">Reset</MudButton>
                     <MudButton Color="Color.Error" OnClick="OnDelete">Delete</MudButton>
                 }
-     
+
             </div>
         </div>
         <!-- Основная информация -->
@@ -249,6 +251,8 @@
     public EventCallback<BillOfLadingBaseDto> OnRequestData { get; set; }
     [Parameter]
     public EventCallback OnVesselCallChanged { get; set; }
+    [Parameter]
+    public Guid SelectedVesselCallId { get; set; }
 
     private bool isLoading = false;
     private BillOfLadingContainerRecordBaseDto elementBeforeEdit { get; set; }
@@ -598,5 +602,48 @@
 
     }
 
+    private async Task OnXml()
+    {
+        try
+        {
+            if (SelectedVesselCallId == Guid.Empty)
+            {
+                Snackbar.Add("Please select a vessel call first", Severity.Warning);
+                return;
+            }
+
+            if (BillOfLadingDto == null)
+            {
+                Snackbar.Add("No bills of lading to export", Severity.Info);
+                return;
+            }
+
+            isLoading = true;
+            StateHasChanged();
+            var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
+            var fileBytes = new XmlExportService().CreateManifestXml(vesselCall, BillOfLadingDto.Num);
+
+            await DownloadFile(fileBytes, $"Xml_{BillOfLadingDto.Num}_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyyHHmmss")}.xml", "application/xml");
+
+            Snackbar.Add($"Successfully Xml created {BillOfLadingDto.Num} ", Severity.Success);
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+    private async Task DownloadFile(byte[] fileBytes, string fileName, string contentType)
+    {
+        // Используем JavaScript для скачивания файла
+        await JSRuntime.InvokeVoidAsync("downloadFileBase64",
+            Convert.ToBase64String(fileBytes),
+            fileName);
+    }
 }
 

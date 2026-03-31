@@ -152,18 +152,10 @@
                 </MudTd>
                 <MudTd>@context.Seq.ToString("000")</MudTd>
                 <MudTd><b>@context.CommodityHSCode</b></MudTd>
-                <MudTd>                    
-                    @* <MudTextField Class="TextField" T="string" Style="width:360px" @bind-Value="@context.CommodityName"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 /> *@
+                <MudTd>
                     <TextField Class="TextField" Style="width:360px" Lines=2 @bind-Value="@context.CommodityName" />
                 </MudTd>
-                <MudTd>
-                    @* <MudTextField Class="TextField" T="string" Style="width:360px" Text="@context.CommodityEngName"
-                                  TextChanged="@((e) => context.CommodityEngName = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper())"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" Lines=2 Required RequiredError=""
-                                  Adornment="Adornment.End" IconSize="Size.Small"
-                                  AdornmentIcon="@Icons.Material.Filled.CopyAll"
-                                  OnAdornmentClick="async () => await ApplyNameEnToAll(context.CommodityEngName.ToUpper())" /> *@
+                <MudTd>                    
                     <TextField Class="TextField" Style="width:360px" Value="@context.CommodityEngName"
                                ValueChanged="@((e) => context.CommodityEngName = ExtraSymbolReplacer.ReplaceExtraSymbols(e).ToUpper())"
                                Lines=2
@@ -190,11 +182,9 @@
                     }
                 </MudTd>
                 <MudTd>
-                    @* <MudTextField Class="TextField IMO" T="string" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="@context.IMO" /> *@
                     <TextField Class="TextField IMO" @bind-Value="@context.IMO" />
                 </MudTd>
                 <MudTd>
-                    @* <MudTextField Class="TextField IMO" T="string" Variant="Variant.Outlined" Margin="Margin.Dense" MaxLength="4" @bind-Value="@context.UNNO" /> *@
                     <TextField Class="TextField IMO" MaxLength="4" @bind-Value="@context.UNNO" />
                 </MudTd>
             </RowTemplate>

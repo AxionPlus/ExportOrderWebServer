@@ -125,7 +125,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
         {
             var containers = new List<Container>();
 
-            foreach (var containerRecord in containerRecords)
+            foreach (var containerRecord in containerRecords.OrderBy(s=>s.ContainerNo))
             {
                 var container = new Container
                 {

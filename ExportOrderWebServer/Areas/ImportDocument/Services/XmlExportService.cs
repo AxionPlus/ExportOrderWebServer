@@ -218,7 +218,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
 
         private void AddContainersToBL(BLType blType, BillOfLadingBaseDto billOfLading)
         {
-            foreach (var container in billOfLading.ContainerRecords)
+            foreach (var container in billOfLading.ContainerRecords.OrderBy(s => s.ContainerNo))
             {
                 if (container.ContainerAsCargo)
                 {
@@ -269,7 +269,7 @@ namespace ExportOrderWebServer.Areas.ImportDocument.Services
 
         private void AddNleContainersToBL(NleBLType blType, BillOfLadingBaseDto billOfLading)
         {
-            foreach (var container in billOfLading.ContainerRecords)
+            foreach (var container in billOfLading.ContainerRecords.OrderBy(s => s.ContainerNo))
             {
 
                 NleContainerType containerType;

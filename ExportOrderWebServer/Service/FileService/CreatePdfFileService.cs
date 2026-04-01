@@ -912,6 +912,7 @@ public class CreatePdfFileService : ICreatePdfFileService
             cells = tableRow.Elements<TableCell>().ToArray();
             UpdateCell(cells[0], item.PortOfDischargeEn ?? string.Empty, fontName, fontSize);
 
+            /// Footer range of the Table
             tableRow = table.Elements<TableRow>().ElementAt(44);
             cells = tableRow.Elements<TableCell>().ToArray();
             UpdateCell(cells[1], string.Concat(
@@ -1132,8 +1133,7 @@ public class CreatePdfFileService : ICreatePdfFileService
                 if (footerRef is null || footerRef.Id == null) continue;
 
                 if (footerRef.Type != null &&
-                    (footerRef.Type.Value == HeaderFooterValues.Default ||
-                     //footerRef.Type.Value == HeaderFooterValues.Even ||
+                    (footerRef.Type.Value == HeaderFooterValues.Default || //footerRef.Type.Value == HeaderFooterValues.Even ||
                      footerRef.Type.Value == HeaderFooterValues.First))
                 {
                     try
@@ -1155,9 +1155,9 @@ public class CreatePdfFileService : ICreatePdfFileService
                             var cells = tableRow.Elements<TableCell>().ToArray();
                             UpdateCell(cells[1], item.Records.Count.ToString("N0", numberFormat) ?? string.Empty, fontName, fontSize, true);
 
-                            tableRow = footerTable.Elements<TableRow>().ElementAt(1);
-                            cells = tableRow.Elements<TableCell>().ToArray();
-                            UpdateCell(cells[1], item.BLDate ?? string.Empty, fontName, fontSize, true);
+                            //tableRow = footerTable.Elements<TableRow>().ElementAt(1);
+                            //cells = tableRow.Elements<TableCell>().ToArray();
+                            //UpdateCell(cells[1], item.BLDate ?? string.Empty, fontName, fontSize, true);
                         }
                     }
                     catch (ArgumentException ex)

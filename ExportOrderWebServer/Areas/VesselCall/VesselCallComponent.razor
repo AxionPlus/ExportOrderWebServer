@@ -90,7 +90,7 @@
                            StartIcon="@Icons.Material.Filled.Download">
                     IMO Manifest
                 </MudButton>
-                <MudButton Class="Button" OnClick="@(async () => { await ViewFileCustomsReport_Click(); })"
+                <MudButton Class="Button" OnClick="@(async () => { await SaveFileCustomsReport_Click(); })"
                            Style="width:142px; margin-bottom:5px"
                            Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
                            StartIcon="@Icons.Material.Filled.Preview">
@@ -328,7 +328,7 @@
         IsLoading = false;
     }
 
-    private async Task ViewFileCustomsReport_Click()
+    private async Task SaveFileCustomsReport_Click()
     {
         long vesselcallid = await GetVoyageId();
         if (vesselcallid == 0) return;
@@ -339,14 +339,19 @@
 
         // Данные для файла
         var dtoItems = await ExportOrderProvider.GetFileDto(vesselcallid, FileType.Customs, cancellationToken: CancellationToken.None);
-
-        // Вывод файла в новую вкладку браузера
+        
+        // Сохранение файла в Word      //// Вывод файла в новую вкладку браузера
         using ICreatePdfFileService pdfService = new CreatePdfFileService();
 
         byte[] fileData = await pdfService.CreateFileCustoms(dtoItems);
 
+        // if (fileData != Array.Empty<byte>())
+        //     await JSRuntime.InvokeVoidAsync("jsOpenPdfInNewTab",
+        //         Convert.ToBase64String(fileData));
+
         if (fileData != Array.Empty<byte>())
-            await JSRuntime.InvokeVoidAsync("jsOpenPdfInNewTab",
+            await JSRuntime.InvokeVoidAsync("jsSaveAsFile",
+                $"Explanation_{Items.FirstOrDefault()?.VoyageNo}.docx",
                 Convert.ToBase64String(fileData));
 
         IsLoading = false;

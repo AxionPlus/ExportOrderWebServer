@@ -1334,10 +1334,6 @@ public class CreatePdfFileService : ICreatePdfFileService
             UpdateCell(cells[2], item.Records?.Sum(r => r.GrossWt)?.ToString("N3", numberFormat) ?? string.Empty, fontName, fontSize);
             UpdateCell(cells[3], item.Records?.Sum(r => r.GrossAndTare)?.ToString("N3", numberFormat) ?? string.Empty, fontName, fontSize);
             UpdateCell(cells[4], item.CommodityShort ?? string.Join(", ", item.Commodities) ?? string.Empty, fontName, fontSize);
-            //if (!string.IsNullOrWhiteSpace(item.CommodityShort))
-            //    UpdateCell(cells[1], item.CommodityShort, fontName, fontSize);
-            //else
-            //    UpdateCellWithCollection(cells[1], item.Commodities, fontName, fontSize);
             UpdateCell(cells[5], item.BLNum ?? string.Empty, fontName, fontSize);
                         
             rowIndex++;

@@ -166,7 +166,7 @@ public class XmlFileReadService : IXmlFileReadService
 
         await Task.Delay(10);
 
-        if (!readDTOs.Any()) return null;
+        if (readDTOs.Count == 0) return null;   //if (!readDTOs.Any()) return null;
 
         return readDTOs;
     }

@@ -216,7 +216,7 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    builder.WebHost.UseUrls(new[] { "http://0.0.0.0:7070" });
+    builder.WebHost.UseUrls(new[] { "http://0.0.0.0:7050" });
 }
 
 // Configure the HTTP request pipeline.

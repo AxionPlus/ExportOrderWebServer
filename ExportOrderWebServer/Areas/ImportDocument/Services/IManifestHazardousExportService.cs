@@ -293,10 +293,10 @@ public class ManifestHazardousExportService : IManifestHazardousExportService
 
         var records = vesselCall.BillOfLadings.Where(s=>s.IsImo).SelectMany(s => s.ContainerRecords).ToList();
 
-        var mty20Qty = records.Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty != "F");
-        var mty40Qty = records.Where(s => s.ContainerTypeId.Contains("40")).Count(s => s.FullOrEmpty != "F");
-        var full20Qty = records.Where(s => s.ContainerTypeId.Contains("20")).Count(s => s.FullOrEmpty == "F");
-        var full40Qty = records.Where(s => s.ContainerTypeId.Contains("40")).Count(s => s.FullOrEmpty == "F");
+        var mty20Qty = records.Where(s => s.ContainerTypeId.Contains("20")).DistinctBy(s => s.ContainerNo.Substring(0,11)).Count(s => s.FullOrEmpty != "F");
+        var mty40Qty = records.Where(s => s.ContainerTypeId.Contains("40")).DistinctBy(s => s.ContainerNo.Substring(0, 11)).Count(s => s.FullOrEmpty != "F");
+        var full20Qty = records.Where(s => s.ContainerTypeId.Contains("20")).DistinctBy(s => s.ContainerNo.Substring(0,11)).Count(s => s.FullOrEmpty == "F");
+        var full40Qty = records.Where(s => s.ContainerTypeId.Contains("40")).DistinctBy(s => s.ContainerNo.Substring(0, 11)).Count(s => s.FullOrEmpty == "F");
 
 
         var mty20Tare = records.Where(s => s.ContainerTypeId.Contains("20")).Where(s => s.FullOrEmpty != "F").Sum(s =>  s.TareWt);

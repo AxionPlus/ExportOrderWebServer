@@ -56,7 +56,7 @@ public class ObligationExcelService : IObligationExcelService
 
         // Получаем все контейнеры из BillOfLadings
         var allContainers = vesselCall.BillOfLadings?
-            .SelectMany(bl => bl.ContainerRecords.Where(s => !s.IsSoc), (bl, record) => new { ContainerNo = record.ContainerNo, IsoCode = $"{record.ContainerTypeId.Substring(2, 2)}{record.ContainerTypeId.Substring(0, 2)}", TareWt = record.TareWt, BillOfLading = bl.Num }).ToList().OrderBy(c => c.ContainerNo);
+            .SelectMany(bl => bl.ContainerRecords.Where(s => !s.IsSoc), (bl, record) => new { ContainerNo = record.ContainerNo, IsoCode = $"{record.ContainerTypeId.Substring(2, 2)}{record.ContainerTypeId.Substring(0, 2)}", TareWt = record.TareWt, BillOfLading = bl.Num }).DistinctBy(s=>s.ContainerNo).ToList().OrderBy(c => c.ContainerNo);
 
         // Разделяем контейнеры на две колонки
         var halfCount = (int)Math.Ceiling(allContainers.Count() / 2.0);

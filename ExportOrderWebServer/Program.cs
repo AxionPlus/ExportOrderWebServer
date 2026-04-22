@@ -100,7 +100,7 @@ services.AddAuthentication().AddCookie(cfg => cfg.SlidingExpiration = true).AddJ
     // options
 });
 #if !DEBUG
-services.AddHostedService<TimedHostedService>();
+//services.AddHostedService<TimedHostedService>();
 #endif
 services.AddRazorPages();
 services.AddServerSideBlazor();

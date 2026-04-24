@@ -38,6 +38,7 @@ public interface IBillOfLadingService
     Task UpdateAsync(IEnumerable<BillOfLadingBaseDto> billOfLadingDtos, VesselCallDto? vesselCall, CancellationToken cancellationToken = default);
     Task ChangeVesselCallAsync(IEnumerable<string> billOfLadings, VesselCallDto vesselCall, CancellationToken cancellationToken = default);
     Task<IEnumerable<string>> CheckBillNumbersExistsAsync(IEnumerable<string> parsedBillsNum, CancellationToken cancellationToken = default);
+    Task SetReeferTempAsync(VesselCallDto vesselCall, IEnumerable<BillOfLadingContainerRecordBaseDto> containerRecords, CancellationToken cancellationToken = default);
 }
 
 public class BillOfLadingService : IBillOfLadingService
@@ -530,6 +531,34 @@ public class BillOfLadingService : IBillOfLadingService
             .Select(s => s.Num).ToListAsync(cancellationToken);
 
         return list;
+    }
+
+    public async Task SetReeferTempAsync(VesselCallDto vesselCall, IEnumerable<BillOfLadingContainerRecordBaseDto> containerRecordDtos, CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+        var containers = containerRecordDtos.Select(s => s.ContainerNo).ToArray();
+
+        var containerRecords = await db.Set<BillOfLadingBaseEntity>().Include(s => s.ContainerRecords)
+            .Where(s => s.VesselCallId == vesselCall.Id)
+            .SelectMany(s => s.ContainerRecords)
+            .Where(s => containers.Contains(s.ContainerNo))
+            .ToListAsync(cancellationToken);
+
+
+        if (!containerRecords.Any())
+            throw new ArgumentException($"not found any records");
+
+
+        foreach (var containerRecord in containerRecords)
+        {
+
+            var dto = containerRecordDtos.First(s => s.ContainerNo == containerRecord.ContainerNo);
+            containerRecord.ReeferTempSign = dto.ReeferTempSign;
+            containerRecord.ReeferTemp = dto.ReeferTemp;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+
     }
 
     private async Task ValidateVesselCall(Guid vesselCallId, CancellationToken cancellationToken)

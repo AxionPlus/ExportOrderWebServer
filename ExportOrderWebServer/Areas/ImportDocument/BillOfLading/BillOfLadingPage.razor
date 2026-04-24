@@ -50,6 +50,7 @@
         <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenUploadDialog" Color="Color.Secondary" TooltipText="Upload XML Manifest" />
         <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenTsDataUploadDialog" Color="Color.Secondary" TooltipText="TsData Upload" />
         <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenEmptyBlUploadDialog" Color="Color.Secondary" TooltipText="Empty Bl Upload" />
+        <ToolBarIconButton Icon="@Icons.Material.Filled.Upload" OnClick="OpenRefTempUploadDialog" Color="Color.Secondary" TooltipText="Ref Temp Upload" />
     </RightContent>
 </ToolBar>
 <!-- Заголовок страницы -->
@@ -672,7 +673,7 @@
             var vesselCall = await VesselCallService.GetByIdForArrivalNoticeAsync(SelectedVesselCallId);
             var fileBytes = new XmlExportService().CreateManifestXml(vesselCall);
 
-            await DownloadFile(fileBytes, $"Xml_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyymmss")}.xml", "application/xml");
+            await DownloadFile(fileBytes, $"Xml_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_{DateTime.Now.ToString("ddMMyyhhmm")}.xml", "application/xml");
 
             Snackbar.Add($"Successfully  Xml created {BillOfLadings.Count} ", Severity.Success);
 
@@ -1021,6 +1022,30 @@
         };
 
         var dialog = await DialogService.ShowAsync<BillOfLadingShiftVesselCallDialog>("Upload Empty BillOfLading", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await OnVesselCallChanged();
+        }
+    }
+
+    private async Task OpenRefTempUploadDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["VesselCall"] = SelectedVesselCall
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            BackdropClick = false,
+        };
+
+        var dialog = await DialogService.ShowAsync<UploadRefTempDialog>("Upload Ref Temp", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

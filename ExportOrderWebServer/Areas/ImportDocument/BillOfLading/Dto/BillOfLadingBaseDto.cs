@@ -2,6 +2,7 @@
 using ExportOrderEntites.ImportDocument;
 using ExportOrderWebServer.Areas.ImportDocument.Port.Dto;
 using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto;
+using Newtonsoft.Json;
 
 namespace ExportOrderWebServer.Areas.ImportDocument.BillOfLading.Dto;
 
@@ -43,6 +44,8 @@ public class BillOfLadingBaseDto : BaseEntity
 
     public string CustomsMode { get; set; } = "ГТД";
     public Guid VesselCallId { get; set; }
+
+    [JsonIgnore]
     public VesselCallDto VesselCall { get; set; }
 
     public List<BillOfLadingContainerRecordBaseDto> ContainerRecords { get; set; } = new();

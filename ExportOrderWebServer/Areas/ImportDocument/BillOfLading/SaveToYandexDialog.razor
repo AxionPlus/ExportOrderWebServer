@@ -1,17 +1,17 @@
 ﻿@using ExportOrderWebServer.Areas.ImportDocument.Services
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Dto
 @using ExportOrderWebServer.Areas.ImportDocument.VesselCall.Services
+@using System.Text.Json
 
-@inject IExcelExportService _excelService;
-@inject IArrivalNoticeExportService _arrivalNoticeExportService;
-@inject IManifestExportService _manifestExportService;
-@inject IManifestHazardousExportService _manifestHazardousExportService;
-@inject IFeederBlExcelService _feederBlExcelService;
-@inject IFillBillExcelService _fillBillExcelService;
-@inject IYandexDiskService _diskService;
+@inject IExcelExportService _excelService
+@inject IArrivalNoticeExportService _arrivalNoticeExportService
+@inject IManifestExportService _manifestExportService
+@inject IManifestHazardousExportService _manifestHazardousExportService
+@inject IFeederBlExcelService _feederBlExcelService
+@inject IFillBillExcelService _fillBillExcelService
+@inject IYandexDiskService _diskService
 @inject IVesselCallService _vesselCallService
 @inject IObligationExcelService _obligationExcelService
-
 @inject ISnackbar Snackbar
 
 <MudContainer>
@@ -40,19 +40,23 @@
         <MudListItem Icon="@Icons.Material.Filled.AttachFile">
             <MudCheckBox Dense T="bool" @bind-Value="@Translate" Disabled="@isLoading">Translate</MudCheckBox>
         </MudListItem>
-
     </MudList>
+
     <div class="d-flex mt-4">
-    <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="OnSave" Disabled="@isLoading" >@(isLoading ? "Loading..." : "Save")</MudButton>
-    <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="() => MudDialog?.Close()" Disabled="@isLoading" >Cancel</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="OnSave" Disabled="@isLoading">
+            @(isLoading ? "Loading..." : "Save")
+        </MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="() => MudDialog?.Close()" Disabled="@isLoading">
+            Cancel
+        </MudButton>
     </div>
 </MudContainer>
 
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     [Parameter] public VesselCallDto? VesselCall { get; set; }
+    
     bool isLoading = false;
-
     bool ArrivalNotice = false;
     bool FeederBl = false;
     bool CargoManifest = false;
@@ -71,107 +75,109 @@
                 Snackbar.Add("Please select a vessel call first", Severity.Warning);
                 return;
             }
+
             isLoading = true;
             StateHasChanged();
 
-            var vesselCall = await _vesselCallService.GetByIdForArrivalNoticeAsync(VesselCall.Id);
-            var uploadDto = new YandexFileUploadDto
-            {
-                VesselName = vesselCall.Vessel?.Name ?? "UnknownVessel",
-                VoyageNo = vesselCall.VoyageNo ?? "0000",
-                FileName = string.Empty,
-                BaseFolderPath = "Документы Импорт"
-            };
-
-            if (!vesselCall.BillOfLadings.Any())
+            var original = await _vesselCallService.GetByIdForArrivalNoticeAsync(VesselCall.Id);
+            
+            if (!original.BillOfLadings.Any())
             {
                 Snackbar.Add("No bills of lading to export", Severity.Warning);
-                isLoading = false;
-                StateHasChanged();
                 return;
             }
 
-   ;
+            var timestamp = DateTime.Now.ToString("ddMMyy_HHmmss");
+            var tasks = new List<Task>();
+
             if (ArrivalNotice)
-            {
-                uploadDto.FileName = $"УВЕДОМЛЕНИЕ_О_ПРИБЫТИИ_ТОВАРОВ_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
-                var fileBytes = await _arrivalNoticeExportService.GenerateArrivalNoticeAsync(vesselCall);
-                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-                Snackbar.Add($"ArrivalNotice-Successfully Save To Yandex", Severity.Success);
-            }
-             if (CargoManifest)
-            {
-                uploadDto.FileName = $"CargoManifest_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
-                var fileBytes = await _manifestExportService.GenerateManifestAsync(vesselCall);
-                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-                Snackbar.Add($"CargoManifest-Successfully Save To Yandex", Severity.Success);
-            }
-             if (DgManifest)
-            {
-                uploadDto.FileName = $"DG_Manifest_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
-                var fileBytes = await _manifestHazardousExportService.GenerateManifestAsync(vesselCall);
-                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-                Snackbar.Add($"DgManifest-Successfully Save To Yandex", Severity.Success);
-            }
-             if (FillBill)
-            {
-                uploadDto.FileName = $"Fill-Bill_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
-                var fileBytes = await _fillBillExcelService.GenerateExcel(vesselCall);
-                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-                Snackbar.Add($"FillBill-Successfully Save To Yandex", Severity.Success);
-            }
-             if (Obligation)
-            {
-                uploadDto.FileName = $"Обязательство_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
-                var fileBytes = await _obligationExcelService.GenerateObligationAsync(vesselCall);
-                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-                Snackbar.Add($"Obligation-Successfully Save To Yandex", Severity.Success);
-            }
-             if (Xml)
-            {
-                uploadDto.FileName = $"Xml-{vesselCall.Terminal.Name}_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xml";
-                var fileBytes = new XmlExportService().CreateManifestXml(vesselCall);
-                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-                Snackbar.Add($"Xml-Successfully Save To Yandex", Severity.Success);
-            }
+                tasks.Add(ExportAsync("ArrivalNotice", $"УВЕДОМЛЕНИЕ_О_ПРИБЫТИИ_ТОВАРОВ_{original.VesselCallFileNameDisplay}_v{timestamp}.xlsx",
+                    async () => await _arrivalNoticeExportService.GenerateArrivalNoticeAsync(DeepClone(original))));
+
+            if (CargoManifest)
+                tasks.Add(ExportAsync("CargoManifest", $"CargoManifest_{original.VesselCallFileNameDisplay}_v{timestamp}.xlsx",
+                    async () => await _manifestExportService.GenerateManifestAsync(DeepClone(original))));
+
+            if (DgManifest)
+                tasks.Add(ExportAsync("DgManifest", $"DG_Manifest_{original.VesselCallFileNameDisplay}_v{timestamp}.xlsx",
+                    async () => await _manifestHazardousExportService.GenerateManifestAsync(DeepClone(original))));
+
+            if (FillBill)
+                tasks.Add(ExportAsync("FillBill", $"Fill-Bill_{original.VesselCallFileNameDisplay}_v{timestamp}.xlsx",
+                    async () => await _fillBillExcelService.GenerateExcel(DeepClone(original))));
+
+            if (Obligation)
+                tasks.Add(ExportAsync("Obligation", $"Обязательство_{original.VesselCallFileNameDisplay}_v{timestamp}.xlsx",
+                    async () => await _obligationExcelService.GenerateObligationAsync(DeepClone(original))));
+
+            if (Xml)
+                tasks.Add(ExportAsync("Xml", $"Xml-{original.Terminal?.Name ?? "Terminal"}_{original.VesselCallFileNameDisplay}_v{timestamp}.xml",
+                    () => Task.FromResult(new XmlExportService().CreateManifestXml(DeepClone(original)))));
+
             if (FeederBl)
-            {
-                uploadDto.FileName = $"Feeder-Bl_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
-                var fileBytes = await _feederBlExcelService.GenerateFeederBlAsync(vesselCall);
-                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-                Snackbar.Add($"FeederBl-Successfully Save To Yandex", Severity.Success);
-            }
-             if (Translate)
-            {
-                uploadDto.FileName = $"Translate_{vesselCall.VesselCallFileNameDisplay}_v{DateTime.Now:ddMMyymmss}.xlsx";
-                var fileBytes = await _excelService.ExportBillOfLadingToExcelForTranslateAsync(vesselCall.BillOfLadings);
-                await _diskService.UploadFileV1Async(fileBytes, uploadDto);
-                Snackbar.Add($"Translate-Successfully Save To Yandex", Severity.Success);
-            }
+                tasks.Add(ExportAsync("FeederBl", $"Feeder-Bl_{original.VesselCallFileNameDisplay}_v{timestamp}.xlsx",
+                    async () => await _feederBlExcelService.GenerateFeederBlAsync(DeepClone(original))));
 
+            if (Translate)
+                tasks.Add(ExportAsync("Translate", $"Translate_{original.VesselCallFileNameDisplay}_v{timestamp}.xlsx",
+                    async () => await _excelService.ExportBillOfLadingToExcelForTranslateAsync(DeepClone(original).BillOfLadings)));
 
-
-            
-
-
+            if (tasks.Any())
+                await Task.WhenAll(tasks);
+            else
+                Snackbar.Add("No export types selected", Severity.Info);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error exporting to Excel: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Export failed: {ex.Message}", Severity.Error);
         }
         finally
         {
             isLoading = false;
-            FeederBl = false;
-            ArrivalNotice = false;
-            CargoManifest = false;
-            DgManifest = false;
-            FillBill = false;
-            Obligation = false;
-            Xml = false;
-            Translate = false;
+            ResetCheckboxes();
             StateHasChanged();
         }
     }
 
+    private async Task ExportAsync(string docName, string fileName, Func<Task<byte[]>> generateFunc)
+    {
+        try
+        {
+            var fileBytes = await generateFunc();
+            var uploadDto = new YandexFileUploadDto
+            {
+                VesselName = VesselCall?.Vessel?.Name ?? "UnknownVessel",
+                VoyageNo = VesselCall?.VoyageNo ?? "0000",
+                FileName = fileName,
+                BaseFolderPath = "Документы Импорт"
+            };
+            await _diskService.UploadFileV1Async(fileBytes, uploadDto);
+            
+            // Безопасный вызов UI из параллельной задачи
+            await InvokeAsync(() => Snackbar.Add($"{docName} - Saved to Yandex", Severity.Success));
+        }
+        catch (Exception ex)
+        {
+            await InvokeAsync(() => Snackbar.Add($"{docName} - Error: {ex.Message}", Severity.Error));
+        }
+    }
+
+    // 🔐 Глубокое клонирование через JSON (изолирует все вложенные ссылки)
+    private static T DeepClone<T>(T source)
+    {
+        var options = new JsonSerializerOptions
+        {
+            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
+            WriteIndented = false,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
+        var json = JsonSerializer.Serialize(source, options);
+        return JsonSerializer.Deserialize<T>(json, options)!;
+    }
+
+    private void ResetCheckboxes()
+    {
+        ArrivalNotice = FeederBl = CargoManifest = DgManifest = false;
+        FillBill = Obligation = Xml = Translate = false;
+    }
 }

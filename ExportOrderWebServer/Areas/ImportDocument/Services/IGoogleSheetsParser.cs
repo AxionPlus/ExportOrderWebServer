@@ -30,8 +30,19 @@ public class GoogleSheetsParser : IGoogleSheetsParser
             result.Add(columns);
         }
 
+        if (result.Any(s => s.Length < 7))
+        {
+
+            var missData = result.Where(s => s.Length < 7).ToArray();
+
+            throw new ArgumentException($"check data at rows {string.Join(", ", missData.Select(s => s[1]))}");
+
+        }
+
         foreach (var billOfLadingGroup in result.GroupBy(s => s[1].Trim()))
         {
+
+
             var billOfLading = new BillOfLadingBaseDto
             {
                 Num = billOfLadingGroup.Key,

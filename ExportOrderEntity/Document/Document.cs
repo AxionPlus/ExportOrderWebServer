@@ -11,8 +11,8 @@ public class DocumentEntity : Entity
     public string? Description { get; set; }
     public DocumentCustomer? Shipper { get; set; }      // Change to Not nullable
     public DocumentCustomer? Consignee { get; set; }    // Change to Not nullable
-    public List<DocumentRecord> Records { get; set; } = new List<DocumentRecord>();
+    public List<DocumentRecord> Records { get; set; } = new ();
 
     [JsonIgnore]
-    public IEnumerable<ExportOrderEntity>? ExportOrders { get; set; }    
+    public IEnumerable<ExportOrderEntity>? ExportOrders { get; set; }  
 }

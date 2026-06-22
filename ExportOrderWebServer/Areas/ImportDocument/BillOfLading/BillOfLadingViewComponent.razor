@@ -19,10 +19,21 @@
     @if (BillOfLadingDto != null)
     {
         <div class="d-flex justify-space-between align-center mb-4">
-            <div style="width:200px">
-                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Bl No</MudText>
-                <MudText Typo="Typo.h6" Color="Color.Primary">@BillOfLadingDto.Num</MudText>
-            </div>
+            
+            <MudMenu ActivationEvent="@MouseEvent.LeftClick">
+                <ActivatorContent>
+                    <div @onclick="@context.ToggleAsync" style="cursor: pointer;  width:200px">
+                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Bl No</MudText>
+                        <MudText Typo="Typo.h6" Color="Color.Primary">@BillOfLadingDto.Num</MudText>
+                    </div>
+                                           
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem OnClick="EditBillOfLading"> Edit </MudMenuItem>
+                    <MudMenuItem OnClick="BufferBillOfLadingNum"> Buffer </MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+
             <div style="width:100px">
                 <MudText Typo="Typo.subtitle2" Color="Color.Secondary">POL</MudText>
                 <MudText Typo="Typo.h6">@BillOfLadingDto.Pol?.IsoCode</MudText>
@@ -89,17 +100,23 @@
                             <MudItem xs="12" sm="6">
                                 <MudCard Elevation="0" Class="ma-2">
                                     <MudCardHeader>
-                                        <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.RightClick">
+                                        
+                                        <MudMenu>
                                             <ActivatorContent>
-                                                <MudAvatar Color="Color.Success">
-                                                    <MudIcon Icon="@Icons.Material.Filled.Business" />
-                                                </MudAvatar>
-                                                <MudText Class="ml-1" Style="text-wrap: none" Typo="Typo.subtitle1">Consignee (@BillOfLadingDto.Consignee)</MudText>
+                                                <div @onclick="@context.ToggleAsync" style="cursor: pointer; display:flex;align-items: center;">
+                                                    <MudAvatar Color="Color.Success">
+                                                        <MudIcon Icon="@Icons.Material.Filled.Business" />
+                                                    </MudAvatar>
+                                                    <MudText Class="ml-1" Style="text-wrap: none" Typo="Typo.subtitle1">Consignee (@BillOfLadingDto.Consignee)</MudText>
+
+                                                </div>
+                                           
                                             </ActivatorContent>
                                             <ChildContent>
                                                 <MudMenuItem OnClick="OnFindTranslate"> find translate </MudMenuItem>
                                             </ChildContent>
                                         </MudMenu>
+
                                     </MudCardHeader>
                                     <MudCardContent>
                                         <MudText Typo="Typo.h6"> @BillOfLadingDto.ConsigneeName @BillOfLadingDto.ConsigneeAddress</MudText>
@@ -549,9 +566,24 @@
 
     private async Task OnFindTranslate()
     {
+        if (!string.IsNullOrWhiteSpace(BillOfLadingDto.ConsigneeNameRu) || !string.IsNullOrWhiteSpace(BillOfLadingDto.ConsigneeAddressRu))
+        {
+
+            bool? result = await DialogService.ShowMessageBoxAsync(
+                $"Find translate  {BillOfLadingDto.Num}",
+                (MarkupString)$"Do you want to find translate for  {BillOfLadingDto.Num}?",
+                yesText: "Yes,do it!", cancelText: "No");
+
+            if (!result.HasValue || !result.Value)
+                return;
+
+        }
+
+
+
         try
         {
-       
+
             var customer = await _customerService.GetByCodeAsync(BillOfLadingDto.ConsigneeCode);
 
             BillOfLadingDto.ConsigneeNameRu = customer.NameRu;
@@ -569,8 +601,8 @@
     private async Task OnUnlock()
     {
         bool? result = await DialogService.ShowMessageBoxAsync(
-            $"Unlock  {BillOfLadingDto}",
-            (MarkupString)$"Do you want to Unlock {BillOfLadingDto}?",
+            $"Unlock  {BillOfLadingDto.Num}",
+            (MarkupString)$"Do you want to Unlock {BillOfLadingDto.Num}?",
             yesText: "Yes,do it!", cancelText: "No");
 
         if (!result.HasValue || !result.Value)
@@ -645,5 +677,39 @@
             Convert.ToBase64String(fileBytes),
             fileName);
     }
+    private async Task EditBillOfLading()
+    {
+        var parameters = new DialogParameters
+        {
+            // ["ContentText"] = $"Are you sure you want to delete bill of lading '{BillOfLadingDto.Num}'? This action cannot be undone.",
+            // ["ButtonText"] = "Delete",
+            ["BillOfLadingBase"] = BillOfLadingDto
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large };
+
+        var dialog = await DialogService.ShowAsync<EditBillOfLadingDialog>("Edit Form", parameters, options);
+        var result = await dialog.Result;
+
+       await OnReset();
+    }
+
+    private async Task BufferBillOfLadingNum()
+    {
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("copyToClipboard.copyText", BillOfLadingDto.Num);
+            Snackbar.Add($"Copy", Severity.Info);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+
+
+       
+    }
+
 }
 

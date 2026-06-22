@@ -7,7 +7,7 @@
 @inject ISnackbar Snackbar
 @inject IValidator<BillOfLadingBaseDto> Validator
 
-<MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
+<MudDialog >
     <DialogContent>
         @if (BillToEdit == null)
         {
@@ -50,21 +50,21 @@
                     <MudTabPanel Text="Parties">
                         <MudGrid Class="mt-3">
                             <MudItem xs="12" sm="6">
-                                <MudTextField @bind-Value="BillToEdit.ShipperName"
+                                <MudTextField @bind-Value="BillToEdit.ShipperName" Style="width:400px"
                                            Label="Shipper Name *"
                                            Required="true"/>
                                 <MudTextField @bind-Value="BillToEdit.ShipperCode"
                                            Label="Shipper Code"/>
-                                <MudTextField @bind-Value="BillToEdit.ShipperNameRu"
+                                <MudTextField @bind-Value="BillToEdit.ShipperAddress" Style="width:400px"
                                            Label="Shipper Name (RU)"/>
                             </MudItem>
                             <MudItem xs="12" sm="6">
-                                <MudTextField @bind-Value="BillToEdit.ConsigneeName"
+                                <MudTextField @bind-Value="BillToEdit.ConsigneeName" Style="width:400px"
                                            Label="Consignee Name *"
                                            Required="true"/>
                                 <MudTextField @bind-Value="BillToEdit.ConsigneeCode"
                                            Label="Consignee Code"/>
-                                <MudTextField @bind-Value="BillToEdit.ConsigneeNameRu"
+                                <MudTextField @bind-Value="BillToEdit.ConsigneeAddress" Style="width:400px"
                                               Label="Consignee Name (RU)"/>
 
                             </MudItem>
@@ -80,7 +80,7 @@
                                            Lines="3"/>
                             </MudItem>
                             <MudItem xs="12" sm="4">
-                                <MudTextField @bind-Value="BillToEdit.Pol"
+                                <MudTextField Value="BillToEdit.Pol.NameEn"
                                            Label="POL"/>
                             </MudItem>
                             <MudItem xs="12" sm="4">

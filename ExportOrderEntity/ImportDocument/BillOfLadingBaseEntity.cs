@@ -33,14 +33,14 @@ public class BillOfLadingBaseEntity : BaseEntity
     public string Pod { get; set; } = string.Empty;
     public string FinalPod { get; set; } = string.Empty;
     public string Shipper { get; set; } = string.Empty;
-    public string ShipperCode { get; set; } = string.Empty;
+    public string? ShipperCode { get; set; } = string.Empty;
     public string ShipperName { get; set; } = string.Empty;
     public string ShipperAddress { get; set; } = string.Empty;
 
     public string? ShipperNameRu { get; set; }
 
     public string Consignee { get; set; } = string.Empty;
-    public string ConsigneeCode { get; set; } = string.Empty;
+    public string? ConsigneeCode { get; set; } = string.Empty;
     public string ConsigneeName { get; set; } = string.Empty;
     public string ConsigneeAddress { get; set; } = string.Empty;
 

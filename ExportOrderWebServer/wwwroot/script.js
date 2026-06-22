@@ -1,4 +1,15 @@
-﻿function jsSaveAsFile(filename, byteBase64) {
+﻿window.copyToClipboard = {
+    copyText: function (text) {
+        navigator.clipboard.writeText(text).then(function () {
+            console.log('Copied successfully!');
+        }).catch(function (err) {
+            console.error('Could not copy text: ', err);
+        });
+    }
+};
+
+
+function jsSaveAsFile(filename, byteBase64) {
     var link = document.createElement('a');
     link.download = filename;
     link.href = "data:application/octet-stream;base64," + byteBase64;

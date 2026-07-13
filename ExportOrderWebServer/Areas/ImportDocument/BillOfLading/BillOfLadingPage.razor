@@ -128,6 +128,7 @@
             <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Obligation" OnClick="ObligationToExcel" />
             <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Xml" OnClick="Xml" />
             <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Fill Bill" OnClick="ExportFillBillToExcel" />
+            <MudMenuItem Icon="@Icons.Material.Filled.ArrowRight" IconColor="Color.Info" Label="Last Translate" OnClick="ExportLastTranslateToExcel" />
         </MudMenu>
     }
 </Container>
@@ -1051,6 +1052,31 @@
         if (!result.Canceled)
         {
             await OnVesselCallChanged();
+        }
+    }
+
+    private async Task ExportLastTranslateToExcel()
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+            var cargoName = await BillOfLadingService.LastTranslateAsync();
+            // var fileBytes = await _fillBillExcelService.LastTranslateExcel(cargoName);
+
+            // await DownloadFile(fileBytes, $"FillBill_{vesselCall.Vessel.Name}_{vesselCall.VoyageNo}_ETA{vesselCall.ETA:ddMMyy}_{DateTime.Now.ToString("ddMMyymmss")}", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            // Snackbar.Add($"Successfully exported {BillOfLadings.Count} FillBill", Severity.Success);
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error exporting to Excel: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 

@@ -39,6 +39,8 @@ public interface IBillOfLadingService
     Task ChangeVesselCallAsync(IEnumerable<string> billOfLadings, VesselCallDto vesselCall, CancellationToken cancellationToken = default);
     Task<IEnumerable<string>> CheckBillNumbersExistsAsync(IEnumerable<string> parsedBillsNum, CancellationToken cancellationToken = default);
     Task SetReeferTempAsync(VesselCallDto vesselCall, IEnumerable<BillOfLadingContainerRecordBaseDto> containerRecords, CancellationToken cancellationToken = default);
+
+    Task<Dictionary<string,string>> LastTranslateAsync(CancellationToken cancellationToken = default);
 }
 
 public class BillOfLadingService : IBillOfLadingService
@@ -559,6 +561,22 @@ public class BillOfLadingService : IBillOfLadingService
 
         await db.SaveChangesAsync(cancellationToken);
 
+    }
+
+    public async Task<Dictionary<string, string>> LastTranslateAsync( CancellationToken cancellationToken = default)
+    {
+        await using var db = await _context.CreateDbContextAsync(cancellationToken);
+
+        var dic = await db.Set<BillOfLadingBaseEntity>()
+            .Select(bl => new
+            {
+                eng = bl.CargoDescription,
+                ru = bl.CargoDescriptionRu
+
+
+            }).ToDictionaryAsync(s => s.eng, c => c.ru,cancellationToken);
+
+        return dic;
     }
 
     private async Task ValidateVesselCall(Guid vesselCallId, CancellationToken cancellationToken)

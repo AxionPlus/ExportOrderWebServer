@@ -153,7 +153,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
 
 
         int row = 2;
-        foreach (var bol in billOfLadingList.OrderBy(s=>s.ConsigneeName))
+        foreach (var bol in billOfLadingList.OrderBy(s => s.ConsigneeName))
         {
             detailsWorksheet.Cell(row, 2).Value = bol.Num;
             detailsWorksheet.Cell(row, 5).Value = bol.ConsigneeNameRu;
@@ -235,7 +235,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
         }
 
         // Данные
-        var totalContainers = billOfLadingList.Sum(b => b.TotalContainers);
+        var totalContainers = billOfLadingList.SelectMany(S => S.ContainerRecords.Select(C => C.ContainerNo)).Distinct().Count();
         var totalWeight = billOfLadingList.Sum(b => b.TotalGrossWeight);
         var totalPackages = billOfLadingList.Sum(b => b.TotalNoOfPackage);
         var withTranslation = billOfLadingList.Count(b => b.HasTranslate);
@@ -451,7 +451,7 @@ public class ClosedXmlExcelExportService : IExcelExportService
         }
 
         // Итоги внизу
-        var totalContainers = billOfLadingList.Sum(b => b.TotalContainers);
+        var totalContainers = billOfLadingList.SelectMany(S => S.ContainerRecords.Select(C => C.ContainerNo)).Distinct().Count();
         var totalWeight = billOfLadingList.Sum(b => b.TotalGrossWeight);
         var totalPackages = billOfLadingList.Sum(b => b.TotalNoOfPackage);
 
